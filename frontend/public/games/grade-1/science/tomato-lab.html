@@ -1,0 +1,2347 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آزمایشگاه گوجه - علوم کلاس اول</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap');
+        :root {
+            --tomato: #e74c3c;
+            --tomato-dark: #c0392b;
+            --tomato-light: #ff6b6b;
+            --water: #74b9ff;
+            --water-dark: #0984e3;
+            --wood: #d4a574;
+            --wood-dark: #b8956c;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --purple: #6c5ce7;
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: linear-gradient(180deg, #a8e6cf 0%, #88d8b0 100%);
+            color: #2d3436;
+        }
+        /* صحنه‌ها */
+        .scene {
+            position: relative;
+            min-height: 100vh;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            padding: 20px;
+        }
+        .scene.active {
+            display: flex;
+            opacity: 1;
+        }
+        /* ===== صفحه اصلی ===== */
+        #main-menu {
+            background: linear-gradient(180deg, #a8e6cf 0%, #88d8b0 50%, #6bc5a0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .menu-bg {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .bg-float {
+            position: absolute;
+            font-size: 50px;
+            opacity: 0.15;
+            animation: floatAround 15s ease-in-out infinite;
+        }
+        .bg-float:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .bg-float:nth-child(2) { top: 20%; right: 15%; animation-delay: 3s; font-size: 35px; }
+        .bg-float:nth-child(3) { bottom: 25%; left: 15%; animation-delay: 6s; }
+        .bg-float:nth-child(4) { bottom: 15%; right: 10%; animation-delay: 9s; font-size: 40px; }
+        .bg-float:nth-child(5) { top: 50%; left: 5%; animation-delay: 2s; font-size: 30px; }
+        .bg-float:nth-child(6) { top: 40%; right: 8%; animation-delay: 5s; font-size: 45px; }
+        @keyframes floatAround {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(10px, -20px) rotate(5deg); }
+            50% { transform: translate(-5px, -30px) rotate(-5deg); }
+            75% { transform: translate(15px, -15px) rotate(3deg); }
+        }
+        .menu-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 360px;
+            width: 100%;
+            padding: 20px;
+        }
+        .character-wrapper {
+            margin-bottom: 30px;
+        }
+        .menu-character {
+            width: 140px;
+            height: auto;
+            animation: gentleBounce 2.5s ease-in-out infinite;
+            filter: drop-shadow(0 10px 25px rgba(0,0,0,0.15));
+        }
+        @keyframes gentleBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+        .speech-box {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 24px;
+            margin-top: 15px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .speech-box::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            right: 30px;
+            border: 12px solid transparent;
+            border-bottom-color: white;
+        }
+        .speech-box p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        .menu-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .action-btn {
+            border: none;
+            border-radius: 16px;
+            padding: 16px 30px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--tomato), var(--tomato-dark));
+            color: white;
+        }
+        .action-btn.secondary {
+            background: white;
+            color: #2d3436;
+        }
+        .btn-icon {
+            font-size: 1.3rem;
+        }
+        /* ===== صفحه بازی ===== */
+        #game-scene {
+            background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 60%, #98D8C8 100%);
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        .game-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(180deg, rgba(135,206,235,0.95), rgba(135,206,235,0.8));
+        }
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 50%;
+            background: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .level-indicator {
+            background: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            box-shadow: var(--shadow);
+            font-size: 0.95rem;
+        }
+        .score-display {
+            background: linear-gradient(135deg, var(--warning), #e17055);
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: var(--shadow);
+            font-size: 1rem;
+        }
+        .game-character {
+            position: fixed;
+            top: 70px;
+            right: 10px;
+            z-index: 50;
+        }
+        .game-character img {
+            width: 65px;
+            animation: wave 2s ease-in-out infinite;
+        }
+        @keyframes wave {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+        .game-speech {
+            background: white;
+            border-radius: 15px;
+            padding: 12px 16px;
+            margin-top: 8px;
+            max-width: 180px;
+            box-shadow: var(--shadow);
+            position: relative;
+            animation: popIn 0.4s ease;
+        }
+        .game-speech::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            border: 10px solid transparent;
+            border-bottom-color: white;
+        }
+        .game-speech p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        /* ===== آشپزخانه ===== */
+        .kitchen-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            min-height: 70vh;
+            background: linear-gradient(180deg, #d5d8dc 0%, #b2bec3 100%);
+            border-radius: 20px 20px 0 0;
+            margin-top: 80px;
+            overflow: hidden;
+        }
+        .kitchen-wall {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 35%;
+            background: linear-gradient(180deg, #f5f6fa 0%, #dfe6e9 100%);
+        }
+        .wall-tiles {
+            position: absolute;
+            inset: 0;
+            background:
+                repeating-linear-gradient(90deg, #fff 0px, #fff 55px, #e8e8e8 55px, #e8e8e8 57px),
+                repeating-linear-gradient(0deg, #fff 0px, #fff 55px, #e8e8e8 55px, #e8e8e8 57px);
+            background-size: 57px 57px;
+        }
+        .cabinet-row {
+            position: absolute;
+            top: 8%;
+            left: 5%;
+            right: 5%;
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+        }
+        .cabinet {
+            flex: 1;
+            max-width: 120px;
+            height: 70px;
+            background: linear-gradient(135deg, #d63031, #e17055);
+            border-radius: 8px;
+            box-shadow: inset 0 2px 5px rgba(255,255,255,0.3), 0 4px 10px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .cabinet::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 25px;
+            height: 6px;
+            background: #b8956c;
+            border-radius: 3px;
+        }
+        .counter-top {
+            position: absolute;
+            top: 35%;
+            left: 0;
+            right: 0;
+            height: 25%;
+            background: linear-gradient(180deg, #636e72, #2d3436);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            padding: 0 10%;
+        }
+        /* سینک */
+        .sink-area {
+            position: relative;
+            width: 30%;
+            height: 90%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .faucet-set {
+            position: relative;
+            width: 28px;
+            height: 55px;
+        }
+        .faucet-base {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 32px;
+            height: 14px;
+            background: linear-gradient(180deg, #dfe6e9, #b2bec3);
+            border-radius: 5px;
+        }
+        .faucet-neck {
+            position: absolute;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 30px;
+            background: linear-gradient(90deg, #b2bec3, #dfe6e9, #b2bec3);
+            border-radius: 5px 5px 0 0;
+        }
+        .faucet-head {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 22px;
+            height: 12px;
+            background: linear-gradient(180deg, #dfe6e9, #b2bec3);
+            border-radius: 5px;
+        }
+        .sink-bowl {
+            width: 100%;
+            height: 32px;
+            background: linear-gradient(180deg, #b2bec3, #636e72);
+            border-radius: 8px 8px 15px 15px;
+            margin-top: 5px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .water-stream {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 50px;
+            background: linear-gradient(180deg, transparent, var(--water), var(--water-dark));
+            border-radius: 0 0 5px 5px;
+            opacity: 0;
+        }
+        .water-stream.active {
+            opacity: 1;
+            animation: waterFlow 0.3s linear infinite;
+        }
+        @keyframes waterFlow {
+            0% { background-position: 0 -20px; }
+            100% { background-position: 0 0; }
+        }
+        .water-splash {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            height: 12px;
+            background: radial-gradient(ellipse at center, var(--water) 0%, transparent 70%);
+            opacity: 0;
+        }
+        .water-splash.active {
+            opacity: 0.7;
+            animation: splash 0.4s ease-out infinite;
+        }
+        @keyframes splash {
+            0%, 100% { transform: translateX(-50%) scaleX(0.8); }
+            50% { transform: translateX(-50%) scaleX(1.1); }
+        }
+        /* تخته برش */
+        .cutting-area {
+            width: 25%;
+            height: 80%;
+            display: flex;
+            align-items: flex-end;
+        }
+        .cutting-board {
+            width: 100%;
+            height: 45px;
+            background: linear-gradient(135deg, var(--wood), var(--wood-dark));
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .board-grain {
+            position: absolute;
+            inset: 4px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent 0px,
+                transparent 8px,
+                rgba(0,0,0,0.08) 8px,
+                rgba(0,0,0,0.08) 10px
+            );
+        }
+        .cabinet-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 5%;
+            gap: 10px;
+        }
+        .cabinet-door {
+            flex: 1;
+            max-width: 120px;
+            background: linear-gradient(135deg, #d63031, #e17055);
+            border-radius: 5px;
+            box-shadow: inset 0 2px 5px rgba(255,255,255,0.2), 0 4px 10px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .cabinet-door::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 5px;
+            background: #b8956c;
+            border-radius: 2px;
+        }
+        /* ===== گوجه ===== */
+        .tomato-item {
+            position: absolute;
+            bottom: 42%;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: grab;
+            z-index: 30;
+            touch-action: none;
+        }
+        .tomato-item:active {
+            cursor: grabbing;
+        }
+        .tomato-body {
+            width: 85px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, var(--tomato-light), var(--tomato) 60%, var(--tomato-dark));
+            border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%;
+            position: relative;
+            box-shadow:
+                inset -8px -8px 20px rgba(0,0,0,0.2),
+                inset 8px 8px 20px rgba(255,255,255,0.1),
+                0 8px 20px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+        }
+        .tomato-body.washed {
+            background: radial-gradient(circle at 30% 30%, #ff9999, var(--tomato) 60%, var(--tomato-dark));
+        }
+        .tomato-shine {
+            position: absolute;
+            top: 15%;
+            left: 18%;
+            width: 22px;
+            height: 18px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 50%;
+            transform: rotate(-30deg);
+        }
+        .tomato-stem-group {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .stem-main {
+            width: 12px;
+            height: 10px;
+            background: linear-gradient(180deg, #2ecc71, #27ae60);
+            border-radius: 50% 50% 0 0;
+            margin: 0 auto;
+        }
+        .stem-leaf {
+            position: absolute;
+            width: 14px;
+            height: 18px;
+            background: #2ecc71;
+            border-radius: 50% 0;
+            top: -4px;
+        }
+        .stem-leaf:first-of-type {
+            left: -11px;
+            transform: rotate(-30deg);
+        }
+        .stem-leaf:last-of-type {
+            right: -11px;
+            transform: rotate(30deg) scaleX(-1);
+        }
+        /* گوجه شسته شده */
+        .tomato-washed {
+            position: absolute;
+            bottom: 42%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 30;
+        }
+        .wash-sparkle {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            font-size: 1.5rem;
+            animation: sparkle 1s ease-in-out infinite;
+        }
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.2) rotate(180deg); opacity: 0.7; }
+        }
+        /* گوجه قاچ شده */
+        .tomato-slices {
+            position: absolute;
+            bottom: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 170px;
+            height: 110px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            padding: 10px;
+        }
+        .slice {
+            width: 70px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .slice-inner {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #ff9999 0%, var(--tomato) 60%, var(--tomato-dark) 100%);
+            border-radius: 50%;
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.2);
+            animation: sliceIn 0.5s ease backwards;
+        }
+        .slice.s1 .slice-inner { animation-delay: 0s; }
+        .slice.s2 .slice-inner { animation-delay: 0.1s; transform: rotate(45deg); }
+        .slice.s3 .slice-inner { animation-delay: 0.2s; transform: rotate(-30deg); }
+        .slice.s4 .slice-inner { animation-delay: 0.3s; transform: rotate(15deg); }
+        @keyframes sliceIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        /* گوجه له شده */
+        .tomato-squashed {
+            position: absolute;
+            bottom: 38%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 55px;
+        }
+        .squash-body {
+            width: 120px;
+            height: 45px;
+            background: radial-gradient(ellipse at center, var(--tomato-light), var(--tomato), var(--tomato-dark));
+            border-radius: 50%;
+            margin: 0 auto;
+            animation: squashAnim 0.6s ease;
+        }
+        @keyframes squashAnim {
+            0% { transform: scale(1, 1); }
+            40% { transform: scale(1.3, 0.5); }
+            100% { transform: scale(1.4, 0.3); }
+        }
+        .squash-juice {
+            position: absolute;
+            bottom: 0;
+            height: 14px;
+            background: linear-gradient(180deg, var(--tomato), transparent);
+            border-radius: 50%;
+            animation: juiceSpread 0.5s ease;
+        }
+        .squash-juice.j1 { left: 5%; width: 70px; }
+        .squash-juice.j2 { left: 35%; width: 55px; animation-delay: 0.1s; }
+        .squash-juice.j3 { right: 5%; width: 60px; animation-delay: 0.2s; }
+        @keyframes juiceSpread {
+            0% { transform: scaleX(0.3); opacity: 0; }
+            100% { transform: scaleX(1); opacity: 1; }
+        }
+        /* ===== ناحیه نگه داشتن برای له کردن ===== */
+        .hold-area {
+            position: absolute;
+            bottom: 38%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 120px;
+            z-index: 40;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .hold-hint {
+            font-size: 2rem;
+            animation: pulse 1s ease-in-out infinite;
+            margin-bottom: 5px;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        .hold-progress {
+            width: 80px;
+            height: 10px;
+            background: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .hold-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), #00a884);
+            width: 0%;
+            transition: width 0.05s linear;
+            border-radius: 5px;
+        }
+        /* ===== چاقو ===== */
+        .knife-item {
+            position: absolute;
+            bottom: 42%;
+            right: 12%;
+            width: 95px;
+            height: 24px;
+            cursor: grab;
+            z-index: 25;
+            touch-action: none;
+            transform: rotate(-20deg);
+        }
+        .knife-item:active {
+            cursor: grabbing;
+        }
+        .knife-handle {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            width: 32px;
+            height: 17px;
+            background: linear-gradient(180deg, #a0522d, #8b4513);
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .knife-guard {
+            position: absolute;
+            left: 30px;
+            top: 0;
+            width: 5px;
+            height: 23px;
+            background: linear-gradient(180deg, #dfe6e9, #b2bec3);
+            border-radius: 2px;
+        }
+        .knife-blade {
+            position: absolute;
+            left: 35px;
+            top: 5px;
+            width: 52px;
+            height: 13px;
+            background: linear-gradient(180deg, #dfe6e9, #b2bec3, #636e72);
+            clip-path: polygon(0 30%, 100% 0, 100% 100%, 0 70%);
+        }
+        /* ===== ناحیه‌های هدف ===== */
+        .drop-zone {
+            position: absolute;
+            border: 3px dashed transparent;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 5;
+        }
+        .drop-zone.highlight {
+            border-color: var(--success);
+            background: rgba(0, 184, 148, 0.2);
+            animation: pulseZone 0.8s ease-in-out infinite;
+        }
+        @keyframes pulseZone {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        #sink-zone {
+            bottom: 28%;
+            left: 6%;
+            width: 35%;
+            height: 22%;
+        }
+        #board-zone {
+            bottom: 28%;
+            right: 6%;
+            width: 35%;
+            height: 22%;
+        }
+        /* ===== راهنما ===== */
+        .step-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.4s ease;
+            z-index: 50;
+            white-space: nowrap;
+        }
+        @keyframes slideUp {
+            0% { transform: translateX(-50%) translateY(20px); opacity: 0; }
+            100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+        .hint-icon {
+            font-size: 1.3rem;
+            animation: bounce 1s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .hint-text {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        /* ===== کنترل‌ها ===== */
+        .game-controls {
+            position: fixed;
+            bottom: 80px;
+            left: 15px;
+            display: flex;
+            gap: 10px;
+            z-index: 50;
+        }
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .control-btn:active {
+            transform: scale(0.9);
+        }
+        .control-btn.hint {
+            background: var(--warning);
+        }
+        .control-btn.action {
+            width: auto;
+            padding: 0 25px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, var(--success), #00a884);
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            gap: 8px;
+        }
+        /* ===== صفحه سوالات ===== */
+        #question-scene {
+            background: linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .question-wrapper {
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            padding-top: 60px;
+        }
+        .q-character {
+            margin-bottom: 20px;
+        }
+        .q-character img {
+            width: 75px;
+            animation: wave 2s ease-in-out infinite;
+        }
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow-lg);
+            animation: popIn 0.5s ease;
+        }
+        .q-number {
+            color: var(--water-dark);
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+        .q-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+        }
+        .option-btn {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 3px solid transparent;
+            border-radius: 16px;
+            padding: 20px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+                        font-family: inherit;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-height: 100px;
+        }
+        .option-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .option-btn:active {
+            transform: scale(0.95);
+        }
+        .option-btn.correct {
+            background: linear-gradient(135deg, var(--success), #00a884);
+            border-color: #00a884;
+            color: white;
+            animation: correctPop 0.5s ease;
+        }
+        .option-btn.wrong {
+            background: linear-gradient(135deg, var(--tomato), var(--tomato-dark));
+            border-color: var(--tomato-dark);
+            color: white;
+            animation: shake 0.5s ease;
+        }
+        @keyframes correctPop {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        .option-icon {
+            font-size: 3rem;
+        }
+        .option-text {
+            display: none;
+        }
+        .answer-feedback {
+            margin-top: 20px;
+            padding: 25px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            animation: popIn 0.5s ease;
+        }
+        .feedback-emoji {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+        }
+        .feedback-msg {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        /* ===== صفحه مقدمه ===== */
+        #intro-scene {
+            background: linear-gradient(180deg, #a8e6cf 0%, #88d8b0 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .intro-wrapper {
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            padding-top: 60px;
+        }
+        .intro-card {
+            background: white;
+            border-radius: 25px;
+            padding: 30px 25px;
+            box-shadow: var(--shadow-lg);
+            animation: popIn 0.5s ease;
+        }
+        .intro-tomato {
+            font-size: 6rem;
+            margin-bottom: 20px;
+            animation: gentleBounce 2s ease-in-out infinite;
+        }
+        .intro-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--tomato);
+            margin-bottom: 15px;
+        }
+        .intro-facts {
+            text-align: right;
+            margin: 20px 0;
+        }
+        .intro-fact {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        .intro-fact:last-child {
+            border-bottom: none;
+        }
+        .fact-icon {
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+        /* ===== مودال‌ها ===== */
+        .modal-box {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+            overflow-y: auto;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .modal-inner {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 340px;
+            width: 100%;
+            text-align: center;
+            animation: modalPop 0.3s ease;
+            margin: auto;
+        }
+        @keyframes modalPop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .modal-inner h2 {
+            margin-bottom: 20px;
+        }
+        .help-list {
+            text-align: right;
+            margin-bottom: 25px;
+        }
+        .help-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .help-item:last-child {
+            border-bottom: none;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-box {
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .stat-box.correct {
+            background: rgba(0, 184, 148, 0.15);
+        }
+        .stat-box.wrong {
+            background: rgba(231, 76, 60, 0.15);
+        }
+        .stat-icon {
+            font-size: 2rem;
+        }
+        .stat-num {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #636e72;
+        }
+        /* ===== ویبره ===== */
+        .vibrate-effect {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+            display: none;
+        }
+        .vibrate-effect.active {
+            display: block;
+            animation: vibrate 0.1s linear infinite;
+        }
+        @keyframes vibrate {
+            0%, 100% { background: transparent; }
+            50% { background: rgba(231, 76, 60, 0.1); }
+        }
+        /* ===== کلاس‌های کمکی ===== */
+        .hidden {
+            display: none !important;
+        }
+        /* ===== ریسپانسیو ===== */
+        @media (max-width: 500px) {
+            .menu-character {
+                width: 120px;
+            }
+            .speech-box p {
+                font-size: 1rem;
+            }
+            .action-btn {
+                padding: 14px 25px;
+                font-size: 1rem;
+            }
+            .game-character {
+                top: 70px;
+                right: 5px;
+            }
+            .game-character img {
+                width: 55px;
+            }
+            .game-speech {
+                max-width: 150px;
+                padding: 10px 14px;
+            }
+            .game-speech p {
+                font-size: 0.85rem;
+            }
+            .tomato-body {
+                width: 70px;
+                height: 65px;
+            }
+            .tomato-shine {
+                width: 18px;
+                height: 14px;
+            }
+            .stem-main {
+                width: 10px;
+                height: 8px;
+            }
+            .stem-leaf {
+                width: 12px;
+                height: 15px;
+            }
+            .stem-leaf:first-of-type {
+                left: -9px;
+            }
+            .stem-leaf:last-of-type {
+                right: -9px;
+            }
+            .knife-item {
+                width: 80px;
+                height: 20px;
+                right: 8%;
+            }
+            .knife-handle {
+                width: 26px;
+                height: 14px;
+            }
+            .knife-blade {
+                width: 45px;
+                height: 11px;
+                left: 30px;
+                top: 4px;
+            }
+            .knife-guard {
+                left: 24px;
+                width: 4px;
+                height: 19px;
+            }
+            .step-hint {
+                padding: 10px 18px;
+                bottom: 15px;
+                font-size: 0.9rem;
+            }
+            .options-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .option-btn {
+                padding: 15px 10px;
+                min-height: 90px;
+            }
+            .option-icon {
+                font-size: 2.5rem;
+            }
+            .cabinet {
+                height: 55px;
+            }
+            .sink-bowl {
+                height: 26px;
+            }
+            .cutting-board {
+                height: 38px;
+            }
+            .tomato-slices {
+                width: 140px;
+                height: 95px;
+                gap: 6px;
+            }
+            .slice {
+                width: 60px;
+                height: 38px;
+            }
+            .tomato-squashed {
+                width: 115px;
+                height: 45px;
+            }
+            .squash-body {
+                width: 100px;
+                height: 38px;
+            }
+            .hold-area {
+                width: 130px;
+                height: 100px;
+            }
+            .hold-hint {
+                font-size: 1.6rem;
+            }
+            .hold-progress {
+                width: 70px;
+                height: 8px;
+            }
+            .intro-tomato {
+                font-size: 5rem;
+            }
+            .intro-title {
+                font-size: 1.3rem;
+            }
+            .intro-fact {
+                font-size: 0.95rem;
+            }
+            .fact-icon {
+                font-size: 1.5rem;
+            }
+        }
+        @media (max-width: 380px) {
+            .menu-character {
+                width: 100px;
+            }
+            .game-character {
+                top: 65px;
+                right: 5px;
+            }
+            .game-character img {
+                width: 50px;
+            }
+            .game-speech {
+                max-width: 130px;
+                padding: 8px 12px;
+            }
+            .game-speech p {
+                font-size: 0.8rem;
+            }
+            .level-indicator {
+                padding: 6px 14px;
+                font-size: 0.85rem;
+            }
+            .score-display {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+            .back-btn {
+                width: 40px;
+                height: 40px;
+            }
+            .tomato-body {
+                width: 60px;
+                height: 56px;
+            }
+            .tomato-shine {
+                width: 15px;
+                height: 12px;
+                top: 12%;
+                left: 16%;
+            }
+            .stem-main {
+                width: 8px;
+                height: 6px;
+            }
+            .stem-leaf {
+                width: 10px;
+                height: 13px;
+            }
+            .stem-leaf:first-of-type {
+                left: -8px;
+            }
+            .stem-leaf:last-of-type {
+                right: -8px;
+            }
+            .knife-item {
+                width: 70px;
+                height: 18px;
+                right: 5%;
+            }
+            .knife-handle {
+                width: 22px;
+                height: 12px;
+            }
+            .knife-blade {
+                width: 40px;
+                height: 10px;
+                left: 26px;
+                top: 4px;
+            }
+            .knife-guard {
+                left: 20px;
+                width: 4px;
+                height: 17px;
+            }
+            .step-hint {
+                padding: 8px 14px;
+                bottom: 10px;
+            }
+            .hint-icon {
+                font-size: 1.1rem;
+            }
+            .hint-text {
+                font-size: 0.85rem;
+            }
+            .control-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+            .control-btn.action {
+                padding: 0 18px;
+                font-size: 0.9rem;
+            }
+            .q-character img {
+                width: 60px;
+            }
+            .question-card {
+                padding: 18px;
+            }
+            .q-text {
+                font-size: 1rem;
+            }
+            .options-grid {
+                gap: 8px;
+            }
+            .option-btn {
+                padding: 12px 8px;
+                min-height: 80px;
+            }
+            .option-icon {
+                font-size: 2.2rem;
+            }
+            .modal-inner {
+                padding: 22px;
+            }
+            .modal-inner h2 {
+                font-size: 1.2rem;
+            }
+            .stat-box {
+                padding: 15px;
+            }
+            .stat-num {
+                font-size: 1.5rem;
+            }
+            .intro-tomato {
+                font-size: 4rem;
+            }
+            .intro-title {
+                font-size: 1.2rem;
+            }
+            .intro-card {
+                padding: 20px 18px;
+            }
+            .intro-fact {
+                font-size: 0.9rem;
+                padding: 10px 0;
+            }
+            .fact-icon {
+                font-size: 1.3rem;
+            }
+        }
+        /* ===== لمسی ===== */
+        @media (hover: none) and (pointer: coarse) {
+            .action-btn,
+            .control-btn,
+            .option-btn,
+            .back-btn {
+                min-height: 48px;
+            }
+            .tomato-item,
+            .knife-item {
+                cursor: default;
+            }
+            .option-btn:hover {
+                transform: none;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+        }
+        /* ===== دسترسی ===== */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        /* ===== تبلت ===== */
+        @media (min-width: 768px) {
+            .menu-character {
+                width: 160px;
+            }
+            .game-character img {
+                width: 80px;
+            }
+            .game-speech {
+                max-width: 220px;
+            }
+            .game-speech p {
+                font-size: 1rem;
+            }
+            .tomato-body {
+                width: 95px;
+                height: 90px;
+            }
+            .knife-item {
+                width: 110px;
+                height: 28px;
+            }
+            .knife-handle {
+                width: 38px;
+                height: 20px;
+            }
+            .knife-blade {
+                width: 60px;
+                height: 15px;
+                left: 40px;
+            }
+            .knife-guard {
+                left: 36px;
+                width: 6px;
+                height: 26px;
+            }
+            .step-hint {
+                padding: 14px 28px;
+            }
+            .hint-text {
+                font-size: 1.1rem;
+            }
+            .options-grid {
+                gap: 15px;
+            }
+            .option-btn {
+                padding: 25px 20px;
+                min-height: 120px;
+            }
+            .option-icon {
+                font-size: 3.5rem;
+            }
+            .question-card {
+                padding: 30px;
+            }
+            .q-text {
+                font-size: 1.2rem;
+            }
+            .intro-tomato {
+                font-size: 7rem;
+            }
+            .intro-title {
+                font-size: 1.6rem;
+            }
+            .intro-fact {
+                font-size: 1.1rem;
+            }
+            .fact-icon {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head><body>
+    <!-- صفحه اصلی -->
+    <div id="main-menu" class="scene active">
+        <div class="menu-bg">
+            <div class="bg-float">🍅</div>
+            <div class="bg-float">🍅</div>
+            <div class="bg-float">💧</div>
+            <div class="bg-float">✨</div>
+            <div class="bg-float">🌿</div>
+            <div class="bg-float">🍅</div>
+        </div>
+        <div class="menu-content">
+            <div class="character-wrapper">
+                <img src="https://cdn.imgurl.ir/uploads/j161884_InShot_20260423_203022535.png" alt="کاراکتر" class="menu-character">
+                <div class="speech-box">
+                    <p>سلام بچه‌ها! 👋<br>آماده‌اید با گوجه آشنا بشیم؟</p>
+                </div>
+            </div>
+            <div class="menu-actions">
+                <button id="start-btn" class="action-btn primary">
+                    <span class="btn-icon">🎮</span>
+                    <span>شروع بازی</span>
+                </button>
+                <button id="help-btn" class="action-btn secondary">
+                    <span class="btn-icon">📖</span>
+                    <span>راهنما</span>
+                </button>
+                <button id="stats-btn" class="action-btn secondary">
+                    <span class="btn-icon">🏆</span>
+                    <span>امتیاز</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه مقدمه -->
+    <div id="intro-scene" class="scene">
+        <div class="intro-wrapper">
+            <div class="intro-card">
+                <div class="intro-tomato">🍅</div>
+                <h2 class="intro-title">آشنایی با گوجه!</h2>
+                <div class="intro-facts">
+                    <div class="intro-fact">
+                        <span class="fact-icon">🔴</span>
+                        <span>گوجه قرمز رنگه و شبیه دایره‌ست</span>
+                    </div>
+                    <div class="intro-fact">
+                        <span class="fact-icon">💚</span>
+                        <span>روی گوجه یه برگ سبز هست</span>
+                    </div>
+                    <div class="intro-fact">
+                        <span class="fact-icon">💧</span>
+                        <span>داخلش آب داره و نرمه</span>
+                    </div>
+                    <div class="intro-fact">
+                        <span class="fact-icon">🍽️</span>
+                        <span>باهاش سس گوجه و سالاد درست میشه</span>
+                    </div>
+                </div>
+                <button id="intro-start-btn" class="action-btn primary">
+                    <span>بزن بریم! 🚀</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه بازی -->
+    <div id="game-scene" class="scene">
+        <header class="game-header">
+            <button id="back-btn" class="back-btn">→</button>
+            <div class="level-indicator">
+                <span id="level-text">مرحله ۱</span>
+            </div>
+            <div class="score-display">
+                <span>⭐</span>
+                <span id="score-num">۰</span>
+            </div>
+        </header>
+        <div class="game-character">
+            <img src="https://cdn.imgurl.ir/uploads/j161884_InShot_20260423_203022535.png" alt="">
+            <div class="game-speech" id="game-speech">
+                <p>سلام! بیا با گوجه آشنا بشیم!</p>
+            </div>
+        </div>
+
+        <!-- صحنه آشپزخانه -->
+        <div class="kitchen-wrapper">
+            <div class="kitchen-wall">
+                <div class="wall-tiles"></div>
+            </div>
+            <div class="cabinet-row">
+                <div class="cabinet"></div>
+                <div class="cabinet"></div>
+                <div class="cabinet"></div>
+            </div>
+            <div class="counter-top">
+                <div class="sink-area" id="sink-area">
+                    <div class="faucet-set">
+                        <div class="faucet-base"></div>
+                        <div class="faucet-neck"></div>
+                        <div class="faucet-head"></div>
+                    </div>
+                    <div class="sink-bowl">
+                        <div class="water-stream" id="water-stream"></div>
+                        <div class="water-splash" id="water-splash"></div>
+                    </div>
+                </div>
+                <div class="cutting-area" id="cutting-area">
+                    <div class="cutting-board">
+                        <div class="board-grain"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="cabinet-bottom">
+                <div class="cabinet-door"></div>
+                <div class="cabinet-door"></div>
+                <div class="cabinet-door"></div>
+            </div>
+
+            <!-- گوجه اصلی -->
+            <div class="tomato-item" id="tomato-item">
+                <div class="tomato-body">
+                    <div class="tomato-shine"></div>
+                    <div class="tomato-stem-group">
+                        <div class="stem-main"></div>
+                        <div class="stem-leaf"></div>
+                        <div class="stem-leaf"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- گوجه شسته شده -->
+            <div class="tomato-washed hidden" id="tomato-washed">
+                <div class="tomato-body washed">
+                    <div class="tomato-shine"></div>
+                    <div class="tomato-stem-group">
+                        <div class="stem-main"></div>
+                        <div class="stem-leaf"></div>
+                        <div class="stem-leaf"></div>
+                    </div>
+                </div>
+                <div class="wash-sparkle">✨</div>
+            </div>
+
+            <!-- گوجه قاچ شده -->
+            <div class="tomato-slices hidden" id="tomato-slices">
+                <div class="slice s1"><div class="slice-inner"></div></div>
+                <div class="slice s2"><div class="slice-inner"></div></div>
+                <div class="slice s3"><div class="slice-inner"></div></div>
+                <div class="slice s4"><div class="slice-inner"></div></div>
+            </div>
+
+            <!-- گوجه له شده -->
+            <div class="tomato-squashed hidden" id="tomato-squashed">
+                <div class="squash-body"></div>
+                <div class="squash-juice j1"></div>
+                <div class="squash-juice j2"></div>
+                <div class="squash-juice j3"></div>
+            </div>
+
+            <!-- ناحیه نگه داشتن -->
+            <div class="hold-area hidden" id="hold-area">
+                <div class="hold-hint">👆</div>
+                <div class="hold-progress">
+                    <div class="hold-progress-bar" id="hold-progress-bar"></div>
+                </div>
+            </div>
+
+            <!-- چاقو -->
+            <div class="knife-item" id="knife-item">
+                <div class="knife-handle"></div>
+                <div class="knife-guard"></div>
+                <div class="knife-blade"></div>
+            </div>
+        </div>
+
+        <!-- ناحیه‌های هدف -->
+        <div class="drop-zone" id="sink-zone"></div>
+        <div class="drop-zone" id="board-zone"></div>
+
+        <!-- راهنما -->
+        <div class="step-hint" id="step-hint">
+            <div class="hint-icon">👆</div>
+            <div class="hint-text">گوجه رو ببر به سینک!</div>
+        </div>
+
+        <!-- کنترل‌ها -->
+        <div class="game-controls">
+            <button id="hint-btn" class="control-btn hint">💡</button>
+            <button id="action-btn" class="control-btn action hidden">ادامه →</button>
+        </div>
+    </div>
+
+    <!-- صفحه سوالات -->
+    <div id="question-scene" class="scene">
+        <div class="question-wrapper">
+            <div class="q-character">
+                <img src="https://cdn.imgurl.ir/uploads/j161884_InShot_20260423_203022535.png" alt="">
+            </div>
+            <div class="question-card" id="question-card">
+                <h2 class="q-number" id="q-number">سوال ۱</h2>
+                <p class="q-text" id="q-text">سوال اینجا نمایش داده میشه</p>
+                <div class="options-grid" id="options-grid"></div>
+            </div>
+            <div class="answer-feedback hidden" id="answer-feedback">
+                <div class="feedback-emoji" id="feedback-emoji">✅</div>
+                <p class="feedback-msg" id="feedback-msg">آفرین!</p>
+            </div>
+            <button id="menu-btn" class="action-btn secondary" style="margin-top: 15px;">منوی اصلی</button>
+        </div>
+    </div>
+
+    <!-- مودال راهنما -->
+    <div class="modal-box hidden" id="help-modal">
+        <div class="modal-inner">
+            <h2>📖 راهنمای بازی</h2>
+            <div class="help-list">
+                <div class="help-item"><span>🚿</span><span>گوجه رو بکش و ببر به سینک</span></div>
+                <div class="help-item"><span>🔪</span><span>چاقو رو بکش و ببر روی گوجه</span></div>
+                <div class="help-item"><span>👆</span><span>انگشتت رو ۲ ثانیه نگه دار</span></div>
+                <div class="help-item"><span>❓</span><span>به سوالات جواب بده</span></div>
+            </div>
+            <button id="close-help" class="action-btn primary">باشه!</button>
+        </div>
+    </div>
+
+    <!-- مودال آمار -->
+    <div class="modal-box hidden" id="stats-modal">
+        <div class="modal-inner">
+            <h2>🏆 امتیازها</h2>
+            <div class="stats-grid">
+                <div class="stat-box correct">
+                    <span class="stat-icon">✅</span>
+                    <span class="stat-num" id="stat-correct">۰</span>
+                    <span class="stat-label">درست</span>
+                </div>
+                <div class="stat-box wrong">
+                    <span class="stat-icon">❌</span>
+                    <span class="stat-num" id="stat-wrong">۰</span>
+                    <span class="stat-label">غلط</span>
+                </div>
+            </div>
+            <button id="close-stats" class="action-btn primary">بستن</button>
+        </div>
+    </div>
+
+    <div class="vibrate-effect" id="vibrate-effect"></div>
+
+    <script>
+        // ===== متغیرهای بازی =====
+        const GameState = {
+            currentStep: 1,
+            totalSteps: 4,
+            correctAnswers: 0,
+            wrongAnswers: 0,
+            currentQuestion: 0,
+            tomatoWashed: false,
+            tomatoSliced: false,
+            tomatoSquashed: false,
+            isDragging: false,
+            dragItem: null,
+            startX: 0,
+            startY: 0,
+            initialX: 0,
+            initialY: 0,
+            washedTomatoPos: { x: 0, y: 0, width: 0, height: 0 },
+            // نگه داشتن
+            isHolding: false,
+            holdTimer: null,
+            holdProgress: 0,
+            holdRequired: 2000 // 2 ثانیه
+        };
+
+        // ===== سوالات با آیکون =====
+        const Questions = [
+            {
+                question: "گوجه جنسش شبیه به کدمه",
+                options: [
+                    { icon: "🪨", correct: false },
+                    { icon: "☁️", correct: true },
+                    { icon: "❓", correct: false },
+                    { icon: "🤔", correct: false }
+                ]
+            },
+            {
+                question: "گوجه چه رنگیه؟",
+                options: [
+                    { icon: "🌊", correct: false },
+                    // { icon: "🌳", correct: false },
+                    { icon: "🔴", correct: true },
+                    // { icon: "🍋", correct: false }
+                ]
+            },
+            {
+                question: "گوجه رو میشه فشار داد؟",
+                options: [
+                    { icon: "👍", correct: false },
+                    { icon: "❌", correct: true },
+                  
+                ]
+            },
+            {
+                question: "گوجه وقتی له بشه آب گوجه درست میشه؟",
+                options: [
+                    { icon: "👍", correct: true },
+                    { icon: "❌", correct: false },
+                  
+                ]
+            },
+            {
+                question: "گوجه شبیه کدومه؟",
+                options: [
+                    { icon: "🍎", correct: true },
+                    { icon: "🍊", correct: true },
+                    { icon: "🍉", correct: true },
+                    { icon: "✅", correct: true }
+                ]
+            }
+        ];
+
+        // ===== پیام‌ها =====
+        const Messages = {
+            welcome: "سلام! بیا با گوجه آشنا بشیم!",
+            step1: "گوجه رو بکش و ببر به سینک! 🚿",
+            step2: "عالی! حالا چاقو رو بکش! 🔪",
+            step3: "انگشتت رو ۲ ثانیه نگه دار! 👆",
+            step4: "دیدی ترکید! یادت باشه نرمه!",
+            washed: "تمیز شد! ✨",
+            sliced: "قاچ شد! ✂️",
+            squashed: "ترکید! 💥",
+            correct: "آفرین! درسته! 🌟",
+            wrong: "اشتباهه! دوباره تلاش کن! 💪",
+            complete: "تبریک! همه مراحل رو انجام دادی! 🎉"
+        };
+
+        // ===== المان‌ها =====
+        const E = {
+            scenes: {
+                menu: document.getElementById('main-menu'),
+                intro: document.getElementById('intro-scene'),
+                game: document.getElementById('game-scene'),
+                question: document.getElementById('question-scene')
+            },
+            buttons: {
+                start: document.getElementById('start-btn'),
+                introStart: document.getElementById('intro-start-btn'),
+                help: document.getElementById('help-btn'),
+                stats: document.getElementById('stats-btn'),
+                back: document.getElementById('back-btn'),
+                menu: document.getElementById('menu-btn'),
+                hint: document.getElementById('hint-btn'),
+                action: document.getElementById('action-btn'),
+                closeHelp: document.getElementById('close-help'),
+                closeStats: document.getElementById('close-stats')
+            },
+            modals: {
+                help: document.getElementById('help-modal'),
+                stats: document.getElementById('stats-modal')
+            },
+            game: {
+                speech: document.getElementById('game-speech'),
+                levelText: document.getElementById('level-text'),
+                scoreNum: document.getElementById('score-num'),
+                stepHint: document.getElementById('step-hint'),
+                hintText: document.querySelector('.hint-text'),
+                tomato: document.getElementById('tomato-item'),
+                tomatoWashed: document.getElementById('tomato-washed'),
+                tomatoSlices: document.getElementById('tomato-slices'),
+                tomatoSquashed: document.getElementById('tomato-squashed'),
+                knife: document.getElementById('knife-item'),
+                sinkArea: document.getElementById('sink-area'),
+                cuttingArea: document.getElementById('cutting-area'),
+                waterStream: document.getElementById('water-stream'),
+                waterSplash: document.getElementById('water-splash'),
+                sinkZone: document.getElementById('sink-zone'),
+                boardZone: document.getElementById('board-zone'),
+                holdArea: document.getElementById('hold-area'),
+                holdProgressBar: document.getElementById('hold-progress-bar')
+            },
+            question: {
+                card: document.getElementById('question-card'),
+                number: document.getElementById('q-number'),
+                text: document.getElementById('q-text'),
+                options: document.getElementById('options-grid'),
+                feedback: document.getElementById('answer-feedback'),
+                feedbackEmoji: document.getElementById('feedback-emoji'),
+                feedbackMsg: document.getElementById('feedback-msg')
+            },
+            stats: {
+                correct: document.getElementById('stat-correct'),
+                wrong: document.getElementById('stat-wrong')
+            },
+            vibrate: document.getElementById('vibrate-effect')
+        };
+
+        // ===== توابع کمکی =====
+        function showScene(name) {
+            Object.values(E.scenes).forEach(s => s.classList.remove('active'));
+            E.scenes[name].classList.add('active');
+        }
+
+        function toggleModal(name, show) {
+            if (show) {
+                E.modals[name].classList.remove('hidden');
+            } else {
+                E.modals[name].classList.add('hidden');
+            }
+        }
+
+        function toPersian(num) {
+            const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+            return num.toString().replace(/\d/g, d => persianDigits[d]);
+        }
+
+        function updateSpeech(text) {
+            E.game.speech.querySelector('p').textContent = text;
+            E.game.speech.style.animation = 'none';
+            E.game.speech.offsetHeight;
+            E.game.speech.style.animation = 'popIn 0.4s ease';
+        }
+
+        function updateLevel() {
+            E.game.levelText.textContent = `مرحله ${toPersian(GameState.currentStep)}`;
+        }
+
+        function updateScore() {
+            E.game.scoreNum.textContent = toPersian(GameState.correctAnswers);
+        }
+
+        function updateStats() {
+            E.stats.correct.textContent = toPersian(GameState.correctAnswers);
+            E.stats.wrong.textContent = toPersian(GameState.wrongAnswers);
+        }
+
+        function updateHint(text) {
+            E.game.hintText.textContent = text;
+            E.game.stepHint.style.animation = 'none';
+            E.game.stepHint.offsetHeight;
+            E.game.stepHint.style.animation = 'slideUp 0.4s ease';
+        }
+
+        function vibrate(duration = 300) {
+            E.vibrate.classList.add('active');
+            setTimeout(() => E.vibrate.classList.remove('active'), duration);
+            if (navigator.vibrate) {
+                navigator.vibrate(duration);
+            }
+        }
+
+        function shortVibrate() {
+            vibrate(100);
+        }
+
+        // ===== ذخیره موقعیت گوجه شسته شده =====
+        function saveWashedTomatoPosition() {
+            const rect = E.game.tomatoWashed.getBoundingClientRect();
+            GameState.washedTomatoPos = {
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2,
+                width: rect.width,
+                height: rect.height
+            };
+        }
+
+        // ===== سیستم درگ و دراپ =====
+        function initDragAndDrop() {
+            const tomato = E.game.tomato;
+            const knife = E.game.knife;
+
+            tomato.addEventListener('mousedown', (e) => startDrag(e, 'tomato'));
+            tomato.addEventListener('touchstart', (e) => startDrag(e, 'tomato'), { passive: false });
+
+            knife.addEventListener('mousedown', (e) => startDrag(e, 'knife'));
+            knife.addEventListener('touchstart', (e) => startDrag(e, 'knife'), { passive: false });
+
+            document.addEventListener('mousemove', handleMove);
+            document.addEventListener('touchmove', handleMove, { passive: false });
+
+            document.addEventListener('mouseup', handleEnd);
+            document.addEventListener('touchend', handleEnd);
+        }
+
+        function startDrag(e, itemType) {
+            e.preventDefault();
+            if (itemType === 'tomato' && GameState.currentStep !== 1) return;
+            if (itemType === 'knife' && GameState.currentStep !== 2) return;
+
+            const touch = e.touches ? e.touches[0] : e;
+            const item = itemType === 'tomato' ? E.game.tomato : E.game.knife;
+            const rect = item.getBoundingClientRect();
+
+            GameState.isDragging = true;
+            GameState.dragItem = itemType;
+            GameState.startX = touch.clientX;
+            GameState.startY = touch.clientY;
+            GameState.initialX = rect.left;
+            GameState.initialY = rect.top;
+
+            item.style.position = 'fixed';
+            item.style.left = rect.left + 'px';
+            item.style.top = rect.top + 'px';
+            item.style.bottom = 'auto';
+            item.style.right = 'auto';
+            item.style.transform = 'none';
+            item.style.zIndex = '100';
+        }
+
+        function handleMove(e) {
+            if (!GameState.isDragging) return;
+            e.preventDefault();
+
+            const touch = e.touches ? e.touches[0] : e;
+            const dx = touch.clientX - GameState.startX;
+            const dy = touch.clientY - GameState.startY;
+            const item = GameState.dragItem === 'tomato' ? E.game.tomato : E.game.knife;
+
+            item.style.left = (GameState.initialX + dx) + 'px';
+            item.style.top = (GameState.initialY + dy) + 'px';
+
+            checkDropZones(touch.clientX, touch.clientY);
+        }
+
+        function handleEnd(e) {
+            if (!GameState.isDragging) return;
+
+            const touch = e.changedTouches ? e.changedTouches[0] : e;
+            const dropped = checkDrop(touch.clientX, touch.clientY);
+
+            if (!dropped) {
+                resetItemPosition(GameState.dragItem);
+            }
+
+            E.game.sinkZone.classList.remove('highlight');
+            E.game.boardZone.classList.remove('highlight');
+            GameState.isDragging = false;
+            GameState.dragItem = null;
+        }
+
+        function checkDropZones(x, y) {
+            const sinkRect = E.game.sinkArea.getBoundingClientRect();
+            const boardRect = E.game.cuttingArea.getBoundingClientRect();
+
+            if (GameState.currentStep === 1) {
+                if (isInArea(x, y, sinkRect)) {
+                    E.game.sinkZone.classList.add('highlight');
+                } else {
+                    E.game.sinkZone.classList.remove('highlight');
+                }
+            }
+
+            if (GameState.currentStep === 2) {
+                if (isInArea(x, y, boardRect)) {
+                    E.game.boardZone.classList.add('highlight');
+                } else {
+                    E.game.boardZone.classList.remove('highlight');
+                }
+            }
+        }
+
+        function checkDrop(x, y) {
+            const sinkRect = E.game.sinkArea.getBoundingClientRect();
+
+            if (GameState.dragItem === 'tomato' && GameState.currentStep === 1) {
+                if (isInArea(x, y, sinkRect)) {
+                    washTomato();
+                    return true;
+                }
+            }
+
+            if (GameState.dragItem === 'knife' && GameState.currentStep === 2) {
+                if (isNearTomato(x, y)) {
+                    sliceTomato();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        function isInArea(x, y, rect) {
+            return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+        }
+
+        function isNearTomato(x, y) {
+            const pos = GameState.washedTomatoPos;
+            const distance = Math.sqrt(
+                Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2)
+            );
+            return distance < 100;
+        }
+
+        function resetItemPosition(itemType) {
+            const item = itemType === 'tomato' ? E.game.tomato : E.game.knife;
+
+            if (itemType === 'tomato') {
+                item.style.position = 'absolute';
+                item.style.left = '50%';
+                item.style.top = 'auto';
+                item.style.bottom = '42%';
+                item.style.transform = 'translateX(-50%)';
+            } else {
+                item.style.position = 'absolute';
+                item.style.left = 'auto';
+                item.style.right = '12%';
+                item.style.top = 'auto';
+                item.style.bottom = '42%';
+                item.style.transform = 'rotate(-20deg)';
+            }
+            item.style.zIndex = itemType === 'tomato' ? '30' : '25';
+        }
+
+        // ===== سیستم نگه داشتن (مرحله ۳) =====
+        function initHoldSystem() {
+            const holdArea = E.game.holdArea;
+
+            holdArea.addEventListener('mousedown', startHold);
+            holdArea.addEventListener('touchstart', startHold, { passive: false });
+
+            holdArea.addEventListener('mouseup', cancelHold);
+            holdArea.addEventListener('mouseleave', cancelHold);
+            holdArea.addEventListener('touchend', cancelHold);
+            holdArea.addEventListener('touchcancel', cancelHold);
+        }
+
+        function startHold(e) {
+            e.preventDefault();
+            if (GameState.currentStep !== 3) return;
+
+            GameState.isHolding = true;
+            GameState.holdProgress = 0;
+            E.game.holdProgressBar.style.width = '0%';
+
+            const startTime = Date.now();
+            const progressBar = E.game.holdProgressBar;
+
+            function updateProgress() {
+                if (!GameState.isHolding) return;
+
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min((elapsed / GameState.holdRequired) * 100, 100);
+                progressBar.style.width = progress + '%';
+
+                if (elapsed >= GameState.holdRequired) {
+                    // ترکیدن!
+                    squashTomato();
+                    GameState.isHolding = false;
+                } else {
+                    requestAnimationFrame(updateProgress);
+                }
+            }
+
+            requestAnimationFrame(updateProgress);
+            vibrate(50);
+        }
+
+        function cancelHold() {
+            GameState.isHolding = false;
+            E.game.holdProgressBar.style.width = '0%';
+        }
+
+        // ===== عملیات‌های گوجه =====
+        function washTomato() {
+            if (GameState.tomatoWashed) return;
+            GameState.tomatoWashed = true;
+
+            E.game.waterStream.classList.add('active');
+            E.game.waterSplash.classList.add('active');
+            vibrate(800);
+
+            E.game.tomato.classList.add('hidden');
+
+            setTimeout(() => {
+                E.game.tomatoWashed.classList.remove('hidden');
+                E.game.waterStream.classList.remove('active');
+                E.game.waterSplash.classList.remove('active');
+
+                saveWashedTomatoPosition();
+                updateSpeech(Messages.washed);
+
+                GameState.currentStep = 2;
+                updateLevel();
+                updateHint('چاقو رو بکش و ببر روی گوجه!');
+                E.buttons.action.classList.remove('hidden');
+            }, 1200);
+        }
+
+        function sliceTomato() {
+            if (GameState.tomatoSliced) return;
+            GameState.tomatoSliced = true;
+
+            E.game.tomatoWashed.classList.add('hidden');
+            E.game.tomatoSlices.classList.remove('hidden');
+
+            vibrate(500);
+            setTimeout(shortVibrate, 200);
+
+            updateSpeech(Messages.sliced);
+
+            setTimeout(() => {
+                GameState.currentStep = 3;
+                updateLevel();
+                updateHint('انگشتت رو ۲ ثانیه نگه دار!');
+
+                // نمایش ناحیه نگه داشتن
+                E.game.tomatoSlices.classList.add('hidden');
+                E.game.holdArea.classList.remove('hidden');
+            }, 1200);
+        }
+
+        function squashTomato() {
+            if (GameState.tomatoSquashed) return;
+            GameState.tomatoSquashed = true;
+
+            E.game.holdArea.classList.add('hidden');
+            E.game.tomatoSquashed.classList.remove('hidden');
+
+            vibrate(1000);
+            updateSpeech(Messages.squashed);
+
+            setTimeout(() => {
+                GameState.currentStep = 4;
+                updateLevel();
+                updateHint('به سوالات جواب بده!');
+
+                setTimeout(() => {
+                    showScene('question');
+                    loadQuestion();
+                }, 1500);
+            }, 1500);
+        }
+
+        // ===== سیستم سوالات =====
+        function loadQuestion() {
+            const q = Questions[GameState.currentQuestion];
+            E.question.number.textContent = `سوال ${toPersian(GameState.currentQuestion + 1)} از ${toPersian(Questions.length)}`;
+            E.question.text.textContent = q.question;
+
+            E.question.options.innerHTML = '';
+            E.question.feedback.classList.add('hidden');
+            E.question.card.classList.remove('hidden');
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = `<span class="option-icon">${opt.icon}</span>`;
+                btn.dataset.correct = opt.correct;
+                btn.addEventListener('click', () => selectAnswer(btn, opt.correct));
+                E.question.options.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(btn, correct) {
+            document.querySelectorAll('.option-btn').forEach(b => {
+                b.style.pointerEvents = 'none';
+            });
+
+            if (correct) {
+                btn.classList.add('correct');
+                GameState.correctAnswers++;
+                updateScore();
+                E.question.feedbackEmoji.textContent = '✅';
+                E.question.feedbackMsg.textContent = Messages.correct;
+                shortVibrate();
+
+                // رفتن خودکار به سوال بعدی بعد از 1.5 ثانیه
+                setTimeout(() => {
+                    nextQuestion();
+                }, 1500);
+            } else {
+                btn.classList.add('wrong');
+                GameState.wrongAnswers++;
+
+                document.querySelectorAll('.option-btn').forEach(b => {
+                    if (b.dataset.correct === 'true') {
+                        b.classList.add('correct');
+                    }
+                });
+
+                E.question.feedbackEmoji.textContent = '❌';
+                E.question.feedbackMsg.textContent = Messages.wrong;
+                E.question.feedback.classList.remove('hidden');
+            }
+
+            updateStats();
+        }
+
+        function nextQuestion() {
+            GameState.currentQuestion++;
+            if (GameState.currentQuestion >= Questions.length) {
+                GameState.currentQuestion = 0;
+                showScene('menu');
+                updateSpeech(Messages.complete);
+                resetGame();
+            } else {
+                loadQuestion();
+            }
+        }
+
+        // ===== ریست بازی =====
+        function resetGame() {
+            GameState.currentStep = 1;
+            GameState.currentQuestion = 0;
+            GameState.tomatoWashed = false;
+            GameState.tomatoSliced = false;
+            GameState.tomatoSquashed = false;
+            GameState.isHolding = false;
+            GameState.holdProgress = 0;
+
+            E.game.tomato.classList.remove('hidden');
+            E.game.tomato.style.position = '';
+            E.game.tomato.style.left = '';
+            E.game.tomato.style.top = '';
+            E.game.tomato.style.bottom = '';
+            E.game.tomato.style.transform = '';
+
+            E.game.tomatoWashed.classList.add('hidden');
+            E.game.tomatoSlices.classList.add('hidden');
+            E.game.tomatoSquashed.classList.add('hidden');
+            E.game.holdArea.classList.add('hidden');
+            E.game.holdProgressBar.style.width = '0%';
+
+            E.game.knife.style.position = '';
+            E.game.knife.style.left = '';
+            E.game.knife.style.top = '';
+            E.game.knife.style.right = '';
+            E.game.knife.style.bottom = '';
+            E.game.knife.style.transform = '';
+
+            E.game.waterStream.classList.remove('active');
+            E.game.waterSplash.classList.remove('active');
+
+            E.buttons.action.classList.add('hidden');
+            updateLevel();
+            updateSpeech(Messages.welcome);
+            updateHint('گوجه رو ببر به سینک!');
+        }
+
+        // ===== راهنمایی =====
+        function showHint() {
+            const hints = {
+                1: "گوجه رو بکش و ببر به سینک! 🚿",
+                2: "چاقو رو بکش و ببر روی گوجه! 🔪",
+                3: "انگشتت رو ۲ ثانیه نگه دار! 👆",
+                4: "به سوالات جواب بده! 📝"
+            };
+            updateSpeech(hints[GameState.currentStep] || "داری تلاش میکنی! 💪");
+            shortVibrate();
+        }
+
+        // ===== شروع بازی =====
+        function startGame() {
+            showScene('intro');
+        }
+
+        function startGameFromIntro() {
+            showScene('game');
+            resetGame();
+        }
+
+        // ===== رویدادها =====
+        function initEvents() {
+            E.buttons.start.addEventListener('click', startGame);
+            E.buttons.introStart.addEventListener('click', startGameFromIntro);
+            E.buttons.help.addEventListener('click', () => toggleModal('help', true));
+            E.buttons.stats.addEventListener('click', () => toggleModal('stats', true));
+
+            E.buttons.back.addEventListener('click', () => {
+                showScene('menu');
+                resetGame();
+            });
+
+            E.buttons.menu.addEventListener('click', () => {
+                showScene('menu');
+                resetGame();
+            });
+
+            E.buttons.closeHelp.addEventListener('click', () => toggleModal('help', false));
+            E.buttons.closeStats.addEventListener('click', () => toggleModal('stats', false));
+
+            document.querySelectorAll('.modal-box').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            });
+
+            E.buttons.hint.addEventListener('click', showHint);
+
+            E.buttons.action.addEventListener('click', () => {
+                E.buttons.action.classList.add('hidden');
+            });
+        }
+
+        // ===== راه‌اندازی =====
+        function init() {
+            initEvents();
+            initDragAndDrop();
+            initHoldSystem();
+            updateStats();
+            updateLevel();
+            updateScore();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>آموزش اعداد فارسی 🌟</title>
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --primary-dark: #5A52D5;
+            --secondary: #FF6B6B;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #F44336;
+            --bg-gradient-1: #667eea;
+            --bg-gradient-2: #764ba2;
+            --text-light: #ffffff;
+            --text-dark: #333333;
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            --radius: 20px;
+            --radius-sm: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Vazirmatn', 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
+            color: var(--text-light);
+            direction: rtl;
+            touch-action: none;
+            user-select: none;
+        }
+
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* صفحه بررسی اینترنت */
+        .internet-content {
+            text-align: center;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .wifi-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-text {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius);
+            font-size: 18px;
+        }
+
+        .status-text.error {
+            background: rgba(244, 67, 54, 0.3);
+            animation: shake 0.5s ease;
+        }
+
+        /* صفحه دانلود */
+        .download-content {
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .cloud-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .progress-container {
+            margin: 30px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--success), #8BC34A);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        #download-percent {
+            display: block;
+            margin-top: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .download-status {
+            font-size: 14px;
+            opacity: 0.8;
+            min-height: 20px;
+        }
+
+        /* صفحه اصلی */
+        .home-content {
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .logo-section {
+            margin-bottom: 40px;
+        }
+
+        .logo-emoji {
+            font-size: 100px;
+            margin-bottom: 10px;
+            animation: bounce 2s ease infinite;
+        }
+
+        .logo-section h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-section p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius);
+            color: white;
+            font-size: 20px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-btn:active {
+            transform: scale(0.95);
+        }
+
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, var(--success), #45a049);
+            border-color: var(--success);
+            font-size: 24px;
+            padding: 22px 30px;
+        }
+
+        .play-btn:hover {
+            background: linear-gradient(135deg, #45a049, var(--success));
+        }
+
+        .btn-icon {
+            font-size: 28px;
+        }
+
+        .animals-preview {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            opacity: 0.7;
+        }
+
+        .animal {
+            font-size: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .animal:nth-child(2) { animation-delay: 0.2s; }
+        .animal:nth-child(3) { animation-delay: 0.4s; }
+        .animal:nth-child(4) { animation-delay: 0.6s; }
+        .animal:nth-child(5) { animation-delay: 0.8s; }
+        .animal:nth-child(6) { animation-delay: 1s; }
+        .animal:nth-child(7) { animation-delay: 1.2s; }
+        .animal:nth-child(8) { animation-delay: 1.4s; }
+        .animal:nth-child(9) { animation-delay: 1.6s; }
+        .animal:nth-child(10) { animation-delay: 1.8s; }
+
+        /* صفحه راهنما */
+        .guide-content {
+            width: 100%;
+            max-width: 400px;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .guide-content h2 {
+            margin: 20px 0 30px;
+            font-size: 26px;
+        }
+
+        .guide-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .guide-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-sm);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: 16px;
+        }
+
+        .guide-animals {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .guide-animal {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            font-size: 24px;
+        }
+
+        .guide-animal span:first-child {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* صفحه آمار */
+        .stats-content {
+            width: 100%;
+            max-width: 400px;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .stats-content h2 {
+            margin: 20px 0 30px;
+            font-size: 26px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 15px;
+            background: rgba(244, 67, 54, 0.3);
+            border: 2px solid var(--danger);
+            border-radius: var(--radius);
+            color: white;
+            font-size: 18px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:active {
+            transform: scale(0.95);
+            background: rgba(244, 67, 54, 0.5);
+        }
+
+        /* صفحه ویدیو آموزشی */
+        #video-screen {
+            padding: 15px;
+            justify-content: flex-start;
+            padding-top: 10px;
+        }
+
+        .video-content {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .video-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .level-badge {
+            background: var(--primary);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+        }
+
+        .video-number-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .big-number {
+            font-size: 80px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.3);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .video-animal {
+            font-size: 60px;
+        }
+
+        .video-wrapper {
+            width: 100%;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 15px;
+        }
+
+        #tutorial-video {
+            width: 100%;
+            max-height: 300px;
+            display: block;
+        }
+
+        .video-hint {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .video-buttons {
+            margin-bottom: 20px;
+        }
+
+        .video-btn {
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: white;
+            font-size: 16px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .video-btn:active {
+            transform: scale(0.95);
+        }
+
+        .learned-question {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 25px;
+            border-radius: var(--radius);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .learned-question p {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .answer-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .answer-btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .answer-btn:active {
+            transform: scale(0.95);
+        }
+
+        .yes-btn {
+            background: var(--success);
+            color: white;
+        }
+
+        .no-btn {
+            background: var(--secondary);
+            color: white;
+        }
+
+        /* صفحه بازی - ریسپانسیو */
+        #game-screen {
+            padding: 10px;
+            justify-content: flex-start;
+            padding-top: 15px;
+        }
+
+        .game-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 5px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .home-btn, .help-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .home-btn:active, .help-btn:active {
+            transform: scale(0.9);
+        }
+
+        .help-btn {
+            width: auto;
+            padding: 0 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-family: inherit;
+            color: white;
+        }
+
+        .level-indicator {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 18px;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        #current-level {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--warning);
+        }
+
+        .game-area {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 10px;
+            gap: 15px;
+            max-width: 400px;
+        }
+
+        .number-top-display {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .game-big-number {
+            font-size: 60px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.4);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .game-animal-small {
+            font-size: 45px;
+        }
+
+        .game-message {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 18px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* کانواس ریسپانسیو */
+        .canvas-container {
+            position: relative;
+            width: 90vw;
+            max-width: 320px;
+            height: 90vw;
+            max-height: 320px;
+            background: #ffffff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        #draw-canvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+            cursor: crosshair;
+            display: block;
+        }
+
+        .feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            border-radius: var(--radius);
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 100;
+            animation: popIn 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: var(--success);
+            color: white;
+        }
+
+        .feedback.wrong {
+            background: var(--danger);
+            color: white;
+        }
+
+        .feedback.hidden {
+            display: none;
+        }
+
+        .game-footer {
+            display: flex;
+            gap: 15px;
+            padding: 15px 5px;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 18px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .check-btn {
+            background: var(--success);
+            color: white;
+            font-size: 20px;
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* صفحه موفقیت */
+        .success-content {
+            text-align: center;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .success-animal {
+            font-size: 150px;
+            margin-bottom: 20px;
+            animation: celebrate 1s ease infinite;
+        }
+
+        .success-content h2 {
+            font-size: 36px;
+            margin-bottom: 15px;
+            color: var(--warning);
+        }
+
+        #success-message {
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        .stars {
+            font-size: 50px;
+            margin-bottom: 30px;
+            animation: starBounce 0.5s ease infinite;
+        }
+
+        .next-btn {
+            padding: 18px 50px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 22px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: pulse 2s ease infinite;
+        }
+
+        .next-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* صفحه پایان بازی */
+        .end-content {
+            text-align: center;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .trophy {
+            font-size: 120px;
+            margin-bottom: 20px;
+            animation: bounce 1s ease infinite;
+        }
+
+        .end-content h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .final-stats {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-bottom: 25px;
+            font-size: 20px;
+        }
+
+        #total-time {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--warning);
+        }
+
+        .all-animals {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .all-animals span {
+            font-size: 40px;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .play-again-btn, .home-return-btn {
+            display: block;
+            width: 100%;
+            max-width: 280px;
+            margin: 10px auto;
+            padding: 18px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 20px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .play-again-btn {
+            background: var(--success);
+            color: white;
+        }
+
+        .home-return-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .play-again-btn:active, .home-return-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* دکمه بازگشت */
+        .back-btn {
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-size: 16px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* پاپ‌آپ */
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .popup.hidden {
+            display: none;
+        }
+
+        .popup-content {
+            background: white;
+            color: var(--text-dark);
+            padding: 40px;
+            border-radius: var(--radius);
+            text-align: center;
+            max-width: 320px;
+            animation: popIn 0.3s ease;
+        }
+
+        .popup-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .popup-content p {
+            font-size: 20px;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .popup-content button {
+            padding: 15px 40px;
+            background: var(--primary);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-size: 18px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .popup-content button:active {
+            transform: scale(0.95);
+        }
+
+        /* انیمیشن‌ها */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        @keyframes starBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* ریسپانسیو */
+        @media (max-width: 380px) {
+            .logo-emoji { font-size: 80px; }
+            .logo-section h1 { font-size: 26px; }
+            .menu-btn { padding: 15px 20px; font-size: 18px; }
+            .play-btn { font-size: 20px; padding: 18px 25px; }
+            .game-message { font-size: 16px; padding: 10px 20px; }
+            .success-animal { font-size: 120px; }
+            .success-content h2 { font-size: 28px; }
+            .big-number { font-size: 60px; }
+            .game-big-number { font-size: 50px; }
+        }
+
+        @media (min-width: 768px) {
+            .canvas-container {
+                width: 350px;
+                height: 350px;
+            }
+        }
+
+        @media (max-height: 500px) and (orientation: landscape) {
+            .game-header {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .game-area { gap: 10px; }
+            .number-top-display { margin-bottom: 5px; }
+            .game-big-number { font-size: 40px; }
+            .canvas-container {
+                width: 40vh;
+                height: 40vh;
+                max-width: 200px;
+                max-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- صفحه بررسی اینترنت -->
+    <div id="internet-check" class="screen active">
+        <div class="internet-content">
+            <div class="wifi-icon">📶</div>
+            <h2>بررسی اتصال اینترنت</h2>
+            <p>برای شروع بازی به اینترنت نیاز داریم</p>
+            <div id="connection-status" class="status-text">در حال بررسی...</div>
+        </div>
+    </div>
+
+    <!-- صفحه دانلود -->
+    <div id="download-screen" class="screen">
+        <div class="download-content">
+            <div class="cloud-icon">☁️</div>
+            <h2>آماده‌سازی بازی</h2>
+            <p>ویدیوهای آموزشی دانلود می‌شوند...</p>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="download-progress" class="progress-fill"></div>
+                </div>
+                <span id="download-percent">0%</span>
+            </div>
+            <div id="download-status" class="download-status"></div>
+        </div>
+    </div>
+
+    <!-- صفحه اصلی -->
+    <div id="home-screen" class="screen">
+        <div class="home-content">
+            <div class="logo-section">
+                <div class="logo-emoji">🌟</div>
+                <h1>یادگیری اعداد</h1>
+                <p>بیا با هم اعداد فارسی رو یاد بگیریم!</p>
+            </div>
+            <div class="menu-buttons">
+                <button class="menu-btn guide-btn" onclick="showGuide()">
+                    <span class="btn-icon">📖</span>
+                    <span class="btn-text">راهنما</span>
+                </button>
+                <button class="menu-btn play-btn" onclick="startGame()">
+                    <span class="btn-icon">🎮</span>
+                    <span class="btn-text">شروع بازی</span>
+                </button>
+                <button class="menu-btn stats-btn" onclick="showStats()">
+                    <span class="btn-icon">📊</span>
+                    <span class="btn-text">آمار</span>
+                </button>
+            </div>
+            <div class="animals-preview">
+                <span class="animal">🦆</span>
+                <span class="animal">🐱</span>
+                <span class="animal">🐶</span>
+                <span class="animal">🦁</span>
+                <span class="animal">🐘</span>
+                <span class="animal">🦊</span>
+                <span class="animal">🐻</span>
+                <span class="animal">🐰</span>
+                <span class="animal">🦋</span>
+                <span class="animal">🦄</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه راهنما -->
+    <div id="guide-screen" class="screen">
+        <div class="guide-content">
+            <button class="back-btn" onclick="goHome()">→ بازگشت</button>
+            <h2>📖 راهنمای بازی</h2>
+            <div class="guide-steps">
+                <div class="guide-step">
+                    <div class="step-number">۱</div>
+                    <div class="step-text">ویدیوی آموزشی عدد رو ببین</div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-number">۲</div>
+                    <div class="step-text">اگه یادت نیومد دوباره ببین</div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-number">۳</div>
+                    <div class="step-text">حالا خودت عدد رو بنویس</div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-number">۴</div>
+                    <div class="step-text">آفرین! بریم مرحله بعد</div>
+                </div>
+            </div>
+            <div class="guide-animals">
+                <div class="guide-animal"><span>۱</span><span>🦆</span></div>
+                <div class="guide-animal"><span>۲</span><span>🐱</span></div>
+                <div class="guide-animal"><span>۳</span><span>🐶</span></div>
+                <div class="guide-animal"><span>۴</span><span>🦁</span></div>
+                <div class="guide-animal"><span>۵</span><span>🐘</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه آمار -->
+    <div id="stats-screen" class="screen">
+        <div class="stats-content">
+            <button class="back-btn" onclick="goHome()">→ بازگشت</button>
+            <h2>📊 آمار بازی</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-value" id="best-time">--</div>
+                    <div class="stat-label">بهترین زمان (ثانیه)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-value" id="max-level">۰</div>
+                    <div class="stat-label">بیشترین مرحله</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-value" id="progress">۰٪</div>
+                    <div class="stat-label">درصد پیشرفت</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎉</div>
+                    <div class="stat-value" id="wins">۰</div>
+                    <div class="stat-label">تعداد برد</div>
+                </div>
+            </div>
+            <button class="reset-btn" onclick="resetStats()">🔄 پاک کردن آمار</button>
+        </div>
+    </div>
+
+    <!-- صفحه ویدیو آموزشی -->
+    <div id="video-screen" class="screen">
+        <div class="video-content">
+            <div class="video-header">
+                <button class="back-btn" onclick="confirmExitVideo()">→ بازگشت</button>
+                <div class="level-badge">
+                    <span id="video-level">مرحله ۱</span>
+                </div>
+            </div>
+            <div class="video-number-display">
+                <span id="video-number" class="big-number">۱</span>
+                <span id="video-animal" class="video-animal">🦆</span>
+            </div>
+            <div class="video-wrapper">
+                <video id="tutorial-video" controls playsinline></video>
+            </div>
+            <p class="video-hint">به نحوه نوشتن عدد توجه کن!</p>
+            <div class="video-buttons">
+                <button class="video-btn replay-btn" onclick="replayVideo()">
+                    🔄 دوباره ببین
+                </button>
+            </div>
+            <div class="learned-question">
+                <p>یاد گرفتی؟ 🤔</p>
+                <div class="answer-buttons">
+                    <button class="answer-btn yes-btn" onclick="confirmLearned()">
+                        ✅ آره، بلدم!
+                    </button>
+                    <button class="answer-btn no-btn" onclick="replayVideo()">
+                        ❌ نه، دوباره ببینم
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه بازی -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <button class="home-btn" onclick="confirmExit()">🏠</button>
+            <div class="level-indicator">
+                <span>مرحله</span>
+                <span id="current-level">۱</span>
+                <span>از</span>
+                <span>۱۰</span>
+            </div>
+            <button class="help-btn" onclick="showVideoHelp()">🎬 ویدیو</button>
+        </div>
+        <div class="game-area">
+            <div class="number-top-display">
+                <span id="game-number" class="game-big-number">۱</span>
+                <span id="game-animal-small" class="game-animal-small">🦆</span>
+            </div>
+            <div id="game-message" class="game-message">
+                <span>حالا خودت بنویس! ✍️</span>
+            </div>
+            <div class="canvas-container">
+                <canvas id="draw-canvas"></canvas>
+            </div>
+            <div id="feedback" class="feedback hidden">
+                <span id="feedback-text"></span>
+            </div>
+        </div>
+        <div class="game-footer">
+            <button id="clear-btn" class="action-btn" onclick="clearCanvas()">
+                🗑️ پاک کردن
+            </button>
+            <button id="check-btn" class="action-btn primary" onclick="checkDrawing()">
+                ✓ بررسی
+            </button>
+        </div>
+    </div>
+
+    <!-- صفحه موفقیت -->
+    <div id="success-screen" class="screen">
+        <div class="success-content">
+            <div class="success-animal" id="success-animal">🦆</div>
+            <h2>آفرین! 🌟</h2>
+            <p id="success-message">عدد ۱ رو عالی نوشتی!</p>
+            <div class="stars">⭐⭐⭐</div>
+            <button class="next-btn" onclick="nextLevel()">مرحله بعد →</button>
+        </div>
+    </div>
+
+    <!-- صفحه پایان بازی -->
+    <div id="end-screen" class="screen">
+        <div class="end-content">
+            <div class="trophy">🏆</div>
+            <h2>تبریک! تو همه مراحل رو تموم کردی!</h2>
+            <div class="final-stats">
+                <p>زمان کل: <span id="total-time">۰</span> ثانیه</p>
+            </div>
+            <div class="all-animals" id="all-animals"></div>
+            <button class="play-again-btn" onclick="playAgain()">🔄 بازی مجدد</button>
+            <button class="home-return-btn" onclick="goHome()">🏠 صفحه اصلی</button>
+        </div>
+    </div>
+
+    <!-- پاپ‌آپ هشدار -->
+    <div id="warning-popup" class="popup hidden">
+        <div class="popup-content">
+            <div class="popup-icon">⚠️</div>
+            <p id="warning-text">اشتباه نوشتی! دوباره تلاش کن!</p>
+            <button onclick="closePopup()">باشه!</button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // متغیرهای سراسری
+        // ============================================
+        const ANIMALS = ['🦆', '🐱', '🐶', '🦁', '🐘', '🦊', '🐻', '🐰', '🦋', '🦄'];
+        const PERSIAN_NUMBERS = ['۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹', '۱۰'];
+        const VIDEO_URLS = [
+            'https://cdn.imgurl.ir/uploads/u414971_InShot__.mp4',
+            'https://cdn.imgurl.ir/uploads/j77600_InShot__.mp4',
+            'https://cdn.imgurl.ir/uploads/j386264_InShot__.mp4',
+            'https://cdn.imgurl.ir/uploads/h99820_InShot__.mp4',
+            'https://cdn.imgurl.ir/uploads/l23691_InShot__.mp4',
+            'https://cdn.imgurl.ir/uploads/s292705_InShot__.mp4',
+            'https://cdn.imgurl.ir/uploads/q030754_InShot__.mp4',
+            'https://cdn.imgurl.ir/uploads/u550067_InShot__.mp4',
+            'https://cdn.imgurl.ir/uploads/d021416_InShot__.mp4',
+            'https://cdn.imgurl.ir/uploads/o58839_InShot__.mp4'
+        ];
+
+        let currentLevel = 0;
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let canvas, ctx;
+        let gameStartTime = 0;
+        let levelStartTime = 0;
+        let videoBlobs = [];
+        let canvasInitialized = false;
+
+        let stats = {
+            bestTime: null,
+            maxLevel: 0,
+            totalWins: 0,
+            lastPlayed: null
+        };
+
+        // ============================================
+        // شروع برنامه
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            checkInternetConnection();
+        });
+
+        // ============================================
+        // بررسی اتصال اینترنت
+        // ============================================
+        function checkInternetConnection() {
+            const statusEl = document.getElementById('connection-status');
+            if (navigator.onLine) {
+                statusEl.textContent = 'اتصال برقرار است! ✓';
+                statusEl.classList.remove('error');
+                setTimeout(() => downloadVideos(), 500);
+            } else {
+                statusEl.textContent = 'اینترنت قطع است! لطفاً اتصال را برقرار کنید';
+                statusEl.classList.add('error');
+                window.addEventListener('online', () => {
+                    statusEl.textContent = 'اتصال برقرار شد! ✓';
+                    statusEl.classList.remove('error');
+                    setTimeout(() => downloadVideos(), 500);
+                });
+                window.addEventListener('offline', () => {
+                    statusEl.textContent = 'اینترنت قطع است! لطفاً اتصال را برقرار کنید';
+                    statusEl.classList.add('error');
+                });
+            }
+        }
+
+        // ============================================
+        // دانلود ویدیوها
+        // ============================================
+        async function downloadVideos() {
+            showScreen('download-screen');
+            const progressBar = document.getElementById('download-progress');
+            const percentText = document.getElementById('download-percent');
+            const statusText = document.getElementById('download-status');
+            videoBlobs = [];
+
+            for (let i = 0; i < VIDEO_URLS.length; i++) {
+                try {
+                    statusText.textContent = `دانلود ویدیوی ${PERSIAN_NUMBERS[i]}...`;
+                    const response = await fetch(VIDEO_URLS[i]);
+                    const blob = await response.blob();
+                    videoBlobs[i] = URL.createObjectURL(blob);
+                    const progress = ((i + 1) / VIDEO_URLS.length) * 100;
+                    progressBar.style.width = progress + '%';
+                    percentText.textContent = Math.round(progress) + '%';
+                } catch (error) {
+                    console.warn(`خطا در دانلود ویدیوی ${i + 1}:`, error);
+                    videoBlobs[i] = VIDEO_URLS[i];
+                    const progress = ((i + 1) / VIDEO_URLS.length) * 100;
+                    progressBar.style.width = progress + '%';
+                    percentText.textContent = Math.round(progress) + '%';
+                }
+            }
+
+            statusText.textContent = 'همه ویدیوها آماده شدند! ✓';
+            setTimeout(() => showScreen('home-screen'), 800);
+        }
+        // ============================================
+        // مدیریت صفحات
+        // ============================================
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+            
+            // اگر صفحه بازی است، کانواس را ریسپانسیو کن
+            if (screenId === 'game-screen') {
+                setTimeout(initCanvas, 100);
+            }
+        }
+
+        function goHome() {
+            showScreen('home-screen');
+        }
+
+        function showGuide() {
+            showScreen('guide-screen');
+        }
+
+        function showStats() {
+            updateStatsDisplay();
+            showScreen('stats-screen');
+        }
+
+        // ============================================
+        // آمار بازی
+        // ============================================
+        function loadStats() {
+            const saved = localStorage.getItem('numberGameStats');
+            if (saved) {
+                stats = JSON.parse(saved);
+            }
+        }
+
+        function saveStats() {
+            localStorage.setItem('numberGameStats', JSON.stringify(stats));
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('best-time').textContent =
+                stats.bestTime ? stats.bestTime + ' ثانیه' : '--';
+            document.getElementById('max-level').textContent =
+                toPersianNum(stats.maxLevel);
+            document.getElementById('progress').textContent =
+                toPersianNum(Math.round((stats.maxLevel / 10) * 100)) + '٪';
+            document.getElementById('wins').textContent =
+                toPersianNum(stats.totalWins);
+        }
+
+        function resetStats() {
+            if (confirm('آیا مطمئنید که می‌خواهید آمار را پاک کنید؟')) {
+                stats = {
+                    bestTime: null,
+                    maxLevel: 0,
+                    totalWins: 0,
+                    lastPlayed: null
+                };
+                saveStats();
+                updateStatsDisplay();
+            }
+        }
+
+        // ============================================
+        // شروع بازی
+        // ============================================
+        function startGame() {
+            currentLevel = 0;
+            gameStartTime = Date.now();
+            showVideoScreen(currentLevel);
+        }
+
+        // ============================================
+        // صفحه ویدیو آموزشی
+        // ============================================
+        function showVideoScreen(level) {
+            currentLevel = level;
+            document.getElementById('video-level').textContent = `مرحله ${PERSIAN_NUMBERS[level]}`;
+            document.getElementById('video-number').textContent = PERSIAN_NUMBERS[level];
+            document.getElementById('video-animal').textContent = ANIMALS[level];
+            const video = document.getElementById('tutorial-video');
+            if (videoBlobs[level]) {
+                video.src = videoBlobs[level];
+                video.load();
+            }
+            showScreen('video-screen');
+        }
+
+        function replayVideo() {
+            const video = document.getElementById('tutorial-video');
+            video.currentTime = 0;
+            video.play();
+        }
+
+        function confirmLearned() {
+            showGameScreen();
+        }
+
+        function confirmExitVideo() {
+            if (confirm('آیا می‌خواهی از بازی خارج شوی؟')) {
+                goHome();
+            }
+        }
+
+        function showVideoHelp() {
+            showVideoScreen(currentLevel);
+        }
+
+        // ============================================
+        // صفحه بازی
+        // ============================================
+        function showGameScreen() {
+            levelStartTime = Date.now();
+            document.getElementById('current-level').textContent = PERSIAN_NUMBERS[currentLevel];
+            document.getElementById('game-number').textContent = PERSIAN_NUMBERS[currentLevel];
+            document.getElementById('game-animal-small').textContent = ANIMALS[currentLevel];
+            updateGameMessage('حالا خودت بنویس! ✍️');
+            showScreen('game-screen');
+            setTimeout(() => {
+                clearCanvas();
+                document.getElementById('feedback').classList.add('hidden');
+            }, 150);
+        }
+
+        // ============================================
+        // کانواس و رسم
+        // ============================================
+        function initCanvas() {
+            canvas = document.getElementById('draw-canvas');
+            ctx = canvas.getContext('2d');
+            
+            // تنظیم اندازه کانواس
+            resizeCanvas();
+            
+            // فقط یک بار رویدادها اضافه شوند
+            if (!canvasInitialized) {
+                // رویدادهای ماوس
+                canvas.addEventListener('mousedown', startDrawing);
+                canvas.addEventListener('mousemove', draw);
+                canvas.addEventListener('mouseup', stopDrawing);
+                canvas.addEventListener('mouseleave', stopDrawing);
+                
+                // رویدادهای لمسی
+                canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+                canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+                canvas.addEventListener('touchend', stopDrawing);
+                
+                canvasInitialized = true;
+            }
+        }
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const rect = container.getBoundingClientRect();
+            
+            // تنظیم اندازه کانواس
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            
+            // تنظیم استایل قلم
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 8;
+            ctx.strokeStyle = '#6C63FF';
+        }
+
+        function getCanvasCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const coords = getCanvasCoords(e);
+            lastX = coords.x;
+            lastY = coords.y;
+            
+            // رسم یک نقطه برای شروع
+            ctx.beginPath();
+            ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#6C63FF';
+            ctx.fill();
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                startDrawing({ clientX: touch.clientX, clientY: touch.clientY });
+            }
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const coords = getCanvasCoords(e);
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(coords.x, coords.y);
+            ctx.stroke();
+            
+            lastX = coords.x;
+            lastY = coords.y;
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                draw({ clientX: touch.clientX, clientY: touch.clientY });
+            }
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function clearCanvas() {
+            if (ctx && canvas) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // ============================================
+        // بررسی رسم
+        // ============================================
+        function checkDrawing() {
+            if (!ctx || !canvas) {
+                showWarning('لطفاً صبر کنید...');
+                return;
+            }
+            
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imageData.data;
+            
+            let coloredPixels = 0;
+            for (let i = 3; i < pixels.length; i += 4) {
+                if (pixels[i] > 20) coloredPixels++;
+            }
+            
+            const canvasArea = canvas.width * canvas.height;
+            const fillRatio = coloredPixels / canvasArea;
+            
+            // حداقل پیکسل‌های رنگی
+            const minPixels = 100;
+            if (coloredPixels < minPixels) {
+                showWarning('خیلی کم نوشتی! دوباره تلاش کن');
+                return;
+            }
+            
+            // حداقل نسبت پر شدن
+            if (fillRatio < 0.005) {
+                showWarning('خیلی کم نوشتی! دوباره تلاش کن');
+                return;
+            }
+            
+            // حداکثر نسبت پر شدن
+            if (fillRatio > 0.8) {
+                showWarning('خیلی بزرگ نوشتی! سعی کن کوچکتر بنویسی');
+                return;
+            }
+            
+            // بررسی پراکندگی مرکزی
+            const centerRatio = analyzeCenterBalance(pixels, canvas.width, canvas.height);
+            if (centerRatio < 0.2) {
+                showWarning('عدد رو وسط کاغذ بنویس');
+                return;
+            }
+            
+            levelSuccess();
+        }
+
+        function analyzeCenterBalance(pixels, width, height) {
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 2;
+            let centerPixels = 0;
+            let totalPixels = 0;
+            
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const i = (y * width + x) * 4 + 3;
+                    if (pixels[i] > 20) {
+                        totalPixels++;
+                        const dist = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+                        if (dist < radius * 0.9) {
+                            centerPixels++;
+                        }
+                    }
+                }
+            }
+            
+            if (totalPixels === 0) return 0;
+            return centerPixels / totalPixels;
+        }
+
+        // ============================================
+        // موفقیت در مرحله
+        // ============================================
+        function levelSuccess() {
+            showFeedback('آفرین! 🌟', 'correct');
+            playSuccessSound();
+            
+            setTimeout(() => {
+                document.getElementById('success-animal').textContent = ANIMALS[currentLevel];
+                document.getElementById('success-message').textContent =
+                    `عدد ${PERSIAN_NUMBERS[currentLevel]} رو عالی نوشتی!`;
+                showScreen('success-screen');
+            }, 800);
+        }
+
+        function nextLevel() {
+            currentLevel++;
+            if (currentLevel >= 10) {
+                gameComplete();
+            } else {
+                showVideoScreen(currentLevel);
+            }
+        }
+
+        // ============================================
+        // پایان بازی
+        // ============================================
+        function gameComplete() {
+            const totalTime = Math.round((Date.now() - gameStartTime) / 1000);
+            
+            if (!stats.bestTime || totalTime < stats.bestTime) {
+                stats.bestTime = totalTime;
+            }
+            if (currentLevel > stats.maxLevel) {
+                stats.maxLevel = currentLevel;
+            }
+            stats.totalWins++;
+            stats.lastPlayed = new Date().toISOString();
+            saveStats();
+            
+            document.getElementById('total-time').textContent = toPersianNum(totalTime);
+            const animalsContainer = document.getElementById('all-animals');
+            animalsContainer.innerHTML = ANIMALS.map(a => `<span>${a}</span>`).join('');
+            showScreen('end-screen');
+        }
+
+        function playAgain() {
+            currentLevel = 0;
+            gameStartTime = Date.now();
+            showVideoScreen(currentLevel);
+        }
+
+        // ============================================
+        // پیام‌ها و فیدبک
+        // ============================================
+        function updateGameMessage(text) {
+            document.getElementById('game-message').innerHTML = `<span>${text}</span>`;
+        }
+
+        function showFeedback(text, type) {
+            const feedback = document.getElementById('feedback');
+            const feedbackText = document.getElementById('feedback-text');
+            feedbackText.textContent = text;
+            feedback.className = `feedback ${type}`;
+            setTimeout(() => {
+                feedback.classList.add('hidden');
+            }, 1500);
+        }
+
+        function showWarning(text) {
+            document.getElementById('warning-text').textContent = text;
+            document.getElementById('warning-popup').classList.remove('hidden');
+            document.body.style.animation = 'shake 0.5s ease';
+            setTimeout(() => {
+                document.body.style.animation = '';
+            }, 500);
+            setTimeout(() => {
+                clearCanvas();
+            }, 500);
+        }
+
+        function closePopup() {
+            document.getElementById('warning-popup').classList.add('hidden');
+        }
+
+        // ============================================
+        // خروج از بازی
+        // ============================================
+        function confirmExit() {
+            if (confirm('آیا می‌خواهی از بازی خارج شوی؟')) {
+                goHome();
+            }
+        }
+
+        // ============================================
+        // صداها
+        // ============================================
+        function playSuccessSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (e) {
+                // صدا پشتیبانی نمی‌شود
+            }
+        }
+
+        // ============================================
+        // تبدیل اعداد به فارسی
+        // ============================================
+        function toPersianNum(num) {
+            const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+            return String(num).replace(/[0-9]/g, d => persianDigits[d]);
+        }
+
+        // ============================================
+        // جلوگیری از زوم
+        // ============================================
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(e) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        document.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+        });
+
+        // ============================================
+        // ریسپانسیو کردن کانواس هنگام تغییر اندازه
+        // ============================================
+        window.addEventListener('resize', function() {
+            if (document.getElementById('game-screen').classList.contains('active')) {
+                setTimeout(resizeCanvas, 100);
+            }
+        });
+    </script>
+</body>
+</html>

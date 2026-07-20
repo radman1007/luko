@@ -1,0 +1,2085 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>خرگوش مهربان - بازی مسیریابی</title>
+  <style>
+/* ============================================
+   استایل‌های اصلی بازی
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    min-height: 100vh;
+    overflow: hidden;
+    direction: rtl;
+}
+
+/* ============================================
+   صفحات
+   ============================================ */
+.screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.screen.active {
+    display: flex;
+    opacity: 1;
+}
+
+.screen.overlay {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+}
+
+/* ============================================
+   ستاره‌های پس‌زمینه
+   ============================================ */
+.stars-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+        radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1px 1px at 230px 80px, #fff, transparent),
+        radial-gradient(2px 2px at 300px 150px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 350px 200px, #fff, transparent),
+        radial-gradient(2px 2px at 420px 50px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 500px 180px, #fff, transparent),
+        radial-gradient(2px 2px at 580px 100px, rgba(255,255,255,0.9), transparent);
+    background-repeat: repeat;
+    background-size: 600px 250px;
+    animation: twinkle 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* ============================================
+   صفحه منو
+   ============================================ */
+.menu-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    gap: 40px;
+}
+
+.rabbit-menu {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.rabbit-menu .rabbit-sprite {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+    animation: bounce 2s ease-in-out infinite;
+}
+
+.rabbit-menu .rabbit-sprite.sad {
+    animation: bounce-sad 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+@keyframes bounce-sad {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+.speech-bubble {
+    position: absolute;
+    top: -60px;
+    right: -80px;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    font-size: 18px;
+    color: #333;
+    white-space: nowrap;
+}
+
+.speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    right: 50px;
+    border: 10px solid transparent;
+    border-top-color: white;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 300px;
+}
+
+/* ============================================
+   دکمه‌ها
+   ============================================ */
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #434343 0%, #000000 100%);
+    color: white;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+    color: white;
+}
+
+.btn-large {
+    padding: 20px 40px;
+    font-size: 22px;
+}
+
+.btn-icon {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-icon:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.1);
+}
+
+/* ============================================
+   صفحه راهنما
+   ============================================ */
+.guide-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 30px;
+}
+
+.guide-content h2 {
+    color: #ffd700;
+    font-size: 32px;
+    margin-bottom: 30px;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.guide-text {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 500px;
+    color: white;
+    line-height: 2;
+    font-size: 18px;
+}
+
+.guide-text hr {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    margin: 20px 0;
+}
+
+.guide-text ul {
+    list-style: none;
+    padding: 0;
+}
+
+.guide-text li {
+    padding: 5px 0;
+    padding-right: 25px;
+    position: relative;
+}
+
+.guide-text li::before {
+    content: '🐰';
+    position: absolute;
+    right: 0;
+}
+
+/* ============================================
+   صفحه آمار
+   ============================================ */
+.stats-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 30px;
+}
+
+.stats-content h2 {
+    color: #4ecdc4;
+    font-size: 32px;
+    margin-bottom: 30px;
+    text-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 400px;
+    width: 100%;
+}
+
+.stat-card {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: scale(1.05);
+}
+
+.stat-icon {
+    font-size: 40px;
+}
+
+.stat-value {
+    font-size: 36px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+}
+
+/* ============================================
+   صفحه بازی
+   ============================================ */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 10px;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 15px;
+    margin-bottom: 10px;
+}
+
+.level-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffd700;
+    font-size: 18px;
+}
+
+.level-badge strong {
+    font-size: 24px;
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.timer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+}
+
+/* ============================================
+   صحنه بازی
+   ============================================ */
+.game-scene {
+    flex: 1;
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    min-height: 300px;
+}
+
+/* آسمان شب */
+.sky-night {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    background: linear-gradient(180deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    transition: opacity 0.5s ease;
+}
+
+.sky-night.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.moon {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(255,255,255,0.5), inset -10px -10px 20px rgba(0,0,0,0.1);
+}
+
+.stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(2px 2px at 50px 50px, #fff, transparent),
+        radial-gradient(2px 2px at 100px 80px, #fff, transparent),
+        radial-gradient(1px 1px at 150px 30px, #fff, transparent),
+        radial-gradient(2px 2px at 200px 100px, #fff, transparent),
+        radial-gradient(1px 1px at 250px 60px, #fff, transparent),
+        radial-gradient(2px 2px at 300px 40px, #fff, transparent),
+        radial-gradient(1px 1px at 350px 90px, #fff, transparent),
+        radial-gradient(2px 2px at 400px 70px, #fff, transparent);
+    animation: twinkle 3s ease-in-out infinite;
+}
+
+/* آسمان روز */
+.sky-day {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    background: linear-gradient(180deg, #87CEEB 0%, #98D8C8 50%, #7EC8E3 100%);
+    transition: opacity 0.5s ease;
+}
+
+.sky-day.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sun {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    border-radius: 50%;
+    box-shadow: 0 0 50px rgba(255,215,0,0.8);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 50px rgba(255,215,0,0.8); }
+    50% { transform: scale(1.05); box-shadow: 0 0 70px rgba(255,215,0,1); }
+}
+
+/* ============================================
+   زمین بازی
+   ============================================ */
+.ground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 45%;
+    background: linear-gradient(180deg, #2d5a27 0%, #1e3d1a 100%);
+    border-top: 4px solid #4a7c43;
+}
+
+/* ============================================
+   نقطه شروع
+   ============================================ */
+.start-point {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: rgba(76, 175, 80, 0.3);
+    border: 3px dashed #4CAF50;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.start-point span {
+    color: white;
+    font-size: 8px;
+    font-weight: bold;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* ============================================
+   مسیر بازی - کاشی‌ها با فاصله
+   ============================================ */
+.path-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
+.path-tile {
+    position: absolute;
+    width: 55px;
+    height: 55px;
+    background: linear-gradient(145deg, #8B4513, #654321);
+    border: 4px solid #A0522D;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        0 6px 12px rgba(0,0,0,0.4),
+        inset 0 2px 4px rgba(255,255,255,0.15);
+    transition: all 0.3s ease;
+    z-index: 2;
+    /* فاصله از لبه‌ها */
+    margin: 5px;
+}
+
+.path-tile::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    height: 35%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.25), transparent);
+    border-radius: 8px 8px 50% 50%;
+}
+
+.tile-number {
+    font-size: 14px;
+    font-weight: bold;
+    color: rgba(255,255,255,0.95);
+    text-shadow: 0 2px 3px rgba(0,0,0,0.5);
+    margin-bottom: 2px;
+}
+
+.tile-arrow {
+    font-size: 20px;
+    color: #FFD700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* کاشی‌های درست و غلط */
+.path-tile.correct {
+    background: linear-gradient(145deg, #4CAF50, #45a049);
+    border-color: #81C784;
+    animation: tile-correct 0.5s ease;
+}
+
+.path-tile.wrong {
+    background: linear-gradient(145deg, #f44336, #d32f2f);
+    border-color: #ef5350;
+    animation: tile-wrong 0.5s ease;
+}
+
+@keyframes tile-correct {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+@keyframes tile-wrong {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+}
+
+/* ============================================
+   خانه - با فاصله از آخرین کاشی
+   ============================================ */
+.home {
+    position: absolute;
+    width: 80px;
+    height: 90px;
+    z-index: 1;
+    /* فاصله از کاشی‌ها */
+    margin-right: 15px;
+}
+
+.home-body {
+    position: absolute;
+    bottom: 0;
+    left: 5px;
+    width: 70px;
+    height: 55px;
+    background: linear-gradient(135deg, #FFE4B5, #DEB887);
+    border: 4px solid #D2691E;
+    border-radius: 6px;
+}
+
+.home-roof {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-left: 40px solid transparent;
+    border-right: 40px solid transparent;
+    border-bottom: 40px solid #8B0000;
+    filter: drop-shadow(0 -2px 3px rgba(0,0,0,0.2));
+}
+
+.home-door {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 30px;
+    background: linear-gradient(135deg, #8B4513, #654321);
+    border-radius: 4px 4px 0 0;
+    border: 2px solid #5D3A1A;
+}
+
+.home-window {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(135deg, #87CEEB, #4682B4);
+    border: 2px solid #5D3A1A;
+    border-radius: 3px;
+    top: 38px;
+}
+
+.home-window:first-of-type {
+    left: 12px;
+}
+
+.home-window:last-of-type {
+    right: 12px;
+}
+
+/* ============================================
+   خرگوش
+   ============================================ */
+.rabbit-game {
+    position: absolute;
+    width: 55px;
+    height: 55px;
+    z-index: 10;
+    transition: all 0.4s ease;
+}
+
+.rabbit-game .rabbit-sprite {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));
+}
+
+.rabbit-game.moving {
+    animation: rabbit-hop 0.4s ease;
+}
+
+.rabbit-game.hit-wall {
+    animation: hit-wall 0.5s ease;
+}
+
+@keyframes rabbit-hop {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1) translateY(-5px); }
+}
+
+@keyframes hit-wall {
+    0%, 100% { transform: rotate(0deg); }
+    20% { transform: rotate(-20deg) scale(0.9); }
+    40% { transform: rotate(20deg) scale(0.9); }
+    60% { transform: rotate(-10deg); }
+    80% { transform: rotate(10deg); }
+}
+
+/* ============================================
+   ناحیه ورودی حرکت
+   ============================================ */
+.move-input-area {
+    padding: 15px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 15px;
+    margin-top: 10px;
+}
+
+.move-slots {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    min-height: 55px;
+}
+
+.move-slot {
+    width: 50px;
+    height: 50px;
+    background: rgba(255,255,255,0.1);
+    border: 3px dashed rgba(255,255,255,0.3);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.move-slot:hover {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.5);
+}
+
+.move-slot.filled {
+    background: rgba(255,255,255,0.2);
+    border: 3px solid rgba(255,255,255,0.5);
+}
+
+.move-slot.correct {
+    background: rgba(76, 175, 80, 0.4);
+    border-color: #4CAF50;
+    border-style: solid;
+}
+
+.move-slot.wrong {
+    background: rgba(244, 67, 54, 0.4);
+    border-color: #f44336;
+    border-style: solid;
+}
+
+.move-slot.drag-over {
+    background: rgba(255, 215, 0, 0.3);
+    border-color: #ffd700;
+    transform: scale(1.1);
+}
+
+.move-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.move-btn {
+    width: 65px;
+    height: 65px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 15px;
+    font-size: 30px;
+    cursor: grab;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.move-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.move-btn:active {
+    cursor: grabbing;
+    transform: scale(0.95);
+}
+
+.move-btn.dragging {
+    opacity: 0.5;
+    transform: scale(0.9);
+}
+
+/* ============================================
+   دکمه‌های اکشن
+   ============================================ */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.action-buttons .btn {
+    flex: 1;
+    max-width: 200px;
+}
+
+/* ============================================
+   صفحه جشن
+   ============================================ */
+.celebration-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.rabbit-celebration {
+    margin-bottom: 20px;
+}
+
+.rabbit-celebration .rabbit-sprite {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    animation: celebrate 1s ease-in-out infinite;
+}
+
+.rabbit-celebration .rabbit-sprite.happy {
+    animation: celebrate 0.5s ease-in-out infinite;
+}
+
+@keyframes celebrate {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.1) rotate(-5deg); }
+    75% { transform: scale(1.1) rotate(5deg); }
+}
+
+.celebration-title {
+    font-size: 48px;
+    color: #ffd700;
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+    margin-bottom: 10px;
+    animation: title-bounce 1s ease-in-out infinite;
+}
+
+@keyframes title-bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.celebration-text {
+    font-size: 24px;
+    color: white;
+    margin-bottom: 30px;
+}
+
+.celebration-stats {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding: 20px 40px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.celebration-stats p {
+    color: white;
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+/* کانفتی */
+.confetti {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.confetti-piece {
+    position: absolute;
+    top: -20px;
+    width: 12px;
+    height: 12px;
+    animation: confetti-fall 3s ease-out forwards;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* ============================================
+   صفحه مکث
+   ============================================ */
+.pause-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    gap: 20px;
+}
+
+.pause-content h2 {
+    font-size: 48px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.pause-content .btn {
+    width: 200px;
+}
+
+/* ============================================
+   نوتیفیکیشن
+   ============================================ */
+.toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.9);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 16px;
+    z-index: 2000;
+    animation: toast-show 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+.toast.hidden {
+    display: none;
+}
+
+@keyframes toast-show {
+    0% { transform: translateX(-50%) translateY(20px); opacity: 0; }
+    100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+/* ============================================
+   ریسپانسیو
+   ============================================ */
+@media (max-width: 600px) {
+    .game-header {
+        padding: 8px 15px;
+    }
+    
+    .level-badge {
+        font-size: 14px;
+    }
+    
+    .timer {
+        font-size: 16px;
+    }
+    
+    .move-slot {
+        width: 42px;
+        height: 42px;
+        font-size: 22px;
+    }
+    
+    .move-btn {
+        width: 55px;
+        height: 55px;
+        font-size: 26px;
+    }
+    
+    .path-tile {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .tile-number {
+        font-size: 12px;
+    }
+    
+    .tile-arrow {
+        font-size: 16px;
+    }
+    
+    .start-point {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .home {
+        width: 65px;
+        height: 75px;
+        margin-right: 10px;
+    }
+    
+    .home-body {
+        width: 55px;
+        height: 45px;
+    }
+    
+    .home-roof {
+        border-left-width: 32px;
+        border-right-width: 32px;
+        border-bottom-width: 32px;
+    }
+    
+    .home-door {
+        width: 16px;
+        height: 24px;
+    }
+    
+    .home-window {
+        width: 12px;
+        height: 12px;
+        top: 30px;
+    }
+    
+    .home-window:first-of-type {
+        left: 8px;
+    }
+    
+    .home-window:last-of-type {
+        right: 8px;
+    }
+    
+    .rabbit-game {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        font-size: 16px;
+    }
+    
+    .celebration-title {
+        font-size: 36px;
+    }
+}
+  </style>
+</head>
+<body>
+    <!-- صفحه اصلی منو -->
+    <div id="menu-screen" class="screen active">
+        <div class="stars-bg"></div>
+        <div class="menu-content">
+            <div class="rabbit-menu">
+                <img src="https://cdn.imgurl.ir/uploads/s20279_InShot_20260415_001853181.png"
+                     alt="خرگوش"
+                     class="rabbit-sprite sad">
+                <div class="speech-bubble">
+                    <p>میشه منو به خونه برسونی؟ 🏠</p>
+                </div>
+            </div>
+            <div class="menu-buttons">
+                <button id="btn-start" class="btn btn-primary">
+                    <span class="icon">🎮</span>
+                    <span>شروع بازی</span>
+                </button>
+                <button id="btn-guide" class="btn btn-secondary">
+                    <span class="icon">📖</span>
+                    <span>راهنما</span>
+                </button>
+                <button id="btn-stats" class="btn btn-secondary">
+                    <span class="icon">📊</span>
+                    <span>آمار</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه راهنما -->
+    <div id="guide-screen" class="screen">
+        <div class="stars-bg"></div>
+        <div class="guide-content">
+            <h2>📖 راهنمای بازی</h2>
+            <div class="guide-text">
+                <p>🐰 خرگوش کوچولوی ما گم شده!</p>
+                <p>باید با انتخاب جهت‌های درست، او را به خانه‌اش برسانی.</p>
+                <hr>
+                <p>🎯 <strong>نحوه بازی:</strong></p>
+                <ul>
+                    <li>مسیر خالی را با جهت‌ها پر کن</li>
+                    <li>می‌توانی بکشی یا کلیک کنی</li>
+                    <li>بعد از پر کردن، دکمه اجرا را بزن</li>
+                    <li>حرکات درست سبز، غلط قرمز می‌شود</li>
+                </ul>
+                <hr>
+                <p>⭐ هر چه سریع‌تر و کمتر اشتباه کنی، امتیاز بیشتر!</p>
+            </div>
+            <button id="btn-back-guide" class="btn btn-primary">بازگشت</button>
+        </div>
+    </div>
+
+    <!-- صفحه آمار -->
+    <div id="stats-screen" class="screen">
+        <div class="stars-bg"></div>
+        <div class="stats-content">
+            <h2>📊 آمار بازی</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-icon">✅</span>
+                    <span class="stat-value" id="stat-correct">0</span>
+                    <span class="stat-label">حرکت درست</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">❌</span>
+                    <span class="stat-value" id="stat-wrong">0</span>
+                    <span class="stat-label">حرکت غلط</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">🏆</span>
+                    <span class="stat-value" id="stat-level">1</span>
+                    <span class="stat-label">مرحله فعلی</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">⏱️</span>
+                    <span class="stat-value" id="stat-time">--:--</span>
+                    <span class="stat-label">بهترین زمان</span>
+                </div>
+            </div>
+            <button id="btn-back-stats" class="btn btn-primary">بازگشت</button>
+        </div>
+    </div>
+
+    <!-- صفحه بازی -->
+    <div id="game-screen" class="screen">
+        <div class="game-container">
+            <!-- هدر بازی -->
+            <div class="game-header">
+                <div class="level-badge">
+                    <span>مرحله</span>
+                    <strong id="current-level">1</strong>
+                </div>
+                <div class="timer">
+                    <span>⏱️</span>
+                    <span id="game-timer">00:00</span>
+                </div>
+                <button id="btn-pause" class="btn-icon">⏸️</button>
+            </div>
+
+            <!-- صحنه بازی -->
+            <div class="game-scene" id="game-scene">
+                <!-- آسمان شب -->
+                <div class="sky-night" id="sky-night">
+                    <div class="moon"></div>
+                    <div class="stars"></div>
+                </div>
+                <!-- آسمان روز (پنهان) -->
+                <div class="sky-day hidden" id="sky-day">
+                    <div class="sun"></div>
+                </div>
+
+                <!-- زمین بازی -->
+                <div class="ground" id="ground">
+                    <!-- خانه (پشت همه چیز) -->
+                    <div class="home" id="home">
+                        <div class="home-body"></div>
+                        <div class="home-roof"></div>
+                        <div class="home-door"></div>
+                        <div class="home-window"></div>
+                        <div class="home-window"></div>
+                    </div>
+
+                    <!-- مسیر بازی -->
+                    <div class="path-container" id="path-container"></div>
+
+                    <!-- نقطه شروع -->
+                    <div class="start-point" id="start-point">
+                        <span>START</span>
+                    </div>
+
+                    <!-- خرگوش (جلوی همه چیز) -->
+                    <div class="rabbit-game" id="rabbit-game">
+                        <img src="https://cdn.imgurl.ir/uploads/s20279_InShot_20260415_001853181.png"
+                             alt="خرگوش"
+                             class="rabbit-sprite">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ناحیه ورودی حرکت -->
+            <div class="move-input-area">
+                <div class="move-slots" id="move-slots"></div>
+                <div class="move-buttons" id="move-buttons">
+                    <button class="move-btn" data-direction="up">
+                        <span>⬆️</span>
+                    </button>
+                    <button class="move-btn" data-direction="down">
+                        <span>⬇️</span>
+                    </button>
+                    <button class="move-btn" data-direction="left">
+                        <span>⬅️</span>
+                    </button>
+                    <button class="move-btn" data-direction="right">
+                        <span>➡️</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- دکمه اجرا -->
+            <div class="action-buttons">
+                <button id="btn-clear" class="btn btn-danger">
+                    <span>🗑️</span>
+                    <span>پاک کردن</span>
+                </button>
+                <button id="btn-run" class="btn btn-success">
+                    <span>▶️</span>
+                    <span>اجرا</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه جشن -->
+    <div id="celebration-screen" class="screen">
+        <div class="celebration-content">
+            <div class="confetti"></div>
+            <div class="rabbit-celebration">
+                <img src="https://cdn.imgurl.ir/uploads/s20279_InShot_20260415_001853181.png"
+                     alt="خرگوش"
+                     class="rabbit-sprite happy">
+            </div>
+            <h1 class="celebration-title">🎉 آفرین! 🎉</h1>
+            <p class="celebration-text">خرگوش به خونه رسید!</p>
+            <div class="celebration-stats">
+                <p>حرکات درست: <span id="celeb-correct">0</span></p>
+                <p>حرکات غلط: <span id="celeb-wrong">0</span></p>
+                <p>زمان: <span id="celeb-time">00:00</span></p>
+            </div>
+            <button id="btn-next-level" class="btn btn-primary btn-large">
+                <span>مرحله بعد</span>
+                <span>➡️</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- صفحه مکث -->
+    <div id="pause-screen" class="screen overlay">
+        <div class="pause-content">
+            <h2>⏸️ مکث</h2>
+            <button id="btn-resume" class="btn btn-primary">ادامه بازی</button>
+            <button id="btn-restart" class="btn btn-secondary">شروع مجدد</button>
+            <button id="btn-quit" class="btn btn-danger">خروج</button>
+        </div>
+    </div>
+
+    <!-- پیام راهنما -->
+    <div id="hint-toast" class="toast hidden">
+        <span id="hint-text"></span>
+    </div>
+
+    <script>
+  // ============================================
+// متغیرهای سراسری
+// ============================================
+const GameState = {
+    currentScreen: 'menu',
+    currentLevel: 1,
+    moves: [],
+    correctMoves: 0,
+    wrongMoves: 0,
+    timer: 0,
+    timerInterval: null,
+    isPlaying: false,
+    rabbitPosition: { x: 0, y: 0 },
+    levels: [],
+    pathPositions: [],
+    currentPathIndex: 0
+};
+
+// آمار ذخیره شده
+let savedStats = {
+    totalCorrect: 0,
+    totalWrong: 0,
+    bestTime: null,
+    highestLevel: 1
+};
+
+// فاصله بین کاشی‌ها (درصد)
+const TILE_STEP = 10;
+
+// ============================================
+// سطوح بازی - با مختصات دقیق
+// ============================================
+// ============================================
+// سطوح بازی - با مختصات دقیق
+// ============================================
+function initLevels() {
+    GameState.levels = [
+        // مرحله 1 - ساده
+        {
+            name: 'اولین قدم',
+            rabbitStart: { x: 15, y: 30 },
+            path: [
+                { direction: 'up', count: 2 },
+                { direction: 'right', count: 4 },
+                { direction: 'down', count: 2 }
+            ]
+        },
+        // مرحله 2
+        {
+            name: 'پیچ و خم',
+            rabbitStart: { x: 10, y: 70 },
+            path: [
+                { direction: 'up', count: 2 },
+                { direction: 'right', count: 3 },
+                { direction: 'up', count: 2 },
+                { direction: 'right', count: 3 },
+                { direction: 'down', count: 4 }
+            ]
+        },
+        // مرحله 3
+        {
+            name: 'مارپیچ',
+            rabbitStart: { x: 80, y: 70 },
+            path: [
+                { direction: 'down', count: 2 },
+                { direction: 'left', count: 4 },
+                { direction: 'up', count: 3 },
+                { direction: 'left', count: 2 },
+                { direction: 'up', count: 2 }
+            ]
+        },
+        // مرحله 4
+        {
+            name: 'ماز',
+            rabbitStart: { x: 50, y: 75 },
+            path: [
+                { direction: 'up', count: 2 },
+                { direction: 'left', count: 3 },
+                { direction: 'up', count: 2 },
+                { direction: 'right', count: 5 },
+                { direction: 'up', count: 2 }
+            ]
+        },
+        // مرحله 5
+        {
+            name: 'چالش',
+            rabbitStart: { x: 20, y: 80 },
+            path: [
+                { direction: 'up', count: 3 },
+                { direction: 'right', count: 3 },
+                { direction: 'up', count: 2 },
+                { direction: 'right', count: 2 },
+                { direction: 'up', count: 2 },
+                { direction: 'right', count: 2 }
+            ]
+        }
+    ];
+}
+
+// ============================================
+// بارگذاری آمار از localStorage
+// ============================================
+function loadStats() {
+    const saved = localStorage.getItem('rabbitGameStats');
+    if (saved) {
+        savedStats = JSON.parse(saved);
+    }
+    updateStatsDisplay();
+}
+
+function saveStats() {
+    localStorage.setItem('rabbitGameStats', JSON.stringify(savedStats));
+}
+
+// ============================================
+// مدیریت صفحات
+// ============================================
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.classList.add('active');
+        GameState.currentScreen = screenId;
+    }
+}
+
+// ============================================
+// شروع بازی
+// ============================================
+function startGame() {
+    GameState.currentLevel = 1;
+    GameState.correctMoves = 0;
+    GameState.wrongMoves = 0;
+    GameState.timer = 0;
+    GameState.moves = [];
+    GameState.isPlaying = false;
+    showScreen('game-screen');
+    loadLevel(GameState.currentLevel);
+    startTimer();
+}
+
+// ============================================
+// بارگذاری مرحله
+// ============================================
+function loadLevel(levelNum) {
+    const levelIndex = (levelNum - 1) % GameState.levels.length;
+    const level = GameState.levels[levelIndex];
+
+    // تنظیم شماره مرحله
+    document.getElementById('current-level').textContent = levelNum;
+
+    // ریست کردن متغیرها
+    GameState.moves = [];
+    GameState.correctMoves = 0;
+    GameState.wrongMoves = 0;
+    GameState.isPlaying = false;
+    GameState.currentPathIndex = 0;
+    GameState.pathPositions = [];
+
+    // ساخت مسیر و محاسبه موقعیت‌ها
+    createPath(level);
+
+    // قرار دادن خرگوش در موقعیت شروع
+    const rabbit = document.getElementById('rabbit-game');
+    const rabbitStart = level.rabbitStart;
+    rabbit.style.left = `${rabbitStart.x}%`;
+    rabbit.style.bottom = `${rabbitStart.y}%`;
+    rabbit.style.transform = 'translate(-50%, 50%)';
+    GameState.rabbitPosition = { x: rabbitStart.x, y: rabbitStart.y };
+
+    // قرار دادن نقطه شروع
+    const startPoint = document.getElementById('start-point');
+    startPoint.style.left = `${rabbitStart.x}%`;
+    startPoint.style.bottom = `${rabbitStart.y}%`;
+    startPoint.style.transform = 'translate(-50%, 50%)';
+
+    // قرار دادن خانه در انتهای مسیر
+    positionHomeAtEnd(level);
+
+    // ساخت شکاف‌های حرکت
+    createMoveSlots(level);
+
+    // ریست آسمان به شب
+    document.getElementById('sky-night').classList.remove('hidden');
+    document.getElementById('sky-day').classList.add('hidden');
+
+    // پاک کردن انیمیشن‌های قبلی
+    rabbit.classList.remove('moving', 'hit-wall');
+}
+
+// ============================================
+// قرار دادن خانه در انتهای مسیر
+// ============================================
+function positionHomeAtEnd(level) {
+    const home = document.getElementById('home');
+
+    // محاسبه آخرین موقعیت مسیر
+    const lastPosition = GameState.pathPositions[GameState.pathPositions.length - 1];
+    if (lastPosition) {
+        // قرار دادن خانه با فاصله از آخرین کاشی
+        home.style.left = `${lastPosition.x}%`;
+        home.style.bottom = `${lastPosition.y}%`;
+        home.style.right = 'auto';
+        home.style.transform = 'translate(-50%, 50%)';
+    } else {
+        // fallback: محاسبه دستی آخرین موقعیت
+        let currentX = level.rabbitStart.x;
+        let currentY = level.rabbitStart.y;
+        level.path.forEach(segment => {
+            for (let i = 0; i < segment.count; i++) {
+                switch (segment.direction) {
+                    case 'up': currentY += TILE_STEP; break;
+                    case 'down': currentY -= TILE_STEP; break;
+                    case 'left': currentX -= TILE_STEP; break;
+                    case 'right': currentX += TILE_STEP; break;
+                }
+            }
+        });
+        home.style.left = `${currentX}%`;
+        home.style.bottom = `${currentY}%`;
+        home.style.right = 'auto';
+        home.style.transform = 'translate(-50%, 50%)';
+    }
+}
+
+// ============================================
+// ساخت مسیر بازی
+// ============================================
+function createPath(level) {
+    const container = document.getElementById('path-container');
+    container.innerHTML = '';
+
+    let currentX = level.rabbitStart.x;
+    let currentY = level.rabbitStart.y;
+
+    let moveIndex = 0;
+
+    // ایجاد کاشی‌ها برای هر حرکت
+    level.path.forEach((segment, segmentIndex) => {
+        for (let i = 0; i < segment.count; i++) {
+            const tile = document.createElement('div');
+            tile.className = 'path-tile';
+            tile.dataset.segment = segmentIndex;
+            tile.dataset.index = moveIndex;
+            tile.dataset.direction = segment.direction;
+
+            // موقعیت‌دهی - کاشی در نقطه شروع
+            const posX = currentX;
+            const posY = currentY;
+
+            tile.style.left = `${posX}%`;
+            tile.style.bottom = `${posY}%`;
+            tile.style.transform = 'translate(-50%, 50%)';
+
+            // شماره کاشی
+            const numberSpan = document.createElement('span');
+            numberSpan.className = 'tile-number';
+            numberSpan.textContent = moveIndex + 1;
+            tile.appendChild(numberSpan);
+
+            // فلش جهت
+            const arrowSpan = document.createElement('span');
+            arrowSpan.className = 'tile-arrow';
+            const arrows = {
+                'up': '↑',
+                'down': '↓',
+                'left': '←',
+                'right': '→'
+            };
+            arrowSpan.textContent = arrows[segment.direction];
+            tile.appendChild(arrowSpan);
+
+            container.appendChild(tile);
+
+            // ذخیره موقعیت برای حرکت خرگوش
+            GameState.pathPositions.push({
+                x: posX,
+                y: posY,
+                direction: segment.direction
+            });
+
+            // حرکت به موقعیت بعدی
+            switch (segment.direction) {
+                case 'up': currentY += TILE_STEP; break;
+                case 'down': currentY -= TILE_STEP; break;
+                case 'left': currentX -= TILE_STEP; break;
+                case 'right': currentX += TILE_STEP; break;
+            }
+
+            moveIndex++;
+        }
+    });
+}
+
+// ============================================
+// ساخت شکاف‌های حرکت
+// ============================================
+function createMoveSlots(level) {
+    const slotsContainer = document.getElementById('move-slots');
+    slotsContainer.innerHTML = '';
+
+    const totalMoves = level.path.reduce((sum, p) => sum + p.count, 0);
+
+    for (let i = 0; i < totalMoves; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'move-slot';
+        slot.dataset.index = i;
+
+        // کلیک برای پاک کردن
+        slot.addEventListener('click', () => {
+            if (slot.classList.contains('filled') && !GameState.isPlaying) {
+                slot.classList.remove('filled');
+                slot.textContent = '';
+                slot.removeAttribute('data-direction');
+                GameState.moves[i] = null;
+            }
+        });
+
+        // Drag & Drop
+        slot.addEventListener('dragover', handleDragOver);
+        slot.addEventListener('dragleave', handleDragLeave);
+        slot.addEventListener('drop', handleDrop);
+
+        slotsContainer.appendChild(slot);
+    }
+}
+
+// ============================================
+// تایمر
+// ============================================
+function startTimer() {
+    stopTimer();
+    GameState.timer = 0;
+    updateTimerDisplay();
+    GameState.timerInterval = setInterval(() => {
+        GameState.timer++;
+        updateTimerDisplay();
+    }, 1000);
+}
+
+function stopTimer() {
+    if (GameState.timerInterval) {
+        clearInterval(GameState.timerInterval);
+        GameState.timerInterval = null;
+    }
+}
+
+function updateTimerDisplay() {
+    const minutes = Math.floor(GameState.timer / 60);
+    const seconds = GameState.timer % 60;
+    const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById('game-timer').textContent = display;
+}
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// ============================================
+// مدیریت drag & drop
+// ============================================
+let draggedDirection = null;
+
+document.querySelectorAll('.move-btn').forEach(btn => {
+    // Drag start
+    btn.addEventListener('dragstart', (e) => {
+        draggedDirection = btn.dataset.direction;
+        btn.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', draggedDirection);
+    });
+
+    // Drag end
+    btn.addEventListener('dragend', (e) => {
+        btn.classList.remove('dragging');
+        draggedDirection = null;
+    });
+
+    // Click to add
+    btn.addEventListener('click', () => {
+        if (GameState.isPlaying) return;
+        const emptySlot = findEmptySlot();
+        if (emptySlot !== -1) {
+            addMoveToSlot(emptySlot, btn.dataset.direction);
+        } else {
+            showToast('همه جای خالی‌ها پر شده!');
+        }
+    });
+});
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('drag-over');
+}
+
+function handleDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    const direction = e.dataTransfer.getData('text/plain') || draggedDirection;
+    if (direction) {
+        const slotIndex = parseInt(e.currentTarget.dataset.index);
+        addMoveToSlot(slotIndex, direction);
+    }
+}
+
+function findEmptySlot() {
+    const slots = document.querySelectorAll('.move-slot');
+    for (let i = 0; i < slots.length; i++) {
+        if (!slots[i].classList.contains('filled')) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+function addMoveToSlot(slotIndex, direction) {
+    const slots = document.querySelectorAll('.move-slot');
+    const slot = slots[slotIndex];
+    if (!slot) return;
+
+    const directionEmoji = {
+        'up': '⬆️',
+        'down': '⬇️',
+        'left': '⬅️',
+        'right': '➡️'
+    };
+
+    slot.textContent = directionEmoji[direction];
+    slot.classList.add('filled');
+    slot.dataset.direction = direction;
+    GameState.moves[slotIndex] = direction;
+}
+
+// ============================================
+// اجرای حرکات
+// ============================================
+function runMoves() {
+    const levelIndex = (GameState.currentLevel - 1) % GameState.levels.length;
+    const level = GameState.levels[levelIndex];
+
+    // ساخت مسیر مورد انتظار
+    const expectedPath = [];
+    level.path.forEach(segment => {
+        for (let i = 0; i < segment.count; i++) {
+            expectedPath.push(segment.direction);
+        }
+    });
+
+    // بررسی اینکه همه حرکات وارد شده‌اند
+    const filledMoves = GameState.moves.filter(m => m !== null && m !== undefined);
+    if (filledMoves.length < expectedPath.length) {
+        showToast(`هنوز ${expectedPath.length - filledMoves.length} حرکت باقی مانده!`);
+        return;
+    }
+
+    GameState.isPlaying = true;
+    GameState.currentPathIndex = 0;
+    document.getElementById('btn-run').disabled = true;
+    document.getElementById('btn-clear').disabled = true;
+
+    // اجرای حرکات یکی یکی
+    executeMove(0, expectedPath);
+}
+
+async function executeMove(index, expectedPath) {
+    if (index >= expectedPath.length) {
+        // پایان حرکات
+        setTimeout(() => {
+            GameState.isPlaying = false;
+            document.getElementById('btn-run').disabled = false;
+            document.getElementById('btn-clear').disabled = false;
+            // بررسی برد
+            checkWin();
+        }, 500);
+        return;
+    }
+
+    const move = GameState.moves[index];
+    const expected = expectedPath[index];
+    const slot = document.querySelectorAll('.move-slot')[index];
+    const rabbit = document.getElementById('rabbit-game');
+
+    if (move === expected) {
+        // حرکت درست
+        slot.classList.add('correct');
+        GameState.correctMoves++;
+
+        // حرکت خرگوش به کاشی بعدی
+        await moveRabbitToTile(index);
+
+        // هایلایت کاشی
+        highlightTile(index, 'correct');
+        GameState.currentPathIndex = index + 1;
+
+        setTimeout(() => {
+            executeMove(index + 1, expectedPath);
+        }, 400);
+    } else {
+        // حرکت اشتباه
+        slot.classList.add('wrong');
+        GameState.wrongMoves++;
+
+        // خرگوش به دیوار می‌خورد
+        rabbit.classList.add('hit-wall');
+        setTimeout(() => rabbit.classList.remove('hit-wall'), 500);
+
+        showToast('اشتباه! بقیه رو کمک کن 💪');
+
+        // پاک کردن حرکات بعدی و برگرداندن خرگوش
+        setTimeout(() => {
+            clearWrongMoves(index + 1);
+            GameState.isPlaying = false;
+            document.getElementById('btn-run').disabled = false;
+            document.getElementById('btn-clear').disabled = false;
+        }, 1000);
+    }
+}
+
+async function moveRabbitToTile(tileIndex) {
+    const rabbit = document.getElementById('rabbit-game');
+    const position = GameState.pathPositions[tileIndex];
+    if (!position) return;
+
+    rabbit.classList.add('moving');
+
+    return new Promise(resolve => {
+        // حرکت خرگوش به موقعیت کاشی
+        rabbit.style.left = `${position.x}%`;
+        rabbit.style.bottom = `${position.y}%`;
+        rabbit.style.transform = 'translate(-50%, 50%)';
+
+        setTimeout(() => {
+            rabbit.classList.remove('moving');
+            resolve();
+        }, 400);
+    });
+}
+
+function highlightTile(index, status) {
+    const tiles = document.querySelectorAll('.path-tile');
+    if (tiles[index]) {
+        tiles[index].classList.add(status);
+    }
+}
+
+function clearWrongMoves(fromIndex) {
+    const slots = document.querySelectorAll('.move-slot');
+    const tiles = document.querySelectorAll('.path-tile');
+
+    for (let i = fromIndex; i < slots.length; i++) {
+        slots[i].classList.remove('filled', 'correct', 'wrong');
+        slots[i].textContent = '';
+        slots[i].removeAttribute('data-direction');
+        GameState.moves[i] = null;
+
+        if (tiles[i]) {
+            tiles[i].classList.remove('correct', 'wrong');
+        }
+    }
+
+    // برگرداندن خرگوش به آخرین حرکت درست
+    const rabbit = document.getElementById('rabbit-game');
+    const correctIndex = fromIndex - 1;
+
+    if (correctIndex >= 0 && GameState.pathPositions[correctIndex]) {
+        const pos = GameState.pathPositions[correctIndex];
+        rabbit.style.left = `${pos.x}%`;
+        rabbit.style.bottom = `${pos.y}%`;
+        rabbit.style.transform = 'translate(-50%, 50%)';
+        GameState.currentPathIndex = correctIndex + 1;
+    } else {
+        // برگشت به نقطه شروع
+        const levelIndex = (GameState.currentLevel - 1) % GameState.levels.length;
+        const level = GameState.levels[levelIndex];
+        rabbit.style.left = `${level.rabbitStart.x}%`;
+        rabbit.style.bottom = `${level.rabbitStart.y}%`;
+        rabbit.style.transform = 'translate(-50%, 50%)';
+        GameState.currentPathIndex = 0;
+    }
+}
+
+// ============================================
+// بررسی برد
+// ============================================
+function checkWin() {
+    const levelIndex = (GameState.currentLevel - 1) % GameState.levels.length;
+    const level = GameState.levels[levelIndex];
+
+    const expectedPath = [];
+    level.path.forEach(segment => {
+        for (let i = 0; i < segment.count; i++) {
+            expectedPath.push(segment.direction);
+        }
+    });
+
+    const allCorrect = GameState.moves.every((move, i) => move === expectedPath[i]);
+
+    if (allCorrect) {
+        // برد! خرگوش به خانه می‌رسد
+        celebrateWin();
+    }
+}
+
+// ============================================
+// جشن برد
+// ============================================
+function celebrateWin() {
+    stopTimer();
+
+    // حرکت خرگوش به سمت خانه (آخرین موقعیت مسیر)
+    const rabbit = document.getElementById('rabbit-game');
+    const lastPosition = GameState.pathPositions[GameState.pathPositions.length - 1];
+
+    if (lastPosition) {
+        rabbit.style.left = `${lastPosition.x}%`;
+        rabbit.style.bottom = `${lastPosition.y}%`;
+        rabbit.style.transform = 'translate(-50%, 50%)';
+    }
+
+    // تغییر آسمان به روز
+    setTimeout(() => {
+        document.getElementById('sky-night').classList.add('hidden');
+        document.getElementById('sky-day').classList.remove('hidden');
+    }, 500);
+
+    // آپدیت آمار
+    savedStats.totalCorrect += GameState.correctMoves;
+    savedStats.totalWrong += GameState.wrongMoves;
+
+    if (GameState.currentLevel > savedStats.highestLevel) {
+        savedStats.highestLevel = GameState.currentLevel;
+    }
+
+    if (!savedStats.bestTime || GameState.timer < savedStats.bestTime) {
+        savedStats.bestTime = GameState.timer;
+    }
+
+    saveStats();
+
+    // نمایش صفحه جشن
+    setTimeout(() => {
+        document.getElementById('celeb-correct').textContent = GameState.correctMoves;
+        document.getElementById('celeb-wrong').textContent = GameState.wrongMoves;
+        document.getElementById('celeb-time').textContent = formatTime(GameState.timer);
+        createConfetti();
+        showScreen('celebration-screen');
+    }, 1500);
+}
+
+// ============================================
+// کانفتی
+// ============================================
+function createConfetti() {
+    const container = document.querySelector('.confetti');
+    container.innerHTML = '';
+
+    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3'];
+    const shapes = ['square', 'circle'];
+
+    for (let i = 0; i < 60; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = `${Math.random() * 2}s`;
+        piece.style.animationDuration = `${2 + Math.random() * 2}s`;
+
+        if (shapes[Math.floor(Math.random() * shapes.length)] === 'circle') {
+            piece.style.borderRadius = '50%';
+        }
+
+        container.appendChild(piece);
+    }
+}
+
+// ============================================
+// مرحله بعد
+// ============================================
+function nextLevel() {
+    GameState.currentLevel++;
+    GameState.moves = [];
+    showScreen('game-screen');
+    loadLevel(GameState.currentLevel);
+    startTimer();
+}
+
+// ============================================
+// پاک کردن حرکات
+// ============================================
+function clearMoves() {
+    if (GameState.isPlaying) return;
+
+    const slots = document.querySelectorAll('.move-slot');
+    const tiles = document.querySelectorAll('.path-tile');
+
+    slots.forEach(slot => {
+        slot.classList.remove('filled', 'correct', 'wrong');
+        slot.textContent = '';
+        slot.removeAttribute('data-direction');
+    });
+
+    tiles.forEach(tile => {
+        tile.classList.remove('correct', 'wrong');
+    });
+
+    GameState.moves = [];
+    GameState.currentPathIndex = 0;
+
+    // برگرداندن خرگوش به موقعیت شروع
+    const levelIndex = (GameState.currentLevel - 1) % GameState.levels.length;
+    const level = GameState.levels[levelIndex];
+    const rabbit = document.getElementById('rabbit-game');
+
+    rabbit.style.left = `${level.rabbitStart.x}%`;
+    rabbit.style.bottom = `${level.rabbitStart.y}%`;
+    rabbit.style.transform = 'translate(-50%, 50%)';
+}
+
+// ============================================
+// مکث
+// ============================================
+function pauseGame() {
+    if (GameState.currentScreen === 'game-screen') {
+        stopTimer();
+        showScreen('pause-screen');
+    }
+}
+
+function resumeGame() {
+    startTimer();
+    showScreen('game-screen');
+}
+
+// ============================================
+// آمار
+// ============================================
+function updateStatsDisplay() {
+    document.getElementById('stat-correct').textContent = savedStats.totalCorrect;
+    document.getElementById('stat-wrong').textContent = savedStats.totalWrong;
+    document.getElementById('stat-level').textContent = savedStats.highestLevel;
+    document.getElementById('stat-time').textContent = savedStats.bestTime
+        ? formatTime(savedStats.bestTime)
+        : '--:--';
+}
+
+// ============================================
+// نوتیفیکیشن
+// ============================================
+function showToast(message) {
+    const toast = document.getElementById('hint-toast');
+    const text = document.getElementById('hint-text');
+    text.textContent = message;
+    toast.classList.remove('hidden');
+
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 2500);
+}
+
+// ============================================
+// رویدادهای دکمه‌ها
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    // منوی اصلی
+    document.getElementById('btn-start').addEventListener('click', startGame);
+    document.getElementById('btn-guide').addEventListener('click', () => showScreen('guide-screen'));
+    document.getElementById('btn-stats').addEventListener('click', () => {
+        updateStatsDisplay();
+        showScreen('stats-screen');
+    });
+
+    // برگشت از راهنما
+    document.getElementById('btn-back-guide').addEventListener('click', () => showScreen('menu-screen'));
+
+    // برگشت از آمار
+    document.getElementById('btn-back-stats').addEventListener('click', () => showScreen('menu-screen'));
+
+    // دکمه‌های بازی
+    document.getElementById('btn-run').addEventListener('click', runMoves);
+    document.getElementById('btn-clear').addEventListener('click', clearMoves);
+    document.getElementById('btn-pause').addEventListener('click', pauseGame);
+
+    // صفحه مکث
+    document.getElementById('btn-resume').addEventListener('click', resumeGame);
+    document.getElementById('btn-restart').addEventListener('click', () => {
+        showScreen('game-screen');
+        loadLevel(GameState.currentLevel);
+        startTimer();
+    });
+    document.getElementById('btn-quit').addEventListener('click', () => {
+        stopTimer();
+        showScreen('menu-screen');
+    });
+
+    // مرحله بعد
+    document.getElementById('btn-next-level').addEventListener('click', nextLevel);
+
+    // شروع
+    initLevels();
+    loadStats();
+});
+
+// ============================================
+// ذخیره/بارگذاری خودکار
+// ============================================
+window.addEventListener('beforeunload', () => {
+    if (GameState.currentScreen === 'game-screen') {
+        const saveData = {
+            level: GameState.currentLevel,
+            moves: GameState.moves,
+            timer: GameState.timer
+        };
+        localStorage.setItem('rabbitGameSave', JSON.stringify(saveData));
+    }
+});
+  </script>
+</body>
+</html>

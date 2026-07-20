@@ -1,0 +1,2360 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>قطار اعداد - بازی آموزشی کودکان</title>
+    <style>
+        :root {
+    --primary: #4CAF50;
+    --secondary: #2196F3;
+    --danger: #f44336;
+    --warning: #ff9800;
+    --dark: #2c3e50;
+    --light: #ecf0f1;
+    --wagon-1: #e74c3c;
+    --wagon-2: #e67e22;
+    --wagon-3: #f1c40f;
+    --wagon-4: #2ecc71;
+    --wagon-5: #1abc9c;
+    --wagon-6: #3498db;
+    --wagon-7: #9b59b6;
+    --wagon-8: #e91e63;
+    --wagon-9: #795548;
+    --wagon-10: #607d8b;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Vazirmatn', sans-serif;
+    touch-action: manipulation;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* صفحه خوش آمدگویی */
+#welcome-screen {
+    background: linear-gradient(180deg, #87CEEB 0%, #F4A460 100%);
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    padding: 20px;
+}
+
+.welcome-content {
+    text-align: center;
+    z-index: 5;
+    width: 100%;
+    max-width: 400px;
+}
+
+.train-icon {
+    width: 60%;
+    max-width: 250px;
+    height: auto;
+    margin: 0 auto 20px;
+    animation: trainMove 2s ease-in-out infinite;
+}
+
+@keyframes trainMove {
+    0%, 100% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+}
+
+#welcome-screen h1 {
+    font-size: clamp(1.8rem, 8vw, 2.5rem);
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: clamp(0.9rem, 4vw, 1.2rem);
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+/* آمار در صفحه خوش آمدگویی */
+.welcome-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.stat-box {
+    background: rgba(255,255,255,0.9);
+    padding: 12px 8px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.stat-box.win { border: 2px solid var(--primary); }
+.stat-box.lose { border: 2px solid var(--danger); }
+.stat-box.growth { border: 2px solid var(--secondary); }
+
+.stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.stat-num {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--dark);
+}
+
+.stat-box.win .stat-num { color: var(--primary); }
+.stat-box.lose .stat-num { color: var(--danger); }
+.stat-box.growth .stat-num { color: var(--secondary); }
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+/* ابرها */
+.clouds {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.cloud {
+    position: absolute;
+    background: rgba(255,255,255,0.8);
+    border-radius: 50px;
+    animation: cloudFloat 20s linear infinite;
+}
+
+.cloud1 { width: 80px; height: 30px; top: 8%; left: -100px; animation-delay: 0s; }
+.cloud2 { width: 60px; height: 25px; top: 15%; left: -80px; animation-delay: 5s; }
+.cloud3 { width: 100px; height: 40px; top: 5%; left: -100px; animation-delay: 10s; }
+
+@keyframes cloudFloat {
+    from { transform: translateX(-150px); }
+    to { transform: translateX(calc(100vw + 150px)); }
+}
+
+/* دکمه‌ها */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 35px;
+    font-size: 1rem;
+    font-family: 'Vazirmatn', sans-serif;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    min-width: 140px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    color: white;
+}
+
+.btn-secondary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+}
+
+/* صفحه بازی */
+#game-screen {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    transition: background 1.5s ease;
+}
+
+#game-screen.forest {
+    background: linear-gradient(180deg, #87CEEB 0%, #98D8AA 50%, #4CAF50 100%);
+}
+
+/* هدر بازی */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+    min-height: 50px;
+    z-index: 100;
+}
+
+.timer-container, .moves-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: bold;
+}
+
+.timer-container svg, .moves-container svg {
+    fill: white;
+}
+
+#timer {
+    min-width: 45px;
+}
+
+#timer.warning {
+    color: var(--warning);
+    animation: pulse 0.5s ease-in-out infinite;
+}
+
+#timer.danger {
+    color: var(--danger);
+    animation: pulse 0.3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* صحنه بازی */
+#game-scene {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* آسمان */
+.sky {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    overflow: hidden;
+}
+
+.sun {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, #f1c40f 0%, #f39c12 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 40px #f1c40f, 0 0 80px rgba(241, 196, 15, 0.5);
+    transition: all 1.5s ease;
+}
+
+.forest .sun {
+    background: radial-gradient(circle, #81C784 0%, #4CAF50 100%);
+    box-shadow: 0 0 30px #C8E6C9;
+}
+
+/* کوه‌های دور */
+.mountains {
+    position: absolute;
+    bottom: 25%;
+    left: 0;
+    width: 100%;
+    height: 30%;
+}
+
+.mountain {
+    position: absolute;
+    bottom: 0;
+    border-radius: 50% 50% 0 0;
+}
+
+.m1 {
+    left: -10%;
+    width: 50%;
+    height: 80%;
+    background: linear-gradient(180deg, #8B7355 0%, #6B5344 100%);
+    opacity: 0.6;
+}
+
+.m2 {
+    left: 20%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(180deg, #9C8465 0%, #7A6454 100%);
+    opacity: 0.5;
+}
+
+.m3 {
+    right: -10%;
+    width: 55%;
+    height: 70%;
+    background: linear-gradient(180deg, #7A6355 0%, #5A4334 100%);
+    opacity: 0.6;
+}
+
+/* ابرهای بازی */
+.game-clouds {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.g-cloud {
+    position: absolute;
+    background: rgba(255,255,255,0.7);
+    border-radius: 50px;
+    animation: cloudFloat 25s linear infinite;
+}
+
+.gc1 { width: 70px; height: 25px; top: 12%; animation-delay: 0s; }
+.gc2 { width: 90px; height: 35px; top: 8%; animation-delay: 8s; }
+.gc3 { width: 60px; height: 22px; top: 18%; animation-delay: 15s; }
+
+/* ریل قطار */
+.rail {
+    position: absolute;
+    bottom: 18%;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    z-index: 10;
+}
+
+.rail-ties {
+    display: flex;
+    justify-content: space-around;
+    padding: 0 10px;
+}
+
+.tie {
+    width: 3%;
+    max-width: 20px;
+    height: 22px;
+    background: #5d4037;
+    border-radius: 2px;
+}
+
+.rail-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(180deg, #9e9e9e 0%, #757575 50%, #9e9e9e 100%);
+}
+
+/* قطار */
+.train {
+    position: absolute;
+    bottom: 20%;
+    left: -400px;
+    display: flex;
+    align-items: flex-end;
+    transition: left 0.5s ease;
+    transform: scale(0.65);
+    transform-origin: bottom left;
+    z-index: 20;
+}
+
+.train.intro {
+    animation: trainEnter 3s ease-out forwards;
+}
+
+.train.moving {
+    animation: trainMoveForward 4s ease-in-out forwards;
+}
+
+@keyframes trainEnter {
+    0% { left: -400px; }
+    100% { left: 5%; }
+}
+
+@keyframes trainMoveForward {
+    0% { left: 5%; }
+    100% { left: 120%; }
+}
+
+/* موتور قطار */
+.engine {
+    position: relative;
+    width: 120px;
+    height: 100px;
+    flex-shrink: 0;
+}
+
+.engine-body {
+    position: relative;
+    width: 100%;
+    height: 70px;
+}
+
+.cabin {
+    position: absolute;
+    left: 10px;
+    top: 0;
+    width: 70px;
+    height: 50px;
+    background: #c0392b;
+    border-radius: 10px 10px 0 0;
+}
+
+.window {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    width: 50px;
+    height: 30px;
+    background: #81d4fa;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.driver {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 35px;
+}
+
+.driver-face {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.driver-face .eyes {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 5px;
+}
+
+.driver-face .eye {
+    width: 8px;
+    height: 8px;
+    background: #2c3e50;
+    border-radius: 50%;
+}
+
+.driver-face .mouth {
+    width: 15px;
+    height: 8px;
+    margin: 0 auto;
+    border-radius: 0 0 10px 10px;
+    transition: all 0.3s ease;
+}
+
+.sad-mouth {
+    background: #2c3e50;
+    border-radius: 10px 10px 0 0;
+}
+
+.happy-mouth {
+    background: #2c3e50;
+    border-radius: 0 0 10px 10px;
+    height: 10px;
+}
+
+.chimney {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 25px;
+    height: 40px;
+    background: #5d4037;
+    border-radius: 5px 5px 0 0;
+}
+
+.smoke-container {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.smoke {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: rgba(128,128,128,0.6);
+    border-radius: 50%;
+    animation: smokeRise 2s ease-out infinite;
+}
+
+.smoke:nth-child(1) { animation-delay: 0s; }
+.smoke:nth-child(2) { animation-delay: 0.5s; }
+.smoke:nth-child(3) { animation-delay: 1s; }
+
+@keyframes smokeRise {
+    0% { transform: translateY(0) scale(1); opacity: 0.6; }
+    100% { transform: translateY(-30px) scale(2); opacity: 0; }
+}
+
+.wheels {
+    display: flex;
+    justify-content: space-around;
+    padding: 0 15px;
+}
+
+.wheel {
+    width: 30px;
+    height: 30px;
+    background: #2c3e50;
+    border-radius: 50%;
+    border: 5px solid #95a5a6;
+    animation: wheelSpin 1s linear infinite;
+}
+
+.train.moving .wheel {
+    animation-duration: 0.3s;
+}
+
+@keyframes wheelSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* واگن‌ها - قابلیت جابجایی */
+.wagons-container {
+    display: flex;
+    gap: 3px;
+}
+
+.wagon {
+    position: relative;
+    width: 55px;
+    height: 50px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: grab;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    touch-action: none;
+    z-index: 5;
+    user-select: none;
+}
+
+.wagon:active {
+    cursor: grabbing;
+}
+
+.wagon:hover {
+    transform: translateY(-3px);
+}
+
+/* واگن در حال کشیدن */
+.wagon.dragging {
+    opacity: 0.5;
+    transform: scale(0.9);
+}
+
+/* واگن مقصد هنگام هاور */
+.wagon.drag-over {
+    transform: scale(1.15) translateY(-5px);
+    box-shadow: 0 0 25px rgba(255,255,255,0.9);
+    z-index: 15;
+}
+
+/* واگن در جای درست */
+.wagon.correct {
+    animation: correctPulse 0.5s ease;
+}
+
+@keyframes correctPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+    50% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); }
+}
+
+/* واگن نادرست */
+.wagon.wrong {
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-10px) rotate(-2deg); }
+    40% { transform: translateX(10px) rotate(2deg); }
+    60% { transform: translateX(-10px) rotate(-2deg); }
+    80% { transform: translateX(10px) rotate(2deg); }
+}
+
+.wagon-number {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    pointer-events: none;
+}
+
+.wagon-connector {
+    position: absolute;
+    bottom: -4px;
+    left: -8px;
+    width: 15px;
+    height: 8px;
+    background: #5d4037;
+    pointer-events: none;
+}
+
+/* پیام راننده */
+.driver-message {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    width: 90%;
+    max-width: 320px;
+}
+
+.driver-message.hidden {
+    display: none;
+}
+
+.message-bubble {
+    background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+    padding: 15px 20px;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    animation: bubblePop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border: 3px solid var(--primary);
+    position: relative;
+}
+
+.message-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 12px 12px 0;
+    border-style: solid;
+    border-color: var(--primary) transparent transparent;
+}
+
+.message-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 10px 10px 0;
+    border-style: solid;
+    border-color: #fff transparent transparent;
+    z-index: 1;
+}
+
+@keyframes bubblePop {
+    0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+    70% { transform: scale(1.1) rotate(2deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.message-bubble p {
+    color: #2c3e50;
+    font-size: 0.95rem;
+    text-align: center;
+    margin: 0;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+/* محیط کویر */
+.environment {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.desert-env {
+    z-index: 5;
+}
+
+.forest-env {
+    z-index: 4;
+}
+
+.forest-env.hidden {
+    display: none;
+}
+
+.cacti {
+    position: absolute;
+    bottom: 20%;
+    width: 100%;
+}
+
+.cactus {
+    position: absolute;
+    background: linear-gradient(180deg, #228B22 0%, #1a6b1a 100%);
+    border-radius: 15px 15px 0 0;
+}
+
+.c1 { left: 3%; width: 18px; height: 45px; }
+.c1::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 15px;
+    width: 12px;
+    height: 18px;
+    background: linear-gradient(180deg, #228B22 0%, #1a6b1a 100%);
+    border-radius: 8px 8px 0 0;
+}
+
+.c2 { left: 20%; width: 22px; height: 60px; }
+.c2::before {
+    content: '';
+    position: absolute;
+    right: -14px;
+    top: 20px;
+    width: 14px;
+    height: 20px;
+    background: linear-gradient(180deg, #228B22 0%, #1a6b1a 100%);
+    border-radius: 8px 8px 0 0;
+}
+
+.c3 { right: 8%; width: 15px; height: 40px; }
+.c4 { right: 25%; width: 16px; height: 35px; }
+.c4::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 10px;
+    width: 10px;
+    height: 14px;
+    background: linear-gradient(180deg, #228B22 0%, #1a6b1a 100%);
+    border-radius: 6px 6px 0 0;
+}
+
+.c5 { left: 40%; width: 14px; height: 38px; }
+
+.dunes {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 22%;
+}
+
+.dune {
+    position: absolute;
+    bottom: 0;
+    background: linear-gradient(180deg, #F4A460 0%, #D2691E 100%);
+    border-radius: 100% 100% 0 0;
+}
+
+.d1 { left: -20%; width: 60%; height: 100%; }
+.d2 { left: 15%; width: 55%; height: 75%; }
+.d3 { right: -10%; width: 65%; height: 85%; }
+
+.sand-details {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 22%;
+}
+
+.rock {
+    position: absolute;
+    background: #8B7355;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+}
+
+.r1 { left: 10%; bottom: 5%; width: 20px; height: 12px; }
+.r2 { right: 15%; bottom: 3%; width: 15px; height: 10px; }
+
+.bush {
+    position: absolute;
+    background: #556B2F;
+    border-radius: 50%;
+}
+
+.b1 { left: 30%; bottom: 8%; width: 25px; height: 15px; }
+.b2 { right: 30%; bottom: 6%; width: 20px; height: 12px; }
+
+/* محیط جنگل */
+.forest-trees {
+    position: absolute;
+    bottom: 20%;
+    width: 100%;
+    height: 40%;
+}
+
+.f-tree {
+    position: absolute;
+    bottom: 0;
+    font-size: 3rem;
+    animation: treeSway 3s ease-in-out infinite;
+}
+
+.ft1 { left: 2%; font-size: 2.5rem; }
+.ft2 { left: 12%; font-size: 3rem; }
+.ft3 { left: 22%; font-size: 2.8rem; }
+.ft4 { left: 32%; font-size: 3.2rem; }
+.ft5 { left: 42%; font-size: 2.6rem; }
+.ft6 { left: 52%; font-size: 3rem; }
+.ft7 { left: 62%; font-size: 2.8rem; }
+.ft8 { left: 72%; font-size: 3.2rem; }
+.ft9 { left: 82%; font-size: 2.5rem; }
+.ft10 { left: 92%; font-size: 3rem; }
+
+.grass {
+    position: absolute;
+    bottom: 18%;
+    width: 100%;
+    height: 5%;
+}
+
+.grass-blade {
+    position: absolute;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #4CAF50 0%, #2E7D32 100%);
+    border-radius: 50% 50% 0 0;
+    transform-origin: bottom center;
+}
+
+.gb1 { left: 5%; height: 20px; animation-delay: 0s; }
+.gb2 { left: 15%; height: 25px; animation-delay: 0.3s; }
+.gb3 { left: 35%; height: 18px; animation-delay: 0.6s; }
+.gb4 { left: 35%; height: 18px; animation-delay: 0.6s; }
+.gb5 { left: 55%; height: 22px; animation-delay: 0.9s; }
+.gb6 { left: 75%; height: 19px; animation-delay: 1.2s; }
+
+@keyframes treeSway {
+    0%, 100% { transform: rotate(-2deg); }
+    50% { transform: rotate(2deg); }
+}
+
+/* راهنمای بازی */
+.game-hint {
+    background: rgba(255,255,255,0.97);
+    padding: 12px 20px;
+    border-radius: 15px 15px 0 0;
+    box-shadow: 0 -5px 25px rgba(0,0,0,0.15);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.game-hint span {
+    font-size: 1.5rem;
+}
+
+.game-hint p {
+    color: #555;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* صفحه پایان بازی */
+#end-screen {
+    background: linear-gradient(180deg, #81C784 0%, #4CAF50 100%);
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    padding: 20px;
+}
+
+.end-content {
+    background: white;
+    padding: 25px;
+    border-radius: 25px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    z-index: 5;
+    width: 100%;
+    max-width: 340px;
+}
+
+.stars-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.star {
+    font-size: 3rem;
+    animation: starPop 0.5s ease backwards;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+#star1 { animation-delay: 0.2s; }
+#star2 { animation-delay: 0.4s; }
+#star3 { animation-delay: 0.6s; }
+
+@keyframes starPop {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.star.earned {
+    color: #f1c40f;
+    text-shadow: 0 0 25px rgba(241, 196, 15, 0.7);
+    animation: starGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes starGlow {
+    0%, 100% { filter: drop-shadow(0 0 10px rgba(241, 196, 15, 0.5)); }
+    50% { filter: drop-shadow(0 0 20px rgba(241, 196, 15, 0.8)); }
+}
+
+.star:not(.earned) {
+    color: #bdc3c7;
+    filter: grayscale(100%);
+}
+
+#end-title {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+#end-message {
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 1rem;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 22px;
+    padding: 15px;
+    background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.end-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.end-buttons .btn {
+    width: 100%;
+}
+
+/* صفحه باخت */
+#lose-screen {
+    background: linear-gradient(180deg, #78909c 0%, #455a64 100%);
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    padding: 20px;
+}
+
+.lose-content {
+    background: white;
+    padding: 28px;
+    border-radius: 25px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 340px;
+}
+
+.lose-icon {
+    font-size: 5rem;
+    margin-bottom: 15px;
+    animation: sadBounce 1s ease-in-out infinite;
+}
+
+@keyframes sadBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+
+#lose-screen h2 {
+    font-size: 1.8rem;
+    color: #455a64;
+    margin-bottom: 10px;
+}
+
+#lose-screen p {
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 1rem;
+}
+
+#lose-screen .stats {
+    margin-bottom: 22px;
+}
+
+/* جنگل پس‌زمینه */
+.forest-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.tree {
+    position: absolute;
+    bottom: 0;
+    font-size: 3.5rem;
+    animation: treeSway 3s ease-in-out infinite;
+}
+
+.t1 { left: 3%; animation-delay: 0s; }
+.t2 { left: 23%; animation-delay: 0.5s; font-size: 4rem; }
+.t3 { left: 43%; animation-delay: 1s; }
+.t4 { left: 63%; animation-delay: 1.5s; font-size: 3.8rem; }
+.t5 { left: 83%; animation-delay: 2s; }
+
+/* انیمیشن‌های واگن‌ها */
+.wagon.intro-wagon {
+    animation: wagonAppear 0.5s ease backwards;
+}
+
+@keyframes wagonAppear {
+    0% { transform: translateX(-50px) scale(0.5); opacity: 0; }
+    100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+/* پیام‌های هشدار */
+.alert-message {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: 90%;
+    max-width: 350px;
+}
+
+.alert-bubble {
+    background: linear-gradient(135deg, #fff 0%, #ffebee 100%);
+    padding: 18px 22px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(244, 67, 54, 0.4);
+    animation: alertPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border: 3px solid var(--danger);
+    text-align: center;
+}
+
+.alert-bubble.warning {
+    background: linear-gradient(135deg, #fff 0%, #fff3e0 100%);
+    border-color: var(--warning);
+    box-shadow: 0 10px 40px rgba(255, 152, 0, 0.4);
+}
+
+.alert-bubble p {
+    color: #2c3e50;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+@keyframes alertPop {
+    0% { transform: scale(0) translateY(-20px); opacity: 0; }
+    70% { transform: scale(1.1) translateY(5px); }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* رسپانسیو برای تبلت */
+@media (min-width: 768px) {
+    .train {
+        transform: scale(0.85);
+    }
+    
+    .train.intro {
+        animation: trainEnterTablet 3s ease-out forwards;
+    }
+    
+    @keyframes trainEnterTablet {
+        0% { left: -500px; }
+        100% { left: 8%; }
+    }
+    
+    .wagon {
+        width: 70px;
+        height: 60px;
+    }
+    
+    .wagon-number {
+        font-size: 1.8rem;
+    }
+    
+    .engine {
+        width: 140px;
+        height: 115px;
+    }
+    
+    .cabin {
+        width: 85px;
+        height: 55px;
+    }
+    
+    .window {
+        width: 60px;
+        height: 32px;
+    }
+    
+    .wheel {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .driver-message {
+        max-width: 380px;
+    }
+    
+    .message-bubble {
+        padding: 18px 25px;
+    }
+    
+    .message-bubble p {
+        font-size: 1.05rem;
+    }
+    
+    .game-hint p {
+        font-size: 1rem;
+    }
+}
+
+/* رسپانسیو برای دسکتاپ */
+@media (min-width: 1024px) {
+    .train {
+        transform: scale(1);
+    }
+    
+    .train.intro {
+        animation: trainEnterDesktop 3s ease-out forwards;
+    }
+    
+    @keyframes trainEnterDesktop {
+        0% { left: -600px; }
+        100% { left: 12%; }
+    }
+    
+    .game-hint {
+        padding: 15px 20px;
+    }
+    
+    .game-hint p {
+        font-size: 1.1rem;
+    }
+}
+
+/* موبایل کوچک */
+@media (max-width: 380px) {
+    .btn {
+        padding: 12px 25px;
+        min-width: 120px;
+        font-size: 0.9rem;
+    }
+}
+
+/* بهبود صفحه بازی در موبایل */
+@media (max-width: 480px) {
+    .game-header {
+        padding: 8px 12px;
+    }
+    
+    .timer-container, .moves-container {
+        font-size: 0.85rem;
+    }
+    
+    .train {
+        transform: scale(0.55);
+    }
+    
+    .rail {
+        bottom: 16%;
+    }
+    
+    .train {
+        bottom: 18%;
+    }
+    
+    .driver-message {
+        top: 55px;
+        max-width: 280px;
+    }
+    
+    .message-bubble {
+        padding: 12px 15px;
+    }
+    
+    .message-bubble p {
+        font-size: 0.85rem;
+    }
+    
+    .game-hint {
+        padding: 10px 15px;
+    }
+    
+    .game-hint p {
+        font-size: 0.8rem;
+    }
+    
+    .cacti {
+        bottom: 18%;
+    }
+    
+    .dunes {
+        height: 20%;
+    }
+}
+
+/* حالت افقی موبایل */
+@media (max-height: 500px) and (orientation: landscape) {
+    .game-header {
+        min-height: 40px;
+        padding: 5px 10px;
+    }
+    
+    .driver-message {
+        top: 45px;
+    }
+    
+    .train {
+        transform: scale(0.5);
+        bottom: 15%;
+    }
+    
+    .rail {
+        bottom: 13%;
+    }
+    
+    .game-hint {
+        padding: 6px 10px;
+    }
+    
+    .game-hint p {
+        font-size: 0.75rem;
+    }
+    
+    .game-hint span {
+        font-size: 1.2rem;
+    }
+}
+
+/* پشتیبانی از prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* بهبود دسترسی */
+@media (prefers-contrast: high) {
+    .btn {
+        border: 2px solid white;
+    }
+    
+    .wagon {
+        border: 2px solid rgba(0,0,0,0.3);
+    }
+    
+    .message-bubble {
+        border-width: 4px;
+    }
+}
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- صفحه خوش آمدگویی -->
+        <div id="welcome-screen" class="screen active">
+            <div class="welcome-content">
+                <div class="train-icon">
+                    <svg viewBox="0 0 200 120" class="welcome-train">
+                        <g class="engine">
+                            <rect x="10" y="40" width="80" height="60" rx="10" fill="#e74c3c"/>
+                            <rect x="20" y="20" width="60" height="30" rx="5" fill="#c0392b"/>
+                            <circle cx="35" cy="100" r="15" fill="#2c3e50"/>
+                            <circle cx="65" cy="100" r="15" fill="#2c3e50"/>
+                            <circle cx="35" cy="100" r="8" fill="#95a5a6"/>
+                            <circle cx="65" cy="100" r="8" fill="#95a5a6"/>
+                            <rect x="25" y="25" width="40" height="20" rx="3" fill="#81d4fa"/>
+                            <rect x="60" y="5" width="15" height="20" rx="2" fill="#5d4037"/>
+                            <ellipse cx="67" cy="5" rx="10" ry="5" fill="#78909c"/>
+                        </g>
+                        <g class="wagons">
+                            <rect x="100" y="50" width="70" height="50" rx="5" fill="#3498db"/>
+                            <rect x="180" y="50" width="70" height="50" rx="5" fill="#9b59b6"/>
+                            <circle cx="120" cy="100" r="12" fill="#2c3e50"/>
+                            <circle cx="160" cy="100" r="12" fill="#2c3e50"/>
+                            <circle cx="200" cy="100" r="12" fill="#2c3e50"/>
+                            <circle cx="240" cy="100" r="12" fill="#2c3e50"/>
+                        </g>
+                    </svg>
+                </div>
+                <h1>🚂 قطار اعداد</h1>
+                <p class="subtitle">بیایید اعداد را مرتب کنیم!</p>
+                <div class="welcome-stats">
+                    <div class="stat-box">
+                        <span class="stat-icon">🎮</span>
+                        <span class="stat-num" id="total-games">0</span>
+                        <span class="stat-label">بازی</span>
+                    </div>
+                    <div class="stat-box win">
+                        <span class="stat-icon">🏆</span>
+                        <span class="stat-num" id="total-wins">0</span>
+                        <span class="stat-label">برد</span>
+                    </div>
+                    <div class="stat-box lose">
+                        <span class="stat-icon">💔</span>
+                        <span class="stat-num" id="total-losses">0</span>
+                        <span class="stat-label">باخت</span>
+                    </div>
+                    <div class="stat-box growth">
+                        <span class="stat-icon">📈</span>
+                        <span class="stat-num" id="growth-percent">0%</span>
+                        <span class="stat-label">رشد</span>
+                    </div>
+                </div>
+                <button id="start-btn" class="btn btn-primary">
+                    <span>شروع بازی</span>
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M8 5v14l11-7z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="clouds">
+                <div class="cloud cloud1"></div>
+                <div class="cloud cloud2"></div>
+                <div class="cloud cloud3"></div>
+            </div>
+        </div>
+
+        <!-- صفحه بازی -->
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div class="timer-container">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="currentColor" d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+                    </svg>
+                    <span id="timer">00:00</span>
+                </div>
+                <div class="moves-container">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+                    </svg>
+                    <span>جابجایی: <b id="moves">0</b></span>
+                </div>
+            </div>
+            
+            <div id="game-scene" class="desert">
+                <!-- آسمان و خورشید -->
+                <div class="sky">
+                    <div class="sun"></div>
+                </div>
+                
+                <!-- کوه‌های دور -->
+                <div class="mountains">
+                    <div class="mountain m1"></div>
+                    <div class="mountain m2"></div>
+                    <div class="mountain m3"></div>
+                </div>
+                
+                <!-- ابرها -->
+                <div class="game-clouds">
+                    <div class="g-cloud gc1"></div>
+                    <div class="g-cloud gc2"></div>
+                    <div class="g-cloud gc3"></div>
+                </div>
+                
+                <!-- ریل قطار -->
+                <div class="rail">
+                    <div class="rail-ties" id="rail-ties"></div>
+                    <div class="rail-line"></div>
+                </div>
+                
+                <!-- قطار -->
+                <div id="train" class="train">
+                    <div class="engine" id="engine">
+                        <div class="engine-body">
+                            <div class="cabin">
+                                <div class="window">
+                                    <div class="driver" id="driver">
+                                        <div class="driver-face sad">
+                                            <div class="eyes">
+                                                <div class="eye"></div>
+                                                <div class="eye"></div>
+                                            </div>
+                                            <div class="mouth sad-mouth"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chimney">
+                                <div class="smoke-container">
+                                    <div class="smoke"></div>
+                                    <div class="smoke"></div>
+                                    <div class="smoke"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wheels">
+                            <div class="wheel"></div>
+                            <div class="wheel"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- واگن‌های قابل جابجایی -->
+                    <div id="wagons-container" class="wagons-container"></div>
+                </div>
+                
+                <!-- پیام راننده -->
+                <div id="driver-message" class="driver-message hidden">
+                    <div class="message-bubble">
+                        <p id="message-text"></p>
+                    </div>
+                </div>
+                
+                <!-- محیط کویر -->
+                <div class="environment desert-env">
+                    <div class="cacti">
+                        <div class="cactus c1"></div>
+                        <div class="cactus c2"></div>
+                        <div class="cactus c3"></div>
+                        <div class="cactus c4"></div>
+                        <div class="cactus c5"></div>
+                    </div>
+                    <div class="dunes">
+                        <div class="dune d1"></div>
+                        <div class="dune d2"></div>
+                        <div class="dune d3"></div>
+                    </div>
+                    <div class="sand-details">
+                        <div class="rock r1"></div>
+                        <div class="rock r2"></div>
+                        <div class="bush b1"></div>
+                        <div class="bush b2"></div>
+                    </div>
+                </div>
+                
+                <!-- محیط جنگل -->
+                <div class="environment forest-env hidden">
+                    <div class="forest-trees">
+                        <div class="f-tree ft1">🌲</div>
+                        <div class="f-tree ft2">🌳</div>
+                        <div class="f-tree ft3">🌲</div>
+                        <div class="f-tree ft4">🌳</div>
+                        <div class="f-tree ft5">🌲</div>
+                        <div class="f-tree ft6">🌳</div>
+                        <div class="f-tree ft7">🌲</div>
+                        <div class="f-tree ft8">🌳</div>
+                        <div class="f-tree ft9">🌲</div>
+                        <div class="f-tree ft10">🌳</div>
+                    </div>
+                    <div class="grass">
+                        <div class="grass-blade gb1"></div>
+                        <div class="grass-blade gb2"></div>
+                        <div class="grass-blade gb3"></div>
+                        <div class="grass-blade gb4"></div>
+                        <div class="grass-blade gb5"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- راهنمای بازی -->
+            <div class="game-hint">
+                <span>📝</span>
+                <p>واگن‌ها را به ترتیب از راست به چپ مرتب کنید (1 - 10)</p>
+            </div>
+        </div>
+
+        <!-- صفحه پایان بازی (برد) -->
+        <div id="end-screen" class="screen">
+            <div class="end-content">
+                <div class="stars-container">
+                    <div class="star" id="star1">⭐</div>
+                    <div class="star" id="star2">⭐</div>
+                    <div class="star" id="star3">⭐</div>
+                </div>
+                <h2 id="end-title">آفرین! 🎉</h2>
+                <p id="end-message">تو قطار رو به حرکت درآوردی!</p>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">زمان:</span>
+                        <span id="final-time" class="stat-value">00:00</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">جابجایی:</span>
+                        <span id="final-moves" class="stat-value">0</span>
+                    </div>
+                </div>
+                <div class="end-buttons">
+                    <button id="restart-btn" class="btn btn-secondary">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+                        </svg>
+                        بازی مجدد
+                    </button>
+                    <button id="home-btn" class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/>
+                        </svg>
+                        خانه
+                    </button>
+                </div>
+            </div>
+            <div class="forest-bg">
+                <div class="tree t1">🌲</div>
+                <div class="tree t2">🌳</div>
+                <div class="tree t3">🌲</div>
+                <div class="tree t4">🌳</div>
+                <div class="tree t5">🌲</div>
+            </div>
+        </div>
+
+        <!-- صفحه باخت -->
+        <div id="lose-screen" class="screen">
+            <div class="lose-content">
+                <div class="lose-icon">🚂</div>
+                <h2>وقت تمام شد! 😢</h2>
+                <p>نگران نباش، می‌تونی دوباره تلاش کنی!</p>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">زمان:</span>
+                        <span id="lose-time" class="stat-value">01:00</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">اعداد مرتب:</span>
+                        <span id="correct-count" class="stat-value">0</span>
+                    </div>
+                </div>
+                <div class="end-buttons">
+                    <button id="retry-btn" class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+                        </svg>
+                        تلاش مجدد
+                    </button>
+                    <button id="lose-home-btn" class="btn btn-secondary">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/>
+                        </svg>
+                        خانه
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // بازی قطار اعداد - نسخه جابجایی واگن‌ها
+
+// مدیریت آمار بازی
+class StatsManager {
+    constructor() {
+        this.stats = this.loadStats();
+    }
+
+    loadStats() {
+        const saved = localStorage.getItem('numberTrainStats');
+        if (saved) {
+            return JSON.parse(saved);
+        }
+        return {
+            totalGames: 0,
+            wins: 0,
+            losses: 0,
+            growth: 0
+        };
+    }
+
+    saveStats() {
+        if (this.stats.totalGames > 0) {
+            this.stats.growth = Math.round((this.stats.wins / this.stats.totalGames) * 100);
+        }
+        localStorage.setItem('numberTrainStats', JSON.stringify(this.stats));
+    }
+
+    addWin() {
+        this.stats.totalGames++;
+        this.stats.wins++;
+        this.saveStats();
+    }
+
+    addLoss() {
+        this.stats.totalGames++;
+        this.stats.losses++;
+        this.saveStats();
+    }
+
+    updateDisplay() {
+        document.getElementById('total-games').textContent = this.stats.totalGames;
+        document.getElementById('total-wins').textContent = this.stats.wins;
+        document.getElementById('total-losses').textContent = this.stats.losses;
+        document.getElementById('growth-percent').textContent = this.stats.growth + '%';
+    }
+}
+
+// صداها با استفاده از Web Audio API
+class SoundManager {
+    constructor() {
+        this.audioContext = null;
+    }
+
+    init() {
+        if (!this.audioContext) {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    playTrainChug() {
+        this.init();
+        const ctx = this.audioContext;
+        const duration = 0.8;
+        for (let i = 0; i < 4; i++) {
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            const filter = ctx.createBiquadFilter();
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(60 + (i % 2) * 10, ctx.currentTime + i * duration / 4);
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(200, ctx.currentTime + i * duration / 4);
+            gainNode.gain.setValueAtTime(0.15, ctx.currentTime + i * duration / 4);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * duration / 4 + duration / 4 - 0.05);
+            oscillator.start(ctx.currentTime + i * duration / 4);
+            oscillator.stop(ctx.currentTime + i * duration / 4 + duration / 4);
+        }
+    }
+
+    playHorn() {
+        this.init();
+        const ctx = this.audioContext;
+        const notes = [330, 392, 330, 262];
+        notes.forEach((freq, i) => {
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.25);
+            gainNode.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.25);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.25 + 0.3);
+            oscillator.start(ctx.currentTime + i * 0.25);
+            oscillator.stop(ctx.currentTime + i * 0.25 + 0.3);
+        });
+    }
+
+    playSuccess() {
+        this.init();
+        const ctx = this.audioContext;
+        const notes = [523, 659, 784, 1047];
+        notes.forEach((freq, i) => {
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
+            gainNode.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.12);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.12 + 0.25);
+            oscillator.start(ctx.currentTime + i * 0.12);
+            oscillator.stop(ctx.currentTime + i * 0.12 + 0.25);
+        });
+    }
+
+    playClick() {
+        this.init();
+        const ctx = this.audioContext;
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(800, ctx.currentTime);
+        gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.08);
+    }
+
+    playError() {
+        this.init();
+        const ctx = this.audioContext;
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        oscillator.type = 'sawtooth';
+        oscillator.frequency.setValueAtTime(200, ctx.currentTime);
+        oscillator.frequency.linearRampToValueAtTime(120, ctx.currentTime + 0.25);
+        gainNode.gain.setValueAtTime(0.15, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.25);
+    }
+
+    playSwap() {
+        this.init();
+        const ctx = this.audioContext;
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(400, ctx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.15, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.15);
+    }
+
+    playGameOver() {
+        this.init();
+        const ctx = this.audioContext;
+        const notes = [350, 300, 250, 200];
+        notes.forEach((freq, i) => {
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.2);
+            gainNode.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.2);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.2 + 0.3);
+            oscillator.start(ctx.currentTime + i * 0.2);
+            oscillator.stop(ctx.currentTime + i * 0.2 + 0.3);
+        });
+    }
+
+    playTrainEnter() {
+        this.init();
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => {
+                this.playTrainChug();
+            }, i * 300);
+        }
+    }
+}
+
+// مدیریت بازی
+class NumberTrainGame {
+    constructor() {
+        this.statsManager = new StatsManager();
+        this.sound = new SoundManager();
+        this.wagons = [];
+        this.moves = 0;
+        this.startTime = null;
+        this.timerInterval = null;
+        this.isPlaying = false;
+        this.draggedWagon = null;
+        this.maxTime = 60;
+        this.init();
+    }
+
+    init() {
+        this.bindEvents();
+        this.statsManager.updateDisplay();
+        this.createRailTies();
+    }
+
+    createRailTies() {
+        const railTies = document.getElementById('rail-ties');
+        railTies.innerHTML = '';
+        for (let i = 0; i < 35; i++) {
+            const tie = document.createElement('div');
+            tie.className = 'tie';
+            railTies.appendChild(tie);
+        }
+    }
+
+    bindEvents() {
+        document.getElementById('start-btn').addEventListener('click', () => {
+            this.sound.init();
+            this.startGame();
+        });
+
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            this.restartGame();
+        });
+
+        document.getElementById('home-btn').addEventListener('click', () => {
+            this.goHome();
+        });
+
+        document.getElementById('retry-btn').addEventListener('click', () => {
+            this.restartGame();
+        });
+
+        document.getElementById('lose-home-btn').addEventListener('click', () => {
+            this.goHome();
+        });
+    }
+
+    shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    startGame() {
+        document.getElementById('welcome-screen').classList.remove('active');
+        document.getElementById('game-screen').classList.add('active');
+        
+        this.moves = 0;
+        this.isPlaying = true;
+        document.getElementById('moves').textContent = '0';
+        
+        this.startTime = Date.now();
+        this.startTimer();
+        
+        this.createWagons();
+        this.setupDragAndDrop();
+        
+        // پیام اولیه راننده
+        this.showDriverMessage('کاپیتان به مشکل خوردیم! واگن‌ها به‌هم ریخته‌اند. آن‌ها را جابجا کنید تا به ترتیب 1 تا 10 قرار بگیرند.');
+        
+        // پخش صدای ورود قطار
+        setTimeout(() => {
+            this.sound.playTrainEnter();
+        }, 500);
+        
+        // انیمیشن ورود قطار
+        setTimeout(() => {
+            const train = document.getElementById('train');
+            train.classList.add('intro');
+        }, 100);
+    }
+
+    createWagons() {
+        const container = document.getElementById('wagons-container');
+        container.innerHTML = '';
+        this.wagons = [];
+        
+        const colors = [
+            '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#1abc9c',
+            '#3498db', '#9b59b6', '#e91e63', '#795548', '#607d8b'
+        ];
+        
+        // ایجاد آرایه اعداد 1 تا 10 و shuffle کردن آن
+        let wagonNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        wagonNumbers = this.shuffleArray(wagonNumbers);
+        
+        wagonNumbers.forEach((num, index) => {
+            const wagon = document.createElement('div');
+            wagon.className = 'wagon intro-wagon';
+            wagon.style.animationDelay = `${index * 0.1}s`;
+            wagon.dataset.number = num;
+            wagon.dataset.index = index;
+            wagon.style.background = `linear-gradient(135deg, ${colors[num-1]}, ${this.darkenColor(colors[num-1], 20)})`;
+            wagon.innerHTML = `
+                <span class="wagon-number">${num}</span>
+                <div class="wagon-connector"></div>
+            `;
+            container.appendChild(wagon);
+            this.wagons.push({ element: wagon, number: num });
+        });
+    }
+
+    darkenColor(color, percent) {
+        const num = parseInt(color.replace('#', ''), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = (num >> 16) - amt;
+        const G = (num >> 8 & 0x00FF) - amt;
+        const B = (num & 0x0000FF) - amt;
+        return '#' + (0x1000000 +
+            (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+            (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+            (B < 255 ? B < 1 ? 0 : B : 255)
+        ).toString(16).slice(1);
+    }
+
+    setupDragAndDrop() {
+        const wagons = document.querySelectorAll('.wagon');
+        
+        wagons.forEach(wagon => {
+            // Mouse events
+            wagon.addEventListener('mousedown', (e) => this.handleDragStart(e, wagon));
+            
+            // Touch events
+            wagon.addEventListener('touchstart', (e) => this.handleDragStart(e, wagon), { passive: false });
+        });
+
+        // Global move and end events
+        document.addEventListener('mousemove', (e) => this.handleDragMove(e));
+        document.addEventListener('mouseup', (e) => this.handleDragEnd(e));
+        document.addEventListener('touchmove', (e) => this.handleDragMove(e), { passive: false });
+        document.addEventListener('touchend', (e) => this.handleDragEnd(e));
+    }
+
+    handleDragStart(e, wagon) {
+        if (!this.isPlaying) return;
+        
+        e.preventDefault();
+        this.draggedWagon = wagon;
+        wagon.classList.add('dragging');
+        
+        // Store initial position
+        const rect = wagon.getBoundingClientRect();
+        this.dragOffsetX = e.clientX - rect.left;
+        this.dragOffsetY = e.clientY - rect.top;
+        
+        // Get all wagons for hover detection
+        this.allWagons = Array.from(document.querySelectorAll('.wagon'));
+        
+        this.sound.playClick();
+    }
+
+    handleDragMove(e) {
+        if (!this.draggedWagon) return;
+        
+        e.preventDefault();
+        
+        const clientX = e.clientX;
+        const clientY = e.clientY;
+        
+        // Check hover on other wagons
+        this.allWagons.forEach(w => {
+            if (w === this.draggedWagon) return;
+            
+            const rect = w.getBoundingClientRect();
+            const isOver = clientX >= rect.left && clientX <= rect.right && 
+                          clientY >= rect.top && clientY <= rect.bottom;
+            
+            w.classList.toggle('drag-over', isOver);
+        });
+    }
+
+    handleDragEnd(e) {
+        if (!this.draggedWagon) return;
+        
+        const clientX = e.clientX || e.changedTouches?.[0]?.clientX;
+        const clientY = e.clientY || e.changedTouches?.[0]?.clientY;
+        
+        // Find target wagon
+        let targetWagon = null;
+        this.allWagons.forEach(w => {
+            if (w === this.draggedWagon) return;
+            
+            const rect = w.getBoundingClientRect();
+            if (clientX >= rect.left && clientX <= rect.right && 
+                clientY >= rect.top && clientY <= rect.bottom) {
+                targetWagon = w;
+            }
+            
+            w.classList.remove('drag-over');
+        });
+        
+        // Swap wagons if target found
+        if (targetWagon) {
+            this.swapWagons(this.draggedWagon, targetWagon);
+        }
+        
+        this.draggedWagon.classList.remove('dragging');
+        this.draggedWagon = null;
+    }
+
+    swapWagons(wagon1, wagon2) {
+        // Get parent container
+        const container = document.getElementById('wagons-container');
+        
+        // Get current positions
+        const wagon1Index = Array.from(container.children).indexOf(wagon1);
+        const wagon2Index = Array.from(container.children).indexOf(wagon2);
+        
+        // Swap in DOM
+        if (wagon1Index < wagon2Index) {
+            container.insertBefore(wagon2, wagon1);
+        } else {
+            container.insertBefore(wagon1, wagon2);
+        }
+        
+        // Play swap sound
+        this.sound.playSwap();
+        
+        // Increment moves
+        this.moves++;
+        document.getElementById('moves').textContent = this.moves;
+        
+        // Check if order is correct
+        this.checkOrder();
+    }
+
+    checkOrder() {
+        const container = document.getElementById('wagons-container');
+        const wagonElements = container.querySelectorAll('.wagon');
+        
+        let correctCount = 0;
+        let isCorrect = true;
+        
+        wagonElements.forEach((wagon, index) => {
+            const number = parseInt(wagon.dataset.number);
+            const expectedNumber = index + 1;
+            
+            wagon.classList.remove('correct', 'wrong');
+            
+            if (number === expectedNumber) {
+                correctCount++;
+                wagon.classList.add('correct');
+            } else {
+                isCorrect = false;
+            }
+        });
+        
+        if (isCorrect && correctCount === 10) {
+            this.winGame();
+        } else if (correctCount === 10) {
+            // All in correct positions but wrong order
+            this.showDriverMessage('تقریباً درسته! فقط جابجایی‌های کوچک لازمه.');
+        }
+    }
+
+    showDriverMessage(message) {
+        const messageBox = document.getElementById('driver-message');
+        const messageText = document.getElementById('message-text');
+        messageText.textContent = message;
+        messageBox.classList.remove('hidden');
+        
+        setTimeout(() => {
+            messageBox.classList.add('hidden');
+        }, 3500);
+    }
+
+    showAlertMessage(message, isWarning = false) {
+        const existingAlert = document.querySelector('.alert-message');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert-message';
+        alertDiv.innerHTML = `
+            <div class="alert-bubble ${isWarning ? 'warning' : ''}">
+                <p>${message}</p>
+            </div>
+        `;
+        document.getElementById('game-screen').appendChild(alertDiv);
+        
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 2500);
+    }
+
+    startTimer() {
+        this.timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+            const remaining = this.maxTime - elapsed;
+            
+            const minutes = Math.floor(remaining / 60).toString().padStart(2, '0');
+            const seconds = (remaining % 60).toString().padStart(2, '0');
+            
+            const timerElement = document.getElementById('timer');
+            timerElement.textContent = `${minutes}:${seconds}`;
+            
+            if (remaining <= 15 && remaining > 10) {
+                timerElement.classList.add('warning');
+                timerElement.classList.remove('danger');
+            } else if (remaining <= 10) {
+                timerElement.classList.add('danger');
+                timerElement.classList.remove('warning');
+                
+                if ([10, 5, 3, 2, 1].includes(remaining)) {
+                    this.showAlertMessage(`⏰ کاپیتان فقط ${remaining} ثانیه وقت داری!`, true);
+                    this.showDriverMessage(`کاپیتان فقط ${remaining} ثانیه وقت داری!`);
+                }
+            }
+            
+            if (remaining <= 0) {
+                this.loseGame();
+            }
+        }, 1000);
+    }
+
+    stopTimer() {
+        clearInterval(this.timerInterval);
+    }
+
+    winGame() {
+        this.isPlaying = false;
+        this.stopTimer();
+        
+        this.statsManager.addWin();
+        this.statsManager.updateDisplay();
+        
+        const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+        const seconds = (elapsed % 60).toString().padStart(2, '0');
+        
+        // محاسبه ستاره‌ها
+        let stars = 1;
+        if (elapsed < 30 && this.moves <= 15) {
+            stars = 3;
+        } else if (elapsed < 45 && this.moves <= 25) {
+            stars = 2;
+        }
+        
+        // تغییر به محیط جنگل
+        const gameScreen = document.getElementById('game-screen');
+        gameScreen.classList.add('forest');
+        
+        const desertEnv = document.querySelector('.desert-env');
+        const forestEnv = document.querySelector('.forest-env');
+        if (desertEnv) desertEnv.classList.add('hidden');
+        if (forestEnv) forestEnv.classList.remove('hidden');
+        
+        // تغییر حالت راننده به خوشحال
+        const driverFace = document.getElementById('driver');
+        const face = driverFace.querySelector('.driver-face');
+        face.classList.remove('sad');
+        face.querySelector('.mouth').classList.add('happy-mouth');
+        
+        this.showDriverMessage('ممنون کاپیتان! ما به سمت خوشبختی می‌رویم! 🎉');
+        
+        // پخش صدای بوق قطار
+        setTimeout(() => {
+            this.sound.playHorn();
+        }, 500);
+        
+        // پخش صدای موفقیت
+        setTimeout(() => {
+            this.sound.playSuccess();
+        }, 1500);
+        
+        // انیمیشن حرکت قطار
+        const train = document.getElementById('train');
+        train.classList.remove('intro');
+        train.classList.add('moving');
+        
+        // پخش صدای چیلیک در حین حرکت
+        let chugCount = 0;
+        const chugInterval = setInterval(() => {
+            if (chugCount < 4) {
+                this.sound.playTrainChug();
+                chugCount++;
+            } else {
+                clearInterval(chugInterval);
+            }
+        }, 400);
+        
+        setTimeout(() => {
+            this.showEndScreen(stars, minutes, seconds);
+        }, 4000);
+    }
+
+    loseGame() {
+        this.isPlaying = false;
+        this.stopTimer();
+        
+        this.statsManager.addLoss();
+        this.statsManager.updateDisplay();
+        
+        this.sound.playGameOver();
+        
+        const elapsed = this.maxTime;
+        const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+        const seconds = (elapsed % 60).toString().padStart(2, '0');
+        
+        document.getElementById('lose-time').textContent = `${minutes}:${seconds}`;
+        
+        // شمارش اعداد در جای درست
+        const container = document.getElementById('wagons-container');
+        const wagonElements = container.querySelectorAll('.wagon');
+        let correctCount = 0;
+        
+        wagonElements.forEach((wagon, index) => {
+            const number = parseInt(wagon.dataset.number);
+            if (number === index + 1) {
+                correctCount++;
+            }
+        });
+        
+        document.getElementById('correct-count').textContent = correctCount;
+        
+        document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('lose-screen').classList.add('active');
+    }
+
+    showEndScreen(stars, minutes, seconds) {
+        document.getElementById('game-screen').classList.remove('active');
+        
+        const endScreen = document.getElementById('end-screen');
+        endScreen.classList.add('active');
+        
+        const starElements = [
+            document.getElementById('star1'),
+            document.getElementById('star2'),
+            document.getElementById('star3')
+        ];
+        
+        starElements.forEach((star, index) => {
+            star.classList.remove('earned');
+            if (index < stars) {
+                setTimeout(() => {
+                    star.classList.add('earned');
+                }, index * 300);
+            }
+        });
+        
+        document.getElementById('final-time').textContent = `${minutes}:${seconds}`;
+        document.getElementById('final-moves').textContent = this.moves;
+        
+        const title = document.getElementById('end-title');
+        const message = document.getElementById('end-message');
+        
+        if (stars === 3) {
+            title.textContent = 'عالی! 🌟';
+            message.textContent = 'تو بهترین کاپیتان هستی!';
+        } else if (stars === 2) {
+            title.textContent = 'آفرین! 🎉';
+            message.textContent = 'کار خوبی انجام دادی!';
+        } else {
+            title.textContent = 'خوب بود! 👍';
+            message.textContent = 'تمرین بیشتر می‌کنی بهتر می‌شی!';
+        }
+    }
+
+    restartGame() {
+        document.getElementById('end-screen').classList.remove('active');
+        document.getElementById('lose-screen').classList.remove('active');
+        
+        const gameScreen = document.getElementById('game-screen');
+        gameScreen.classList.remove('forest');
+        
+        // بازگرداندن محیط کویر
+        const desertEnv = document.querySelector('.desert-env');
+        const forestEnv = document.querySelector('.forest-env');
+        if (desertEnv) desertEnv.classList.remove('hidden');
+        if (forestEnv) forestEnv.classList.add('hidden');
+        
+        // بازگرداندن حالت راننده به ناراحت
+        const driverFace = document.getElementById('driver');
+        const face = driverFace.querySelector('.driver-face');
+        face.classList.add('sad');
+        face.querySelector('.mouth').classList.remove('happy-mouth');
+        
+        // بازگرداندن قطار به موقعیت اول
+        const train = document.getElementById('train');
+        train.classList.remove('moving');
+        train.classList.remove('intro');
+        train.style.left = '-400px';
+        
+        // ریست تایمر
+        document.getElementById('timer').textContent = '00:00';
+        document.getElementById('timer').classList.remove('warning', 'danger');
+        
+        this.startGame();
+    }
+
+    goHome() {
+        document.getElementById('end-screen').classList.remove('active');
+        document.getElementById('lose-screen').classList.remove('active');
+        document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('welcome-screen').classList.add('active');
+        
+        const gameScreen = document.getElementById('game-screen');
+        gameScreen.classList.remove('forest');
+        
+        // بازگرداندن محیط کویر
+        const desertEnv = document.querySelector('.desert-env');
+        const forestEnv = document.querySelector('.forest-env');
+        if (desertEnv) desertEnv.classList.remove('hidden');
+        if (forestEnv) forestEnv.classList.add('hidden');
+        
+        // بازگرداندن حالت راننده به ناراحت
+        const driverFace = document.getElementById('driver');
+        const face = driverFace.querySelector('.driver-face');
+        face.classList.add('sad');
+        face.querySelector('.mouth').classList.remove('happy-mouth');
+        
+        // بازگرداندن قطار
+        const train = document.getElementById('train');
+        train.classList.remove('moving');
+        train.classList.remove('intro');
+        train.style.left = '-400px';
+        
+        this.stopTimer();
+        document.getElementById('timer').textContent = '00:00';
+        document.getElementById('timer').classList.remove('warning', 'danger');
+        
+        this.statsManager.updateDisplay();
+    }
+}
+
+// شروع بازی
+window.addEventListener('DOMContentLoaded', () => {
+    new NumberTrainGame();
+});
+    </script>
+</body>
+</html>

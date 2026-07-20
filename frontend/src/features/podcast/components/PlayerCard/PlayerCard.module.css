@@ -1,0 +1,160 @@
+.card {
+  margin: -30px 20px 0;
+  position: relative;
+  background: linear-gradient(160deg, #2b2333 0%, #3d2b45 100%);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 18px;
+  color: var(--color-on-primary);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.disc {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, transparent 0 12%, rgb(255 255 255 / 6%) 13% 15%, transparent 16% 24%, rgb(255 255 255 / 6%) 25% 27%, transparent 28%),
+    linear-gradient(135deg, var(--podcast-primary) 0%, var(--podcast-accent) 100%);
+  flex-shrink: 0;
+  animation: spin 5s linear infinite;
+  animation-play-state: paused;
+}
+
+.disc.spinning {
+  animation-play-state: running;
+}
+
+.discHole {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #2b2333;
+  border: 2px solid rgb(255 255 255 / 40%);
+}
+
+.discIcon {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  font-size: 17px;
+  color: rgb(255 255 255 / 85%);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.nowLabel {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--podcast-primary);
+}
+
+.title {
+  margin-top: 4px;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.meta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgb(255 255 255 / 60%);
+}
+
+.playBtn {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--podcast-primary);
+  color: var(--color-on-primary);
+  font-size: 26px;
+  flex-shrink: 0;
+  box-shadow: 0 6px 16px rgb(226 118 152 / 45%);
+  transition: transform 0.12s;
+}
+
+.playBtn:active {
+  transform: scale(0.92);
+}
+
+.equalizer {
+  margin-top: 16px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 3px;
+  height: 34px;
+}
+
+.bar {
+  flex: 1;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--podcast-primary), var(--podcast-accent));
+  transform-origin: bottom;
+  animation: bounce 0.9s ease-in-out infinite alternate;
+}
+
+.frozen .bar {
+  animation-play-state: paused;
+  transform: scaleY(0.18);
+}
+
+@keyframes bounce {
+  0% {
+    transform: scaleY(0.15);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+.progressRow {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.time {
+  font-size: 11px;
+  color: rgb(255 255 255 / 65%);
+  min-width: 34px;
+  text-align: center;
+}
+
+.track {
+  flex: 1;
+  height: 6px;
+  border-radius: 99px;
+  background: rgb(255 255 255 / 15%);
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--podcast-primary), var(--podcast-accent));
+  transition: width 0.4s linear;
+}

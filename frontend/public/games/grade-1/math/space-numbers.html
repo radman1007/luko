@@ -1,0 +1,2352 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🚀 حدس اعداد فضایی</title>
+    <style>
+      /* ============================================
+   🚀 حدس اعداد فضایی - Space Number Guessing Game
+   ============================================ */
+
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #6C63FF;
+    --primary-dark: #5A52D5;
+    --secondary: #FF6B9D;
+    --success: #4CAF50;
+    --danger: #F44336;
+    --warning: #FFC107;
+    --dark: #1a1a2e;
+    --darker: #0f0f1a;
+    --light: #ffffff;
+    --glass: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+html, body {
+    height: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--darker);
+    color: var(--light);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    overflow-y: auto;
+}
+
+/* ============================================
+   Galaxy Background
+   ============================================ */
+.galaxy-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    z-index: -1;
+    overflow: hidden;
+}
+
+.stars, .stars2, .stars3 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+
+.stars {
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+        radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1px 1px at 230px 80px, #fff, transparent),
+        radial-gradient(2px 2px at 300px 150px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 370px 200px, #fff, transparent),
+        radial-gradient(2px 2px at 450px 50px, rgba(255,255,255,0.8), transparent);
+    background-size: 500px 500px;
+    animation: twinkle 4s ease-in-out infinite;
+}
+
+.stars2 {
+    background-image: 
+        radial-gradient(1px 1px at 50px 100px, #fff, transparent),
+        radial-gradient(2px 2px at 100px 200px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 200px 150px, #fff, transparent),
+        radial-gradient(1px 1px at 280px 250px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(2px 2px at 350px 100px, #fff, transparent),
+        radial-gradient(1px 1px at 420px 300px, rgba(255,255,255,0.7), transparent);
+    background-size: 600px 600px;
+    animation: twinkle 6s ease-in-out infinite reverse;
+}
+
+.stars3 {
+    background-image: 
+        radial-gradient(3px 3px at 150px 50px, rgba(108, 99, 255, 0.8), transparent),
+        radial-gradient(2px 2px at 250px 180px, rgba(255, 107, 157, 0.6), transparent),
+        radial-gradient(3px 3px at 400px 120px, rgba(76, 175, 80, 0.5), transparent);
+    background-size: 700px 700px;
+    animation: twinkle 8s ease-in-out infinite;
+}
+
+.nebula {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at 20% 80%, rgba(108, 99, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(76, 175, 80, 0.05) 0%, transparent 70%);
+    animation: nebulaMove 20s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes nebulaMove {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.1) rotate(5deg); }
+}
+
+/* ============================================
+   Screens
+   ============================================ */
+.screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 20px;
+    padding-bottom: 100px;
+    animation: fadeIn 0.5s ease;
+    overflow-y: auto;
+}
+
+.screen.active {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   Character (Alien)
+   ============================================ */
+.character-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+
+.character {
+    position: relative;
+    width: 100px;
+    height: 120px;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.alien-body {
+    position: relative;
+    width: 85px;
+    height: 95px;
+    background: linear-gradient(180deg, #7B68EE 0%, #6C63FF 50%, #5A52D5 100%);
+    border-radius: 45px 45px 35px 35px;
+    margin: 0 auto;
+    box-shadow: 
+        0 8px 25px rgba(108, 99, 255, 0.4),
+        inset 0 -8px 15px rgba(0, 0, 0, 0.2),
+        inset 0 8px 15px rgba(255, 255, 255, 0.1);
+}
+
+.alien-eyes {
+    position: absolute;
+    top: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 16px;
+}
+
+.eye {
+    width: 24px;
+    height: 30px;
+    background: linear-gradient(180deg, #fff 0%, #f0f0f0 100%);
+    border-radius: 50%;
+    position: relative;
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.eye::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 14px;
+    background: linear-gradient(180deg, #2D3436 0%, #000 100%);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: lookAround 5s ease-in-out infinite;
+}
+
+.eye::before {
+    content: '';
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: #fff;
+    border-radius: 50%;
+    top: 30%;
+    left: 60%;
+    z-index: 1;
+}
+
+@keyframes lookAround {
+    0%, 100% { transform: translate(-50%, -50%); }
+    25% { transform: translate(-30%, -50%); }
+    75% { transform: translate(-70%, -50%); }
+}
+
+.alien-mouth {
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 22px;
+    height: 10px;
+    background: #FF6B9D;
+    border-radius: 0 0 18px 18px;
+    transition: all 0.3s ease;
+}
+
+.alien-mouth.happy {
+    width: 30px;
+    height: 15px;
+    border-radius: 0 0 25px 25px;
+}
+
+.alien-mouth.sad {
+    border-radius: 18px 18px 0 0;
+}
+
+.alien-mouth.thinking {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.alien-antennas {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.antenna {
+    width: 3px;
+    height: 22px;
+    background: linear-gradient(180deg, #5A52D5 0%, #7B68EE 100%);
+    border-radius: 2px;
+    position: relative;
+    animation: antennaWave 2s ease-in-out infinite;
+}
+
+.antenna::after {
+    content: '';
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle, #FFD700 0%, #FFA500 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 12px #FFD700;
+    animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+.antenna.left { animation-delay: 0.3s; }
+.antenna.right { animation-delay: 0s; }
+
+@keyframes antennaWave {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+}
+
+@keyframes glow {
+    from { box-shadow: 0 0 8px #FFD700; }
+    to { box-shadow: 0 0 20px #FFD700, 0 0 35px #FFA500; }
+}
+
+.alien-glow {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 16px;
+    background: radial-gradient(ellipse, rgba(108, 99, 255, 0.5) 0%, transparent 70%);
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+    0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+}
+
+/* Speech Bubble */
+.speech-bubble {
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    border: 2px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 12px 20px;
+    margin-top: 15px;
+    position: relative;
+    max-width: 280px;
+    text-align: center;
+    animation: bubblePop 0.5s ease;
+}
+
+.speech-bubble::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-bottom-color: var(--glass-border);
+}
+
+.speech-bubble::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.speech-bubble.small {
+    padding: 8px 12px;
+    margin-top: 8px;
+    max-width: 180px;
+}
+
+.speech-text {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--light);
+}
+
+@keyframes bubblePop {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 280px;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 52px;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn-icon {
+    font-size: 1.2rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(108, 99, 255, 0.5);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    border: 2px solid var(--glass-border);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger) 0%, #d32f2f 100%);
+    color: white;
+    box-shadow: 0 6px 20px rgba(244, 67, 54, 0.3);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
+}
+
+.btn-back {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 16px;
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    border: 2px solid var(--glass-border);
+    color: white;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    z-index: 100;
+    min-height: 44px;
+}
+
+.btn-show-number {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #1a1a2e;
+    font-weight: 700;
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+    margin: 15px 0;
+    min-width: 180px;
+}
+
+.btn-show-number:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.5);
+}
+
+.btn-show-number:disabled {
+    background: #666;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ============================================
+   Game Screen - FIXED LAYOUT
+   ============================================ */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 360px;
+    padding: 12px 16px;
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    border: 2px solid var(--glass-border);
+    border-radius: 14px;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+
+.level-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, var(--secondary) 0%, #FF4081 100%);
+    padding: 6px 12px;
+    border-radius: 10px;
+    min-width: 60px;
+}
+
+.level-badge span:first-child {
+    font-size: 0.65rem;
+    opacity: 0.9;
+}
+
+#level-number {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.score-display, .timer-display {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.game-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 360px;
+    flex: 1;
+}
+
+.game-character {
+    margin-bottom: 5px;
+}
+
+.game-character .character {
+    width: 70px;
+    height: 85px;
+}
+
+.game-character .alien-body {
+    width: 60px;
+    height: 70px;
+    border-radius: 30px 30px 25px 25px;
+}
+
+.game-character .alien-eyes {
+    top: 15px;
+    gap: 12px;
+}
+
+.game-character .eye {
+    width: 17px;
+    height: 22px;
+}
+
+.game-character .eye::after {
+    width: 9px;
+    height: 11px;
+}
+
+.game-character .eye::before {
+    width: 4px;
+    height: 4px;
+}
+
+.game-character .alien-mouth {
+    bottom: 15px;
+    width: 15px;
+    height: 8px;
+}
+
+.game-character .alien-mouth.happy {
+    width: 22px;
+    height: 12px;
+}
+
+.game-character .alien-antennas {
+    top: -12px;
+    width: 48px;
+}
+
+.game-character .antenna {
+    height: 15px;
+}
+
+.game-character .antenna::after {
+    width: 7px;
+    height: 7px;
+    top: -5px;
+}
+
+.game-character .alien-glow {
+    width: 48px;
+    height: 12px;
+}
+
+/* ============================================
+   Flip Card - FIXED SIZE
+   ============================================ */
+.card-container {
+    perspective: 1000px;
+    margin: 10px 0;
+    flex-shrink: 0;
+}
+
+.flip-card {
+    width: 140px;
+    height: 170px;
+    cursor: pointer;
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+.flip-card.flipped .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.flip-card-front {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.card-pattern {
+    text-align: center;
+    color: white;
+}
+
+.card-pattern .star-icon {
+    font-size: 3rem;
+    animation: spin 10s linear infinite;
+}
+
+.card-pattern p {
+    font-size: 0.8rem;
+    margin-top: 8px;
+    opacity: 0.9;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.flip-card-back {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    transform: rotateY(180deg);
+}
+
+.number-display {
+    font-size: 4rem;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    animation: numberPop 0.3s ease;
+}
+
+@keyframes numberPop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* ============================================
+   Options - FIXED LAYOUT
+   ============================================ */
+.options-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 260px;
+    margin-top: 15px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+.options-container.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+.option-btn {
+    padding: 16px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    border: 3px solid var(--glass-border);
+    border-radius: 14px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 60px;
+}
+
+.option-btn:hover {
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.option-btn:active {
+    transform: scale(0.95);
+}
+
+.option-btn.correct {
+    background: linear-gradient(135deg, var(--success) 0%, #388E3C 100%);
+    border-color: var(--success);
+    animation: correctPulse 0.5s ease;
+}
+
+.option-btn.wrong {
+    background: linear-gradient(135deg, var(--danger) 0%, #d32f2f 100%);
+    border-color: var(--danger);
+    animation: shake 0.5s ease;
+}
+
+@keyframes correctPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+
+/* ============================================
+   Help Screen
+   ============================================ */
+.help-container {
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    border: 2px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 25px;
+    max-width: 320px;
+    width: 100%;
+}
+
+.help-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+    color: var(--warning);
+}
+
+.help-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 15px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.help-icon {
+    font-size: 1.6rem;
+    min-width: 40px;
+    text-align: center;
+}
+
+.help-text h3 {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+    color: var(--primary);
+}
+
+.help-text p {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    line-height: 1.4;
+}
+
+.help-container .btn {
+    width: 100%;
+    margin-top: 12px;
+}
+
+/* ============================================
+   Stats Screen
+   ============================================ */
+.stats-container {
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    border: 2px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 20px;
+    max-width: 320px;
+    width: 100%;
+}
+
+.stats-container h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    color: var(--warning);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    font-size: 1.6rem;
+    margin-bottom: 6px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.stats-container .btn {
+    width: 100%;
+    margin-top: 8px;
+}
+
+/* ============================================
+   Modal
+   ============================================ */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    animation: modalFadeIn 0.3s ease;
+    padding: 20px;
+}
+
+.modal.show {
+    display: flex;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 3px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    max-width: 300px;
+    width: 100%;
+    animation: modalPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes modalPop {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+
+.modal-icon {
+    font-size: 3.5rem;
+    margin-bottom: 12px;
+    animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+
+.modal-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.modal-content p {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-bottom: 15px;
+}
+
+.modal-content .btn {
+    width: 100%;
+}
+
+/* Level Up Modal */
+.modal-content.levelup {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #FFD700;
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-content.levelup .confetti {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.confetti::before,
+.confetti::after {
+    content: '🎉 🎊 ✨ 🌟 ⭐';
+    position: absolute;
+    font-size: 1.5rem;
+    animation: confettiFall 2s linear infinite;
+}
+
+.confetti::before {
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.confetti::after {
+    right: 10%;
+    animation-delay: 1s;
+}
+
+@keyframes confettiFall {
+    0% { transform: translateY(-100%); opacity: 1; }
+    100% { transform: translateY(400px); opacity: 0; }
+}
+
+/* ============================================
+   Responsive - Mobile First
+   ============================================ */
+
+/* Small Mobile (320px - 380px) */
+@media (max-width: 380px) {
+    .screen {
+        padding: 15px;
+        padding-bottom: 80px;
+    }
+    
+    .character {
+        width: 85px;
+        height: 100px;
+    }
+    
+    .alien-body {
+        width: 72px;
+        height: 82px;
+    }
+    
+    .speech-bubble {
+        max-width: 240px;
+    }
+    
+    .speech-text {
+        font-size: 0.9rem;
+    }
+    
+    .flip-card {
+        width: 120px;
+        height: 150px;
+    }
+    
+    .number-display {
+        font-size: 3.5rem;
+    }
+    
+    .card-pattern .star-icon {
+        font-size: 2.5rem;
+    }
+    
+    .card-pattern p {
+        font-size: 0.7rem;
+    }
+    
+    .option-btn {
+        padding: 14px;
+        font-size: 1.2rem;
+        min-height: 55px;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        font-size: 0.95rem;
+        min-height: 48px;
+    }
+    
+    .game-header {
+        padding: 10px 12px;
+    }
+    
+    .level-badge {
+        padding: 5px 10px;
+        min-width: 55px;
+    }
+    
+    #level-number {
+        font-size: 1.2rem;
+    }
+    
+    .score-display, .timer-display {
+        font-size: 0.85rem;
+    }
+    
+    .help-container,
+    .stats-container {
+        padding: 18px;
+    }
+    
+    .help-container h2,
+    .stats-container h2 {
+        font-size: 1.2rem;
+    }
+    
+    .stats-grid {
+        gap: 8px;
+    }
+    
+    .stat-card {
+        padding: 10px;
+    }
+    
+    .stat-value {
+        font-size: 1.3rem;
+    }
+    
+    .modal-content {
+        padding: 25px;
+    }
+    
+    .modal-icon {
+        font-size: 3rem;
+    }
+    
+    .modal-content h2 {
+        font-size: 1.3rem;
+    }
+}
+
+/* Medium Mobile (381px - 480px) */
+@media (min-width: 381px) and (max-width: 480px) {
+    .flip-card {
+        width: 130px;
+        height: 160px;
+    }
+    
+    .number-display {
+        font-size: 3.8rem;
+    }
+    
+    .option-btn {
+        font-size: 1.4rem;
+    }
+}
+
+/* Large Mobile / Small Tablet (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    .character {
+        width: 110px;
+        height: 130px;
+    }
+    
+    .alien-body {
+        width: 95px;
+        height: 105px;
+    }
+    
+    .flip-card {
+        width: 160px;
+        height: 190px;
+    }
+    
+    .number-display {
+        font-size: 4.5rem;
+    }
+    
+    .card-pattern .star-icon {
+        font-size: 3.5rem;
+    }
+    
+    .option-btn {
+        font-size: 1.5rem;
+        padding: 18px;
+    }
+    
+    .options-container {
+        max-width: 300px;
+    }
+}
+
+/* Landscape Mode on Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .screen {
+        padding-top: 10px;
+        padding-bottom: 70px;
+    }
+    
+    .character-container {
+        margin-bottom: 10px;
+    }
+    
+    .character {
+        width: 60px;
+        height: 75px;
+    }
+    
+    .alien-body {
+        width: 52px;
+        height: 60px;
+    }
+    
+    .alien-eyes {
+        top: 12px;
+        gap: 10px;
+    }
+    
+    .eye {
+        width: 14px;
+        height: 18px;
+    }
+    
+    .eye::after {
+        width: 7px;
+        height: 9px;
+    }
+    
+    .alien-mouth {
+        bottom: 10px;
+        width: 12px;
+        height: 6px;
+    }
+    
+    .alien-antennas {
+        top: -10px;
+        width: 40px;
+    }
+    
+    .antenna {
+        height: 12px;
+    }
+    
+    .antenna::after {
+        width: 6px;
+        height: 6px;
+        top: -4px;
+    }
+    
+    .speech-bubble {
+        margin-top: 8px;
+        padding: 8px 12px;
+        max-width: 200px;
+    }
+    
+    .speech-text {
+        font-size: 0.85rem;
+    }
+    
+    .game-header {
+        margin-bottom: 10px;
+        padding: 8px 12px;
+    }
+    
+    .game-character .character {
+        width: 50px;
+        height: 60px;
+    }
+    
+    .game-character .alien-body {
+        width: 44px;
+        height: 50px;
+    }
+    
+    .card-container {
+        margin: 5px 0;
+    }
+    
+    .flip-card {
+        width: 100px;
+        height: 120px;
+    }
+    
+    .number-display {
+        font-size: 2.8rem;
+    }
+    
+    .card-pattern .star-icon {
+        font-size: 2rem;
+    }
+    
+    .card-pattern p {
+        font-size: 0.65rem;
+    }
+    
+    .btn-show-number {
+        margin: 8px 0;
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        min-height: 44px;
+    }
+    
+    .options-container {
+        margin-top: 8px;
+        gap: 8px;
+    }
+    
+    .option-btn {
+        padding: 10px;
+        font-size: 1.1rem;
+        min-height: 50px;
+    }
+    
+    .menu-buttons {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 400px;
+        gap: 10px;
+    }
+    
+    .btn {
+        padding: 10px 18px;
+        font-size: 0.9rem;
+        min-height: 44px;
+    }
+}
+
+/* Very Small Height Landscape */
+@media (max-height: 400px) and (orientation: landscape) {
+    .character {
+        width: 50px;
+        height: 65px;
+    }
+    
+    .alien-body {
+        width: 44px;
+        height: 52px;
+    }
+    
+    .speech-bubble {
+        display: none;
+    }
+    
+    .flip-card {
+        width: 85px;
+        height: 100px;
+    }
+    
+    .number-display {
+        font-size: 2.2rem;
+    }
+    
+    .option-btn {
+        padding: 8px;
+        font-size: 1rem;
+        min-height: 44px;
+    }
+}
+
+/* Tablet and Desktop */
+@media (min-width: 769px) {
+    .screen {
+        justify-content: center;
+    }
+    
+    .character {
+        width: 120px;
+        height: 140px;
+    }
+    
+    .alien-body {
+        width: 100px;
+        height: 115px;
+    }
+    
+    .flip-card {
+        width: 180px;
+        height: 220px;
+    }
+    
+    .number-display {
+        font-size: 5rem;
+    }
+    
+    .option-btn {
+        font-size: 1.6rem;
+        padding: 20px;
+    }
+    
+    .menu-buttons {
+        max-width: 320px;
+    }
+    
+    .btn {
+        padding: 16px 30px;
+        font-size: 1.1rem;
+    }
+}
+
+/* ============================================
+   Animations for feedback
+   ============================================ */
+.celebrate {
+    animation: celebrate 0.5s ease;
+}
+
+@keyframes celebrate {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.1) rotate(-5deg); }
+    75% { transform: scale(1.1) rotate(5deg); }
+}
+
+.sad {
+    animation: sad 0.5s ease;
+}
+
+@keyframes sad {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+}
+
+/* Loading animation */
+.loading {
+    animation: loading 1s ease-in-out infinite;
+}
+
+@keyframes loading {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(108, 99, 255, 0.5);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(108, 99, 255, 0.7);
+}
+
+/* ============================================
+   Safe Area for iPhone X+
+   ============================================ */
+@supports (padding: max(0px)) {
+    .screen {
+        padding-left: max(20px, env(safe-area-inset-left));
+        padding-right: max(20px, env(safe-area-inset-right));
+        padding-bottom: max(100px, env(safe-area-inset-bottom));
+    }
+    
+    .btn-back {
+        bottom: max(20px, env(safe-area-inset-bottom));
+        right: max(20px, env(safe-area-inset-right));
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Galaxy Background -->
+    <div class="galaxy-bg">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+        <div class="nebula"></div>
+    </div>
+
+    <!-- Main Menu Screen -->
+    <div id="menu-screen" class="screen active">
+        <div class="character-container">
+            <div class="character">
+                <div class="alien-body">
+                    <div class="alien-eyes">
+                        <div class="eye left"></div>
+                        <div class="eye right"></div>
+                    </div>
+                    <div class="alien-mouth"></div>
+                    <div class="alien-antennas">
+                        <div class="antenna left"></div>
+                        <div class="antenna right"></div>
+                    </div>
+                </div>
+                <div class="alien-glow"></div>
+            </div>
+            <div class="speech-bubble">
+                <p class="speech-text">آماده‌ای اعداد رو به شکل سریع حدس بزنی؟ 🌟</p>
+            </div>
+        </div>
+        
+        <div class="menu-buttons">
+            <button class="btn btn-primary" onclick="startGame()">
+                <span class="btn-icon">🎮</span>
+                شروع بازی
+            </button>
+            <button class="btn btn-secondary" onclick="showScreen('help-screen')">
+                <span class="btn-icon">❓</span>
+                راهنما
+            </button>
+            <button class="btn btn-secondary" onclick="showScreen('stats-screen')">
+                <span class="btn-icon">📊</span>
+                آمار
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <div class="level-badge">
+                <span>مرحله</span>
+                <span id="level-number">1</span>
+            </div>
+            <div class="score-display">
+                <span>امتیاز: </span>
+                <span id="score">0</span>
+            </div>
+            <div class="timer-display">
+                <span>⏱️</span>
+                <span id="timer">0.0</span>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="character-container game-character">
+                <div class="character">
+                    <div class="alien-body">
+                        <div class="alien-eyes">
+                            <div class="eye left"></div>
+                            <div class="eye right"></div>
+                        </div>
+                        <div class="alien-mouth" id="alien-mouth"></div>
+                        <div class="alien-antennas">
+                            <div class="antenna left"></div>
+                            <div class="antenna right"></div>
+                        </div>
+                    </div>
+                    <div class="alien-glow"></div>
+                </div>
+                <div class="speech-bubble small" id="game-speech">
+                    <p class="speech-text">عدد رو ببین و حدس بزن! 🤔</p>
+                </div>
+            </div>
+
+            <!-- Flip Card -->
+            <div class="card-container">
+                <div class="flip-card" id="flip-card">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="card-pattern">
+                                <div class="star-icon">⭐</div>
+                                <p>روی دکمه کلیک کن</p>
+                            </div>
+                        </div>
+                        <div class="flip-card-back" id="card-back">
+                            <div class="number-display" id="number-display">?</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Show Number Button -->
+            <button class="btn btn-show-number" id="show-btn" onclick="revealNumber()">
+                <span class="btn-icon">👁️</span>
+                دیدن عدد
+            </button>
+
+            <!-- Answer Options -->
+            <div class="options-container" id="options-container">
+                <!-- Options will be generated by JS -->
+            </div>
+        </div>
+
+        <button class="btn btn-back" onclick="backToMenu()">
+            <span>↩️</span>
+            بازگشت
+        </button>
+    </div>
+
+    <!-- Help Screen -->
+    <div id="help-screen" class="screen">
+        <div class="help-container">
+            <h2>📖 راهنمای بازی</h2>
+            
+            <div class="help-item">
+                <div class="help-icon">👁️</div>
+                <div class="help-text">
+                    <h3>مرحله ۱</h3>
+                    <p>روی دکمه "دیدن عدد" بزن تا یک عدد رندوم ببینی!</p>
+                </div>
+            </div>
+            
+            <div class="help-item">
+                <div class="help-icon">🧠</div>
+                <div class="help-text">
+                    <h3>مرحله ۲</h3>
+                    <p>عدد رو توی ذهنت نگه دار!</p>
+                </div>
+            </div>
+            
+            <div class="help-item">
+                <div class="help-icon">✅</div>
+                <div class="help-text">
+                    <h3>مرحله ۳</h3>
+                    <p>از بین ۴ گزینه، عدد درست رو انتخاب کن!</p>
+                </div>
+            </div>
+            
+            <div class="help-item">
+                <div class="help-icon">🚀</div>
+                <div class="help-text">
+                    <h3>نکته</h3>
+                    <p>هر چی سریع‌تر و درست‌تر جواب بدی، امتیاز بیشتری میگیری!</p>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="showScreen('menu-screen')">
+                <span>↩️</span>
+                بازگشت به منو
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Screen -->
+    <div id="stats-screen" class="screen">
+        <div class="stats-container">
+            <h2>📊 آمار بازی</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-value" id="stat-best-time">--</div>
+                    <div class="stat-label">بهترین زمان</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" id="stat-correct">0</div>
+                    <div class="stat-label">پاسخ‌های درست</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-value" id="stat-wrong">0</div>
+                    <div class="stat-label">پاسخ‌های غلط</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-value" id="stat-accuracy">0%</div>
+                    <div class="stat-label">دقت</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🎮</div>
+                    <div class="stat-value" id="stat-games">0</div>
+                    <div class="stat-label">تعداد بازی‌ها</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-value" id="stat-level">1</div>
+                    <div class="stat-label">بالاترین مرحله</div>
+                </div>
+            </div>
+
+            <button class="btn btn-danger" onclick="resetStats()">
+                <span>🗑️</span>
+                پاک کردن آمار
+            </button>
+            
+            <button class="btn btn-secondary" onclick="showScreen('menu-screen')">
+                <span>↩️</span>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div id="result-modal" class="modal">
+        <div class="modal-content" id="modal-content">
+            <div class="modal-icon" id="modal-icon">🎉</div>
+            <h2 id="modal-title">آفرین!</h2>
+            <p id="modal-message">عدد درست بود!</p>
+            <button class="btn btn-primary" onclick="nextRound()">ادامه</button>
+        </div>
+    </div>
+
+    <!-- Level Up Modal -->
+    <div id="levelup-modal" class="modal">
+        <div class="modal-content levelup">
+            <div class="confetti"></div>
+            <div class="modal-icon">🎊</div>
+            <h2>تبریک! مرحله جدید!</h2>
+            <p id="new-level-text">مرحله ۲</p>
+            <button class="btn btn-primary" onclick="startNewLevel()">شروع</button>
+        </div>
+    </div>
+
+    <script>
+      // ============================================
+// 🚀 حدس اعداد فضایی - Space Number Guessing Game
+// ============================================
+
+// Game State
+const gameState = {
+    currentNumber: 0,
+    level: 1,
+    score: 0,
+    correctAnswers: 0,
+    wrongAnswers: 0,
+    roundCorrectAnswers: 0,
+    timer: 0,
+    timerInterval: null,
+    isPlaying: false,
+    maxNumber: 10,
+    showTime: 1000,
+    optionsCount: 4
+};
+
+// Statistics (saved to localStorage)
+let stats = {
+    bestTime: null,
+    totalCorrect: 0,
+    totalWrong: 0,
+    totalGames: 0,
+    highestLevel: 1
+};
+
+// Audio Context for sound effects
+let audioContext = null;
+
+// Initialize Audio Context
+function initAudio() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+// Sound Effects
+function playSound(type) {
+    try {
+        initAudio();
+        
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        switch(type) {
+            case 'reveal':
+                // Number reveal sound - ascending tone
+                oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+                break;
+                
+            case 'correct':
+                // Correct answer - happy ascending melody
+                playMelody([523, 659, 784], 0.15);
+                break;
+                
+            case 'wrong':
+                // Wrong answer - descending tone
+                oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(150, audioContext.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.4);
+                break;
+                
+            case 'levelup':
+                // Level up - triumphant fanfare
+                playMelody([523, 659, 784, 1047], 0.2);
+                break;
+                
+            case 'click':
+                // Button click
+                oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+                break;
+                
+            case 'flip':
+                // Card flip
+                oscillator.type = 'triangle';
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.15);
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+                break;
+        }
+    } catch(e) {
+        console.log('Audio not supported');
+    }
+}
+
+// Play a melody sequence
+function playMelody(frequencies, duration) {
+    frequencies.forEach((freq, index) => {
+        setTimeout(() => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + duration);
+        }, index * (duration * 1000));
+    });
+}
+
+// ============================================
+// LocalStorage Functions
+// ============================================
+
+function loadStats() {
+    try {
+        const saved = localStorage.getItem('spaceNumberStats');
+        if (saved) {
+            stats = JSON.parse(saved);
+        }
+    } catch(e) {
+        console.log('Could not load stats');
+    }
+    updateStatsDisplay();
+}
+
+function saveStats() {
+    try {
+        localStorage.setItem('spaceNumberStats', JSON.stringify(stats));
+    } catch(e) {
+        console.log('Could not save stats');
+    }
+}
+
+function resetStats() {
+    if (confirm('آیا مطمئن هستید که می‌خواهید همه آمار را پاک کنید؟')) {
+        stats = {
+            bestTime: null,
+            totalCorrect: 0,
+            totalWrong: 0,
+            totalGames: 0,
+            highestLevel: 1
+        };
+        saveStats();
+        updateStatsDisplay();
+        showNotification('آمار پاک شد! 🗑️');
+    }
+}
+
+function updateStatsDisplay() {
+    document.getElementById('stat-best-time').textContent = 
+        stats.bestTime ? `${stats.bestTime.toFixed(1)} ثانیه` : '--';
+    document.getElementById('stat-correct').textContent = stats.totalCorrect;
+    document.getElementById('stat-wrong').textContent = stats.totalWrong;
+    
+    const total = stats.totalCorrect + stats.totalWrong;
+    const accuracy = total > 0 ? Math.round((stats.totalCorrect / total) * 100) : 0;
+    document.getElementById('stat-accuracy').textContent = `${accuracy}%`;
+    
+    document.getElementById('stat-games').textContent = stats.totalGames;
+    document.getElementById('stat-level').textContent = stats.highestLevel;
+}
+
+// ============================================
+// Screen Navigation
+// ============================================
+
+function showScreen(screenId) {
+    playSound('click');
+    
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+    
+    // Show target screen
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.classList.add('active');
+    }
+    
+    // Update stats when showing stats screen
+    if (screenId === 'stats-screen') {
+        updateStatsDisplay();
+    }
+}
+
+function showNotification(message) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span>${message}</span>
+        </div>
+    `;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2000;
+        animation: slideDown 0.3s ease;
+    `;
+    
+    // Add animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateX(-50%) translateY(-100%); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        .notification-content {
+            background: linear-gradient(135deg, #6C63FF, #5A52D5);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1rem;
+            box-shadow: 0 10px 30px rgba(108, 99, 255, 0.4);
+        }
+    `;
+    
+    if (!document.querySelector('style[data-notification]')) {
+        style.setAttribute('data-notification', 'true');
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 2 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideDown 0.3s ease reverse';
+        setTimeout(() => notification.remove(), 300);
+    }, 2000);
+}
+
+// ============================================
+// Game Functions
+// ============================================
+
+function startGame() {
+    playSound('click');
+    
+    // Reset game state
+    gameState.level = 1;
+    gameState.score = 0;
+    gameState.correctAnswers = 0;
+    gameState.wrongAnswers = 0;
+    gameState.roundCorrectAnswers = 0;
+    gameState.maxNumber = 10;
+    gameState.showTime = 1000;
+    gameState.isPlaying = true;
+    
+    // Update UI
+    document.getElementById('level-number').textContent = '1';
+    document.getElementById('score').textContent = '0';
+    document.getElementById('timer').textContent = '0.0';
+    
+    // Reset card
+    resetCard();
+    
+    // Show game screen
+    showScreen('game-screen');
+    
+    // Update speech
+    updateSpeech('عدد رو ببین و حدس بزن! 🤔');
+    
+    // Start timer
+    startTimer();
+}
+
+function resetCard() {
+    const card = document.getElementById('flip-card');
+    const showBtn = document.getElementById('show-btn');
+    const optionsContainer = document.getElementById('options-container');
+    const numberDisplay = document.getElementById('number-display');
+    
+    card.classList.remove('flipped');
+    showBtn.disabled = false;
+    showBtn.style.display = 'flex';
+    optionsContainer.classList.remove('show');
+    optionsContainer.innerHTML = '';
+    numberDisplay.textContent = '?';
+    
+    // Reset alien expression
+    const mouth = document.getElementById('alien-mouth');
+    if (mouth) {
+        mouth.className = 'alien-mouth';
+    }
+}
+
+function startTimer() {
+    gameState.timer = 0;
+    
+    if (gameState.timerInterval) {
+        clearInterval(gameState.timerInterval);
+    }
+    
+    gameState.timerInterval = setInterval(() => {
+        gameState.timer += 0.1;
+        document.getElementById('timer').textContent = gameState.timer.toFixed(1);
+    }, 100);
+}
+
+function stopTimer() {
+    if (gameState.timerInterval) {
+        clearInterval(gameState.timerInterval);
+        gameState.timerInterval = null;
+    }
+}
+
+function revealNumber() {
+    playSound('flip');
+    
+    const card = document.getElementById('flip-card');
+    const showBtn = document.getElementById('show-btn');
+    const numberDisplay = document.getElementById('number-display');
+    
+    // Generate random number based on level
+    gameState.currentNumber = Math.floor(Math.random() * gameState.maxNumber) + 1;
+    
+    // Show number on card
+    numberDisplay.textContent = gameState.currentNumber;
+    
+    // Flip card
+    card.classList.add('flipped');
+    playSound('reveal');
+    
+    // Disable show button
+    showBtn.disabled = true;
+    showBtn.style.opacity = '0.5';
+    
+    // Update speech
+    updateSpeech('عدد رو یادت بمونه! 🧠');
+    
+    // Hide number after showTime
+    setTimeout(() => {
+        card.classList.remove('flipped');
+        
+        // Update speech
+        updateSpeech('حالا حدس بزن! 🤔');
+        
+        // Generate options
+        setTimeout(() => {
+            generateOptions();
+        }, 500);
+    }, gameState.showTime);
+}
+
+function generateOptions() {
+    const optionsContainer = document.getElementById('options-container');
+    optionsContainer.innerHTML = '';
+    
+    // Create array with correct answer
+    let options = [gameState.currentNumber];
+    
+    // Generate wrong options
+    while (options.length < gameState.optionsCount) {
+        const wrongNum = Math.floor(Math.random() * gameState.maxNumber) + 1;
+        if (!options.includes(wrongNum)) {
+            options.push(wrongNum);
+        }
+    }
+    
+    // Shuffle options
+    options = shuffleArray(options);
+    
+    // Create option buttons
+    options.forEach(num => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = num;
+        btn.onclick = () => checkAnswer(num, btn);
+        optionsContainer.appendChild(btn);
+    });
+    
+    // Show options with animation
+    setTimeout(() => {
+        optionsContainer.classList.add('show');
+    }, 100);
+}
+
+// Fisher-Yates shuffle
+function shuffleArray(array) {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+}
+
+function checkAnswer(selectedNumber, buttonElement) {
+    const isCorrect = selectedNumber === gameState.currentNumber;
+    
+    // Disable all buttons
+    document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.disabled = true;
+    });
+    
+    // Visual feedback
+    if (isCorrect) {
+        playSound('correct');
+        buttonElement.classList.add('correct');
+        gameState.correctAnswers++;
+        gameState.roundCorrectAnswers++;
+        
+        // Update alien to happy
+        const mouth = document.getElementById('alien-mouth');
+        if (mouth) {
+            mouth.classList.add('happy');
+        }
+        
+        // Calculate score based on speed
+        const baseScore = 10 * gameState.level;
+        const speedBonus = Math.max(0, Math.floor((5 - gameState.timer) * 5));
+        const roundScore = baseScore + speedBonus;
+        gameState.score += roundScore;
+        
+        document.getElementById('score').textContent = gameState.score;
+        
+        updateSpeech('آفرین! درست بود! 🎉');
+        
+        // Check for level up (every 3 correct answers)
+        if (gameState.roundCorrectAnswers >= 3) {
+            setTimeout(() => levelUp(), 1000);
+        } else {
+            setTimeout(() => nextRound(), 1500);
+        }
+    } else {
+        playSound('wrong');
+        buttonElement.classList.add('wrong');
+        gameState.wrongAnswers++;
+        
+        // Show correct answer
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            if (parseInt(btn.textContent) === gameState.currentNumber) {
+                btn.classList.add('correct');
+            }
+        });
+        
+        // Update alien to sad
+        const mouth = document.getElementById('alien-mouth');
+        if (mouth) {
+            mouth.classList.add('sad');
+        }
+        
+        updateSpeech(`عدد ${gameState.currentNumber} بود! 💪 دوباره تلاش کن!`);
+        
+        // Reset round correct answers
+        gameState.roundCorrectAnswers = 0;
+        
+        setTimeout(() => nextRound(), 2000);
+    }
+    
+    // Update stats
+    updateGameStats();
+}
+
+function levelUp() {
+    playSound('levelup');
+    
+    gameState.level++;
+    gameState.roundCorrectAnswers = 0;
+    
+    // Increase difficulty
+    if (gameState.level <= 5) {
+        gameState.maxNumber = 10 + (gameState.level - 1) * 5; // 10, 15, 20, 25, 30
+    } else {
+        gameState.maxNumber = 30 + (gameState.level - 5) * 10; // 40, 50, 60...
+    }
+    
+    // Decrease show time (minimum 300ms)
+    gameState.showTime = Math.max(300, 1000 - (gameState.level - 1) * 100);
+    
+    // Update level display
+    document.getElementById('level-number').textContent = gameState.level;
+    
+    // Update highest level in stats
+    if (gameState.level > stats.highestLevel) {
+        stats.highestLevel = gameState.level;
+        saveStats();
+    }
+    
+    // Show level up modal
+    const modal = document.getElementById('levelup-modal');
+    document.getElementById('new-level-text').textContent = `مرحله ${gameState.level}`;
+    modal.classList.add('show');
+    
+    // Update speech
+    updateSpeech('تبریک! مرحله جدید! 🎊');
+}
+
+function startNewLevel() {
+    playSound('click');
+    
+    document.getElementById('levelup-modal').classList.remove('show');
+    resetCard();
+    updateSpeech('آماده‌ای؟ عدد بعدی رو ببین! 🚀');
+}
+
+function nextRound() {
+    resetCard();
+    updateSpeech('عدد بعدی رو ببین! 👀');
+}
+
+function updateSpeech(text) {
+    const speechBubble = document.getElementById('game-speech');
+    if (speechBubble) {
+        const speechText = speechBubble.querySelector('.speech-text');
+        if (speechText) {
+            speechText.textContent = text;
+            // Re-trigger animation
+            speechBubble.style.animation = 'none';
+            speechBubble.offsetHeight; // Trigger reflow
+            speechBubble.style.animation = 'bubblePop 0.5s ease';
+        }
+    }
+}
+
+function updateGameStats() {
+    stats.totalCorrect += gameState.correctAnswers;
+    stats.totalWrong += gameState.wrongAnswers;
+    stats.totalGames++;
+    
+    // Update best time
+    if (stats.bestTime === null || gameState.timer < stats.bestTime) {
+        stats.bestTime = gameState.timer;
+    }
+    
+    saveStats();
+}
+
+function backToMenu() {
+    playSound('click');
+    
+    // Stop timer
+    stopTimer();
+    
+    // Update final stats
+    updateGameStats();
+    
+    // Reset game state
+    gameState.isPlaying = false;
+    
+    // Show menu
+    showScreen('menu-screen');
+}
+
+// ============================================
+// Event Listeners
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Load saved stats
+    loadStats();
+    
+    // Initialize audio on first user interaction
+    document.addEventListener('click', () => {
+        initAudio();
+    }, { once: true });
+    
+    // Keyboard support
+    document.addEventListener('keydown', (e) => {
+        // Number keys 1-4 for options
+        if (e.key >= '1' && e.key <= '4') {
+            const options = document.querySelectorAll('.option-btn');
+            const index = parseInt(e.key) - 1;
+            if (options[index] && !options[index].disabled) {
+                options[index].click();
+            }
+        }
+        
+        // Space to reveal number
+        if (e.key === ' ' && gameState.isPlaying) {
+            const showBtn = document.getElementById('show-btn');
+            if (showBtn && !showBtn.disabled) {
+                e.preventDefault();
+                revealNumber();
+            }
+        }
+        
+        // Escape to go back
+        if (e.key === 'Escape') {
+            backToMenu();
+        }
+    });
+    
+    // Prevent zoom on double tap (mobile)
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+    
+    // Handle visibility change (pause timer when tab is hidden)
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && gameState.isPlaying) {
+            stopTimer();
+        } else if (!document.hidden && gameState.isPlaying) {
+            startTimer();
+        }
+    });
+});
+
+// ============================================
+// Utility Functions
+// ============================================
+
+// Debounce function for performance
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Throttle function for frequent events
+function throttle(func, limit) {
+    let inThrottle;
+    return function(...args) {
+        if (!inThrottle) {
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+// Random integer between min and max (inclusive)
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Format time in seconds to readable string
+function formatTime(seconds) {
+    if (seconds < 60) {
+        return `${seconds.toFixed(1)} ثانیه`;
+    }
+    const mins = Math.floor(seconds / 60);
+    const secs = (seconds % 60).toFixed(0);
+    return `${mins} دقیقه و ${secs} ثانیه`;
+}
+
+// Console Easter Egg
+console.log('%c🚀 حدس اعداد فضایی', 'font-size: 24px; color: #6C63FF; font-weight: bold;');
+console.log('%cساخته شده برای کودکان عزیز 🌟', 'font-size: 14px; color: #FF6B9D;');
+    </script>
+</body>
+</html>

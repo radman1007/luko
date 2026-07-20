@@ -1,0 +1,184 @@
+/* میان‌بر تلویزیون در صفحه‌ی اصلی — با تم قرمز/زردِ همین صفحه (نه بنفشِ ویدا)
+   تا با بقیه‌ی صفحه خوانا و یکدست باشد */
+.card {
+  --tv-primary: #d2003c;
+  --tv-dark: #a30030;
+  --tv-soft: #fbe6ec;
+
+  margin: 16px 20px 0;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 18px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.newBadge {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--color-on-primary);
+  background: var(--tv-primary);
+  border-radius: 999px;
+  padding: 4px 12px;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.desc {
+  margin-top: 5px;
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
+}
+
+/* تلویزیونِ مشکی با پخش‌کننده‌ی ویدیو */
+.tv {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.antennas {
+  display: flex;
+  justify-content: center;
+  gap: 34px;
+}
+
+.antenna {
+  width: 3px;
+  height: 22px;
+  border-radius: 3px;
+  background: #1d2128;
+}
+
+.antenna:first-child {
+  transform: rotate(24deg) translateY(4px);
+}
+
+.antenna:last-child {
+  transform: rotate(-24deg) translateY(4px);
+}
+
+/* بدنه‌ی مشکیِ تلویزیون */
+.screen {
+  position: relative;
+  height: 180px;
+  border-radius: 16px;
+  border: 7px solid #1d2128;
+  background: #000;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 6%);
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+  display: block;
+}
+
+/* دکمه‌ی پخش روی صفحه (قبل از شروع) */
+.playOverlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 35%);
+  color: var(--color-surface);
+  font-size: 52px;
+}
+
+/* حالت خالی — تا وقتی ویدیو اضافه نشده */
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* برفکِ تلویزیون خاموش */
+.noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image: repeating-conic-gradient(
+    #2a2a2a 0% 25%,
+    #111 0% 50%
+  );
+  background-size: 5px 5px;
+  animation: flicker 0.5s steps(3) infinite;
+}
+
+@keyframes flicker {
+  0% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
+.playBadge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--tv-primary);
+  color: var(--color-on-primary);
+  font-size: 28px;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 45%);
+}
+
+.placeholderText {
+  position: relative;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgb(255 255 255 / 75%);
+}
+
+/* پایه‌ی تلویزیون */
+.stand {
+  display: block;
+  width: 70px;
+  height: 10px;
+  margin: 0 auto;
+  border-radius: 0 0 8px 8px;
+  background: #1d2128;
+}
+
+.cta {
+  margin-top: 12px;
+  width: 100%;
+  padding: 11px;
+  border-radius: var(--radius-sm);
+  background: var(--tv-soft);
+  color: var(--tv-dark);
+  font-size: 13.5px;
+  font-weight: 800;
+}

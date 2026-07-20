@@ -1,0 +1,2913 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>قطار قرآن - سوره توحید</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================
+   متغیرهای CSS
+   ============================================ */
+:root {
+    --primary: #1a5f2a;
+    --primary-light: #2d8a3e;
+    --primary-dark: #0d3d16;
+    --secondary: #c9a227;
+    --secondary-light: #e6c54d;
+    --accent: #e74c3c;
+    --success: #27ae60;
+    --error: #c0392b;
+    --bg-dark: #0a1628;
+    --bg-medium: #1a2a4a;
+    --bg-light: #2a3a5a;
+    --text-light: #ffffff;
+    --text-gold: #f4d03f;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --glow: rgba(244, 208, 63, 0.5);
+}
+
+/* ============================================
+   ریست و پایه
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'Vazirmatn', sans-serif;
+    background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-medium) 50%, var(--bg-light) 100%);
+    color: var(--text-light);
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* ============================================
+   ستاره‌های پس‌زمینه
+   ============================================ */
+.stars, .stars-small {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.stars::before, .stars::after,
+.stars-small::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, white, transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 90px 40px, white, transparent),
+        radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1px 1px at 230px 80px, white, transparent),
+        radial-gradient(2px 2px at 300px 150px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 350px 200px, white, transparent),
+        radial-gradient(2px 2px at 420px 50px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 500px 180px, white, transparent),
+        radial-gradient(2px 2px at 80px 250px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1px 1px at 180px 300px, white, transparent),
+        radial-gradient(2px 2px at 280px 280px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 380px 320px, white, transparent),
+        radial-gradient(2px 2px at 480px 300px, rgba(255,255,255,0.8), transparent);
+    background-repeat: repeat;
+    background-size: 500px 400px;
+    animation: twinkle 4s ease-in-out infinite;
+}
+
+.stars::after {
+    background-size: 600px 500px;
+    animation-delay: -2s;
+    opacity: 0.5;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* ============================================
+   ماه
+   ============================================ */
+.moon {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #f5f5dc 0%, #e6e6c8 100%);
+    border-radius: 50%;
+    box-shadow: 
+        0 0 40px rgba(245, 245, 220, 0.5),
+        0 0 80px rgba(245, 245, 220, 0.3),
+        inset -10px -10px 20px rgba(0,0,0,0.1);
+    animation: moonGlow 3s ease-in-out infinite;
+}
+
+.moon::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    width: 15px;
+    height: 15px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 50%;
+}
+
+.moon::after {
+    content: '';
+    position: absolute;
+    top: 40px;
+    left: 35px;
+    width: 20px;
+    height: 20px;
+    background: rgba(0,0,0,0.03);
+    border-radius: 50%;
+}
+
+@keyframes moonGlow {
+    0%, 100% { box-shadow: 0 0 40px rgba(245, 245, 220, 0.5), 0 0 80px rgba(245, 245, 220, 0.3); }
+    50% { box-shadow: 0 0 60px rgba(245, 245, 220, 0.7), 0 0 100px rgba(245, 245, 220, 0.4); }
+}
+
+/* ============================================
+   صفحات
+   ============================================ */
+.page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.page.active {
+    display: flex;
+    opacity: 1;
+}
+
+/* ============================================
+   صفحه اصلی
+   ============================================ */
+.logo-container {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeInDown 0.8s ease;
+}
+
+.quran-icon {
+    margin-bottom: 20px;
+}
+
+.book-cover {
+    width: 120px;
+    height: 150px;
+    background: linear-gradient(145deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border-radius: 8px 20px 20px 8px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        -5px 0 0 var(--primary-dark),
+        0 10px 30px var(--shadow),
+        inset 0 0 30px rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.book-cover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+}
+
+.book-cover::after {
+    content: 'الله';
+    position: absolute;
+    font-size: 36px;
+    color: var(--text-gold);
+    text-shadow: 0 0 10px var(--glow);
+}
+
+.bismillah {
+    font-size: 10px;
+    color: var(--text-gold);
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    padding: 10px;
+    opacity: 0.8;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(180deg, var(--text-gold) 0%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    margin-bottom: 10px;
+    animation: titleGlow 2s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+    0%, 100% { filter: drop-shadow(0 0 10px var(--glow)); }
+    50% { filter: drop-shadow(0 0 20px var(--glow)); }
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.8);
+    font-weight: 500;
+}
+
+/* ============================================
+   دکمه‌های منو
+   ============================================ */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 300px;
+    animation: fadeInUp 0.8s ease 0.3s both;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 30px;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(145deg, var(--primary-light) 0%, var(--primary) 100%);
+    color: white;
+    box-shadow: 0 8px 25px rgba(26, 95, 42, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(26, 95, 42, 0.5);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: linear-gradient(145deg, var(--bg-light) 0%, var(--bg-medium) 100%);
+    color: white;
+    box-shadow: 0 8px 25px var(--shadow);
+}
+
+.btn-secondary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px var(--shadow);
+}
+
+.btn-tertiary {
+    background: linear-gradient(145deg, var(--secondary-light) 0%, var(--secondary) 100%);
+    color: var(--bg-dark);
+    box-shadow: 0 8px 25px rgba(201, 162, 39, 0.3);
+}
+
+.btn-tertiary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(201, 162, 39, 0.4);
+}
+
+.btn-icon {
+    font-size: 1.3rem;
+}
+
+/* ============================================
+   قطار تزئینی
+   ============================================ */
+.decorative-train {
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    width: 100%;
+    animation: fadeIn 1s ease 0.6s both;
+}
+
+.mini-train {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 5px;
+}
+
+.mini-locomotive {
+    width: 60px;
+    height: 40px;
+    background: linear-gradient(180deg, var(--accent) 0%, #c0392b 100%);
+    border-radius: 5px 10px 0 0;
+    position: relative;
+    animation: trainBounce 0.5s ease-in-out infinite;
+}
+
+.mini-chimney {
+    position: absolute;
+    top: -12px;
+    left: 10px;
+    width: 12px;
+    height: 15px;
+    background: #7f8c8d;
+    border-radius: 3px 3px 0 0;
+}
+
+.mini-cabin {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 25px;
+    background: #95a5a6;
+    border-radius: 3px;
+}
+
+.mini-wheels {
+    position: absolute;
+    bottom: -8px;
+    left: 5px;
+    display: flex;
+    gap: 10px;
+}
+
+.mini-wheel, .wheel {
+    width: 12px;
+    height: 12px;
+    background: #2c3e50;
+    border-radius: 50%;
+    border: 2px solid #7f8c8d;
+    animation: wheelSpin 0.5s linear infinite;
+}
+
+.mini-wagon {
+    width: 50px;
+    height: 35px;
+    background: linear-gradient(180deg, var(--primary-light) 0%, var(--primary) 100%);
+    border-radius: 5px 5px 0 0;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 8px;
+    padding-bottom: 5px;
+}
+
+@keyframes trainBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+}
+
+@keyframes wheelSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   صفحه بازی
+   ============================================ */
+.game-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: linear-gradient(180deg, rgba(10, 22, 40, 0.95) 0%, transparent 100%);
+    z-index: 100;
+}
+
+.back-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(145deg, var(--bg-light) 0%, var(--bg-medium) 100%);
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px var(--shadow);
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    transform: scale(1.1);
+}
+
+.back-btn:active {
+    transform: scale(0.95);
+}
+
+.level-indicator, .timer-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.level-label, .timer-icon {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.level-number, #timer {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--text-gold);
+}
+
+/* ============================================
+   اینترو بازی
+   ============================================ */
+.game-intro {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 22, 40, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    backdrop-filter: blur(10px);
+}
+
+.game-intro.hidden {
+    display: none;
+}
+
+.intro-content {
+    text-align: center;
+    padding: 30px;
+    animation: popIn 0.5s ease;
+}
+
+.intro-content h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: var(--text-gold);
+}
+
+.intro-content p {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+.intro-hint {
+    font-size: 0.95rem !important;
+    opacity: 0.7 !important;
+    margin-bottom: 25px !important;
+}
+
+.btn-start-game {
+    background: linear-gradient(145deg, var(--success) 0%, #1e8449 100%);
+    color: white;
+    padding: 18px 40px;
+    font-size: 1.2rem;
+    box-shadow: 0 8px 30px rgba(39, 174, 96, 0.4);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.btn-start-game:hover {
+    animation: none;
+    transform: scale(1.05);
+}
+
+.sparkle {
+    animation: sparkle 1s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.2) rotate(180deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 8px 30px rgba(39, 174, 96, 0.4); }
+    50% { box-shadow: 0 8px 50px rgba(39, 174, 96, 0.6); }
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================
+   منطقه بازی
+   ============================================ */
+.game-area {
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    padding-top: 80px;
+}
+
+.game-area.active {
+    display: flex;
+}
+
+/* آسمان */
+.sky-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    background: linear-gradient(180deg, #0a1628 0%, #1a3a5a 100%);
+    overflow: hidden;
+}
+
+.cloud {
+    position: absolute;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50px;
+    animation: cloudFloat 20s linear infinite;
+}
+
+.cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: inherit;
+    border-radius: 50%;
+}
+
+.cloud-1 {
+    width: 100px;
+    height: 40px;
+    top: 100px;
+    left: -100px;
+    animation-duration: 25s;
+}
+
+.cloud-1::before {
+    width: 50px;
+    height: 50px;
+    top: -25px;
+    left: 15px;
+}
+
+.cloud-1::after {
+    width: 35px;
+    height: 35px;
+    top: -15px;
+    left: 50px;
+}
+
+.cloud-2 {
+    width: 80px;
+    height: 30px;
+    top: 150px;
+    left: -80px;
+    animation-duration: 30s;
+    animation-delay: -10s;
+}
+
+.cloud-2::before {
+    width: 40px;
+    height: 40px;
+    top: -20px;
+    left: 10px;
+}
+
+.cloud-3 {
+    width: 120px;
+    height: 45px;
+    top: 80px;
+    left: -120px;
+    animation-duration: 35s;
+    animation-delay: -20s;
+}
+
+.cloud-3::before {
+    width: 60px;
+    height: 60px;
+    top: -30px;
+    left: 20px;
+}
+
+.cloud-3::after {
+    width: 45px;
+    height: 45px;
+    top: -20px;
+    left: 60px;
+}
+
+@keyframes cloudFloat {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(100vw + 200px)); }
+}
+
+/* ریل قطار */
+.train-track {
+    position: absolute;
+    bottom: 35%;
+    left: 0;
+    width: 100%;
+    height: 20px;
+    background: linear-gradient(180deg, #5d4e37 0%, #3d3225 100%);
+}
+
+.train-track::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: #7d6e57;
+}
+
+.train-track::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: #4d3e27;
+}
+
+/* خطوط ریل */
+.rail-lines {
+    position: absolute;
+    bottom: calc(35% + 8px);
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: repeating-linear-gradient(
+        90deg,
+        #8b7355 0px,
+        #8b7355 30px,
+        transparent 30px,
+        transparent 50px
+    );
+    animation: railMove 2s linear infinite;
+}
+
+@keyframes railMove {
+    from { background-position: 0 0; }
+    to { background-position: -50px 0; }
+}
+
+/* قطار */
+.train-container {
+    position: absolute;
+    bottom: 35%;
+    left: 0;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.train {
+    position: absolute;
+    bottom: 10px;
+    display: flex;
+    align-items: flex-end;
+    transform: translateX(-400px);
+    transition: transform 2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.train.arrived {
+    transform: translateX(0);
+}
+
+.train.moving {
+    animation: trainMove 3s ease-in-out;
+}
+
+@keyframes trainMove {
+    0% { transform: translateX(-400px); }
+    70% { transform: translateX(0); }
+    85% { transform: translateX(10px); }
+    100% { transform: translateX(0); }
+}
+
+/* لوکوموتیو */
+.locomotive {
+    position: relative;
+    width: 140px;
+    height: 100px;
+}
+
+.chimney {
+    position: absolute;
+    top: -25px;
+    left: 25px;
+    width: 25px;
+    height: 30px;
+    background: linear-gradient(180deg, #7f8c8d 0%, #5d6d6e 100%);
+    border-radius: 5px 5px 0 0;
+}
+
+.smoke {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 50%;
+    animation: smokeRise 2s ease-out infinite;
+}
+
+.smoke:nth-child(1) { left: 2px; animation-delay: 0s; }
+.smoke:nth-child(2) { left: 5px; animation-delay: 0.5s; }
+.smoke:nth-child(3) { left: 8px; animation-delay: 1s; }
+
+@keyframes smokeRise {
+    0% { 
+        transform: translateY(0) scale(1); 
+        opacity: 0.8;
+    }
+    100% { 
+        transform: translateY(-50px) scale(2); 
+        opacity: 0;
+    }
+}
+
+.engine-body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 140px;
+    height: 70px;
+    background: linear-gradient(180deg, var(--accent) 0%, #c0392b 100%);
+    border-radius: 10px 30px 0 0;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+.headlight {
+    position: absolute;
+    top: 25px;
+    left: -5px;
+    width: 15px;
+    height: 15px;
+    background: #f1c40f;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #f1c40f, 0 0 40px rgba(241, 196, 15, 0.5);
+    animation: headlightBlink 1s ease-in-out infinite;
+}
+
+@keyframes headlightBlink {
+    0%, 100% { box-shadow: 0 0 20px #f1c40f, 0 0 40px rgba(241, 196, 15, 0.5); }
+    50% { box-shadow: 0 0 30px #f1c40f, 0 0 60px rgba(241, 196, 15, 0.7); }
+}
+
+.window {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    width: 30px;
+    height: 25px;
+    background: linear-gradient(180deg, #85c1e9 0%, #5dade2 100%);
+    border-radius: 5px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
+
+.wheels-container {
+    position: absolute;
+    bottom: -15px;
+    left: 15px;
+    display: flex;
+    gap: 25px;
+}
+
+.wheel.large {
+    width: 30px;
+    height: 30px;
+}
+
+.wheel.small {
+    width: 20px;
+    height: 20px;
+}
+
+/* واگن‌ها */
+.wagons {
+    display: flex;
+    gap: 5px;
+}
+
+.wagon {
+    width: 130px;
+    height: 80px;
+    background: linear-gradient(180deg, var(--primary-light) 0%, var(--primary) 100%);
+    border-radius: 5px 5px 0 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: all 0.5s ease;
+}
+
+.wagon::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    height: 3px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+}
+
+.wagon.completed {
+    background: linear-gradient(180deg, var(--success) 0%, #1e8449 100%);
+    box-shadow: 0 0 30px rgba(39, 174, 96, 0.5);
+    animation: wagonCelebrate 0.5s ease;
+}
+
+.wagon.wrong {
+    animation: wagonShake 0.5s ease;
+}
+
+@keyframes wagonCelebrate {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes wagonShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.wagon-number {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--secondary);
+    color: var(--bg-dark);
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.wagon-text {
+    font-size: 0.85rem;
+    text-align: center;}
+    /* ============================================
+   بخش قطعات قابل کشیدن
+   ============================================ */
+.pieces-area {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(180deg, transparent 0%, rgba(10, 22, 40, 0.95) 30%);
+    padding: 20px;
+    padding-top: 40px;
+}
+
+.pieces-title {
+    text-align: center;
+    font-size: 1rem;
+    color: var(--text-gold);
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.pieces-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    max-width: 100%;
+}
+
+.piece {
+    background: linear-gradient(145deg, var(--bg-light) 0%, var(--bg-medium) 100%);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    padding: 10px 15px;
+    font-size: 0.95rem;
+    color: white;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px var(--shadow);
+    position: relative;
+}
+
+.piece:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px var(--shadow);
+    border-color: var(--text-gold);
+}
+
+.piece:active {
+    cursor: grabbing;
+}
+
+.piece.dragging {
+    opacity: 0.5;
+    transform: scale(1.1);
+    z-index: 1000;
+}
+
+.piece.placed {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* ============================================
+   سطل‌های رها کردن
+   ============================================ */
+.drop-zones {
+    position: absolute;
+    bottom: 28%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    max-width: 90%;
+    z-index: 50;
+}
+
+.drop-zone {
+    min-width: 80px;
+    min-height: 40px;
+    background: rgba(255,255,255,0.1);
+    border: 2px dashed rgba(255,255,255,0.3);
+    border-radius: 10px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.5);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.drop-zone.highlight {
+    border-color: var(--text-gold);
+    background: rgba(244, 208, 63, 0.2);
+    transform: scale(1.05);
+}
+
+.drop-zone.filled {
+    border-style: solid;
+    border-color: var(--success);
+    background: rgba(39, 174, 96, 0.2);
+    color: white;
+}
+
+.drop-zone.wrong {
+    border-color: var(--error);
+    background: rgba(192, 57, 43, 0.2);
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* ============================================
+   پوشش موفقیت
+   ============================================ */
+.success-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 22, 40, 0.95);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    backdrop-filter: blur(10px);
+}
+
+.success-overlay.active {
+    display: flex;
+    animation: fadeIn 0.5s ease;
+}
+
+.success-content {
+    text-align: center;
+    padding: 40px;
+    position: relative;
+}
+
+.success-content h2 {
+    font-size: 3rem;
+    color: var(--text-gold);
+    margin-bottom: 15px;
+    animation: bounceIn 0.8s ease;
+}
+
+.success-content p {
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+    opacity: 0.9;
+}
+
+.stars-earned {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.stars-earned .star {
+    font-size: 3rem;
+    animation: starPop 0.5s ease backwards;
+}
+
+.stars-earned .star:nth-child(1) { animation-delay: 0.2s; }
+.stars-earned .star:nth-child(2) { animation-delay: 0.4s; }
+.stars-earned .star:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes starPop {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.btn-next {
+    background: linear-gradient(145deg, var(--success) 0%, #1e8449 100%);
+    color: white;
+    padding: 15px 35px;
+    font-size: 1.1rem;
+    box-shadow: 0 8px 30px rgba(39, 174, 96, 0.4);
+}
+
+.btn-next:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(39, 174, 96, 0.5);
+}
+
+/* کانفتی */
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    animation: confettiFall 3s ease-out forwards;
+}
+
+.confetti:nth-child(1) { left: 10%; background: #e74c3c; animation-delay: 0s; }
+.confetti:nth-child(2) { left: 20%; background: #3498db; animation-delay: 0.2s; }
+.confetti:nth-child(3) { left: 30%; background: #2ecc71; animation-delay: 0.4s; }
+.confetti:nth-child(4) { left: 40%; background: #f1c40f; animation-delay: 0.1s; }
+.confetti:nth-child(5) { left: 50%; background: #9b59b6; animation-delay: 0.3s; }
+.confetti:nth-child(6) { left: 60%; background: #e67e22; animation-delay: 0.5s; }
+.confetti:nth-child(7) { left: 70%; background: #1abc9c; animation-delay: 0.15s; }
+.confetti:nth-child(8) { left: 80%; background: #e74c3c; animation-delay: 0.35s; }
+.confetti:nth-child(9) { left: 90%; background: #3498db; animation-delay: 0.25s; }
+.confetti:nth-child(10) { left: 15%; background: #2ecc71; animation-delay: 0.45s; }
+.confetti:nth-child(11) { left: 45%; background: #f1c40f; animation-delay: 0.55s; }
+.confetti:nth-child(12) { left: 75%; background: #9b59b6; animation-delay: 0.65s; }
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* ============================================
+   پاپ‌آپ آفرین
+   ============================================ */
+.well-done-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    z-index: 400;
+    pointer-events: none;
+}
+
+.well-done-popup.active {
+    animation: popupShow 1s ease forwards;
+}
+
+.popup-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.popup-icon {
+    font-size: 4rem;
+    animation: clapBounce 0.5s ease infinite;
+}
+
+.popup-text {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--text-gold);
+    text-shadow: 0 0 20px var(--glow);
+}
+
+@keyframes popupShow {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    20% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+    40% { transform: translate(-50%, -50%) scale(1); }
+    80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+}
+
+@keyframes clapBounce {
+    0%, 100% { transform: rotate(-10deg); }
+    50% { transform: rotate(10deg); }
+}
+
+/* ============================================
+   صفحه راهنما
+   ============================================ */
+.help-content {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    padding-top: 80px;
+    overflow-y: auto;
+    max-height: 100%;
+}
+
+.help-title {
+    text-align: center;
+    font-size: 1.8rem;
+    color: var(--text-gold);
+    margin-bottom: 30px;
+}
+
+.help-section {
+    background: rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: fadeInUp 0.5s ease backwards;
+}
+
+.help-section:nth-child(2) { animation-delay: 0.1s; }
+.help-section:nth-child(3) { animation-delay: 0.2s; }
+.help-section:nth-child(4) { animation-delay: 0.3s; }
+
+.help-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.help-section h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: var(--text-gold);
+}
+
+.help-section p, .help-section ul {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    opacity: 0.9;
+}
+
+.help-section ul {
+    text-align: right;
+    list-style: none;
+    padding: 0;
+}
+
+.help-section ul li {
+    margin-bottom: 8px;
+    position: relative;
+    padding-right: 20px;
+}
+
+.help-section ul li::before {
+    content: '•';
+    position: absolute;
+    right: 0;
+    color: var(--text-gold);
+}
+
+.help-verse {
+    margin-top: 30px;
+}
+
+.help-verse h3 {
+    text-align: center;
+    font-size: 1.2rem;
+    color: var(--text-gold);
+    margin-bottom: 15px;
+}
+
+.verse-box {
+    background: linear-gradient(145deg, var(--primary-dark) 0%, var(--primary) 100%);
+    border-radius: 16px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.verse-box p {
+    font-size: 1.3rem;
+    line-height: 2.2;
+    color: var(--text-gold);
+    font-weight: 500;
+}
+
+/* ============================================
+   صفحه آمار
+   ============================================ */
+.stats-content {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    padding-top: 80px;
+    overflow-y: auto;
+    max-height: 100%;
+}
+
+.stats-title {
+    text-align: center;
+    font-size: 1.6rem;
+    color: var(--text-gold);
+    margin-bottom: 30px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    animation: fadeInUp 0.5s ease backwards;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    background: rgba(255,255,255,0.08);
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+.stat-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+}
+
+.stat-best-time .stat-icon { background: rgba(244, 208, 63, 0.2); }
+.stat-correct .stat-icon { background: rgba(39, 174, 96, 0.2); }
+.stat-wrong .stat-icon { background: rgba(192, 57, 43, 0.2); }
+.stat-level .stat-icon { background: rgba(52, 152, 219, 0.2); }
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-gold);
+}
+
+/* بخش پیشرفت */
+.progress-section, .accuracy-section {
+    background: rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    animation: fadeInUp 0.5s ease 0.5s backwards;
+}
+
+.progress-section h3, .accuracy-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: var(--text-gold);
+}
+
+.progress-bar-container {
+    position: relative;
+    height: 30px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--success) 100%);
+    border-radius: 15px;
+    transition: width 1s ease;
+    position: relative;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+    animation: progressShine 2s ease-in-out infinite;
+}
+
+@keyframes progressShine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+/* دایره دقت */
+.accuracy-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(
+        var(--success) 0deg,
+        var(--success) var(--accuracy-angle, 0deg),
+        rgba(255,255,255,0.1) var(--accuracy-angle, 0deg)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    position: relative;
+    transition: all 1s ease;
+}
+
+.accuracy-circle::before {
+    content: '';
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    background: var(--bg-dark);
+    border-radius: 50%;
+}
+
+.accuracy-value {
+    position: relative;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-gold);
+}
+
+/* دکمه ریست */
+.btn-reset {
+    width: 100%;
+    background: linear-gradient(145deg, var(--error) 0%, #962d22 100%);
+    color: white;
+    padding: 15px;
+    margin-top: 20px;
+    animation: fadeInUp 0.5s ease 0.6s backwards;
+}
+
+.btn-reset:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(192, 57, 43, 0.4);
+}
+
+/* ============================================
+   انیمیشن‌های عمومی
+   ============================================ */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   ریسپانسیو - موبایل
+   ============================================ */
+@media (max-width: 480px) {
+    .title {
+        font-size: 2rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .btn {
+        padding: 14px 25px;
+        font-size: 1rem;
+    }
+    
+    .moon {
+        width: 60px;
+        height: 60px;
+        top: 20px;
+        left: 20px;
+    }
+    
+    .game-header {
+        padding: 10px 15px;
+    }
+    
+    .back-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.3rem;
+    }
+    
+    .level-indicator, .timer-display {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .level-number, #timer {
+        font-size: 1rem;
+    }
+    
+    .intro-content h2 {
+        font-size: 1.6rem;
+    }
+    
+    .intro-content p {
+        font-size: 1rem;
+    }
+    
+    .locomotive {
+        width: 100px;
+        height: 70px;
+    }
+    
+    .engine-body {
+        width: 100px;
+        height: 50px;
+    }
+    
+    .chimney {
+        width: 18px;
+        height: 22px;
+        top: -18px;
+        left: 18px;
+    }
+    
+    .window {
+        width: 22px;
+        height: 18px;
+        top: 10px;
+        right: 15px;
+    }
+    
+    .wheel.large {
+        width: 22px;
+        height: 22px;
+    }
+    
+    .wheel.small {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .wagon {
+        width: 100px;
+        height: 65px;
+    }
+    
+    .wagon-text {
+        font-size: 0.75rem;
+    }
+    
+    .piece {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .drop-zone {
+        min-width: 70px;
+        min-height: 35px;
+        font-size: 0.8rem;
+    }
+    
+    .success-content h2 {
+        font-size: 2.5rem;
+    }
+    
+    .stars-earned .star {
+        font-size: 2.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 1.8rem;
+    }
+    
+    .stat-value {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .title {
+        font-size: 1.7rem;
+    }
+    
+    .locomotive {
+        width: 80px;
+        height: 60px;
+    }
+    
+    .engine-body {
+        width: 80px;
+        height: 42px;
+    }
+    
+    .wagon {
+        width: 85px;
+        height: 55px;
+    }
+    
+    .piece {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+    
+    .drop-zone {
+        min-width: 60px;
+        min-height: 32px;
+        font-size: 0.75rem;
+    }
+}
+
+/* ============================================
+   جهت‌گیری افقی
+   ============================================ */
+@media (orientation: landscape) and (max-height: 500px) {
+    .game-area {
+        padding-top: 60px;
+    }
+    
+    .train-container {
+        height: 150px;
+    }
+    
+    .pieces-area {
+        padding-top: 20px;
+    }
+    
+    .drop-zones {
+        bottom: 30%;
+    }
+    
+    .moon {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+/* ============================================
+   افکت‌های ویژه
+   ============================================ */
+.glow-effect {
+    animation: glow 1s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 10px var(--glow);
+    }
+    to {
+        box-shadow: 0 0 30px var(--glow), 0 0 50px var(--glow);
+    }
+}
+
+/* نور فلش */
+.flash-effect {
+    animation: flash 0.3s ease;
+}
+
+@keyframes flash {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(2); }
+}
+
+/* لرزش صفحه */
+.screen-shake {
+    animation: screenShake 0.3s ease;
+}
+
+@keyframes screenShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+    </style>
+</head>
+<body>
+    <!-- صفحه اصلی -->
+    <div id="main-page" class="page active">
+        <div class="stars"></div>
+        <div class="moon"></div>
+        
+        <div class="logo-container">
+            <div class="quran-icon">
+                <div class="book-cover">
+                    <span class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</span>
+                </div>
+            </div>
+            <h1 class="title">قطار قرآن</h1>
+            <p class="subtitle">سوره توحید را یاد بگیریم</p>
+        </div>
+
+        <div class="menu-buttons">
+            <button class="btn btn-primary" onclick="showPage('game-page')">
+                <span class="btn-icon">🎮</span>
+                <span>شروع بازی</span>
+            </button>
+            <button class="btn btn-secondary" onclick="showPage('help-page')">
+                <span class="btn-icon">❓</span>
+                <span>راهنما</span>
+            </button>
+            <button class="btn btn-tertiary" onclick="showPage('stats-page')">
+                <span class="btn-icon">📊</span>
+                <span>آمار</span>
+            </button>
+        </div>
+
+        <div class="decorative-train">
+            <div class="mini-train">
+                <div class="mini-locomotive">
+                    <div class="mini-chimney"></div>
+                    <div class="mini-cabin"></div>
+                    <div class="mini-wheels">
+                        <div class="wheel"></div>
+                        <div class="wheel"></div>
+                    </div>
+                </div>
+                <div class="mini-wagon">
+                    <div class="mini-wheel"></div>
+                    <div class="mini-wheel"></div>
+                </div>
+                <div class="mini-wagon">
+                    <div class="mini-wheel"></div>
+                    <div class="mini-wheel"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه بازی -->
+    <div id="game-page" class="page">
+        <div class="game-header">
+            <button class="back-btn" onclick="goBack()">
+                <span>→</span>
+            </button>
+            <div class="level-indicator">
+                <span class="level-label">مرحله:</span>
+                <span class="level-number" id="level-display">۱</span>
+            </div>
+            <div class="timer-display">
+                <span class="timer-icon">⏱️</span>
+                <span id="timer">۰۰:۰۰</span>
+            </div>
+        </div>
+
+        <div class="game-intro" id="game-intro">
+            <div class="intro-content">
+                <h2>🚂 آماده‌ای؟</h2>
+                <p id="scrambled-info">۲ آیه بهم ریخته شده!</p>
+                <p class="intro-hint">آیه‌ها را با کشیدن و رها کردن درست کن</p>
+                <button class="btn btn-start-game" onclick="startGame()">
+                    <span>شروع</span>
+                    <span class="sparkle">✨</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="game-area" id="game-area">
+            <div class="sky-background">
+                <div class="cloud cloud-1"></div>
+                <div class="cloud cloud-2"></div>
+                <div class="cloud cloud-3"></div>
+                <div class="stars-small"></div>
+            </div>
+
+            <div class="train-container" id="train-container">
+                <div class="train-track"></div>
+                
+                <div class="train" id="train">
+                    <!-- لوکوموتیو -->
+                    <div class="locomotive">
+                        <div class="chimney">
+                            <div class="smoke"></div>
+                            <div class="smoke"></div>
+                            <div class="smoke"></div>
+                        </div>
+                        <div class="engine-body">
+                            <div class="headlight"></div>
+                            <div class="window"></div>
+                        </div>
+                        <div class="wheels-container">
+                            <div class="wheel large"></div>
+                            <div class="wheel large"></div>
+                            <div class="wheel small"></div>
+                        </div>
+                    </div>
+
+                    <!-- واگن‌ها -->
+                    <div class="wagons" id="wagons">
+                        <!-- واگن‌ها با جاوااسکریپت ساخته می‌شوند -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- بخش قطعات قابل کشیدن -->
+            <div class="pieces-area" id="pieces-area">
+                <h3 class="pieces-title">قطعات را بکشید:</h3>
+                <div class="pieces-container" id="pieces-container">
+                    <!-- قطعات با جاوااسکریپت -->
+                </div>
+            </div>
+
+            <!-- سطل‌های رها کردن -->
+            <div class="drop-zones" id="drop-zones">
+                <!-- با جاوااسکریپت -->
+            </div>
+        </div>
+
+        <!-- پیام موفقیت -->
+        <div class="success-overlay" id="success-overlay">
+            <div class="success-content">
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <h2>آفرین! 🌟</h2>
+                <p>عالی بود! آیه‌ها را درست چیدی</p>
+                <div class="stars-earned">
+                    <span class="star">⭐</span>
+                    <span class="star">⭐</span>
+                    <span class="star">⭐</span>
+                </div>
+                <button class="btn btn-next" onclick="nextLevel()">
+                    <span>مرحله بعد</span>
+                    <span>→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- پیام آفرین -->
+        <div class="well-done-popup" id="well-done-popup">
+            <div class="popup-content">
+                <span class="popup-icon">👏</span>
+                <span class="popup-text">آفرین!</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه راهنما -->
+    <div id="help-page" class="page">
+        <button class="back-btn" onclick="goBack()">
+            <span>→</span>
+        </button>
+        
+        <div class="help-content">
+            <h2 class="help-title">راهنمای بازی 📖</h2>
+            
+            <div class="help-section">
+                <div class="help-icon">🚂</div>
+                <h3>قطار قرآن</h3>
+                <p>در این بازی باید آیه‌های سوره توحید را با کشیدن و رها کردن درست کنی.</p>
+            </div>
+
+            <div class="help-section">
+                <div class="help-icon">👆</div>
+                <h3>نحوه بازی</h3>
+                <ul>
+                    <li>قطعات آیه‌ها را از پایین صفحه بکشید</li>
+                    <li>روی جای خالی درست در واگن رها کنید</li>
+                    <li>اگر درست باشد، واگن رنگی می‌شود!</li>
+                    <li>اگر اشتباه باشد، دوباره امتحان کن</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <div class="help-icon">⭐</div>
+                <h3>نکات</h3>
+                <ul>
+                    <li>هر مرحله آیه‌های بیشتری بهم می‌ریزد</li>
+                    <li>سعی کن سریع‌تر تمام کنی</li>
+                    <li>حرکات درست و غلط ثبت می‌شود</li>
+                </ul>
+            </div>
+
+            <div class="help-verse">
+                <h3>سوره توحید - متن کامل</h3>
+                <div class="verse-box">
+                    <p>قُلْ هُوَ اللَّهُ أَحَدٌ</p>
+                    <p>اللَّهُ الصَّمَدُ</p>
+                    <p>لَمْ يَلِدْ وَلَمْ يُولَدْ</p>
+                    <p>وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه آمار -->
+    <div id="stats-page" class="page">
+        <button class="back-btn" onclick="goBack()">
+            <span>→</span>
+        </button>
+        
+        <div class="stats-content">
+            <h2 class="stats-title">📊 آمار بازی‌های من</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card stat-best-time">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-info">
+                        <span class="stat-label">بهترین زمان</span>
+                        <span class="stat-value" id="best-time">--:--</span>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-correct">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <span class="stat-label">حرکات درست</span>
+                        <span class="stat-value" id="correct-moves">۰</span>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-wrong">
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-info">
+                        <span class="stat-label">حرکات غلط</span>
+                        <span class="stat-value" id="wrong-moves">۰</span>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-level">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <span class="stat-label">بالاترین مرحله</span>
+                        <span class="stat-value" id="highest-level">۰</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <h3>📈 درصد پیشرفت</h3>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                    <span class="progress-text" id="progress-text">۰٪</span>
+                </div>
+            </div>
+
+            <div class="accuracy-section">
+                <h3>🎯 دقت شما</h3>
+                <div class="accuracy-circle" id="accuracy-circle">
+                    <span class="accuracy-value" id="accuracy-value">۰٪</span>
+                </div>
+            </div>
+
+            <button class="btn btn-reset" onclick="resetStats()">
+                <span>🔄</span>
+                <span>پاک کردن آمار</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+// ============================================
+// متغیرهای سراسری
+// ============================================
+const VERSES = [
+    'قُلْ هُوَ اللَّهُ أَحَدٌ',
+    'اللَّهُ الصَّمَدُ',
+    'لَمْ يَلِدْ وَلَمْ يُولَدْ',
+    'وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ'
+];
+
+let currentLevel = 1;
+let currentVerseIndex = 0;
+let timerInterval = null;
+let elapsedSeconds = 0;
+let correctMoves = 0;
+let wrongMoves = 0;
+let gameStarted = false;
+let draggedPiece = null;
+let draggedPieceIndex = null;
+let placedPieces = [];
+let pageHistory = ['main-page'];
+
+// آمار ذخیره شده
+let savedStats = {
+    bestTime: localStorage.getItem('bestTime') || null,
+    totalCorrect: parseInt(localStorage.getItem('totalCorrect')) || 0,
+    totalWrong: parseInt(localStorage.getItem('totalWrong')) || 0,
+    highestLevel: parseInt(localStorage.getItem('highestLevel')) || 0,
+    gamesPlayed: parseInt(localStorage.getItem('gamesPlayed')) || 0
+};
+
+// ============================================
+// توابع اصلی
+// ============================================
+
+// نمایش صفحه
+function showPage(pageId) {
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(page => {
+        page.classList.remove('active');
+    });
+    
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.classList.add('active');
+        
+        // ذخیره تاریخچه
+        if (pageHistory[pageHistory.length - 1] !== pageId) {
+            pageHistory.push(pageId);
+        }
+        
+        // آپدیت آمار هنگام نمایش
+        if (pageId === 'stats-page') {
+            updateStatsDisplay();
+        }
+    }
+}
+
+// برگشت به صفحه قبل
+function goBack() {
+    if (pageHistory.length > 1) {
+        pageHistory.pop();
+        const prevPage = pageHistory[pageHistory.length - 1];
+        
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(page => page.classList.remove('active'));
+        
+        document.getElementById(prevPage).classList.add('active');
+    }
+}
+
+// شروع بازی
+function startGame() {
+    document.getElementById('game-intro').classList.add('hidden');
+    document.getElementById('game-area').classList.add('active');
+    
+    // نمایش قطار با انیمیشن
+    const train = document.getElementById('train');
+    train.classList.add('moving');
+    
+    setTimeout(() => {
+        train.classList.remove('moving');
+        train.classList.add('arrived');
+        
+        // شروع بازی پس از رسیدن قطار
+        setTimeout(() => {
+            initLevel();
+            startTimer();
+            gameStarted = true;
+        }, 500);
+    }, 2000);
+}
+
+// آماده‌سازی مرحله
+function initLevel() {
+    // تعیین تعداد آیات بر اساس مرحله
+    const verseCount = Math.min(currentLevel + 1, 4);
+    
+    // انتخاب آیات
+    const selectedVerses = VERSES.slice(0, verseCount);
+    
+    // بهم ریختن آیات
+    const scrambled = [...selectedVerses].sort(() => Math.random() - 0.5);
+    
+    // ایجاد واگن‌ها
+    createWagons(selectedVerses);
+    
+    // ایجاد قطعات
+    createPieces(scrambled);
+    
+    // ایجاد سطل‌های رها کردن
+    createDropZones(selectedVerses);
+    
+    // ریست متغیرها
+    placedPieces = [];
+    currentVerseIndex = 0;
+    
+    // آپدیت نمایش مرحله
+    document.getElementById('level-display').textContent = toPersianNum(currentLevel);
+}
+
+// ایجاد واگن‌ها
+function createWagons(verses) {
+    const wagonsContainer = document.getElementById('wagons');
+    wagonsContainer.innerHTML = '';
+    
+    verses.forEach((verse, index) => {
+        const wagon = document.createElement('div');
+        wagon.className = 'wagon';
+        wagon.id = `wagon-${index}`;
+        wagon.innerHTML = `
+            <div class="wagon-number">${toPersianNum(index + 1)}</div>
+            <div class="wagon-text">آیه ${toPersianNum(index + 1)}</div>
+        `;
+        wagonsContainer.appendChild(wagon);
+    });
+}
+
+// ایجاد قطعات
+function createPieces(verses) {
+    const piecesContainer = document.getElementById('pieces-container');
+    piecesContainer.innerHTML = '';
+    
+    verses.forEach((verse, index) => {
+        const piece = document.createElement('div');
+        piece.className = 'piece';
+        piece.id = `piece-${index}`;
+        piece.textContent = verse;
+        piece.draggable = true;
+        piece.dataset.verse = verse;
+        piece.dataset.index = index;
+        
+        // رویدادهای کشیدن
+        piece.addEventListener('dragstart', handleDragStart);
+        piece.addEventListener('dragend', handleDragEnd);
+        
+        // رویدادهای لمسی
+        piece.addEventListener('touchstart', handleTouchStart, { passive: false });
+        piece.addEventListener('touchmove', handleTouchMove, { passive: false });
+        piece.addEventListener('touchend', handleTouchEnd);
+        
+        piecesContainer.appendChild(piece);
+    });
+}
+
+// ایجاد سطل‌های رها کردن
+function createDropZones(verses) {
+    const dropZonesContainer = document.getElementById('drop-zones');
+    dropZonesContainer.innerHTML = '';
+    
+    verses.forEach((verse, index) => {
+        const zone = document.createElement('div');
+        zone.className = 'drop-zone';
+        zone.id = `drop-zone-${index}`;
+        zone.dataset.correctVerse = verse;
+        zone.dataset.index = index;
+        zone.textContent = '؟';
+        
+        // رویدادهای دراپ
+        zone.addEventListener('dragover', handleDragOver);
+        zone.addEventListener('dragenter', handleDragEnter);
+        zone.addEventListener('dragleave', handleDragLeave);
+        zone.addEventListener('drop', handleDrop);
+        
+        dropZonesContainer.appendChild(zone);
+    });
+}
+
+// ============================================
+// رویدادهای درگ و دراپ
+// ============================================
+
+function handleDragStart(e) {
+    draggedPiece = e.target;
+    draggedPieceIndex = parseInt(e.target.dataset.index);
+    e.target.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDragEnd(e) {
+    e.target.classList.remove('dragging');
+    draggedPiece = null;
+    draggedPieceIndex = null;
+    
+    // حذف هایلایت از همه
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.classList.remove('highlight');
+    });
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+}
+
+function handleDragEnter(e) {
+    e.preventDefault();
+    if (!e.target.classList.contains('filled')) {
+        e.target.classList.add('highlight');
+    }
+}
+
+function handleDragLeave(e) {
+    e.target.classList.remove('highlight');
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    e.target.classList.remove('highlight');
+    
+    if (!draggedPiece || e.target.classList.contains('filled')) return;
+    
+    const droppedVerse = draggedPiece.dataset.verse;
+    const correctVerse = e.target.dataset.correctVerse;
+    const zoneIndex = parseInt(e.target.dataset.index);
+    
+    // بررسی درستی
+    if (droppedVerse === correctVerse) {
+        // درست!
+        handleCorrectDrop(e.target, draggedPiece, zoneIndex);
+    } else {
+        // غلط
+        handleWrongDrop(e.target);
+    }
+}
+
+// ============================================
+// رویدادهای لمسی
+// ============================================
+
+let touchClone = null;
+let touchStartX, touchStartY;
+
+function handleTouchStart(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    draggedPiece = e.target;
+    draggedPieceIndex = parseInt(e.target.dataset.index);
+    
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    
+    // ایجاد کلون برای نمایش
+    touchClone = draggedPiece.cloneNode(true);
+    touchClone.style.position = 'fixed';
+    touchClone.style.zIndex = '1000';
+    touchClone.style.pointerEvents = 'none';
+    touchClone.style.opacity = '0.9';
+    touchClone.style.transform = 'scale(1.1)';
+    
+    updateTouchClonePosition(touch);
+    document.body.appendChild(touchClone);
+    
+    draggedPiece.classList.add('dragging');
+}
+
+function handleTouchMove(e) {
+    e.preventDefault();
+    if (!touchClone) return;
+    
+    const touch = e.touches[0];
+    updateTouchClonePosition(touch);
+    
+    // هایلایت سطل زیر انگشت
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.classList.remove('highlight');
+    });
+    
+    if (elementBelow && elementBelow.classList.contains('drop-zone') && !elementBelow.classList.contains('filled')) {
+        elementBelow.classList.add('highlight');
+    }
+}
+
+function handleTouchEnd(e) {
+    if (!touchClone || !draggedPiece) return;
+    
+    const touch = e.changedTouches[0];
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    
+    // حذف کلون
+    touchClone.remove();
+    touchClone = null;
+    
+    draggedPiece.classList.remove('dragging');
+    
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.classList.remove('highlight');
+    });
+    
+    // بررسی رها کردن روی سطل
+    if (elementBelow && elementBelow.classList.contains('drop-zone') && !elementBelow.classList.contains('filled')) {
+        const droppedVerse = draggedPiece.dataset.verse;
+        const correctVerse = elementBelow.dataset.correctVerse;
+        const zoneIndex = parseInt(elementBelow.dataset.index);
+        
+        if (droppedVerse === correctVerse) {
+            handleCorrectDrop(elementBelow, draggedPiece, zoneIndex);
+        } else {
+            handleWrongDrop(elementBelow);
+        }
+    }
+    
+    draggedPiece = null;
+    draggedPieceIndex = null;
+}
+
+function updateTouchClonePosition(touch) {
+    if (touchClone) {
+        touchClone.style.left = (touch.clientX - 50) + 'px';
+        touchClone.style.top = (touch.clientY - 25) + 'px';
+    }
+}
+
+// ============================================
+// پردازش دراپ درست و غلط
+// ============================================
+
+function handleCorrectDrop(zone, piece, zoneIndex) {
+    // علامت‌گذاری سطل
+    zone.classList.add('filled');
+    zone.textContent = piece.textContent;
+    
+    // علامت‌گذاری قطعه
+    piece.classList.add('placed');
+    piece.draggable = false;
+    
+    // رنگی کردن واگن
+    const wagon = document.getElementById(`wagon-${zoneIndex}`);
+    if (wagon) {
+        wagon.classList.add('completed');
+        wagon.querySelector('.wagon-text').textContent = piece.textContent;
+    }
+    
+    // افزایش شمارنده
+    correctMoves++;
+    placedPieces.push(zoneIndex);
+    
+    // افکت آفرین
+    showWellDonePopup();
+    playSuccessSound();
+    flashEffect();
+    
+    // بررسی پایان مرحله
+    checkLevelComplete();
+}
+
+function handleWrongDrop(zone) {
+    zone.classList.add('wrong');
+    wrongMoves++;
+    
+    // لرزش واگن مربوطه
+    const zoneIndex = parseInt(zone.dataset.index);
+    const wagon = document.getElementById(`wagon-${zoneIndex}`);
+    if (wagon) {
+        wagon.classList.add('wrong');
+        setTimeout(() => wagon.classList.remove('wrong'), 500);
+    }
+    
+    setTimeout(() => {
+        zone.classList.remove('wrong');
+    }, 500);
+    
+    // صدای خطا
+    playErrorSound();
+    
+    // لرزش صفحه
+    document.body.classList.add('screen-shake');
+    setTimeout(() => document.body.classList.remove('screen-shake'), 300);
+}
+
+// ============================================
+// بررسی تکمیل مرحله
+// ============================================
+
+function checkLevelComplete() {
+    const totalZones = document.querySelectorAll('.drop-zone').length;
+    
+    if (placedPieces.length === totalZones) {
+        // مرحله تمام شد!
+        stopTimer();
+        gameStarted = false;
+        
+        // ذخیره آمار
+        saveGameStats();
+        
+        // نمایش پیام موفقیت
+        setTimeout(() => {
+            showSuccessOverlay();
+        }, 500);
+    }
+}
+
+// ============================================
+// تایمر
+// ============================================
+
+function startTimer() {
+    elapsedSeconds = 0;
+    updateTimerDisplay();
+    
+    timerInterval = setInterval(() => {
+        elapsedSeconds++;
+        updateTimerDisplay();
+    }, 1000);
+}
+
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+
+function updateTimerDisplay() {
+    const minutes = Math.floor(elapsedSeconds / 60);
+    const seconds = elapsedSeconds % 60;
+    const timeStr = `${toPersianNum(minutes.toString().padStart(2, '0'))}:${toPersianNum(seconds.toString().padStart(2, '0'))}`;
+    document.getElementById('timer').textContent = timeStr;
+}
+
+// ============================================
+// مرحله بعد
+// ============================================
+
+function nextLevel() {
+    // مخفی کردن overlay
+    document.getElementById('success-overlay').classList.remove('active');
+    
+    // افزایش مرحله
+    currentLevel++;
+    
+    // ریست قطار
+    const train = document.getElementById('train');
+    train.classList.remove('arrived');
+    
+    // آماده‌سازی intro
+    const intro = document.getElementById('game-intro');
+    intro.classList.remove('hidden');
+    
+    // آپدیت متن
+    const verseCount = Math.min(currentLevel + 1, 4);
+    document.getElementById('scrambled-info').textContent = `${toPersianNum(verseCount)} آیه بهم ریخته شده!`;
+    
+    // ریست تایمر
+    document.getElementById('timer').textContent = '۰۰:۰۰';
+    
+    // مخفی کردن منطقه بازی
+    document.getElementById('game-area').classList.remove('active');
+}
+
+// ============================================
+// افکت‌ها
+// ============================================
+
+function showWellDonePopup() {
+    const popup = document.getElementById('well-done-popup');
+    popup.classList.add('active');
+    
+    setTimeout(() => {
+        popup.classList.remove('active');
+    }, 1000);
+}
+
+function showSuccessOverlay() {
+    const overlay = document.getElementById('success-overlay');
+    overlay.classList.add('active');
+}
+
+function flashEffect() {
+    document.body.classList.add('flash-effect');
+    setTimeout(() => document.body.classList.remove('flash-effect'), 300);
+}
+
+// ============================================
+// صداها
+// ============================================
+
+function playSuccessSound() {
+    // صدای آفرین با Web Audio API
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // نت‌های موسیقی
+        const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+        
+        notes.forEach((freq, i) => {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = freq;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + i * 0.1);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.1 + 0.3);
+            
+            oscillator.start(audioContext.currentTime + i * 0.1);
+            oscillator.stop(audioContext.currentTime + i * 0.1 + 0.3);
+        });
+    } catch (e) {
+        console.log('صدا پشتیبانی نمی‌شود');
+    }
+}
+
+function playErrorSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 200;
+        oscillator.type = 'square';
+        
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.2);
+    } catch (e) {
+        console.log('صدا پشتیبانی نمی‌شود');
+    }
+}
+
+// ============================================
+// ذخیره و بارگذاری آمار
+// ============================================
+
+function saveGameStats() {
+    // بهترین زمان
+    if (!savedStats.bestTime || elapsedSeconds < savedStats.bestTime) {
+        savedStats.bestTime = elapsedSeconds;
+        localStorage.setItem('bestTime', elapsedSeconds);
+    }
+    
+    // تعداد حرکات
+    savedStats.totalCorrect += correctMoves;
+    savedStats.totalWrong += wrongMoves;
+    localStorage.setItem('totalCorrect', savedStats.totalCorrect);
+    localStorage.setItem('totalWrong', savedStats.totalWrong);
+    
+    // بالاترین مرحله
+    if (currentLevel > savedStats.highestLevel) {
+        savedStats.highestLevel = currentLevel;
+        localStorage.setItem('highestLevel', currentLevel);
+    }
+    
+    // تعداد بازی‌ها
+    savedStats.gamesPlayed++;
+    localStorage.setItem('gamesPlayed', savedStats.gamesPlayed);
+}
+
+function updateStatsDisplay() {
+    // بهترین زمان
+    if (savedStats.bestTime) {
+        const minutes = Math.floor(savedStats.bestTime / 60);
+        const seconds = savedStats.bestTime % 60;
+        document.getElementById('best-time').textContent = 
+            `${toPersianNum(minutes.toString().padStart(2, '0'))}:${toPersianNum(seconds.toString().padStart(2, '0'))}`;
+    } else {
+        document.getElementById('best-time').textContent = '--:--';
+    }
+    
+    // حرکات
+    document.getElementById('correct-moves').textContent = toPersianNum(savedStats.totalCorrect);
+    document.getElementById('wrong-moves').textContent = toPersianNum(savedStats.totalWrong);
+    
+    // بالاترین مرحله
+    document.getElementById('highest-level').textContent = toPersianNum(savedStats.highestLevel);
+    
+    // درصد پیشرفت (بر اساس بالاترین مرحله)
+    const progress = Math.min((savedStats.highestLevel / 10) * 100, 100);
+    document.getElementById('progress-bar').style.width = `${progress}%`;
+    document.getElementById('progress-text').textContent = `${toPersianNum(Math.round(progress))}٪`;
+    // ============================================
+// تکمیل آمار و نمایش
+// ============================================
+
+// دقت
+const totalMoves = savedStats.totalCorrect + savedStats.totalWrong;
+const accuracy = totalMoves > 0 ? (savedStats.totalCorrect / totalMoves) * 100 : 0;
+document.getElementById('accuracy-value').textContent = `${toPersianNum(Math.round(accuracy))}٪`;
+document.getElementById('accuracy-circle').style.setProperty('--accuracy-angle', `${accuracy * 3.6}deg`);
+}
+
+// ریست آمار
+function resetStats() {
+    if (confirm('آیا مطمئن هستید؟ تمام آمارهای شما پاک خواهد شد.')) {
+        savedStats = {
+            bestTime: null,
+            totalCorrect: 0,
+            totalWrong: 0,
+            highestLevel: 0,
+            gamesPlayed: 0
+        };
+        
+        localStorage.removeItem('bestTime');
+        localStorage.removeItem('totalCorrect');
+        localStorage.removeItem('totalWrong');
+        localStorage.removeItem('highestLevel');
+        localStorage.removeItem('gamesPlayed');
+        
+        updateStatsDisplay();
+        
+        // انیمیشن تأیید
+        const btn = document.querySelector('.btn-reset');
+        btn.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            btn.style.transform = '';
+        }, 200);
+    }
+}
+
+// ============================================
+// تبدیل اعداد به فارسی
+// ============================================
+
+function toPersianNum(num) {
+    const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+    return String(num).replace(/[0-9]/g, d => persianDigits[d]);
+}
+
+// ============================================
+// رویدادهای اولیه
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // بارگذاری آمار
+    loadStats();
+    
+    // رویدادهای کیبورد
+    document.addEventListener('keydown', handleKeyboard);
+    
+    // جلوگیری از زوم در موبایل
+    document.addEventListener('touchmove', (e) => {
+        if (e.scale !== 1) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+    
+    // نمایش صفحه اصلی
+    showPage('main-page');
+});
+
+// بارگذاری آمار از localStorage
+function loadStats() {
+    savedStats = {
+        bestTime: localStorage.getItem('bestTime') ? parseInt(localStorage.getItem('bestTime')) : null,
+        totalCorrect: parseInt(localStorage.getItem('totalCorrect')) || 0,
+        totalWrong: parseInt(localStorage.getItem('totalWrong')) || 0,
+        highestLevel: parseInt(localStorage.getItem('highestLevel')) || 0,
+        gamesPlayed: parseInt(localStorage.getItem('gamesPlayed')) || 0
+    };
+}
+
+// ============================================
+// رویدادهای کیبورد
+// ============================================
+
+function handleKeyboard(e) {
+    // کلید Escape برای برگشت
+    if (e.key === 'Escape') {
+        goBack();
+    }
+    
+    // کلید Enter برای شروع بازی
+    if (e.key === 'Enter' && document.getElementById('game-intro') && 
+        !document.getElementById('game-intro').classList.contains('hidden')) {
+        startGame();
+    }
+}
+
+// ============================================
+// مدیریت سیستم بک (Android Back Button)
+// ============================================
+
+window.addEventListener('popstate', (e) => {
+    if (pageHistory.length > 1) {
+        pageHistory.pop();
+        const prevPage = pageHistory[pageHistory.length - 1];
+        
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(page => page.classList.remove('active'));
+        
+        document.getElementById(prevPage).classList.add('active');
+    }
+});
+
+// جلوگیری از رفتن به صفحه قبل با دکمه مرورگر
+window.history.pushState({ page: 'main' }, '', '');
+
+window.addEventListener('popstate', (e) => {
+    if (pageHistory.length > 1) {
+        goBack();
+    } else {
+        window.history.pushState({ page: 'main' }, '', '');
+    }
+});
+
+// ============================================
+// توابع کمکی
+// ============================================
+
+// مخلوط کردن آرایه
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+// فرمت زمان
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// تأخیر
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// ============================================
+// مدیریت رویدادهای لمسی پیشرفته
+// ============================================
+
+// جلوگیری از کشیدن تصادفی
+let touchStartTime = 0;
+let touchMoved = false;
+
+document.addEventListener('touchstart', (e) => {
+    touchStartTime = Date.now();
+    touchMoved = false;
+}, { passive: true });
+
+document.addEventListener('touchmove', () => {
+    touchMoved = true;
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+    const touchDuration = Date.now() - touchStartTime;
+    
+    // اگر لمس کوتاه بود و حرکتی نداشت، احتمالاً کلیک است
+    if (touchDuration < 300 && !touchMoved) {
+        // می‌توانید رویداد کلیک اضافه کنید
+    }
+}, { passive: true });
+
+// ============================================
+// بهینه‌سازی عملکرد
+// ============================================
+
+// استفاده از requestAnimationFrame برای انیمیشن‌ها
+function smoothAnimation(callback) {
+    requestAnimationFrame(callback);
+}
+
+// کش کردن المان‌های پر استفاده
+const cachedElements = {};
+
+function getCachedElement(id) {
+    if (!cachedElements[id]) {
+        cachedElements[id] = document.getElementById(id);
+    }
+    return cachedElements[id];
+}
+
+// ============================================
+// مدیریت خطا
+// ============================================
+
+window.addEventListener('error', (e) => {
+    console.log('خطایی رخ داده:', e.error);
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+    console.log('خطای Promise:', e.reason);
+});
+
+// ============================================
+// قابلیت‌های اضافی
+// ============================================
+
+// ذخیره تنظیمات
+function saveSettings(settings) {
+    localStorage.setItem('gameSettings', JSON.stringify(settings));
+}
+
+function loadSettings() {
+    const saved = localStorage.getItem('gameSettings');
+    return saved ? JSON.parse(saved) : {
+        soundEnabled: true,
+        vibrationEnabled: true
+    };
+}
+
+// ویبره (برای موبایل)
+function vibrate(pattern) {
+    if ('vibrate' in navigator) {
+        navigator.vibrate(pattern);
+    }
+}
+
+// اشتراک‌گذاری (Web Share API)
+async function shareScore() {
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'قطار قرآن',
+                text: `من در بازی قطار قرآن به مرحله ${currentLevel} رسیدم!`,
+                url: window.location.href
+            });
+        } catch (err) {
+            console.log('اشتراک‌گذاری لغو شد');
+        }
+    }
+}
+
+// ============================================
+// دیباگ (در حالت توسعه)
+// ============================================
+
+const DEBUG = false;
+
+function debugLog(...args) {
+    if (DEBUG) {
+        console.log('[DEBUG]', ...args);
+    }
+}
+
+// ============================================
+// پایان اسکریپت
+// ============================================
+
+debugLog('بازی قطار قرآن بارگذاری شد');
+    </script>
+</body>
+</html>

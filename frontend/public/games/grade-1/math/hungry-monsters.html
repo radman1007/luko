@@ -1,0 +1,2455 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بازی هیولاهای گرسنه</title>
+<style>
+    /* ═══════════════════════════════════════════════════════════════════
+   بازی هیولاهای گرسنه - استایل فوق‌العاده و حرفه‌ای
+   طراحی شده با پالت رنگی: آبی #9FBFCE | سبز #8FC2B3 | زرد #FFE566
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────
+   متغیرهای رنگی و ظاهری
+   ───────────────────────────────────────────────────────────────────── */
+:root {
+    /* پالت رنگی اصلی */
+    --color-blue: #9FBFCE;
+    --color-blue-dark: #7BA3BC;
+    --color-blue-light: #B8D4E8;
+    --color-green: #8FC2B3;
+    --color-green-dark: #6BA895;
+    --color-green-light: #A8D4C6;
+    --color-yellow: #FFE566;
+    --color-yellow-dark: #E6CC4D;
+    --color-yellow-light: #FFF0A3;
+    
+    /* رنگ‌های تکمیلی */
+    --color-purple: #9B8AC4;
+    --color-purple-light: #B8A9D8;
+    --color-red: #E88B8B;
+    --color-red-dark: #D66B6B;
+    --color-text-dark: #2D3748;
+    --color-text-light: #FFFFFF;
+    --color-text-muted: #A0AEC0;
+    
+    /* پس‌زمینه و کارت‌ها */
+    --bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    --bg-card: rgba(255, 255, 255, 0.08);
+    --bg-card-hover: rgba(255, 255, 255, 0.12);
+    --bg-glass: rgba(255, 255, 255, 0.1);
+    --bg-glass-strong: rgba(255, 255, 255, 0.15);
+    
+    /* سایه‌ها */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.35);
+    --shadow-glow-blue: 0 0 30px rgba(159, 191, 206, 0.4);
+    --shadow-glow-green: 0 0 30px rgba(143, 194, 179, 0.4);
+    --shadow-glow-yellow: 0 0 30px rgba(255, 229, 102, 0.4);
+    
+    /* حاشیه‌ها و شعاع */
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+    --radius-full: 50%;
+    
+    /* فونت‌ها */
+    --font-primary: 'Vazirmatn', 'Tahoma', 'Segoe UI', sans-serif;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-md: 1rem;
+    --font-size-lg: 1.25rem;
+    --font-size-xl: 1.5rem;
+    --font-size-2xl: 2rem;
+    
+    /* انیمیشن‌ها */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   تنظیمات پایه و ریست
+   ───────────────────────────────────────────────────────────────────── */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-primary);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    touch-action: manipulation;
+}
+
+body {
+    background: var(--bg-primary);
+    color: var(--color-text-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+    user-select: none;
+}
+
+/* پس‌زمینه داینامیک */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(159, 191, 206, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(143, 194, 179, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(255, 229, 102, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   صفحات بازی
+   ───────────────────────────────────────────────────────────────────── */
+.screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 15px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 1;
+}
+
+.screen.active {
+    display: flex;
+    animation: fadeInScreen 0.5s ease forwards;
+}
+
+@keyframes fadeInScreen {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   صفحه شروع بازی
+   ───────────────────────────────────────────────────────────────────── */
+.start-scene {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    animation: fadeIn 1s ease;
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+}
+
+.monster-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: bounce 2s infinite ease-in-out;
+}
+
+.monster-container.left {
+    animation-delay: 0s;
+}
+
+.monster-container.right {
+    animation-delay: 0.5s;
+}
+
+.monster {
+    width: 120px;
+    height: 150px;
+    filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.4));
+    transition: transform var(--transition-normal);
+}
+
+.monster:hover {
+    transform: scale(1.05) rotate(2deg);
+}
+
+.plate {
+    width: 85px;
+    height: 85px;
+    background: radial-gradient(circle at 30% 30%, #ffffff 0%, #e8e8e8 50%, #d0d0d0 100%);
+    border-radius: var(--radius-full);
+    border: 4px solid #c0c0c0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -25px;
+    position: relative;
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.3),
+        inset 0 -5px 15px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+}
+
+.food-items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    padding: 8px;
+    max-width: 70px;
+    max-height: 70px;
+    overflow: hidden;
+}
+
+.food-item {
+    font-size: 14px;
+    animation: popIn 0.3s ease;
+    line-height: 1;
+    transition: transform var(--transition-fast);
+}
+
+.food-item:hover {
+    transform: scale(1.2);
+}
+
+/* حباب صحبت */
+.speech-bubble {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: var(--color-text-dark);
+    padding: 20px 35px;
+    border-radius: 24px;
+    position: relative;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    animation: float 3s ease-in-out infinite;
+    max-width: 280px;
+    border: 3px solid var(--color-yellow);
+}
+
+.speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 12px solid transparent;
+    border-top-color: #ffffff;
+    border-bottom: none;
+}
+
+.speech-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 14px solid transparent;
+    border-top-color: var(--color-yellow);
+    border-bottom: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   دکمه‌های مختلف بازی
+   ───────────────────────────────────────────────────────────────────── */
+.magic-btn {
+    background: linear-gradient(135deg, var(--color-yellow) 0%, var(--color-yellow-dark) 100%);
+    border: none;
+    padding: 16px 45px;
+    border-radius: 50px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-text-dark);
+    cursor: pointer;
+    box-shadow: 
+        0 6px 25px rgba(255, 229, 102, 0.5),
+        0 3px 10px rgba(0, 0, 0, 0.2);
+    transition: all var(--transition-normal);
+    animation: pulse 2s infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.magic-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s ease;
+}
+
+.magic-btn:hover::before {
+    left: 100%;
+}
+
+.magic-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+        0 10px 35px rgba(255, 229, 102, 0.6),
+        0 5px 15px rgba(0, 0, 0, 0.25);
+}
+
+.magic-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.secondary-btn {
+    background: var(--bg-glass);
+    border: 2px solid var(--color-blue);
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-light);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    margin-top: 12px;
+}
+
+.secondary-btn:hover {
+    background: rgba(159, 191, 206, 0.25);
+    border-color: var(--color-blue-light);
+    transform: translateY(-2px);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   صفحه بازی اصلی
+   ───────────────────────────────────────────────────────────────────── */
+#game-screen {
+    justify-content: flex-start;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.game-header {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: var(--bg-glass);
+    border-radius: var(--radius-lg);
+    margin-bottom: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: var(--shadow-md);
+}
+
+.stats-box {
+    display: flex;
+    gap: 20px;
+    font-size: 0.9rem;
+}
+
+.stats-box strong {
+    color: var(--color-yellow);
+    font-weight: 700;
+}
+
+.stats-box span {
+    color: var(--color-text-muted);
+}
+
+.home-btn {
+    background: var(--bg-glass);
+    border: none;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    color: var(--color-text-light);
+    transition: all var(--transition-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-btn:hover {
+    background: var(--color-blue);
+    transform: scale(1.1);
+}
+
+.home-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* صحنه بازی */
+.game-scene {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    width: 100%;
+    max-width: 600px;
+    flex: 1;
+    padding: 20px 10px;
+    position: relative;
+    gap: 10px;
+}
+
+.fantasy-message {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--color-blue) 0%, var(--color-blue-dark) 100%);
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    box-shadow: var(--shadow-glow-blue);
+    animation: glow 2s infinite;
+    z-index: 10;
+    white-space: nowrap;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* هیولاهای بازی */
+.game-monster {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    padding: 15px;
+    border-radius: var(--radius-lg);
+    position: relative;
+    background: var(--bg-glass);
+    border: 2px solid transparent;
+}
+
+.game-monster:hover {
+    transform: scale(1.05);
+    background: var(--bg-card-hover);
+}
+
+.game-monster.selected {
+    background: rgba(255, 229, 102, 0.2);
+    border-color: var(--color-yellow);
+    box-shadow: var(--shadow-glow-yellow);
+}
+
+.game-monster.correct {
+    animation: celebrate 0.6s ease;
+    background: rgba(143, 194, 179, 0.3);
+    border-color: var(--color-green);
+}
+
+.game-monster.wrong {
+    animation: shake 0.5s ease;
+    background: rgba(232, 139, 139, 0.3);
+    border-color: var(--color-red);
+}
+
+.monster.big {
+    width: 85px;
+    height: 105px;
+}
+
+.game-plate {
+    width: 65px;
+    height: 65px;
+    margin-top: -18px;
+    transition: all var(--transition-normal);
+    background: radial-gradient(circle at 30% 30%, #ffffff 0%, #e8e8e8 50%, #d0d0d0 100%);
+    border-radius: var(--radius-full);
+    border: 3px solid #c0c0c0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+}
+
+.monster-name {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: var(--color-yellow);
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* شمارش غذا */
+.food-count {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: var(--color-green);
+    color: var(--color-text-dark);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: var(--shadow-sm);
+}
+
+/* محدودیت غذا */
+.food-limit {
+    position: absolute;
+    bottom: -8px;
+    background: var(--color-yellow);
+    color: var(--color-text-dark);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+    white-space: nowrap;
+}
+
+.food-limit.show {
+    opacity: 1;
+    animation: popIn 0.3s ease;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   منوی غذا
+   ───────────────────────────────────────────────────────────────────── */
+.food-menu {
+    width: 100%;
+    max-width: 600px;
+    background: var(--bg-glass);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 15px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: none;
+}
+
+.menu-title {
+    text-align: center;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+    color: var(--color-yellow);
+    font-weight: 600;
+}
+
+.drag-hint {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-top: 10px;
+}
+
+.food-name {
+    color: var(--color-text-dark);
+    margin: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* منبع غذا */
+.food-source {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-md);
+}
+
+/* آیتم‌های غذایی قابل درگ */
+.food-item-draggable {
+    cursor: grab;
+    padding: 8px;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+    user-select: none;
+    -webkit-user-select: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 2px solid transparent;
+}
+
+.food-item-draggable:hover {
+    transform: scale(1.15) rotate(3deg);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-yellow);
+}
+
+.food-item-draggable:active {
+    cursor: grabbing;
+}
+
+.food-item-draggable.dragging {
+    opacity: 0.6;
+    transform: scale(1.25) rotate(5deg);
+    box-shadow: var(--shadow-lg);
+}
+
+/* منطقه دراپ */
+.drop-zone {
+    transition: all var(--transition-normal);
+}
+
+.drop-zone.drag-over {
+    transform: scale(1.2);
+    box-shadow: 0 0 30px var(--color-yellow);
+    border-color: var(--color-yellow);
+}
+
+.drop-zone.invalid-drop {
+    animation: shake 0.3s ease;
+    box-shadow: 0 0 30px var(--color-red);
+    border-color: var(--color-red);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   پیام‌های بازخورد (بهبود یافته)
+   ───────────────────────────────────────────────────────────────────── */
+.feedback {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    padding: 18px 35px;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 1000;
+    min-width: 250px;
+    max-width: 90%;
+    box-shadow: var(--shadow-lg);
+}
+
+.feedback.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    animation: popInBounce 0.5s ease;
+}
+
+.feedback.hide {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8) translateY(-20px);
+}
+
+@keyframes popInBounce {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.feedback.success {
+    background: linear-gradient(135deg, var(--color-green) 0%, var(--color-green-dark) 100%);
+    color: var(--color-text-dark);
+    border: 3px solid var(--color-green-light);
+}
+
+.feedback.error {
+    background: linear-gradient(135deg, var(--color-red) 0%, var(--color-red-dark) 100%);
+    color: white;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.feedback.warning {
+    background: linear-gradient(135deg, var(--color-yellow) 0%, var(--color-yellow-dark) 100%);
+    color: var(--color-text-dark);
+    border: 3px solid var(--color-yellow-light);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   صفحه پیروزی
+   ───────────────────────────────────────────────────────────────────── */
+.win-content {
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+    padding: 30px;
+    background: var(--bg-glass);
+    border-radius: var(--radius-xl);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    max-width: 400px;
+    width: 90%;
+}
+
+.trophy {
+    animation: bounce 1s infinite;
+    filter: drop-shadow(0 10px 30px rgba(255, 229, 102, 0.5));
+}
+
+.trophy svg {
+    width: 140px;
+    height: 140px;
+}
+
+.win-content h1 {
+    font-size: 2rem;
+    color: var(--color-yellow);
+    margin: 20px 0;
+    text-shadow: 0 0 30px rgba(255, 229, 102, 0.5);
+    animation: glow 2s infinite;
+}
+
+.win-message {
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+    color: var(--color-text-light);
+}
+
+.win-stats {
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    margin-bottom: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.win-stats p {
+    margin: 12px 0;
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
+}
+
+.win-stats span {
+    color: var(--color-yellow);
+    font-weight: 700;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   صفحه آمار
+   ───────────────────────────────────────────────────────────────────── */
+.stats-content {
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    padding: 25px;
+    background: var(--bg-glass);
+    border-radius: var(--radius-xl);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats-content h1 {
+    font-size: 1.6rem;
+    margin-bottom: 25px;
+    color: var(--color-blue);
+    text-shadow: 0 0 20px rgba(159, 191, 206, 0.5);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    padding: 15px;
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all var(--transition-normal);
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    background: var(--bg-card-hover);
+    box-shadow: var(--shadow-md);
+}
+
+.stat-card svg {
+    transition: transform var(--transition-normal);
+}
+
+.stat-card:hover svg {
+    transform: scale(1.1);
+}
+
+.stat-card p {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+.stat-card strong {
+    font-size: 1.4rem;
+    color: var(--color-yellow);
+}
+
+/* دکمه آمار شناور */
+.stats-launcher {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, var(--color-blue) 0%, var(--color-blue-dark) 100%);
+    border: none;
+    padding: 14px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    color: var(--color-text-dark);
+    box-shadow: var(--shadow-lg), var(--shadow-glow-blue);
+    transition: all var(--transition-normal);
+    z-index: 50;
+}
+
+.stats-launcher:hover {
+    transform: scale(1.15) rotate(10deg);
+    box-shadow: var(--shadow-lg), 0 0 40px var(--color-blue);
+}
+
+.stats-launcher svg {
+    width: 26px;
+    height: 26px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   انیمیشن‌های مختلف
+   ───────────────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 6px 25px rgba(255, 229, 102, 0.4);
+    }
+    50% {
+        box-shadow: 0 6px 35px rgba(255, 229, 102, 0.7);
+    }
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(159, 191, 206, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(159, 191, 206, 0.8);
+    }
+}
+
+@keyframes celebrate {
+    0% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(1.15);
+    }
+    50% {
+        transform: scale(1);
+    }
+    75% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-12px);
+    }
+    40% {
+        transform: translateX(12px);
+    }
+    60% {
+        transform: translateX(-8px);
+    }
+    80% {
+        transform: translateX(8px);
+    }
+}
+
+@keyframes flyUp {
+    from {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes greenFlash {
+    0% {
+        background: var(--bg-primary);
+    }
+    50% {
+        background: linear-gradient(135deg, #1a3a1a 0%, #0d260d 100%);
+    }
+    100% {
+        background: var(--bg-primary);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
+.animate-green {
+    animation: greenFlash 1s ease;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   ریسپانسیو - موبایل و تبلت
+   ───────────────────────────────────────────────────────────────────── */
+
+/* تبلت */
+@media (max-width: 768px) {
+    .start-scene {
+        gap: 20px;
+    }
+    
+    .monster {
+        width: 100px;
+        height: 130px;
+    }
+    
+    .plate {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .speech-bubble {
+        padding: 16px 25px;
+        font-size: 1rem;
+        max-width: 250px;
+    }
+    
+    .magic-btn {
+        padding: 14px 35px;
+        font-size: 1.05rem;
+    }
+    
+    .game-scene {
+        padding: 15px 5px;
+    }
+    
+    .fantasy-message {
+        font-size: 0.85rem;
+        padding: 10px 20px;
+    }
+    
+    .monster.big {
+        width: 70px;
+        height: 90px;
+    }
+    
+    .game-plate {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .stats-box {
+        font-size: 0.8rem;
+        gap: 12px;
+    }
+    
+    .food-source {
+        gap: 8px;
+        padding: 10px;
+    }
+    
+    .food-item-draggable {
+        padding: 6px;
+    }
+    
+    .food-item-draggable svg {
+        width: 38px !important;
+        height: 38px !important;
+    }
+    
+    .stats-grid {
+        gap: 10px;
+    }
+    
+    .stat-card {
+        padding: 12px;
+    }
+    
+    .stat-card strong {
+        font-size: 1.2rem;
+    }
+}
+
+/* موبایل کوچک */
+@media (max-width: 480px) {
+    .screen {
+        padding: 10px;
+    }
+    
+    .start-scene {
+        gap: 15px;
+    }
+    
+    .monster-container {
+        transform: scale(0.85);
+    }
+    
+    .monster {
+        width: 85px;
+        height: 110px;
+    }
+    
+    .plate {
+        width: 60px;
+        height: 60px;
+        margin-top: -20px;
+    }
+    
+    .speech-bubble {
+        padding: 14px 20px;
+        font-size: 0.95rem;
+        max-width: 220px;
+    }
+    
+    .magic-btn {
+        padding: 12px 30px;
+        font-size: 1rem;
+    }
+    
+    .game-header {
+        padding: 10px 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .stats-box {
+        font-size: 0.75rem;
+        gap: 10px;
+    }
+    
+    .fantasy-message {
+        font-size: 0.75rem;
+        padding: 8px 16px;
+        width: 90%;
+    }
+    
+    .game-scene {
+        padding: 10px 5px;
+        gap: 5px;
+    }
+    
+    .game-monster {
+        padding: 10px;
+    }
+    
+    .monster.big {
+        width: 60px;
+        height: 80px;
+    }
+    
+    .game-plate {
+        width: 48px;
+        height: 48px;
+        margin-top: -12px;
+    }
+    
+    .monster-name {
+        font-size: 0.7rem;
+    }
+    
+    .food-count {
+        font-size: 0.65rem;
+        padding: 3px 8px;
+    }
+    
+    .food-menu {
+        padding: 12px;
+    }
+    
+    .menu-title {
+        font-size: 0.8rem;
+    }
+    
+    .food-source {
+        gap: 6px;
+        padding: 8px;
+    }
+    
+    .food-item-draggable {
+        padding: 5px;
+    }
+    
+    .food-item-draggable svg {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .food-name {
+        font-size: 0.6rem;
+    }
+    
+    .drag-hint {
+        font-size: 0.65rem;
+    }
+    
+    .feedback {
+        padding: 14px 25px;
+        font-size: 0.95rem;
+        min-width: 200px;
+    }
+    
+    .win-content {
+        padding: 20px;
+    }
+    
+    .trophy svg {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .win-content h1 {
+        font-size: 1.6rem;
+    }
+    
+    .win-message {
+        font-size: 1rem;
+    }
+    
+    .stats-content {
+        padding: 15px;
+    }
+    
+    .stats-content h1 {
+        font-size: 1.3rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .stat-card {
+        padding: 10px;
+    }
+    
+    .stat-card p {
+        font-size: 0.7rem;
+    }
+    
+    .stat-card strong {
+        font-size: 1.1rem;
+    }
+    
+    .stats-launcher {
+        bottom: 15px;
+        right: 15px;
+        padding: 12px;
+    }
+}
+
+/* موبایل خیلی کوچک */
+@media (max-width: 360px) {
+    .monster {
+        width: 70px;
+        height: 95px;
+    }
+    
+    .plate {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .monster.big {
+        width: 50px;
+        height: 70px;
+    }
+    
+    .game-plate {
+        width: 42px;
+        height: 42px;
+    }
+    
+    .food-items {
+        max-width: 40px;
+        max-height: 40px;
+    }
+    
+    .food-item {
+        font-size: 10px;
+    }
+    
+    .stats-box {
+        font-size: 0.7rem;
+    }
+    
+    .fantasy-message {
+        font-size: 0.7rem;
+    }
+}
+
+/* حالت افقی موبایل */
+@media (max-height: 500px) and (orientation: landscape) {
+    .start-scene {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .monster-container {
+        flex-direction: row;
+        gap: 8px;
+    }
+    
+    .plate {
+        margin-top: 0;
+        margin-right: -8px;
+    }
+    
+    .speech-bubble {
+        width: 100%;
+        order: -1;
+        max-width: 300px;
+    }
+    
+    .game-scene {
+        padding: 5px;
+        flex-direction: row;
+    }
+    
+    .fantasy-message {
+        top: 3px;
+        font-size: 0.7rem;
+        padding: 6px 12px;
+    }
+    
+    .monster.big {
+        width: 50px;
+        height: 65px;
+    }
+    
+    .game-plate {
+        width: 38px;
+        height: 38px;
+    }
+    
+    .food-menu {
+        padding: 8px;
+    }
+    
+    .menu-title {
+        font-size: 0.7rem;
+        margin-bottom: 5px;
+    }
+    
+    .food-source {
+        gap: 5px;
+        padding: 6px;
+    }
+    
+    .food-item-draggable {
+        padding: 3px;
+    }
+    
+    .food-item-draggable svg {
+        width: 28px !important;
+        height: 28px !important;
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   بهبود دسترسی‌پذیری
+   ───────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* فوکوس برای دسترسی */
+button:focus-visible,
+.food-item-draggable:focus-visible {
+    outline: 3px solid var(--color-yellow);
+    outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   افکت‌های اضافی
+   ───────────────────────────────────────────────────────────────────── */
+
+/* ذرات معلق در پس‌زمینه */
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    opacity: 0.4;
+    animation: float 6s ease-in-out infinite;
+}
+
+.particle:nth-child(1) {
+    background: var(--color-blue);
+    top: 20%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.particle:nth-child(2) {
+    background: var(--color-green);
+    top: 60%;
+    left: 80%;
+    animation-delay: 1s;
+}
+
+.particle:nth-child(3) {
+    background: var(--color-yellow);
+    top: 40%;
+    left: 50%;
+    animation-delay: 2s;
+}
+
+.particle:nth-child(4) {
+    background: var(--color-purple);
+    top: 80%;
+    left: 20%;
+    animation-delay: 3s;
+}
+
+.particle:nth-child(5) {
+    background: var(--color-blue);
+    top: 10%;
+    left: 70%;
+    animation-delay: 4s;
+}
+
+/* لودینگ اسپینر */
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--bg-glass);
+    border-top-color: var(--color-yellow);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* نشانگر انتخاب */
+.selection-indicator {
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 4px;
+    background: var(--color-yellow);
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+.game-monster.selected .selection-indicator {
+    opacity: 1;
+}
+
+/* افکت تایپ روی دکمه */
+.magic-btn span {
+    display: inline-block;
+    position: relative;
+}
+
+.magic-btn:hover span {
+    animation: wiggle 0.5s ease;
+}
+
+@keyframes wiggle {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-3deg);
+    }
+    75% {
+        transform: rotate(3deg);
+    }
+}
+</style>
+</head>
+<body>
+    <!-- صفحه ورود -->
+    <div id="start-screen" class="screen active">
+        <div class="start-scene">
+            <div class="monster-container left">
+                <svg class="monster" viewBox="0 0 200 250">
+                    <ellipse cx="100" cy="160" rx="70" ry="80" fill="#7B68EE"/>
+                    <ellipse cx="100" cy="160" rx="60" ry="70" fill="#9370DB"/>
+                    <ellipse cx="100" cy="180" rx="40" ry="35" fill="#DDA0DD"/>
+                    <ellipse cx="75" cy="120" rx="20" ry="25" fill="white"/>
+                    <ellipse cx="125" cy="120" rx="20" ry="25" fill="white"/>
+                    <ellipse cx="75" cy="120" rx="10" ry="12" fill="#2F4F4F"/>
+                    <ellipse cx="125" cy="120" rx="10" ry="12" fill="#2F4F4F"/>
+                    <path d="M 70 150 Q 100 180 130 150" stroke="#4B0082" stroke-width="3" fill="none"/>
+                    <polygon points="80,150 85,140 90,150" fill="white"/>
+                    <polygon points="110,150 115,140 120,150" fill="white"/>
+                    <ellipse cx="30" cy="160" rx="20" ry="15" fill="#7B68EE"/>
+                    <ellipse cx="170" cy="160" rx="20" ry="15" fill="#7B68EE"/>
+                    <polygon points="60,60 70,30 80,60" fill="#FFD700"/>
+                    <polygon points="120,60 130,30 140,60" fill="#FFD700"/>
+                    <path d="M 80 60 Q 90 40 100 60 Q 110 40 120 60" stroke="#FF69B4" stroke-width="5" fill="none"/>
+                </svg>
+                <div class="plate">
+                    <div class="food-items" id="start-food-left"></div>
+                </div>
+            </div>
+            
+            <div class="monster-container right">
+                <svg class="monster" viewBox="0 0 200 250">
+                    <ellipse cx="100" cy="160" rx="70" ry="80" fill="#FF6B6B"/>
+                    <ellipse cx="100" cy="160" rx="60" ry="70" fill="#FF8E8E"/>
+                    <ellipse cx="100" cy="180" rx="40" ry="35" fill="#FFE4E1"/>
+                    <ellipse cx="75" cy="120" rx="20" ry="25" fill="white"/>
+                    <ellipse cx="125" cy="120" rx="20" ry="25" fill="white"/>
+                    <ellipse cx="75" cy="120" rx="10" ry="12" fill="#8B0000"/>
+                    <ellipse cx="125" cy="120" rx="10" ry="12" fill="#8B0000"/>
+                    <path d="M 70 150 Q 100 185 130 150" stroke="#8B0000" stroke-width="3" fill="none"/>
+                    <polygon points="80,150 85,140 90,150" fill="white"/>
+                    <polygon points="110,150 115,140 120,150" fill="white"/>
+                    <ellipse cx="30" cy="160" rx="20" ry="15" fill="#FF6B6B"/>
+                    <ellipse cx="170" cy="160" rx="20" ry="15" fill="#FF6B6B"/>
+                    <polygon points="60,60 70,30 80,60" fill="#00FF7F"/>
+                    <polygon points="120,60 130,30 140,60" fill="#00FF7F"/>
+                    <path d="M 80 60 Q 90 40 100 60 Q 110 40 120 60" stroke="#00CED1" stroke-width="5" fill="none"/>
+                </svg>
+                <div class="plate">
+                    <div class="food-items" id="start-food-right"></div>
+                </div>
+            </div>
+            
+            <div class="speech-bubble">
+                <p>من گرسنه‌م! 🫣</p>
+                <p>کمکم می‌کنی؟</p>
+            </div>
+            
+            <button id="start-btn" class="magic-btn">
+                <span>✨ شروع بازی ✨</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- صفحه بازی -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <div class="stats-box">
+                <span>مرحله: <strong id="level-num">1</strong></span>
+                <span>امتیاز: <strong id="score">0</strong></span>
+            </div>
+            <button id="home-btn" class="home-btn">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="game-scene">
+            <div class="fantasy-message" id="fantasy-msg">
+                <p>🧙‍♂️ کدوم هیولا گرسنه‌تره؟</p>
+            </div>
+            
+            <!-- هیولای اول -->
+            <div class="game-monster" id="monster1" data-index="0">
+                <svg class="monster big" viewBox="0 0 200 250">
+                    <ellipse cx="100" cy="160" rx="70" ry="80" fill="#7B68EE"/>
+                    <ellipse cx="100" cy="160" rx="60" ry="70" fill="#9370DB"/>
+                    <ellipse cx="100" cy="180" rx="40" ry="35" fill="#DDA0DD"/>
+                    <ellipse cx="75" cy="120" rx="20" ry="25" fill="white"/>
+                    <ellipse cx="125" cy="120" rx="20" ry="25" fill="white"/>
+                    <ellipse cx="75" cy="120" rx="10" ry="12" fill="#2F4F4F"/>
+                    <ellipse cx="125" cy="120" rx="10" ry="12" fill="#2F4F4F"/>
+                    <path d="M 70 150 Q 100 180 130 150" stroke="#4B0082" stroke-width="3" fill="none"/>
+                    <polygon points="80,150 85,140 90,150" fill="white"/>
+                    <polygon points="110,150 115,140 120,150" fill="white"/>
+                    <ellipse cx="30" cy="160" rx="20" ry="15" fill="#7B68EE"/>
+                    <ellipse cx="170" cy="160" rx="20" ry="15" fill="#7B68EE"/>
+                    <polygon points="60,60 70,30 80,60" fill="#FFD700"/>
+                    <polygon points="120,60 130,30 140,60" fill="#FFD700"/>
+                    <path d="M 80 60 Q 90 40 100 60 Q 110 40 120 60" stroke="#FF69B4" stroke-width="5" fill="none"/>
+                </svg>
+                <div class="plate game-plate drop-zone" id="plate1" data-index="0">
+                    <div class="food-items" id="game-food-1"></div>
+                </div>
+                <div class="monster-name">هیولای بنفش</div>
+                <div class="food-count" id="count1">0</div>
+            </div>
+            
+            <!-- هیولای دوم -->
+            <div class="game-monster" id="monster2" data-index="1">
+                <svg class="monster big" viewBox="0 0 200 250">
+                    <ellipse cx="100" cy="160" rx="70" ry="80" fill="#FF6B6B"/>
+                    <ellipse cx="100" cy="160" rx="60" ry="70" fill="#FF8E8E"/>
+                    <ellipse cx="100" cy="180" rx="40" ry="35" fill="#FFE4E1"/>
+                    <ellipse cx="75" cy="120" rx="20" ry="25" fill="white"/>
+                    <ellipse cx="125" cy="120" rx="20" ry="25" fill="white"/>
+                    <ellipse cx="75" cy="120" rx="10" ry="12" fill="#8B0000"/>
+                    <ellipse cx="125" cy="120" rx="10" ry="12" fill="#8B0000"/>
+                    <path d="M 70 150 Q 100 185 130 150" stroke="#8B0000" stroke-width="3" fill="none"/>
+                    <polygon points="80,150 85,140 90,150" fill="white"/>
+                    <polygon points="110,150 115,140 120,150" fill="white"/>
+                    <ellipse cx="30" cy="160" rx="20" ry="15" fill="#FF6B6B"/>
+                    <ellipse cx="170" cy="160" rx="20" ry="15" fill="#FF6B6B"/>
+                    <polygon points="60,60 70,30 80,60" fill="#00FF7F"/>
+                    <polygon points="120,60 130,30 140,60" fill="#00FF7F"/>
+                    <path d="M 80 60 Q 90 40 100 60 Q 110 40 120 60" stroke="#00CED1" stroke-width="5" fill="none"/>
+                </svg>
+                <div class="plate game-plate drop-zone" id="plate2" data-index="1">
+                    <div class="food-items" id="game-food-2"></div>
+                </div>
+                <div class="monster-name">هیولای قرمز</div>
+                <div class="food-count" id="count2">0</div>
+            </div>
+        </div>
+        
+        <!-- منوی غذا -->
+        <div class="food-menu" id="food-menu">
+            <p class="menu-title">🍽️ غذا رو بگیر و بکش روی بشقاب!</p>
+            <div class="food-source" id="food-source">
+                <div class="food-item-draggable" draggable="true" data-food="1" data-name="پیتزا">
+                    <svg viewBox="0 0 60 60" width="45" height="45">
+                        <circle cx="30" cy="30" r="25" fill="#FFB6C1"/>
+                        <circle cx="30" cy="30" r="20" fill="#FF69B4"/>
+                        <circle cx="25" cy="25" r="3" fill="white"/>
+                        <circle cx="35" cy="28" r="2" fill="white"/>
+                    </svg>
+                    <span class="food-name">پیتزا</span>
+                </div>
+                <div class="food-item-draggable" draggable="true" data-food="2" data-name="همبرگر">
+                    <svg viewBox="0 0 60 60" width="45" height="45">
+                        <ellipse cx="30" cy="35" rx="22" ry="12" fill="#8B4513"/>
+                        <ellipse cx="30" cy="32" rx="18" ry="8" fill="#D2691E"/>
+                        <ellipse cx="30" cy="28" rx="12" ry="5" fill="#FFD700"/>
+                        <circle cx="22" cy="28" r="2" fill="#8B4513"/>
+                        <circle cx="38" cy="28" r="2" fill="#8B4513"/>
+                    </svg>
+                    <span class="food-name">همبرگر</span>
+                </div>
+                <div class="food-item-draggable" draggable="true" data-food="3" data-name="سالاد">
+                    <svg viewBox="0 0 60 60" width="45" height="45">
+                        <ellipse cx="30" cy="35" rx="20" ry="15" fill="#90EE90"/>
+                        <ellipse cx="30" cy="30" rx="14" ry="10" fill="#32CD32"/>
+                        <path d="M 22 25 Q 30 15 38 25" stroke="#228B22" stroke-width="3" fill="none"/>
+                        <circle cx="26" cy="32" r="2" fill="#98FB98"/>
+                        <circle cx="34" cy="30" r="2" fill="#98FB98"/>
+                    </svg>
+                    <span class="food-name">سالاد</span>
+                </div>
+                <div class="food-item-draggable" draggable="true" data-food="4" data-name="هات‌داگ">
+                    <svg viewBox="0 0 60 60" width="45" height="45">
+                        <ellipse cx="30" cy="38" rx="18" ry="10" fill="#DEB887"/>
+                        <ellipse cx="30" cy="35" rx="15" ry="7" fill="#F5DEB3"/>
+                        <ellipse cx="30" cy="30" rx="10" ry="5" fill="#8B4513"/>
+                        <circle cx="25" cy="30" r="2" fill="#D2691E"/>
+                        <circle cx="35" cy="30" r="2" fill="#D2691E"/>
+                    </svg>
+                    <span class="food-name">هات‌داگ</span>
+                </div>
+                <div class="food-item-draggable" draggable="true" data-food="5" data-name="ستاره">
+                    <svg viewBox="0 0 60 60" width="45" height="45">
+                        <path d="M 30 5 L 35 20 L 50 20 L 40 30 L 45 45 L 30 35 L 15 45 L 20 30 L 10 20 L 25 20 Z" fill="#FF6347"/>
+                        <circle cx="30" cy="25" r="6" fill="#FFD700"/>
+                        <circle cx="25" cy="20" r="2" fill="#FF6347"/>
+                        <circle cx="35" cy="22" r="2" fill="#FF6347"/>
+                    </svg>
+                    <span class="food-name">ستاره</span>
+                </div>
+            </div>
+            <p class="drag-hint">💡 می‌تونی از غذاهای داخل بشقاب‌ها هم برداری و جابجا کنی!</p>
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <!-- صفحه پیروزی -->
+    <div id="win-screen" class="screen">
+        <div class="win-content">
+            <div class="trophy">
+                <svg viewBox="0 0 200 200" width="150" height="150">
+                    <path d="M 50 60 Q 50 150 100 170 Q 150 150 150 60 Q 150 30 100 30 Q 50 30 50 60" fill="#FFD700"/>
+                    <path d="M 60 60 Q 60 140 100 160 Q 140 140 140 60 Q 140 40 100 40 Q 60 40 60 60" fill="#FFA500"/>
+                    <path d="M 50 70 Q 30 70 30 90 Q 30 110 50 110" stroke="#FFD700" stroke-width="8" fill="none"/>
+                    <path d="M 150 70 Q 170 70 170 90 Q 170 110 150 110" stroke="#FFD700" stroke-width="8" fill="none"/>
+                    <rect x="80" y="170" width="40" height="20" fill="#FFD700"/>
+                    <rect x="70" y="190" width="60" height="10" fill="#FFA500"/>
+                    <text x="30" y="50" font-size="30">⭐</text>
+                    <text x="160" y="50" font-size="30">⭐</text>
+                    <text x="100" y="20" font-size="40">🌟</text>
+                </svg>
+            </div>
+            <h1>🎉 تبریک! 🎉</h1>
+            <p class="win-message">بشقاب‌ها برابر شدن!</p>
+            <div class="win-stats">
+                <p>زمان: <span id="win-time">0</span> ثانیه</p>
+                <p>امتیاز: <span id="win-score">0</span></p>
+            </div>
+            <button id="next-level-btn" class="magic-btn">
+                <span>✨ مرحله بعد ✨</span>
+            </button>
+            <button id="home-from-win" class="secondary-btn">
+                <span>🏠 خانه</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- صفحه آمار -->
+    <div id="stats-screen" class="screen">
+        <div class="stats-content">
+            <h1>📊 آمار بازی</h1>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <svg viewBox="0 0 50 50" width="40" height="40">
+                        <circle cx="25" cy="25" r="20" fill="#4CAF50"/>
+                        <text x="25" y="32" text-anchor="middle" fill="white" font-size="16">🎮</text>
+                    </svg>
+                    <p>تعداد بازی</p>
+                    <strong id="stat-games">0</strong>
+                </div>
+                <div class="stat-card">
+                    <svg viewBox="0 0 50 50" width="40" height="40">
+                        <circle cx="25" cy="25" r="20" fill="#2196F3"/>
+                        <text x="25" y="32" text-anchor="middle" fill="white" font-size="16">✓</text>
+                    </svg>
+                    <p>حرکات درست</p>
+                    <strong id="stat-correct">0</strong>
+                </div>
+                <div class="stat-card">
+                    <svg viewBox="0 0 50 50" width="40" height="40">
+                        <circle cx="25" cy="25" r="20" fill="#F44336"/>
+                        <text x="25" y="32" text-anchor="middle" fill="white" font-size="16">✗</text>
+                    </svg>
+                    <p>حرکات غلط</p>
+                    <strong id="stat-wrong">0</strong>
+                </div>
+                <div class="stat-card">
+                    <svg viewBox="0 0 50 50" width="40" height="40">
+                        <circle cx="25" cy="25" r="20" fill="#FF9800"/>
+                        <text x="25" y="32" text-anchor="middle" fill="white" font-size="16">🏆</text>
+                    </svg>
+                    <p>تعداد برد</p>
+                    <strong id="stat-wins">0</strong>
+                </div>
+                <div class="stat-card">
+                    <svg viewBox="0 0 50 50" width="40" height="40">
+                        <circle cx="25" cy="25" r="20" fill="#9C27B0"/>
+                        <text x="25" y="32" text-anchor="middle" fill="white" font-size="16">📈</text>
+                    </svg>
+                    <p>پیشرفت</p>
+                    <strong id="stat-progress">0%</strong>
+                </div>
+                <div class="stat-card">
+                    <svg viewBox="0 0 50 50" width="40" height="40">
+                        <circle cx="25" cy="25" r="20" fill="#00BCD4"/>
+                        <text x="25" y="32" text-anchor="middle" fill="white" font-size="16">⏱️</text>
+                    </svg>
+                    <p>میانگین زمان</p>
+                    <strong id="stat-avg-time">0 ثانیه</strong>
+                </div>
+            </div>
+            <button id="back-from-stats" class="magic-btn">
+                <span>🔙 بازگشت</span>
+            </button>
+        </div>
+    </div>
+
+    <button id="stats-btn" class="stats-launcher">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+            <path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+        </svg>
+    </button>
+
+    <script>
+        // بازی هیولاهای گرسنه - ریاضی برای کودکان
+
+class MonsterGame {
+    constructor() {
+        this.state = {
+            currentScreen: 'start',
+            level: 1,
+            score: 0,
+            startTime: null,
+            plates: [0, 0],
+            hungryMonster: 0,
+            selectedMonster: null,
+            gamePhase: 'guess',
+            correctAnswers: 0,
+            wrongAnswers: 0,
+            maxFoodLimit: 0,
+            draggedFood: null,
+            dragSource: null
+        };
+
+        this.stats = this.loadStats();
+        this.audioContext = null;
+        
+        this.elements = {
+            screens: {
+                start: document.getElementById('start-screen'),
+                game: document.getElementById('game-screen'),
+                win: document.getElementById('win-screen'),
+                stats: document.getElementById('stats-screen')
+            },
+            startBtn: document.getElementById('start-btn'),
+            homeBtn: document.getElementById('home-btn'),
+            statsBtn: document.getElementById('stats-btn'),
+            backFromStats: document.getElementById('back-from-stats'),
+            nextLevelBtn: document.getElementById('next-level-btn'),
+            homeFromWin: document.getElementById('home-from-win'),
+            levelNum: document.getElementById('level-num'),
+            score: document.getElementById('score'),
+            fantasyMsg: document.getElementById('fantasy-msg'),
+            monster1: document.getElementById('monster1'),
+            monster2: document.getElementById('monster2'),
+            plate1: document.getElementById('plate1'),
+            plate2: document.getElementById('plate2'),
+            gameFood1: document.getElementById('game-food-1'),
+            gameFood2: document.getElementById('game-food-2'),
+            foodMenu: document.getElementById('food-menu'),
+            foodSource: document.getElementById('food-source'),
+            feedback: document.getElementById('feedback'),
+            winTime: document.getElementById('win-time'),
+            winScore: document.getElementById('win-score'),
+            count1: document.getElementById('count1'),
+            count2: document.getElementById('count2')
+        };
+
+        this.init();
+    }
+
+    loadStats() {
+        const defaultStats = {
+            totalGames: 0,
+            correctMoves: 0,
+            wrongMoves: 0,
+            wins: 0,
+            totalTime: 0
+        };
+
+        try {
+            const saved = localStorage.getItem('monsterGameStats');
+            return saved ? JSON.parse(saved) : defaultStats;
+        } catch {
+            return defaultStats;
+        }
+    }
+
+    saveStats() {
+        try {
+            localStorage.setItem('monsterGameStats', JSON.stringify(this.stats));
+        } catch {}
+    }
+
+    updateStatsDisplay() {
+        document.getElementById('stat-games').textContent = this.stats.totalGames;
+        document.getElementById('stat-correct').textContent = this.stats.correctMoves;
+        document.getElementById('stat-wrong').textContent = this.stats.wrongMoves;
+        document.getElementById('stat-wins').textContent = this.stats.wins;
+        
+        const totalMoves = this.stats.correctMoves + this.stats.wrongMoves;
+        const progress = totalMoves > 0 
+            ? Math.round((this.stats.correctMoves / totalMoves) * 100) 
+            : 0;
+        document.getElementById('stat-progress').textContent = progress + '%';
+        
+        const avgTime = this.stats.totalGames > 0 
+            ? Math.round(this.stats.totalTime / this.stats.totalGames) 
+            : 0;
+        document.getElementById('stat-avg-time').textContent = avgTime + ' ثانیه';
+    }
+
+    init() {
+        this.bindEvents();
+        this.setupDragAndDrop();
+        this.showScreen('start');
+        this.updateStatsDisplay();
+    }
+
+    bindEvents() {
+        this.elements.startBtn.addEventListener('click', () => this.startGame());
+        this.elements.homeBtn.addEventListener('click', () => this.goHome());
+        this.elements.statsBtn.addEventListener('click', () => this.showScreen('stats'));
+        this.elements.backFromStats.addEventListener('click', () => this.showScreen('start'));
+        this.elements.nextLevelBtn.addEventListener('click', () => this.nextLevel());
+        this.elements.homeFromWin.addEventListener('click', () => this.goHome());
+        
+        this.elements.monster1.addEventListener('click', () => this.selectMonster(0));
+        this.elements.monster2.addEventListener('click', () => this.selectMonster(1));
+    }
+
+    setupDragAndDrop() {
+        const dropZones = document.querySelectorAll('.drop-zone');
+        
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => this.handleDragOver(e));
+            zone.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+            zone.addEventListener('drop', (e) => this.handleDrop(e));
+        });
+
+        const foodSourceItems = document.querySelectorAll('.food-source .food-item-draggable');
+        foodSourceItems.forEach(item => {
+            item.addEventListener('dragstart', (e) => this.handleFoodSourceDragStart(e));
+            item.addEventListener('dragend', (e) => this.handleDragEnd(e));
+        });
+
+        this.setupTouchDrag();
+    }
+
+    setupTouchDrag() {
+        let draggedElement = null;
+        let clone = null;
+        let touchOffsetX = 0;
+        let touchOffsetY = 0;
+
+        const foodSourceItems = document.querySelectorAll('.food-source .food-item-draggable');
+        
+        foodSourceItems.forEach(item => {
+            item.addEventListener('touchstart', (e) => {
+                if (this.state.gamePhase !== 'feed') return;
+                
+                const touch = e.touches[0];
+                const rect = item.getBoundingClientRect();
+                touchOffsetX = touch.clientX - rect.left;
+                touchOffsetY = touch.clientY - rect.top;
+                
+                clone = item.cloneNode(true);
+                clone.style.position = 'fixed';
+                clone.style.left = (touch.clientX - touchOffsetX) + 'px';
+                clone.style.top = (touch.clientY - touchOffsetY) + 'px';
+                clone.style.zIndex = '10000';
+                clone.style.pointerEvents = 'none';
+                clone.style.opacity = '0.9';
+                clone.style.transform = 'scale(1.3)';
+                document.body.appendChild(clone);
+                
+                draggedElement = item;
+                this.state.draggedFood = parseInt(item.dataset.food);
+                this.state.dragSource = 'source';
+                item.classList.add('dragging');
+            }, { passive: true });
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!draggedElement || !clone) return;
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            clone.style.left = (touch.clientX - touchOffsetX) + 'px';
+            clone.style.top = (touch.clientY - touchOffsetY) + 'px';
+            
+            const dropZones = document.querySelectorAll('.drop-zone');
+            dropZones.forEach(zone => {
+                const rect = zone.getBoundingClientRect();
+                if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                    touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                    zone.classList.add('drag-over');
+                } else {
+                    zone.classList.remove('drag-over');
+                }
+            });
+        }, { passive: false });
+
+        document.addEventListener('touchend', (e) => {
+            if (!draggedElement) return;
+            
+            const touch = e.changedTouches[0];
+            const dropZones = document.querySelectorAll('.drop-zone');
+            
+            dropZones.forEach(zone => {
+                const rect = zone.getBoundingClientRect();
+                if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                    touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                    
+                    const plateIndex = parseInt(zone.dataset.index);
+                    this.handleFoodDrop(plateIndex, this.state.draggedFood);
+                }
+                zone.classList.remove('drag-over');
+            });
+            
+            if (clone) { clone.remove(); clone = null; }
+            if (draggedElement) {
+                draggedElement.classList.remove('dragging');
+                draggedElement = null;
+            }
+            this.state.draggedFood = null;
+            this.state.dragSource = null;
+        });
+    }
+
+    handleFoodSourceDragStart(e) {
+        if (this.state.gamePhase !== 'feed') {
+            e.preventDefault();
+            return;
+        }
+        
+        e.target.classList.add('dragging');
+        const foodName = e.target.dataset.name || 'غذا';
+        e.dataTransfer.setData('text/plain', JSON.stringify({
+            food: parseInt(e.target.dataset.food),
+            foodName: foodName,
+            source: 'source'
+        }));
+        e.dataTransfer.effectAllowed = 'move';
+        
+        this.state.draggedFood = parseInt(e.target.dataset.food);
+        this.state.dragSource = 'source';
+    }
+
+    handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+        this.state.draggedFood = null;
+        this.state.dragSource = null;
+    }
+
+    handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        e.currentTarget.classList.add('drag-over');
+    }
+
+    handleDragLeave(e) {
+        e.currentTarget.classList.remove('drag-over');
+    }
+
+    handleDrop(e) {
+        e.preventDefault();
+        const plateIndex = parseInt(e.currentTarget.dataset.index);
+        
+        try {
+            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+            const food = data.food;
+            const source = data.source;
+            
+            e.currentTarget.classList.remove('drag-over');
+            
+            if (source === 'source') {
+                this.handleFoodDrop(plateIndex, food);
+            } else if (source === 'plate') {
+                this.handlePlateToPlateMove(data.fromPlate, plateIndex);
+            }
+        } catch (err) {
+            const food = parseInt(e.dataTransfer.getData('text/plain'));
+            if (!isNaN(food)) {
+                this.handleFoodDrop(plateIndex, food);
+            }
+        }
+    }
+
+    handleFoodDrop(plateIndex, food) {
+        // فقط به هیولای گرسنه می‌توان غذا داد
+        if (plateIndex !== this.state.hungryMonster) {
+            const wrongPlate = plateIndex === 0 ? this.elements.plate1 : this.elements.plate2;
+            wrongPlate.classList.add('invalid-drop');
+            setTimeout(() => wrongPlate.classList.remove('invalid-drop'), 300);
+            
+            this.showFeedback('😋 این هیولا گرسنه نیست! به اون یکی بده!', 'error');
+            this.playSound('error');
+            return;
+        }
+        
+        // بررسی محدودیت غذا
+        const currentFood = this.state.plates[plateIndex];
+        if (currentFood >= this.state.maxFoodLimit) {
+            this.showFeedback('🚫 بسه! دیگه جا نداره! می‌تونی از اون یکی بشقاب برداری!', 'warning');
+            this.playSound('error');
+            
+            const plate = plateIndex === 0 ? this.elements.plate1 : this.elements.plate2;
+            plate.classList.add('invalid-drop');
+            setTimeout(() => plate.classList.remove('invalid-drop'), 300);
+            return;
+        }
+        
+        // اضافه کردن غذا (همیشه 1)
+        this.state.plates[plateIndex] += 1;
+        
+        // انیمیشن
+        this.animateFlyingFood(plateIndex, 1);
+        
+        // به‌روزرسانی نمایش
+        const foodContainer = plateIndex === 0 ? this.elements.gameFood1 : this.elements.gameFood2;
+        this.renderFood(foodContainer, this.state.plates[plateIndex]);
+        this.updateFoodCounts();
+        
+        setTimeout(() => this.checkWinCondition(), 800);
+    }
+
+    handlePlateToPlateMove(fromPlateIndex, toPlateIndex) {
+        if (fromPlateIndex === toPlateIndex) return;
+        
+        // اگر بشقاب مقصد پر است
+        if (this.state.plates[toPlateIndex] >= this.state.maxFoodLimit) {
+            this.showFeedback('🚫 اون بشقاب پره! اول غذا بردار!', 'warning');
+            this.playSound('error');
+            return;
+        }
+        
+        // جابجایی یک غذا
+        this.state.plates[fromPlateIndex]--;
+        this.state.plates[toPlateIndex]++;
+        
+        // به‌روزرسانی نمایش
+        this.renderFood(this.elements.gameFood1, this.state.plates[0]);
+        this.renderFood(this.elements.gameFood2, this.state.plates[1]);
+        this.updateFoodCounts();
+        
+        // پیام راهنما
+        if (this.state.plates[toPlateIndex] >= this.state.maxFoodLimit) {
+            this.showFeedback('✨ عالی! حالا سعی کن بشقاب‌ها رو برابر کنی!', 'success');
+        } else {
+            this.showFeedback('👆 خب! حالا بیشتر بده یا از اون یکی بردار!', 'warning');
+        }
+        
+        setTimeout(() => this.checkWinCondition(), 500);
+    }
+
+    setupPlateDragAndDrop() {
+        const foodContainers = [this.elements.gameFood1, this.elements.gameFood2];
+        
+        foodContainers.forEach((container, plateIndex) => {
+            container.addEventListener('dragstart', (e) => {
+                if (this.state.gamePhase !== 'feed') return;
+                if (this.state.plates[plateIndex] <= 0) return;
+                
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    food: 1,
+                    source: 'plate',
+                    fromPlate: plateIndex
+                }));
+                e.dataTransfer.effectAllowed = 'move';
+                
+                this.state.draggedFood = 1;
+                this.state.dragSource = 'plate';
+            });
+        });
+    }
+
+    showScreen(screenName) {
+        Object.values(this.elements.screens).forEach(s => s.classList.remove('active'));
+        this.elements.screens[screenName].classList.add('active');
+        this.state.currentScreen = screenName;
+    }
+
+    startGame() {
+        this.state.level = 1;
+        this.state.score = 0;
+        this.state.correctAnswers = 0;
+        this.state.wrongAnswers = 0;
+        this.startLevel();
+        this.showScreen('game');
+    }
+
+    startLevel() {
+        const maxFood = 3 + this.state.level;
+        this.state.plates = [
+            Math.floor(Math.random() * maxFood),
+            Math.floor(Math.random() * maxFood)
+        ];
+        
+        while (this.state.plates[0] === this.state.plates[1]) {
+            this.state.plates[1] = Math.floor(Math.random() * maxFood);
+        }
+        
+        this.state.hungryMonster = this.state.plates[0] < this.state.plates[1] ? 0 : 1;
+        
+        const hungryPlate = this.state.plates[this.state.hungryMonster];
+        const otherPlate = this.state.plates[1 - this.state.hungryMonster];
+        this.state.maxFoodLimit = otherPlate * 2;
+        
+        this.state.selectedMonster = null;
+        this.state.gamePhase = 'guess';
+        this.state.startTime = Date.now();
+        
+        this.updateUI();
+        
+        setTimeout(() => this.setupPlateDragAndDrop(), 100);
+    }
+
+    updateUI() {
+        this.elements.levelNum.textContent = this.state.level;
+        this.elements.score.textContent = this.state.score;
+        
+        this.renderFood(this.elements.gameFood1, this.state.plates[0]);
+        this.renderFood(this.elements.gameFood2, this.state.plates[1]);
+        this.updateFoodCounts();
+        
+        if (this.state.gamePhase === 'guess') {
+            this.elements.fantasyMsg.innerHTML = '<p>🧙‍♂️ کدوم هیولا گرسنه‌تره؟</p>';
+            this.elements.foodMenu.style.display = 'none';
+        } else {
+            const hungryName = this.state.hungryMonster === 0 ? 'هیولای بنفش' : 'هیولای قرمز';
+            this.elements.fantasyMsg.innerHTML = `
+                <p>🍽️ به ${hungryName} غذا بده!</p>
+                <p style="font-size: 0.7rem; margin-top: 5px;">💡 بشقاب‌ها رو برابر کن!</p>
+            `;
+            this.elements.foodMenu.style.display = 'block';
+        }
+        
+        this.elements.monster1.classList.remove('selected', 'correct', 'wrong');
+        this.elements.monster2.classList.remove('selected', 'correct', 'wrong');
+    }
+
+    updateFoodCounts() {
+        this.elements.count1.textContent = this.state.plates[0];
+        this.elements.count2.textContent = this.state.plates[1];
+    }
+
+    renderFood(container, count) {
+        container.innerHTML = '';
+        
+        const foods = [
+            { svg: '<svg viewBox="0 0 30 30" width="16" height="16"><circle cx="15" cy="15" r="12" fill="#FFB6C1"/><circle cx="15" cy="15" r="9" fill="#FF69B4"/></svg>', name: 'پیتزا' },
+            { svg: '<svg viewBox="0 0 30 30" width="16" height="16"><ellipse cx="15" cy="18" rx="10" ry="6" fill="#8B4513"/><ellipse cx="15" cy="16" rx="8" ry="4" fill="#D2691E"/><ellipse cx="15" cy="14" rx="5" ry="2" fill="#FFD700"/></svg>', name: 'همبرگر' },
+            { svg: '<svg viewBox="0 0 30 30" width="16" height="16"><ellipse cx="15" cy="18" rx="10" ry="7" fill="#90EE90"/><ellipse cx="15" cy="15" rx="7" ry="5" fill="#32CD32"/></svg>', name: 'سالاد' },
+            { svg: '<svg viewBox="0 0 30 30" width="16" height="16"><ellipse cx="15" cy="20" rx="9" ry="5" fill="#DEB887"/><ellipse cx="15" cy="18" rx="7" ry="3" fill="#F5DEB3"/><ellipse cx="15" cy="15" rx="5" ry="2" fill="#8B4513"/></svg>', name: 'هات‌داگ' },
+            { svg: '<svg viewBox="0 0 30 30" width="16" height="16"><path d="M15 3 L17 12 L26 12 L19 17 L21 26 L15 21 L9 26 L11 17 L4 12 L13 12 Z" fill="#FF6347"/><circle cx="15" cy="13" r="3" fill="#FFD700"/></svg>', name: 'ستاره' }
+        ];
+        
+        for (let i = 0; i < count; i++) {
+            const foodData = foods[i % foods.length];
+            
+            const span = document.createElement('span');
+            span.className = 'food-item';
+            span.innerHTML = foodData.svg;
+            span.title = foodData.name;
+            span.draggable = true;
+            span.dataset.index = i;
+            
+            span.addEventListener('dragstart', (e) => {
+                if (this.state.gamePhase !== 'feed') {
+                    e.preventDefault();
+                    return;
+                }
+                
+                const plateIndex = container.id === 'game-food-1' ? 0 : 1;
+                
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    food: 1,
+                    source: 'plate',
+                    fromPlate: plateIndex,
+                    foodIndex: i
+                }));
+                e.dataTransfer.effectAllowed = 'move';
+                
+                this.state.draggedFood = 1;
+                this.state.dragSource = 'plate';
+                this.state.dragFromPlate = plateIndex;
+            });
+            
+            container.appendChild(span);
+        }
+    }
+
+    // انتخاب هیولا
+    selectMonster(index) {
+        if (this.state.gamePhase !== 'guess') return;
+        
+        this.state.selectedMonster = index;
+        
+        this.elements.monster1.classList.toggle('selected', index === 0);
+        this.elements.monster2.classList.toggle('selected', index === 1);
+        
+        setTimeout(() => this.checkAnswer(index), 500);
+    }
+
+    // بررسی پاسخ
+    checkAnswer(selectedIndex) {
+        const isCorrect = selectedIndex === this.state.hungryMonster;
+        
+        if (isCorrect) {
+            this.state.correctAnswers++;
+            this.stats.correctMoves++;
+            this.state.score += 10;
+            
+            const correctMonster = selectedIndex === 0 ? this.elements.monster1 : this.elements.monster2;
+            correctMonster.classList.add('correct');
+            
+            this.showFeedback('🎉 آفرین! درست بود!', 'success');
+            this.playSound('success');
+            
+            setTimeout(() => {
+                this.state.gamePhase = 'feed';
+                this.updateUI();
+                this.setupPlateDragAndDrop();
+            }, 1500);
+            
+        } else {
+            this.state.wrongAnswers++;
+            this.stats.wrongMoves++;
+            
+            const wrongMonster = selectedIndex === 0 ? this.elements.monster1 : this.elements.monster2;
+            wrongMonster.classList.add('wrong');
+            
+            this.showFeedback('😢 اشتباه بود! دوباره تلاش کن!', 'error');
+            this.playSound('error');
+            
+            setTimeout(() => {
+                this.state.selectedMonster = null;
+                this.elements.monster1.classList.remove('selected', 'wrong');
+                this.elements.monster2.classList.remove('selected', 'wrong');
+            }, 1000);
+        }
+        
+        this.saveStats();
+    }
+
+    // انیمیشن غذاهای پروازی
+    animateFlyingFood(monsterIndex, count) {
+        const foods = ['🍕', '🍔', '🍟', '🌮', '🍦', '🍪', '🍩', '🥗', '🍛'];
+        
+        const targetPlate = monsterIndex === 0 ? this.elements.plate1 : this.elements.plate2;
+        const rect = targetPlate.getBoundingClientRect();
+        
+        for (let i = 0; i < count; i++) {
+            setTimeout(() => {
+                const food = document.createElement('div');
+                food.textContent = foods[Math.floor(Math.random() * foods.length)];
+                food.style.cssText = `
+                    position: fixed;
+                    font-size: 26px;
+                    left: ${rect.left + rect.width/2 + (Math.random() * 40 - 20)}px;
+                    bottom: 0;
+                    animation: flyUp 0.7s ease-out forwards;
+                    z-index: 1000;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(food);
+                
+                setTimeout(() => food.remove(), 700);
+            }, i * 100);
+        }
+    }
+
+    // بررسی وضعیت برد
+    checkWinCondition() {
+        const [p1, p2] = this.state.plates;
+        
+        if (p1 === p2) {
+            this.winLevel();
+        } else if (Math.abs(p1 - p2) <= 1) {
+            const remaining = this.state.maxFoodLimit - this.state.plates[this.state.hungryMonster];
+            if (remaining <= 0) {
+                this.showFeedback('🤏 خیلی نزدیکی! از اون یکی بردار!', 'warning');
+            } else {
+                this.showFeedback('🤏 خیلی نزدیکی! یکی دیگه هم بده!', 'warning');
+            }
+        } else {
+            const remaining = this.state.maxFoodLimit - this.state.plates[this.state.hungryMonster];
+            if (remaining <= 0) {
+                this.showFeedback('🚫 ظرفیت تموم شد! از اون یکی بشقاب بردار!', 'warning');
+            } else {
+                this.showFeedback('📢 بشقاب‌ها رو برابر کن!', 'warning');
+            }
+        }
+    }
+
+    // برنده شدن مرحله
+    winLevel() {
+        const timeTaken = Math.round((Date.now() - this.state.startTime) / 1000);
+        
+        this.stats.totalGames++;
+        this.stats.wins++;
+        this.stats.totalTime += timeTaken;
+        this.saveStats();
+        
+        this.elements.winTime.textContent = timeTaken;
+        this.elements.winScore.textContent = this.state.score;
+        
+        this.showFeedback('🎉 برنده شدی!', 'success');
+        this.playSound('win');
+        
+        setTimeout(() => {
+            this.showScreen('win');
+            this.updateStatsDisplay();
+        }, 1500);
+    }
+
+    // مرحله بعد
+    nextLevel() {
+        this.state.level++;
+        this.startLevel();
+        this.showScreen('game');
+    }
+
+    // بازگشت به خانه
+    goHome() {
+        this.showScreen('start');
+    }
+
+    // نمایش پیام بازخورد
+    showFeedback(message, type) {
+        const feedback = this.elements.feedback;
+        feedback.textContent = message;
+        feedback.className = 'feedback ' + type + ' show';
+        
+        if (type === 'success') {
+            document.body.classList.add('animate-green');
+            setTimeout(() => document.body.classList.remove('animate-green'), 1000);
+        }
+        
+        setTimeout(() => {
+            feedback.classList.remove('show');
+        }, 2500);
+    }
+
+    // پخش صدا
+    playSound(type) {
+        try {
+            if (!this.audioContext) {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            const ctx = this.audioContext;
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            
+            switch(type) {
+                case 'success':
+                    oscillator.frequency.setValueAtTime(523.25, ctx.currentTime);
+                    oscillator.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.4);
+                    break;
+                    
+                case 'error':
+                    oscillator.frequency.setValueAtTime(200, ctx.currentTime);
+                    oscillator.frequency.setValueAtTime(150, ctx.currentTime + 0.1);
+                    oscillator.type = 'sawtooth';
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.3);
+                    break;
+                    
+                case 'win':
+                    oscillator.frequency.setValueAtTime(523.25, ctx.currentTime);
+                    oscillator.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15);
+                    oscillator.frequency.setValueAtTime(783.99, ctx.currentTime + 0.3);
+                    oscillator.frequency.setValueAtTime(1046.50, ctx.currentTime + 0.45);
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.7);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.7);
+                    break;
+            }
+        } catch (e) {}
+    }
+}
+
+// راه‌اندازی بازی
+document.addEventListener('DOMContentLoaded', () => {
+    window.game = new MonsterGame();
+});
+    </script>
+</body>
+</html>

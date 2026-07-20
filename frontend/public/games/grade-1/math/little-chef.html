@@ -1,0 +1,3732 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>آشپز کوچولو - بازی یادگیری تفکیک مواد غذایی</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+   <style>
+    /* ==================== متغیرهای CSS ==================== */
+:root {
+    --color-blue: #9FBFCE;
+    --color-green: #8FC2B3;
+    --color-yellow: #FFE566;
+    --primary: #FF6B6B;
+    --primary-light: #ff8e8e;
+    --primary-dark: #e74c3c;
+    --secondary: #4ECDC4;
+    --success: #2ECC71;
+    --success-light: #58d68d;
+    --warning: #F39C12;
+    --danger: #E74C3C;
+    --purple: #9B59B6;
+    --dark: #2c3e50;
+    --dark-light: #34495e;
+    --light: #ecf0f1;
+    --light-dark: #bdc3c7;
+    --white: #ffffff;
+    --kitchen-wall: #e8e4df;
+    --kitchen-tile: #d4cfc8;
+    --kitchen-counter: #5d4037;
+    --kitchen-counter-light: #795548;
+    --kitchen-stove: #2d2d2d;
+    --kitchen-floor: #8d6e63;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 15px 60px rgba(0, 0, 0, 0.25);
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    --font-family: 'Vazirmatn', Tahoma, sans-serif;
+}
+
+/* ==================== تنظیمات پایه ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: var(--font-family);
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+    color: var(--dark);
+    position: relative;
+}
+
+/* ==================== صفحات ==================== */
+.screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    z-index: 1;
+    overflow-y: auto;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* ==================== منوی اصلی ==================== */
+.menu-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.floating-ingredient {
+    position: absolute;
+    font-size: 2.5rem;
+    animation: floatUp 6s ease-in-out infinite;
+    animation-delay: var(--delay);
+    left: var(--x);
+    top: 100%;
+    opacity: 0.3;
+    filter: blur(1px);
+}
+
+@keyframes floatUp {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.2; }
+    50% { transform: translateY(-80vh) rotate(180deg); opacity: 0.4; }
+}
+
+.menu-container {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 30px;
+    padding: 35px 28px;
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+    max-width: 400px;
+    width: 100%;
+    animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--color-blue), var(--color-green), var(--color-yellow), var(--color-blue));
+    background-size: 300% 100%;
+    animation: gradientMove 3s linear infinite;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(50px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* آواتار آشپز */
+.chef-avatar {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px;
+}
+
+.chef-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.2));
+    animation: chefBounce 2s ease-in-out infinite;
+}
+
+@keyframes chefBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.chef-sparkle {
+    position: absolute;
+    top: 10%;
+    right: 15%;
+    width: 20px;
+    height: 20px;
+    background: var(--color-yellow);
+    border-radius: 50%;
+    animation: sparkle 1.5s ease-in-out infinite;
+    box-shadow: 0 0 20px var(--color-yellow);
+}
+
+@keyframes sparkle {
+    0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+    50% { transform: scale(1) rotate(180deg); opacity: 1; }
+}
+
+/* عنوان بازی */
+.game-title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--primary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.title-icon {
+    font-size: 1.8rem;
+    animation: iconWiggle 2s ease-in-out infinite;
+}
+
+@keyframes iconWiggle {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+}
+
+.game-subtitle {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+    font-weight: 400;
+}
+
+/* دکمه‌ها */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-family: var(--font-family);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-weight: 700;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.btn:hover::before { left: 100%; }
+.btn:active { transform: scale(0.96); }
+
+.btn-large {
+    padding: 18px 30px;
+    font-size: 1.1rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(255, 107, 107, 0.5);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, var(--color-blue), #7BAFC9);
+    color: white;
+    box-shadow: 0 6px 20px rgba(159, 191, 206, 0.4);
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(159, 191, 206, 0.5);
+}
+
+.btn-tertiary {
+    background: linear-gradient(135deg, var(--light), #dfe6e9);
+    color: #666;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success), var(--success-light));
+    color: white;
+    box-shadow: 0 8px 25px rgba(46, 204, 113, 0.4);
+}
+
+.btn-icon { font-size: 1.2rem; }
+.btn-arrow { font-size: 1.1rem; transition: transform 0.3s; }
+.btn:hover .btn-arrow { transform: translateX(5px); }
+
+/* دکمه‌های اکشن (صدا و راهنما) */
+.menu-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.action-btn {
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--light), #dfe6e9);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:active {
+    transform: scale(0.95);
+}
+
+/* کارت راهنما */
+.instructions-card {
+    background: linear-gradient(135deg, #f8f9fa, #fff);
+    border-radius: 20px;
+    padding: 20px;
+    text-align: right;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid #eee;
+}
+
+.instructions-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    color: var(--purple);
+}
+
+.instructions-header h3 {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.instructions-list { list-style: none; }
+
+.instructions-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    color: #555;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #eee;
+}
+
+.instructions-list li:last-child { border-bottom: none; }
+
+.step-num {
+    width: 26px;
+    height: 26px;
+    background: var(--color-blue);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.decorative-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ddd, transparent);
+    margin: 22px 0 12px;
+}
+.copyright {
+    color: #999;
+    font-size: 0.75rem;
+}
+
+/* ==================== صفحه راهنما ==================== */
+.help-container {
+    background: white;
+    border-radius: 25px;
+    padding: 25px 20px;
+    max-width: 450px;
+    width: 100%;
+    box-shadow: var(--shadow-xl);
+    animation: slideUp 0.5s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.help-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.help-header h2 {
+    font-size: 1.3rem;
+    color: var(--purple);
+    flex: 1;
+}
+
+.help-content {
+    margin-bottom: 25px;
+}
+
+.help-section {
+    background: linear-gradient(135deg, #f8f9fa, #fff);
+    border-radius: 16px;
+    padding: 18px 15px;
+    margin-bottom: 12px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.help-icon {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.help-section h3 {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.help-section p {
+    font-size: 0.85rem;
+    color: #666;
+    line-height: 1.6;
+}
+
+.categories-help {
+    text-align: right;
+}
+
+.categories-help h3 {
+    margin-bottom: 15px;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.category-item span:first-child {
+    font-size: 1.3rem;
+}
+
+/* ==================== صفحه انتخاب مرحله ==================== */
+.level-select-container {
+    width: 100%;
+    max-width: 480px;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 25px;
+    padding: 25px 20px;
+    box-shadow: var(--shadow-xl);
+    animation: slideUp 0.5s ease;
+}
+
+.level-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.back-btn {
+    width: 42px;
+    height: 42px;
+    border: none;
+         
+    background: #666;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    flex-shrink: 0;
+}
+
+.back-btn svg {
+    width: 20px;
+    height: 20px;
+    color: var(--dark);
+}
+
+.back-btn:hover {
+    background: var(--color-blue);
+}
+
+.back-btn:hover svg {
+    color: white;
+}
+
+.level-header h2 {
+    font-size: 1.3rem;
+    color: #666;
+    flex: 1;
+}
+
+.levels-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.level-btn {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 18px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-family: var(--font-family);
+    font-weight: bold;
+    font-size: 1.2rem;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.level-btn.completed {
+    background: linear-gradient(135deg, var(--success), var(--success-light));
+    color: white;
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+}
+
+.level-btn.completed::after {
+    content: '✓';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 0.8rem;
+    background: white;
+    color: var(--success);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.level-btn.current {
+    background: linear-gradient(135deg, var(--color-yellow), #ffd93d);
+    color: #666;
+    box-shadow: 0 6px 20px rgba(255, 229, 102, 0.5);
+    transform: scale(1.05);
+}
+
+.level-btn.locked {
+    background: linear-gradient(135deg, #dfe6e9, #b2bec3);
+    color: #999;
+    cursor: not-allowed;
+}
+
+.level-btn:not(.locked):hover {
+    transform: translateY(-5px) scale(1.05);
+}
+
+.level-btn:not(.locked):active {
+    transform: scale(0.95);
+}
+
+.level-stars {
+    font-size: 0.7rem;
+    opacity: 0.9;
+}
+
+.level-legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+}
+
+.legend-dot.completed { background: var(--success); }
+.legend-dot.current { background: var(--color-yellow); }
+.legend-dot.locked { background: #b2bec3; }
+
+/* ==================== صفحه بازی ==================== */
+.kitchen-scene {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.kitchen-wall {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 45%;
+    background: linear-gradient(180deg, var(--kitchen-wall) 0%, #d8d4cf 100%);
+}
+
+.tile-pattern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(90deg, var(--kitchen-tile) 1px, transparent 1px),
+        linear-gradient(0deg, var(--kitchen-tile) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.5;
+}
+
+.tile-shine {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 50%);
+}
+
+.kitchen-shelf {
+    position: absolute;
+    left: 5%;
+    width: 90%;
+    height: 8px;
+    background: linear-gradient(180deg, #8B4513 0%, #6d3610 100%);
+    border-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.kitchen-shelf.top-shelf { top: 12%; }
+
+.shelf-board {
+    position: absolute;
+    bottom: 100%;
+    left: 5%;
+    width: 90%;
+    display: flex;
+    justify-content: space-around;
+    padding-bottom: 10px;
+}
+
+.shelf-item {
+    width: 45px;
+    height: 55px;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
+}
+
+.kitchen-counter {
+    position: absolute;
+    top: 45%;
+    left: 0;
+    width: 100%;
+    height: 18%;
+}
+
+.counter-surface {
+    height: 15%;
+    background: linear-gradient(180deg, var(--kitchen-counter-light) 0%, var(--kitchen-counter) 100%);
+    border-radius: 5px 5px 0 0;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
+
+.counter-edge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(180deg, #4e342e 0%, #3e2723 100%);
+}
+
+.counter-cabinets {
+    height: 85%;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    padding: 0 10%;
+    background: linear-gradient(180deg, var(--kitchen-counter) 0%, #4e342e 100%);
+}
+
+.cabinet {
+    flex: 1;
+    max-width: 110px;
+    background: linear-gradient(135deg, var(--kitchen-counter-light) 0%, var(--kitchen-counter) 100%);
+    border: 2px solid #4e342e;
+    border-radius: 3px;
+    position: relative;
+}
+
+.cabinet.door-left { border-radius: 3px 0 0 3px; }
+.cabinet.door-right { border-radius: 0 3px 3px 0; }
+
+.cabinet-handle {
+    position: absolute;
+    top: 50%;
+    width: 7px;
+    height: 22px;
+    background: linear-gradient(180deg, #d4af37 0%, #b8962e 100%);
+    border-radius: 2px;
+    transform: translateY(-50%);
+}
+
+.cabinet.door-left .cabinet-handle { right: 7px; }
+.cabinet.door-right .cabinet-handle,
+.cabinet.drawer .cabinet-handle { left: 7px; }
+
+.cabinet.drawer { max-width: 90px; }
+
+/* اجاق گاز */
+.stove-area {
+    position: absolute;
+    bottom: 3%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92%;
+    max-width: 420px;
+    height: 14%;
+    display: flex;
+    gap: 10px;
+}
+
+.stove-top {
+    flex: 1;
+    background: linear-gradient(180deg, #3d3d3d 0%, var(--kitchen-stove) 100%);
+    border-radius: 10px 10px 5px 5px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,255,0.1);
+}
+
+.burner-group {
+    display: flex;
+    justify-content: space-around;
+    flex: 1;
+}
+
+.burner {
+    width: 45%;
+    height: 90%;
+    background: radial-gradient(circle, #1a1a1a 40%, #333 70%);
+    border-radius: 50%;
+    position: relative;
+    border: 2px solid #444;
+    overflow: hidden;
+}
+
+.flame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    height: 50%;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ff4500 0%, #ff6b35 40%, transparent 70%);
+    opacity: 0.85;
+}
+
+.flame-1 { animation: flameFlicker 0.3s infinite alternate; }
+.flame-2 { animation: flameFlicker 0.4s infinite alternate-reverse; animation-delay: 0.15s; }
+
+@keyframes flameFlicker {
+    0% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+.stove-front {
+    width: 35%;
+    background: linear-gradient(180deg, #3d3d3d 0%, #252525 100%);
+    border-radius: 5px 5px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    padding: 7px;
+    gap: 5px;
+}
+
+.oven-door {
+    flex: 1;
+    background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+    border-radius: 5px;
+    position: relative;
+    border: 2px solid #444;
+}
+
+.oven-window {
+    position: absolute;
+    top: 15%;
+    left: 10%;
+    right: 10%;
+    bottom: 15%;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+    border-radius: 3px;
+    box-shadow: inset 0 0 20px rgba(255, 100, 0, 0.2);
+}
+
+.oven-handle {
+    position: absolute;
+    top: 8%;
+    left: 15%;
+    right: 15%;
+    height: 5px;
+    background: linear-gradient(180deg, #666 0%, #444 100%);
+    border-radius: 3px;
+}
+
+.stove-knobs {
+    display: flex;
+    justify-content: space-around;
+    padding: 4px 0;
+}
+
+.knob {
+    width: 16px;
+    height: 16px;
+    background: radial-gradient(circle at 30% 30%, #666, #333);
+    border-radius: 50%;
+    border: 2px solid #555;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.kitchen-floor {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 35%;
+    background:
+        repeating-linear-gradient(90deg, var(--kitchen-floor) 0px, var(--kitchen-floor) 40px, #7d5e53 40px, #7d5e53 42px),
+        repeating-linear-gradient(0deg, var(--kitchen-floor) 0px, var(--kitchen-floor) 40px, #7d5e53 40px, #7d5e53 42px);
+    background-size: 42px 42px;
+    opacity: 0.8;
+}
+
+/* رابط بازی */
+.game-interface {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 520px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+}
+
+.game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: 18px;
+    padding: 10px 14px;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 10px;
+    gap: 8px;
+}
+
+.pause-btn {
+    width: 38px;
+    height: 38px;
+    border: none;
+    background: #666;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    flex-shrink: 0;
+}
+
+.pause-btn svg {
+    width: 18px;
+    height: 18px;
+    color: var(--dark);
+}
+
+.pause-btn:hover {
+    background: var(--color-blue);
+}
+
+.pause-btn:hover svg {
+    color: white;
+}
+
+.level-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, var(--purple), #8e44ad);
+    padding: 6px 12px;
+    border-radius: 10px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.level-label {
+    font-size: 0.65rem;
+    opacity: 0.9;
+}
+
+.level-number {
+    font-size: 1.2rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.timer-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.timer-ring {
+    width: 44px;
+    height: 44px;
+}
+
+.timer-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.timer-bg {
+    fill: none;
+    stroke: #e0e0e0;
+    stroke-width: 3;
+}
+
+.timer-progress {
+    fill: none;
+    stroke: var(--color-green);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear, stroke 0.3s;
+}
+
+.timer-progress.warning { stroke: var(--warning); }
+.timer-progress.danger {
+    stroke: var(--danger);
+    animation: timerPulse 0.5s infinite;
+}
+
+@keyframes timerPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.timer-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.timer-display #timer {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--dark);
+    line-height: 1;
+}
+
+.timer-display.warning #timer { color: var(--warning); }
+.timer-display.danger #timer { color: var(--danger); }
+
+.timer-unit {
+    font-size: 0.6rem;
+    color: #666;
+}
+
+.score-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(135deg, #fff9e6, #fff3cd);
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 2px solid var(--color-yellow);
+    flex-shrink: 0;
+}
+
+.score-icon { font-size: 1.2rem; }
+
+.score-value {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--warning);
+}
+
+/* محتوای بازی */
+.game-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+}
+
+.foods-shelf {
+    flex: 0 0 auto;
+}
+
+.shelf-rail {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.rail-end {
+    width: 12px;
+    height: 6px;
+    background: linear-gradient(180deg, #a0522d 0%, #8b4513 100%);
+    border-radius: 2px;
+}
+
+.rail-end.left { border-radius: 3px 0 0 3px; }
+.rail-end.right { border-radius: 0 3px 3px 0; }
+
+.rail-bar {
+    flex: 1;
+    height: 5px;
+    background: linear-gradient(180deg, #8b4513 0%, #6d3610 100%);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.foods-tray {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    min-height: 80px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* آیتم‌های غذایی */
+.food-item {
+    width: 62px;
+    height: 62px;
+    background: linear-gradient(145deg, #ffffff, #f5f5f5);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    box-shadow:
+        0 4px 15px rgba(0,0,0,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: foodPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+    position: relative;
+    overflow: hidden;
+}
+
+.food-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, transparent 100%);
+    border-radius: 14px 14px 0 0;
+}
+
+.food-item:nth-child(1) { animation-delay: 0s; }
+.food-item:nth-child(2) { animation-delay: 0.04s; }
+.food-item:nth-child(3) { animation-delay: 0.08s; }
+.food-item:nth-child(4) { animation-delay: 0.12s; }
+.food-item:nth-child(5) { animation-delay: 0.16s; }
+.food-item:nth-child(6) { animation-delay: 0.2s; }
+.food-item:nth-child(7) { animation-delay: 0.24s; }
+.food-item:nth-child(8) { animation-delay: 0.28s; }
+
+@keyframes foodPopIn {
+    from { transform: scale(0) rotate(-15deg); opacity: 0; }
+    to { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.food-item:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow:
+        0 8px 25px rgba(0,0,0,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+.food-item:active,
+.food-item.dragging {
+    cursor: grabbing;
+    transform: scale(1.15);
+    box-shadow:
+        0 15px 40px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+    z-index: 1000;
+}
+
+.food-item.dragging {
+    position: fixed !important;
+    pointer-events: none;
+    opacity: 0.95;
+}
+
+.food-item.correct {
+    animation: correctAnswer 0.5s ease forwards;
+}
+
+@keyframes correctAnswer {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.2); }
+    100% { transform: scale(0) rotate(360deg); opacity: 0; }
+}
+
+.food-item.wrong {
+    animation: wrongAnswer 0.5s ease;
+}
+
+@keyframes wrongAnswer {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-8px); }
+    80% { transform: translateX(8px); }
+}
+
+.food-emoji {
+    font-size: 1.8rem;
+    z-index: 1;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
+}
+
+.food-name {
+    font-size: 0.55rem;
+    color: #666;
+    text-align: center;
+    margin-top: 2px;
+    font-weight: 700;
+    z-index: 1;
+}
+
+/* منطقه قابلمه‌ها */
+.pots-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 18px;
+}
+
+.pots-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+.pot-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pot-container:hover {
+    transform: translateY(-6px);
+}
+
+.pot-container.drag-over {
+    transform: scale(1.12);
+}
+
+.pot-container.drag-over .pot {
+    filter: brightness(1.1);
+}
+
+.pot-container.correct {
+    animation: potCorrect 0.6s ease;
+}
+
+@keyframes potCorrect {
+    0%, 100% { transform: scale(1); }
+    30% { transform: scale(1.2); }
+    50% { transform: scale(0.95); }
+    70% { transform: scale(1.1); }
+}
+
+.pot-container.wrong {
+    animation: potWrong 0.5s ease;
+}
+
+@keyframes potWrong {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-12px); }
+    40% { transform: translateX(12px); }
+    60% { transform: translateX(-8px); }
+    80% { transform: translateX(8px); }
+}
+
+/* قابلمه SVG */
+.pot {
+    width: 72px;
+    height: 58px;
+    position: relative;
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+}
+
+.pot-body-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.pot-steam {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 3px;
+}
+
+.steam {
+    width: 5px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    animation: steamRise 1.2s infinite ease-out;
+}
+
+.steam:nth-child(2) {
+    animation-delay: 0.3s;
+    height: 20px;
+}
+
+.steam:nth-child(3) {
+    animation-delay: 0.6s;
+}
+
+@keyframes steamRise {
+    0% { transform: translateY(0) scale(1); opacity: 0.6; }
+    100% { transform: translateY(-22px) scale(1.8); opacity: 0; }
+}
+
+.pot-label {
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: white;
+    margin-top: 6px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.4);
+    padding: 4px 12px;
+    border-radius: 12px;
+    white-space: nowrap;
+    backdrop-filter: blur(5px);
+}
+
+/* نوار پیشرفت */
+.progress-bar-container {
+    width: 100%;
+    height: 7px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-blue), var(--color-green));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px var(--color-green);
+}
+
+/* ==================== صفحه تبریک ==================== */
+.celebration-container {
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+}
+
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -20px;
+    animation: confettiFall 3s ease-out forwards;
+}
+
+@keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+.result-card {
+    background: white;
+    border-radius: 28px;
+    padding: 35px 25px;
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+    animation: resultPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.result-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--success), var(--color-green), var(--color-blue));
+}
+
+@keyframes resultPop {
+    from { transform: scale(0.8) translateY(30px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.result-badge {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 18px;
+    animation: badgeBounce 1s ease infinite;
+}
+
+@keyframes badgeBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+
+.trophy-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 5px 15px rgba(255, 215, 0, 0.5));
+}
+
+.result-title {
+    font-size: 1.7rem;
+    color: var(--success);
+    margin-bottom: 6px;
+    font-weight: 900;
+}
+
+.result-subtitle {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 22px;
+}
+
+.result-stats {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #f8f9fa, #fff);
+    padding: 12px 16px;
+    border-radius: 14px;
+    box-shadow: var(--shadow-sm);
+    min-width: 90px;
+}
+
+.stat-item .stat-icon {
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+}
+
+.stat-item .stat-label {
+    font-size: 0.7rem;
+    color: #888;
+    margin-bottom: 2px;
+}
+
+.stat-item .stat-value {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--dark);
+}
+
+.stat-item .stat-unit {
+    font-size: 0.65rem;
+    color: #888;
+}
+
+.result-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.result-buttons .btn {
+    width: 100%;
+}
+
+/* ==================== صفحه پایان بازی ==================== */
+.game-over-container {
+    background: white;
+    border-radius: 28px;
+    padding: 35px 25px;
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+    max-width: 380px;
+    width: 100%;
+    animation: slideUp 0.5s ease;
+}
+
+.sad-chef {
+    width: 110px;
+    height: 110px;
+    margin: 0 auto 22px;
+    animation: sadBob 2s ease-in-out infinite;
+}
+
+@keyframes sadBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+.game-over-title {
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-bottom: 8px;
+    font-weight: 900;
+}
+
+.game-over-subtitle {
+    color: #666;
+    margin-bottom: 25px;
+    font-size: 0.95rem;
+}
+
+.game-over-stats {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #f8f9fa, #fff);
+    padding: 18px 25px;
+    border-radius: 18px;
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-box .stat-icon {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+}
+
+.stat-box .stat-number {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--dark);
+}
+
+.stat-box .stat-label {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+/* ==================== صفحه آمار ==================== */
+.stats-container {
+    background: white;
+    border-radius: 25px;
+    padding: 25px 18px;
+    max-width: 450px;
+    width: 100%;
+    box-shadow: var(--shadow-xl);
+    animation: slideUp 0.5s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.stats-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.stats-header h2 {
+    font-size: 1.2rem;
+    color: var(--purple);
+    flex: 1;
+}
+
+.stats-summary {
+    background: linear-gradient(135deg, var(--color-yellow), #ffd93d);
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 22px;
+    text-align: center;
+}
+
+.total-score-display {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.total-label {
+    font-size: 0.85rem;
+    color: var(--dark);
+    opacity: 0.8;
+}
+
+.total-value {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: var(--dark);
+    text-shadow: 2px 2px 0 rgba(255,255,255,0.5);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #f8f9fa, #fff);
+    border-radius: 14px;
+    padding: 15px 10px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: transform 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card-icon {
+    font-size: 1.6rem;
+}
+
+.stat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.stat-card-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #666;
+}
+
+.stat-card-label {
+    font-size: 0.65rem;
+    color: #888;
+}
+
+.stats-chart {
+    background: linear-gradient(135deg, #f8f9fa, #fff);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 18px;
+}
+
+.stats-chart h3 {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.chart-bars {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+}
+
+.chart-bar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.chart-bar {
+    width: 45px;
+    height: 90px;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    transition: height 0.5s ease;
+}
+
+.correct-bar {
+    background: linear-gradient(180deg, var(--success), #27ae60);
+}
+
+.wrong-bar {
+    background: linear-gradient(180deg, var(--danger), #c0392b);
+}
+
+.chart-label {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+/* ==================== صفحه مکث ==================== */
+.pause-container {
+    background: white;
+    border-radius: 28px;
+    padding: 40px 30px;
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+    max-width: 360px;
+    width: 100%;
+    animation: pausePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pausePop {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.pause-icon {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 22px;
+    animation: pausePulse 2s ease-in-out infinite;
+}
+
+@keyframes pausePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+.pause-container h2 {
+    font-size: 1.4rem;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.pause-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ==================== Toast Messages ==================== */
+#toast-container {
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+    width: 90%;
+    max-width: 350px;
+}
+
+.toast {
+    background: white;
+    padding: 13px 20px;
+    border-radius: 14px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: toastIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.toast.success { border-right: 4px solid var(--success); }
+.toast.error { border-right: 4px solid var(--danger); }
+.toast.warning { border-right: 4px solid var(--warning); }
+.toast.info { border-right: 4px solid var(--color-blue); }
+
+.toast.hiding {
+    animation: toastOut 0.3s ease forwards;
+}
+
+@keyframes toastIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes toastOut {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(-20px); opacity: 0; }
+}
+
+/* ==================== ریسپانسیو ==================== */
+
+/* موبایل کوچک */
+@media (max-width: 380px) {
+    .menu-container { padding: 28px 20px; }
+    .game-title { font-size: 1.7rem; }
+    .chef-avatar { width: 120px; height: 120px; }
+    .food-item { width: 54px; height: 54px; }
+    .food-emoji { font-size: 1.5rem; }
+    .food-name { font-size: 0.5rem; }
+    .pot { width: 62px; height: 50px; }
+    .pot-label { font-size: 0.6rem; }
+    .game-header { padding: 8px 10px; }
+    .timer-ring { width: 38px; height: 38px; }
+    .timer-display #timer { font-size: 1.2rem; }
+    .level-number { font-size: 1.1rem; }
+    .score-value { font-size: 1.1rem; }
+    .result-stats { gap: 10px; }
+    .stat-item { padding: 10px 12px; min-width: 80px; }
+    .game-over-stats { gap: 15px; }
+    .stat-box { padding: 14px 18px; }
+    .stat-box .stat-number { font-size: 1.5rem; }
+    .levels-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .level-btn { font-size: 1.1rem; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .category-grid { grid-template-columns: 1fr; }
+}
+
+/* موبایل متوسط */
+@media (min-width: 381px) and (max-width: 420px) {
+    .menu-container { padding: 30px 24px; }
+    .chef-avatar { width: 135px; height: 135px; }
+    .food-item { width: 58px; height: 58px; }
+    .food-emoji { font-size: 1.6rem; }
+    .pot { width: 68px; height: 55px; }
+    .levels-grid { gap: 11px; }
+}
+
+/* فبلت و تبلت کوچک */
+@media (min-width: 421px) and (max-width: 480px) {
+    .menu-container { max-width: 380px; }
+    .chef-avatar { width: 145px; height: 145px; }
+    .food-item { width: 60px; height: 60px; }
+    .pot { width: 70px; height: 56px; }
+}
+/* حالت افقی موبایل */
+@media (max-height: 500px) and (orientation: landscape) {
+    .menu-container {
+        padding: 20px 16px;
+        max-height: 95vh;
+        overflow-y: auto;
+    }
+    .chef-avatar {
+        width: 70px;
+        height: 70px;
+        margin-bottom: 12px;
+    }
+    .game-title {
+        font-size: 1.4rem;
+        margin-bottom: 4px;
+    }
+    .game-subtitle { margin-bottom: 12px; font-size: 0.85rem; }
+    .instructions-card { padding: 14px; }
+    .instructions-list li { padding: 6px 0; font-size: 0.8rem; }
+    .menu-actions { margin-bottom: 15px; }
+    .action-btn { width: 42px; height: 42px; font-size: 1.2rem; }
+    
+    .game-interface {
+        flex-direction: row;
+        gap: 8px;
+        padding: 6px;
+    }
+    .game-header {
+        flex-direction: column;
+        width: auto;
+        padding: 8px;
+        gap: 6px;
+    }
+    .game-content {
+        flex-direction: row;
+    }
+    .foods-shelf {
+        width: 32%;
+    }
+    .pots-area {
+        flex: 1;
+    }
+    .foods-tray {
+        flex-direction: column;
+        min-height: auto;
+        padding: 8px;
+        gap: 6px;
+    }
+    .food-item {
+        width: 48px;
+        height: 48px;
+    }
+    .food-emoji { font-size: 1.4rem; }
+    .food-name { display: none; }
+    .pot {
+        width: 55px;
+        height: 45px;
+    }
+    .pot-label { font-size: 0.55rem; padding: 3px 8px; }
+    .progress-bar-container { margin-top: 4px; }
+}
+
+/* تبلت */
+@media (min-width: 481px) and (max-width: 768px) {
+    .menu-container {
+        padding: 40px 35px;
+        max-width: 450px;
+    }
+    .chef-avatar {
+        width: 170px;
+        height: 170px;
+    }
+    .game-title {
+        font-size: 2.3rem;
+    }
+    .food-item {
+        width: 70px;
+        height: 70px;
+    }
+    .food-emoji {
+        font-size: 2rem;
+    }
+    .pot {
+        width: 85px;
+        height: 68px;
+    }
+    .levels-grid {
+        gap: 15px;
+    }
+    .level-btn {
+        font-size: 1.4rem;
+    }
+}
+
+/* دسکتاپ کوچک */
+@media (min-width: 769px) {
+    .menu-container {
+        padding: 45px 40px;
+        max-width: 480px;
+    }
+    .chef-avatar {
+        width: 180px;
+        height: 180px;
+    }
+    .game-title {
+        font-size: 2.5rem;
+    }
+    .game-subtitle {
+        font-size: 1.1rem;
+    }
+    .btn {
+        padding: 18px 30px;
+        font-size: 1.1rem;
+    }
+    .btn-large {
+        padding: 22px 38px;
+        font-size: 1.2rem;
+    }
+    .food-item {
+        width: 75px;
+        height: 75px;
+    }
+    .food-emoji {
+        font-size: 2.2rem;
+    }
+    .food-name {
+        font-size: 0.65rem;
+    }
+    .pot {
+        width: 90px;
+        height: 72px;
+    }
+    .pot-label {
+        font-size: 0.8rem;
+    }
+    .game-interface {
+        max-width: 600px;
+    }
+    .levels-grid {
+        gap: 18px;
+    }
+    .level-btn {
+        font-size: 1.5rem;
+    }
+}
+
+/* ریسپانسیو صفحه راهنما */
+@media (max-width: 380px) {
+    .help-container {
+        padding: 20px 15px;
+    }
+    .help-header h2 {
+        font-size: 1.1rem;
+    }
+    .help-section {
+        padding: 14px 12px;
+    }
+    .help-icon {
+        font-size: 1.8rem;
+    }
+    .help-section h3 {
+        font-size: 0.9rem;
+    }
+    .help-section p {
+        font-size: 0.8rem;
+    }
+    .category-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 481px) {
+    .help-container {
+        padding: 30px 25px;
+        max-width: 500px;
+    }
+    .help-section {
+        padding: 20px 18px;
+    }
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ریسپانسیو صفحه آمار */
+@media (max-width: 380px) {
+    .stats-container {
+        padding: 20px 14px;
+    }
+    .stats-header h2 {
+        font-size: 1.1rem;
+    }
+    .total-value {
+        font-size: 2.2rem;
+    }
+    .stat-card {
+        padding: 12px 8px;
+    }
+    .stat-card-value {
+        font-size: 1.3rem;
+    }
+    .chart-bar {
+        width: 38px;
+        height: 70px;
+    }
+}
+
+@media (min-width: 481px) {
+    .stats-container {
+        padding: 30px 22px;
+        max-width: 500px;
+    }
+    .stats-grid {
+        gap: 15px;
+    }
+    .stat-card {
+        padding: 18px 12px;
+    }
+    .chart-bar {
+        width: 50px;
+        height: 100px;
+    }
+}
+
+/* ریسپانسیو صفحه تبریک */
+@media (max-width: 380px) {
+    .result-card {
+        padding: 28px 18px;
+    }
+    .result-badge {
+        width: 75px;
+        height: 75px;
+    }
+    .result-title {
+        font-size: 1.4rem;
+    }
+    .result-stats {
+        gap: 10px;
+    }
+    .stat-item {
+        padding: 10px 12px;
+        min-width: 75px;
+    }
+    .stat-item .stat-value {
+        font-size: 1.2rem;
+    }
+}
+
+@media (min-width: 481px) {
+    .result-card {
+        padding: 40px 30px;
+    }
+    .result-badge {
+        width: 100px;
+        height: 100px;
+    }
+    .result-title {
+        font-size: 1.9rem;
+    }
+    .result-stats {
+        gap: 20px;
+    }
+}
+
+/* ریسپانسیو صفحه پایان بازی */
+@media (max-width: 380px) {
+    .game-over-container {
+        padding: 28px 20px;
+    }
+    .sad-chef {
+        width: 90px;
+        height: 90px;
+    }
+    .game-over-title {
+        font-size: 1.3rem;
+    }
+    .game-over-stats {
+        gap: 15px;
+    }
+    .stat-box {
+        padding: 14px 20px;
+    }
+    .stat-box .stat-number {
+        font-size: 1.5rem;
+    }
+}
+
+@media (min-width: 481px) {
+    .game-over-container {
+        padding: 40px 30px;
+        max-width: 420px;
+    }
+    .sad-chef {
+        width: 120px;
+        height: 120px;
+    }
+    .game-over-title {
+        font-size: 1.7rem;
+    }
+}
+
+/* ریسپانسیو صفحه مکث */
+@media (max-width: 380px) {
+    .pause-container {
+        padding: 32px 24px;
+    }
+    .pause-icon {
+        width: 75px;
+        height: 75px;
+    }
+    .pause-container h2 {
+        font-size: 1.2rem;
+    }
+}
+
+@media (min-width: 481px) {
+    .pause-container {
+        padding: 45px 35px;
+        max-width: 400px;
+    }
+    .pause-icon {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+/* بهبود اسکرول بار */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-blue);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-green);
+}
+
+/* انیمیشن‌های اضافی */
+.shimmer {
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.glow {
+    animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { box-shadow: 0 0 10px var(--color-blue); }
+    to { box-shadow: 0 0 25px var(--color-blue), 0 0 35px var(--color-green); }
+}
+
+/* بهبود دسترسی برای کیبورد */
+.btn:focus,
+.back-btn:focus,
+.pause-btn:focus,
+.action-btn:focus,
+.level-btn:focus {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+}
+
+/* حالت چاپ */
+@media print {
+    body {
+        background: white;
+    }
+    .screen {
+        position: relative;
+        display: none;
+    }
+    .screen.active {
+        display: block;
+    }
+}
+
+/* پشتیبانی از حالت تاریک سیستم */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --dark: #ecf0f1;
+        --dark-light: #bdc3c7;
+    }
+}
+
+/* پشتیبانی از کاهش حرکت */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* فیکس‌های مرورگر */
+@supports (-webkit-touch-callout: none) {
+    body {
+        min-height: -webkit-fill-available;
+    }
+    .screen {
+        min-height: -webkit-fill-available;
+    }
+}
+
+/* بهبود عملکرد */
+.food-item,
+.pot-container,
+.btn,
+.level-btn,
+.action-btn,
+.back-btn,
+.pause-btn {
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+/* فیکس‌های امنیتی */
+.btn::after,
+.food-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+   </style>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍳</text></svg>">
+</head>
+<body>
+    <!-- پیام‌های Toast -->
+    <div id="toast-container"></div>
+
+    <!-- صفحه اصلی - منو -->
+    <div id="main-menu" class="screen active">
+        <div class="menu-bg">
+            <div class="floating-ingredient" style="--delay: 0s; --x: 10%;">🍅</div>
+            <div class="floating-ingredient" style="--delay: 1s; --x: 85%;">🥬</div>
+            <div class="floating-ingredient" style="--delay: 2s; --x: 20%;">🧅</div>
+            <div class="floating-ingredient" style="--delay: 0.5s; --x: 75%;">🥕</div>
+            <div class="floating-ingredient" style="--delay: 1.5s; --x: 60%;">🍆</div>
+            <div class="floating-ingredient" style="--delay: 2.5s; --x: 40%;">🥦</div>
+        </div>
+        
+        <div class="menu-container">
+            <div class="chef-avatar">
+                <svg viewBox="0 0 200 200" class="chef-svg">
+                    <ellipse cx="100" cy="45" rx="55" ry="25" fill="#fff"/>
+                    <path d="M50 50 Q50 15 100 15 Q150 15 150 50" fill="#fff" stroke="#e0e0e0" stroke-width="2"/>
+                    <ellipse cx="100" cy="35" rx="45" ry="18" fill="#f8f8f8"/>
+                    <ellipse cx="100" cy="80" rx="40" ry="35" fill="#FFDAB9"/>
+                    <ellipse cx="82" cy="75" rx="6" ry="8" fill="#fff"/>
+                    <ellipse cx="118" cy="75" rx="6" ry="8" fill="#fff"/>
+                    <circle cx="84" cy="77" r="4" fill="#4a4a4a"/>
+                    <circle cx="120" cy="77" r="4" fill="#4a4a4a"/>
+                    <circle cx="85" cy="75" r="1.5" fill="#fff"/>
+                    <circle cx="121" cy="75" r="1.5" fill="#fff"/>
+                    <ellipse cx="65" cy="90" rx="8" ry="5" fill="#ffb6b6" opacity="0.5"/>
+                    <ellipse cx="135" cy="90" rx="8" ry="5" fill="#ffb6b6" opacity="0.5"/>
+                    <path d="M85 95 Q100 110 115 95" stroke="#d4716c" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    <path d="M75 88 Q85 82 100 88 Q115 82 125 88" stroke="#6b4423" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    <path d="M60 115 Q50 180 50 200 L150 200 Q150 180 140 115" fill="#fff"/>
+                    <path d="M70 120 L130 120 L125 180 L75 180 Z" fill="#f0f0f0"/>
+                    <circle cx="100" cy="140" r="6" fill="#e74c3c"/>
+                    <circle cx="100" cy="160" r="6" fill="#e74c3c"/>
+                    <ellipse cx="45" cy="130" rx="12" ry="25" fill="#FFDAB9"/>
+                    <ellipse cx="155" cy="130" rx="12" ry="25" fill="#FFDAB9"/>
+                    <rect x="25" y="120" width="4" height="50" rx="2" fill="#c0c0c0" transform="rotate(-20 27 145)"/>
+                    <ellipse cx="20" cy="115" rx="8" ry="12" fill="#c0c0c0" transform="rotate(-20 20 115)"/>
+                </svg>
+                <div class="chef-sparkle"></div>
+            </div>
+            
+            <h1 class="game-title">
+                <span class="title-icon">🍳</span>
+                آشپز کوچولو
+            </h1>
+            <p class="game-subtitle">بیا مواد غذایی رو توی قابلمه‌های درست بنداز!</p>
+            
+            <div class="menu-buttons">
+                <button class="btn btn-primary btn-large" onclick="showLevelSelect()">
+                    <span class="btn-icon">🎮</span>
+                    <span>شروع بازی</span>
+                    <span class="btn-arrow">→</span>
+                </button>
+                <button class="btn btn-secondary" onclick="showStats()">
+                    <span class="btn-icon">📊</span>
+                    <span>آمار بازی</span>
+                </button>
+            </div>
+            
+            <div class="menu-actions">
+                <button class="action-btn" onclick="toggleSound()" title="تغییر صدا">
+                    <span id="sound-icon">🔊</span>
+                </button>
+                <button class="action-btn" onclick="showHelp()" title="راهنما">
+                    <span>❓</span>
+                </button>
+            </div>
+            
+
+            
+            <div class="decorative-line"></div>
+            <p class="copyright">© 1405 آشپز کوچولو</p>
+        </div>
+    </div>
+
+    <!-- صفحه راهنما -->
+    <div id="help-screen" class="screen">
+        <div class="help-container">
+            <div class="help-header">
+                <button class="back-btn" onclick="goBack()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <h2>❓ راهنمای بازی</h2>
+            </div>
+            
+            <div class="help-content">
+                <div class="help-section">
+                    <div class="help-icon">🎮</div>
+                    <h3>چطور بازی کنیم؟</h3>
+                    <p>مواد غذایی رو از قفسه بالا بگیر و بکش روی قابلمه‌ی درست!</p>
+                </div>
+                
+                <div class="help-section">
+                    <div class="help-icon">⭐</div>
+                    <h3>امتیاز</h3>
+                    <p>هر پاسخ درست = ۱۰ امتیاز<br>هر پاسخ غلط = -۵ امتیاز</p>
+                </div>
+                
+                <div class="help-section">
+                    <div class="help-icon">🏆</div>
+                    <h3>ستاره‌ها</h3>
+                    <p>۱ ستاره: تمام کنی<br>۲ ستاره: نیمی از زمان بمونه<br>۳ ستاره: سه‌چهارم زمان بمونه</p>
+                </div>
+                
+                <div class="help-section">
+                    <div class="help-icon">📱</div>
+                    <h3>کنترل‌ها</h3>
+                    <p>موس: کلیک و کشیدن<br>تاچ: لمس و کشیدن<br>ESC: مکث بازی</p>
+                </div>
+                
+                <div class="help-section categories-help">
+                    <h3>دسته‌بندی مواد</h3>
+                    <div class="category-grid">
+                        <div class="category-item">
+                            <span>🥬</span>
+                            <span>سبزیجات</span>
+                        </div>
+                        <div class="category-item">
+                            <span>🍎</span>
+                            <span>میوه‌ها</span>
+                        </div>
+                        <div class="category-item">
+                            <span>🧂</span>
+                            <span>ادویه‌جات</span>
+                        </div>
+                        <div class="category-item">
+                            <span>🍗</span>
+                            <span>پروتئین‌ها</span>
+                        </div>
+                        <div class="category-item">
+                            <span>🥛</span>
+                            <span>لبنیات</span>
+                        </div>
+                        <div class="category-item">
+                            <span>🍚</span>
+                            <span>غلات</span>
+                        </div>
+                        <div class="category-item">
+                            <span>🫘</span>
+                            <span>حبوبات</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary btn-large" onclick="showMenu()">
+                <span>🏠</span>
+                <span>بازگشت به منو</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- صفحه انتخاب مرحله -->
+    <div id="level-select" class="screen">
+        <div class="level-select-container">
+            <div class="level-header">
+                <button class="back-btn" onclick="showMenu()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <h2>انتخاب مرحله</h2>
+            </div>
+            <div class="levels-grid" id="levels-grid"></div>
+            <div class="level-legend">
+                <div class="legend-item">
+                    <span class="legend-dot completed"></span>
+                    <span>تکمیل شده</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot current"></span>
+                    <span>مرحله فعلی</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot locked"></span>
+                    <span>قفل شده</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه بازی -->
+    <div id="game-screen" class="screen">
+        <div class="kitchen-scene">
+            <div class="kitchen-wall">
+                <div class="tile-pattern"></div>
+                <div class="tile-shine"></div>
+            </div>
+            <div class="kitchen-shelf top-shelf">
+                <div class="shelf-board">
+                    <div class="shelf-item">
+                        <svg viewBox="0 0 40 50"><path d="M5 45 L20 5 L35 45 Z" fill="#8B4513"/><path d="M8 42 L20 10 L32 42 Z" fill="#A0522D"/></svg>
+                    </div>
+                    <div class="shelf-item">
+                        <svg viewBox="0 0 40 50"><rect x="5" y="10" width="30" height="35" rx="3" fill="#4a90a4"/><rect x="8" y="13" width="24" height="10" rx="2" fill="#87CEEB"/></svg>
+                    </div>
+                    <div class="shelf-item">
+                        <svg viewBox="0 0 40 50"><ellipse cx="20" cy="35" rx="15" ry="12" fill="#c0c0c0"/><ellipse cx="20" cy="20" rx="12" ry="15" fill="#d0d0d0"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="kitchen-counter">
+                <div class="counter-surface">
+                    <div class="counter-edge"></div>
+                </div>
+                <div class="counter-cabinets">
+                    <div class="cabinet door-left">
+                        <div class="cabinet-handle"></div>
+                    </div>
+                    <div class="cabinet drawer">
+                        <div class="cabinet-handle"></div>
+                    </div>
+                    <div class="cabinet door-right">
+                        <div class="cabinet-handle"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="stove-area">
+                <div class="stove-top">
+                    <div class="burner-group">
+                        <div class="burner"><div class="flame flame-1"></div><div class="flame flame-2"></div></div>
+                        <div class="burner"><div class="flame flame-1"></div><div class="flame flame-2"></div></div>
+                    </div>
+                    <div class="burner-group">
+                        <div class="burner"><div class="flame flame-1"></div><div class="flame flame-2"></div></div>
+                        <div class="burner"><div class="flame flame-1"></div><div class="flame flame-2"></div></div>
+                    </div>
+                </div>
+                <div class="stove-front">
+                    <div class="oven-door">
+                        <div class="oven-window"></div>
+                        <div class="oven-handle"></div>
+                    </div>
+                    <div class="stove-knobs">
+                        <div class="knob"></div>
+                        <div class="knob"></div>
+                        <div class="knob"></div>
+                        <div class="knob"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="kitchen-floor"></div>
+        </div>
+        
+        <div class="game-interface">
+            <div class="game-header">
+                <button class="pause-btn" onclick="pauseGame()">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="6" y="4" width="4" height="16"/>
+                        <rect x="14" y="4" width="4" height="16"/>
+                    </svg>
+                </button>
+                <div class="level-indicator">
+                    <span class="level-label">مرحله</span>
+                    <span class="level-number" id="current-level">1</span>
+                </div>
+                <div class="timer-container">
+                    <div class="timer-ring">
+                        <svg viewBox="0 0 36 36">
+                            <circle class="timer-bg" cx="18" cy="18" r="16"/>
+                            <circle class="timer-progress" id="timer-progress" cx="18" cy="18" r="16"/>
+                        </svg>
+                    </div>
+                    <div class="timer-display">
+                        <span id="timer">60</span>
+                        <span class="timer-unit">ثانیه</span>
+                    </div>
+                </div>
+                <div class="score-container">
+                    <span class="score-icon">⭐</span>
+                    <span class="score-value" id="score">0</span>
+                </div>
+            </div>
+            
+            <div class="game-content">
+                <div class="foods-shelf">
+                    <div class="shelf-rail">
+                        <div class="rail-end left"></div>
+                        <div class="rail-bar"></div>
+                        <div class="rail-end right"></div>
+                    </div>
+                    <div class="foods-tray" id="foods-container"></div>
+                </div>
+                
+                <div class="pots-area">
+                    <div class="pots-grid" id="pots-grid"></div>
+                </div>
+            </div>
+            
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه تبریک -->
+    <div id="level-complete" class="screen">
+        <div class="celebration-container">
+            <div class="confetti-container" id="confetti"></div>
+            <div class="result-card">
+                <div class="result-badge">
+                    <svg viewBox="0 0 100 100" class="trophy-svg">
+                        <path d="M20 35 L20 25 Q20 10 50 10 Q80 10 80 25 L80 35" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
+                        <path d="M25 35 L25 75 Q25 85 50 85 Q75 85 75 75 L75 35" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
+                        <ellipse cx="50" cy="45" rx="20" ry="15" fill="#FFA500"/>
+                        <text x="50" y="52" text-anchor="middle" font-size="16" fill="#fff" font-weight="bold">★</text>
+                        <rect x="35" y="75" width="30" height="8" fill="#DAA520"/>
+                        <circle cx="35" cy="79" r="4" fill="#FFD700"/>
+                        <circle cx="65" cy="79" r="4" fill="#FFD700"/>
+                    </svg>
+                </div>
+                <h2 class="result-title">آفرین! 🎉</h2>
+                <p class="result-subtitle">مرحله <span id="completed-level">1</span> رو تموم کردی!</p>
+                <div class="result-stats">
+                    <div class="stat-item">
+                        <span class="stat-icon">⏱️</span>
+                        <span class="stat-label">زمان باقیمانده</span>
+                        <span class="stat-value" id="time-left">0</span>
+                        <span class="stat-unit">ثانیه</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">⭐</span>
+                        <span class="stat-label">امتیاز این مرحله</span>
+                        <span class="stat-value" id="level-score">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🎯</span>
+                        <span class="stat-label">درصد صحیح</span>
+                        <span class="stat-value" id="accuracy">0</span>
+                        <span class="stat-unit">%</span>
+                    </div>
+                </div>
+                <div class="result-buttons">
+                    <button class="btn btn-success btn-large" onclick="nextLevel()">
+                        <span>مرحله بعدی</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="retryLevel()">
+                        <span>🔄</span>
+                        <span>تکرار مرحله</span>
+                    </button>
+                    <button class="btn btn-tertiary" onclick="showLevelSelect()">
+                        <span>📋</span>
+                        <span>انتخاب مرحله</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه پایان بازی -->
+    <div id="game-over" class="screen">
+        <div class="game-over-container">
+            <div class="sad-chef">
+                <svg viewBox="0 0 150 150">
+                    <ellipse cx="75" cy="60" rx="35" ry="30" fill="#FFDAB9"/>
+                    <ellipse cx="60" cy="55" rx="5" ry="6" fill="#4a4a4a"/>
+                    <ellipse cx="90" cy="55" rx="5" ry="6" fill="#4a4a4a"/>
+                    <path d="M65 75 Q75 65 85 75" stroke="#d4716c" stroke-width="2" fill="none"/>
+                    <path d="M55 70 Q75 60 95 70" stroke="#6b4423" stroke-width="3" fill="none"/>
+                    <ellipse cx="75" cy="90" rx="30" ry="25" fill="#fff"/>
+                    <path d="M55 100 Q50 130 50 145 L100 145 Q100 130 95 100" fill="#fff"/>
+                    <text x="75" y="125" text-anchor="middle" font-size="30">😢</text>
+                </svg>
+            </div>
+            <h2 class="game-over-title">اوه! وقت تموم شد!</h2>
+            <p class="game-over-subtitle">نگران نباش، می‌تونی دوباره تلاش کنی!</p>
+            <div class="game-over-stats">
+                <div class="stat-box">
+                    <span class="stat-icon">🏆</span>
+                    <span class="stat-number" id="reached-level">1</span>
+                    <span class="stat-label">مرحله رسیده</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-icon">⭐</span>
+                    <span class="stat-number" id="total-score">0</span>
+                    <span class="stat-label">امتیاز کل</span>
+                </div>
+            </div>
+            <div class="result-buttons">
+                <button class="btn btn-primary btn-large" onclick="restartGame()">
+                    <span>🔄</span>
+                    <span>بازی مجدد</span>
+                </button>
+                <button class="btn btn-secondary" onclick="showLevelSelect()">
+                    <span>📋</span>
+                    <span>انتخاب مرحله</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه آمار -->
+    <div id="stats-screen" class="screen">
+        <div class="stats-container">
+            <div class="stats-header">
+                <button class="back-btn" onclick="showMenu()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <h2>📊 آمار بازی</h2>
+            </div>
+            <div class="stats-summary">
+                <div class="total-score-display">
+                    <span class="total-label">امتیاز کل</span>
+                    <span class="total-value" id="stat-total-score">0</span>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-icon">🎮</div>
+                    <div class="stat-card-content">
+                        <span class="stat-card-value" id="stat-games">0</span>
+                        <span class="stat-card-label">تعداد بازی</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon">🏆</div>
+                    <div class="stat-card-content">
+                        <span class="stat-card-value" id="stat-wins">0</span>
+                        <span class="stat-card-label">تعداد برد</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon">✅</div>
+                    <div class="stat-card-content">
+                        <span class="stat-card-value" id="stat-correct">0</span>
+                        <span class="stat-card-label">حرکات درست</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon">❌</div>
+                    <div class="stat-card-content">
+                        <span class="stat-card-value" id="stat-wrong">0</span>
+                        <span class="stat-card-label">حرکات غلط</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon">⏱️</div>
+                    <div class="stat-card-content">
+                        <span class="stat-card-value" id="stat-best-time">-</span>
+                        <span class="stat-card-label">بهترین زمان</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon">📈</div>
+                    <div class="stat-card-content">
+                        <span class="stat-card-value" id="stat-max-level">0</span>
+                        <span class="stat-card-label">بیشترین مرحله</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-chart">
+                <h3>عملکرد شما</h3>
+                <div class="chart-bars">
+                    <div class="chart-bar-container">
+                        <div class="chart-bar correct-bar" id="chart-correct"></div>
+                        <span class="chart-label">درست</span>
+                    </div>
+                    <div class="chart-bar-container">
+                        <div class="chart-bar wrong-bar" id="chart-wrong"></div>
+                        <span class="chart-label">غلط</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-secondary btn-full" onclick="resetStats()">
+                <span>🗑️</span>
+                <span>ریست آمار</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- صفحه مکث -->
+    <div id="pause-screen" class="screen">
+        <div class="pause-container">
+            <div class="pause-icon">
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="#fff" stroke="#ddd" stroke-width="3"/>
+                    <rect x="30" y="25" width="12" height="50" rx="3" fill="#4a90a4"/>
+                    <rect x="58" y="25" width="12" height="50" rx="3" fill="#4a90a4"/>
+                </svg>
+            </div>
+            <h2>بازی متوقف شد</h2>
+            <div class="pause-buttons">
+                <button class="btn btn-primary btn-large" onclick="resumeGame()">
+                    <span>▶️</span>
+                    <span>ادامه بازی</span>
+                </button>
+                <button class="btn btn-secondary" onclick="restartGame()">
+                    <span>🔄</span>
+                    <span>شروع مجدد</span>
+                </button>
+                <button class="btn btn-tertiary" onclick="showLevelSelect()">
+                    <span>📋</span>
+                    <span>انتخاب مرحله</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+ * آشپز کوچولو - بازی یادگیری تفکیک مواد غذایی
+ * نسخه بازنویسی شده و بهینه
+ * 
+ * @author ZharfaTech
+ * @version 2.0
+ */
+
+// ==================== داده‌های بازی ====================
+const FOOD_DATA = {
+    'سبزیجات': [
+        { name: 'سبزی قورمه', emoji: '🥬' },
+        { name: 'پیاز', emoji: '🧅' },
+        { name: 'فلفل', emoji: '🫑' },
+        { name: 'گوجه', emoji: '🍅' },
+        { name: 'سیر', emoji: '🧄' },
+        { name: 'کرفس', emoji: '🥬' },
+        { name: 'جعفری', emoji: '🌿' },
+        { name: 'بادمجان', emoji: '🍆' },
+        { name: 'خیار', emoji: '🥒' },
+        { name: 'هویج', emoji: '🥕' }
+    ],
+    'میوه‌ها': [
+        { name: 'سیب', emoji: '🍎' },
+        { name: 'گلابی', emoji: '🍐' },
+        { name: 'آلو', emoji: '🟣' },
+        { name: 'زردآلو', emoji: '🟠' },
+        { name: 'هندوانه', emoji: '🍉' },
+        { name: 'انگور', emoji: '🍇' },
+        { name: 'موز', emoji: '🍌' },
+        { name: 'پرتقال', emoji: '🍊' },
+        { name: 'هلو', emoji: '🍑' },
+        { name: 'آلبالو', emoji: '🍒' }
+    ],
+    'ادویه‌جات': [
+        { name: 'زردچوبه', emoji: '🟡' },
+        { name: 'فلفل قرمز', emoji: '🔴' },
+        { name: 'دارچین', emoji: '🟤' },
+        { name: 'زنجبیل', emoji: '🫚' },
+        { name: 'هل', emoji: '🟢' },
+        { name: 'زعفران', emoji: '🟡' },
+        { name: 'نمک', emoji: '🧂' },
+        { name: 'فلفل سیاه', emoji: '⚫' }
+    ],
+    'پروتئین‌ها': [
+        { name: 'مرغ', emoji: '🍗' },
+        { name: 'گوشت', emoji: '🥩' },
+        { name: 'ماهی', emoji: '🐟' },
+        { name: 'میگو', emoji: '🦐' },
+        { name: 'تخم مرغ', emoji: '🥚' }
+    ],
+    'لبنیات': [
+        { name: 'شیر', emoji: '🥛' },
+        { name: 'ماست', emoji: '🥛' },
+        { name: 'پنیر', emoji: '🧀' },
+        { name: 'کره', emoji: '🧈' }
+    ],
+    'غلات': [
+        { name: 'برنج', emoji: '🍚' },
+        { name: 'ماکارونی', emoji: '🍝' },
+        { name: 'نان', emoji: '🍞' },
+        { name: 'آرد', emoji: '🌾' }
+    ],
+    'حبوبات': [
+        { name: 'لوبیا', emoji: '🫘' },
+        { name: 'نخود', emoji: '🟤' },
+        { name: 'عدس', emoji: '🟠' },
+        { name: 'ذرت', emoji: '🌽' }
+    ]
+};
+
+const GAME_CONFIG = {
+    levels: [
+        { items: 3, time: 60, stars: 1 },
+        { items: 4, time: 55, stars: 2 },
+        { items: 5, time: 50, stars: 2 },
+        { items: 6, time: 45, stars: 3 },
+        { items: 7, time: 40, stars: 3 },
+        { items: 8, time: 45, stars: 3 },
+        { items: 9, time: 40, stars: 3 },
+        { items: 10, time: 35, stars: 3 },
+        { items: 12, time: 60, stars: 3 },
+        { items: 15, time: 55, stars: 3 }
+    ],
+    categories: Object.keys(FOOD_DATA),
+    storageKey: 'cookingGameStats_v2'
+};
+
+// ==================== کلاس بازی ====================
+class CookingGame {
+    constructor() {
+        // وضعیت بازی
+        this.currentLevel = 0;
+        this.currentItems = [];
+        this.score = 0;
+        this.timer = 60;
+        this.timerInterval = null;
+        this.isActive = false;
+        this.isPaused = false;
+        
+        // وضعیت دراگ
+        this.draggedItem = null;
+        this.isDragging = false;
+        this.dragOffset = { x: 0, y: 0 };
+        
+        // آمار
+        this.correctMoves = 0;
+        this.wrongMoves = 0;
+        this.soundEnabled = true;
+        
+        // بارگذاری آمار
+        this.stats = this.loadStats();
+        
+        // صوت
+        this.audioContext = null;
+        
+        // صفحه قبلی برای دکمه بازگشت
+        this.previousScreen = 'main-menu';
+        
+        // اتصال رویدادها
+        this.bindEvents();
+    }
+
+    // ==================== مدیریت صدا ====================
+    initAudio() {
+        try {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            console.warn('Web Audio API پشتیبانی نمی‌شود');
+        }
+    }
+
+    playTone(frequency, duration = 0.1, type = 'sine', volume = 0.2) {
+        if (!this.soundEnabled || !this.audioContext) return;
+        
+        if (this.audioContext.state === 'suspended') {
+            this.audioContext.resume();
+        }
+        
+        try {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+            gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+            oscillator.start(this.audioContext.currentTime);
+            oscillator.stop(this.audioContext.currentTime + duration);
+        } catch (e) {
+            console.warn('خطای پخش صدا:', e);
+        }
+    }
+
+    playSound(type) {
+        const sounds = {
+            correct: () => this.playTone(880, 0.1, 'sine', 0.25),
+            wrong: () => this.playTone(200, 0.25, 'sawtooth', 0.25),
+            click: () => this.playTone(600, 0.05, 'sine', 0.15),
+            hover: () => this.playTone(400, 0.03, 'sine', 0.1),
+            win: () => {
+                [523, 659, 784, 1047].forEach((freq, i) => {
+                    setTimeout(() => this.playTone(freq, 0.15, 'sine', 0.2), i * 100);
+                });
+            },
+            lose: () => {
+                [400, 300, 200, 150].forEach((freq, i) => {
+                    setTimeout(() => this.playTone(freq, 0.2, 'sawtooth', 0.2), i * 150);
+                });
+            }
+        };
+        
+        if (sounds[type]) sounds[type]();
+    }
+
+    toggleSound() {
+        this.soundEnabled = !this.soundEnabled;
+        const icon = document.getElementById('sound-icon');
+        if (icon) icon.textContent = this.soundEnabled ? '🔊' : '🔇';
+        if (this.soundEnabled) this.playSound('click');
+    }
+
+    // ==================== مدیریت صفحات ====================
+    showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const screen = document.getElementById(screenId);
+        if (screen) screen.classList.add('active');
+    }
+
+    showMenu() {
+        this.showScreen('main-menu');
+    }
+
+    showHelp() {
+        this.previousScreen = 'main-menu';
+        this.showScreen('help-screen');
+        this.playSound('click');
+    }
+
+    goBack() {
+        this.showScreen(this.previousScreen);
+        this.playSound('click');
+    }
+
+    // ==================== مدیریت آمار ====================
+    loadStats() {
+        const defaultStats = {
+            gamesPlayed: 0,
+            gamesWon: 0,
+            correctMoves: 0,
+            wrongMoves: 0,
+            bestTime: null,
+            maxLevel: 0,
+            levelStars: {}
+        };
+        
+        try {
+            const saved = localStorage.getItem(GAME_CONFIG.storageKey);
+            return saved ? JSON.parse(saved) : defaultStats;
+        } catch (e) {
+            console.error('خطا در بارگذاری آمار:', e);
+            return defaultStats;
+        }
+    }
+
+    saveStats() {
+        try {
+            localStorage.setItem(GAME_CONFIG.storageKey, JSON.stringify(this.stats));
+        } catch (e) {
+            console.error('خطا در ذخیره آمار:', e);
+        }
+    }
+
+    resetStats() {
+        if (confirm('آیا مطمئن هستید که می‌خواهید آمار را ریست کنید؟')) {
+            this.stats = {
+                gamesPlayed: 0,
+                gamesWon: 0,
+                correctMoves: 0,
+                wrongMoves: 0,
+                bestTime: null,
+                maxLevel: 0,
+                levelStars: {}
+            };
+            this.saveStats();
+            this.showStats();
+            this.showToast('آمار ریست شد', 'success');
+            this.playSound('click');
+        }
+    }
+
+    // ==================== صفحه انتخاب مرحله ====================
+    showLevelSelect() {
+        this.previousScreen = 'main-menu';
+        this.renderLevelsGrid();
+        this.showScreen('level-select');
+        this.playSound('click');
+    }
+
+    renderLevelsGrid() {
+        const grid = document.getElementById('levels-grid');
+        if (!grid) return;
+        
+        grid.innerHTML = '';
+        
+        GAME_CONFIG.levels.forEach((level, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'level-btn';
+            
+            const isUnlocked = index === 0 || this.stats.levelStars[index - 1] !== undefined;
+            const isCompleted = this.stats.levelStars[index] !== undefined;
+            
+            if (isCompleted) {
+                btn.classList.add('completed');
+                const stars = this.stats.levelStars[index] || 0;
+                btn.innerHTML = `
+                    <span>${index + 1}</span>
+                    <span class="level-stars">${'⭐'.repeat(stars)}</span>
+                `;
+            } else if (isUnlocked) {
+                btn.innerHTML = `<span>${index + 1}</span>`;
+                btn.onclick = () => this.startLevel(index);
+            } else {
+                btn.classList.add('locked');
+                btn.innerHTML = `<span>${index + 1}</span><span>🔒</span>`;
+            }
+            
+            grid.appendChild(btn);
+        });
+    }
+
+    // ==================== شروع بازی ====================
+    startGame() {
+        this.currentLevel = 0;
+        this.score = 0;
+        this.stats.gamesPlayed++;
+        this.saveStats();
+        this.startLevel(0);
+        this.playSound('click');
+    }
+
+    restartGame() {
+        this.startGame();
+    }
+
+    retryLevel() {
+        this.startLevel(this.currentLevel);
+        this.playSound('click');
+    }
+
+    nextLevel() {
+        this.currentLevel++;
+        if (this.currentLevel >= GAME_CONFIG.levels.length) {
+            this.showGameComplete();
+            return;
+        }
+        this.startLevel(this.currentLevel);
+        this.playSound('click');
+    }
+
+    startLevel(levelIndex) {
+        this.currentLevel = levelIndex;
+        const levelConfig = GAME_CONFIG.levels[this.currentLevel];
+        
+        this.timer = levelConfig.time;
+        this.currentItems = [];
+        this.correctMoves = 0;
+        this.wrongMoves = 0;
+        this.isActive = true;
+        this.isPaused = false;
+        
+        // انتخاب تصادفی 3 دسته
+        const categories = [...GAME_CONFIG.categories]
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3);
+        
+        // انتخاب مواد از دسته‌های انتخاب شده
+        const itemsPerCategory = Math.ceil(levelConfig.items / categories.length);
+        
+        categories.forEach(category => {
+            const items = [...FOOD_DATA[category]]
+                .sort(() => Math.random() - 0.5)
+                .slice(0, itemsPerCategory);
+            
+            items.forEach(item => {
+                this.currentItems.push({
+                    ...item,
+                    category: category,
+                    id: 'food_' + Math.random().toString(36).substr(2, 9)
+                });
+            });
+        });
+        
+        // محدود کردن تعداد مواد
+        this.currentItems = this.currentItems.slice(0, levelConfig.items);
+        
+        // ترتیب تصادفی
+        this.currentItems.sort(() => Math.random() - 0.5);
+        
+        this.renderGame();
+        this.updateUI();
+        this.startTimer();
+        this.showScreen('game-screen');
+        
+        setTimeout(() => this.showToast('بیا شروع کنیم! 🎮', 'info'), 500);
+    }
+
+    // ==================== رندر بازی ====================
+    renderGame() {
+        const foodsContainer = document.getElementById('foods-container');
+        const potsGrid = document.getElementById('pots-grid');
+        
+        if (!foodsContainer || !potsGrid) return;
+        
+        // رندر مواد غذایی
+        foodsContainer.innerHTML = '';
+        
+        this.currentItems.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'food-item';
+            div.dataset.id = item.id;
+            div.dataset.category = item.category;
+            div.style.animationDelay = `${index * 0.04}s`;
+            div.innerHTML = `
+                <span class="food-emoji">${item.emoji}</span>
+                <span class="food-name">${item.name}</span>
+            `;
+            
+            // رویدادهای موس
+            div.addEventListener('mousedown', (e) => this.onDragStart(e));
+            div.addEventListener('mouseenter', () => this.playSound('hover'));
+            
+            // رویدادهای تاچ
+            div.addEventListener('touchstart', (e) => this.onDragStart(e), { passive: false });
+            
+            foodsContainer.appendChild(div);
+        });
+        
+        // رندر قابلمه‌ها
+        potsGrid.innerHTML = '';
+        
+        GAME_CONFIG.categories.forEach(cat => {
+            const div = document.createElement('div');
+            div.className = 'pot-container';
+            div.dataset.category = cat;
+            div.innerHTML = this.getPotHTML(cat);
+            div.addEventListener('mouseenter', () => this.playSound('hover'));
+            potsGrid.appendChild(div);
+        });
+    }
+
+    getPotHTML(category) {
+        return `
+            <div class="pot">
+                <div class="pot-steam">
+                    <div class="steam"></div>
+                    <div class="steam"></div>
+                    <div class="steam"></div>
+                </div>
+                <svg class="pot-body-svg" viewBox="0 0 80 65">
+                    <path d="M5 20 Q-5 25 -5 35 Q-5 45 5 48" stroke="#7f8c8d" stroke-width="6" fill="none" stroke-linecap="round"/>
+                    <path d="M75 20 Q85 25 85 35 Q85 45 75 48" stroke="#7f8c8d" stroke-width="6" fill="none" stroke-linecap="round"/>
+                    <path d="M10 15 L15 55 Q15 62 40 62 Q65 62 65 55 L70 15 Z" fill="url(#potGradient)"/>
+                    <path d="M18 20 Q20 45 18 55" stroke="rgba(255,255,255,0.3)" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    <ellipse cx="40" cy="15" rx="30" ry="6" fill="#c0392b"/>
+                    <ellipse cx="40" cy="15" rx="26" ry="4" fill="#e74c3c"/>
+                    <ellipse cx="40" cy="12" rx="22" ry="5" fill="#95a5a6"/>
+                    <ellipse cx="40" cy="10" rx="18" ry="4" fill="#7f8c8d"/>
+                    <ellipse cx="40" cy="6" rx="8" ry="3" fill="#5d6d7e"/>
+                    <defs>
+                        <linearGradient id="potGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#e74c3c"/>
+                            <stop offset="50%" style="stop-color:#c0392b"/>
+                            <stop offset="100%" style="stop-color:#a93226"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <span class="pot-label">${category}</span>
+        `;
+    }
+
+    // ==================== Drag & Drop ====================
+    onDragStart(e) {
+        if (!this.isActive || this.isPaused) return;
+        
+        e.preventDefault();
+        
+        const item = e.target.closest('.food-item');
+        if (!item) return;
+        
+        const touch = e.touches ? e.touches[0] : e;
+        
+        this.draggedItem = {
+            id: item.dataset.id,
+            category: item.dataset.category,
+            element: item
+        };
+        
+        const rect = item.getBoundingClientRect();
+        this.dragOffset.x = touch.clientX - rect.left;
+        this.dragOffset.y = touch.clientY - rect.top;
+        
+        // اعمال استایل دراگ
+        item.classList.add('dragging');
+        item.style.left = (touch.clientX - this.dragOffset.x) + 'px';
+        item.style.top = (touch.clientY - this.dragOffset.y) + 'px';
+        item.style.position = 'fixed';
+        item.style.zIndex = '1000';
+        
+        this.isDragging = true;
+        this.playSound('click');
+    }
+
+    onDragMove(e) {
+        if (!this.isDragging || !this.draggedItem) return;
+        
+        e.preventDefault();
+        
+        const touch = e.touches ? e.touches[0] : e;
+        const item = this.draggedItem.element;
+        
+        if (item) {
+            item.style.left = (touch.clientX - this.dragOffset.x) + 'px';
+            item.style.top = (touch.clientY - this.dragOffset.y) + 'px';
+        }
+        
+        // بررسی hover روی قابلمه‌ها
+        document.querySelectorAll('.pot-container').forEach(pot => {
+            const rect = pot.getBoundingClientRect();
+            const isOver = touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                          touch.clientY >= rect.top && touch.clientY <= rect.bottom;
+            pot.classList.toggle('drag-over', isOver);
+        });
+    }
+
+    onDragEnd(e) {
+        if (!this.isDragging || !this.draggedItem) return;
+        
+        const touch = e.changedTouches ? e.changedTouches[0] : e;
+        
+        // بررسی قابلمه مقصد
+        document.querySelectorAll('.pot-container').forEach(pot => {
+            pot.classList.remove('drag-over');
+            
+            const rect = pot.getBoundingClientRect();
+            if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                this.checkAnswer(pot.dataset.category, pot);
+            }
+        });
+        
+        // ریست کردن آیتم
+        if (this.draggedItem.element) {
+            this.draggedItem.element.classList.remove('dragging');
+            this.draggedItem.element.style.cssText = '';
+        }
+        
+        this.isDragging = false;
+        this.draggedItem = null;
+    }
+
+    // ==================== بررسی پاسخ ====================
+    checkAnswer(targetCategory, potElement) {
+        if (!this.draggedItem || !this.isActive) return;
+        
+        const isCorrect = this.draggedItem.category === targetCategory;
+        
+        if (isCorrect) {
+            this.handleCorrectAnswer(potElement);
+        } else {
+            this.handleWrongAnswer(potElement);
+        }
+        
+        this.saveStats();
+        this.updateUI();
+    }
+
+    handleCorrectAnswer(potElement) {
+        this.playSound('correct');
+        
+        this.stats.correctMoves++;
+        this.correctMoves++;
+        
+        // حذف آیتم
+        const itemElement = this.draggedItem.element;
+        if (itemElement) {
+            itemElement.classList.add('correct');
+            setTimeout(() => {
+                itemElement.style.transform = 'scale(0)';
+                itemElement.style.opacity = '0';
+                setTimeout(() => itemElement.remove(), 200);
+            }, 200);
+        }
+        
+        // حذف از آرایه
+        this.currentItems = this.currentItems.filter(item => item.id !== this.draggedItem.id);
+        
+        // افزودن امتیاز
+        this.score += 10;
+        
+        // انیمیشن قابلمه
+        if (potElement) {
+            potElement.classList.add('correct');
+            setTimeout(() => potElement.classList.remove('correct'), 600);
+        }
+        
+        this.showToast('درسته! ⭐', 'success');
+        
+        // بررسی اتمام مرحله
+        if (this.currentItems.length === 0) {
+            setTimeout(() => this.levelComplete(), 500);
+        }
+    }
+
+    handleWrongAnswer(potElement) {
+        this.playSound('wrong');
+        
+        this.stats.wrongMoves++;
+        this.wrongMoves++;
+        
+        // انیمیشن قابلمه
+        if (potElement) {
+            potElement.classList.add('wrong');
+            setTimeout(() => potElement.classList.remove('wrong'), 500);
+        }
+        
+        // کسر امتیاز
+        this.score = Math.max(0, this.score - 5);
+        
+        this.showToast('اشتباه بود! ❌', 'error');
+    }
+
+    // ==================== تایمر ====================
+    startTimer() {
+        clearInterval(this.timerInterval);
+        
+        const timerElement = document.getElementById('timer');
+        if (timerElement) timerElement.textContent = this.timer;
+        
+        this.updateTimerVisual();
+        
+        this.timerInterval = setInterval(() => {
+            if (this.isPaused) return;
+            
+            this.timer--;
+            if (timerElement) timerElement.textContent = this.timer;
+            
+            this.updateTimerVisual();
+            
+            if (this.timer <= 0) {
+                clearInterval(this.timerInterval);
+                this.gameOver();
+            }
+        }, 1000);
+    }
+
+    updateTimerVisual() {
+        const timerProgress = document.getElementById('timer-progress');
+        const timerContainer = document.querySelector('.timer-display');
+        const levelConfig = GAME_CONFIG.levels[this.currentLevel];
+        const maxTime = levelConfig.time;
+        
+        if (timerProgress) {
+            const percentage = (this.timer / maxTime) * 100;
+            timerProgress.style.strokeDashoffset = 100 - percentage;
+            
+            timerProgress.classList.remove('warning', 'danger');
+            if (this.timer <= 10) {
+                timerProgress.classList.add('danger');
+            } else if (this.timer <= 20) {
+                timerProgress.classList.add('warning');
+            }
+        }
+        
+        if (timerContainer) {
+            timerContainer.classList.remove('warning', 'danger');
+            if (this.timer <= 10) {
+                timerContainer.classList.add('danger');
+            } else if (this.timer <= 20) {
+                timerContainer.classList.add('warning');
+            }
+        }
+    }
+
+    stopTimer() {
+        clearInterval(this.timerInterval);
+    }
+
+    // ==================== بروزرسانی UI ====================
+    updateUI() {
+        const levelElement = document.getElementById('current-level');
+        const scoreElement = document.getElementById('score');
+        const timerElement = document.getElementById('timer');
+        const progressBar = document.getElementById('progress-bar');
+        
+        if (levelElement) levelElement.textContent = this.currentLevel + 1;
+        if (scoreElement) scoreElement.textContent = this.score;
+        if (timerElement) timerElement.textContent = this.timer;
+        
+        // نوار پیشرفت
+        if (progressBar) {
+            const levelConfig = GAME_CONFIG.levels[this.currentLevel];
+            const totalItems = levelConfig.items;
+            const completedItems = totalItems - this.currentItems.length;
+            const progress = (completedItems / totalItems) * 100;
+            progressBar.style.width = progress + '%';
+        }
+    }
+
+    // ==================== پیام‌های Toast ====================
+    showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        
+        const icons = {
+            success: '✅',
+            error: '❌',
+            warning: '⚠️',
+            info: 'ℹ️'
+        };
+        
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <span class="toast-icon">${icons[type] || icons.info}</span>
+            <span class="toast-message">${message}</span>
+        `;
+        
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('hiding');
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
+    }
+
+    // ==================== پایان مرحله ====================
+    levelComplete() {
+        this.isActive = false;
+        this.stopTimer();
+        this.playSound('win');
+        
+        // محاسبه ستاره‌ها
+        const levelConfig = GAME_CONFIG.levels[this.currentLevel];
+        let stars = 1;
+        if (this.timer >= levelConfig.time * 0.5) stars = 2;
+        if (this.timer >= levelConfig.time * 0.75) stars = 3;
+        
+        // ذخیره ستاره‌ها
+        const currentStars = this.stats.levelStars[this.currentLevel] || 0;
+        if (stars > currentStars) {
+            this.stats.levelStars[this.currentLevel] = stars;
+        }
+        
+        // بروزرسانی آمار
+        this.stats.gamesWon++;
+        
+        if (this.stats.bestTime === null || this.timer > this.stats.bestTime) {
+            this.stats.bestTime = this.timer;
+        }
+        
+        if (this.currentLevel + 1 > this.stats.maxLevel) {
+            this.stats.maxLevel = this.currentLevel + 1;
+        }
+        
+        this.saveStats();
+        
+        // محاسبه درصد صحیح
+        const totalMoves = this.correctMoves + this.wrongMoves;
+        const accuracy = totalMoves > 0 ? Math.round((this.correctMoves / totalMoves) * 100) : 0;
+        
+        // نمایش صفحه
+        document.getElementById('completed-level').textContent = this.currentLevel + 1;
+        document.getElementById('time-left').textContent = this.timer;
+        document.getElementById('level-score').textContent = this.score;
+        document.getElementById('accuracy').textContent = accuracy;
+        
+        this.createConfetti();
+        this.showScreen('level-complete');
+    }
+
+    // ==================== پایان بازی ====================
+    gameOver() {
+        this.isActive = false;
+        this.stopTimer();
+        this.playSound('lose');
+        
+        // بروزرسانی آمار
+        if (this.currentLevel + 1 > this.stats.maxLevel) {
+            this.stats.maxLevel = this.currentLevel + 1;
+        }
+        
+        this.saveStats();
+        
+        // نمایش صفحه
+        document.getElementById('reached-level').textContent = this.currentLevel + 1;
+        document.getElementById('total-score').textContent = this.score;
+        
+        this.showScreen('game-over');
+    }
+
+    // ==================== بازی کامل ====================
+    showGameComplete() {
+        this.isActive = false;
+        this.stopTimer();
+        this.playSound('win');
+        
+        // بروزرسانی آمار
+        this.stats.gamesWon++;
+        
+        if (this.stats.bestTime === null || this.timer > this.stats.bestTime) {
+            this.stats.bestTime = this.timer;
+        }
+        
+        this.stats.maxLevel = GAME_CONFIG.levels.length;
+        
+        this.saveStats();
+        
+        this.createConfetti();
+        this.showToast('🏆 تبریک! تو همه مراحل رو بردی!', 'success');
+        
+        setTimeout(() => this.showMenu(), 3000);
+    }
+
+    // ==================== کاغذ رنگی ====================
+    createConfetti() {
+        const container = document.getElementById('confetti');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        const colors = ['#FF6B6B', '#4ECDC4', '#FFE566', '#9B59B6', '#2ECC71', '#F39C12'];
+        
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 2 + 's';
+            confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+            
+            if (Math.random() > 0.5) {
+                confetti.style.borderRadius = '50%';
+            }
+            
+            container.appendChild(confetti);
+        }
+        
+        setTimeout(() => container.innerHTML = '', 4000);
+    }
+
+    // ==================== مکث ====================
+    pauseGame() {
+        if (!this.isActive) return;
+        
+        this.isPaused = true;
+        this.stopTimer();
+        this.showScreen('pause-screen');
+        this.playSound('click');
+    }
+
+    resumeGame() {
+        this.isPaused = false;
+        this.startTimer();
+        this.showScreen('game-screen');
+        this.playSound('click');
+    }
+    // ==================== آمار ====================
+    showStats() {
+        this.previousScreen = 'main-menu';
+        
+        const totalScore = this.stats.correctMoves * 10 - this.stats.wrongMoves * 5;
+        
+        document.getElementById('stat-total-score').textContent = Math.max(0, totalScore);
+        document.getElementById('stat-games').textContent = this.stats.gamesPlayed;
+        document.getElementById('stat-wins').textContent = this.stats.gamesWon;
+        document.getElementById('stat-correct').textContent = this.stats.correctMoves;
+        document.getElementById('stat-wrong').textContent = this.stats.wrongMoves;
+        document.getElementById('stat-best-time').textContent =
+            this.stats.bestTime !== null ? this.stats.bestTime + ' ثانیه' : '-';
+        document.getElementById('stat-max-level').textContent = this.stats.maxLevel;
+        
+        // نمودار عملکرد
+        const chartCorrect = document.getElementById('chart-correct');
+        const chartWrong = document.getElementById('chart-wrong');
+        
+        if (chartCorrect && chartWrong) {
+            const total = this.stats.correctMoves + this.stats.wrongMoves;
+            
+            if (total > 0) {
+                chartCorrect.style.height = (this.stats.correctMoves / total) * 100 + '%';
+                chartWrong.style.height = (this.stats.wrongMoves / total) * 100 + '%';
+            } else {
+                chartCorrect.style.height = '0%';
+                chartWrong.style.height = '0%';
+            }
+        }
+        
+        this.showScreen('stats-screen');
+        this.playSound('click');
+    }
+
+    // ==================== اتصال رویدادها ====================
+    bindEvents() {
+        // رویدادهای موس برای دراگ
+        document.addEventListener('mousemove', (e) => this.onDragMove(e));
+        document.addEventListener('mouseup', (e) => this.onDragEnd(e));
+        
+        // رویدادهای تاچ
+        document.addEventListener('touchmove', (e) => {
+            if (this.isDragging) {
+                e.preventDefault();
+                this.onDragMove(e);
+            }
+        }, { passive: false });
+        
+        document.addEventListener('touchend', (e) => {
+            if (this.isDragging) this.onDragEnd(e);
+        });
+        
+        // کلید ESC برای مکث
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.isActive) {
+                if (this.isPaused) {
+                    this.resumeGame();
+                } else {
+                    this.pauseGame();
+                }
+            }
+        });
+        
+        // جلوگیری از زوم در موبایل
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        // دکمه‌های منو
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', () => this.playSound('click'));
+        });
+        
+        // جلوگیری از کشیدن تصاویر
+        document.addEventListener('dragstart', (e) => {
+            e.preventDefault();
+        });
+        
+        // مدیریت visibilitychange برای مکث خودکار
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && this.isActive && !this.isPaused) {
+                this.pauseGame();
+            }
+        });
+        
+        // رویداد resize برای ریسپانسیو
+        window.addEventListener('resize', () => {
+            // ریست کردن موقعیت دراگ در صورت تغییر سایز
+            if (this.isDragging && this.draggedItem && this.draggedItem.element) {
+                this.draggedItem.element.classList.remove('dragging');
+                this.draggedItem.element.style.cssText = '';
+                this.isDragging = false;
+                this.draggedItem = null;
+            }
+        });
+    }
+
+    // ==================== راه‌اندازی ====================
+    init() {
+        this.initAudio();
+        this.saveStats(); // اطمینان از ذخیره اولیه
+    }
+}
+
+// ==================== نمونه سازی و راه‌اندازی ====================
+const game = new CookingGame();
+
+// اتصال توابع سراسری برای HTML
+window.showMenu = () => game.showMenu();
+window.showLevelSelect = () => game.showLevelSelect();
+window.startGame = () => game.startGame();
+window.restartGame = () => game.restartGame();
+window.retryLevel = () => game.retryLevel();
+window.nextLevel = () => game.nextLevel();
+window.startLevel = (level) => game.startLevel(level);
+window.pauseGame = () => game.pauseGame();
+window.resumeGame = () => game.resumeGame();
+window.showStats = () => game.showStats();
+window.resetStats = () => game.resetStats();
+window.toggleSound = () => game.toggleSound();
+window.showHelp = () => game.showHelp();
+window.goBack = () => game.goBack();
+
+// شروع بازی
+document.addEventListener('DOMContentLoaded', () => {
+    game.init();
+});
+    </script>
+</body>
+</html>

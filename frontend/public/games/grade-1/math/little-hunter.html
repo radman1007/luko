@@ -1,0 +1,3672 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>شکارچی کوچک - بازی شمارشی</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+     <style>
+    /* ==================== متغیرهای CSS ==================== */
+:root {
+    --primary-color: #FF6B6B;
+    --secondary-color: #4ECDC4;
+    --accent-color: #FFE66D;
+    --success-color: #2ECC71;
+    --error-color: #E74C3C;
+    --dark-color: #2C3E50;
+    --light-color: #ECF0F1;
+    --text-color: #2C3E50;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --shadow-glow: 0 0 30px rgba(78, 205, 196, 0.4);
+    --border-radius: 20px;
+    --transition: all 0.3s ease;
+}
+
+/* ==================== تنظیمات پایه ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Vazirmatn', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    touch-action: manipulation;
+}
+
+/* ==================== صفحات ==================== */
+.screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* ==================== دکمه توقف ==================== */
+.stop-btn {
+    width: 45px;
+    height: 45px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 3px solid var(--error-color);
+}
+
+.stop-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--error-color);
+}
+
+.stop-btn:hover {
+    transform: scale(1.1);
+}
+
+.stop-btn:active {
+    transform: scale(0.9);
+}
+
+/* ==================== صفحه خوش‌آمدگویی ==================== */
+.welcome-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* آسمان گرادینت */
+.sky-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    background: linear-gradient(180deg,
+            #1a1a2e 0%,
+            #16213e 20%,
+            #1f4068 40%,
+            #2d5a87 60%,
+            #4a90a4 80%,
+            #87ceeb 100%);
+}
+
+/* کوه‌های پس‌زمینه */
+.mountains {
+    position: absolute;
+    bottom: 35%;
+    left: 0;
+    width: 100%;
+    height: 150px;
+}
+
+.mountains svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* ابرها */
+.clouds-container {
+    position: absolute;
+    top: 5%;
+    width: 100%;
+    height: 30%;
+}
+
+.cloud {
+    position: absolute;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.3) 100%);
+    border-radius: 50px;
+    filter: blur(2px);
+    animation: cloudFloat 25s linear infinite;
+}
+
+.cloud::before {
+    content: '';
+    position: absolute;
+    background: inherit;
+    border-radius: 50%;
+}
+
+.cloud1 {
+    width: 120px;
+    height: 40px;
+    top: 10%;
+    left: -20%;
+    animation-delay: 0s;
+}
+
+.cloud1::before {
+    width: 50px;
+    height: 50px;
+    top: -25px;
+    left: 20px;
+}
+
+.cloud1::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: inherit;
+    border-radius: 50%;
+    top: -15px;
+    right: 20px;
+}
+
+.cloud2 {
+    width: 100px;
+    height: 35px;
+    top: 25%;
+    left: -20%;
+    animation-delay: -8s;
+    opacity: 0.7;
+}
+
+.cloud2::before {
+    width: 40px;
+    height: 40px;
+    top: -20px;
+    left: 15px;
+}
+
+.cloud3 {
+    width: 80px;
+    height: 30px;
+    top: 5%;
+    left: -20%;
+    animation-delay: -16s;
+    opacity: 0.5;
+}
+
+.cloud3::before {
+    width: 35px;
+    height: 35px;
+    top: -18px;
+    left: 10px;
+}
+
+@keyframes cloudFloat {
+    from {
+        transform: translateX(-150px);
+    }
+    to {
+        transform: translateX(calc(100vw + 150px));
+    }
+}
+
+/* ستاره‌های خوش‌آمدگویی - کلاس‌های اصلاح شده */
+.star-welcome {
+    position: absolute;
+    color: #fff;
+    font-size: 1.5rem;
+    animation: twinkle 2s ease-in-out infinite;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    z-index: 1;
+}
+
+.star-welcome.s2 {
+    top: 15%;
+    left: 20%;
+    animation-delay: 0.7s;
+}
+
+.star-welcome.s3 {
+    top: 5%;
+    left: 40%;
+    animation-delay: 1.4s;
+    font-size: 1.2rem;
+}
+
+/* درختان پس‌زمینه */
+.trees-bg {
+    position: absolute;
+    bottom: 38%;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    opacity: 0.6;
+}
+
+.tree {
+    font-size: 3rem;
+    animation: treeSway 4s ease-in-out infinite;
+}
+
+.t1 {
+    animation-delay: 0s;
+}
+
+.t2 {
+    animation-delay: 0.5s;
+    font-size: 4rem;
+}
+
+.t3 {
+    animation-delay: 1s;
+}
+
+.t4 {
+    animation-delay: 1.5s;
+    font-size: 3.5rem;
+}
+
+@keyframes treeSway {
+    0%,
+    100% {
+        transform: rotate(-2deg);
+    }
+    50% {
+        transform: rotate(2deg);
+    }
+}
+
+/* گل‌های کف زمین */
+.flowers-bg {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 35%;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    padding-bottom: 10px;
+    font-size: 1.5rem;
+    animation: flowerWave 3s ease-in-out infinite;
+}
+
+@keyframes flowerWave {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* محتوای خوش‌آمدگویی */
+.welcome-content {
+    text-align: center;
+    animation: fadeInUp 0.8s ease;
+    z-index: 10;
+    position: relative;
+    margin-top: -50px;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hunter-character {
+    width: 180px;
+    height: 220px;
+    margin: 0 auto 20px;
+    animation: bounce 2s infinite;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+}
+
+@keyframes bounce {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+.hunter-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.welcome-title {
+    font-size: 2.2rem;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.welcome-subtitle {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 25px;
+}
+
+/* ==================== دکمه‌های منو ==================== */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+.menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 30px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: 0.5s;
+}
+
+.menu-btn:hover::before {
+    left: 100%;
+}
+
+.btn-icon {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, var(--success-color) 0%, #27ae60 100%);
+    color: #fff;
+}
+
+.primary-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(46, 204, 113, 0.5);
+}
+
+.secondary-btn {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #26a69a 100%);
+    color: #fff;
+}
+
+.secondary-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(78, 205, 196, 0.5);
+}
+
+.tertiary-btn {
+    background: linear-gradient(135deg, var(--accent-color) 0%, #f1c40f 100%);
+    color: var(--dark-color);
+}
+
+.tertiary-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 230, 109, 0.5);
+}
+
+.menu-btn:active {
+    transform: scale(0.95);
+}
+
+/* ==================== صفحه راهنما ==================== */
+.guide-content {
+    background: rgba(255,255,255,0.98);
+    border-radius: var(--border-radius);
+    padding: 25px;
+    max-width: 400px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: fadeInUp 0.5s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.guide-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.guide-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.guide-content h2 {
+    text-align: center;
+    color: var(--dark-color);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.guide-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-right: 4px solid var(--secondary-color);
+    transition: var(--transition);
+}
+
+.guide-section:hover {
+    transform: translateX(5px);
+    border-right-color: var(--success-color);
+}
+
+.guide-icon-small {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.guide-section h3 {
+    color: var(--dark-color);
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.guide-section p, .guide-section li {
+    color: var(--text-color);
+    line-height: 1.6;
+    font-size: 0.9rem;
+}
+
+.theme-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.theme-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.theme-item span {
+    font-size: 1.2rem;
+}
+
+.back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    margin-top: 15px;
+    background: linear-gradient(135deg, var(--dark-color) 0%, #34495e 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--border-radius);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.back-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.back-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(44, 62, 80, 0.4);
+}
+
+.back-btn:active {
+    transform: scale(0.95);
+}
+
+/* ==================== صفحه آمار ==================== */
+.stats-content {
+    background: rgba(255,255,255,0.98);
+    border-radius: var(--border-radius);
+    padding: 25px;
+    max-width: 450px;
+    width: 100%;
+    animation: fadeInUp 0.5s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.stats-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.stats-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.stats-content h2 {
+    text-align: center;
+    color: var(--dark-color);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+/* نمودار پیشرفت */
+.progress-chart {
+    margin-bottom: 20px;
+    border-radius: 15px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 15px;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.chart-title {
+    text-align: center;
+    color: #fff;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.chart-svg {
+    width: 100%;
+    height: 100px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 15px 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--secondary-color);
+    box-shadow: var(--shadow-glow);
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+}
+
+.stat-value {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--dark-color);
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    color: #7f8c8d;
+}
+
+.stats-summary {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+    font-size: 0.85rem;
+}
+
+.summary-icon {
+    font-size: 1.2rem;
+}
+
+.summary-text {
+    color: var(--text-color);
+    flex: 1;
+}
+
+.stats-summary strong {
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+/* نشانگرهای مراحل */
+.level-badges {
+    margin-bottom: 15px;
+}
+
+.level-badges h3 {
+    text-align: center;
+    color: var(--dark-color);
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.badges-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.level-badge {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    opacity: 0.5;
+    transition: var(--transition);
+    border: 3px solid #ccc;
+    font-size: 1.5rem;
+}
+
+.level-badge .badge-check {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    width: 20px;
+    height: 20px;
+    background: var(--success-color);
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border: 2px solid #fff;
+}
+
+.level-badge.unlocked {
+    opacity: 1;
+    background: linear-gradient(135deg, var(--success-color) 0%, #27ae60 100%);
+    border-color: #1e8449;
+    animation: badgeUnlock 0.5s ease;
+}
+
+.level-badge.unlocked .badge-check {
+    display: flex;
+}
+
+@keyframes badgeUnlock {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* ==================== صفحه انتخاب مرحله ==================== */
+.level-select-content {
+    background: rgba(255,255,255,0.98);
+    border-radius: var(--border-radius);
+    padding: 25px;
+    max-width: 400px;
+    width: 100%;
+    animation: fadeInUp 0.5s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.level-select-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.level-select-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.level-select-content h2 {
+    text-align: center;
+    color: var(--dark-color);
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+}
+
+.levels-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.level-item {
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.level-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 20px;
+    padding: 20px 10px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+    border: 3px solid transparent;
+}
+
+.level-card:hover {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    border-color: var(--secondary-color);
+}
+
+.level-item.completed .level-card {
+    background: linear-gradient(135deg, var(--success-color) 0%, #27ae60 100%);
+    border-color: #1e8449;
+}
+
+.level-item.completed .level-name,
+.level-item.completed .level-icon {
+    color: #fff;
+}
+
+.level-item.current .level-card {
+    background: linear-gradient(135deg, var(--accent-color) 0%, #f1c40f 100%);
+    border: 3px solid var(--primary-color);
+    animation: currentPulse 2s infinite;
+}
+
+@keyframes currentPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4); }
+    50% { box-shadow: 0 0 0 10px rgba(255, 107, 107, 0); }
+}
+
+.level-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 70%);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.level-item:hover .level-glow {
+    opacity: 1;
+}
+
+.level-icon {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.level-name {
+    font-size: 0.85rem;
+    color: var(--dark-color);
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+}
+
+.level-status {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 1.2rem;
+}
+
+.level-stars {
+    font-size: 0.8rem;
+    color: #f1c40f;
+    margin-top: 5px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ==================== صفحه بازی ==================== */
+#gameScreen {
+    padding: 0;
+    flex-direction: column;
+}
+
+.game-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.bg-layer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+/* تم طبیعت */
+.theme-nature .bg-sky {
+    background: linear-gradient(180deg,
+        #87CEEB 0%,
+        #B0E0E6 30%,
+        #98FB98 50%,
+        #228B22 70%,
+        #006400 100%
+    );
+}
+
+.theme-nature .bg-mountains {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100' preserveAspectRatio='none'%3E%3Cpath d='M0,100 L50,40 L100,100 L150,30 L200,100 L250,50 L300,100 L350,20 L400,100 Z' fill='%231e4620' opacity='0.7'/%3E%3Cpath d='M0,100 L30,60 L80,100 L120,50 L160,100 L200,40 L240,100 L280,60 L320,100 L360,30 L400,100 Z' fill='%23163319'/%3E%3C/svg%3E") repeat-x bottom;
+    background-size: 400px 100px;
+    animation: mountainScroll 30s linear infinite;
+}
+
+@keyframes mountainScroll {
+    from { background-position: 0 0; }
+    to { background-position: -400px 0; }
+}
+
+.theme-nature .bg-ground {
+    position: absolute;
+    bottom: 0;
+    height: 35%;
+    background: linear-gradient(180deg,
+        #228B22 0%,
+        #1a6b1a 30%,
+        #145214 60%,
+        #0d3d0d 100%
+    );
+}
+
+/* المان‌های پس‌زمینه برای هر تم */
+.theme-nature .bg-elements {
+    background-image: 
+        radial-gradient(2px 2px at 10% 20%, #228B22, transparent),
+        radial-gradient(3px 3px at 30% 15%, #2ECC71, transparent),
+        radial-gradient(2px 2px at 50% 25%, #27AE60, transparent),
+        radial-gradient(2px 2px at 70% 18%, #1E8449, transparent),
+        radial-gradient(3px 3px at 90% 22%, #145214, transparent);
+    background-size: 200px 100px;
+    animation: bgFloat 20s linear infinite;
+    opacity: 0.6;
+}
+
+/* تم فضا */
+.theme-space .bg-sky {
+    background: linear-gradient(180deg,
+        #000011 0%,
+        #000033 20%,
+        #0a0a2e 40%,
+        #1a1a4e 60%,
+        #2d1b4e 80%,
+        #1a1a3e 100%
+    );
+}
+
+.theme-space .bg-mountains {
+    display: none;
+}
+
+.theme-space .bg-ground {
+    display: none;
+}
+
+.theme-space .bg-elements {
+    background-image:
+        radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+        radial-gradient(2px 2px at 130px 80px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 160px 120px, #fff, transparent),
+        radial-gradient(2px 2px at 180px 50px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 50px 100px, #FFD700, transparent);
+    background-size: 200px 150px;
+    animation: starMove 20s linear infinite;
+}
+
+@keyframes starMove {
+    from { transform: translateY(0); }
+    to { transform: translateY(-150px); }
+}
+
+/* تم اقیانوس */
+.theme-ocean .bg-sky {
+    background: linear-gradient(180deg,
+        #87CEEB 0%,
+        #00BFFF 20%,
+        #1E90FF 40%,
+        #006994 60%,
+        #001e36 100%
+    );
+}
+
+.theme-ocean .bg-mountains {
+    display: none;
+}
+
+.theme-ocean .bg-ground {
+    position: absolute;
+    bottom: 0;
+    height: 40%;
+    background: linear-gradient(180deg,
+        #006994 0%,
+        #004466 30%,
+        #002233 60%,
+        #001122 100%
+    );
+    animation: waveMove 3s ease-in-out infinite;
+}
+
+.theme-ocean .bg-elements {
+    background-image:
+        radial-gradient(3px 3px at 15% 30%, #E74C3C, transparent),
+        radial-gradient(2px 2px at 35% 45%, #3498DB, transparent),
+        radial-gradient(2px 2px at 55% 35%, #9B59B6, transparent),
+        radial-gradient(3px 3px at 75% 50%, #1ABC9C, transparent),
+        radial-gradient(2px 2px at 85% 40%, #F39C12, transparent);
+    background-size: 200px 100px;
+    animation: oceanFloat 8s ease-in-out infinite;
+}
+
+@keyframes waveMove {
+    0%, 100% { transform: translateY(0) scaleY(1); }
+    50% { transform: translateY(-5px) scaleY(1.02); }
+}
+
+@keyframes oceanFloat {
+    0%, 100% { transform: translateY(0) translateX(0); }
+    25% { transform: translateY(-10px) translateX(5px); }
+    50% { transform: translateY(-5px) translateX(-5px); }
+    75% { transform: translateY(-15px) translateX(3px); }
+}
+
+/* تم مزرعه */
+.theme-farm .bg-sky {
+    background: linear-gradient(180deg,
+        #87CEEB 0%,
+        #B0E0E6 40%,
+        #F4A460 40%,
+        #DEB887 100%
+    );
+}
+
+.theme-farm .bg-mountains {
+    display: none;
+}
+
+.theme-farm .bg-ground {
+    position: absolute;
+    bottom: 0;
+    height: 35%;
+    background: linear-gradient(180deg,
+        #DEB887 0%,
+        #D2B48C 50%,
+        #C4A67C 100%
+    );
+}
+
+.theme-farm .bg-elements {
+    background-image:
+        radial-gradient(3px 3px at 10% 60%, #8B4513, transparent),
+        radial-gradient(2px 2px at 30% 55%, #D2691E, transparent),
+        radial-gradient(2px 2px at 50% 65%, #A0522D, transparent),
+        radial-gradient(3px 3px at 70% 58%, #CD853F, transparent),
+        radial-gradient(2px 2px at 90% 62%, #8B4513, transparent);
+    background-size: 200px 100px;
+    animation: farmFloat 10s ease-in-out infinite;
+}
+
+@keyframes farmFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* تم جنگل */
+.theme-forest .bg-sky {
+    background: linear-gradient(180deg,
+        #87CEEB 0%,
+        #228B22 50%,
+        #006400 100%
+    );
+}
+
+.theme-forest .bg-mountains {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' preserveAspectRatio='none'%3E%3Cpath d='M0,80 L40,20 L80,80 L120,30 L160,80 L200,15 L240,80 L280,25 L320,80 L360,10 L400,80 Z' fill='%230e3d0e'/%3E%3C/svg%3E") repeat-x bottom;
+    background-size: 400px 80px;
+}
+
+.theme-forest .bg-ground {
+    position: absolute;
+    bottom: 0;
+    height: 35%;
+    background: linear-gradient(180deg,
+        #228B22 0%,
+        #1a5c1a 50%,
+        #0f3d0f 100%
+    );
+}
+
+.theme-forest .bg-elements {
+    background-image:
+        radial-gradient(3px 3px at 12% 45%, #16A085, transparent),
+        radial-gradient(2px 2px at 28% 55%, #1ABC9C, transparent),
+        radial-gradient(2px 2px at 45% 48%, #0E6655, transparent),
+        radial-gradient(3px 3px at 62% 52%, #117A65, transparent),
+        radial-gradient(2px 2px at 78% 46%, #1E8449, transparent),
+        radial-gradient(2px 2px at 92% 54%, #145A32, transparent);
+    background-size: 200px 100px;
+    animation: forestFloat 12s ease-in-out infinite;
+}
+
+@keyframes forestFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-5px) rotate(1deg); }
+    50% { transform: translateY(-10px) rotate(0deg); }
+    75% { transform: translateY(-5px) rotate(-1deg); }
+}
+
+@keyframes bgFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* ==================== هدر بازی ==================== */
+.game-header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+}
+
+.level-indicator {
+    background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-weight: 700;
+    color: var(--dark-color);
+    font-size: 0.9rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.timer-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-weight: 700;
+    color: var(--dark-color);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.timer-icon {
+    width: 18px;
+    height: 18px;
+    fill: var(--secondary-color);
+}
+
+.timer-container.warning {
+    background: linear-gradient(135deg, var(--error-color) 0%, #c0392b 100%);
+    color: #fff;
+    animation: pulse 0.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.stars-container {
+    display: flex;
+    gap: 3px;
+}
+
+.star {
+    font-size: 1.3rem;
+    opacity: 0.3;
+    transition: var(--transition);
+    filter: grayscale(1);
+}
+
+.star.earned {
+    opacity: 1;
+    filter: grayscale(0);
+    animation: starPop 0.5s ease;
+}
+
+@keyframes starPop {
+    0% { transform: scale(0) rotate(-180deg); }
+    50% { transform: scale(1.3) rotate(10deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+/* ==================== راهنمای بازی ==================== */
+.game-hint {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 15px 20px;
+    padding: 12px 25px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    animation: slideIn 0.5s ease;
+    border: 2px solid var(--secondary-color);
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.hint-icon {
+    font-size: 1.3rem;
+    animation: hintBounce 1s infinite;
+}
+
+@keyframes hintBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+.hint-text {
+    color: var(--dark-color);
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+/* ==================== سوال بازی ==================== */
+.question-container {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    margin: 10px 0;
+}
+
+.target-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    font-size: 4rem;
+    font-weight: 900;
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.3),
+        inset 0 -5px 20px rgba(0,0,0,0.2),
+        inset 0 5px 20px rgba(255,255,255,0.3);
+    animation: numberPop 0.6s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.number-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 60%);
+    transform: translate(-50%, -50%);
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+    0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.number-inner {
+    position: relative;
+    z-index: 2;
+}
+
+.number-text {
+    display: block;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+@keyframes numberPop {
+    0% { transform: scale(0) rotate(-10deg); }
+    70% { transform: scale(1.2) rotate(5deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+/* تم 1 - طبیعت: سبز و گرد */
+.theme-nature .target-number {
+    background: linear-gradient(135deg, #2ECC71 0%, #27ae60 50%, #1e8449 100%);
+    color: #fff;
+    border: 5px solid #1e8449;
+}
+
+/* تم 2 - فضا: بنفش و ستاره‌ای */
+.theme-space .target-number {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 50%, #6c3483 100%);
+    color: #fff;
+    border: 5px solid #4a235a;
+    border-radius: 20px;
+    box-shadow:
+        0 10px 30px rgba(155, 89, 182, 0.5),
+        inset 0 0 30px rgba(255,255,255,0.2);
+}
+
+/* تم 3 - اقیانوس: آبی و دایره‌ای */
+.theme-ocean .target-number {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 50%, #1a5276 100%);
+    color: #fff;
+    border: 5px solid #154360;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+}
+
+/* تم 4 - مزرعه: نارنجی و مستطیل */
+.theme-farm .target-number {
+    background: linear-gradient(135deg, #e67e22 0%, #d35400 50%, #a04000 100%);
+    color: #fff;
+    border: 5px solid #7e4c1f;
+    border-radius: 15px;
+}
+
+/* تم 5 - جنگل: سبز تیره و شش ضلعی */
+.theme-forest .target-number {
+    background: linear-gradient(135deg, #16a085 0%, #1abc9c 50%, #0e6655 100%);
+    color: #fff;
+    border: 5px solid #073b3a;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    border-radius: 0;
+}
+
+.question-label {
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-top: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.3);
+    padding: 8px 20px;
+        border-radius: 20px;
+    display: inline-block;
+}
+
+/* ==================== آیتم‌های بازی ==================== */
+.items-container {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+    flex-wrap: wrap;
+    max-height: calc(100vh - 380px);
+    overflow-y: auto;
+}
+
+.game-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 20px;
+    padding: 15px;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    min-width: 110px;
+    animation: itemFadeIn 0.5s ease backwards;
+    border: 3px solid transparent;
+}
+
+.game-item:nth-child(1) { animation-delay: 0.1s; }
+.game-item:nth-child(2) { animation-delay: 0.2s; }
+.game-item:nth-child(3) { animation-delay: 0.3s; }
+.game-item:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes itemFadeIn {
+    from { opacity: 0; transform: scale(0.8) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.game-item:hover {
+    transform: translateY(-12px) scale(1.05);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+    border-color: var(--secondary-color);
+}
+
+.game-item:active {
+    transform: scale(0.95);
+}
+
+.game-item.correct {
+    background: linear-gradient(135deg, var(--success-color) 0%, #27ae60 100%);
+    animation: correctPulse 0.5s ease;
+    border-color: #1e8449;
+}
+
+@keyframes correctPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
+.game-item.wrong {
+    background: linear-gradient(135deg, var(--error-color) 0%, #c0392b 100%);
+    animation: wrongShake 0.5s ease;
+    border-color: #922b21;
+}
+
+@keyframes wrongShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-10px); }
+    40%, 80% { transform: translateX(10px); }
+}
+
+/* نمایش تعداد آیتم‌ها */
+.item-display {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px;
+    max-width: 90px;
+    margin-bottom: 5px;
+}
+
+.item-emoji-single {
+    font-size: 1.8rem;
+    line-height: 1;
+    transition: var(--transition);
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.2));
+}
+
+.item-count-2 .item-emoji-single { font-size: 2rem; }
+.item-count-3 .item-emoji-single { font-size: 1.7rem; }
+.item-count-4 .item-emoji-single { font-size: 1.5rem; }
+.item-count-5 .item-emoji-single { font-size: 1.3rem; }
+
+.item-name {
+    color: var(--dark-color);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+/* ==================== پیام بازخورد ==================== */
+.feedback-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    animation: fadeIn 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.feedback-overlay.show {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.feedback-message {
+    background: #fff;
+    border-radius: 30px;
+    padding: 40px 50px;
+    text-align: center;
+    animation: feedbackPop 0.5s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    min-width: 250px;
+}
+
+@keyframes feedbackPop {
+    0% { transform: scale(0) rotate(-10deg); }
+    70% { transform: scale(1.1) rotate(5deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+.feedback-icon {
+    font-size: 5rem;
+    margin-bottom: 15px;
+    animation: bounce 0.6s ease;
+}
+
+.feedback-text {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--dark-color);
+}
+
+.feedback-message.success .feedback-text {
+    color: var(--success-color);
+}
+
+.feedback-message.error .feedback-text {
+    color: var(--error-color);
+}
+
+/* ==================== صفحه توقف ==================== */
+.pause-content {
+    background: rgba(255,255,255,0.98);
+    border-radius: 30px;
+    padding: 35px;
+    max-width: 350px;
+    width: 100%;
+    text-align: center;
+    animation: fadeInUp 0.5s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.pause-icon {
+    font-size: 5rem;
+    margin-bottom: 15px;
+    animation: pausePulse 1.5s infinite;
+}
+
+@keyframes pausePulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.pause-content h2 {
+    color: var(--dark-color);
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+}
+
+.pause-content p {
+    color: #7f8c8d;
+    margin-bottom: 25px;
+    font-size: 1rem;
+}
+
+.pause-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pause-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 25px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.pause-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.pause-btn.primary {
+    background: linear-gradient(135deg, var(--success-color) 0%, #27ae60 100%);
+    color: #fff;
+}
+
+.pause-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(46, 204, 113, 0.5);
+}
+
+.pause-btn.secondary {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #26a69a 100%);
+    color: #fff;
+}
+
+.pause-btn.secondary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(78, 205, 196, 0.5);
+}
+
+/* ==================== صفحه نتیجه بین مراحل ==================== */
+.level-result-content {
+    background: rgba(255,255,255,0.98);
+    border-radius: 30px;
+    padding: 35px;
+    max-width: 350px;
+    width: 100%;
+    text-align: center;
+    animation: fadeInUp 0.5s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.result-stars {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.result-star {
+    font-size: 2.5rem;
+    opacity: 0.3;
+    transition: var(--transition);
+    filter: grayscale(1);
+}
+
+.result-star.earned {
+    opacity: 1;
+    filter: grayscale(0);
+    animation: starPop 0.5s ease backwards;
+}
+
+.result-star:nth-child(1) { animation-delay: 0.1s; }
+.result-star:nth-child(2) { animation-delay: 0.2s; }
+.result-star:nth-child(3) { animation-delay: 0.3s; }
+.result-star:nth-child(4) { animation-delay: 0.4s; }
+.result-star:nth-child(5) { animation-delay: 0.5s; }
+
+.level-result-content h2 {
+    color: var(--dark-color);
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+}
+
+.level-result-content p {
+    color: #7f8c8d;
+    margin-bottom: 25px;
+    font-size: 1rem;
+}
+
+.result-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.result-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 25px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.result-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.result-btn.primary {
+    background: linear-gradient(135deg, var(--success-color) 0%, #27ae60 100%);
+    color: #fff;
+}
+
+.result-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(46, 204, 113, 0.5);
+}
+
+.result-btn.secondary {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #26a69a 100%);
+    color: #fff;
+}
+
+.result-btn.tertiary {
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+    color: #fff;
+}
+
+/* ==================== صفحه پایان بازی ==================== */
+.game-over-content {
+    background: rgba(255,255,255,0.98);
+    border-radius: 30px;
+    padding: 35px;
+    max-width: 350px;
+    width: 100%;
+    text-align: center;
+    animation: fadeInUp 0.5s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.game-over-icon {
+    font-size: 5rem;
+    margin-bottom: 15px;
+    animation: sadBounce 0.6s ease;
+}
+
+@keyframes sadBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.game-over-content h2 {
+    color: var(--dark-color);
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+}
+
+.game-over-content p {
+    color: #7f8c8d;
+    margin-bottom: 20px;
+    font-size: 1rem;
+}
+
+.final-stars {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 25px;
+}
+
+.final-star {
+    font-size: 2rem;
+    opacity: 0.3;
+    transition: var(--transition);
+    filter: grayscale(1);
+}
+
+.final-star.earned {
+    opacity: 1;
+    filter: grayscale(0);
+    animation: starPop 0.5s ease backwards;
+}
+
+.final-star:nth-child(1) { animation-delay: 0.1s; }
+.final-star:nth-child(2) { animation-delay: 0.2s; }
+.final-star:nth-child(3) { animation-delay: 0.3s; }
+.final-star:nth-child(4) { animation-delay: 0.4s; }
+.final-star:nth-child(5) { animation-delay: 0.5s; }
+
+.game-over-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.game-over-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 25px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.game-over-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.game-over-btn.primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #e74c3c 100%);
+    color: #fff;
+}
+
+.game-over-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.5);
+}
+
+.game-over-btn.secondary {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #26a69a 100%);
+    color: #fff;
+}
+
+/* ==================== صفحه پیروزی ==================== */
+.victory-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 30px;
+    padding: 35px;
+    max-width: 350px;
+    width: 100%;
+    text-align: center;
+    animation: fadeInUp 0.5s ease;
+    color: #fff;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+
+.victory-animation {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.trophy {
+    font-size: 7rem;
+    animation: trophyBounce 1s ease infinite;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+}
+
+@keyframes trophyBounce {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-20px) rotate(-5deg); }
+    75% { transform: translateY(-20px) rotate(5deg); }
+}
+
+.confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    font-size: 2rem;
+    animation: confettiFall 2.5s ease-in-out infinite;
+}
+
+.c1 { left: 10%; animation-delay: 0s; }
+.c2 { left: 25%; animation-delay: 0.3s; }
+.c3 { left: 50%; animation-delay: 0.6s; }
+.c4 { left: 75%; animation-delay: 0.9s; }
+.c5 { left: 90%; animation-delay: 1.2s; }
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-50px) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(150px) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+.victory-content h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.victory-content p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    opacity: 0.95;
+}
+
+.victory-stars {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 25px;
+}
+
+.victory-star {
+    font-size: 2.5rem;
+    opacity: 0.3;
+    transition: var(--transition);
+    filter: grayscale(1);
+}
+
+.victory-star.earned {
+    opacity: 1;
+    filter: grayscale(0);
+    animation: starPop 0.5s ease backwards;
+}
+
+.victory-star:nth-child(1) { animation-delay: 0.1s; }
+.victory-star:nth-child(2) { animation-delay: 0.2s; }
+.victory-star:nth-child(3) { animation-delay: 0.3s; }
+.victory-star:nth-child(4) { animation-delay: 0.4s; }
+.victory-star:nth-child(5) { animation-delay: 0.5s; }
+
+.victory-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.victory-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 25px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.victory-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.victory-btn.primary {
+    background: #fff;
+    color: var(--primary-color);
+}
+
+.victory-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255,255,255,0.4);
+}
+
+.victory-btn.secondary {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+}
+
+.victory-btn.secondary:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* ==================== اسکرول بار سفارشی ==================== */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #26a69a;
+}
+
+/* ==================== ریسپانسیو برای موبایل ==================== */
+@media (max-width: 400px) {
+    .welcome-title {
+        font-size: 1.8rem;
+    }
+    
+    .hunter-character {
+        width: 150px;
+        height: 180px;
+    }
+    
+    .target-number {
+        width: 100px;
+        height: 100px;
+        font-size: 3rem;
+    }
+    
+    .game-item {
+        min-width: 95px;
+        padding: 12px;
+    }
+    
+    .item-emoji-single {
+        font-size: 1.5rem;
+    }
+    
+    .item-count-2 .item-emoji-single { font-size: 1.7rem; }
+    .item-count-3 .item-emoji-single { font-size: 1.4rem; }
+    .item-count-4 .item-emoji-single { font-size: 1.2rem; }
+    .item-count-5 .item-emoji-single { font-size: 1rem; }
+    
+    .feedback-message {
+        padding: 30px 40px;
+    }
+    
+    .feedback-icon {
+        font-size: 4rem;
+    }
+    
+    .feedback-text {
+        font-size: 1.3rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .levels-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stop-btn {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .stop-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .game-header {
+        padding: 10px 12px;
+    }
+    
+    .level-indicator {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .timer-container {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .stars-container {
+        gap: 1px;
+    }
+    
+    .star {
+        font-size: 1rem;
+    }
+    
+    .menu-btn {
+        padding: 14px 25px;
+        font-size: 1rem;
+    }
+    
+    .guide-content,
+    .stats-content,
+    .level-select-content,
+    .pause-content,
+    .level-result-content,
+    .game-over-content,
+    .victory-content {
+        padding: 20px;
+    }
+}
+
+/* حالت landscape موبایل */
+@media (max-height: 500px) and (orientation: landscape) {
+    .game-header {
+        padding: 8px 12px;
+    }
+    
+    .target-number {
+        width: 70px;
+        height: 70px;
+        font-size: 2.2rem;
+    }
+    
+    .items-container {
+        max-height: calc(100vh - 220px);
+        gap: 10px;
+    }
+    
+    .game-hint {
+        margin: 8px 12px;
+        padding: 8px 12px;
+    }
+    
+    .game-item {
+        min-width: 85px;
+        padding: 8px;
+    }
+    
+    .item-display {
+        max-width: 70px;
+    }
+    
+    .item-emoji-single {
+        font-size: 1.2rem;
+    }
+    
+    .question-label {
+        font-size: 1rem;
+        padding: 5px 15px;
+    }
+    
+    .welcome-content {
+        margin-top: 0;
+    }
+    
+    .hunter-character {
+        width: 100px;
+        height: 130px;
+    }
+    
+    .welcome-title {
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+    }
+    
+    .welcome-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+    
+    .menu-buttons {
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .menu-btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+}
+
+/* تبلت */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .welcome-title {
+        font-size: 2.5rem;
+    }
+    
+    .hunter-character {
+        width: 200px;
+        height: 250px;
+    }
+    
+    .target-number {
+        width: 140px;
+        height: 140px;
+        font-size: 4.5rem;
+    }
+    
+    .game-item {
+        min-width: 130px;
+        padding: 20px;
+    }
+    
+    .items-container {
+        gap: 25px;
+    }
+    
+    .menu-buttons {
+        max-width: 350px;
+    }
+    
+    .menu-btn {
+        padding: 18px 35px;
+        font-size: 1.2rem;
+    }
+}
+
+/* دسکتاپ بزرگ */
+@media (min-width: 1200px) {
+    .welcome-title {
+        font-size: 3rem;
+    }
+    
+    .hunter-character {
+        width: 220px;
+        height: 280px;
+    }
+    
+    .target-number {
+        width: 160px;
+        height: 160px;
+        font-size: 5rem;
+    }
+    
+    .game-item {
+        min-width: 150px;
+        padding: 25px;
+    }
+    
+    .items-container {
+        gap: 30px;
+    }
+}
+
+/* انیمیشن‌های اضافی */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(78, 205, 196, 0.5); }
+    50% { box-shadow: 0 0 40px rgba(78, 205, 196, 0.8); }
+}
+
+/* افکت‌های اضافی برای المان‌های مهم */
+.game-item {
+    position: relative;
+}
+
+.game-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 50%);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.game-item:hover::after {
+    opacity: 1;
+}
+
+/* بهبود خوانایی متن روی پس‌زمینه‌های تیره */
+.theme-space .question-label,
+.theme-space .game-hint {
+    background: rgba(255,255,255,0.95);
+    color: var(--dark-color);
+}
+
+/* استایل‌های اضافی برای دکمه‌های بازی */
+.game-over-btn,
+.result-btn,
+.pause-btn,
+.victory-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.game-over-btn::before,
+.result-btn::before,
+.pause-btn::before,
+.victory-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: 0.5s;
+}
+
+.game-over-btn:hover::before,
+.result-btn:hover::before,
+.pause-btn:hover::before,
+.victory-btn:hover::before {
+    left: 100%;
+}
+
+/* بهبود نمایش اعداد در حالت‌های مختلف */
+.target-number {
+    position: relative;
+}
+
+.target-number::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border-radius: inherit;
+    border: 2px solid rgba(255,255,255,0.3);
+    pointer-events: none;
+}
+
+/* استایل‌های پایانی */
+* {
+    outline: none;
+}
+
+button:focus,
+input:focus {
+    outline: 2px solid var(--secondary-color);
+    outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* بهبود عملکرد انیمیشن‌ها */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+     </style>
+</head>
+<body>
+    <!-- صداها -->
+    <audio id="bgMusic" loop></audio>
+    <audio id="sfxCorrect"></audio>
+    <audio id="sfxWrong"></audio>
+    <audio id="sfxWin"></audio>
+    <audio id="sfxLose"></audio>
+    <audio id="sfxNumber"></audio>
+    <audio id="sfxStar"></audio>
+
+    <!-- صفحه خوش‌آمدگویی -->
+    <div id="welcomeScreen" class="screen active">
+        <div class="welcome-bg">
+            <div class="cloud cloud1">☁️</div>
+            <div class="cloud cloud2">☁️</div>
+            <div class="cloud cloud3">☁️</div>
+            <div class="star-welcome">⭐</div>
+            <div class="star-welcome s2">⭐</div>
+            <div class="star-welcome s3">✨</div>
+        </div>
+        <div class="welcome-content">
+            <div class="hunter-character">
+                <svg viewBox="0 0 200 250" class="hunter-svg">
+                    <ellipse cx="100" cy="240" rx="80" ry="15" fill="#8B4513"/>
+                    <rect x="70" y="100" width="60" height="100" rx="10" fill="#8B4513"/>
+                    <circle cx="100" cy="70" r="35" fill="#FFDAB9"/>
+                    <path d="M60 55 Q100 20 140 55 L140 65 L60 65 Z" fill="#654321"/>
+                    <rect x="55" y="60" width="90" height="8" rx="2" fill="#8B4513"/>
+                    <circle cx="88" cy="65" r="5" fill="#000"/>
+                    <circle cx="112" cy="65" r="5" fill="#000"/>
+                    <path d="M85 80 Q100 90 115 80" stroke="#000" stroke-width="2" fill="none"/>
+                    <rect x="40" y="110" width="25" height="60" rx="10" fill="#FFDAB9"/>
+                    <rect x="135" y="110" width="25" height="60" rx="10" fill="#FFDAB9"/>
+                    <rect x="70" y="150" width="60" height="10" fill="#FFD700"/>
+                    <rect x="70" y="190" width="25" height="40" fill="#654321"/>
+                    <rect x="105" y="190" width="25" height="40" fill="#654321"/>
+                    <ellipse cx="82" cy="235" rx="15" ry="8" fill="#333"/>
+                    <ellipse cx="118" cy="235" rx="15" ry="8" fill="#333"/>
+                </svg>
+            </div>
+            <h1 class="welcome-title">🦁 شکارچی کوچک 🦁</h1>
+            <p class="welcome-subtitle">بیا یاد بگیریم و بازی کنیم!</p>
+            <div class="menu-buttons">
+                <button class="menu-btn primary-btn" id="startBtn">
+                    <svg class="btn-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    شروع بازی
+                </button>
+                <button class="menu-btn secondary-btn" id="statsBtn">
+                    <svg class="btn-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                    آمار
+                </button>
+                <button class="menu-btn tertiary-btn" id="guideBtn">
+                    <svg class="btn-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+                    راهنما
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه راهنما -->
+    <div id="guideScreen" class="screen">
+        <div class="guide-content">
+            <h2>📖 راهنمای بازی</h2>
+            <div class="guide-sections">
+                <div class="guide-section">
+                    <h3>🎯 هدف بازی</h3>
+                    <p>یک عدد به تو نشان داده میشه. باید از بین آیتم‌هایی که زیر دستت هست، اونی رو انتخاب کنی که تعدادش با اون عدد برابره!</p>
+                </div>
+                <div class="guide-section">
+                    <h3>⏱️ زمان</h3>
+                    <p>هر مرحله زمان محدودی داره. مرحله اول ۲ دقیقه و آخرین مرحله ۴۰ ثانیه است. پس سریع باش!</p>
+                </div>
+                <div class="guide-section">
+                    <h3>⭐ امتیاز</h3>
+                    <p>هر بار درست جواب بدی یه ستاره میگیری. ۵ مرحله داری که هر کدوم یه تم مختلف داره!</p>
+                </div>
+                <div class="guide-section">
+                    <h3>🎨 تم‌های بازی</h3>
+                    <ul>
+                        <li>🌳 طبیعت و حیوانات</li>
+                        <li>🚀 فضا و سیاره‌ها</li>
+                        <li>🌊 اقیانوس و ماهی‌ها</li>
+                        <li>🌾 مزرعه و حیوانات مزرعه</li>
+                        <li>🌲 جنگل و پرنده‌ها</li>
+                    </ul>
+                </div>
+            </div>
+            <button class="back-btn" id="backFromGuide">
+                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- صفحه آمار -->
+    <div id="statsScreen" class="screen">
+        <div class="stats-content">
+            <h2>📊 آمار بازی</h2>
+            
+            <!-- نمودار پیشرفت -->
+            <div class="progress-chart">
+                <svg viewBox="0 0 200 100" class="chart-svg">
+                    <!-- پس‌زمینه نمودار -->
+                    <rect x="10" y="10" width="180" height="80" rx="10" fill="rgba(255,255,255,0.1)"/>
+                    <!-- خطوط راهنما -->
+                    <line x1="20" y1="30" x2="180" y2="30" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                    <line x1="20" y1="50" x2="180" y2="50" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                    <line x1="20" y1="70" x2="180" y2="70" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                    <!-- نمودار میله‌ای -->
+                    <g id="chartBars"></g>
+                </svg>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🎮</div>
+                    <span class="stat-value" id="totalGames">0</span>
+                    <span class="stat-label">تعداد بازی</span>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <span class="stat-value" id="correctMoves">0</span>
+                    <span class="stat-label">حرکت درست</span>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">❌</div>
+                    <span class="stat-value" id="wrongMoves">0</span>
+                    <span class="stat-label">حرکت اشتباه</span>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <span class="stat-value" id="progressPercent">0%</span>
+                    <span class="stat-label">درصد موفقیت</span>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <span class="stat-value" id="totalStars">0</span>
+                    <span class="stat-label">ستاره‌های کل</span>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <span class="stat-value" id="bestScore">0</span>
+                    <span class="stat-label">بهترین امتیاز</span>
+                </div>
+            </div>
+
+            <div class="stats-summary">
+                <div class="summary-item">
+                    <span class="summary-icon">📊</span>
+                    <span class="summary-text">میانگین امتیاز هر بازی:</span>
+                    <strong id="avgScore">0</strong>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-icon">🔥</span>
+                    <span class="summary-text">بیشترین ستاره در یک بازی:</span>
+                    <strong id="maxStars">0</strong>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-icon">⏱️</span>
+                    <span class="summary-text">کل زمان بازی:</span>
+                    <strong id="totalTime">0 دقیقه</strong>
+                </div>
+            </div>
+
+            <!-- نشانگرهای مراحل -->
+            <div class="level-badges">
+                <h3>🏅 مراحل تکمیل شده</h3>
+                <div class="badges-container" id="badgesContainer">
+                    <div class="level-badge" data-level="1">🌳</div>
+                    <div class="level-badge" data-level="2">🚀</div>
+                    <div class="level-badge" data-level="3">🌊</div>
+                    <div class="level-badge" data-level="4">🌾</div>
+                    <div class="level-badge" data-level="5">🌲</div>
+                </div>
+            </div>
+
+            <button class="back-btn" id="backFromStats">
+                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- صفحه انتخاب مرحله -->
+    <div id="levelSelectScreen" class="screen">
+        <div class="level-select-content">
+            <h2>انتخاب مرحله</h2>
+            <div class="levels-container">
+                <div class="level-item" data-level="1">
+                    <div class="level-icon">🌳</div>
+                    <div class="level-name">طبیعت</div>
+                    <div class="level-status"></div>
+                    <div class="level-stars">☆☆☆</div>
+                </div>
+                <div class="level-item" data-level="2">
+                    <div class="level-icon">🚀</div>
+                    <div class="level-name">فضا</div>
+                    <div class="level-status"></div>
+                    <div class="level-stars">☆☆☆</div>
+                </div>
+                <div class="level-item" data-level="3">
+                    <div class="level-icon">🌊</div>
+                    <div class="level-name">اقیانوس</div>
+                    <div class="level-status"></div>
+                    <div class="level-stars">☆☆☆</div>
+                </div>
+                <div class="level-item" data-level="4">
+                    <div class="level-icon">🌾</div>
+                    <div class="level-name">مزرعه</div>
+                    <div class="level-status"></div>
+                    <div class="level-stars">☆☆☆</div>
+                </div>
+                <div class="level-item" data-level="5">
+                    <div class="level-icon">🌲</div>
+                    <div class="level-name">جنگل</div>
+                    <div class="level-status"></div>
+                    <div class="level-stars">☆☆☆</div>
+                </div>
+            </div>
+            <button class="back-btn" id="backFromLevel">
+                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- صفحه بازی -->
+    <div id="gameScreen" class="screen">
+        <div class="game-background" id="gameBackground">
+            <!-- پس‌زمینه پویا برای هر تم -->
+            <div class="bg-layer bg-sky"></div>
+            <div class="bg-layer bg-elements" id="bgElements"></div>
+            <div class="bg-layer bg-ground"></div>
+        </div>
+
+        <!-- هدر بازی -->
+        <div class="game-header">
+            <button class="stop-btn" id="stopBtn" title="توقف بازی">
+                <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+            </button>
+            <div class="level-indicator">
+                <span id="currentLevelNum">1</span>/5
+            </div>
+            <div class="timer-container">
+                <svg class="timer-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                <span id="timerDisplay">2:00</span>
+            </div>
+            <div class="stars-container">
+                <span class="star" id="star1">⭐</span>
+                <span class="star" id="star2">⭐</span>
+                <span class="star" id="star3">⭐</span>
+                <span class="star" id="star4">⭐</span>
+                <span class="star" id="star5">⭐</span>
+            </div>
+        </div>
+
+        <!-- راهنمای بازی -->
+        <div class="game-hint" id="gameHint">
+            <span class="hint-icon">💡</span>
+            <span class="hint-text">عدد رو ببین و آیتم درست رو انتخاب کن!</span>
+        </div>
+
+        <!-- سوال بازی -->
+        <div class="question-container">
+            <div class="target-number" id="targetNumber">
+                <span class="number-inner">2</span>
+            </div>
+            <div class="question-label">کدوم آیتم؟</div>
+        </div>
+
+        <!-- آیتم‌های بازی -->
+        <div class="items-container" id="itemsContainer"></div>
+
+        <!-- پیام بازخورد -->
+        <div class="feedback-overlay" id="feedbackOverlay">
+            <div class="feedback-message" id="feedbackMessage">
+                <div class="feedback-icon">🎉</div>
+                <div class="feedback-text">آفرین! درست بود!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه توقف بازی -->
+    <div id="pauseScreen" class="screen">
+        <div class="pause-content">
+            <div class="pause-icon">⏸️</div>
+            <h2>بازی متوقف شد</h2>
+            <p>می‌خوای ادامه بدی یا بری خونه؟</p>
+            <div class="pause-buttons">
+                <button class="pause-btn primary" id="resumeBtn">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    ادامه بازی
+                </button>
+                <button class="pause-btn secondary" id="pauseHomeBtn">
+                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    خانه
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه نتیجه بین مراحل -->
+    <div id="levelResultScreen" class="screen">
+        <div class="level-result-content">
+            <div class="result-stars" id="resultStars">
+                <span class="result-star">⭐</span>
+                <span class="result-star">⭐</span>
+                <span class="result-star">⭐</span>
+                <span class="result-star">⭐</span>
+                <span class="result-star">⭐</span>
+            </div>
+            <h2 id="resultTitle">عالی بود!</h2>
+            <p id="resultMessage">به مرحله بعد برویم؟</p>
+            <div class="result-buttons">
+                <button class="result-btn primary" id="nextLevelBtn">
+                    مرحله بعد
+                    <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                </button>
+                <button class="result-btn secondary" id="resultHomeBtn">
+                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    خانه
+                </button>
+                <button class="result-btn tertiary" id="resultStatsBtn">
+                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                    آمار
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه پایان بازی -->
+    <div id="gameOverScreen" class="screen">
+        <div class="game-over-content">
+            <div class="game-over-icon" id="gameOverIcon">😢</div>
+            <h2 id="gameOverTitle">وقت تموم شد!</h2>
+            <p id="gameOverMessage">نگران نباش، دوباره تلاش کن!</p>
+            <div class="final-stars" id="finalStars">
+                <span class="final-star">⭐</span>
+                <span class="final-star">⭐</span>
+                <span class="final-star">⭐</span>
+                <span class="final-star">⭐</span>
+                <span class="final-star">⭐</span>
+            </div>
+            <div class="game-over-buttons">
+                <button class="game-over-btn primary" id="restartBtn">
+                    <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                    شروع مجدد
+                </button>
+                <button class="game-over-btn secondary" id="gameOverHomeBtn">
+                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    خانه
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه تبریک پایان بازی -->
+    <div id="victoryScreen" class="screen">
+        <div class="victory-content">
+            <div class="victory-animation">
+                <div class="trophy">🏆</div>
+                <div class="confetti"></div>
+            </div>
+            <h2>🎊 تبریک! 🎊</h2>
+            <p>تو همه مراحل رو با موفقیت تموم کردی!</p>
+            <div class="victory-stars">
+                <span class="victory-star">⭐</span>
+                <span class="victory-star">⭐</span>
+                <span class="victory-star">⭐</span>
+                <span class="victory-star">⭐</span>
+                <span class="victory-star">⭐</span>
+            </div>
+            <div class="victory-buttons">
+                <button class="victory-btn primary" id="playAgainBtn">
+                    بازی مجدد
+                    <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                </button>
+                <button class="victory-btn secondary" id="victoryHomeBtn">
+                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    خانه
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== داده‌های بازی ====================
+const themes = [
+    {
+        id: 1,
+        name: 'طبیعت',
+        themeClass: 'theme-nature',
+        emoji: '🌳',
+        items: [
+            { emoji: '🍎', name: 'سیب', count: 2 },
+            { emoji: '🍉', name: 'هندوانه', count: 3 },
+            { emoji: '🍌', name: 'موز', count: 4 },
+            { emoji: '🍇', name: 'انگور', count: 5 }
+        ],
+        bgEmojis: ['🌳', '🌲', '🌿', '🦋', '🐝', '🌸', '🌺'],
+        soundType: 'nature'
+    },
+    {
+        id: 2,
+        name: 'فضا',
+        themeClass: 'theme-space',
+        emoji: '🚀',
+        items: [
+            { emoji: '🪐', name: 'سیاره', count: 2 },
+            { emoji: '⭐', name: 'ستاره', count: 3 },
+            { emoji: '🌙', name: 'ماه', count: 4 },
+            { emoji: '☄️', name: 'شهاب', count: 5 }
+        ],
+        bgEmojis: ['⭐', '🌙', '🛸', '🌌', '🪐', '🔭', '👽'],
+        soundType: 'space'
+    },
+    {
+        id: 3,
+        name: 'اقیانوس',
+        themeClass: 'theme-ocean',
+        emoji: '🌊',
+        items: [
+            { emoji: '🐟', name: 'ماهی', count: 2 },
+            { emoji: '🐙', name: 'اختاپوس', count: 3 },
+            { emoji: '🐬', name: 'دلفین', count: 4 },
+            { emoji: '🦀', name: 'خرچنگ', count: 5 }
+        ],
+        bgEmojis: ['🐠', '🐙', '🐬', '🦈', '🐳', '🦑', '🐡'],
+        soundType: 'ocean'
+    },
+    {
+        id: 4,
+        name: 'مزرعه',
+        themeClass: 'theme-farm',
+        emoji: '🌾',
+        items: [
+            { emoji: '🐄', name: 'گاو', count: 2 },
+            { emoji: '🐔', name: 'مرغ', count: 3 },
+            { emoji: '🐑', name: 'گوسفند', count: 4 },
+            { emoji: '🐴', name: 'اسب', count: 5 }
+        ],
+        bgEmojis: ['🚜', '🌾', '🐮', '🐔', '🐑', '🐴', '🏠'],
+        soundType: 'farm'
+    },
+    {
+        id: 5,
+        name: 'جنگل',
+        themeClass: 'theme-forest',
+        emoji: '🌲',
+        items: [
+            { emoji: '🦊', name: 'روباه', count: 2 },
+            { emoji: '🐻', name: 'خرس', count: 3 },
+            { emoji: '🦉', name: 'جغد', count: 4 },
+            { emoji: '🦌', name: 'آهو', count: 5 }
+        ],
+        bgEmojis: ['🌲', '🌳', '🍄', '🦌', '🐿️', '🦦', '🐦'],
+        soundType: 'forest'
+    }
+];
+
+// ==================== صداها با Web Audio API ====================
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+function playCorrectSound() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1);
+    oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2);
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.4);
+}
+
+function playWrongSound() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.type = 'sawtooth';
+    oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+    oscillator.frequency.linearRampToValueAtTime(100, audioContext.currentTime + 0.3);
+    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+}
+
+function playWinSound() {
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, i) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + i * 0.15);
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime + i * 0.15);
+        gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + i * 0.15 + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.15 + 0.4);
+        oscillator.start(audioContext.currentTime + i * 0.15);
+        oscillator.stop(audioContext.currentTime + i * 0.15 + 0.4);
+    });
+}
+
+function playLoseSound() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+    oscillator.frequency.linearRampToValueAtTime(150, audioContext.currentTime + 0.5);
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+}
+
+function playStartSound() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(554.37, audioContext.currentTime + 0.1);
+    oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.2);
+    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+}
+
+function playTimerSound() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1);
+}
+
+function playNumberSound() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.type = 'triangle';
+    oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.1);
+    oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.2);
+    gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+}
+
+function playStarSound() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.2);
+}
+
+// ==================== وضعیت بازی ====================
+let gameState = {
+    currentLevel: 1,
+    currentQuestion: 0,
+    correctAnswers: 0,
+    totalQuestions: 5,
+    timeLeft: 120,
+    timerInterval: null,
+    isGameActive: false,
+    isPaused: false,
+    completedLevels: [],
+    levelStars: {},
+    stats: {
+        totalGames: 0,
+        correctMoves: 0,
+        wrongMoves: 0,
+        totalMoves: 0,
+        bestScore: 0,
+        totalStars: 0,
+        maxStarsInOneGame: 0,
+        totalPlayTime: 0
+    }
+};
+
+const levelTimes = [120, 100, 80, 60, 40];
+
+// ==================== المان‌های DOM ====================
+const screens = {
+    welcome: document.getElementById('welcomeScreen'),
+    guide: document.getElementById('guideScreen'),
+    stats: document.getElementById('statsScreen'),
+    levelSelect: document.getElementById('levelSelectScreen'),
+    game: document.getElementById('gameScreen'),
+    pause: document.getElementById('pauseScreen'),
+    levelResult: document.getElementById('levelResultScreen'),
+    gameOver: document.getElementById('gameOverScreen'),
+    victory: document.getElementById('victoryScreen')
+};
+
+// دکمه‌های اصلی
+const startBtn = document.getElementById('startBtn');
+const statsBtn = document.getElementById('statsBtn');
+const guideBtn = document.getElementById('guideBtn');
+const backFromGuide = document.getElementById('backFromGuide');
+const backFromStats = document.getElementById('backFromStats');
+const backFromLevel = document.getElementById('backFromLevel');
+const stopBtn = document.getElementById('stopBtn');
+const resumeBtn = document.getElementById('resumeBtn');
+const pauseHomeBtn = document.getElementById('pauseHomeBtn');
+
+// المان‌های بازی
+const gameBackground = document.getElementById('gameBackground');
+const currentLevelNum = document.getElementById('currentLevelNum');
+const timerDisplay = document.getElementById('timerDisplay');
+const targetNumber = document.getElementById('targetNumber');
+const itemsContainer = document.getElementById('itemsContainer');
+const gameHint = document.getElementById('gameHint');
+const feedbackOverlay = document.getElementById('feedbackOverlay');
+const feedbackMessage = document.getElementById('feedbackMessage');
+
+// المان‌های نتیجه
+const resultStars = document.getElementById('resultStars');
+const resultTitle = document.getElementById('resultTitle');
+const resultMessage = document.getElementById('resultMessage');
+const nextLevelBtn = document.getElementById('nextLevelBtn');
+const resultHomeBtn = document.getElementById('resultHomeBtn');
+const resultStatsBtn = document.getElementById('resultStatsBtn');
+
+// المان‌های پایان بازی
+const gameOverIcon = document.getElementById('gameOverIcon');
+const gameOverTitle = document.getElementById('gameOverTitle');
+const gameOverMessage = document.getElementById('gameOverMessage');
+const finalStars = document.getElementById('finalStars');
+const restartBtn = document.getElementById('restartBtn');
+const gameOverHomeBtn = document.getElementById('gameOverHomeBtn');
+
+// المان‌های پیروزی
+const playAgainBtn = document.getElementById('playAgainBtn');
+const victoryHomeBtn = document.getElementById('victoryHomeBtn');
+
+// ==================== توابع کمکی ====================
+function showScreen(screenName) {
+    Object.values(screens).forEach(screen => {
+        screen.classList.remove('active');
+    });
+    screens[screenName].classList.add('active');
+}
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function formatTotalTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    if (hours > 0) {
+        return `${hours} ساعت و ${mins} دقیقه`;
+    }
+    return `${mins} دقیقه`;
+}
+
+// ==================== تایمر ====================
+function startTimer() {
+    clearInterval(gameState.timerInterval);
+    gameState.timerInterval = setInterval(() => {
+        if (gameState.isPaused) return;
+        gameState.timeLeft--;
+        gameState.stats.totalPlayTime++;
+        timerDisplay.textContent = formatTime(gameState.timeLeft);
+        
+        if (gameState.timeLeft <= 10) {
+            document.querySelector('.timer-container').classList.add('warning');
+            playTimerSound();
+        }
+        
+        if (gameState.timeLeft <= 0) {
+            endGame(false);
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(gameState.timerInterval);
+    document.querySelector('.timer-container').classList.remove('warning');
+}
+
+// ==================== کنترل بازی ====================
+function pauseGame() {
+    gameState.isPaused = true;
+    stopTimer();
+    showScreen('pause');
+}
+
+function resumeGame() {
+    gameState.isPaused = false;
+    startTimer();
+    showScreen('game');
+}
+
+// ==================== آمار ====================
+function loadStats() {
+    const savedStats = localStorage.getItem('gameStats');
+    if (savedStats) {
+        try {
+            gameState.stats = JSON.parse(savedStats);
+        } catch (e) {
+            console.error('Error loading stats:', e);
+            gameState.stats = {
+                totalGames: 0,
+                correctMoves: 0,
+                wrongMoves: 0,
+                totalMoves: 0,
+                bestScore: 0,
+                totalStars: 0,
+                maxStarsInOneGame: 0,
+                totalPlayTime: 0
+            };
+        }
+    }
+    updateStatsDisplay();
+}
+
+function saveStats() {
+    try {
+        localStorage.setItem('gameStats', JSON.stringify(gameState.stats));
+    } catch (e) {
+        console.error('Error saving stats:', e);
+    }
+}
+
+function updateStatsDisplay() {
+    // المان‌های آمار
+    const totalGamesEl = document.getElementById('totalGames');
+    const correctMovesEl = document.getElementById('correctMoves');
+    const wrongMovesEl = document.getElementById('wrongMoves');
+    const progressPercentEl = document.getElementById('progressPercent');
+    const totalStarsEl = document.getElementById('totalStars');
+    const bestScoreEl = document.getElementById('bestScore');
+    const avgScoreEl = document.getElementById('avgScore');
+    const maxStarsEl = document.getElementById('maxStars');
+    const totalTimeEl = document.getElementById('totalTime');
+    
+    if (totalGamesEl) totalGamesEl.textContent = gameState.stats.totalGames;
+    if (correctMovesEl) correctMovesEl.textContent = gameState.stats.correctMoves;
+    if (wrongMovesEl) wrongMovesEl.textContent = gameState.stats.wrongMoves;
+    
+    // محاسبه درصد موفقیت
+    const progress = gameState.stats.totalMoves > 0
+        ? Math.round((gameState.stats.correctMoves / gameState.stats.totalMoves) * 100)
+        : 0;
+    if (progressPercentEl) progressPercentEl.textContent = `${progress}%`;
+    
+    // ستاره‌های کل
+    if (totalStarsEl) totalStarsEl.textContent = gameState.stats.totalStars;
+    
+    // بهترین امتیاز
+    if (bestScoreEl) bestScoreEl.textContent = gameState.stats.bestScore;
+    
+    // میانگین امتیاز هر بازی
+    const avgScore = gameState.stats.totalGames > 0
+        ? (gameState.stats.correctMoves / gameState.stats.totalGames).toFixed(1)
+        : 0;
+    if (avgScoreEl) avgScoreEl.textContent = avgScore;
+    
+    // بیشترین ستاره در یک بازی
+    if (maxStarsEl) maxStarsEl.textContent = gameState.stats.maxStarsInOneGame;
+    
+    // کل زمان بازی
+    if (totalTimeEl) totalTimeEl.textContent = formatTotalTime(gameState.stats.totalPlayTime);
+    
+    // بروزرسانی نمودار
+    updateChart();
+    
+    // بروزرسانی نشانگرهای مراحل
+    updateBadges();
+}
+
+function updateChart() {
+    const chartBars = document.getElementById('chartBars');
+    if (!chartBars) return;
+    
+    chartBars.innerHTML = '';
+    
+    // داده‌های نمونه برای نمودار (5 مرحله آخر)
+    const recentGames = [];
+    for (let i = 0; i < 5; i++) {
+        recentGames.push(Math.floor(Math.random() * 5) + 1);
+    }
+    
+    const barWidth = 28;
+    const maxHeight = 60;
+    
+    recentGames.forEach((value, index) => {
+        const barHeight = (value / 5) * maxHeight;
+        const x = 25 + index * 35;
+        const y = 80 - barHeight;
+        
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', x);
+        rect.setAttribute('y', y);
+        rect.setAttribute('width', barWidth);
+        rect.setAttribute('height', barHeight);
+        rect.setAttribute('rx', 5);
+        rect.setAttribute('fill', value >= 3 ? '#2ECC71' : value >= 1 ? '#f1c40f' : '#E74C3C');
+        
+        chartBars.appendChild(rect);
+    });
+}
+
+function updateBadges() {
+    const badges = document.querySelectorAll('.level-badge');
+    badges.forEach((badge, index) => {
+        const levelNum = index + 1;
+        if (gameState.completedLevels.includes(levelNum)) {
+            badge.classList.add('unlocked');
+        } else {
+            badge.classList.remove('unlocked');
+        }
+    });
+}
+
+// ==================== مراحل ====================
+function loadCompletedLevels() {
+    const saved = localStorage.getItem('completedLevels');
+    if (saved) {
+        try {
+            gameState.completedLevels = JSON.parse(saved);
+        } catch (e) {
+            console.error('Error loading completed levels:', e);
+            gameState.completedLevels = [];
+        }
+    }
+    
+    const savedStars = localStorage.getItem('levelStars');
+    if (savedStars) {
+        try {
+            gameState.levelStars = JSON.parse(savedStars);
+        } catch (e) {
+            console.error('Error loading level stars:', e);
+            gameState.levelStars = {};
+        }
+    }
+    
+    updateLevelDisplay();
+}
+
+function saveCompletedLevels() {
+    try {
+        localStorage.setItem('completedLevels', JSON.stringify(gameState.completedLevels));
+        localStorage.setItem('levelStars', JSON.stringify(gameState.levelStars));
+    } catch (e) {
+        console.error('Error saving completed levels:', e);
+    }
+}
+
+function updateLevelDisplay() {
+    const levelItems = document.querySelectorAll('.level-item');
+    levelItems.forEach((item, index) => {
+        const levelNum = index + 1;
+        const starsEl = item.querySelector('.level-stars');
+        item.classList.remove('completed', 'current');
+        
+        if (gameState.completedLevels.includes(levelNum)) {
+            item.classList.add('completed');
+            item.querySelector('.level-status').textContent = '✅';
+            const stars = gameState.levelStars[levelNum] || 0;
+            starsEl.textContent = '⭐'.repeat(stars) + '☆'.repeat(5 - stars);
+        } else if (levelNum === gameState.currentLevel || gameState.completedLevels.length === levelNum - 1) {
+            item.classList.add('current');
+            starsEl.textContent = '☆☆☆☆☆';
+        }
+    });
+}
+
+// ==================== بازی ====================
+function startGame(level) {
+    playStartSound();
+    gameState.currentLevel = level;
+    gameState.currentQuestion = 0;
+    gameState.correctAnswers = 0;
+    gameState.timeLeft = levelTimes[level - 1];
+    gameState.isGameActive = true;
+    gameState.isPaused = false;
+    
+    const theme = themes[level - 1];
+    gameBackground.className = 'game-background ' + theme.themeClass;
+    
+    currentLevelNum.textContent = level;
+    timerDisplay.textContent = formatTime(gameState.timeLeft);
+    
+    // ریست کردن ستاره‌ها
+    document.querySelectorAll('.stars-container .star').forEach(star => {
+        star.classList.remove('earned');
+    });
+    
+    showScreen('game');
+    generateQuestion();
+    startTimer();
+}
+
+function generateQuestion() {
+    const theme = themes[gameState.currentLevel - 1];
+    const targetCount = Math.floor(Math.random() * 4) + 2;
+    
+    // انیمیشن و صدای عدد برای اولین سوال هر مرحله
+    if (gameState.currentQuestion === 0) {
+        targetNumber.innerHTML = `<div class="number-glow"></div><div class="number-inner"><span class="number-text">${targetCount}</span></div>`;
+        playNumberSound();
+    } else {
+        targetNumber.innerHTML = `<div class="number-glow"></div><div class="number-inner"><span class="number-text">${targetCount}</span></div>`;
+    }
+    
+    // انتخاب آیتم‌ها
+    const shuffledItems = [...theme.items].sort(() => Math.random() - 0.5);
+    const correctItem = shuffledItems.find(item => item.count === targetCount) || theme.items[0];
+    
+    itemsContainer.innerHTML = '';
+    
+    const correctIndex = Math.floor(Math.random() * 4);
+    const usedCounts = [targetCount];
+    
+    for (let i = 0; i < 4; i++) {
+        let itemData;
+        if (i === correctIndex) {
+            itemData = correctItem;
+        } else {
+            const availableItems = shuffledItems.filter(it => !usedCounts.includes(it.count));
+            if (availableItems.length > 0) {
+                itemData = availableItems[Math.floor(Math.random() * availableItems.length)];
+            } else {
+                itemData = shuffledItems[i % shuffledItems.length];
+            }
+            usedCounts.push(itemData.count);
+        }
+        
+        const itemEl = document.createElement('div');
+        itemEl.className = `game-item item-count-${itemData.count}`;
+        itemEl.dataset.count = itemData.count;
+        
+        let emojisHtml = '';
+        for (let j = 0; j < itemData.count; j++) {
+            emojisHtml += `<span class="item-emoji-single">${itemData.emoji}</span>`;
+        }
+        
+        itemEl.innerHTML = `
+            <div class="item-display">${emojisHtml}</div>
+            <span class="item-name">${itemData.name}</span>
+        `;
+        
+        itemEl.addEventListener('click', () => handleItemClick(itemEl, itemData.count, targetCount));
+        itemsContainer.appendChild(itemEl);
+    }
+    
+    gameHint.querySelector('.hint-text').textContent = `عدد ${targetCount} رو ببین و آیتم درست رو انتخاب کن!`;
+}
+
+function handleItemClick(itemEl, selectedCount, targetCount) {
+    if (!gameState.isGameActive || gameState.isPaused) return;
+    
+    gameState.stats.totalMoves++;
+    
+    if (selectedCount === targetCount) {
+        playCorrectSound();
+        itemEl.classList.add('correct');
+        gameState.correctAnswers++;
+        gameState.stats.correctMoves++;
+        playStarSound();
+        showFeedback(true);
+        
+        setTimeout(() => {
+            hideFeedback();
+            gameState.currentQuestion++;
+            
+            const starIndex = gameState.correctAnswers;
+            if (starIndex <= 5) {
+                document.getElementById(`star${starIndex}`).classList.add('earned');
+            }
+            
+            if (gameState.currentQuestion >= gameState.totalQuestions) {
+                levelComplete();
+            } else {
+                generateQuestion();
+            }
+        }, 1500);
+    } else {
+        playWrongSound();
+        itemEl.classList.add('wrong');
+        gameState.stats.wrongMoves++;
+        showFeedback(false);
+        
+        setTimeout(() => {
+            hideFeedback();
+        }, 1500);
+    }
+    
+    saveStats();
+}
+
+function showFeedback(isCorrect) {
+    const icon = feedbackMessage.querySelector('.feedback-icon');
+    const text = feedbackMessage.querySelector('.feedback-text');
+    
+    if (isCorrect) {
+        icon.textContent = '🎉';
+        text.textContent = 'آفرین! درست بود!';
+        feedbackMessage.className = 'feedback-message success';
+    } else {
+        icon.textContent = '😢';
+        text.textContent = 'اشتباه بود! دوباره تلاش کن!';
+        feedbackMessage.className = 'feedback-message error';
+    }
+    
+    feedbackOverlay.classList.add('show');
+}
+
+function hideFeedback() {
+    feedbackOverlay.classList.remove('show');
+}
+
+function finishGame() {
+    // ذخیره آمار نهایی بازی
+    gameState.stats.totalGames++;
+    
+    // بروزرسانی ستاره‌های کل
+    gameState.stats.totalStars += gameState.correctAnswers;
+    
+    // بروزرسانی بیشترین ستاره در یک بازی
+    if (gameState.correctAnswers > gameState.stats.maxStarsInOneGame) {
+        gameState.stats.maxStarsInOneGame = gameState.correctAnswers;
+    }
+    
+    // بروزرسانی بهترین امتیاز
+    if (gameState.correctAnswers > gameState.stats.bestScore) {
+        gameState.stats.bestScore = gameState.correctAnswers;
+    }
+    
+    saveStats();
+}
+
+function levelComplete() {
+    stopTimer();
+    gameState.isGameActive = false;
+    
+    // ذخیره ستاره‌های مرحله
+    gameState.levelStars[gameState.currentLevel] = gameState.correctAnswers;
+    
+    if (!gameState.completedLevels.includes(gameState.currentLevel)) {
+        gameState.completedLevels.push(gameState.currentLevel);
+    }
+    
+    saveCompletedLevels();
+    playWinSound();
+    
+    const stars = resultStars.querySelectorAll('.result-star');
+    stars.forEach((star, index) => {
+        star.classList.remove('earned');
+        if (index < gameState.correctAnswers) {
+            setTimeout(() => {
+                star.classList.add('earned');
+            }, (index + 1) * 200);
+        }
+    });
+    
+    if (gameState.currentLevel >= 5) {
+        finishGame();
+        setTimeout(() => {
+            showVictoryScreen();
+        }, 2000);
+    } else {
+        resultTitle.textContent = 'عالی بود!';
+        resultMessage.textContent = `ستاره گرفتی! به مرحله ${gameState.currentLevel + 1} برویم؟`;
+        nextLevelBtn.textContent = 'مرحله بعد';
+        showScreen('levelResult');
+    }
+}
+
+function endGame(isWin) {
+    stopTimer();
+    gameState.isGameActive = false;
+    
+    if (isWin) {
+        showVictoryScreen();
+    } else {
+        finishGame();
+        playLoseSound();
+        
+        gameOverIcon.textContent = '😢';
+        gameOverTitle.textContent = 'وقت تموم شد!';
+        gameOverMessage.textContent = 'نگران نباش، دوباره تلاش کن!';
+        
+        const stars = finalStars.querySelectorAll('.final-star');
+        stars.forEach((star, index) => {
+            star.classList.remove('earned');
+            if (index < gameState.correctAnswers) {
+                setTimeout(() => {
+                    star.classList.add('earned');
+                }, (index + 1) * 200);
+            }
+        });
+        
+        showScreen('gameOver');
+    }
+}
+
+function showVictoryScreen() {
+    playWinSound();
+    
+    const stars = document.querySelectorAll('.victory-star');
+    stars.forEach((star, index) => {
+        star.classList.remove('earned');
+        setTimeout(() => {
+            star.classList.add('earned');
+        }, (index + 1) * 200);
+    });
+    
+    showScreen('victory');
+}
+
+// ==================== رویدادها ====================
+// دکمه شروع بازی
+startBtn.addEventListener('click', () => {
+    loadCompletedLevels();
+    updateLevelDisplay();
+    showScreen('levelSelect');
+});
+
+// دکمه آمار
+statsBtn.addEventListener('click', () => {
+    loadStats();
+    showScreen('stats');
+});
+
+// دکمه راهنما
+guideBtn.addEventListener('click', () => {
+    showScreen('guide');
+});
+
+// دکمه‌های بازگشت
+backFromGuide.addEventListener('click', () => showScreen('welcome'));
+backFromStats.addEventListener('click', () => showScreen('welcome'));
+backFromLevel.addEventListener('click', () => showScreen('welcome'));
+
+// دکمه توقف
+stopBtn.addEventListener('click', () => {
+    pauseGame();
+});
+
+// دکمه ادامه
+resumeBtn.addEventListener('click', () => {
+    resumeGame();
+});
+
+// دکمه خانه در صفحه توقف
+pauseHomeBtn.addEventListener('click', () => {
+    gameState.isGameActive = false;
+    gameState.isPaused = false;
+    stopTimer();
+    showScreen('welcome');
+});
+
+// انتخاب مرحله
+
+
+// انتخاب مرحله
+document.querySelectorAll('.level-item').forEach(item => {
+    item.addEventListener('click', () => {
+        const level = parseInt(item.dataset.level);
+        startGame(level);
+    });
+});
+
+// دکمه مرحله بعد
+nextLevelBtn.addEventListener('click', () => {
+    if (gameState.currentLevel < 5) {
+        gameState.currentLevel++;
+        startGame(gameState.currentLevel);
+    }
+});
+
+// دکمه‌های خانه و آمار در صفحه نتیجه
+resultHomeBtn.addEventListener('click', () => {
+    showScreen('welcome');
+});
+
+resultStatsBtn.addEventListener('click', () => {
+    loadStats();
+    showScreen('stats');
+});
+
+// دکمه شروع مجدد
+restartBtn.addEventListener('click', () => {
+    startGame(gameState.currentLevel);
+});
+
+// دکمه خانه در صفحه پایان بازی
+gameOverHomeBtn.addEventListener('click', () => {
+    showScreen('welcome');
+});
+
+// دکمه بازی مجدد
+playAgainBtn.addEventListener('click', () => {
+    gameState.currentLevel = 1;
+    gameState.completedLevels = [];
+    saveCompletedLevels();
+    startGame(1);
+});
+
+// دکمه خانه در صفحه پیروزی
+victoryHomeBtn.addEventListener('click', () => {
+    showScreen('welcome');
+});
+
+// ==================== شروع برنامه ====================
+document.addEventListener('DOMContentLoaded', () => {
+    loadStats();
+    loadCompletedLevels();
+    
+    // اطمینان از اینکه صفحه خوش‌آمدگویی نمایش داده می‌شود
+    showScreen('welcome');
+});
+
+// پیش‌گیری از اسکرول در موبایل
+// document.body.addEventListener('touchmove', (e) => {
+//     if (e.target.closest('.screen.active') && 
+//         !e.target.closest('.items-container') && 
+//         !e.target.closest('.guide-content') &&
+//         !e.target.closest('.stats-content')) {
+//         e.preventDefault();
+//     }, { passive: false });
+// });
+
+// غیرفعال کردن زوم در موبایل
+document.addEventListener('dblclick', (e) => {
+    e.preventDefault();
+}, { passive: false });
+
+// مدیریت تغییر اندازه صفحه
+window.addEventListener('resize', () => {
+    // ریست کردن موقعیت‌ها در صورت نیاز
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+});
+
+// مدیریت visibility change برای توقف بازی در پس‌زمینه
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden && gameState.isGameActive && !gameState.isPaused) {
+        pauseGame();
+    }
+});
+
+// ==================== توابع اضافی ====================
+
+// ریست کامل بازی
+function resetAllData() {
+    if (confirm('آیا می‌خواهید تمام داده‌های بازی پاک شوند؟')) {
+        localStorage.removeItem('gameStats');
+        localStorage.removeItem('completedLevels');
+        localStorage.removeItem('levelStars');
+        
+        gameState = {
+            currentLevel: 1,
+            currentQuestion: 0,
+            correctAnswers: 0,
+            totalQuestions: 5,
+            timeLeft: 120,
+            timerInterval: null,
+            isGameActive: false,
+            isPaused: false,
+            completedLevels: [],
+            levelStars: {},
+            stats: {
+                totalGames: 0,
+                correctMoves: 0,
+                wrongMoves: 0,
+                totalMoves: 0,
+                bestScore: 0,
+                totalStars: 0,
+                maxStarsInOneGame: 0,
+                totalPlayTime: 0
+            }
+        };
+        
+        saveStats();
+        saveCompletedLevels();
+        updateStatsDisplay();
+        updateLevelDisplay();
+        showScreen('welcome');
+    }
+}
+
+// صدای کلیک دکمه
+function playClickSound() {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.05);
+}
+
+// اضافه کردن صدای کلیک به همه دکمه‌ها
+document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        // فقط اگر audioContext آماده باشد
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+    });
+});
+
+// مدیریت خطاهای JavaScript
+window.addEventListener('error', (e) => {
+    console.error('JavaScript Error:', e.error);
+});
+
+// مدیریت خطاهای Promise
+window.addEventListener('unhandledrejection', (e) => {
+    console.error('Unhandled Promise Rejection:', e.reason);
+});
+
+// نمایش پیام خوش‌آمدگویی در کنسول
+console.log('%c🦁 شکارچی کوچک 🦁', 'font-size: 24px; color: #4ECDC4; font-weight: bold;');
+console.log('%cبازی شمارشی برای کودکان', 'font-size: 14px; color: #FF6B6B;');
+console.log('%cموفق باشید!', 'font-size: 12px; color: #2ECC71;');
+    </script>
+       
+</body>
+</html>

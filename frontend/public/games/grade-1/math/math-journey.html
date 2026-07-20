@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سفر ریاضی - بازی آموزشی کودکان</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+            background: linear-gradient(180deg, #87CEEB 0%, #E0F7FA 100%);
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+        }
+        .screen.active {
+            display: flex;
+        }
+        /* صفحه شروع */
+        #start-screen {
+            background: linear-gradient(180deg, #87CEEB 0%, #B8E6B8 100%);
+        }
+        .start-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .sun {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            background: #FFD93D;
+            border-radius: 50%;
+            box-shadow: 0 0 60px #FFD93D, 0 0 100px #FFE66D;
+            animation: sunPulse 3s ease-in-out infinite;
+        }
+        @keyframes sunPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.9;
+        }
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+        .cloud-1 { width: 100px; height: 40px; top: 60px; left: 10%; animation: cloudFloat 20s ease-in-out infinite; }
+        .cloud-1::before { width: 50px; height: 50px; top: -25px; left: 15px; }
+        .cloud-1::after { width: 35px; height: 35px; top: -15px; left: 50px; }
+        .cloud-2 { width: 120px; height: 45px; top: 100px; left: 50%; animation: cloudFloat 25s ease-in-out infinite reverse; }
+        .cloud-2::before { width: 60px; height: 60px; top: -30px; left: 20px; }
+        .cloud-2::after { width: 40px; height: 40px; top: -20px; left: 60px; }
+        .cloud-3 { width: 80px; height: 35px; top: 80px; left: 80%; animation: cloudFloat 18s ease-in-out infinite; }
+        .cloud-3::before { width: 40px; height: 40px; top: -20px; left: 10px; }
+        .cloud-3::after { width: 30px; height: 30px; top: -12px; left: 40px; }
+        @keyframes cloudFloat {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(30px); }
+        }
+        .mountains {
+            position: absolute;
+            bottom: 35%;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #8B7355 0%, #A0522D 50%, #6B4423 100%);
+            clip-path: polygon(0 100%, 15% 40%, 30% 70%, 50% 20%, 70% 60%, 85% 30%, 100% 100%);
+        }
+        .grass {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 35%;
+            background: linear-gradient(180deg, #7CB342 0%, #558B2F 100%);
+            border-radius: 100% 100% 0 0 / 30px 30px 0 0;
+        }
+        .start-content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 20px;
+            text-align: center;
+        }
+        .game-title {
+            font-size: 3rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 3px 3px 0 #FF6B6B, 6px 6px 0 rgba(0,0,0,0.2);
+            animation: titleBounce 2s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .title-icon {
+            animation: iconWiggle 1s ease-in-out infinite;
+            display: inline-block;
+        }
+        @keyframes titleBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes iconWiggle {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+        .subtitle {
+            font-size: 1.3rem;
+            color: white;
+            margin-top: 15px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+        .characters-preview {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0 40px;
+        }
+        .preview-char {
+            font-size: 3.5rem;
+            animation: charBounce 1.5s ease-in-out infinite;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+        }
+        .preview-char:nth-child(1) { animation-delay: 0s; }
+        .preview-char:nth-child(2) { animation-delay: 0.2s; }
+        .preview-char:nth-child(3) { animation-delay: 0.4s; }
+        .preview-char:nth-child(4) { animation-delay: 0.6s; }
+        @keyframes charBounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.1); }
+        }
+        .start-button {
+            background: linear-gradient(145deg, #6BCB77, #4CAF50);
+            border: none;
+            padding: 20px 50px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #388E3C, 0 15px 30px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 11px 0 #388E3C, 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .start-button:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 #388E3C, 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .btn-stars {
+            font-size: 1rem;
+            letter-spacing: 5px;
+            display: block;
+            margin-top: 5px;
+        }
+        /* صفحه بازی */
+        #game-screen {
+            background: linear-gradient(180deg, #5BA3C6 0%, #87CEEB 30%, #B8E6B8 100%);
+        }
+        .game-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .hills {
+            position: absolute;
+            bottom: 30%;
+            width: 100%;
+            height: 150px;
+        }
+        .hill {
+            position: absolute;
+            border-radius: 50% 50% 0 0;
+        }
+        .hill-1 { width: 300px; height: 120px; background: linear-gradient(180deg, #8BC34A 0%, #689F38 100%); bottom: 0; left: -50px; }
+        .hill-2 { width: 400px; height: 150px; background: linear-gradient(180deg, #9CCC65 0%, #7CB342 100%); bottom: 0; left: 150px; }
+        .hill-3 { width: 350px; height: 130px; background: linear-gradient(180deg, #AED581 0%, #8BC34A 100%); bottom: 0; right: -50px; }
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(180deg, #7CB342 0%, #558B2F 100%);
+        }
+        .game-cloud {
+            position: absolute;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50px;
+            z-index: 5;
+        }
+        .gc1 { width: 120px; height: 50px; top: 15%; left: -150px; animation: cloudDrift 35s linear infinite; }
+        .gc2 { width: 100px; height: 40px; top: 25%; left: -130px; animation: cloudDrift 45s linear infinite; animation-delay: -15s; }
+        .gc3 { width: 80px; height: 35px; top: 10%; left: -100px; animation: cloudDrift 40s linear infinite; animation-delay: -25s; }
+        .gc1::before, .gc1::after, .gc2::before, .gc2::after, .gc3::before, .gc3::after {
+            content: '';
+            position: absolute;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+        }
+        .gc1::before { width: 60px; height: 60px; top: -30px; left: 20px; }
+        .gc1::after { width: 45px; height: 45px; top: -20px; left: 60px; }
+        .gc2::before { width: 50px; height: 50px; top: -25px; left: 15px; }
+        .gc2::after { width: 35px; height: 35px; top: -15px; left: 50px; }
+        .gc3::before { width: 40px; height: 40px; top: -20px; left: 10px; }
+        .gc3::after { width: 30px; height: 30px; top: -12px; left: 40px; }
+        @keyframes cloudDrift {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 200px)); }
+        }
+        .flowers {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30%;
+        }
+        .flower {
+            position: absolute;
+            font-size: 1.5rem;
+            animation: flowerSway 3s ease-in-out infinite;
+        }
+        .f1 { left: 10%; bottom: 20%; animation-delay: 0s; }
+        .f2 { left: 25%; bottom: 15%; animation-delay: 0.5s; }
+        .f3 { left: 45%; bottom: 25%; animation-delay: 1s; }
+        .f4 { left: 70%; bottom: 18%; animation-delay: 1.5s; }
+        .f5 { left: 85%; bottom: 22%; animation-delay: 2s; }
+        @keyframes flowerSway {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+        .trees {
+            position: absolute;
+            bottom: 28%;
+            width: 100%;
+        }
+        .tree {
+            position: absolute;
+            font-size: 3rem;
+            animation: treeSway 4s ease-in-out infinite;
+        }
+        .t1 { left: 5%; font-size: 3.5rem; animation-delay: 0s; }
+        .t2 { left: 90%; font-size: 4rem; animation-delay: 1s; }
+        .t3 { left: 50%; font-size: 3rem; animation-delay: 2s; }
+        @keyframes treeSway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+        /* راوی */
+        .narrator {
+            position: absolute;
+            top: 60px;
+            left: 10px;
+            right: 10px;
+            z-index: 100;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .narrator-bubble {
+            background: white;
+            border-radius: 20px;
+            padding: 15px 20px;
+            max-width: 70%;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            position: relative;
+            animation: bubblePop 0.5s ease-out;
+        }
+        .narrator-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            right: 30px;
+            border: 10px solid transparent;
+            border-top-color: white;
+        }
+        @keyframes bubblePop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        #narrator-text {
+            font-size: 1.1rem;
+            color: #2D3436;
+            line-height: 1.6;
+            margin: 0;
+            transition: opacity 0.3s;
+        }
+        .narrator-owl {
+            width: 70px;
+            height: 70px;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .owl-body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #8B4513, #A0522D);
+            border-radius: 50% 50% 45% 45%;
+            position: relative;
+            animation: owlBob 2s ease-in-out infinite;
+        }
+        @keyframes owlBob {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-3px) rotate(-2deg); }
+            75% { transform: translateY(-3px) rotate(2deg); }
+        }
+        .owl-face {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 35px;
+            background: #DEB887;
+            border-radius: 50%;
+        }
+        .owl-eyes {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 5px;
+        }
+        .eye {
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pupil {
+            width: 10px;
+            height: 10px;
+            background: #2D3436;
+            border-radius: 50%;
+            animation: lookAround 4s ease-in-out infinite;
+        }
+        @keyframes lookAround {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(3px, 0); }
+            50% { transform: translate(-3px, 0); }
+            75% { transform: translate(0, 2px); }
+        }
+        .owl-beak {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 12px solid #FFA500;
+            margin: 5px auto 0;
+        }
+        .owl-wing {
+            position: absolute;
+            width: 25px;
+            height: 40px;
+            background: linear-gradient(145deg, #A0522D, #8B4513);
+            border-radius: 50% 50% 50% 50%;
+            top: 30px;
+        }
+        .w1 { left: -10px; transform: rotate(-20deg); animation: wingFlap 1s ease-in-out infinite; }
+        .w2 { right: -10px; transform: rotate(20deg); animation: wingFlap 1s ease-in-out infinite reverse; }
+        @keyframes wingFlap {
+            0%, 100% { transform: rotate(-20deg); }
+            50% { transform: rotate(-40deg); }
+        }
+        /* صحنه بازی */
+        .game-stage {
+            position: absolute;
+            top: 30%;
+            left: 5%;
+            right: 5%;
+            height: 35%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 30px;
+            z-index: 50;
+        }
+        .character {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+        .character.entering {
+            animation: characterEnter 1s ease-out forwards;
+        }
+        @keyframes characterEnter {
+            0% { transform: translateX(-200px) scale(0); opacity: 0; }
+            60% { transform: translateX(20px) scale(1.1); }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        .character.happy {
+            animation: happyBounce 0.5s ease-in-out;
+        }
+        @keyframes happyBounce {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            25% { transform: translateY(-20px) rotate(-5deg); }
+            50% { transform: translateY(0) rotate(5deg); }
+            75% { transform: translateY(-10px) rotate(-3deg); }
+        }
+        .character.sad {
+            animation: sadShake 0.5s ease-in-out;
+        }
+        @keyframes sadShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        .char-emoji {
+            font-size: 4rem;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
+        }
+        .char-name {
+            background: rgba(255,255,255,0.9);
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #2D3436;
+            margin-top: 5px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        /* منطقه دراپ */
+        .drop-zone {
+            width: 120px;
+            height: 120px;
+            border: 4px dashed rgba(255,255,255,0.7);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .drop-zone.active {
+            border-color: #FFE66D;
+            background: rgba(255,230,109,0.3);
+            transform: scale(1.05);
+        }
+        .drop-zone.hover {
+            border-color: #6BCB77;
+            background: rgba(107,203,119,0.3);
+            transform: scale(1.1);
+            border-style: solid;
+        }
+        .drop-zone-label {
+            position: absolute;
+            bottom: -35px;
+            font-size: 0.9rem;
+            color: white;
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            white-space: nowrap;
+        }
+        /* منطقه آیتم‌ها */
+        .items-zone {
+            position: absolute;
+            bottom: 18%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            min-height: 80px;
+            z-index: 60;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .items-zone.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .draggable-item {
+            font-size: 2.5rem;
+            cursor: grab;
+            transition: all 0.3s ease;
+            filter: drop-shadow(2px 3px 4px rgba(0,0,0,0.3));
+            animation: itemFloat 2s ease-in-out infinite;
+            touch-action: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+        .draggable-item.dragging {
+            cursor: grabbing;
+            transform: scale(1.3);
+            animation: none;
+            z-index: 1000;
+            filter: drop-shadow(4px 8px 12px rgba(0,0,0,0.4));
+        }
+        .draggable-item.highlighted {
+            animation: highlightPulse 0.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px #FFE66D);
+        }
+        @keyframes itemFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        @keyframes highlightPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        /* کارت‌های پاسخ */
+        .answer-cards {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 70;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+        .answer-cards.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .answer-card {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(145deg, #fff, #f0f0f0);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #2D3436;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        .answer-card:hover {
+            transform: translateY(-10px) scale(1.1);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .answer-card.correct {
+            background: linear-gradient(145deg, #6BCB77, #4CAF50);
+            color: white;
+            animation: correctPop 0.5s ease-out;
+        }
+        .answer-card.wrong {
+            background: linear-gradient(145deg, #FF6B6B, #E53935);
+            color: white;
+            animation: wrongShake 0.5s ease-out;
+        }
+        @keyframes correctPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        /* نوار پیشرفت */
+        .progress-bar {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 20px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 200;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6BCB77, #4ECDC4);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #2D3436;
+        }
+        /* امتیاز */
+        .score-display {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: rgba(255,255,255,0.9);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2D3436;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            z-index: 200;
+        }
+        .score-icon {
+            font-size: 1.4rem;
+            animation: starSpin 3s linear infinite;
+        }
+        @keyframes starSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* ابر پایان داستان */
+        .story-cloud {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        .story-cloud.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .cloud-shape {
+            background: white;
+            padding: 40px 60px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: cloudBounce 1s ease-out;
+            position: relative;
+        }
+        .cloud-shape::before, .cloud-shape::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+        .cloud-shape::before { width: 80px; height: 80px; top: -30px; left: 30px; }
+        .cloud-shape::after { width: 60px; height: 60px; top: -20px; right: 40px; }
+        @keyframes cloudBounce {
+            0% { transform: scale(0) translateY(50px); }
+            60% { transform: scale(1.1) translateY(-10px); }
+            100% { transform: scale(1) translateY(0); }
+        }
+        .cloud-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2D3436;
+            position: relative;
+            z-index: 1;
+        }
+        /* پیام تشویقی */
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 600;
+            pointer-events: none;
+            opacity: 0;
+        }
+        .celebration.visible {
+            animation: celebrationFade 2s ease-out forwards;
+        }
+        @keyframes celebrationFade {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .celebration-text {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #FFE66D;
+            text-shadow: 3px 3px 0 #FF6B6B, 6px 6px 0 rgba(0,0,0,0.2);
+            animation: celebratePop 0.5s ease-out;
+        }
+        @keyframes celebratePop {
+            0% { transform: scale(0) rotate(-10deg); }
+            60% { transform: scale(1.3) rotate(5deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+        /* صفحه پایان */
+        #end-screen {
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            justify-content: center;
+            align-items: center;
+        }
+        .confetti-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            top: -20px;
+            animation: confettiFall 3s ease-out forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .end-content {
+            text-align: center;
+            z-index: 10;
+        }
+        .trophy {
+            font-size: 8rem;
+            animation: trophyBounce 1s ease-in-out infinite;
+            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
+        }
+        @keyframes trophyBounce {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        .end-title {
+            font-size: 2.5rem;
+            color: white;
+            margin: 20px 0;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+        }
+        .final-score {
+            background: rgba(255,255,255,0.2);
+            padding: 20px 40px;
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+        .final-score p {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .final-score span {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #FFE66D;
+            display: block;
+        }
+        .stars-earned {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .earned-star {
+            font-size: 3rem;
+            animation: starEarn 0.5s ease-out forwards;
+            opacity: 0;
+            filter: drop-shadow(0 5px 15px rgba(255,215,0,0.5));
+        }
+        .es1 { animation-delay: 0.5s; }
+        .es2 { animation-delay: 1s; }
+        .es3 { animation-delay: 1.5s; }
+        @keyframes starEarn {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            60% { transform: scale(1.5) rotate(20deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+        .restart-button {
+            background: linear-gradient(145deg, #FFE66D, #FFC107);
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2D3436;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #FF8F00, 0 10px 20px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        .restart-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 9px 0 #FF8F00, 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .restart-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #FF8F00, 0 5px 15px rgba(0,0,0,0.3);
+        }
+        /* ریسپانسیو */
+        @media (max-width: 600px) {
+            .game-title { font-size: 2rem; }
+            .subtitle { font-size: 1rem; }
+            .preview-char { font-size: 2.5rem; }
+            .char-emoji { font-size: 3rem; }
+            .draggable-item { font-size: 2rem; }
+            .answer-card { width: 65px; height: 65px; font-size: 1.4rem; }
+            #narrator-text { font-size: 0.95rem; }
+            .narrator-owl { width: 50px; height: 50px; }
+            .drop-zone { width: 90px; height: 90px; }
+            .cloud-text { font-size: 1.2rem; }
+            .end-title { font-size: 1.8rem; }
+            .trophy { font-size: 5rem; }
+            .narrator { top: 50px; }
+            .game-stage { top: 28%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- صفحه شروع -->
+    <div id="start-screen" class="screen active">
+        <div class="start-background">
+            <div class="cloud cloud-1"></div>
+            <div class="cloud cloud-2"></div>
+            <div class="cloud cloud-3"></div>
+            <div class="sun"></div>
+            <div class="mountains"></div>
+            <div class="grass"></div>
+        </div>
+        <div class="start-content">
+            <h1 class="game-title">
+                <span class="title-icon">📚</span>
+                سفر ریاضی
+                <span class="title-icon">✨</span>
+            </h1>
+            <p class="subtitle">با ما داستان‌های جذاب ریاضی رو یاد بگیر!</p>
+            <div class="characters-preview">
+                <div class="preview-char">🐰</div>
+                <div class="preview-char">🐵</div>
+                <div class="preview-char">🦊</div>
+                <div class="preview-char">🐴</div>
+            </div>
+            <button id="start-btn" class="start-button">
+                شروع سفر
+                <span class="btn-stars">⭐⭐⭐</span>
+            </button>
+        </div>
+    </div>
+    <!-- صفحه بازی -->
+    <div id="game-screen" class="screen">
+        <div class="game-background">
+            <div class="game-cloud gc1"></div>
+            <div class="game-cloud gc2"></div>
+            <div class="game-cloud gc3"></div>
+            <div class="hills">
+                <div class="hill hill-1"></div>
+                <div class="hill hill-2"></div>
+                <div class="hill hill-3"></div>
+            </div>
+            <div class="ground"></div>
+            <div class="flowers">
+                <div class="flower f1">🌸</div>
+                <div class="flower f2">🌼</div>
+                <div class="flower f3">🌷</div>
+                <div class="flower f4">🌻</div>
+                <div class="flower f5">🌸</div>
+            </div>
+            <div class="trees">
+                <div class="tree t1">🌳</div>
+                <div class="tree t2">🌲</div>
+                <div class="tree t3">🌴</div>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+            <div class="progress-text" id="progress-text">داستان ۱ از ۵</div>
+        </div>
+        <div class="score-display">
+            <span class="score-icon">⭐</span>
+            <span id="score">۰</span>
+                    </div>
+        <div id="narrator" class="narrator">
+            <div class="narrator-bubble">
+                <p id="narrator-text">سلام کوچولو! آماده یک ماجراجویی ریاضی هستی؟</p>
+            </div>
+            <div class="narrator-owl">
+                <div class="owl-body">
+                    <div class="owl-face">
+                        <div class="owl-eyes">
+                            <div class="eye e1"><div class="pupil"></div></div>
+                            <div class="eye e2"><div class="pupil"></div></div>
+                        </div>
+                        <div class="owl-beak"></div>
+                    </div>
+                    <div class="owl-wing w1"></div>
+                    <div class="owl-wing w2"></div>
+                </div>
+            </div>
+        </div>
+        <div id="game-stage" class="game-stage"></div>
+        <div id="items-zone" class="items-zone"></div>
+        <div id="answer-cards" class="answer-cards"></div>
+    </div>
+    <!-- صفحه پایان -->
+    <div id="end-screen" class="screen">
+        <div class="confetti-container" id="confetti"></div>
+        <div class="end-content">
+            <div class="trophy">🏆</div>
+            <h2 class="end-title">آفرین! تمومش کردی!</h2>
+            <div class="final-score">
+                <p>امتیاز نهایی:</p>
+                <span id="final-score">۰</span>
+            </div>
+            <div class="stars-earned">
+                <div class="earned-star es1">⭐</div>
+                <div class="earned-star es2">⭐</div>
+                <div class="earned-star es3">⭐</div>
+            </div>
+            <button id="restart-btn" class="restart-button">
+                <span>🔄</span> بازی دوباره
+            </button>
+        </div>
+    </div>
+    <!-- ابر پایان داستان -->
+    <div id="story-cloud" class="story-cloud">
+        <div class="cloud-shape">
+            <p class="cloud-text">بریم داستان بعدی! 🌟</p>
+        </div>
+    </div>
+    <!-- پیام تشویقی -->
+    <div id="celebration" class="celebration">
+        <div class="celebration-text">آفرین! 🎉</div>
+    </div>
+
+    <script>
+        // ============================================
+        // سفر ریاضی - اسکریپت بازی آموزشی کودکان
+        // ============================================
+
+        // تبدیل اعداد انگلیسی به فارسی
+        function toPersianNum(num) {
+            const farsiDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+            return num.toString().replace(/\d/g, x => farsiDigits[x]);
+        }
+
+        // متغیرهای سراسری
+        let gameState = {
+            currentStory: 0,
+            score: 0,
+            currentStep: 0,
+            draggedElement: null,
+            itemsDraggedCount: 0,
+            requiredDragCount: 0
+        };
+
+        // داده‌های داستان‌ها
+        const stories = [
+            {
+                title: "خرگوش و میمون",
+                steps: [
+                    {
+                        narrator: "سلام کوچولو! امروز می‌خوایم با هم یه ماجراجویی ریاضی داشته باشیم!",
+                        characters: [{ emoji: "🐰", name: "خرگوش", position: "left" }],
+                        items: [],
+                        action: "intro"
+                    },
+                    {
+                        narrator: "یه خرگوش کوچولوی عزیز سه تا هویج خوشگل داره! 🥕🥕🥕",
+                        characters: [{ emoji: "🐰", name: "خرگوش", position: "left" }],
+                        items: ["🥕", "🥕", "🥕"],
+                        action: "show_items"
+                    },
+                    {
+                        narrator: "یکی از دوستاش اومد! یه میمون بامزه! 🐵",
+                        characters: [
+                            { emoji: "🐰", name: "خرگوش", position: "left" },
+                            { emoji: "🐵", name: "میمون", position: "right" }
+                        ],
+                        items: ["🥕", "🥕", "🥕"],
+                        action: "show_items"
+                    },
+                    {
+                        narrator: "میمون میگه: «من گرسنه‌ام! دو تا هویج می‌خوام!» میتونی دو تا هویج بهش بدی؟",
+                        characters: [
+                            { emoji: "🐰", name: "خرگوش", position: "left" },
+                            { emoji: "🐵", name: "میمون", position: "right" }
+                        ],
+                        items: ["🥕", "🥕", "🥕"],
+                        action: "drag_items",
+                        dropZone: { emoji: "🐵", label: "به میمون بده!" },
+                        itemsToDrag: 2
+                    },
+                    {
+                        narrator: "آفرین! حالا بگو ببینم خرگوش چند تا هویج داره؟",
+                        characters: [
+                            { emoji: "🐰", name: "خرگوش", position: "left" },
+                            { emoji: "🐵", name: "میمون", position: "right" }
+                        ],
+                        items: ["🥕"],
+                        action: "count",
+                        answerOptions: [1, 2, 3],
+                        correctAnswer: 1
+                    }
+                ]
+            },
+            {
+                title: "روباه و اسب",
+                steps: [
+                    {
+                        narrator: "وای! یه روباه بامزه اومد! نگاه کن چند تا سیب داره! 🍎🍎🍎🍎",
+                        characters: [{ emoji: "🦊", name: "روباه", position: "left" }],
+                        items: ["🍎", "🍎", "🍎", "🍎"],
+                        action: "show_items"
+                    },
+                    {
+                        narrator: "یه اسب قوی هم اومد! اسب چند تا سیب داره؟ 🍎🍎🍎🍎🍎🍎",
+                        characters: [
+                            { emoji: "🦊", name: "روباه", position: "left" },
+                            { emoji: "🐴", name: "اسب", position: "right" }
+                        ],
+                        items: ["🍎", "🍎", "🍎", "🍎", "🍎", "🍎"],
+                        action: "show_items"
+                    },
+                    {
+                        narrator: "کدومش بیشتر سیب داره؟ روباه یا اسب؟ 🤔",
+                        characters: [
+                            { emoji: "🦊", name: "روباه", position: "left" },
+                            { emoji: "🐴", name: "اسب", position: "right" }
+                        ],
+                        items: [],
+                        action: "compare",
+                        answerOptions: ["🦊 روباه", "🐴 اسب"],
+                        correctAnswer: "🐴 اسب"
+                    },
+                    {
+                        narrator: "آفرین! اسب شش تا سیب داره و روباه چهار تا! پس اسب بیشتر داره! 🐴",
+                        characters: [
+                            { emoji: "🦊", name: "روباه", position: "left" },
+                            { emoji: "🐴", name: "اسب", position: "right" }
+                        ],
+                        items: [],
+                        action: "celebrate"
+                    }
+                ]
+            },
+            {
+                title: "پاندا و کوالا",
+                steps: [
+                    {
+                        narrator: "امروز می‌خوایم جمع کردن یاد بگیریم! یه پاندای ناز اومد! 🐼",
+                        characters: [{ emoji: "🐼", name: "پاندا", position: "left" }],
+                        items: [],
+                        action: "intro"
+                    },
+                    {
+                        narrator: "پاندا دو تا بامیم داره! 🎋🎋",
+                        characters: [{ emoji: "🐼", name: "پاندا", position: "left" }],
+                        items: ["🎋", "🎋"],
+                        action: "show_items"
+                    },
+                    {
+                        narrator: "مامان پاندا یه بامیم دیگه بهش داد! حالا چند تا بامیم داره؟",
+                        characters: [{ emoji: "🐼", name: "پاندا", position: "left" }],
+                        items: ["🎋", "🎋", "🎋"],
+                        action: "show_items",
+                        answerOptions: [2, 3, 4],
+                        correctAnswer: 3
+                    },
+                    {
+                        narrator: "عالیه! دو بامیم + یه بامیم = سه بامیم! 🎉",
+                        characters: [{ emoji: "🐼", name: "پاندا", position: "left" }],
+                        items: [],
+                        action: "celebrate"
+                    }
+                ]
+            },
+            {
+                title: "فیل و زرافه",
+                steps: [
+                    {
+                        narrator: "وای! یه فیل بزرگ اومد! فیل چند تا موز داره؟ 🍌🍌🍌🍌🍌",
+                        characters: [{ emoji: "🐘", name: "فیل", position: "left" }],
+                        items: ["🍌", "🍌", "🍌", "🍌", "🍌"],
+                        action: "show_items"
+                    },
+                    {
+                        narrator: "یه زرافه بلند هم اومد! زرافه چند تا موز داره؟ 🍌🍌🍌",
+                        characters: [
+                            { emoji: "🐘", name: "فیل", position: "left" },
+                            { emoji: "🦒", name: "زرافه", position: "right" }
+                        ],
+                        items: ["🍌", "🍌", "🍌"],
+                        action: "show_items"
+                    },
+                    {
+                        narrator: "کدومش کمتر موز داره؟ 🤔",
+                        characters: [
+                            { emoji: "🐘", name: "فیل", position: "left" },
+                            { emoji: "🦒", name: "زرافه", position: "right" }
+                        ],
+                        items: [],
+                        action: "compare",
+                        answerOptions: ["🐘 فیل", "🦒 زرافه"],
+                        correctAnswer: "🦒 زرافه"
+                    },
+                    {
+                        narrator: "آفرین! زرافه سه تا موز داره و فیل پنج تا! پس زرافه کمتر داره! 🦒",
+                        characters: [
+                            { emoji: "🐘", name: "فیل", position: "left" },
+                            { emoji: "🦒", name: "زرافه", position: "right" }
+                        ],
+                        items: [],
+                        action: "celebrate"
+                    }
+                ]
+            },
+            {
+                title: "گربه و سگ",
+                steps: [
+                    {
+                        narrator: "بیا یه چیز جالب یاد بگیریم! یه گربه اومد! 🐱",
+                        characters: [{ emoji: "🐱", name: "گربه", position: "left" }],
+                        items: [],
+                        action: "intro"
+                    },
+                    {
+                        narrator: "گربه سه تا ماهی داره! 🐟🐟🐟",
+                        characters: [{ emoji: "🐱", name: "گربه", position: "left" }],
+                        items: ["🐟", "🐟", "🐟"],
+                        action: "show_items"
+                    },
+                    {
+                        narrator: "یه سگ هم اومد! سگ هم سه تا استخون داره! 🦴🦴🦴",
+                        characters: [
+                            { emoji: "🐱", name: "گربه", position: "left" },
+                            { emoji: "🐶", name: "سگ", position: "right" }
+                        ],
+                        items: ["🦴", "🦴", "🦴"],
+                        action: "show_items"
+                    },
+                    {
+                        narrator: "آیا تعداد ماهی‌های گربه با تعداد استخون‌های سگ مساویه؟ 🤔",
+                        characters: [
+                            { emoji: "🐱", name: "گربه", position: "left" },
+                            { emoji: "🐶", name: "سگ", position: "right" }
+                        ],
+                        items: [],
+                        action: "equal",
+                        answerOptions: ["✅ آره مساویه!", "❌ نه مساوی نیست"],
+                        correctAnswer: "✅ آره مساویه!"
+                    },
+                    {
+                        narrator: "آفرین! هر دو تا سه تا دارن، پس مساوی هستن! 🌟",
+                        characters: [
+                            { emoji: "🐱", name: "گربه", position: "left" },
+                            { emoji: "🐶", name: "سگ", position: "right" }
+                        ],
+                        items: [],
+                        action: "celebrate"
+                    }
+                ]
+            }
+        ];
+
+        // ============================================
+        // توابع اصلی
+        // ============================================
+
+        // شروع بازی
+        function startGame() {
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+            gameState.currentStory = 0;
+            gameState.score = 0;
+            updateScoreDisplay();
+            loadStory(0);
+        }
+
+        // بارگذاری داستان
+        function loadStory(storyIndex) {
+            gameState.currentStep = 0;
+            const story = stories[storyIndex];
+            updateProgress(storyIndex + 1, stories.length);
+            clearStage();
+            loadStep(storyIndex, 0);
+        }
+
+        // بارگذاری مرحله
+        function loadStep(storyIndex, stepIndex) {
+            const story = stories[storyIndex];
+            const step = story.steps[stepIndex];
+            updateNarrator(step.narrator);
+            clearStage();
+
+            if (step.characters) {
+                displayCharacters(step.characters);
+            }
+
+            switch (step.action) {
+                case "intro":
+                    setTimeout(() => {
+                        if (step.items && step.items.length > 0) {
+                            displayItems(step.items);
+                        }
+                        setTimeout(() => nextStep(), 2000);
+                    }, 1500);
+                    break;
+
+                case "show_items":
+                    if (step.items && step.items.length > 0) {
+                        displayItems(step.items);
+                    }
+                    setTimeout(() => nextStep(), 2500);
+                    break;
+
+                case "drag_items":
+                    gameState.requiredDragCount = step.itemsToDrag || step.items.length;
+                    gameState.itemsDraggedCount = 0;
+                    setupDragAndDrop(step);
+                    break;
+
+                case "count":
+                case "compare":
+                case "equal":
+                    showAnswerCards(step);
+                    break;
+
+                case "celebrate":
+                    setTimeout(() => {
+                        showCelebration();
+                        setTimeout(() => {
+                            if (storyIndex < stories.length - 1) {
+                                showStoryCloud();
+                            } else {
+                                endGame();
+                            }
+                        }, 2000);
+                    }, 1000);
+                    break;
+            }
+        }
+
+        // به‌روزرسانی راوی
+        function updateNarrator(text) {
+            const narratorText = document.getElementById('narrator-text');
+            narratorText.style.opacity = '0';
+            setTimeout(() => {
+                narratorText.textContent = text;
+                narratorText.style.opacity = '1';
+            }, 300);
+        }
+
+        // نمایش کاراکترها
+        function displayCharacters(characters) {
+            const stage = document.getElementById('game-stage');
+            characters.forEach((char, index) => {
+                const charElement = document.createElement('div');
+                charElement.className = 'character entering';
+                charElement.id = `char-${index}`;
+                charElement.style.animationDelay = `${index * 0.3}s`;
+                charElement.innerHTML = `
+                    <div class="char-emoji">${char.emoji}</div>
+                    <div class="char-name">${char.name}</div>
+                `;
+                if (char.position === 'left') {
+                    charElement.style.order = index;
+                } else {
+                    charElement.style.order = 10 + index;
+                }
+                stage.appendChild(charElement);
+                setTimeout(() => {
+                    charElement.classList.remove('entering');
+                }, 1000 + index * 300);
+            });
+        }
+
+        // نمایش آیتم‌ها
+        function displayItems(items) {
+            const itemsZone = document.getElementById('items-zone');
+            itemsZone.innerHTML = '';
+            itemsZone.classList.add('visible');
+            items.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'draggable-item';
+                itemElement.textContent = item;
+                itemElement.dataset.index = index;
+                itemElement.style.animationDelay = `${index * 0.15}s`;
+                itemsZone.appendChild(itemElement);
+            });
+        }
+
+        // تنظیم درگ و دراپ
+        function setupDragAndDrop(step) {
+            const stage = document.getElementById('game-stage');
+
+            // ایجاد منطقه دراپ
+            const dropZone = document.createElement('div');
+            dropZone.className = 'drop-zone';
+            dropZone.id = 'drop-zone';
+            const targetChar = step.characters.find(c => c.position === 'right');
+            dropZone.innerHTML = `
+                <span style="font-size: 2.5rem;">${targetChar.emoji}</span>
+                <span class="drop-zone-label">${step.dropZone.label}</span>
+            `;
+            stage.appendChild(dropZone);
+
+            // نمایش آیتم‌ها
+            displayItems(step.items);
+
+            // اضافه کردن event listener ها
+            setTimeout(() => {
+                const draggableItems = document.querySelectorAll('.draggable-item');
+                draggableItems.forEach(item => {
+                    item.addEventListener('mousedown', startDrag);
+                    item.addEventListener('touchstart', startDrag, { passive: false });
+                });
+
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchmove', drag, { passive: false });
+                document.addEventListener('touchend', endDrag);
+            }, 100);
+
+            dropZone.addEventListener('mouseenter', () => dropZone.classList.add('hover'));
+            dropZone.addEventListener('mouseleave', () => dropZone.classList.remove('hover'));
+        }
+
+        // شروع درگ
+        function startDrag(e) {
+            e.preventDefault();
+            const target = e.target;
+            if (!target.classList.contains('draggable-item')) return;
+
+            gameState.draggedElement = target;
+            gameState.draggedElement.classList.add('dragging');
+
+            const rect = target.getBoundingClientRect();
+            const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+
+            gameState.draggedElement.style.position = 'fixed';
+            gameState.draggedElement.style.zIndex = '1000';
+            gameState.draggedElement.style.left = `${clientX - rect.width / 2}px`;
+            gameState.draggedElement.style.top = `${clientY - rect.height / 2}px`;
+            gameState.draggedElement.style.animation = 'none';
+        }
+
+        // ادامه درگ
+        function drag(e) {
+            if (!gameState.draggedElement) return;
+            e.preventDefault();
+
+            const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+            gameState.draggedElement.style.left = `${clientX - 25}px`;
+            gameState.draggedElement.style.top = `${clientY - 25}px`;
+
+            const dropZone = document.getElementById('drop-zone');
+            if (dropZone) {
+                const dropRect = dropZone.getBoundingClientRect();
+                const isOver = (
+                    clientX > dropRect.left &&
+                    clientX < dropRect.right &&
+                    clientY > dropRect.top &&
+                    clientY < dropRect.bottom
+                );
+                if (isOver) {
+                    dropZone.classList.add('active');
+                } else {
+                    dropZone.classList.remove('active');
+                }
+            }
+        }
+
+        // پایان درگ - ✅ اصلاح شده
+        function endDrag(e) {
+            if (!gameState.draggedElement) return;
+
+            const clientX = e.type === 'touchend' ? e.changedTouches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchend' ? e.changedTouches[0].clientY : e.clientY;
+
+            const dropZone = document.getElementById('drop-zone');
+            let dropped = false;
+
+            if (dropZone) {
+                const dropRect = dropZone.getBoundingClientRect();
+                const isOver = (
+                    clientX > dropRect.left &&
+                    clientX < dropRect.right &&
+                    clientY > dropRect.top &&
+                    clientY < dropRect.bottom
+                );
+
+                if (isOver) {
+                    dropped = true;
+                    gameState.itemsDraggedCount++;
+
+                    // انیمیشن ورود
+                    const targetX = dropRect.left + dropRect.width / 2 - 25;
+                    const targetY = dropRect.top + dropRect.height / 2 - 25;
+
+                    gameState.draggedElement.style.transition = 'all 0.3s ease';
+                    gameState.draggedElement.style.left = `${targetX}px`;
+                    gameState.draggedElement.style.top = `${targetY}px`;
+                    gameState.draggedElement.style.transform = 'scale(0.7)';
+                    gameState.draggedElement.style.opacity = '0.7';
+
+                    setTimeout(() => {
+                        // ✅ بررسی وجود عنصر قبل از حذف
+                        if (gameState.draggedElement && gameState.draggedElement.parentNode) {
+                            gameState.draggedElement.remove();
+                        }
+
+                        // اصلاح منطق: اگر تعداد درگ شده برابر با مورد نیاز بود، برو بعدی
+                        if (gameState.itemsDraggedCount >= gameState.requiredDragCount) {
+                            setTimeout(() => {
+                                const currentDropZone = document.getElementById('drop-zone');
+                                if (currentDropZone) {
+                                    currentDropZone.remove();
+                                }
+                                removeDragListeners();
+                                nextStep();
+                            }, 300);
+                        }
+                    }, 300);
+                }
+            }
+
+            if (!dropped) {
+                // برگرداندن به موقعیت اولیه
+                gameState.draggedElement.classList.remove('dragging');
+                gameState.draggedElement.style.position = '';
+                gameState.draggedElement.style.left = '';
+                gameState.draggedElement.style.top = '';
+                gameState.draggedElement.style.zIndex = '';
+                gameState.draggedElement.style.transition = '';
+                gameState.draggedElement.style.animation = '';
+            }
+
+            if (dropZone) {
+                dropZone.classList.remove('active', 'hover');
+            }
+
+            gameState.draggedElement = null;
+        }
+
+        // حذف event listener ها
+        function removeDragListeners() {
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('touchend', endDrag);
+        }
+
+        // نمایش کارت‌های پاسخ
+        function showAnswerCards(step) {
+            const cardsContainer = document.getElementById('answer-cards');
+            cardsContainer.innerHTML = '';
+            cardsContainer.classList.add('visible');
+
+            step.answerOptions.forEach((option, index) => {
+                const card = document.createElement('div');
+                card.className = 'answer-card';
+                card.textContent = option;
+                card.dataset.answer = option;
+                card.style.animationDelay = `${index * 0.2}s`;
+                card.addEventListener('click', () => handleAnswer(card, step));
+                cardsContainer.appendChild(card);
+            });
+        }
+
+        // پاسخ دادن - ✅ اصلاح شده (خطای تایپی)
+     // پاسخ دادن - ✅ اصلاح شده
+function handleAnswer(card, step) {
+    let selectedAnswer = card.dataset.answer;
+    let correctAnswer = step.correctAnswer;
+    
+    // اگر هر دو عدد هستند، به عدد تبدیل کن
+    if (typeof correctAnswer === 'number') {
+        selectedAnswer = Number(selectedAnswer);
+    }
+    
+    const isCorrect = selectedAnswer === correctAnswer;
+
+    const allCards = document.querySelectorAll('.answer-card');
+    allCards.forEach(c => c.style.pointerEvents = 'none');
+
+    if (isCorrect) {
+        card.classList.add('correct');
+        gameState.score += 10;
+        updateScoreDisplay();
+        makeCharactersHappy();
+        updateNarrator("آفرین! بهت تبریک میگم! 🎉");
+        setTimeout(() => {
+            hideAnswerCards();
+            nextStep();
+        }, 1500);
+    } else {
+        card.classList.add('wrong');
+        makeCharactersSad();
+        updateNarrator("عیب نداره! بیا دوباره تلاش کن! 💪");
+        setTimeout(() => {
+            card.classList.remove('wrong');
+            allCards.forEach(c => c.style.pointerEvents = '');
+        }, 1500);
+    }
+}
+        // خوشحال کردن کاراکترها
+        function makeCharactersHappy() {
+            const characters = document.querySelectorAll('.character');
+            characters.forEach(char => {
+                char.classList.add('happy');
+                setTimeout(() => char.classList.remove('happy'), 1000);
+            });
+        }
+
+        // غمگین کردن کاراکترها
+        function makeCharactersSad() {
+            const characters = document.querySelectorAll('.character');
+            characters.forEach(char => {
+                char.classList.add('sad');
+                setTimeout(() => char.classList.remove('sad'), 1000);
+            });
+        }
+
+        // مخفی کردن کارت‌های پاسخ
+        function hideAnswerCards() {
+            const cardsContainer = document.getElementById('answer-cards');
+            cardsContainer.classList.remove('visible');
+        }
+
+        // مرحله بعدی
+        function nextStep() {
+            const story = stories[gameState.currentStory];
+            if (gameState.currentStep < story.steps.length - 1) {
+                gameState.currentStep++;
+                loadStep(gameState.currentStory, gameState.currentStep);
+            } else {
+                if (gameState.currentStory < stories.length - 1) {
+                    showStoryCloud();
+                } else {
+                    endGame();
+                }
+            }
+        }
+
+        // نمایش ابر داستان بعدی
+        function showStoryCloud() {
+            const cloud = document.getElementById('story-cloud');
+            cloud.classList.add('visible');
+            setTimeout(() => {
+                cloud.classList.remove('visible');
+                gameState.currentStory++;
+                loadStory(gameState.currentStory);
+            }, 2500);
+        }
+
+        // نمایش جشن
+        function showCelebration() {
+            const celebration = document.getElementById('celebration');
+            celebration.classList.add('visible');
+            setTimeout(() => {
+                celebration.classList.remove('visible');
+            }, 2000);
+        }
+
+        // پاک کردن صحنه
+        function clearStage() {
+            const stage = document.getElementById('game-stage');
+            const itemsZone = document.getElementById('items-zone');
+            const cardsContainer = document.getElementById('answer-cards');
+
+            removeDragListeners();
+
+            stage.innerHTML = '';
+            itemsZone.innerHTML = '';
+            itemsZone.classList.remove('visible');
+            cardsContainer.innerHTML = '';
+            cardsContainer.classList.remove('visible');
+        }
+
+        // به‌روزرسانی امتیاز
+        function updateScoreDisplay() {
+            document.getElementById('score').textContent = toPersianNum(gameState.score);
+        }
+
+        // به‌روزرسانی نوار پیشرفت
+        function updateProgress(current, total) {
+            const fill = document.getElementById('progress-fill');
+            const text = document.getElementById('progress-text');
+            const percentage = (current / total) * 100;
+            fill.style.width = `${percentage}%`;
+            text.textContent = `داستان ${toPersianNum(current)} از ${toPersianNum(total)}`;
+        }
+
+        // پایان بازی
+        function endGame() {
+            document.getElementById('game-screen').classList.remove('active');
+            document.getElementById('end-screen').classList.add('active');
+            document.getElementById('final-score').textContent = toPersianNum(gameState.score);
+            createConfetti();
+
+            const stars = document.querySelectorAll('.earned-star');
+            stars.forEach(star => {
+                star.style.opacity = '1';
+            });
+        }
+
+        // ایجاد کانفتی
+        function createConfetti() {
+            const container = document.getElementById('confetti');
+            container.innerHTML = '';
+            const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#6BCB77', '#FF8E53', '#9B59B6'];
+
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = `${Math.random() * 2}s`;
+                confetti.style.animationDuration = `${2 + Math.random() * 2}s`;
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                }
+                container.appendChild(confetti);
+            }
+        }
+
+        // شروع مجدد
+        function restartGame() {
+            document.getElementById('end-screen').classList.remove('active');
+            document.getElementById('start-screen').classList.add('active');
+            gameState.currentStory = 0;
+            gameState.score = 0;
+            gameState.currentStep = 0;
+        }
+
+        // ============================================
+        // رویدادهای اولیه
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('start-btn').addEventListener('click', startGame);
+            document.getElementById('restart-btn').addEventListener('click', restartGame);
+
+            document.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        });
+    </script>
+</body>
+</html>

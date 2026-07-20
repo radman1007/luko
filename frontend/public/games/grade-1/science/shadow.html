@@ -1,0 +1,3972 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>یادگیری سایه - علوم پایه اول</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* ===== متغیرها ===== */
+:root {
+    --primary: #FF6B6B;
+    --primary-dark: #ee5a5a;
+    --secondary: #4ECDC4;
+    --accent: #FFE66D;
+    --success: #2ECC71;
+    --error: #E74C3C;
+    --dark: #2C3E50;
+    --light: #F7F9FC;
+    --white: #FFFFFF;
+    /* رنگ‌های صحنه */
+    --sky-morning: #87CEEB;
+    --sky-noon: #5DADE2;
+    --sky-evening: #F39C12;
+    --grass: #7CB342;
+    --grass-dark: #558B2F;
+    --tree-green: #4CAF50;
+    --tree-dark: #388E3C;
+    --trunk: #8D6E63;
+    --shadow: rgba(40, 40, 40, 0.4);
+    /* فونت */
+    --font: 'Vazirmatn', system-ui, sans-serif;
+    /* سایه‌ها */
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 15px rgba(0,0,0,0.15);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.2);
+    --shadow-glow: 0 0 30px rgba(255,235,59,0.5);
+}
+
+/* ===== ریست ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: var(--font);
+    background: var(--dark);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+/* ===== صفحات ===== */
+.page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.page.active {
+    display: flex;
+    opacity: 1;
+}
+
+/* ===== صفحه اصلی ===== */
+#home-page {
+    background: linear-gradient(180deg, #74B9FF 0%, #A29BFE 50%, #DFE6E9 100%);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.home-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.bg-sun {
+    position: absolute;
+    top: 8%;
+    right: 10%;
+    width: clamp(60px, 10vw, 80px);
+    height: clamp(60px, 10vw, 80px);
+    background: radial-gradient(circle, #FFE66D 0%, #F39C12 100%);
+    border-radius: 50%;
+    box-shadow: var(--shadow-glow);
+    animation: sunPulse 4s ease-in-out infinite;
+}
+
+@keyframes sunPulse {
+    0%, 100% { transform: scale(1); box-shadow: var(--shadow-glow); }
+    50% { transform: scale(1.1); box-shadow: 0 0 50px rgba(255,235,59,0.7); }
+}
+
+.bg-cloud {
+    position: absolute;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.9;
+}
+
+.bg-cloud::before,
+.bg-cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+}
+
+.bg-cloud.c1 {
+    width: clamp(80px, 15vw, 100px);
+    height: clamp(30px, 5vw, 40px);
+    top: 15%;
+    left: -100px;
+    animation: cloudDrift 20s linear infinite;
+}
+
+.bg-cloud.c1::before {
+    width: clamp(40px, 7vw, 50px);
+    height: clamp(40px, 7vw, 50px);
+    top: -25px;
+    left: 15px;
+}
+
+.bg-cloud.c1::after {
+    width: clamp(28px, 5vw, 35px);
+    height: clamp(28px, 5vw, 35px);
+    top: -15px;
+    left: 50px;
+}
+
+.bg-cloud.c2 {
+    width: clamp(60px, 12vw, 80px);
+    height: clamp(22px, 4vw, 30px);
+    top: 25%;
+    left: -80px;
+    animation: cloudDrift 25s linear infinite 5s;
+}
+
+.bg-cloud.c2::before {
+    width: clamp(30px, 6vw, 40px);
+    height: clamp(30px, 6vw, 40px);
+    top: -20px;
+    left: 10px;
+}
+
+.bg-cloud.c2::after {
+    width: clamp(24px, 4vw, 30px);
+    height: clamp(24px, 4vw, 30px);
+    top: -10px;
+    left: 40px;
+}
+
+.bg-cloud.c3 {
+    width: clamp(100px, 18vw, 120px);
+    height: clamp(35px, 6vw, 45px);
+    top: 8%;
+    left: -120px;
+    animation: cloudDrift 30s linear infinite 10s;
+}
+
+@keyframes cloudDrift {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(100vw + 200px)); }
+}
+
+.bg-hills {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 35%;
+    background: linear-gradient(180deg, #7CB342 0%, #558B2F 100%);
+    border-radius: 100% 100% 0 0;
+}
+
+.bg-hills::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -10%;
+    width: 60%;
+    height: 80%;
+    background: linear-gradient(180deg, #8BC34A 0%, #689F38 100%);
+    border-radius: 100% 100% 0 0;
+}
+
+.bg-hills::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: -5%;
+    width: 50%;
+    height: 60%;
+    background: linear-gradient(180deg, #9CCC65 0%, #7CB342 100%);
+    border-radius: 100% 100% 0 0;
+}
+
+.bg-birds {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.bird {
+    position: absolute;
+    font-size: clamp(16px, 3vw, 24px);
+    animation: birdFly 15s linear infinite;
+    opacity: 0.7;
+}
+
+.bird.b2 {
+    animation-delay: 5s;
+    animation-duration: 18s;
+}
+
+@keyframes birdFly {
+    0% { transform: translateX(-50px) translateY(0); }
+    25% { transform: translateX(25vw) translateY(-20px); }
+    50% { transform: translateX(50vw) translateY(10px); }
+    75% { transform: translateX(75vw) translateY(-15px); }
+    100% { transform: translateX(calc(100vw + 50px)) translateY(0); }
+}
+
+.home-content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(15px, 3vw, 20px);
+    max-width: 400px;
+    width: 100%;
+}
+
+/* کاراکتر */
+.character-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: clamp(20px, 4vw, 30px);
+}
+
+.character {
+    position: relative;
+    width: clamp(80px, 20vw, 100px);
+    height: clamp(120px, 30vw, 150px);
+    animation: characterBounce 2s ease-in-out infinite;
+}
+
+.character.small {
+    transform: scale(0.7);
+}
+
+.character.big {
+    transform: scale(1.3);
+}
+
+@keyframes characterBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.char-head {
+    width: clamp(60px, 15vw, 75px);
+    height: clamp(60px, 15vw, 75px);
+    background: linear-gradient(145deg, #FFE082 0%, #FFD54F 100%);
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 3px solid #FFC107;
+    box-shadow: var(--shadow-sm);
+    z-index: 2;
+}
+
+.char-hair {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: clamp(52px, 13vw, 65px);
+    height: clamp(28px, 7vw, 35px);
+    background: linear-gradient(180deg, #5D4037 0%, #4E342E 100%);
+    border-radius: 35px 35px 0 0;
+}
+
+.char-hair::before {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 5px;
+    width: 12px;
+    height: 18px;
+    background: #5D4037;
+    border-radius: 0 0 10px 10px;
+}
+
+.char-hair::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    right: 5px;
+    width: 12px;
+    height: 18px;
+    background: #5D4037;
+    border-radius: 0 0 10px 10px;
+}
+
+.char-face {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 50px;
+}
+
+.char-eyes {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 5px;
+}
+
+.char-eye {
+    width: 12px;
+    height: 14px;
+    background: #3D2314;
+    border-radius: 50%;
+    position: relative;
+}
+
+.char-eye::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    width: 4px;
+    height: 4px;
+    background: white;
+    border-radius: 50%;
+}
+
+.char-cheeks {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding: 0 2px;
+}
+
+.cheek {
+    width: 12px;
+    height: 8px;
+    background: rgba(255, 107, 107, 0.4);
+    border-radius: 50%;
+}
+
+.char-mouth {
+    width: 20px;
+    height: 10px;
+    border: 3px solid #C62828;
+    border-top: none;
+    border-radius: 0 0 20px 20px;
+    margin: 8px auto 0;
+    background: #FF5252;
+}
+
+.char-mouth.smile {
+    animation: smilePulse 2s ease-in-out infinite;
+}
+
+.char-mouth.talk {
+    animation: talkAnim 0.3s ease infinite;
+}
+
+.char-mouth.big-smile {
+    width: 28px;
+    height: 14px;
+    background: #FF5252;
+}
+
+@keyframes smilePulse {
+    0%, 100% { transform: scaleX(1); }
+    50% { transform: scaleX(1.1); }
+}
+
+@keyframes talkAnim {
+    0%, 100% { height: 10px; }
+    50% { height: 16px; }
+}
+
+.char-body {
+    width: clamp(44px, 11vw, 55px);
+    height: clamp(56px, 14vw, 70px);
+    background: linear-gradient(145deg, #FF6B6B 0%, #EE5A5A 100%);
+    border-radius: 25px 25px 15px 15px;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: var(--shadow-sm);
+}
+
+.char-arm {
+    position: absolute;
+    width: 18px;
+    height: 40px;
+    background: linear-gradient(145deg, #FFE082 0%, #FFD54F 100%);
+    border-radius: 10px;
+    top: 5px;
+}
+
+.char-arm.left {
+    left: -8px;
+    transform: rotate(15deg);
+}
+
+.char-arm.right {
+    right: -8px;
+    transform: rotate(-15deg);
+}
+
+.char-arm.wave {
+    animation: waveAnim 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes waveAnim {
+    from { transform: rotate(-15deg); }
+    to { transform: rotate(-45deg); }
+}
+
+/* حباب صحبت */
+.speech-bubble {
+    background: var(--white);
+    padding: clamp(14px, 3vw, 18px) clamp(18px, 4vw, 22px);
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    max-width: 300px;
+    margin-top: 20px;
+    animation: bubblePop 0.5s ease;
+}
+
+@keyframes bubblePop {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.bubble-tail {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-bottom: 14px solid var(--white);
+}
+
+.speech-bubble p {
+    font-size: clamp(13px, 3vw, 15px);
+    color: var(--dark);
+    line-height: 1.8;
+    text-align: center;
+}
+
+/* دکمه‌ها */
+.home-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 2vw, 12px);
+    width: 100%;
+    max-width: 280px;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: clamp(12px, 2.5vw, 14px) clamp(24px, 5vw, 28px);
+    font-family: var(--font);
+    font-size: clamp(14px, 3vw, 17px);
+    font-weight: 700;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.btn:active::before {
+    left: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(145deg, #FF6B6B 0%, #EE5A5A 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255,107,107,0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.btn-secondary {
+    background: var(--white);
+    color: var(--dark);
+    padding: clamp(10px, 2vw, 12px) clamp(20px, 4vw, 24px);
+    font-size: clamp(13px, 2.5vw, 15px);
+}
+
+.btn-secondary:hover {
+    background: #f5f5f5;
+    transform: translateY(-2px);
+}
+
+.btn-trace {
+    background: linear-gradient(145deg, #4ECDC4 0%, #3DB9B0 100%);
+    color: white;
+    padding: clamp(10px, 2vw, 12px) clamp(16px, 3vw, 20px);
+    font-size: clamp(13px, 2.5vw, 15px);
+}
+
+.btn-icon {
+    font-size: clamp(18px, 4vw, 20px);
+}
+
+/* ===== صفحه کلاس ===== */
+#class-page {
+    background: #FFF8E1;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.classroom {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    max-width: 500px;
+    padding: clamp(15px, 3vw, 20px);
+}
+
+.class-ceiling {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 15%;
+    background: linear-gradient(180deg, #8D6E63 0%, #6D4C41 100%);
+}
+
+.class-wall {
+    position: absolute;
+    top: 15%;
+    left: 0;
+    width: 100%;
+    height: 45%;
+    background: linear-gradient(180deg, #FFE0B2 0%, #FFCC80 100%);
+}
+
+.class-window {
+    position: absolute;
+    width: 25%;
+    height: 50%;
+    background: linear-gradient(180deg, #81D4FA 0%, #4FC3F7 100%);
+    border: 8px solid #5D4037;
+    border-radius: 5px;
+    top: 25%;
+}
+
+.class-window.w1 { left: 10%; }
+.class-window.w2 { right: 10%; }
+
+.class-window::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 100%;
+    background: #5D4037;
+}
+
+.class-window::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 4px;
+    background: #5D4037;
+}
+
+.class-poster {
+    position: absolute;
+    width: clamp(35px, 8vw, 40px);
+    height: clamp(45px, 10vw, 50px);
+    background: white;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(20px, 5vw, 24px);
+    box-shadow: var(--shadow-sm);
+}
+
+.class-poster.p1 { top: 30%; left: 45%; }
+.class-poster.p2 { top: 30%; right: 35%; }
+
+.blackboard {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 55%;
+    max-width: 280px;
+    height: clamp(80px, 15vw, 100px);
+    background: linear-gradient(145deg, #2E7D32 0%, #1B5E20 100%);
+    border-radius: 5px;
+    border: 10px solid #5D4037;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.chalk-text {
+    color: rgba(255,255,255,0.9);
+    font-size: clamp(9px, 2vw, 11px);
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.chalk-drawing {
+    display: flex;
+    align-items: flex-end;
+    gap: 15px;
+    font-size: clamp(16px, 4vw, 20px);
+}
+
+.mini-sun { font-size: clamp(14px, 3.5vw, 18px); }
+.mini-tree { font-size: clamp(18px, 4vw, 22px); }
+
+.mini-shadow {
+    width: clamp(15px, 4vw, 20px);
+    height: clamp(8px, 2vw, 10px);
+    background: rgba(0,0,0,0.3);
+    border-radius: 50%;
+}
+
+.class-desk {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70%;
+    max-width: 250px;
+    height: 25px;
+    background: linear-gradient(180deg, #A1887F 0%, #8D6E63 100%);
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.desk-items {
+    position: absolute;
+    top: -20px;
+    left: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.book, .pencil-case {
+    font-size: clamp(16px, 4vw, 20px);
+}
+
+.class-character {
+    position: absolute;
+    bottom: 23%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.class-speech {
+    position: absolute;
+    bottom: 8%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--white);
+    padding: clamp(12px, 3vw, 15px) clamp(16px, 4vw, 20px);
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+    max-width: 280px;
+}
+
+.class-speech p {
+    color: var(--dark);
+    font-size: clamp(12px, 2.5vw, 14px);
+    line-height: 1.6;
+}
+
+#go-to-yard {
+    position: absolute;
+    bottom: 2%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* ===== صفحه انتقال ===== */
+#transition-page {
+    background: linear-gradient(180deg, #74B9FF 0%, #7CB342 100%);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.transition-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.transition-preview {
+    position: absolute;
+    bottom: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+}
+
+.preview-sun {
+    font-size: clamp(50px, 12vw, 60px);
+    margin-bottom: 20px;
+    animation: previewSunBounce 1s ease-in-out infinite;
+}
+
+@keyframes previewSunBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.preview-tree {
+    font-size: clamp(80px, 20vw, 100px);
+}
+
+.preview-ground {
+    width: clamp(150px, 40vw, 200px);
+    height: 30px;
+    background: linear-gradient(180deg, #7CB342 0%, #558B2F 100%);
+    border-radius: 50%;
+    margin-top: -10px;
+}
+
+.clouds-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+}
+
+.big-cloud {
+    position: absolute;
+    font-size: 0;
+    background: white;
+    border-radius: 100px;
+    opacity: 0;
+}
+
+.big-cloud::before,
+.big-cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+}
+
+.cloud-1 {
+    width: 150%;
+    height: 60%;
+    top: -60%;
+    left: -25%;
+    animation: cloudSlide 3s ease-in-out forwards;
+}
+
+.cloud-1::before {
+    width: 80px;
+    height: 80px;
+    top: 20%;
+    left: 15%;
+}
+
+.cloud-1::after {
+    width: 100px;
+    height: 100px;
+    top: 10%;
+    right: 20%;
+}
+
+.cloud-2 {
+    width: 140%;
+    height: 50%;
+    top: -50%;
+    left: -20%;
+    animation: cloudSlide 3s ease-in-out 0.3s forwards;
+}
+
+.cloud-2::before {
+    width: 70px;
+    height: 70px;
+    top: 25%;
+    left: 20%;
+}
+
+.cloud-2::after {
+    width: 90px;
+    height: 90px;
+    top: 15%;
+    right: 15%;
+}
+
+.cloud-3 {
+    width: 160%;
+    height: 55%;
+    top: -55%;
+    left: -30%;
+    animation: cloudSlide 3s ease-in-out 0.6s forwards;
+}
+
+.cloud-3::before {
+    width: 90px;
+    height: 90px;
+    top: 20%;
+    left: 10%;
+}
+
+.cloud-3::after {
+    width: 110px;
+    height: 110px;
+    top: 5%;
+    right: 25%;
+}
+
+.cloud-4 {
+    width: 130%;
+    height: 45%;
+    top: -45%;
+    left: -15%;
+    animation: cloudSlide 3s ease-in-out 0.9s forwards;
+}
+
+@keyframes cloudSlide {
+    0% {
+        top: -60%;
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        top: 100%;
+        opacity: 0;
+    }
+}
+
+.transition-text {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: clamp(14px, 3vw, 18px);
+    font-weight: 700;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    animation: textPulse 1s ease-in-out infinite;
+}
+
+@keyframes textPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* ===== صفحه حیاط ===== */
+#yard-page {
+    flex-direction: column;
+    background: linear-gradient(180deg, var(--sky-morning) 0%, var(--sky-morning) 55%, var(--grass) 55%, var(--grass-dark) 100%);
+}
+
+.yard-scene {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* آسمان حیاط */
+.yard-sky {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 55%;
+    overflow: hidden;
+}
+
+.yard-sun {
+    position: absolute;
+    width: clamp(50px, 12vw, 70px);
+    height: clamp(50px, 12vw, 70px);
+    cursor: grab;
+    z-index: 100;
+    transition: left 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                top 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    touch-action: none;
+}
+
+.yard-sun:active {
+    cursor: grabbing;
+}
+
+.sun-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(35px, 8vw, 50px);
+    height: clamp(35px, 8vw, 50px);
+    background: radial-gradient(circle, #FFE66D 0%, #F39C12 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(255,230,109,0.8);
+    z-index: 2;
+}
+
+.sun-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(55px, 13vw, 80px);
+    height: clamp(55px, 13vw, 80px);
+    background: radial-gradient(circle, rgba(255,230,109,0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: sunGlow 2s ease-in-out infinite;
+}
+
+@keyframes sunGlow {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+}
+
+.sun-rays-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(70px, 16vw, 100px);
+    height: clamp(70px, 16vw, 100px);
+    animation: raysSpin 20s linear infinite;
+}
+
+@keyframes raysSpin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.sun-ray {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: clamp(14px, 3vw, 20px);
+    background: linear-gradient(180deg, rgba(255,230,109,0.8) 0%, transparent 100%);
+    transform-origin: center clamp(35px, 8vw, 50px);
+    border-radius: 2px;
+}
+
+.sun-ray:nth-child(1) { transform: translate(-50%, -50px) rotate(0deg); }
+.sun-ray:nth-child(2) { transform: translate(-50%, -50px) rotate(45deg); }
+.sun-ray:nth-child(3) { transform: translate(-50%, -50px) rotate(90deg); }
+.sun-ray:nth-child(4) { transform: translate(-50%, -50px) rotate(135deg); }
+.sun-ray:nth-child(5) { transform: translate(-50%, -50px) rotate(180deg); }
+.sun-ray:nth-child(6) { transform: translate(-50%, -50px) rotate(225deg); }
+.sun-ray:nth-child(7) { transform: translate(-50%, -50px) rotate(270deg); }
+.sun-ray:nth-child(8) { transform: translate(-50%, -50px) rotate(315deg); }
+
+.yard-clouds {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.soft-cloud {
+    position: absolute;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.8;
+}
+
+.soft-cloud::before,
+.soft-cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+}
+
+.sc1 {
+    width: clamp(60px, 15vw, 80px);
+    height: clamp(22px, 5vw, 30px);
+    top: 15%;
+    right: 10%;
+    animation: softCloudFloat 15s ease-in-out infinite;
+}
+
+.sc1::before {
+    width: clamp(30px, 7vw, 40px);
+    height: clamp(30px, 7vw, 40px);
+    top: -20px;
+    left: 10px;
+}
+
+.sc1::after {
+    width: clamp(22px, 5vw, 30px);
+    height: clamp(22px, 5vw, 30px);
+    top: -10px;
+    left: 40px;
+}
+
+.sc2 {
+    width: clamp(45px, 12vw, 60px);
+    height: clamp(18px, 4vw, 25px);
+    top: 25%;
+    right: 30%;
+    animation: softCloudFloat 18s ease-in-out 3s infinite;
+}
+
+.sc2::before {
+    width: clamp(22px, 5vw, 30px);
+    height: clamp(22px, 5vw, 30px);
+    top: -15px;
+    left: 8px;
+}
+
+.sc2::after {
+    width: clamp(18px, 4vw, 25px);
+    height: clamp(18px, 4vw, 25px);
+    top: -8px;
+    left: 30px;
+}
+
+.sc3 {
+    width: clamp(50px, 13vw, 70px);
+    height: clamp(20px, 4.5vw, 28px);
+    top: 10%;
+    right: 50%;
+    animation: softCloudFloat 20s ease-in-out 6s infinite;
+}
+
+.sc3::before {
+    width: clamp(25px, 6vw, 35px);
+    height: clamp(25px, 6vw, 35px);
+    top: -18px;
+    left: 8px;
+}
+
+.sc3::after {
+    width: clamp(20px, 4.5vw, 28px);
+    height: clamp(20px, 4.5vw, 28px);
+    top: -8px;
+    left: 35px;
+}
+
+@keyframes softCloudFloat {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-20px); }
+}
+
+/* پرندگان آسمان */
+.sky-birds {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.sky-bird {
+    position: absolute;
+    font-size: clamp(14px, 3vw, 20px);
+    animation: skyBirdFly 12s linear infinite;
+    opacity: 0.6;
+}
+
+.sky-bird.sb1 { top: 20%; animation-delay: 0s; }
+.sky-bird.sb2 { top: 35%; animation-delay: 4s; }
+.sky-bird.sb3 { top: 15%; animation-delay: 8s; font-size: clamp(18px, 4vw, 28px); }
+
+@keyframes skyBirdFly {
+    0% { transform: translateX(-30px) translateY(0) scaleX(-1); }
+    25% { transform: translateX(25vw) translateY(-15px) scaleX(-1); }
+    50% { transform: translateX(50vw) translateY(5px) scaleX(-1); }
+    75% { transform: translateX(75vw) translateY(-10px) scaleX(-1); }
+    100% { transform: translateX(calc(100vw + 30px)) translateY(0) scaleX(-1); }
+}
+
+/* زمین حیاط */
+.yard-ground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 45%;
+    background: linear-gradient(180deg, var(--grass) 0%, var(--grass-dark) 100%);
+}
+
+.yard-wall {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 15%;
+    background: linear-gradient(180deg, #BCAAA4 0%, #A1887F 100%);
+}
+
+.wall-line {
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    width: 90%;
+    height: 3px;
+    background: #8D6E63;
+    transform: translateY(-50%);
+}
+
+.wall-line::before,
+.wall-line::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: #8D6E63;
+}
+
+.wall-line::before { left: 33%; }
+.wall-line::after { right: 33%; }
+
+/* گل‌ها */
+.flowers {
+    position: absolute;
+    bottom: 8%;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    padding: 0 8%;
+}
+
+.flower {
+    font-size: clamp(24px, 5vw, 30px);
+    animation: flowerSway 3s ease-in-out infinite;
+}
+
+.f1 { animation-delay: 0s; }
+.f2 { animation-delay: 0.5s; }
+.f3 { animation-delay: 1s; }
+.f4 { animation-delay: 1.5s; }
+.f5 { animation-delay: 0.75s; }
+
+@keyframes flowerSway {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+}
+
+/* چمن‌های کوچک */
+.grass-patches {
+    position: absolute;
+    bottom: 5%;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    padding: 0 5%;
+}
+
+.grass-blade {
+    font-size: clamp(16px, 3vw, 22px);
+    animation: grassWave 2s ease-in-out infinite;
+}
+
+.grass-blade:nth-child(2) { animation-delay: 0.3s; }
+.grass-blade:nth-child(3) { animation-delay: 0.6s; }
+.grass-blade:nth-child(4) { animation-delay: 0.9s; }
+
+@keyframes grassWave {
+    0%, 100% { transform: scaleY(1) rotate(-3deg); }
+    50% { transform: scaleY(1.1) rotate(3deg); }
+}
+
+/* پروانه‌ها */
+.butterflies {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.butterfly {
+    position: absolute;
+    font-size: clamp(18px, 4vw, 26px);
+    animation: butterflyFloat 8s ease-in-out infinite;
+}
+
+.butterfly.bf1 {
+    bottom: 30%;
+    left: 20%;
+    animation-delay: 0s;
+}
+
+.butterfly.bf2 {
+    bottom: 35%;
+    right: 25%;
+    animation-delay: 3s;
+}
+
+@keyframes butterflyFloat {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(20px, -30px) rotate(10deg); }
+    50% { transform: translate(40px, 0) rotate(0deg); }
+    75% { transform: translate(20px, 30px) rotate(-10deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* درخت */
+.tree-area {
+    position: absolute;
+    bottom: 12%;
+    left: 15%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+}
+
+.tree {
+    position: relative;
+    z-index: 10;
+}
+
+.tree-trunk {
+    width: clamp(28px, 6vw, 40px);
+    height: clamp(65px, 14vw, 90px);
+    background: linear-gradient(90deg, #5D4037 0%, #8D6E63 50%, #5D4037 100%);
+    border-radius: 0 0 5px 5px;
+    margin: 0 auto;
+}
+
+.tree-leaves {
+    position: absolute;
+    bottom: clamp(60px, 13vw, 80px);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.leaf-cluster {
+    position: absolute;
+    background: var(--tree-green);
+    border-radius: 50%;
+    box-shadow: inset -5px -5px 15px rgba(0,0,0,0.1);
+}
+
+.lc1 {
+    width: clamp(80px, 18vw, 110px);
+    height: clamp(80px, 18vw, 110px);
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(145deg, var(--tree-green) 0%, var(--tree-dark) 100%);
+}
+
+.lc2 {
+    width: clamp(55px, 12vw, 75px);
+    height: clamp(55px, 12vw, 75px);
+    bottom: clamp(30px, 7vw, 45px);
+    left: -15px;
+    background: linear-gradient(145deg, #66BB6A 0%, var(--tree-green) 100%);
+}
+
+.lc3 {
+    width: clamp(55px, 12vw, 75px);
+    height: clamp(55px, 12vw, 75px);
+    bottom: clamp(30px, 7vw, 45px);
+    right: -15px;
+    background: linear-gradient(145deg, #81C784 0%, var(--tree-green) 100%);
+}
+
+.lc4 {
+    width: clamp(45px, 10vw, 60px);
+    height: clamp(45px, 10vw, 60px);
+    bottom: clamp(55px, 12vw, 75px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(145deg, #A5D6A7 0%, var(--tree-green) 100%);
+}
+
+/* سایه درخت */
+.tree-shadow {
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--shadow);
+    border-radius: 50%;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 5;
+}
+
+/* کانواس ترسیم سایه */
+.shadow-canvas-container {
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+}
+
+.shadow-canvas-container.active {
+    pointer-events: auto;
+}
+
+#shadow-canvas {
+    background: transparent;
+    cursor: crosshair;
+    border-radius: 50%;
+    touch-action: none;
+    border: 2px dashed rgba(255, 107, 107, 0.5);
+}
+
+.trace-hint {
+    background: rgba(255,255,255,0.95);
+    color: var(--dark);
+    padding: clamp(6px, 1.5vw, 8px) clamp(12px, 2.5vw, 15px);
+    border-radius: 20px;
+    font-size: clamp(11px, 2.2vw, 13px);
+    font-weight: 600;
+    margin-top: 8px;
+    box-shadow: var(--shadow-sm);
+    animation: hintPulse 1.5s ease-in-out infinite;
+    white-space: nowrap;
+}
+
+@keyframes hintPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* نیمکت */
+.bench {
+    position: absolute;
+    bottom: 10%;
+    right: 12%;
+}
+
+.bench-top {
+    width: clamp(80px, 18vw, 110px);
+    height: 12px;
+    background: linear-gradient(180deg, #A1887F 0%, #8D6E63 100%);
+    border-radius: 3px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+
+.bench-leg {
+    position: absolute;
+    width: 8px;
+    height: 25px;
+    background: #5D4037;
+    bottom: -25px;
+}
+
+.bench-leg.l1 { left: 10px; }
+.bench-leg.l2 { right: 10px; }
+
+.bench-back {
+    position: absolute;
+    width: 80%;
+    height: 8px;
+    background: linear-gradient(180deg, #8D6E63 0%, #6D4C41 100%);
+    top: -15px;
+    left: 10%;
+    border-radius: 3px;
+}
+
+/* ساعت دیواری */
+.wall-clock {
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    z-index: 50;
+}
+
+.clock-body {
+    background: linear-gradient(145deg, #FAFAFA 0%, #E0E0E0 100%);
+    border-radius: 15px;
+    padding: clamp(8px, 2vw, 12px);
+    box-shadow: var(--shadow-lg);
+    border: 4px solid #5D4037;
+}
+
+.clock-face {
+    width: clamp(60px, 14vw, 90px);
+    height: clamp(60px, 14vw, 90px);
+    background: white;
+    border-radius: 50%;
+    position: relative;
+    border: 3px solid #333;
+}
+
+.clock-marks {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.mark {
+    position: absolute;
+    background: #333;
+    border-radius: 2px;
+}
+
+.m12 {
+    width: 3px;
+    height: 10px;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.m3 {
+    width: 10px;
+    height: 3px;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+}
+
+.m6 {
+    width: 3px;
+    height: 10px;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.m9 {
+    width: 10px;
+    height: 3px;
+    top: 50%;
+    left: 5px;
+    transform: translateY(-50%);
+}
+
+.clock-center-dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: #E53935;
+    border-radius: 50%;
+    z-index: 5;
+}
+
+.clock-hand {
+    position: absolute;
+    background: #333;
+    transform-origin: bottom center;
+    border-radius: 3px;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hour-hand {
+    width: 4px;
+    height: clamp(16px, 4vw, 25px);
+    top: 20px;
+    left: calc(50% - 2px);
+    z-index: 3;
+}
+
+.minute-hand {
+    width: 3px;
+    height: clamp(24px, 5.5vw, 35px);
+    top: 10px;
+    left: calc(50% - 1.5px);
+    z-index: 4;
+}
+
+.clock-time-display {
+    text-align: center;
+    margin-top: 8px;
+    font-size: clamp(12px, 2.5vw, 16px);
+    font-weight: 700;
+    color: var(--dark);
+    background: #333;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 10px;
+}
+
+/* کاراکتر حیاط */
+.yard-character {
+    position: absolute;
+    bottom: 15%;
+    left: 55%;
+    z-index: 30;
+}
+
+.yard-speech {
+    position: absolute;
+    bottom: 35%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--white);
+    padding: clamp(10px, 2.5vw, 12px) clamp(14px, 3.5vw, 18px);
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+    max-width: 250px;
+    z-index: 35;
+    display: none;
+}
+
+.yard-speech.show {
+    display: block;
+    animation: bubblePop 0.3s ease;
+}
+
+.yard-speech p {
+    color: var(--dark);
+    font-size: clamp(12px, 2.5vw, 14px);
+    line-height: 1.5;
+}
+
+/* دکمه شروع ترسیم */
+.trace-start-btn {
+    position: absolute;
+    bottom: 3%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 40;
+    display: none;
+}
+
+.trace-start-btn.show {
+    display: block;
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateX(-50%) translateY(30px); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+/* نمایش زمان */
+.time-indicator {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    background: rgba(255,255,255,0.95);
+    padding: clamp(6px, 1.5vw, 8px) clamp(12px, 2.5vw, 15px);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--shadow-sm);
+    z-index: 50;
+}
+
+.time-icon {
+    font-size: clamp(14px, 3vw, 18px);
+}
+
+.time-value {
+    font-size: clamp(13px, 2.8vw, 16px);
+    font-weight: 700;
+    color: var(--dark);
+}
+
+/* راهنمای خورشید */
+.sun-hint {
+    position: absolute;
+    top: 18%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.95);
+    padding: clamp(8px, 2vw, 10px) clamp(14px, 3vw, 18px);
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: clamp(12px, 2.5vw, 14px);
+    font-weight: 600;
+    color: var(--dark);
+    box-shadow: var(--shadow-md);
+    z-index: 60;
+    display: none;
+}
+
+.sun-hint.show {
+    display: flex;
+    animation: fadeInDown 0.4s ease;
+}
+
+@keyframes fadeInDown {
+    from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+/* راهنمای سایه */
+.shadow-hint {
+    position: absolute;
+    bottom: 28%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.95);
+    padding: clamp(8px, 2vw, 10px) clamp(14px, 3vw, 18px);
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: clamp(12px, 2.5vw, 14px);
+    font-weight: 600;
+    color: var(--dark);
+    box-shadow: var(--shadow-md);
+    z-index: 60;
+    display: none;
+    white-space: nowrap;
+}
+
+.shadow-hint.show {
+    display: flex;
+    animation: fadeInUp 0.4s ease;
+}
+
+@keyframes fadeInUp {
+    from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+/* ===== صفحه سوال ===== */
+#quiz-page {
+    background: linear-gradient(180deg, #E8F5E9 0%, #C8E6C9 100%);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.quiz-scene {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(15px, 3vw, 20px);
+    max-width: 400px;
+    width: 100%;
+}
+
+.quiz-character {
+    margin-bottom: clamp(15px, 3vw, 20px);
+}
+
+.quiz-card {
+    background: var(--white);
+    border-radius: 25px;
+    padding: clamp(20px, 4vw, 25px);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    text-align: center;
+}
+
+.quiz-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: clamp(12px, 2.5vw, 15px);
+}
+
+.quiz-icon {
+    font-size: clamp(22px, 5vw, 28px);
+}
+
+.quiz-header h2 {
+    font-size: clamp(18px, 4vw, 22px);
+    color: var(--primary);
+}
+
+.quiz-question {
+    font-size: clamp(15px, 3vw, 18px);
+    color: var(--dark);
+    margin-bottom: clamp(20px, 4vw, 25px);
+    line-height: 1.6;
+}
+
+.quiz-options {
+    display: flex;
+    gap: clamp(10px, 2.5vw, 15px);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.quiz-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: clamp(15px, 3vw, 20px) clamp(20px, 4vw, 30px);
+    background: #F5F5F5;
+    border: 4px solid transparent;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: var(--font);
+    font-size: clamp(14px, 3vw, 16px);
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.quiz-option:hover {
+    border-color: var(--secondary);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+}
+
+.quiz-option:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.quiz-option.correct {
+    background: #E8F5E9;
+    border-color: var(--success);
+    animation: correctPulse 0.5s ease;
+}
+
+.quiz-option.wrong {
+    background: #FFEBEE;
+    border-color: var(--error);
+    animation: wrongShake 0.5s ease;
+}
+
+@keyframes correctPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes wrongShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+.option-emoji {
+    font-size: clamp(40px, 10vw, 50px);
+}
+
+.option-text {
+    font-size: clamp(14px, 3vw, 16px);
+}
+
+.quiz-feedback {
+    margin-top: clamp(15px, 3vw, 20px);
+    padding: clamp(12px, 2.5vw, 15px);
+    border-radius: 15px;
+    font-size: clamp(14px, 3vw, 16px);
+    font-weight: 700;
+    display: none;
+}
+
+.quiz-feedback.show {
+    display: block;
+    animation: bubblePop 0.3s ease;
+}
+
+.quiz-feedback.success {
+    background: #E8F5E9;
+    color: var(--success);
+}
+
+.quiz-feedback.error {
+    background: #FFEBEE;
+    color: var(--error);
+}
+
+/* ===== صفحه آمار ===== */
+#stats-page {
+    background: linear-gradient(180deg, #EDE7F6 0%, #D1C4E9 100%);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.stats-scene {
+    padding: clamp(15px, 3vw, 20px);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+
+.stats-header h2 {
+    font-size: clamp(20px, 4.5vw, 24px);
+    color: var(--dark);
+    margin-bottom: clamp(20px, 4vw, 25px);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(10px, 2.5vw, 15px);
+    margin-bottom: clamp(20px, 4vw, 25px);
+}
+
+.stat-card {
+    background: var(--white);
+    padding: clamp(15px, 3vw, 20px) clamp(10px, 2vw, 15px);
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.stat-card.success { border: 3px solid var(--success); }
+.stat-card.error { border: 3px solid var(--error); }
+.stat-card.star { border: 3px solid var(--accent); }
+
+.stat-icon {
+    font-size: clamp(26px, 6vw, 32px);
+}
+
+.stat-value {
+    font-size: clamp(22px, 5vw, 28px);
+    font-weight: 900;
+    color: var(--dark);
+}
+
+.stat-label {
+    font-size: clamp(10px, 2vw, 12px);
+    color: #666;
+}
+
+.stats-progress {
+    background: var(--white);
+    padding: clamp(15px, 3vw, 20px);
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+    margin-bottom: clamp(20px, 4vw, 25px);
+}
+
+.progress-label {
+    font-size: clamp(12px, 2.5vw, 14px);
+    color: var(--dark);
+    margin-bottom: clamp(10px, 2vw, 12px);
+    font-weight: 600;
+}
+
+.progress-bar {
+    width: 100%;
+    height: clamp(16px, 3.5vw, 20px);
+    background: #E0E0E0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--secondary), var(--success));
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    width: 0%;
+}
+
+.progress-percent {
+    font-size: clamp(14px, 3vw, 16px);
+    font-weight: 700;
+    color: var(--success);
+}
+
+/* ===== صفحه راهنما ===== */
+#help-page {
+    background: linear-gradient(180deg, #FFF3E0 0%, #FFE0B2 100%);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.help-scene {
+    padding: clamp(15px, 3vw, 20px);
+    max-width: 400px;
+    width: 100%;
+}
+
+.help-header h2 {
+    font-size: clamp(20px, 4.5vw, 24px);
+    color: var(--dark);
+    text-align: center;
+    margin-bottom: clamp(20px, 4vw, 25px);
+}
+
+.help-steps {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 2vw, 12px);
+    margin-bottom: clamp(20px, 4vw, 25px);
+}
+
+.help-step {
+    display: flex;
+    align-items: center;
+    gap: clamp(12px, 2.5vw, 15px);
+    background: var(--white);
+    padding: clamp(12px, 2.5vw, 15px);
+    border-radius: 15px;
+    box-shadow: var(--shadow-sm);
+}
+
+.step-num {
+    width: clamp(30px, 7vw, 35px);
+    height: clamp(30px, 7vw, 35px);
+    background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: clamp(14px, 3vw, 16px);
+    flex-shrink: 0;
+}
+
+.step-content {
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 2vw, 12px);
+}
+
+.step-icon {
+    font-size: clamp(22px, 5vw, 28px);
+}
+
+.step-content p {
+    font-size: clamp(12px, 2.5vw, 14px);
+    color: var(--dark);
+}
+
+.help-tip {
+    background: #E3F2FD;
+    padding: clamp(12px, 2.5vw, 15px);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 2vw, 12px);
+    margin-bottom: clamp(20px, 4vw, 25px);
+}
+
+.tip-icon {
+    font-size: clamp(22px, 5vw, 28px);
+}
+
+.help-tip p {
+    font-size: clamp(12px, 2.5vw, 14px);
+    color: #1565C0;
+}
+
+/* ===== صفحه پایانی ===== */
+#end-page {
+    background: linear-gradient(180deg, #E8F5E9 0%, #A5D6A7 100%);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.end-scene {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(15px, 3vw, 20px);
+    max-width: 400px;
+    width: 100%;
+}
+
+.end-stars {
+    font-size: clamp(40px, 10vw, 50px);
+    margin-bottom: clamp(15px, 3vw, 20px);
+    animation: starsBounce 1s ease-in-out infinite;
+}
+
+@keyframes starsBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+.end-character {
+    margin-bottom: clamp(15px, 3vw, 20px);
+}
+
+.end-message {
+    text-align: center;
+    margin-bottom: clamp(20px, 4vw, 25px);
+}
+
+.end-message h2 {
+    font-size: clamp(26px, 6vw, 32px);
+    color: var(--success);
+    margin-bottom: 10px;
+}
+
+.end-message p {
+    font-size: clamp(15px, 3.5vw, 18px);
+    color: var(--dark);
+}
+
+.end-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 2vw, 12px);
+    width: 100%;
+    max-width: 280px;
+}
+
+/* ===== ریسپانسیو ===== */
+@media (max-width: 380px) {
+    .character {
+        transform: scale(0.85);
+    }
+    
+    .tree-area {
+        left: 8%;
+        bottom: 10%;
+    }
+    
+    .leaf-cluster.lc1 {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .leaf-cluster.lc2,
+    .leaf-cluster.lc3 {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .tree-trunk {
+        width: 24px;
+        height: 55px;
+    }
+    
+    .wall-clock {
+        right: 2%;
+        top: 3%;
+    }
+    
+    .clock-body {
+        padding: 6px;
+    }
+    
+    .clock-face {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .hour-hand {
+        height: 14px;
+        top: 15px;
+    }
+    
+    .minute-hand {
+        height: 20px;
+        top: 8px;
+    }
+    
+    .quiz-option {
+            padding: 12px 15px;
+    }
+    
+    .option-emoji {
+        font-size: 35px;
+    }
+    
+    .stat-card {
+        padding: 12px 8px;
+    }
+    
+    .stat-value {
+        font-size: 20px;
+    }
+    
+    .bench {
+        right: 5%;
+    }
+    
+    .bench-top {
+        width: 70px;
+    }
+    
+    .flowers {
+        padding: 0 5%;
+    }
+    
+    .flower {
+        font-size: 20px;
+    }
+}
+
+@media (min-width: 500px) {
+    .character {
+        width: 120px;
+        height: 170px;
+    }
+    
+    .char-head {
+        width: 90px;
+        height: 90px;
+    }
+    
+    .char-body {
+        width: 65px;
+        height: 80px;
+    }
+    
+    .tree-area {
+        left: 20%;
+        bottom: 15%;
+    }
+    
+    .leaf-cluster.lc1 {
+        width: 130px;
+        height: 130px;
+    }
+    
+    .leaf-cluster.lc2,
+    .leaf-cluster.lc3 {
+        width: 90px;
+        height: 90px;
+    }
+    
+    .tree-trunk {
+        width: 45px;
+        height: 100px;
+    }
+    
+    .wall-clock {
+        right: 8%;
+        top: 6%;
+    }
+}
+
+/* ===== تبلت ===== */
+@media (min-width: 600px) and (orientation: portrait) {
+    .tree-area {
+        left: 25%;
+        bottom: 18%;
+    }
+    
+    .leaf-cluster.lc1 {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .leaf-cluster.lc2,
+    .leaf-cluster.lc3 {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .tree-trunk {
+        width: 50px;
+        height: 110px;
+    }
+    
+    .tree-shadow {
+        width: 140px;
+        height: 60px;
+    }
+    
+    #shadow-canvas {
+        width: 160px;
+        height: 90px;
+    }
+    
+    .wall-clock {
+        right: 10%;
+        top: 8%;
+    }
+    
+    .clock-face {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .hour-hand {
+        height: 28px;
+        top: 22px;
+    }
+    
+    .minute-hand {
+        height: 38px;
+        top: 12px;
+    }
+}
+
+/* ===== افقی ===== */
+@media (orientation: landscape) and (max-height: 500px) {
+    .home-content {
+        flex-direction: row;
+        justify-content: center;
+        gap: 30px;
+        max-width: none;
+    }
+    
+    .character-wrapper {
+        margin-bottom: 0;
+    }
+    
+    .home-buttons {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 400px;
+    }
+    
+    #yard-page .yard-scene {
+        display: flex;
+        flex-direction: row;
+    }
+    
+    .yard-sky {
+        width: 60%;
+        height: 100%;
+    }
+    
+    .yard-ground {
+        width: 40%;
+        height: 100%;
+    }
+    
+    .tree-area {
+        left: 5%;
+        bottom: 20%;
+    }
+    
+    .wall-clock {
+        top: 3%;
+        right: 3%;
+    }
+    
+    .clock-body {
+        padding: 6px;
+    }
+    
+    .clock-face {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .hour-hand {
+        height: 16px;
+        top: 14px;
+    }
+    
+    .minute-hand {
+        height: 22px;
+        top: 8px;
+    }
+    
+    .yard-character {
+        bottom: 25%;
+        left: 60%;
+    }
+    
+    .yard-speech {
+        bottom: 45%;
+        max-width: 200px;
+    }
+    
+    .trace-start-btn {
+        bottom: 5%;
+    }
+    
+    .time-indicator {
+        top: 3%;
+        left: 3%;
+        padding: 5px 10px;
+    }
+    
+    .sun-hint {
+        top: 10%;
+    }
+    
+    .shadow-hint {
+        bottom: 40%;
+        font-size: 11px;
+    }
+}
+
+@media (orientation: landscape) and (min-height: 501px) and (max-height: 700px) {
+    .yard-sky {
+        height: 50%;
+    }
+    
+    .yard-ground {
+        height: 50%;
+    }
+    
+    .tree-area {
+        bottom: 10%;
+        left: 12%;
+    }
+    
+    .wall-clock {
+        top: 4%;
+        right: 4%;
+    }
+    
+    .clock-body {
+        padding: 8px;
+    }
+    
+    .clock-face {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .hour-hand {
+        height: 20px;
+        top: 16px;
+    }
+    
+    .minute-hand {
+        height: 28px;
+        top: 10px;
+    }
+}
+
+/* ===== صفحه نمایش بزرگ ===== */
+@media (min-width: 768px) {
+    .home-content {
+        max-width: 500px;
+    }
+    
+    .character {
+        width: 130px;
+        height: 180px;
+    }
+    
+    .char-head {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .char-body {
+        width: 75px;
+        height: 85px;
+    }
+    
+    .speech-bubble {
+        max-width: 350px;
+    }
+    
+    .speech-bubble p {
+        font-size: 17px;
+    }
+    
+    .home-buttons {
+        max-width: 320px;
+    }
+    
+    .btn {
+        padding: 16px 32px;
+        font-size: 18px;
+    }
+    
+    .tree-area {
+        left: 20%;
+        bottom: 15%;
+    }
+    
+    .leaf-cluster.lc1 {
+        width: 160px;
+        height: 160px;
+    }
+    
+    .leaf-cluster.lc2,
+    .leaf-cluster.lc3 {
+        width: 110px;
+        height: 110px;
+    }
+    
+    .leaf-cluster.lc4 {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .tree-trunk {
+        width: 55px;
+        height: 120px;
+    }
+    
+    .tree-shadow {
+        width: 130px;
+        height: 55px;
+    }
+    
+    #shadow-canvas {
+        width: 150px;
+        height: 80px;
+    }
+    
+    .wall-clock {
+        right: 8%;
+        top: 5%;
+    }
+    
+    .clock-body {
+        padding: 15px;
+    }
+    
+    .clock-face {
+        width: 110px;
+        height: 110px;
+    }
+    
+    .hour-hand {
+        height: 30px;
+        top: 25px;
+        left: calc(50% - 2px);
+    }
+    
+    .minute-hand {
+        height: 42px;
+        top: 14px;
+        left: calc(50% - 1.5px);
+    }
+    
+    .clock-time-display {
+        font-size: 18px;
+    }
+    
+    .yard-character {
+        bottom: 18%;
+        left: 58%;
+    }
+    
+    .yard-speech {
+        bottom: 38%;
+        max-width: 300px;
+        padding: 15px 22px;
+    }
+    
+    .yard-speech p {
+        font-size: 16px;
+    }
+    
+    .trace-start-btn {
+        bottom: 4%;
+    }
+    
+    .btn-trace {
+        padding: 14px 24px;
+        font-size: 17px;
+    }
+    
+    .time-indicator {
+        top: 5%;
+        left: 5%;
+        padding: 10px 18px;
+    }
+    
+    .time-icon {
+        font-size: 22px;
+    }
+    
+    .time-value {
+        font-size: 18px;
+    }
+    
+    .sun-hint,
+    .shadow-hint {
+        padding: 12px 20px;
+        font-size: 16px;
+    }
+    
+    .flowers {
+        padding: 0 12%;
+    }
+    
+    .flower {
+        font-size: 36px;
+    }
+    
+    .bench {
+        right: 15%;
+        bottom: 12%;
+    }
+    
+    .bench-top {
+        width: 130px;
+    }
+    
+    .quiz-card {
+        padding: 30px;
+    }
+    
+    .quiz-header h2 {
+        font-size: 26px;
+    }
+    
+    .quiz-question {
+        font-size: 20px;
+    }
+    
+    .quiz-option {
+        padding: 25px 40px;
+    }
+    
+    .option-emoji {
+        font-size: 60px;
+    }
+    
+    .option-text {
+        font-size: 18px;
+    }
+}
+
+/* ===== Safe Area برای موبایل‌های جدید ===== */
+@supports (padding: env(safe-area-inset-top)) {
+    .time-indicator {
+        top: calc(5% + env(safe-area-inset-top));
+        left: calc(5% + env(safe-area-inset-left));
+    }
+    
+    .wall-clock {
+        top: calc(5% + env(safe-area-inset-top));
+        right: calc(5% + env(safe-area-inset-right));
+    }
+    
+    .trace-start-btn {
+        bottom: calc(3% + env(safe-area-inset-bottom));
+    }
+    
+    .yard-speech {
+        bottom: calc(35% + env(safe-area-inset-bottom));
+    }
+}
+
+/* ===== انیمیشن‌های اضافی ===== */
+@keyframes floatUp {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+@keyframes sparkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* ===== پایان ===== */
+    </style>
+</head>
+<body>
+    <!-- صفحه اصلی -->
+    <div id="home-page" class="page active">
+        <div class="home-bg">
+            <div class="bg-sun"></div>
+            <div class="bg-cloud c1"></div>
+            <div class="bg-cloud c2"></div>
+            <div class="bg-cloud c3"></div>
+            <div class="bg-hills"></div>
+            <div class="bg-birds">
+                <span class="bird">🕊️</span>
+                <span class="bird b2">🕊️</span>
+            </div>
+        </div>
+        <div class="home-content">
+            <div class="character-wrapper">
+                <div class="character">
+                    <div class="char-head">
+                        <div class="char-hair"></div>
+                        <div class="char-face">
+                            <div class="char-eyes">
+                                <div class="char-eye"></div>
+                                <div class="char-eye"></div>
+                            </div>
+                            <div class="char-cheeks">
+                                <div class="cheek"></div>
+                                <div class="cheek"></div>
+                            </div>
+                            <div class="char-mouth smile"></div>
+                        </div>
+                    </div>
+                    <div class="char-body">
+                        <div class="char-arm left"></div>
+                        <div class="char-arm right"></div>
+                    </div>
+                </div>
+                <div class="speech-bubble">
+                    <div class="bubble-tail"></div>
+                    <p>سلام دوست عزیز! 👋</p>
+                    <p>آماده‌ای با هم سایه‌ها رو یاد بگیریم؟</p>
+                </div>
+            </div>
+            <div class="home-buttons">
+                <button id="start-btn" class="btn btn-primary">
+                    <span class="btn-icon">🎮</span>
+                    <span>شروع بازی</span>
+                </button>
+                <button id="stats-btn" class="btn btn-secondary">
+                    <span class="btn-icon">📊</span>
+                    <span>آمار</span>
+                </button>
+                <button id="help-btn" class="btn btn-secondary">
+                    <span class="btn-icon">❓</span>
+                    <span>راهنما</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه کلاس -->
+    <div id="class-page" class="page">
+        <div class="classroom">
+            <div class="class-ceiling"></div>
+            <div class="class-wall">
+                <div class="class-window w1"></div>
+                <div class="class-window w2"></div>
+                <div class="class-poster p1">🔬</div>
+                <div class="class-poster p2">📚</div>
+            </div>
+            <div class="blackboard">
+                <div class="chalk-frame">
+                    <div class="chalk-text">علوم - سایه چیست؟</div>
+                    <div class="chalk-drawing">
+                        <div class="mini-sun">☀️</div>
+                        <div class="mini-tree">🌳</div>
+                        <div class="mini-shadow"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="class-desk">
+                <div class="desk-items">
+                    <div class="book">📖</div>
+                    <div class="pencil-case">✏️</div>
+                </div>
+            </div>
+            <div class="class-character">
+                <div class="character small">
+                    <div class="char-head">
+                        <div class="char-hair"></div>
+                        <div class="char-face">
+                            <div class="char-eyes">
+                                <div class="char-eye"></div>
+                                <div class="char-eye"></div>
+                            </div>
+                            <div class="char-mouth talk"></div>
+                        </div>
+                    </div>
+                    <div class="char-body"></div>
+                </div>
+            </div>
+            <div class="class-speech">
+                <p>بیا بریم حیاط مدرسه!</p>
+                <p>اونجا سایه‌ها رو بهتر می‌فهمیم 🌳</p>
+            </div>
+            <button id="go-to-yard" class="btn btn-primary">
+                <span>برو حیاط</span>
+                <span class="btn-icon">🚶</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- صفحه انتقال -->
+    <div id="transition-page" class="page">
+        <div class="transition-container">
+            <div class="transition-preview">
+                <div class="preview-sun">☀️</div>
+                <div class="preview-tree">🌳</div>
+                <div class="preview-ground"></div>
+            </div>
+            <div class="clouds-container">
+                <div class="big-cloud cloud-1">☁️</div>
+                <div class="big-cloud cloud-2">☁️</div>
+                <div class="big-cloud cloud-3">☁️</div>
+                <div class="big-cloud cloud-4">☁️</div>
+            </div>
+            <div class="transition-text">در حال انتقال به حیاط...</div>
+        </div>
+    </div>
+
+    <!-- صفحه حیاط -->
+    <div id="yard-page" class="page">
+        <div class="yard-scene">
+            <!-- آسمان -->
+            <div class="yard-sky">
+                <div class="yard-sun" id="yard-sun">
+                    <div class="sun-core"></div>
+                    <div class="sun-glow"></div>
+                    <div class="sun-rays-container">
+                        <div class="sun-ray"></div>
+                        <div class="sun-ray"></div>
+                        <div class="sun-ray"></div>
+                        <div class="sun-ray"></div>
+                        <div class="sun-ray"></div>
+                        <div class="sun-ray"></div>
+                        <div class="sun-ray"></div>
+                        <div class="sun-ray"></div>
+                    </div>
+                </div>
+                <div class="yard-clouds">
+                    <div class="soft-cloud sc1"></div>
+                    <div class="soft-cloud sc2"></div>
+                    <div class="soft-cloud sc3"></div>
+                </div>
+                <!-- پرندگان -->
+                <div class="sky-birds">
+                    <span class="sky-bird sb1">🕊️</span>
+                    <span class="sky-bird sb2">🕊️</span>
+                    <span class="sky-bird sb3">🦅</span>
+                </div>
+            </div>
+
+            <!-- زمین حیاط -->
+            <div class="yard-ground">
+                <!-- دیوار حیاط -->
+                <div class="yard-wall">
+                    <div class="wall-line wl1"></div>
+                    <div class="wall-line wl2"></div>
+                </div>
+                
+                <!-- گل‌ها و چمن -->
+                <div class="flowers">
+                    <div class="flower f1">🌸</div>
+                    <div class="flower f2">🌼</div>
+                    <div class="flower f3">🌺</div>
+                    <div class="flower f4">🌻</div>
+                    <div class="flower f5">🌷</div>
+                </div>
+                
+                <!-- چمن‌های کوچک -->
+                <div class="grass-patches">
+                    <span class="grass-blade">🌱</span>
+                    <span class="grass-blade">🌿</span>
+                    <span class="grass-blade">☘️</span>
+                    <span class="grass-blade">🌱</span>
+                </div>
+
+                <!-- درخت و سایه -->
+                <div class="tree-area" id="tree-area">
+                    <div class="tree">
+                        <div class="tree-trunk"></div>
+                        <div class="tree-leaves">
+                            <div class="leaf-cluster lc1"></div>
+                            <div class="leaf-cluster lc2"></div>
+                            <div class="leaf-cluster lc3"></div>
+                            <div class="leaf-cluster lc4"></div>
+                        </div>
+                    </div>
+                    <!-- سایه درخت -->
+                    <div class="tree-shadow" id="tree-shadow"></div>
+                    <!-- کانواس ترسیم سایه - دقیقاً روی سایه -->
+                    <div class="shadow-canvas-container" id="shadow-canvas-container">
+                        <canvas id="shadow-canvas"></canvas>
+                        <div class="trace-hint">✏️ دور سایه را بکش</div>
+                    </div>
+                </div>
+
+                <!-- نیمکت -->
+                <div class="bench">
+                    <div class="bench-top"></div>
+                    <div class="bench-leg l1"></div>
+                    <div class="bench-leg l2"></div>
+                    <div class="bench-back"></div>
+                </div>
+
+                <!-- پروانه‌ها -->
+                <div class="butterflies">
+                    <span class="butterfly bf1">🦋</span>
+                    <span class="butterfly bf2">🦋</span>
+                </div>
+            </div>
+
+            <!-- ساعت دیواری -->
+            <div class="wall-clock" id="wall-clock">
+                <div class="clock-body">
+                    <div class="clock-face">
+                        <div class="clock-marks">
+                            <div class="mark m12"></div>
+                            <div class="mark m3"></div>
+                            <div class="mark m6"></div>
+                            <div class="mark m9"></div>
+                        </div>
+                        <div class="clock-center-dot"></div>
+                        <div class="clock-hand hour-hand" id="hour-hand"></div>
+                        <div class="clock-hand minute-hand" id="minute-hand"></div>
+                    </div>
+                    <div class="clock-time-display" id="clock-time">۷:۰۰</div>
+                </div>
+            </div>
+
+            <!-- کاراکتر -->
+            <div class="yard-character" id="yard-character">
+                <div class="character">
+                    <div class="char-head">
+                        <div class="char-hair"></div>
+                        <div class="char-face">
+                            <div class="char-eyes">
+                                <div class="char-eye"></div>
+                                <div class="char-eye"></div>
+                            </div>
+                            <div class="char-cheeks">
+                                <div class="cheek"></div>
+                                <div class="cheek"></div>
+                            </div>
+                            <div class="char-mouth" id="char-mouth"></div>
+                        </div>
+                    </div>
+                    <div class="char-body">
+                        <div class="char-arm left"></div>
+                        <div class="char-arm right"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- پیام کاراکتر -->
+            <div class="yard-speech" id="yard-speech">
+                <div class="bubble-tail"></div>
+                <p id="speech-text">به حیاط مدرسه رسیدیم! 🌳</p>
+            </div>
+
+            <!-- دکمه شروع ترسیم -->
+            <div class="trace-start-btn" id="trace-start-btn">
+                <button class="btn btn-trace" id="trace-btn">
+                    <span class="btn-icon">✏️</span>
+                    <span>شروع رسم دور سایه</span>
+                </button>
+            </div>
+
+            <!-- نمایش زمان -->
+            <div class="time-indicator" id="time-indicator">
+                <span class="time-icon">⏰</span>
+                <span class="time-value" id="current-time">۷:۰۰</span>
+            </div>
+
+            <!-- راهنمای خورشید -->
+            <div class="sun-hint" id="sun-hint">
+                <span>🔆</span> خورشید را بکش و جابجا کن
+            </div>
+
+            <!-- راهنمای سایه -->
+            <div class="shadow-hint" id="shadow-hint">
+                <span>👆</span> به سایه نگاه کن، با حرکت خورشید تغییر می‌کنه!
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه سوال -->
+    <div id="quiz-page" class="page">
+        <div class="quiz-scene">
+            <div class="quiz-character">
+                <div class="character">
+                    <div class="char-head">
+                        <div class="char-hair"></div>
+                        <div class="char-face">
+                            <div class="char-eyes">
+                                <div class="char-eye"></div>
+                                <div class="char-eye"></div>
+                            </div>
+                            <div class="char-cheeks">
+                                <div class="cheek"></div>
+                                <div class="cheek"></div>
+                            </div>
+                            <div class="char-mouth talk"></div>
+                        </div>
+                    </div>
+                    <div class="char-body">
+                        <div class="char-arm left"></div>
+                        <div class="char-arm right"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="quiz-card">
+                <div class="quiz-header">
+                    <span class="quiz-icon">❓</span>
+                    <h2>سوال</h2>
+                </div>
+                <p class="quiz-question">وقتی خورشید حرکت می‌کند، چه چیزی تغییر می‌کند؟</p>
+                <div class="quiz-options">
+                    <button class="quiz-option" data-answer="shadow">
+                        <span class="option-emoji">👤</span>
+                        <span class="option-text">سایه</span>
+                    </button>
+                    <button class="quiz-option" data-answer="tree">
+                        <span class="option-emoji">🌳</span>
+                        <span class="option-text">درخت</span>
+                    </button>
+                </div>
+                <div class="quiz-feedback" id="quiz-feedback"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه آمار -->
+    <div id="stats-page" class="page">
+        <div class="stats-scene">
+            <div class="stats-header">
+                <h2>📊 آمار یادگیری</h2>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🎮</div>
+                    <div class="stat-value" id="stat-games">۰</div>
+                    <div class="stat-label">تعداد بازی</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" id="stat-correct">۰</div>
+                    <div class="stat-label">جواب درست</div>
+                </div>
+                <div class="stat-card error">
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-value" id="stat-wrong">۰</div>
+                    <div class="stat-label">جواب غلط</div>
+                </div>
+                <div class="stat-card star">
+                    <div class="stat-icon">🌟</div>
+                    <div class="stat-value" id="stat-learned">۰</div>
+                    <div class="stat-label">یاد گرفته</div>
+                </div>
+            </div>
+            <div class="stats-progress" id="stats-progress">
+                <div class="progress-label">پیشرفت یادگیری</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-percent" id="progress-percent">۰٪</div>
+            </div>
+            <button id="back-from-stats" class="btn btn-secondary">
+                <span class="btn-icon">↩️</span>
+                <span>بازگشت</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- صفحه راهنما -->
+    <div id="help-page" class="page">
+        <div class="help-scene">
+            <div class="help-header">
+                <h2>❓ راهنمای بازی</h2>
+            </div>
+            <div class="help-steps">
+                <div class="help-step">
+                    <div class="step-num">۱</div>
+                    <div class="step-content">
+                        <div class="step-icon">🏫</div>
+                        <p>اول به کلاس می‌رویم</p>
+                    </div>
+                </div>
+                <div class="help-step">
+                    <div class="step-num">۲</div>
+                    <div class="step-content">
+                        <div class="step-icon">🌳</div>
+                        <p>بعد به حیاط می‌رویم</p>
+                    </div>
+                </div>
+                <div class="help-step">
+                    <div class="step-num">۳</div>
+                    <div class="step-content">
+                        <div class="step-icon">✏️</div>
+                        <p>دور سایه درخت را رسم می‌کنیم</p>
+                    </div>
+                </div>
+                <div class="help-step">
+                    <div class="step-num">۴</div>
+                    <div class="step-content">
+                        <div class="step-icon">☀️</div>
+                        <p>خورشید را جابجا می‌کنیم</p>
+                    </div>
+                </div>
+                <div class="help-step">
+                    <div class="step-num">۵</div>
+                    <div class="step-content">
+                        <div class="step-icon">❓</div>
+                        <p>به سوال جواب می‌دهیم</p>
+                    </div>
+                </div>
+            </div>
+            <div class="help-tip">
+                <span class="tip-icon">💡</span>
+                <p>نکته: سایه با حرکت خورشید تغییر می‌کند!</p>
+            </div>
+            <button id="back-from-help" class="btn btn-secondary">
+                <span class="btn-icon">↩️</span>
+                <span>بازگشت</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- صفحه پایانی -->
+    <div id="end-page" class="page">
+        <div class="end-scene">
+            <div class="end-stars">⭐⭐⭐</div>
+            <div class="end-character">
+                <div class="character big">
+                    <div class="char-head">
+                        <div class="char-hair"></div>
+                        <div class="char-face">
+                            <div class="char-eyes">
+                                <div class="char-eye"></div>
+                                <div class="char-eye"></div>
+                            </div>
+                            <div class="char-cheeks">
+                                <div class="cheek"></div>
+                                <div class="cheek"></div>
+                            </div>
+                            <div class="char-mouth big-smile"></div>
+                        </div>
+                    </div>
+                    <div class="char-body">
+                        <div class="char-arm left wave"></div>
+                        <div class="char-arm right wave"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="end-message" id="end-message">
+                <h2>🎉 آفرین!</h2>
+                <p>تو سایه رو یاد گرفتی!</p>
+            </div>
+            <div class="end-buttons">
+                <button id="play-again" class="btn btn-primary">
+                    <span class="btn-icon">🔄</span>
+                    <span>بازی دوباره</span>
+                </button>
+                <button id="back-to-home" class="btn btn-secondary">
+                    <span class="btn-icon">🏠</span>
+                    <span>صفحه اصلی</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>// ===== متغیرهای سراسری =====
+let gameState = {
+    currentPage: 'home',
+    sunPosition: 0, // 0: صبح (راست), 1: ظهر (وسط), 2: عصر (چپ)
+    currentHour: 7,
+    currentMinute: 0,
+    clockInterval: null,
+    isTracing: false,
+    hasTraced: false,
+    hasMovedSun: false,
+    isDraggingSun: false,
+    sunDragHandlersAttached: false,
+    traceHandlersAttached: false,
+    stats: {
+        games: 0,
+        correct: 0,
+        wrong: 0,
+        learned: 0
+    }
+};
+
+// ===== DOM Elements =====
+const elements = {
+    pages: document.querySelectorAll('.page'),
+    sun: document.getElementById('yard-sun'),
+    sky: document.querySelector('.yard-sky'),
+    treeShadow: document.getElementById('tree-shadow'),
+    shadowCanvas: document.getElementById('shadow-canvas'),
+    shadowCanvasContainer: document.getElementById('shadow-canvas-container'),
+    hourHand: document.getElementById('hour-hand'),
+    minuteHand: document.getElementById('minute-hand'),
+    clockTime: document.getElementById('clock-time'),
+    currentTime: document.getElementById('current-time'),
+    yardSpeech: document.getElementById('yard-speech'),
+    speechText: document.getElementById('speech-text'),
+    charMouth: document.getElementById('char-mouth'),
+    traceStartBtn: document.getElementById('trace-start-btn'),
+    traceBtn: document.getElementById('trace-btn'),
+    sunHint: document.getElementById('sun-hint'),
+    shadowHint: document.getElementById('shadow-hint'),
+    timeIndicator: document.getElementById('time-indicator'),
+    treeArea: document.getElementById('tree-area')
+};
+
+// ===== بارگذاری آمار =====
+function loadStats() {
+    const saved = localStorage.getItem('shadowGameStats');
+    if (saved) {
+        gameState.stats = JSON.parse(saved);
+    }
+    updateStatsDisplay();
+}
+
+// ===== ذخیره آمار =====
+function saveStats() {
+    localStorage.setItem('shadowGameStats', JSON.stringify(gameState.stats));
+}
+
+// ===== تبدیل اعداد به فارسی =====
+function toPersianNum(num) {
+    const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+    return num.toString().replace(/\d/g, d => persianDigits[d]);
+}
+
+// ===== نمایش صفحه =====
+function showPage(pageId) {
+    elements.pages.forEach(page => {
+        page.classList.remove('active');
+    });
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.classList.add('active');
+    }
+    gameState.currentPage = pageId;
+}
+
+// ===== رفتن به صفحه کلاس =====
+function goToClass() {
+    showPage('class-page');
+}
+
+// ===== انتقال به حیاط =====
+function goToTransition() {
+    showPage('transition-page');
+    setTimeout(() => {
+        showPage('yard-page');
+        initYard();
+    }, 3000);
+}
+
+// ===== راه‌اندازی حیاط =====
+function initYard() {
+    // ریست کامل متغیرها
+    gameState.sunPosition = 0;
+    gameState.currentHour = 7;
+    gameState.currentMinute = 0;
+    gameState.hasTraced = false;
+    gameState.hasMovedSun = false;
+    gameState.isTracing = false;
+    gameState.isDraggingSun = false;
+    
+    // توقف interval قبلی
+    if (gameState.clockInterval) {
+        clearInterval(gameState.clockInterval);
+        gameState.clockInterval = null;
+    }
+    
+    // حذف event listeners قبلی
+    removeSunDragHandlers();
+    removeTraceHandlers();
+    
+    // ریست canvas
+    setupCanvas();
+    
+    // نمایش/مخفی کردن عناصر
+    elements.traceStartBtn.classList.remove('show');
+    elements.sunHint.classList.remove('show');
+    elements.shadowHint.classList.remove('show');
+    elements.yardSpeech.classList.remove('show');
+    elements.shadowCanvasContainer.classList.remove('active');
+    
+    // نمایش راهنمای سایه
+    elements.shadowHint.classList.add('show');
+    
+    // موقعیت اولیه خورشید
+    updateSunPosition(0, false);
+    
+    // به‌روزرسانی ساعت
+    updateClock(false);
+    
+    // به‌روزرسانی سایه
+    updateShadow(0, false);
+    
+    // نمایش پیام شروع
+    setTimeout(() => {
+        showSpeech('به حیاط مدرسه رسیدیم! 🌳');
+    }, 500);
+    
+    // نمایش دکمه ترسیم بعد از 6 ثانیه (زمان بیشتر برای دیدن سایه)
+    setTimeout(() => {
+        if (!gameState.hasTraced) {
+            elements.traceStartBtn.classList.add('show');
+        }
+    }, 6000);
+    
+    // شروع چرخش خودکار ساعت بعد از 8 ثانیه
+    setTimeout(() => {
+        // مخفی کردن راهنمای سایه
+        elements.shadowHint.classList.remove('show');
+        startClockAnimation();
+    }, 8000);
+}
+
+// ===== تنظیم canvas =====
+function setupCanvas() {
+    const canvas = elements.shadowCanvas;
+    const ctx = canvas.getContext('2d');
+    
+    // اندازه بر اساس سایه اولیه
+    canvas.width = 120;
+    canvas.height = 50;
+    
+    // پاک کردن canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // ریست استایل
+    canvas.style.width = '120px';
+    canvas.style.height = '50px';
+}
+
+// ===== موقعیت خورشید =====
+function updateSunPosition(position, animate = true) {
+    const sky = elements.sky;
+    const skyRect = sky.getBoundingClientRect();
+    let x, y;
+    
+    switch(position) {
+        case 0: // صبح - سمت راست
+            x = skyRect.width * 0.8;
+            y = skyRect.height * 0.35;
+            break;
+        case 1: // ظهر - بالا
+            x = skyRect.width * 0.5;
+            y = skyRect.height * 0.15;
+            break;
+        case 2: // عصر - سمت چپ
+            x = skyRect.width * 0.2;
+            y = skyRect.height * 0.35;
+            break;
+    }
+    
+    if (animate) {
+        elements.sun.style.transition = 'left 0.8s cubic-bezier(0.4, 0, 0.2, 1), top 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+    } else {
+        elements.sun.style.transition = 'none';
+    }
+    
+    elements.sun.style.left = `${x}px`;
+    elements.sun.style.top = `${y}px`;
+    elements.sun.style.transform = 'translate(-50%, -50%)';
+}
+
+// ===== به‌روزرسانی ساعت =====
+function updateClock(animate = true) {
+    const hourAngle = (gameState.currentHour % 12) * 30 + gameState.currentMinute * 0.5;
+    const minuteAngle = gameState.currentMinute * 6;
+    
+    if (!animate) {
+        elements.hourHand.style.transition = 'none';
+        elements.minuteHand.style.transition = 'none';
+    } else {
+        elements.hourHand.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+        elements.minuteHand.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+    }
+    
+    elements.hourHand.style.transform = `rotate(${hourAngle}deg)`;
+    elements.minuteHand.style.transform = `rotate(${minuteAngle}deg)`;
+    
+    // نمایش زمان
+    const timeStr = `${gameState.currentHour}:${gameState.currentMinute.toString().padStart(2, '0')}`;
+    elements.clockTime.textContent = toPersianNum(timeStr);
+    elements.currentTime.textContent = toPersianNum(timeStr);
+}
+
+// ===== شروع انیمیشن ساعت =====
+function startClockAnimation() {
+    if (gameState.clockInterval) {
+        clearInterval(gameState.clockInterval);
+    }
+    
+    // هر 5 ثانیه 30 دقیقه
+    gameState.clockInterval = setInterval(() => {
+        gameState.currentMinute += 30;
+        if (gameState.currentMinute >= 60) {
+            gameState.currentMinute = 0;
+            gameState.currentHour++;
+            if (gameState.currentHour > 12) {
+                gameState.currentHour = 7;
+            }
+        }
+        
+        updateClock(true);
+        
+        // بررسی توقف
+        if (gameState.currentHour === 8 && gameState.currentMinute === 0) {
+            clearInterval(gameState.clockInterval);
+            gameState.clockInterval = null;
+            showSpeech('زمان متوقف شد! ⏰');
+            
+            // فعال کردن جابجایی خورشید
+            setTimeout(() => {
+                enableSunDrag();
+            }, 1500);
+        }
+    }, 5000);
+}
+
+// ===== به‌روزرسانی سایه =====
+function updateShadow(position, animate = true) {
+    let shadowWidth, shadowHeight, shadowX;
+    
+    switch(position) {
+        case 0: // صبح - سایه به سمت چپ
+            shadowWidth = 120;
+            shadowHeight = 50;
+            shadowX = -40;
+            break;
+        case 1: // ظهر - سایه زیر درخت
+            shadowWidth = 50;
+            shadowHeight = 25;
+            shadowX = 0;
+            break;
+        case 2: // عصر - سایه به سمت راست
+            shadowWidth = 120;
+            shadowHeight = 50;
+            shadowX = 40;
+            break;
+    }
+    
+    if (animate) {
+        elements.treeShadow.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+    } else {
+        elements.treeShadow.style.transition = 'none';
+    }
+    
+    elements.treeShadow.style.width = `${shadowWidth}px`;
+    elements.treeShadow.style.height = `${shadowHeight}px`;
+    elements.treeShadow.style.transform = `translateX(calc(-50% + ${shadowX}px))`;
+    
+    // به‌روزرسانی canvas
+    const canvas = elements.shadowCanvas;
+    canvas.style.width = `${shadowWidth}px`;
+    canvas.style.height = `${shadowHeight}px`;
+    canvas.width = shadowWidth;
+    canvas.height = shadowHeight;
+}
+
+// ===== حذف event handlers خورشید =====
+function removeSunDragHandlers() {
+    if (!gameState.sunDragHandlersAttached) return;
+    
+    elements.sun.removeEventListener('mousedown', handleSunStart);
+    elements.sun.removeEventListener('touchstart', handleSunStart, { passive: false });
+    document.removeEventListener('mousemove', handleSunMove);
+    document.removeEventListener('mouseup', handleSunEnd);
+    document.removeEventListener('touchmove', handleSunMove, { passive: false });
+    document.removeEventListener('touchend', handleSunEnd);
+    
+    gameState.sunDragHandlersAttached = false;
+}
+
+// ===== فعال کردن درگ خورشید =====
+function enableSunDrag() {
+    elements.sunHint.classList.add('show');
+    
+    let isDragging = false;
+    let startX, startY, initialLeft, initialTop;
+    const sky = elements.sky;
+    
+    function handleSunStart(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        isDragging = true;
+        gameState.isDraggingSun = true;
+        
+        const touch = e.touches ? e.touches[0] : e;
+        const skyRect = sky.getBoundingClientRect();
+        
+        startX = touch.clientX;
+        startY = touch.clientY;
+        initialLeft = parseInt(elements.sun.style.left) || skyRect.width * 0.8;
+        initialTop = parseInt(elements.sun.style.top) || skyRect.height * 0.35;
+    }
+    
+    function handleSunMove(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        
+        const touch = e.touches ? e.touches[0] : e;
+        const skyRect = sky.getBoundingClientRect();
+        
+        const deltaX = touch.clientX - startX;
+        const deltaY = touch.clientY - startY;
+        
+        let newLeft = initialLeft + deltaX;
+        let newTop = initialTop + deltaY;
+        
+        // محدود کردن
+        newLeft = Math.max(35, Math.min(skyRect.width - 35, newLeft));
+        newTop = Math.max(35, Math.min(skyRect.height - 35, newTop));
+        
+        elements.sun.style.transition = 'none';
+        elements.sun.style.left = `${newLeft}px`;
+        elements.sun.style.top = `${newTop}px`;
+        
+        // محاسبه موقعیت و به‌روزرسانی سایه و ساعت
+        const centerX = skyRect.width / 2;
+        let newPosition;
+        
+        if (newLeft > centerX + 50) {
+            newPosition = 0; // صبح
+        } else if (newLeft < centerX - 50) {
+            newPosition = 2; // عصر
+        } else {
+            newPosition = 1; // ظهر
+        }
+        
+        // به‌روزرسانی سایه به صورت real-time
+        updateShadow(newPosition, true);
+        
+        // به‌روزرسانی ساعت به صورت real-time
+        if (newPosition === 0) {
+            gameState.currentHour = 7;
+            gameState.currentMinute = 0;
+        } else if (newPosition === 1) {
+            gameState.currentHour = 12;
+            gameState.currentMinute = 0;
+        } else {
+            gameState.currentHour = 5;
+            gameState.currentMinute = 0;
+        }
+        updateClock(true);
+    }
+    
+    function handleSunEnd(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        gameState.isDraggingSun = false;
+        
+        // تعیین موقعیت نهایی
+        const currentLeft = parseInt(elements.sun.style.left);
+        const skyRect = sky.getBoundingClientRect();
+        const centerX = skyRect.width / 2;
+        
+        if (currentLeft > centerX + 50) {
+            gameState.sunPosition = 0;
+            gameState.currentHour = 7;
+            gameState.currentMinute = 0;
+        } else if (currentLeft < centerX - 50) {
+            gameState.sunPosition = 2;
+            gameState.currentHour = 5;
+            gameState.currentMinute = 0;
+        } else {
+            gameState.sunPosition = 1;
+            gameState.currentHour = 12;
+            gameState.currentMinute = 0;
+        }
+        
+        gameState.hasMovedSun = true;
+        
+        // به‌روزرسانی نهایی
+        updateSunPosition(gameState.sunPosition, true);
+        updateShadow(gameState.sunPosition, true);
+        updateClock(true);
+        
+        elements.sunHint.classList.remove('show');
+        showSpeech('عالی! سایه تغییر کرد! 🌟');
+        
+        // بررسی پایان
+        setTimeout(() => {
+            checkGameCompletion();
+        }, 2500);
+    }
+    
+    // حذف handlers قبلی
+    removeSunDragHandlers();
+    
+    // اضافه کردن handlers جدید
+    elements.sun.addEventListener('mousedown', handleSunStart);
+    elements.sun.addEventListener('touchstart', handleSunStart, { passive: false });
+    document.addEventListener('mousemove', handleSunMove);
+    document.addEventListener('mouseup', handleSunEnd);
+    document.addEventListener('touchmove', handleSunMove, { passive: false });
+    document.addEventListener('touchend', handleSunEnd);
+    
+    gameState.sunDragHandlersAttached = true;
+}
+
+// ===== نمایش پیام =====
+function showSpeech(text) {
+    elements.speechText.textContent = text;
+    elements.yardSpeech.classList.add('show');
+    elements.charMouth.classList.add('talk');
+    
+    setTimeout(() => {
+        elements.charMouth.classList.remove('talk');
+    }, 2000);
+}
+
+// ===== حذف event handlers ترسیم =====
+function removeTraceHandlers() {
+    if (!gameState.traceHandlersAttached) return;
+    
+    const canvas = elements.shadowCanvas;
+    
+    canvas.removeEventListener('mousedown', startDraw);
+    canvas.removeEventListener('mousemove', draw);
+    canvas.removeEventListener('mouseup', endDraw);
+    canvas.removeEventListener('mouseleave', endDraw);
+    canvas.removeEventListener('touchstart', handleTouchStart);
+    canvas.removeEventListener('touchmove', handleTouchMove);
+    canvas.removeEventListener('touchend', endDraw);
+    
+    gameState.traceHandlersAttached = false;
+}
+
+// ===== شروع ترسیم =====
+function startTracing() {
+    elements.traceStartBtn.classList.remove('show');
+    gameState.isTracing = true;
+    
+    // فعال کردن canvas
+    elements.shadowCanvasContainer.classList.add('active');
+    
+    const canvas = elements.shadowCanvas;
+    const ctx = canvas.getContext('2d');
+    
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+    
+    function startDraw(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        isDrawing = true;
+        
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        if (e.touches) {
+            lastX = (e.touches[0].clientX - rect.left) * scaleX;
+            lastY = (e.touches[0].clientY - rect.top) * scaleY;
+        } else {
+            lastX = (e.clientX - rect.left) * scaleX;
+            lastY = (e.clientY - rect.top) * scaleY;
+        }
+        
+        // نقطه شروع
+        ctx.beginPath();
+        ctx.arc(lastX, lastY, 2, 0, Math.PI * 2);
+        ctx.fillStyle = '#FF6B6B';
+        ctx.fill();
+    }
+    
+    function draw(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        let x, y;
+        if (e.touches) {
+            x = (e.touches[0].clientX - rect.left) * scaleX;
+            y = (e.touches[0].clientY - rect.top) * scaleY;
+        } else {
+            x = (e.clientX - rect.left) * scaleX;
+            y = (e.clientY - rect.top) * scaleY;
+        }
+        
+        ctx.strokeStyle = '#FF6B6B';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        
+        lastX = x;
+        lastY = y;
+    }
+    
+    function endDraw(e) {
+        if (e) e.preventDefault();
+        isDrawing = false;
+    }
+    
+    function handleTouchStart(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        lastX = (touch.clientX - rect.left) * scaleX;
+        lastY = (touch.clientY - rect.top) * scaleY;
+        isDrawing = true;
+        
+        ctx.beginPath();
+        ctx.arc(lastX, lastY, 2, 0, Math.PI * 2);
+        ctx.fillStyle = '#FF6B6B';
+        ctx.fill();
+    }
+    
+    function handleTouchMove(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!isDrawing) return;
+        
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        const x = (touch.clientX - rect.left) * scaleX;
+        const y = (touch.clientY - rect.top) * scaleY;
+        
+        ctx.strokeStyle = '#FF6B6B';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        
+        lastX = x;
+        lastY = y;
+    }
+    
+    // حذف handlers قبلی
+    removeTraceHandlers();
+    
+    // اضافه کردن handlers جدید
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('mouseleave', endDraw);
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', endDraw);
+    
+    gameState.traceHandlersAttached = true;
+    
+    // غیرفعال کردن بعد از 20 ثانیه
+    setTimeout(() => {
+        stopTracing();
+    }, 20000);
+}
+
+// ===== توقف ترسیم =====
+function stopTracing() {
+    if (!gameState.isTracing) return;
+    
+    gameState.isTracing = false;
+    gameState.hasTraced = true;
+    
+    // حذف event listeners
+    removeTraceHandlers();
+    
+    // غیرفعال کردن canvas
+    elements.shadowCanvasContainer.classList.remove('active');
+    
+    // مخفی کردن راهنما
+    const hint = document.querySelector('.trace-hint');
+    if (hint) {
+        hint.style.display = 'none';
+    }
+    
+    showSpeech('حرفه‌ای! دور سایه رو کشیدی! ✏️');
+    
+    // بررسی پایان
+    setTimeout(() => {
+        checkGameCompletion();
+    }, 2500);
+}
+
+// ===== بررسی پایان بازی =====
+function checkGameCompletion() {
+    if (gameState.hasTraced && gameState.hasMovedSun) {
+        setTimeout(() => {
+            showPage('quiz-page');
+            gameState.stats.games++;
+            saveStats();
+        }, 1500);
+    }
+}
+
+// ===== پاسخ به سوال =====
+function handleQuizAnswer(answer) {
+    const options = document.querySelectorAll('.quiz-option');
+    const feedback = document.getElementById('quiz-feedback');
+    
+    options.forEach(opt => {
+        opt.style.pointerEvents = 'none';
+        
+        if (opt.dataset.answer === answer) {
+            if (answer === 'shadow') {
+                opt.classList.add('correct');
+            } else {
+                opt.classList.add('wrong');
+            }
+        }
+        
+        // نمایش جواب درست
+        if (opt.dataset.answer === 'shadow' && answer !== 'shadow') {
+            setTimeout(() => {
+                opt.classList.add('correct');
+            }, 500);
+        }
+    });
+    
+    if (answer === 'shadow') {
+        gameState.stats.correct++;
+        gameState.stats.learned++;
+        feedback.textContent = 'آفرین! جواب درسته! 🎉';
+        feedback.className = 'quiz-feedback show success';
+    } else {
+        gameState.stats.wrong++;
+        feedback.textContent = 'دوباره تلاش کن! سایه تغییر می‌کنه! 💪';
+        feedback.className = 'quiz-feedback show error';
+    }
+    
+    saveStats();
+    updateStatsDisplay();
+    
+    // رفتن به صفحه پایانی
+    setTimeout(() => {
+        showEndPage(answer === 'shadow');
+    }, 2500);
+}
+
+// ===== نمایش صفحه پایانی =====
+function showEndPage(success) {
+    const endMessage = document.getElementById('end-message');
+    
+    if (success) {
+        endMessage.innerHTML = `
+            <h2>🎉 آفرین!</h2>
+            <p>تو سایه رو یاد گرفتی!</p>
+        `;
+    } else {
+        endMessage.innerHTML = `
+            <h2>💪 تلاش کن!</h2>
+            <p>بیشتر دقت کن تا جواب درست بده!</p>
+        `;
+    }
+    
+    showPage('end-page');
+}
+
+// ===== به‌روزرسانی نمایش آمار =====
+function updateStatsDisplay() {
+    document.getElementById('stat-games').textContent = toPersianNum(gameState.stats.games);
+    document.getElementById('stat-correct').textContent = toPersianNum(gameState.stats.correct);
+    document.getElementById('stat-wrong').textContent = toPersianNum(gameState.stats.wrong);
+    document.getElementById('stat-learned').textContent = toPersianNum(gameState.stats.learned);
+    
+    // محاسبه درصد پیشرفت
+    const progressFill = document.getElementById('progress-fill');
+    const progressPercent = document.getElementById('progress-percent');
+    
+    let percent = 0;
+    if (gameState.stats.games > 0) {
+        percent = Math.round((gameState.stats.learned / gameState.stats.games) * 100);
+    }
+    
+    progressFill.style.width = `${percent}%`;
+    progressPercent.textContent = toPersianNum(percent) + '٪';
+}
+
+// ===== شروع مجدد بازی =====
+function playAgain() {
+    // توقف interval
+    if (gameState.clockInterval) {
+        clearInterval(gameState.clockInterval);
+        gameState.clockInterval = null;
+    }
+    
+    // ریست کامل متغیرها
+    gameState.sunPosition = 0;
+    gameState.currentHour = 7;
+    gameState.currentMinute = 0;
+    gameState.hasTraced = false;
+    gameState.hasMovedSun = false;
+    gameState.isTracing = false;
+    gameState.isDraggingSun = false;
+    
+    // حذف event handlers
+    removeSunDragHandlers();
+    removeTraceHandlers();
+    
+    // ریست canvas
+    const canvas = elements.shadowCanvas;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // نمایش دوباره راهنمای ترسیم
+    const hint = document.querySelector('.trace-hint');
+    if (hint) {
+        hint.style.display = 'block';
+    }
+    
+    // ریست دکمه‌های سوال
+    document.querySelectorAll('.quiz-option').forEach(opt => {
+        opt.classList.remove('correct', 'wrong');
+        opt.style.pointerEvents = 'auto';
+    });
+    document.getElementById('quiz-feedback').className = 'quiz-feedback';
+    
+    // رفتن به صفحه کلاس
+    showPage('class-page');
+}
+
+// ===== بازگشت به صفحه اصلی =====
+function backToHome() {
+    // توقف interval
+    if (gameState.clockInterval) {
+        clearInterval(gameState.clockInterval);
+        gameState.clockInterval = null;
+    }
+    
+    // ریست کامل متغیرها
+    gameState.sunPosition = 0;
+    gameState.currentHour = 7;
+    gameState.currentMinute = 0;
+    gameState.hasTraced = false;
+    gameState.hasMovedSun = false;
+    gameState.isTracing = false;
+    gameState.isDraggingSun = false;
+    
+    // حذف event handlers
+    removeSunDragHandlers();
+    removeTraceHandlers();
+    
+    // ریست canvas
+    const canvas = elements.shadowCanvas;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // ریست دکمه‌های سوال
+    document.querySelectorAll('.quiz-option').forEach(opt => {
+        opt.classList.remove('correct', 'wrong');
+        opt.style.pointerEvents = 'auto';
+    });
+    document.getElementById('quiz-feedback').className = 'quiz-feedback';
+    
+    // مخفی کردن پیام‌ها
+    elements.yardSpeech.classList.remove('show');
+    elements.traceStartBtn.classList.remove('show');
+    elements.sunHint.classList.remove('show');
+    elements.shadowHint.classList.remove('show');
+    elements.shadowCanvasContainer.classList.remove('active');
+    
+    showPage('home-page');
+}
+
+// ===== رویدادهای DOM =====
+document.addEventListener('DOMContentLoaded', () => {
+    // بارگذاری آمار
+    loadStats();
+    
+    // ===== دکمه‌های صفحه اصلی =====
+    document.getElementById('start-btn').addEventListener('click', goToClass);
+    document.getElementById('stats-btn').addEventListener('click', () => {
+        updateStatsDisplay();
+        showPage('stats-page');
+    });
+    document.getElementById('help-btn').addEventListener('click', () => {
+        showPage('help-page');
+    });
+    
+    // ===== دکمه‌های صفحه کلاس =====
+    document.getElementById('go-to-yard').addEventListener('click', goToTransition);
+    
+    // ===== دکمه‌های صفحه آمار =====
+    document.getElementById('back-from-stats').addEventListener('click', backToHome);
+    
+    // ===== دکمه‌های صفحه راهنما =====
+    document.getElementById('back-from-help').addEventListener('click', backToHome);
+    
+    // ===== دکمه ترسیم =====
+    document.getElementById('trace-btn').addEventListener('click', startTracing);
+    
+    // ===== گزینه‌های سوال =====
+    document.querySelectorAll('.quiz-option').forEach(option => {
+        option.addEventListener('click', () => {
+            handleQuizAnswer(option.dataset.answer);
+        });
+    });
+    
+    // ===== دکمه‌های صفحه پایانی =====
+    document.getElementById('play-again').addEventListener('click', playAgain);
+    document.getElementById('back-to-home').addEventListener('click', backToHome);
+    
+    // ===== جلوگیری از زوم در موبایل =====
+    document.addEventListener('touchmove', (e) => {
+        if (e.scale !== 1) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+    
+    // ===== جلوگیری از کشیدن تصویر =====
+    document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('dragstart', (e) => e.preventDefault());
+    });
+    
+    // ===== تنظیم اولیه =====
+    updateClock(false);
+});
+
+// ===== پایان فایل =====</script>
+</body>
+</html>

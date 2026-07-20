@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>بازی نگارش حرف سین - نسخه هوشمند</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+
+        :root {
+            --bg-color: #f1f5f9;
+            --primary-color: #ff6b6b;
+            --secondary-color: #4ecdc4;
+            --dark-color: #0f172a;
+            --canvas-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Vazirmatn', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* حل مشکل اسکرول نوار آدرس در مرورگرهای موبایل */
+            min-height: 100vh;
+            min-height: 100svh; 
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 100vw;
+            height: 100vh;
+            height: 100svh;
+            max-width: 460px;
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            /* هماهنگی با ناچ و دکمه‌های سیستمی گوشی (iOS & Android) */
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        @media (min-width: 461px) {
+            .app-container {
+                border-radius: 32px;
+                height: 92vh;
+                height: 92svh;
+                max-height: 840px;
+            }
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        .game-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .game-title .highlight {
+            color: var(--primary-color);
+            display: inline-block;
+            animation: bounce 2s infinite;
+        }
+
+        .game-subtitle {
+            font-size: 0.95rem;
+            color: #64748b;
+            margin-bottom: 32px;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .menu-buttons {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: transform 0.1s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn:active { transform: scale(0.97); }
+        .btn svg { width: 24px; height: 24px; fill: currentColor; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-secondary { background-color: #f8fafc; color: var(--dark-color); border: 1px solid #e2e8f0; }
+        .btn-info { background-color: var(--secondary-color); color: white; }
+        .btn-danger { background-color: #f43f5e; color: white; }
+
+        .guide-content, .stats-container {
+            width: 100%;
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 20px;
+            overflow-y: auto;
+            max-height: 60%;
+        }
+
+        .guide-content ul {
+            margin-right: 20px;
+            margin-top: 10px;
+        }
+
+        .guide-content li {
+            margin-bottom: 8px;
+            color: #334155;
+        }
+
+        .stat-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 14px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-label { font-weight: 700; color: #475569; font-size: 0.95rem; }
+        .stat-value { color: var(--primary-color); font-weight: 900; font-size: 1rem; }
+
+        #game-screen { justify-content: space-between; padding: 16px; }
+        .game-header { width: 100%; display: flex; justify-content: space-between; margin-bottom: 12px; gap: 10px; }
+        .badge { background: var(--dark-color); color: white; padding: 8px 16px; border-radius: 30px; font-weight: 700; font-size: 0.85rem; flex: 1; text-align: center; white-space: nowrap; }
+        .badge.timer { background: var(--primary-color); }
+
+        .canvas-container {
+            width: 100%;
+            flex: 1;
+            background: var(--canvas-bg);
+            border: 4px dashed #cbd5e1;
+            border-radius: 28px;
+            position: relative;
+            margin-bottom: 4px;
+        }
+
+        .shake {
+            animation: gentleShake 0.3s ease-in-out;
+            border-color: #f43f5e;
+        }
+
+        .wave-active canvas {
+            animation: waveAnim 2s infinite ease-in-out alternate;
+            filter: drop-shadow(0px 15px 20px rgba(78, 205, 196, 0.6));
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: 24px;
+        }
+
+        .game-actions { width: 100%; display: flex; gap: 12px; margin-top: 12px; }
+
+        .audio-toast {
+            position: absolute;
+            top: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.95);
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            z-index: 100;
+            text-align: center;
+            width: 85%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .audio-toast.show { opacity: 1; }
+
+        .popup-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .popup-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .popup-card {
+            background: white;
+            width: 88%;
+            max-width: 380px;
+            border-radius: 28px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .popup-overlay.show .popup-card {
+            transform: scale(1);
+        }
+
+        .popup-icon { font-size: 3.2rem; margin-bottom: 8px; }
+        .popup-card h3 { font-size: 1.4rem; margin-bottom: 12px; color: var(--dark-color); }
+        .popup-body { margin-bottom: 18px; text-align: right; }
+
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        @keyframes gentleShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-3px); }
+            40%, 80% { transform: translateX(3px); }
+        }
+        @keyframes waveAnim {
+            0% { transform: translateY(0) scale(1) skewX(0deg); }
+            100% { transform: translateY(6px) scale(1.02) skewX(3deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div id="landing-screen" class="screen active">
+            <h1 class="game-title">جادوی حرف <span class="highlight">سـ</span></h1>
+            <p class="game-subtitle">مرحله چهارم: هوش سنجش مستقل شکل سین</p>
+            
+            <div class="menu-buttons">
+                <button id="btn-start" class="btn btn-primary">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    شروع بازی (مرحله ۱)
+                </button>
+                <button id="btn-guide" class="btn btn-secondary">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm0-4h-2V7h2v7z"/></svg>
+                    راهنمای بازی
+                </button>
+                <button id="btn-stats" class="btn btn-info">
+                    <svg viewBox="0 0 24 24"><path d="M10 20h4V4h-4v16zm-6 0h4v-8H4v8zM16 9v11h4V9h-4z"/></svg>
+                    آمار و کارنامه
+                </button>
+            </div>
+        </div>
+
+        <div id="guide-screen" class="screen">
+            <h2 style="margin-bottom: 16px; color: var(--dark-color);">راهنمای بازی</h2>
+            <div class="guide-content">
+                <p style="font-weight: 700; color: var(--dark-color);">عزیز دلم، با آرامش انگشتت رو روی خط‌چین بکش.</p>
+                <ul>
+                    <li>در مرحله دوم خط‌چین‌ها پنهان میشن، اما باید خود شکل واقعی «سـ» رو بکشی تا قبول بشه!</li>
+                </ul>
+            </div>
+            <button id="btn-back-guide" class="btn btn-secondary">بازگشت</button>
+        </div>
+
+        <div id="stats-screen" class="screen">
+            <h2 style="margin-bottom: 16px; color: var(--dark-color);">آمار و ثبت انحرافات</h2>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <span class="stat-label">دقت ردیابی هندسی:</span>
+                    <span id="stat-accuracy" class="stat-value">۰%</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">تعداد خروج از مسیر:</span>
+                    <span id="stat-deviations" class="stat-value">۰ بار</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">زمان نگارش:</span>
+                    <span id="stat-time" class="stat-value">۰ ثانیه</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">آخرین سطح ثبت شده:</span>
+                    <span id="stat-level" class="stat-value">-</span>
+                </div>
+            </div>
+            <button id="btn-back-stats" class="btn btn-secondary">بازگشت</button>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div id="level-indicator" class="badge">مرحله ۱</div>
+                <div id="timer-display" class="badge timer">زمان: ۰</div>
+            </div>
+
+            <div id="audio-toast" class="audio-toast"></div>
+
+            <div id="canvas-container" class="canvas-container">
+                <canvas id="paint-canvas"></canvas>
+            </div>
+
+            <div class="game-actions">
+                <button id="btn-reset" class="btn btn-danger">پاک کردن</button>
+                <button id="btn-quit" class="btn btn-secondary">خروج</button>
+            </div>
+        </div>
+
+        <div id="custom-popup" class="popup-overlay">
+            <div class="popup-card">
+                <div class="popup-icon">🎉</div>
+                <h3 id="popup-title">کارنامه شما</h3>
+                <div id="popup-body" class="popup-body"></div>
+                <button id="popup-close-btn" class="btn btn-primary">ادامه و بعدی</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const screens = {
+                landing: document.getElementById("landing-screen"),
+                guide: document.getElementById("guide-screen"),
+                stats: document.getElementById("stats-screen"),
+                game: document.getElementById("game-screen")
+            };
+
+            const canvas = document.getElementById("paint-canvas");
+            const ctx = canvas.getContext("2d");
+            const canvasContainer = document.getElementById("canvas-container");
+            const audioToast = document.getElementById("audio-toast");
+            const timerDisplay = document.getElementById("timer-display");
+            const levelIndicator = document.getElementById("level-indicator");
+            
+            const popup = document.getElementById("custom-popup");
+            const popupTitle = document.getElementById("popup-title");
+            const popupBody = document.getElementById("popup-body");
+            const popupCloseBtn = document.getElementById("popup-close-btn");
+
+            let currentLevel = 1; 
+            let isDrawing = false;
+            let gameActive = false;
+            let startTime, timerInterval, elapsedSeconds = 0;
+            
+            let letterPath = [];
+            let maxReachedIndex = 0; 
+            let deviationCount = 0;
+            let isCurrentStrokeInvalid = false; 
+            let userDrawnPoints = []; 
+
+            const gameStats = { accuracy: "0%", deviations: "0 بار", time: "0 ثانیه", level: "-" };
+
+            function resizeCanvas() {
+                const rect = canvasContainer.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+                
+                // در صورت تغییر سایز و اکتیو بودن بازی، خطوط الگو دوباره ترسیم شوند
+                if (gameActive) {
+                    generateLetterPath();
+                    drawStaticBackground();
+                }
+            }
+
+            function generateLetterPath() {
+                letterPath = [];
+                const w = canvas.width;
+                const h = canvas.height;
+                
+                // دندانه اول (شروع از راست)
+                for (let i = 0; i <= 15; i++) {
+                    let t = i / 15;
+                    letterPath.push({ x: w * 0.85 - t * (w * 0.13), y: h * 0.38 + Math.sin(t * Math.PI) * (h * 0.05) });
+                }
+                // دندانه دوم
+                for (let i = 0; i <= 15; i++) {
+                    let t = i / 15;
+                    letterPath.push({ x: w * 0.72 - t * (w * 0.13), y: h * 0.38 + Math.sin(t * Math.PI) * (h * 0.05) });
+                }
+                // شکم بزرگ سین
+                for (let i = 0; i <= 35; i++) {
+                    let t = i / 35;
+                    let angle = Math.PI * t;
+                    letterPath.push({
+                        x: w * 0.59 - (t * (w * 0.44)),
+                        y: h * 0.40 + Math.sin(angle) * (h * 0.28)
+                    });
+                }
+            }
+
+            function playAudioNotification(message) {
+                audioToast.innerHTML = `📢 <span>${message}</span>`;
+                audioToast.classList.add("show");
+                // پنهان شدن خودکار توست پس از ۳ ثانیه برای خلوت ماندن صفحه موبایل
+                setTimeout(() => {
+                    audioToast.classList.remove("show");
+                }, 3000);
+            }
+
+            function switchScreen(screenName) {
+                Object.values(screens).forEach(s => s.classList.remove("active"));
+                screens[screenName].classList.add("active");
+                if (screenName === 'game') {
+                    setTimeout(() => {
+                        resizeCanvas(); 
+                        initGame();
+                    }, 50); // تاخیر کوچک برای رندر درست ابعاد عناصر در موبایل
+                } else {
+                    clearInterval(timerInterval);
+                }
+            }
+
+            function initGame() {
+                gameActive = true;
+                isDrawing = false;
+                deviationCount = 0;
+                maxReachedIndex = 0;
+                elapsedSeconds = 0;
+                userDrawnPoints = [];
+                isCurrentStrokeInvalid = false;
+                
+                canvasContainer.classList.remove("shake", "wave-active");
+                popup.classList.remove("show");
+                
+                generateLetterPath();
+                startTimer();
+                
+                if (currentLevel === 1) {
+                    levelIndicator.textContent = "مرحله ۱: ردیابی دندانه‌ها";
+                    playAudioNotification("انگشتت رو بذار روی نقطه سبز و دندانه‌ها رو جلو ببر!");
+                } else {
+                    levelIndicator.textContent = "مرحله ۲: چالش مستقل";
+                    playAudioNotification("خط‌چین‌ها غیب شدن! حالا خودت حرف واقعی سین رو نقاشی کن!");
+                }
+                
+                drawStaticBackground();
+            }
+
+            function drawStaticBackground() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                if (currentLevel === 1 && letterPath.length > 0) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = "#e2e8f0";
+                    ctx.lineWidth = 18;
+                    ctx.lineCap = "round";
+                    ctx.lineJoin = "round";
+                    ctx.setLineDash([6, 12]);
+                    
+                    ctx.moveTo(letterPath[0].x, letterPath[0].y);
+                    for (let i = 1; i < letterPath.length; i++) {
+                        ctx.lineTo(letterPath[i].x, letterPath[i].y);
+                    }
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    ctx.beginPath();
+                    ctx.arc(letterPath[0].x, letterPath[0].y, 16, 0, Math.PI * 2);
+                    ctx.fillStyle = "#22c55e";
+                    ctx.fill();
+                }
+            }
+
+            function startTimer() {
+                clearInterval(timerInterval);
+                timerDisplay.textContent = `زمان: ۰`;
+                startTime = Date.now();
+                timerInterval = setInterval(() => {
+                    elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                    timerDisplay.textContent = `زمان: ${elapsedSeconds}`;
+                    if (currentLevel === 2 && elapsedSeconds >= 20) {
+                        showCustomPopup(false, "زمان تمام شد!", "<p style='color:#64748b'>قهرمان من، زمانت تموم شد. دوست داری دوباره تلاش کنی؟</p>");
+                    }
+                }, 1000);
+            }
+
+            function handleStart(e) {
+                if (!gameActive) return;
+                isDrawing = true;
+                isCurrentStrokeInvalid = false;
+                canvasContainer.classList.remove("shake");
+                
+                const pos = getTouchPos(e);
+                userDrawnPoints.push(pos);
+                evaluatePoint(pos.x, pos.y);
+            }
+
+            function handleMove(e) {
+                if (!isDrawing || !gameActive) return;
+                const pos = getTouchPos(e);
+                userDrawnPoints.push(pos);
+                
+                ctx.beginPath();
+                ctx.strokeStyle = currentLevel === 1 ? "#ff6b6b" : "#4ecdc4";
+                ctx.lineWidth = 14; 
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                ctx.moveTo(userDrawnPoints[userDrawnPoints.length - 2].x, userDrawnPoints[userDrawnPoints.length - 2].y);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                
+                evaluatePoint(pos.x, pos.y);
+            }
+
+            function handleEnd() {
+                if (!isDrawing) return;
+                isDrawing = false;
+                
+                if (currentLevel === 1) {
+                    if (isCurrentStrokeInvalid) {
+                        deviationCount++;
+                        canvasContainer.classList.add("shake");
+                        playAudioNotification("⚠️ مسیر رو کمی اشتباه رفتی دلبندم، بیا دوباره بکشیمش.");
+                        setTimeout(() => canvasContainer.classList.remove("shake"), 400);
+                        return; 
+                    }
+                    if (maxReachedIndex >= letterPath.length - 12) {
+                        endGame(true);
+                    } else {
+                        playAudioNotification("خط رو نیمه‌کاره رها کردی، دندانه‌ها رو تا انتها ادامه بده عزیزم.");
+                    }
+                } else {
+                    if (verifyIndependentWriting()) {
+                        endGame(true);
+                    } else {
+                        playAudioNotification("❌ این شبیه حرف سـ نشد! لطفاً دندانه‌ها و شکمش رو قشنگ بکش.");
+                        setTimeout(() => initGame(), 1500);
+                    }
+                }
+            }
+
+            function getTouchPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                return {
+                    x: (clientX - rect.left) * (canvas.width / rect.width),
+                    y: (clientY - rect.top) * (canvas.height / rect.height)
+                };
+            }
+
+            function evaluatePoint(x, y) {
+                if (currentLevel === 2) return; 
+
+                let foundValidProgress = false;
+                let lookAheadRange = Math.min(letterPath.length, maxReachedIndex + 10);
+                
+                for (let i = maxReachedIndex; i < lookAheadRange; i++) {
+                    let distance = Math.hypot(letterPath[i].x - x, letterPath[i].y - y);
+                    if (distance < 65) { 
+                        maxReachedIndex = i;
+                        foundValidProgress = true;
+                        break;
+                    }
+                }
+
+                if (!foundValidProgress) {
+                    let closeToAnyPoint = false;
+                    for(let j=0; j<letterPath.length; j++){
+                        if(Math.hypot(letterPath[j].x - x, letterPath[j].y - y) < 70) {
+                            closeToAnyPoint = true;
+                            break;
+                        }
+                    }
+                    if(!closeToAnyPoint) {
+                        isCurrentStrokeInvalid = true; 
+                    }
+                }
+            }
+
+            function verifyIndependentWriting() {
+                if (userDrawnPoints.length < 15) return false;
+
+                let matchedPointsCount = 0;
+                let strictThreshold = 80; 
+
+                for (let i = 0; i < letterPath.length; i += 3) {
+                    let target = letterPath[i];
+                    let userMatch = userDrawnPoints.some(pt => Math.hypot(pt.x - target.x, pt.y - target.y) < strictThreshold);
+                    if (userMatch) {
+                        matchedPointsCount++;
+                    }
+                }
+
+                let totalCheckpoints = Math.ceil(letterPath.length / 3);
+                let matchRatio = matchedPointsCount / totalCheckpoints;
+
+                return matchRatio > 0.55;
+            }
+
+            function endGame(success) {
+                gameActive = false;
+                clearInterval(timerInterval);
+
+                if (success) {
+                    let finalAccuracy = Math.max(70, 100 - (deviationCount * 5));
+                    gameStats.accuracy = finalAccuracy + "%";
+                    gameStats.deviations = deviationCount + " بار";
+                    gameStats.time = elapsedSeconds + " ثانیه";
+                    gameStats.level = currentLevel === 1 ? "مرحله ۱ (آسان)" : "مرحله ۲ (پیشرفته)";
+
+                    canvasContainer.classList.add("wave-active");
+                    playAudioNotification("🌊 وااای ببین! حرف سینی که نوشتی زنده شد!");
+
+                    setTimeout(() => {
+                        let htmlReport = `
+                            <div class="stat-card"><span class="stat-label">دقت هندسی خط:</span><span class="stat-value">${finalAccuracy}%</span></div>
+                            <div class="stat-card"><span class="stat-label">تعداد انحراف:</span><span class="stat-value">${deviationCount} بار</span></div>
+                            <div class="stat-card"><span class="stat-label">زمان کل نگارش:</span><span class="stat-value">${elapsedSeconds} ثانیه</span></div>
+                        `;
+                        showCustomPopup(true, "شاهکار کردی قهرمان!", htmlReport);
+                    }, 2200);
+                }
+            }
+
+            function showCustomPopup(isWin, title, bodyHtml) {
+                popupTitle.textContent = title;
+                popupBody.innerHTML = bodyHtml;
+                document.querySelector(".popup-icon").textContent = isWin ? "🎉" : "⏳";
+                popup.classList.add("show");
+            }
+
+            popupCloseBtn.addEventListener("click", () => {
+                popup.classList.remove("show");
+                if (currentLevel === 1) {
+                    currentLevel = 2;
+                    initGame();
+                } else {
+                    currentLevel = 1;
+                    switchScreen('stats');
+                    updateStatsUI();
+                }
+            });
+
+            function updateStatsUI() {
+                document.getElementById("stat-accuracy").textContent = gameStats.accuracy;
+                document.getElementById("stat-deviations").textContent = gameStats.deviations;
+                document.getElementById("stat-time").textContent = gameStats.time;
+                document.getElementById("stat-level").textContent = gameStats.level;
+            }
+
+            // لیسنرهای دسکتاپ و موس
+            canvas.addEventListener("mousedown", handleStart);
+            canvas.addEventListener("mousemove", handleMove);
+            window.addEventListener("mouseup", handleEnd);
+
+            // لیسنرهای لمسی موبایل با جلوگیری هوشمندانه از اسکرول ناخواسته مرورگر
+            canvas.addEventListener("touchstart", (e) => { handleStart(e); e.preventDefault(); }, {passive: false});
+            canvas.addEventListener("touchmove", (e) => { handleMove(e); e.preventDefault(); }, {passive: false});
+            canvas.addEventListener("touchend", (e) => { handleEnd(e); e.preventDefault(); }, {passive: false});
+
+            // دکمه‌های ناوبری بازی
+            document.getElementById("btn-start").addEventListener("click", () => { currentLevel = 1; switchScreen('game'); });
+            document.getElementById("btn-guide").addEventListener("click", () => switchScreen('guide'));
+            document.getElementById("btn-stats").addEventListener("click", () => { updateStatsUI(); switchScreen('stats'); });
+            document.getElementById("btn-back-guide").addEventListener("click", () => switchScreen('landing'));
+            document.getElementById("btn-back-stats").addEventListener("click", () => switchScreen('landing'));
+            document.getElementById("btn-reset").addEventListener("click", () => initGame());
+            document.getElementById("btn-quit").addEventListener("click", () => switchScreen('landing'));
+            
+            // بهینه‌سازی ریسایز برای موبایل مچینگ فرم کانواس
+            window.addEventListener("resize", resizeCanvas);
+        });
+    </script>
+</body>
+</html>

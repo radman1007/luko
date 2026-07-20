@@ -1,0 +1,3093 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سفر ریتم - آموزش موسیقی برای کودکان</title>
+    <style>
+        /* ============================================
+   سفر ریتم - استایل بازی آموزشی موسیقی
+   ============================================ */
+
+/* متغیرهای CSS */
+:root {
+    --primary: #ff6b9d;
+    --secondary: #c44569;
+    --accent: #f8b500;
+    --success: #00d9a5;
+    --error: #ff6b6b;
+    --bg-dark: #0a0a1a;
+    --bg-card: rgba(255, 255, 255, 0.05);
+    --text-light: #ffffff;
+    --text-muted: rgba(255, 255, 255, 0.7);
+    --glow-pink: 0 0 30px rgba(255, 107, 157, 0.5);
+    --glow-blue: 0 0 30px rgba(100, 200, 255, 0.5);
+    --glow-gold: 0 0 30px rgba(248, 181, 0, 0.5);
+}
+
+/* ریست و پایه */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: 'Vazirmatn', system-ui, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-light);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* پس‌زمینه ستاره‌ای */
+.stars, .stars2, .stars3 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.stars {
+    background: transparent url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1" fill="white"/><circle cx="30" cy="40" r="0.5" fill="white"/><circle cx="50" cy="20" r="1" fill="white"/><circle cx="70" cy="60" r="0.8" fill="white"/><circle cx="90" cy="30" r="1" fill="white"/><circle cx="20" cy="80" r="0.6" fill="white"/><circle cx="60" cy="90" r="1" fill="white"/><circle cx="80" cy="10" r="0.7" fill="white"/><circle cx="40" cy="70" r="0.9" fill="white"/><circle cx="5" cy="55" r="0.8" fill="white"/></svg>') repeat;
+    background-size: 200px 200px;
+    animation: twinkle 4s ease-in-out infinite;
+}
+
+.stars2 {
+    background: transparent url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><circle cx="15" cy="25" r="0.8" fill="rgba(255,255,255,0.8)"/><circle cx="45" cy="15" r="0.6" fill="rgba(255,255,255,0.6)"/><circle cx="75" cy="45" r="1" fill="rgba(255,255,255,0.9)"/><circle cx="25" cy="65" r="0.7" fill="rgba(255,255,255,0.7)"/><circle cx="55" cy="75" r="0.9" fill="rgba(255,255,255,0.8)"/></svg>') repeat;
+    background-size: 150px 150px;
+    animation: twinkle 3s ease-in-out infinite 1s;
+}
+
+.stars3 {
+    background: transparent url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><circle cx="10" cy="30" r="1.2" fill="rgba(255,200,100,0.9)"/><circle cx="30" cy="10" r="0.8" fill="rgba(100,200,255,0.8)"/><circle cx="50" cy="50" r="1" fill="rgba(255,150,200,0.9)"/></svg>') repeat;
+    background-size: 120px 120px;
+    animation: twinkle 5s ease-in-out infinite 2s;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* Nebula Effect */
+.nebula {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at 20% 20%, rgba(138, 43, 226, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(100, 200, 255, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 1;
+    animation: nebulaPulse 8s ease-in-out infinite;
+}
+
+@keyframes nebulaPulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+}
+
+/* صفحات */
+.screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s ease;
+}
+
+.screen.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ============================================
+   صفحه منوی اصلی
+   ============================================ */
+.menu-container {
+    text-align: center;
+    padding: 2rem;
+    max-width: 400px;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+}
+
+.logo-container {
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.logo-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255, 107, 157, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: logoGlow 3s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+}
+
+.game-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--primary), var(--accent), var(--primary));
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 3s ease infinite;
+    position: relative;
+    text-shadow: 0 0 30px rgba(255, 107, 157, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.title-icon {
+    font-size: 2rem;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+.title-icon:last-child {
+    animation-delay: 0.5s;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    font-weight: 400;
+}
+
+/* دکمه‌های منو */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 16px;
+    font-family: inherit;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.menu-btn:hover::before {
+    left: 100%;
+}
+
+.start-btn {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    box-shadow: var(--glow-pink);
+}
+
+.start-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 0 50px rgba(255, 107, 157, 0.7);
+}
+
+.help-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+}
+
+.help-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 0 40px rgba(102, 126, 234, 0.7);
+}
+
+.stats-btn {
+    background: linear-gradient(135deg, var(--accent), #f093fb);
+    color: white;
+    box-shadow: var(--glow-gold);
+}
+
+.stats-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 0 40px rgba(248, 181, 0, 0.7);
+}
+
+.btn-icon {
+    font-size: 1.5rem;
+}
+
+/* سازهای شناور */
+.floating-instruments {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.float-instrument {
+    position: absolute;
+    font-size: 2rem;
+    opacity: 0.3;
+    animation: float 6s ease-in-out infinite;
+    animation-delay: var(--delay);
+}
+
+.float-instrument:nth-child(1) { top: 10%; left: 10%; }
+.float-instrument:nth-child(2) { top: 20%; right: 15%; }
+.float-instrument:nth-child(3) { bottom: 30%; left: 5%; }
+.float-instrument:nth-child(4) { bottom: 20%; right: 10%; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-20px) rotate(10deg); }
+    75% { transform: translateY(10px) rotate(-10deg); }
+}
+
+/* ============================================
+   صفحه بازی
+   ============================================ */
+#game-screen {
+    flex-direction: column;
+    padding: 1rem;
+}
+
+.game-header {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.level-info {
+    display: flex;
+    gap: 1rem;
+}
+
+.level-badge, .score-badge {
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.level-badge {
+    color: var(--accent);
+}
+
+.score-badge {
+    color: var(--success);
+}
+
+.back-btn {
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: var(--error);
+    transform: rotate(90deg);
+}
+
+/* ناحیه بازی */
+.game-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 500px;
+    gap: 2rem;
+}
+
+/* نمایش دنباله */
+.sequence-display {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    min-height: 120px;
+    padding: 1rem;
+}
+
+.sequence-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    animation: slideIn 0.5s ease forwards;
+    opacity: 0;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.instrument-icon {
+    font-size: 4rem;
+    padding: 1rem;
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 2px solid rgba(255,255,255,0.1);
+    animation: instrumentPulse 1s ease infinite;
+    transition: all 0.3s ease;
+}
+
+@keyframes instrumentPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.instrument-icon.playing {
+    animation: instrumentPlay 0.5s ease;
+    box-shadow: var(--glow-pink);
+}
+
+@keyframes instrumentPlay {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+.arrow-icon {
+    font-size: 2rem;
+    color: var(--accent);
+    animation: arrowPulse 1s ease infinite;
+}
+
+@keyframes arrowPulse {
+    0%, 100% { opacity: 0.5; transform: translateX(0); }
+    50% { opacity: 1; transform: translateX(5px); }
+}
+
+/* ناحیه سوال */
+.question-area {
+    text-align: center;
+    width: 100%;
+}
+
+.question-text {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--text-light);
+}
+
+.options-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.option-btn {
+    font-size: 3rem;
+    padding: 1rem;
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.option-btn:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+    box-shadow: var(--glow-pink);
+}
+
+.option-btn:active {
+    transform: scale(0.95);
+}
+
+.option-btn.correct {
+    border-color: var(--success);
+    box-shadow: 0 0 30px rgba(0, 217, 165, 0.5);
+    animation: correctPulse 0.5s ease;
+}
+
+.option-btn.wrong {
+    border-color: var(--error);
+    box-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+    animation: shake 0.5s ease;
+}
+
+@keyframes correctPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* ناحیه بازخورد */
+.feedback-area {
+    display: none;
+    text-align: center;
+}
+
+.feedback-area.show {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.feedback-icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.feedback-text {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.next-btn {
+    background: linear-gradient(135deg, var(--success), #00b894);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 30px;
+    font-family: inherit;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.next-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(0, 217, 165, 0.5);
+}
+
+/* نوار پیشرفت */
+.progress-bar {
+    width: 100%;
+    max-width: 500px;
+    height: 8px;
+    background: var(--bg-card);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    width: 0%;
+}
+
+/* ============================================
+   مودال‌ها
+   ============================================ */
+.modal-container {
+    background: rgba(10, 10, 26, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    animation: modalSlide 0.5s ease;
+}
+
+@keyframes modalSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.close-modal {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.close-modal:hover {
+    background: var(--error);
+    transform: rotate(90deg);
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--accent);
+}
+
+/* محتوای راهنما */
+.help-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.help-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.help-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.help-text h3 {
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+    color: var(--primary);
+}
+
+.help-text p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.instruments-preview {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg-card);
+    border-radius: 16px;
+}
+
+.instruments-preview h3 {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: var(--accent);
+}
+
+.instrument-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.instrument-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+}
+
+.inst-icon {
+    font-size: 1.5rem;
+}
+
+.inst-name {
+    font-size: 0.9rem;
+}
+
+/* محتوای آمار */
+.stats-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.stat-icon {
+    font-size: 2rem;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--accent);
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.reset-btn {
+    background: linear-gradient(135deg, var(--error), #c0392b);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.reset-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+}
+
+/* مودال‌های نتیجه */
+.result-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 1rem;
+}
+
+.result-modal.show {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+.result-content {
+    background: rgba(10, 10, 26, 0.98);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 2rem;
+    text-align: center;
+    max-width: 350px;
+    width: 100%;
+    animation: popIn 0.5s ease;
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.result-content.correct {
+    border: 2px solid var(--success);
+    box-shadow: 0 0 50px rgba(0, 217, 165, 0.3);
+}
+
+.result-content.wrong {
+    border: 2px solid var(--error);
+    box-shadow: 0 0 50px rgba(255, 107, 107, 0.3);
+}
+
+.result-content.level-complete {
+    border: 2px solid var(--accent);
+    box-shadow: 0 0 50px rgba(248, 181, 0, 0.3);
+}
+
+.result-stars {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    animation: starBounce 1s ease infinite;
+}
+
+@keyframes starBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.result-icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.result-content h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.result-content p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.explanation-box {
+    background: var(--bg-card);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    text-align: right;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.result-btn {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 30px;
+    font-family: inherit;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.result-btn:hover {
+    transform: scale(1.05);
+    box-shadow: var(--glow-pink);
+}
+
+/* جشن پایان سطح */
+.celebration {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.confetti {
+    font-size: 2rem;
+    animation: confettiFall 1s ease infinite;
+}
+
+.confetti:nth-child(2) { animation-delay: 0.3s; }
+.confetti:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes confettiFall {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+.level-reward {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, rgba(248, 181, 0, 0.2), rgba(255, 107, 157, 0.2));
+    padding: 0.8rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.reward-icon {
+    font-size: 1.5rem;
+}
+
+.reward-text {
+    font-weight: 700;
+    color: var(--accent);
+}
+
+/* ============================================
+   ریسپانسیو - موبایل فرست
+   ============================================ */
+
+/* موبایل‌های کوچک */
+@media (max-width: 360px) {
+    .game-title {
+        font-size: 2rem;
+    }
+    
+    .title-icon {
+        font-size: 1.5rem;
+    }
+    
+    .menu-btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
+    
+    .instrument-icon {
+        font-size: 3rem;
+    }
+    
+    .option-btn {
+        font-size: 2.5rem;
+        min-width: 80px;
+    }
+}
+
+/* موبایل‌های معمولی */
+@media (min-width: 361px) and (max-width: 480px) {
+    .game-title {
+        font-size: 2.2rem;
+    }
+    
+    .instrument-icon {
+        font-size: 3.5rem;
+    }
+    
+    .option-btn {
+        font-size: 2.8rem;
+        min-width: 90px;
+    }
+}
+
+/* تبلت‌ها */
+@media (min-width: 481px) and (max-width: 768px) {
+    .game-title {
+        font-size: 2.8rem;
+    }
+    
+    .instrument-icon {
+        font-size: 4.5rem;
+    }
+    
+    .option-btn {
+        font-size: 3.5rem;
+        min-width: 120px;
+    }
+    
+    .modal-container {
+        padding: 2.5rem;
+    }
+}
+
+/* دسکتاپ */
+@media (min-width: 769px) {
+    .game-title {
+        font-size: 3.5rem;
+    }
+    
+    .instrument-icon {
+        font-size: 5rem;
+    }
+    
+    .option-btn {
+        font-size: 4rem;
+        min-width: 140px;
+        padding: 1.5rem;
+    }
+    
+    .menu-btn:hover {
+        transform: translateY(-5px) scale(1.05);
+    }
+}
+
+/* تنظیمات جهت landscape در موبایل */
+@media (max-height: 500px) and (orientation: landscape) {
+    .menu-container {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 2rem;
+    }
+    
+    .logo-container {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    .menu-buttons {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .game-area {
+        gap: 1rem;
+    }
+    
+    .sequence-display {
+        min-height: 80px;
+    }
+}
+/* کاهش حرکت برای دسترسی‌پذیری */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* حالت تاریک برای مودال‌ها */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-dark: #000000;
+    }
+}
+
+/* اسکرول‌بار سفارشی */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary);
+}
+
+/* انتخاب متن */
+::selection {
+    background: var(--primary);
+    color: white;
+}
+
+/* فوکوس برای دسترسی‌پذیری */
+button:focus-visible,
+.option-btn:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+}
+
+/* انیمیشن‌های کمکی */
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.spin {
+    animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* گرادیانت متحرک برای پس‌زمینه */
+.gradient-bg {
+    background: linear-gradient(-45deg, #0a0a1a, #1a0a2e, #0a1a2e, #0a0a1a);
+    background-size: 400% 400%;
+    animation: gradientMove 15s ease infinite;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* افکت ذرات */
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: particleFloat 10s linear infinite;
+    opacity: 0.6;
+}
+
+@keyframes particleFloat {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.6;
+    }
+    90% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateY(-100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* افکت درخشش روی دکمه‌ها */
+.glow-effect {
+    position: relative;
+}
+
+.glow-effect::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.glow-effect:hover::after {
+    opacity: 0.3;
+}
+
+/* نمایشگر امتیاز متحرک */
+.score-popup {
+    position: fixed;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--accent);
+    pointer-events: none;
+    animation: scoreFloat 1s ease forwards;
+    z-index: 200;
+}
+
+@keyframes scoreFloat {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px) scale(1.5);
+    }
+}
+
+/* نوار انرژی */
+.energy-bar {
+    width: 100%;
+    max-width: 300px;
+    height: 20px;
+    background: var(--bg-card);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    border: 2px solid rgba(255,255,255,0.1);
+}
+
+.energy-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--success), var(--accent));
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.energy-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: energyShine 2s linear infinite;
+}
+
+@keyframes energyShine {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+}
+
+/* کارت‌های سه‌بعدی */
+.card-3d {
+    perspective: 1000px;
+}
+
+.card-3d-inner {
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.card-3d:hover .card-3d-inner {
+    transform: rotateY(10deg) rotateX(5deg);
+}
+
+/* نمایشگر ریتم */
+.rhythm-display {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.rhythm-beat {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid rgba(255,255,255,0.2);
+    transition: all 0.3s ease;
+}
+
+.rhythm-beat.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 0 20px var(--primary);
+    transform: scale(1.2);
+}
+
+.rhythm-beat.correct {
+    background: var(--success);
+    border-color: var(--success);
+}
+
+.rhythm-beat.wrong {
+    background: var(--error);
+    border-color: var(--error);
+}
+
+/* پیام‌های Toast */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    border-radius: 30px;
+    border: 1px solid rgba(255,255,255,0.1);
+    font-weight: 700;
+    z-index: 300;
+    opacity: 0;
+    transition: all 0.5s ease;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast.success {
+    border-color: var(--success);
+    color: var(--success);
+}
+
+.toast.error {
+    border-color: var(--error);
+    color: var(--error);
+}
+
+/* شمارش معکوس */
+.countdown {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 8rem;
+    font-weight: 900;
+    color: var(--primary);
+    text-shadow: 0 0 50px var(--primary);
+    z-index: 150;
+    animation: countdownPop 1s ease;
+    display: none;
+}
+
+.countdown.show {
+    display: block;
+}
+
+@keyframes countdownPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* ناحیه آموزش */
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 2rem;
+}
+
+.tutorial-overlay.show {
+    display: flex;
+}
+
+.tutorial-content {
+    background: rgba(10, 10, 26, 0.98);
+    border: 2px solid var(--accent);
+    border-radius: 24px;
+    padding: 2rem;
+    max-width: 400px;
+    text-align: center;
+    animation: tutorialSlide 0.5s ease;
+}
+
+@keyframes tutorialSlide {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tutorial-content h2 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+}
+
+.tutorial-content p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.8;
+}
+
+.tutorial-demo {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.tutorial-demo span {
+    font-size: 3rem;
+    animation: tutorialBounce 1s ease infinite;
+}
+
+.tutorial-demo span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.tutorial-demo span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes tutorialBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+/* دکمه‌های کنترل صدا */
+.sound-controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 50;
+}
+
+.sound-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sound-btn:hover {
+    background: var(--primary);
+    transform: scale(1.1);
+}
+
+.sound-btn.muted {
+    opacity: 0.5;
+}
+
+/* نمایشگر ترکیب سازها */
+.combo-display {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 50;
+}
+
+.combo-item {
+    background: var(--bg-card);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 1.5rem;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.combo-item.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px var(--accent);
+    animation: comboPulse 0.5s ease;
+}
+
+@keyframes comboPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* پیشرفت سطح */
+.level-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.level-star {
+    font-size: 1.5rem;
+    opacity: 0.3;
+    transition: all 0.3s ease;
+}
+
+.level-star.earned {
+    opacity: 1;
+    animation: starEarn 0.5s ease;
+}
+
+@keyframes starEarn {
+    0% { transform: scale(0) rotate(-180deg); }
+    50% { transform: scale(1.5) rotate(0deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+/* پیام خوشامدگویی */
+.welcome-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 100;
+    animation: welcomeFade 3s ease forwards;
+}
+
+@keyframes welcomeFade {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+}
+
+.welcome-message h2 {
+    font-size: 2rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.welcome-message p {
+    color: var(--text-muted);
+}
+
+/* افکت موج برای کلیک */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0);
+    animation: rippleEffect 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes rippleEffect {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* نمایشگر زمان */
+.timer-display {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.timer-display.warning {
+    color: var(--error);
+    animation: timerWarning 0.5s ease infinite;
+}
+
+@keyframes timerWarning {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* کانتینر اصلی بازی */
+.game-container {
+    width: 100%;
+    max-width: 600px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    position: relative;
+    z-index: 10;
+}
+
+/* فوتر بازی */
+.game-footer {
+    margin-top: auto;
+    padding: 1rem;
+    text-align: center;
+}
+
+.hint-btn {
+    background: transparent;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.hint-btn:hover {
+    background: var(--accent);
+    color: var(--bg-dark);
+}
+
+/* ناحیه نتایج سریع */
+.quick-result {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5rem;
+    z-index: 100;
+    animation: quickResultPop 0.8s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes quickResultPop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    30% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5) translateY(-50px);
+    }
+}
+
+/* نمایش الگوی یادگیری */
+.pattern-hint {
+    background: var(--bg-card);
+    padding: 1rem;
+    border-radius: 16px;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.pattern-hint h4 {
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.pattern-hint p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* شمارنده رشته */
+.streak-counter {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+    padding: 0.5rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 50;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.streak-counter.show {
+    opacity: 1;
+}
+
+.streak-counter .fire {
+    font-size: 1.5rem;
+    animation: fireFlicker 0.5s ease infinite;
+}
+
+@keyframes fireFlicker {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+/* ناحیه توضیح ساز */
+.instrument-info {
+    background: var(--bg-card);
+    padding: 1rem;
+    border-radius: 16px;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.instrument-info .inst-big {
+    font-size: 4rem;
+    margin-bottom: 0.5rem;
+}
+
+.instrument-info h3 {
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+}
+
+.instrument-info p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* دکمه‌های ناوبری سریع */
+.quick-nav {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 50;
+}
+
+.quick-nav-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quick-nav-btn:hover {
+    background: var(--primary);
+}
+
+/* نمایش پیشرفت مرحله */
+.stage-progress {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.stage-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid rgba(255,255,255,0.2);
+    transition: all 0.3s ease;
+}
+
+.stage-dot.completed {
+    background: var(--success);
+    border-color: var(--success);
+}
+
+.stage-dot.current {
+    background: var(--accent);
+    border-color: var(--accent);
+    animation: currentDot 1s ease infinite;
+}
+
+@keyframes currentDot {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+}
+
+/* افکت لرزش صفحه */
+.screen-shake {
+    animation: screenShake 0.5s ease;
+}
+
+@keyframes screenShake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* نمایش جایزه */
+.reward-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 250;
+}
+
+.reward-item {
+    position: absolute;
+    font-size: 2rem;
+    animation: rewardFall 2s ease forwards;
+}
+
+@keyframes rewardFall {
+    0% {
+        transform: translateY(-100px) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- پس‌زمینه ستاره‌ای -->
+    <div class="stars"></div>
+    <div class="stars2"></div>
+    <div class="stars3"></div>
+    <div class="nebula"></div>
+
+    <!-- صفحه منوی اصلی -->
+    <div id="menu-screen" class="screen active">
+        <div class="menu-container">
+            <div class="logo-container">
+                <div class="logo-glow"></div>
+                <h1 class="game-title">
+                    <span class="title-icon">🎵</span>
+                    سفر ریتم
+                    <span class="title-icon">🌟</span>
+                </h1>
+                <p class="subtitle">ماجراجویی در دنیای موسیقی</p>
+            </div>
+
+            <div class="menu-buttons">
+                <button class="menu-btn start-btn" onclick="startGame()">
+                    <span class="btn-icon">🚀</span>
+                    <span class="btn-text">شروع بازی</span>
+                </button>
+
+                <button class="menu-btn help-btn" onclick="showHelp()">
+                    <span class="btn-icon">📖</span>
+                    <span class="btn-text">راهنما</span>
+                </button>
+
+                <button class="menu-btn stats-btn" onclick="showStats()">
+                    <span class="btn-icon">📊</span>
+                    <span class="btn-text">آمار</span>
+                </button>
+            </div>
+
+            <div class="floating-instruments">
+                <span class="float-instrument" style="--delay: 0s">🎹</span>
+                <span class="float-instrument" style="--delay: 0.5s">🥁</span>
+                <span class="float-instrument" style="--delay: 1s">🔔</span>
+                <span class="float-instrument" style="--delay: 1.5s">🎸</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه بازی -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <div class="level-info">
+                <span class="level-badge">مرحله <span id="current-level">1</span></span>
+                <span class="score-badge">امتیاز: <span id="current-score">0</span></span>
+            </div>
+            <button class="back-btn" onclick="backToMenu()">✖</button>
+        </div>
+
+        <div class="game-area">
+            <div class="sequence-display" id="sequence-display">
+                <!-- دنباله نمایش داده می‌شود -->
+            </div>
+
+            <div class="question-area" id="question-area">
+                <p class="question-text" id="question-text">الگوی بعدی چیست؟</p>
+                <div class="options-container" id="options-container">
+                    <!-- گزینه‌ها اینجا نمایش داده می‌شوند -->
+                </div>
+            </div>
+
+            <div class="feedback-area" id="feedback-area">
+                <div class="feedback-content">
+                    <span class="feedback-icon" id="feedback-icon">✅</span>
+                    <p class="feedback-text" id="feedback-text"></p>
+                    <button class="next-btn" id="next-btn" onclick="nextQuestion()">ادامه</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- صفحه راهنما -->
+    <div id="help-screen" class="screen">
+        <div class="modal-container">
+            <button class="close-modal" onclick="closeHelp()">✖</button>
+            <h2 class="modal-title">📖 راهنمای بازی</h2>
+            
+            <div class="help-content">
+                <div class="help-item">
+                    <span class="help-icon">🎯</span>
+                    <div class="help-text">
+                        <h3>هدف بازی</h3>
+                        <p>یادگیری ریتم و الگوهای موسیقی با گوش دادن به سازها</p>
+                    </div>
+                </div>
+
+                <div class="help-item">
+                    <span class="help-icon">🎵</span>
+                    <div class="help-text">
+                        <h3>نحوه بازی</h3>
+                        <p>به الگوی سازها گوش بده، سپس حدس بزن下一个 ساز چیست!</p>
+                    </div>
+                </div>
+
+                <div class="help-item">
+                    <span class="help-icon">⭐</span>
+                    <div class="help-text">
+                        <h3>امتیازها</h3>
+                        <p>هر پاسخ درست = ۱۰ امتیاز ستاره</p>
+                    </div>
+                </div>
+
+                <div class="help-item">
+                    <span class="help-icon">🏆</span>
+                    <div class="help-text">
+                        <h3>سطوح</h3>
+                        <p>با گذراندن هر مرحله، الگوها سخت‌تر می‌شوند!</p>
+                    </div>
+                </div>
+
+                <div class="instruments-preview">
+                    <h3>🎸 سازهای موجود</h3>
+                    <div class="instrument-list">
+                        <div class="instrument-preview">
+                            <span class="inst-icon">🎹</span>
+                            <span class="inst-name">پیانو</span>
+                        </div>
+                        <div class="instrument-preview">
+                            <span class="inst-icon">🥁</span>
+                            <span class="inst-name">طبل</span>
+                        </div>
+                        <div class="instrument-preview">
+                            <span class="inst-icon">🔔</span>
+                            <span class="inst-name">زنگ</span>
+                        </div>
+                        <div class="instrument-preview">
+                            <span class="inst-icon">🎸</span>
+                            <span class="inst-name">گیتار</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه آمار -->
+    <div id="stats-screen" class="screen">
+        <div class="modal-container">
+            <button class="close-modal" onclick="closeStats()">✖</button>
+            <h2 class="modal-title">📊 آمار بازی</h2>
+            
+            <div class="stats-content">
+                <div class="stat-card">
+                    <span class="stat-icon">🎯</span>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-correct">0</span>
+                        <span class="stat-label">پاسخ‌های درست</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-icon">❌</span>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-wrong">0</span>
+                        <span class="stat-label">پاسخ‌های غلط</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-icon">⭐</span>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-score">0</span>
+                        <span class="stat-label">امتیاز کل</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-icon">🏆</span>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-level">1</span>
+                        <span class="stat-label">بالاترین سطح</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-icon">📈</span>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-streak">0</span>
+                        <span class="stat-label">بیشترین رشته درست</span>
+                    </div>
+                </div>
+
+                <button class="reset-btn" onclick="resetStats()">🔄 پاک کردن آمار</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- پنجره‌های بازخورد -->
+    <div id="correct-modal" class="result-modal">
+        <div class="result-content correct">
+            <div class="result-stars">⭐⭐⭐</div>
+            <h2>آفرین! 🎉</h2>
+            <p id="correct-message">پاسخ کاملاً درست بود!</p>
+            <button class="result-btn" onclick="continueGame()">ادامه بده!</button>
+        </div>
+    </div>
+
+    <div id="wrong-modal" class="result-modal">
+        <div class="result-content wrong">
+            <span class="result-icon">🤔</span>
+            <h2>اوه! نزدیک بود!</h2>
+            <p id="wrong-message">پاسخ درست بود...</p>
+            <div class="explanation-box" id="explanation-box">
+                <!-- توضیح اینجا نمایش داده می‌شود -->
+            </div>
+            <button class="result-btn" onclick="tryAgain()">دوباره تلاش کن!</button>
+        </div>
+    </div>
+
+    <!-- صفحه تبریک پایان سطح -->
+    <div id="level-complete-modal" class="result-modal">
+        <div class="result-content level-complete">
+            <div class="celebration">
+                <span class="confetti">🎊</span>
+                <span class="confetti">🎉</span>
+                <span class="confetti">🌟</span>
+            </div>
+            <h2>تبریک! 🎊</h2>
+            <p>مرحله <span id="completed-level">1</span> را تمام کردی!</p>
+            <div class="level-reward">
+                <span class="reward-icon">🏆</span>
+                <span class="reward-text">+۵۰ امتیاز جایزه</span>
+            </div>
+            <button class="result-btn" onclick="nextLevel()">مرحله بعدی</button>
+        </div>
+    </div>
+
+    <script>
+/* ============================================
+   سفر ریتم - اسکریپت بازی آموزشی موسیقی
+   ============================================ */
+
+// متغیرهای اصلی بازی
+const GameState = {
+    currentScreen: 'menu',
+    currentLevel: 1,
+    currentQuestion: 0,
+    score: 0,
+    correctAnswers: 0,
+    wrongAnswers: 0,
+    streak: 0,
+    maxStreak: 0,
+    questionsPerLevel: 5,
+    isPlaying: false,
+    soundEnabled: true,
+    musicEnabled: true
+};
+
+// سازهای موسیقی
+const Instruments = {
+    piano: {
+        name: 'پیانو',
+        icon: '🎹',
+        sound: 'piano',
+        color: '#ff6b9d',
+        description: 'پیانو یک ساز زیبا با صدای آرام و ملودیک است. وقتی پیانو می‌نوازد، انگار یک داستان زیبا تعریف می‌شود!'
+    },
+    drum: {
+        name: 'طبل',
+        icon: '🥁',
+        sound: 'drum',
+        color: '#f8b500',
+        description: 'طبل صدای قدرتمندی دارد که مثل ضربان قلب است. طبل ریتم را نگه می‌دارد!'
+    },
+    bell: {
+        name: 'زنگ',
+        icon: '🔔',
+        sound: 'bell',
+        color: '#00d9a5',
+        description: 'زنگ صدای شفاف و زنگ‌داری دارد. وقتی زنگ می‌زند، انگار پری‌ها در حال رقصیدن هستند!'
+    },
+    guitar: {
+        name: 'گیتار',
+        icon: '🎸',
+        sound: 'guitar',
+        color: '#667eea',
+        description: 'گیتار صدای گرم و دلنشینی دارد. گیتار می‌تواند هم آرام و هم پرانرژی بنوازد!'
+    }
+};
+
+// سطوح بازی
+const Levels = [
+    {
+        level: 1,
+        name: 'سفر آغاز می‌شود',
+        sequenceLength: 2,
+        instruments: ['piano', 'drum'],
+        description: 'بیا با پیانو و طبل شروع کنیم!'
+    },
+    {
+        level: 2,
+        name: 'آشنایی با زنگ',
+        sequenceLength: 3,
+        instruments: ['piano', 'drum', 'bell'],
+        description: 'حالا زنگ را هم یاد می‌گیریم!'
+    },
+    {
+        level: 3,
+        name: 'ارکستر کوچک',
+        sequenceLength: 3,
+        instruments: ['piano', 'drum', 'bell', 'guitar'],
+        description: 'گیتار هم به جمع ما اضافه شد!'
+    },
+    {
+        level: 4,
+        name: 'ریتم‌های پیچیده',
+        sequenceLength: 4,
+        instruments: ['piano', 'drum', 'bell', 'guitar'],
+        description: 'الگوها سخت‌تر می‌شوند!'
+    },
+    {
+        level: 5,
+        name: 'استاد ریتم',
+        sequenceLength: 5,
+        instruments: ['piano', 'drum', 'bell', 'guitar'],
+        description: 'آماده‌ای استاد ریتم بشوی؟'
+    }
+];
+
+// دنباله‌های آموزشی
+const Sequences = {
+    level1: [
+        { pattern: ['piano', 'drum'], answer: 'piano' },
+        { pattern: ['drum', 'piano'], answer: 'drum' },
+        { pattern: ['piano', 'drum', 'piano'], answer: 'drum' },
+        { pattern: ['drum', 'piano', 'drum'], answer: 'piano' },
+        { pattern: ['piano', 'piano', 'drum'], answer: 'piano' }
+    ],
+    level2: [
+        { pattern: ['piano', 'bell'], answer: 'piano' },
+        { pattern: ['bell', 'drum'], answer: 'bell' },
+        { pattern: ['piano', 'drum', 'bell'], answer: 'piano' },
+        { pattern: ['bell', 'piano', 'drum'], answer: 'bell' },
+        { pattern: ['drum', 'bell', 'piano'], answer: 'drum' }
+    ],
+    level3: [
+        { pattern: ['guitar', 'piano'], answer: 'guitar' },
+        { pattern: ['drum', 'bell', 'guitar'], answer: 'drum' },
+        { pattern: ['piano', 'guitar', 'drum'], answer: 'piano' },
+        { pattern: ['bell', 'guitar', 'piano'], answer: 'bell' },
+        { pattern: ['guitar', 'drum', 'bell'], answer: 'guitar' }
+    ],
+    level4: [
+        { pattern: ['piano', 'drum', 'guitar'], answer: 'piano' },
+        { pattern: ['bell', 'piano', 'drum', 'guitar'], answer: 'bell' },
+        { pattern: ['guitar', 'bell', 'piano', 'drum'], answer: 'guitar' },
+        { pattern: ['drum', 'guitar', 'bell', 'piano'], answer: 'drum' },
+        { pattern: ['piano', 'bell', 'guitar', 'drum'], answer: 'piano' }
+    ],
+    level5: [
+        { pattern: ['drum', 'piano', 'bell', 'guitar'], answer: 'drum' },
+        { pattern: ['guitar', 'drum', 'piano', 'bell'], answer: 'guitar' },
+        { pattern: ['bell', 'guitar', 'drum', 'piano', 'bell'], answer: 'bell' },
+        { pattern: ['piano', 'bell', 'guitar', 'drum', 'piano'], answer: 'piano' },
+        { pattern: ['drum', 'guitar', 'bell', 'piano', 'drum'], answer: 'drum' }
+    ]
+};
+
+// متغیرهای کمکی
+let currentSequence = [];
+let currentAnswer = '';
+let audioContext = null;
+let isAnimating = false;
+
+// ============================================
+// راه‌اندازی اولیه
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadStats();
+    createParticles();
+    setupEventListeners();
+    initAudio();
+});
+
+// ایجاد ذرات ستاره‌ای
+function createParticles() {
+    const particlesContainer = document.createElement('div');
+    particlesContainer.className = 'particles';
+    document.body.appendChild(particlesContainer);
+
+    for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 10 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        particlesContainer.appendChild(particle);
+    }
+}
+
+// تنظیم شنونده‌های رویداد
+function setupEventListeners() {
+    // دکمه‌های کیبورد
+    document.addEventListener('keydown', handleKeyboard);
+}
+
+// ============================================
+// سیستم صوتی
+// ============================================
+
+function initAudio() {
+    try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) {
+        console.log('Web Audio API not supported');
+    }
+}
+
+function playSound(type) {
+    if (!GameState.soundEnabled || !audioContext) return;
+
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    switch (type) {
+        case 'piano':
+            oscillator.frequency.value = 523.25; // C5
+            oscillator.type = 'sine';
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+            break;
+
+        case 'drum':
+            oscillator.frequency.value = 150;
+            oscillator.type = 'square';
+            gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+            break;
+
+        case 'bell':
+            oscillator.frequency.value = 880;
+            oscillator.type = 'sine';
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.8);
+            break;
+
+        case 'guitar':
+            oscillator.frequency.value = 329.63; // E4
+            oscillator.type = 'triangle';
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.6);
+            break;
+
+        case 'correct':
+            playMelody([523.25, 659.25, 783.99]); // C5, E5, G5
+            break;
+
+        case 'wrong':
+            playMelody([200, 150]); // Low tones
+            break;
+
+        case 'levelup':
+            playMelody([523.25, 659.25, 783.99, 1046.50]); // C5, E5, G5, C6
+            break;
+    }
+}
+
+function playMelody(notes) {
+    notes.forEach((freq, index) => {
+        setTimeout(() => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.frequency.value = freq;
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.3);
+        }, index * 150);
+    });
+}
+
+// ============================================
+// مدیریت صفحات
+// ============================================
+
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+    document.getElementById(screenId).classList.add('active');
+    GameState.currentScreen = screenId;
+}
+
+function startGame() {
+    GameState.currentLevel = 1;
+    GameState.currentQuestion = 0;
+    GameState.score = 0;
+    GameState.correctAnswers = 0;
+    GameState.wrongAnswers = 0;
+    GameState.streak = 0;
+    GameState.isPlaying = true;
+
+    updateUI();
+    showScreen('game-screen');
+    startLevel();
+}
+
+function backToMenu() {
+    GameState.isPlaying = false;
+    showScreen('menu-screen');
+}
+
+function startLevel() {
+    GameState.currentQuestion = 0;
+    updateUI();
+    showQuestion();
+}
+
+function showQuestion() {
+    const levelKey = 'level' + GameState.currentLevel;
+    const levelSequences = Sequences[levelKey];
+    
+    if (!levelSequences) {
+        showLevelComplete();
+        return;
+    }
+
+    if (GameState.currentQuestion >= levelSequences.length) {
+        showLevelComplete();
+        return;
+    }
+
+    const question = levelSequences[GameState.currentQuestion];
+    currentSequence = question.pattern;
+    currentAnswer = question.answer;
+
+    playSequence();
+}
+
+async function playSequence() {
+    isAnimating = true;
+    const display = document.getElementById('sequence-display');
+    const questionArea = document.getElementById('question-area');
+    
+    display.innerHTML = '';
+    questionArea.style.display = 'none';
+
+    // نمایش هر ساز با انیمیشن
+    for (let i = 0; i < currentSequence.length; i++) {
+        const instrument = Instruments[currentSequence[i]];
+        
+        // اضافه کردن فلش
+        if (i > 0) {
+            const arrow = document.createElement('span');
+            arrow.className = 'arrow-icon';
+            arrow.textContent = '➜';
+            arrow.style.animationDelay = (i * 0.8) + 's';
+            display.appendChild(arrow);
+        }
+
+        // اضافه کردن ساز
+        const item = document.createElement('div');
+        item.className = 'sequence-item';
+        item.style.animationDelay = (i * 0.8) + 's';
+        
+        const icon = document.createElement('span');
+        icon.className = 'instrument-icon';
+        icon.id = 'instrument-' + i;
+        icon.textContent = instrument.icon;
+        icon.style.setProperty('--glow', instrument.color);
+        
+        item.appendChild(icon);
+        display.appendChild(item);
+
+        // پخش صدا و انیمیشن
+        setTimeout(() => {
+            playSound(currentSequence[i]);
+            icon.classList.add('playing');
+            
+            setTimeout(() => {
+                icon.classList.remove('playing');
+            }, 400);
+        }, i * 800);
+    }
+
+    // منتظر بمان تا انیمیشن تمام شود
+    await new Promise(resolve => setTimeout(resolve, currentSequence.length * 800 + 500));
+    
+    // نمایش سوال
+    showQuestionUI();
+    isAnimating = false;
+}
+
+function showQuestionUI() {
+    const questionArea = document.getElementById('question-area');
+    const optionsContainer = document.getElementById('options-container');
+    
+    questionArea.style.display = 'block';
+    questionArea.style.animation = 'fadeIn 0.5s ease';
+
+    // ایجاد گزینه‌ها
+    optionsContainer.innerHTML = '';
+    const level = Levels[GameState.currentLevel - 1];
+    const availableInstruments = level.instruments;
+    
+    // انتخاب گزینه‌های اشتباه
+    const wrongOptions = availableInstruments.filter(i => i !== currentAnswer);
+    const shuffledWrong = shuffleArray([...wrongOptions]);
+    const wrongOption = shuffledWrong[0];
+    
+    // ترکیب و تصادفی کردن گزینه‌ها
+    const options = shuffleArray([currentAnswer, wrongOption]);
+    
+    options.forEach(optionKey => {
+        const option = document.createElement('button');
+        option.className = 'option-btn';
+        option.textContent = Instruments[optionKey].icon;
+        option.dataset.instrument = optionKey;
+        option.onclick = () => checkAnswer(optionKey);
+        optionsContainer.appendChild(option);
+    });
+}
+
+function checkAnswer(selected) {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    const buttons = document.querySelectorAll('.option-btn');
+    buttons.forEach(btn => btn.disabled = true);
+
+    if (selected === currentAnswer) {
+        // پاسخ درست
+        playSound('correct');
+        
+        buttons.forEach(btn => {
+            if (btn.dataset.instrument === selected) {
+                btn.classList.add('correct');
+            }
+        });
+
+        GameState.correctAnswers++;
+        GameState.score += 10;
+        GameState.streak++;
+        
+        if (GameState.streak > GameState.maxStreak) {
+            GameState.maxStreak = GameState.streak;
+        }
+
+        showCorrectFeedback();
+    } else {
+        // پاسخ غلط
+        playSound('wrong');
+        
+        buttons.forEach(btn => {
+            if (btn.dataset.instrument === selected) {
+                btn.classList.add('wrong');
+            }
+            if (btn.dataset.instrument === currentAnswer) {
+                btn.classList.add('correct');
+            }
+        });
+
+        GameState.wrongAnswers++;
+        GameState.streak = 0;
+
+        showWrongFeedback();
+    }
+
+    updateUI();
+    saveStats();
+}
+
+function showCorrectFeedback() {
+    const messages = [
+        'آفرین! عالی بود! 🌟',
+        'خیلی خوب بود! ادامه بده! ⭐',
+        'عالی! تو یه نابغه‌ای! 🎉',
+        'صحیح! ریتم رو خوب یاد گرفتی! 🎵',
+        'عالی! ادامه بده قهرمان! 🏆'
+    ];
+
+    const modal = document.getElementById('correct-modal');
+    const message = document.getElementById('correct-message');
+    message.textContent = messages[Math.floor(Math.random() * messages.length)];
+    
+    modal.classList.add('show');
+    showScorePopup('+10');
+}
+
+function showWrongFeedback() {
+    const modal = document.getElementById('wrong-modal');
+    const message = document.getElementById('wrong-message');
+    const explanation = document.getElementById('explanation-box');
+    
+    const correctInstrument = Instruments[currentAnswer];
+    message.innerHTML = `پاسخ درست: <span style="font-size: 2rem">${correctInstrument.icon}</span> ${correctInstrument.name}`;
+    
+    explanation.innerHTML = `
+        <strong>💡 توضیح:</strong><br>
+        ${correctInstrument.description}
+        <br><br>
+        <strong>🔄 الگو:</strong> ${currentSequence.map(s => Instruments[s].icon).join(' ➜ ')} ➜ <span style="color: var(--success)">${correctInstrument.icon}</span>
+    `;
+    
+    modal.classList.add('show');
+    document.body.classList.add('screen-shake');
+    setTimeout(() => document.body.classList.remove('screen-shake'), 500);
+}
+
+function continueGame() {
+    document.getElementById('correct-modal').classList.remove('show');
+    GameState.currentQuestion++;
+    isAnimating = false;
+    showQuestion();
+}
+
+function tryAgain() {
+    document.getElementById('wrong-modal').classList.remove('show');
+    isAnimating = false;
+    showQuestion();
+}
+
+function showLevelComplete() {
+    playSound('levelup');
+    
+    const modal = document.getElementById('level-complete-modal');
+    const completedLevel = document.getElementById('completed-level');
+    completedLevel.textContent = GameState.currentLevel;
+    
+    GameState.score += 50; // جایزه پایان سطح
+    
+    modal.classList.add('show');
+    createRewardAnimation();
+    saveStats();
+}
+
+function nextLevel() {
+    document.getElementById('level-complete-modal').classList.remove('show');
+    
+    if (GameState.currentLevel < Levels.length) {
+        GameState.currentLevel++;
+        GameState.currentQuestion = 0;
+        updateUI();
+        showQuestion();
+    } else {
+        // بازی تمام شد!
+        showGameComplete();
+    }
+}
+
+function showGameComplete() {
+    const modal = document.getElementById('level-complete-modal');
+    const content = modal.querySelector('.result-content');
+    content.innerHTML = `
+        <div class="celebration">
+            <span class="confetti">🎊</span>
+            <span class="confetti">🏆</span>
+            <span class="confetti">🎉</span>
+        </div>
+        <h2>تبریک! قهرمان شدی! 🎊</h2>
+        <p>تو همه مراحل را با موفقیت تمام کردی!</p>
+        <div class="level-reward">
+            <span class="reward-icon">⭐</span>
+            <span class="reward-text">امتیاز نهایی: ${GameState.score}</span>
+        </div>
+        <button class="result-btn" onclick="backToMenu()">بازگشت به منو</button>
+    `;
+    modal.classList.add('show');
+}
+
+// ============================================
+// رابط کاربری
+// ============================================
+
+function updateUI() {
+    document.getElementById('current-level').textContent = GameState.currentLevel;
+    document.getElementById('current-score').textContent = GameState.score;
+    
+    // نوار پیشرفت
+    const progress = (GameState.currentQuestion / GameState.questionsPerLevel) * 100;
+    document.getElementById('progress-fill').style.width = progress + '%';
+}
+
+function showScorePopup(text) {
+    const popup = document.createElement('div');
+    popup.className = 'score-popup';
+    popup.textContent = text;
+    popup.style.left = '50%';
+    popup.style.top = '40%';
+    document.body.appendChild(popup);
+    
+    setTimeout(() => popup.remove(), 1000);
+}
+
+function createRewardAnimation() {
+    const container = document.createElement('div');
+    container.className = 'reward-animation';
+    document.body.appendChild(container);
+
+    const rewards = ['⭐', '🌟', '✨', '💫', '🎁'];
+    
+    for (let i = 0; i < 20; i++) {
+        const item = document.createElement('div');
+        item.className = 'reward-item';
+        item.textContent = rewards[Math.floor(Math.random() * rewards.length)];
+        item.style.left = Math.random() * 100 + '%';
+        item.style.animationDelay = Math.random() * 0.5 + 's';
+        container.appendChild(item);
+    }
+
+    setTimeout(() => container.remove(), 2500);
+}
+
+// ============================================
+// منوی راهنما
+// ============================================
+
+function showHelp() {
+    showScreen('help-screen');
+}
+
+function closeHelp() {
+    showScreen('menu-screen');
+}
+
+// ============================================
+// آمار بازی
+// ============================================
+
+function showStats() {
+    document.getElementById('stat-correct').textContent = GameState.correctAnswers;
+    document.getElementById('stat-wrong').textContent = GameState.wrongAnswers;
+    document.getElementById('stat-score').textContent = GameState.score;
+    document.getElementById('stat-level').textContent = GameState.currentLevel;
+    document.getElementById('stat-streak').textContent = GameState.maxStreak;
+    
+    showScreen('stats-screen');
+}
+
+function closeStats() {
+    showScreen('menu-screen');
+}
+
+function resetStats() {
+    if (confirm('آیا مطمئن هستید؟ تمام آمار پاک خواهد شد!')) {
+        GameState.correctAnswers = 0;
+        GameState.wrongAnswers = 0;
+        GameState.score = 0;
+        GameState.maxStreak = 0;
+        GameState.currentLevel = 1;
+        
+        localStorage.removeItem('rhythmGameStats');
+        showStats();
+    }
+}
+// ============================================
+// ذخیره و بارگذاری آمار
+// ============================================
+
+function saveStats() {
+    const stats = {
+        correctAnswers: GameState.correctAnswers,
+        wrongAnswers: GameState.wrongAnswers,
+        score: GameState.score,
+        maxStreak: GameState.maxStreak,
+        currentLevel: GameState.currentLevel
+    };
+    localStorage.setItem('rhythmGameStats', JSON.stringify(stats));
+}
+
+function loadStats() {
+    const saved = localStorage.getItem('rhythmGameStats');
+    if (saved) {
+        const stats = JSON.parse(saved);
+        GameState.correctAnswers = stats.correctAnswers || 0;
+        GameState.wrongAnswers = stats.wrongAnswers || 0;
+        GameState.score = stats.score || 0;
+        GameState.maxStreak = stats.maxStreak || 0;
+        GameState.currentLevel = stats.currentLevel || 1;
+    }
+}
+
+// ============================================
+// توابع کمکی
+// ============================================
+
+function shuffleArray(array) {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+}
+
+function handleKeyboard(event) {
+    if (GameState.currentScreen !== 'game-screen' || isAnimating) return;
+
+    const keyMap = {
+        '1': 'piano',
+        '2': 'drum',
+        '3': 'bell',
+        '4': 'guitar',
+        'p': 'piano',
+        'd': 'drum',
+        'b': 'bell',
+        'g': 'guitar'
+    };
+
+    const instrument = keyMap[event.key.toLowerCase()];
+    if (instrument) {
+        const buttons = document.querySelectorAll('.option-btn');
+        buttons.forEach(btn => {
+            if (btn.dataset.instrument === instrument) {
+                btn.click();
+            }
+        });
+    }
+
+    // کلید Enter برای ادامه
+    if (event.key === 'Enter') {
+        const correctModal = document.getElementById('correct-modal');
+        const wrongModal = document.getElementById('wrong-modal');
+        const levelModal = document.getElementById('level-complete-modal');
+
+        if (correctModal.classList.contains('show')) {
+            continueGame();
+        } else if (wrongModal.classList.contains('show')) {
+            tryAgain();
+        } else if (levelModal.classList.contains('show')) {
+            nextLevel();
+        }
+    }
+
+    // کلید Escape برای بازگشت
+    if (event.key === 'Escape') {
+        backToMenu();
+    }
+}
+
+// ============================================
+// افکت‌های بصری
+// ============================================
+
+function createRipple(event, element) {
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    
+    const rect = element.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = event.clientX - rect.left - size / 2 + 'px';
+    ripple.style.top = event.clientY - rect.top - size / 2 + 'px';
+    
+    element.appendChild(ripple);
+    
+    setTimeout(() => ripple.remove(), 600);
+}
+
+// اضافه کردن ripple به دکمه‌ها
+document.addEventListener('click', (e) => {
+    const button = e.target.closest('button');
+    if (button) {
+        createRipple(e, button);
+    }
+});
+
+// ============================================
+// سیستم Toast
+// ============================================
+
+function showToast(message, type = 'success') {
+    const existingToast = document.querySelector('.toast');
+    if (existingToast) existingToast.remove();
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
+
+// ============================================
+// سیستم نمایش آموزشی
+// ============================================
+
+function showTutorial() {
+    const overlay = document.createElement('div');
+    overlay.className = 'tutorial-overlay show';
+    overlay.id = 'tutorial-overlay';
+    
+    overlay.innerHTML = `
+        <div class="tutorial-content">
+            <h2>🎵 یادگیری ریتم</h2>
+            <p>به الگوی سازها گوش بده و حدس بزن下一个 ساز چیست!</p>
+            
+            <div class="tutorial-demo">
+                <span>🎹</span>
+                <span>🥁</span>
+                <span>❓</span>
+            </div>
+            
+            <p>پیانو ➜ طبل ➜ <strong>؟</strong></p>
+            <p style="margin-top: 1rem; color: var(--success);">پاسخ: 🎹 پیانو</p>
+            
+            <button class="result-btn" onclick="closeTutorial()">باشه، فهمیدم!</button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+}
+
+function closeTutorial() {
+    const overlay = document.getElementById('tutorial-overlay');
+    if (overlay) {
+        overlay.classList.remove('show');
+        setTimeout(() => overlay.remove(), 500);
+    }
+}
+
+// ============================================
+// کنترل صدا
+// ============================================
+
+function toggleSound() {
+    GameState.soundEnabled = !GameState.soundEnabled;
+    const btn = document.getElementById('sound-toggle');
+    if (btn) {
+        btn.classList.toggle('muted', !GameState.soundEnabled);
+        btn.textContent = GameState.soundEnabled ? '🔊' : '🔇';
+    }
+    
+    if (GameState.soundEnabled) {
+        playSound('piano');
+    }
+}
+
+function toggleMusic() {
+    GameState.musicEnabled = !GameState.musicEnabled;
+    const btn = document.getElementById('music-toggle');
+    if (btn) {
+        btn.classList.toggle('muted', !GameState.musicEnabled);
+        btn.textContent = GameState.musicEnabled ? '🎵' : '🔇';
+    }
+}
+
+// ============================================
+// نمایش راهنمای ساز
+// ============================================
+
+function showInstrumentInfo(instrumentKey) {
+    const instrument = Instruments[instrumentKey];
+    const infoBox = document.createElement('div');
+    infoBox.className = 'instrument-info';
+    infoBox.style.animation = 'fadeIn 0.5s ease';
+    
+    infoBox.innerHTML = `
+        <span class="inst-big">${instrument.icon}</span>
+        <h3>${instrument.name}</h3>
+        <p>${instrument.description}</p>
+    `;
+    
+    // حذف قبلی‌ها
+    document.querySelectorAll('.instrument-info').forEach(el => el.remove());
+    
+    const gameArea = document.querySelector('.game-area');
+    gameArea.appendChild(infoBox);
+    
+    setTimeout(() => infoBox.remove(), 5000);
+}
+
+// ============================================
+// سیستم رشته (Streak)
+// ============================================
+
+function updateStreakDisplay() {
+    let streakEl = document.querySelector('.streak-counter');
+    
+    if (GameState.streak >= 3) {
+        if (!streakEl) {
+            streakEl = document.createElement('div');
+            streakEl.className = 'streak-counter';
+            document.body.appendChild(streakEl);
+        }
+        
+        streakEl.innerHTML = `
+            <span class="fire">🔥</span>
+            <span>${GameState.streak}</span>
+        `;
+        streakEl.classList.add('show');
+    } else {
+        if (streakEl) {
+            streakEl.classList.remove('show');
+        }
+    }
+}
+
+// ============================================
+// نمایش پیشرفت مرحله
+// ============================================
+
+function showStageProgress() {
+    const container = document.createElement('div');
+    container.className = 'stage-progress';
+    
+    const totalQuestions = Sequences['level' + GameState.currentLevel]?.length || 5;
+    
+    for (let i = 0; i < totalQuestions; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'stage-dot';
+        
+        if (i < GameState.currentQuestion) {
+            dot.classList.add('completed');
+        } else if (i === GameState.currentQuestion) {
+            dot.classList.add('current');
+        }
+        
+        container.appendChild(dot);
+    }
+    
+    // حذف قبلی
+    document.querySelectorAll('.stage-progress').forEach(el => el.remove());
+    
+    const gameHeader = document.querySelector('.game-header');
+    gameHeader.appendChild(container);
+}
+
+// ============================================
+// نمایش نکته
+// ============================================
+
+function showHint() {
+    const instrument = Instruments[currentAnswer];
+    const hint = document.createElement('div');
+    hint.className = 'pattern-hint';
+    hint.style.animation = 'fadeIn 0.5s ease';
+    
+    hint.innerHTML = `
+        <h4>💡 نکته</h4>
+        <p>به الگوی ریتم گوش بده! ${instrument.name} صدای ${getSoundDescription(currentAnswer)} دارد.</p>
+    `;
+    
+    document.querySelectorAll('.pattern-hint').forEach(el => el.remove());
+    
+    const questionArea = document.getElementById('question-area');
+    questionArea.appendChild(hint);
+    
+    setTimeout(() => hint.remove(), 5000);
+}
+
+function getSoundDescription(instrumentKey) {
+    const descriptions = {
+        piano: 'ملودیک و آرام',
+        drum: 'قدرتمند و ریتمیک',
+        bell: 'زنانه و شفاف',
+        guitar: 'گرم و دلنشین'
+    };
+    return descriptions[instrumentKey] || 'خاص';
+}
+
+// ============================================
+// شروع بازی با شمارش معکوس
+// ============================================
+
+function startGameWithCountdown() {
+    const countdown = document.createElement('div');
+    countdown.className = 'countdown show';
+    document.body.appendChild(countdown);
+
+    let count = 3;
+    countdown.textContent = count;
+
+    const countInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+            countdown.textContent = count;
+            playSound('drum');
+        } else if (count === 0) {
+            countdown.textContent = '🎵';
+            playSound('piano');
+        } else {
+            clearInterval(countInterval);
+            countdown.classList.remove('show');
+            setTimeout(() => countdown.remove(), 500);
+            startGame();
+        }
+    }, 1000);
+}
+
+// ============================================
+// بهبود انیمیشن‌ها
+// ============================================
+
+function animateElement(element, animation, duration = 500) {
+    element.style.animation = animation;
+    setTimeout(() => {
+        element.style.animation = '';
+    }, duration);
+}
+
+function pulseElement(element) {
+    element.classList.add('pulse');
+    setTimeout(() => element.classList.remove('pulse'), 2000);
+}
+
+// ============================================
+// مدیریت خطا
+// ============================================
+
+window.addEventListener('error', (event) => {
+    console.log('Error:', event.error);
+    showToast('یک خطایی پیش آمد!', 'error');
+});
+
+// ============================================
+// Service Worker برای کار آفلاین
+// ============================================
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        // در نسخه نهایی می‌توان Service Worker اضافه کرد
+        console.log('Game loaded successfully');
+    });
+}
+
+// ============================================
+// ذخیره خودکار
+// ============================================
+
+setInterval(() => {
+    if (GameState.isPlaying) {
+        saveStats();
+    }
+}, 10000); // هر 10 ثانیه
+
+// ذخیره قبل از بستن صفحه
+window.addEventListener('beforeunload', () => {
+    saveStats();
+});
+
+// ============================================
+// دسترسی‌پذیری
+// ============================================
+
+// اعلام تغییرات صفحه برای صفحه‌خوان‌ها
+function announceToScreenReader(message) {
+    const announcement = document.createElement('div');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.className = 'sr-only';
+    announcement.style.position = 'absolute';
+    announcement.style.left = '-9999px';
+    announcement.textContent = message;
+    document.body.appendChild(announcement);
+    setTimeout(() => announcement.remove(), 1000);
+}
+
+// ============================================
+// پایان بازی
+// ============================================
+
+console.log('🎵 سفر ریتم - بازی آموزشی موسیقی');
+console.log('🌟 ساخته شده برای کودکان 7 تا 9 سال');
+console.log('📱 ریسپانسیو و آفلاین');
+    </script>
+</body>
+</html>
