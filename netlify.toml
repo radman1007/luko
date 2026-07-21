@@ -1,0 +1,15 @@
+# Netlify config for the LUKO frontend (Vite + React SPA in frontend/)
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"           # relative to base → frontend/dist
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# SPA fallback: react-router handles client-side routes, so every path
+# must serve index.html (otherwise deep links / refresh return 404).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
