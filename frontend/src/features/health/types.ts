@@ -9,8 +9,3 @@ export interface SecretEntry {
   payload: string;
   createdAt: number;
 }
-
-export interface GardenState {
-  waterCount: number;
-  lastWateredAt: number | null;
-}

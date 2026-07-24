@@ -1,11 +1,6 @@
 import type { IconType } from 'react-icons';
-import {
-  HiOutlineHome,
-  HiOutlineUser,
-  HiOutlineFire,
-  HiOutlinePlayCircle,
-  HiOutlineHeart,
-} from 'react-icons/hi2';
+import { HiOutlineHome, HiOutlineUser, HiOutlineFire, HiOutlineHeart } from 'react-icons/hi2';
+import { SproutIcon } from '@/components/ui/icons';
 
 export interface NavItem {
   label: string;
@@ -15,7 +10,7 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { label: 'کلاب', path: '/luko-club', icon: HiOutlineFire },
-  { label: 'تلویزیون', path: '/luko-tv', icon: HiOutlinePlayCircle },
+  { label: 'باغچه', path: '/garden', icon: SproutIcon },
   { label: 'خانه', path: '/', icon: HiOutlineHome },
   { label: 'سلامت', path: '/luko-health', icon: HiOutlineHeart },
   { label: 'پروفایل', path: '/profile', icon: HiOutlineUser },

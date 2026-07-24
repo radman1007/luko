@@ -200,5 +200,29 @@ export const LUKORIANS = {
       accent: '#22d3ee',
     },
   },
+  courier: {
+    id: 'courier',
+    name: 'چاپار',
+    role: 'پیکِ دوچرخه‌سوار شهر لوکو',
+    image: '/characters/bikerider.png',
+    theme: {
+      primary: '#e07d3a',
+      dark: '#b35d22',
+      soft: '#fbeae0',
+      accent: '#f4c04a',
+    },
+  },
+  ranger: {
+    id: 'ranger',
+    name: 'بلوط',
+    role: 'طبیعت‌بانِ شهر لوکو',
+    image: '/characters/parkingattendant.png',
+    theme: {
+      primary: '#7a8b46',
+      dark: '#5c6a33',
+      soft: '#eef1e2',
+      accent: '#c98a3a',
+    },
+  },
   // TODO: کاراکترهای صفحه اصلی و آکادمی کدنویسی بعد از رسیدن تصویرشان اضافه می‌شوند
 } as const satisfies Record<string, Lukorian>;

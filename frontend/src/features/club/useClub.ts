@@ -1,10 +1,12 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   HiOutlineFire,
   HiOutlineRocketLaunch,
   HiOutlineShoppingBag,
   HiOutlineStar,
 } from 'react-icons/hi2';
+import { DEW_REWARD } from '@/features/garden/gardenData';
+import { grantDew } from '@/features/garden/store';
 import { DAILY_MISSIONS, SPORT_TASKS } from './clubData';
 import type { Medal, Mission } from './types';
 
@@ -12,6 +14,7 @@ const COINS_KEY = 'luko_coins';
 const DAYS_KEY = 'luko_club_days';
 const TOTAL_KEY = 'luko_club_total';
 const OWNED_KEY = 'luko_club_owned';
+const MEDAL_DEW_KEY = 'luko_medal_dew';
 
 const doneKey = (day: string) => `luko_club_done_${day}`;
 const sportDoneKey = (day: string) => `luko_sport_done_${day}`;
@@ -84,6 +87,9 @@ export function useClub() {
       localStorage.setItem(COINS_KEY, String(nextCoins));
       localStorage.setItem(TOTAL_KEY, String(nextTotal));
       localStorage.setItem(DAYS_KEY, JSON.stringify(nextDays));
+
+      // پاداش باغچه: هر مأموریت کمی شبنم می‌دهد
+      grantDew(DEW_REWARD.mission, 'mission');
     },
     [coins, days, total],
   );
@@ -149,6 +155,15 @@ export function useClub() {
     ],
     [total, streak, owned],
   );
+
+  // برای هر مدالِ تازه‌بازشده یک بار شبنم می‌دهد (پاداش باغچه)
+  useEffect(() => {
+    const rewarded = readJSON<string[]>(MEDAL_DEW_KEY, []);
+    const newly = medals.filter((m) => m.unlocked && !rewarded.includes(m.id));
+    if (newly.length === 0) return;
+    newly.forEach(() => grantDew(DEW_REWARD.medal, 'medal'));
+    localStorage.setItem(MEDAL_DEW_KEY, JSON.stringify([...rewarded, ...newly.map((m) => m.id)]));
+  }, [medals]);
 
   return {
     coins,

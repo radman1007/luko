@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { HiOutlineChevronRight, HiOutlineCheckCircle, HiOutlineWrenchScrewdriver } from 'react-icons/hi2';
-import { CoinIcon } from '@/components/ui/icons';
+import { CoinIcon, DewIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
 import { levelById, markLevelCompleted } from '@/features/books/booksData';
+import { DEW_REWARD } from '@/features/garden/gardenData';
+import { grantDew, grantFertilizer } from '@/features/garden/store';
 import styles from './BookGame.module.css';
 
 /**
@@ -17,12 +19,17 @@ export default function BookGame() {
   const found = levelById(gameId);
 
   const [justWon, setJustWon] = useState(false);
+  const rewardedRef = useRef(false);
 
   const backToMap = () => navigate(found ? `/book/${found.book.id}` : '/books');
 
   const finish = () => {
-    if (!found) return;
+    if (!found || rewardedRef.current) return;
+    rewardedRef.current = true;
     markLevelCompleted(found.level.id);
+    // پاداش باغچه: شبنم + یک کیسه کود برای هر بازیِ کامل‌شده
+    grantDew(DEW_REWARD.game, 'game');
+    grantFertilizer(1);
     setJustWon(true);
   };
 
@@ -98,6 +105,9 @@ export default function BookGame() {
                 <p className={styles.winTitle}>ایول! این مرحله رو بردی!</p>
                 <p className={styles.winCoins}>
                   <CoinIcon size={18} aria-hidden />+{level.coinReward.toLocaleString('fa-IR')} سکه
+                </p>
+                <p className={styles.winDew}>
+                  <DewIcon size={16} aria-hidden />+{DEW_REWARD.game.toLocaleString('fa-IR')} شبنم و یک کود برای باغچه
                 </p>
                 <button type="button" className={styles.winBtn} onClick={backToMap}>
                   برگرد به نقشه

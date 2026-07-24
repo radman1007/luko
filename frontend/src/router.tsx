@@ -15,6 +15,7 @@ const LukoClub = lazy(() => import('@/pages/LukoClub'));
 const LukoTV = lazy(() => import('@/pages/LukoTV'));
 const LukoPodcast = lazy(() => import('@/pages/LukoPodcast'));
 const LukoHealth = lazy(() => import('@/pages/LukoHealth'));
+const Garden = lazy(() => import('@/pages/Garden'));
 const Profile = lazy(() => import('@/pages/Profile'));
 const TrafficGame = lazy(() => import('@/pages/TrafficGame'));
 const CookingGame = lazy(() => import('@/pages/CookingGame'));
@@ -46,6 +47,7 @@ export function AppRouter() {
         <Route path="/luko-tv" element={student(<LukoTV />)} />
         <Route path="/luko-podcast" element={student(<LukoPodcast />)} />
         <Route path="/luko-health" element={student(<LukoHealth />)} />
+        <Route path="/garden" element={student(<Garden />)} />
         <Route path="/profile" element={student(<Profile />)} />
         <Route path="/traffic-game/:ruleId" element={student(<TrafficGame />)} />
         <Route path="/cooking-game/:recipeId" element={student(<CookingGame />)} />

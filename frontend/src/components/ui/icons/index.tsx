@@ -5,6 +5,7 @@
  * اینجا فقط آیکون‌هایی است که معادل Heroicons ندارند.
  */
 import type { SVGProps } from 'react';
+import type { IconType } from 'react-icons';
 
 interface IconProps extends SVGProps<SVGSVGElement> {
   size?: number;
@@ -125,6 +126,69 @@ export function BrandMark({ size = 24, ...props }: IconProps) {
       <circle cx="9.6" cy="12.6" r="0.6" fill="currentColor" />
       <circle cx="14.4" cy="12.6" r="0.6" fill="currentColor" />
       <path d="M10 15.6c.6.6 1.3.9 2 .9s1.4-.3 2-.9" />
+    </svg>
+  );
+}
+
+/** جوانه‌ی باغچه — آیکون نویگیشنِ بخش باغچه (سازگار با IconType). */
+export const SproutIcon: IconType = ({ size = 24, ...props }) => (
+  <svg
+    viewBox="0 0 24 24"
+    width={size}
+    height={size}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.8}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M12 21v-8" />
+    <path d="M12 13c0-2.6-2-4.6-4.6-4.6C7.4 11 9.4 13 12 13z" />
+    <path d="M12 12c0-2.9 2.1-5 5-5-.1 2.9-2.1 5-5 5z" />
+    <path d="M6.5 21h11" />
+  </svg>
+);
+
+/** شبنم — ارز ویژه‌ی باغچه (قطره‌ی نور). */
+export function DewIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M12 3.5c3.2 3.9 5.5 6.9 5.5 9.8a5.5 5.5 0 0 1-11 0c0-2.9 2.3-5.9 5.5-9.8z" />
+      <path d="M9.4 13.4a2.6 2.6 0 0 0 2.4 2.4" />
+    </svg>
+  );
+}
+
+/** آب‌پاش باغچه. */
+export function WateringCanIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M5 11h7v6.5a2.5 2.5 0 0 1-2.5 2.5h-2A2.5 2.5 0 0 1 5 17.5z" />
+      <path d="M12 12.5l5-3.5v6" />
+      <path d="M7 11V9.5a2 2 0 0 1 2-2h1" />
+      <path d="M18.5 5.2l-1 1.2M20.6 6.4l-1.2.8M20.8 9h-1.4" />
+    </svg>
+  );
+}
+
+/** کیسه‌ی کود. */
+export function FertilizerIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M7 8h10l-1.2 11.2a1 1 0 0 1-1 .8H9.2a1 1 0 0 1-1-.8z" />
+      <path d="M8.5 8l1-3.2a1 1 0 0 1 1-.8h3a1 1 0 0 1 1 .8L15.5 8" />
+      <path d="M10.5 13l1.5 1.5 2-2.5" />
+    </svg>
+  );
+}
+
+/** دانه‌ی آماده‌ی کاشت. */
+export function SeedIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M12 4c3.2 1.5 5 4 5 7.5S15 18.5 12 20c-3-1.5-5-4.5-5-8.5S8.8 5.5 12 4z" />
+      <path d="M12 6.5c1.6 1.4 1.6 9.6 0 11" />
     </svg>
   );
 }

@@ -1,9 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { HiOutlineHeart } from 'react-icons/hi2';
-import { MoodFaceIcon, PlantIcon } from '@/components/ui/icons';
+import { HiOutlineHeart, HiOutlineCloud } from 'react-icons/hi2';
+import { MoodFaceIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
 import { MOOD_LABEL } from '@/features/health/moods';
-import { useGarden } from '@/features/health/useGarden';
 import type { Mood } from '@/features/health/types';
 import styles from './HealthMiniCard.module.css';
 
@@ -14,7 +13,6 @@ interface Props {
 export function HealthMiniCard({ lastMood }: Props) {
   const navigate = useNavigate();
   const doctor = LUKORIANS.health;
-  const { stage } = useGarden();
 
   return (
     <section className={styles.card} aria-label="لوکو سلامت">
@@ -26,7 +24,7 @@ export function HealthMiniCard({ lastMood }: Props) {
         <span className={styles.hostBadge}>مطب {doctor.name}</span>
       </div>
       <p className={styles.desc}>
-        حال دلت، نفس جادویی، بوم نقاشی و باغچه‌ت — همه پیش {doctor.name}!
+        حال دلت، نفس جادویی، بوم نقاشی و صندوقچه‌ی راز — همه پیش {doctor.name}!
       </p>
 
       <div className={styles.statusRow}>
@@ -37,10 +35,8 @@ export function HealthMiniCard({ lastMood }: Props) {
           </span>
         </button>
         <button type="button" className={styles.status} onClick={() => navigate('/luko-health')}>
-          <PlantIcon stage={stage} size={30} />
-          <span className={styles.statusLabel}>
-            باغچه: مرحله {stage.toLocaleString('fa-IR')}
-          </span>
+          <HiOutlineCloud size={30} />
+          <span className={styles.statusLabel}>نفس جادویی</span>
         </button>
       </div>
 

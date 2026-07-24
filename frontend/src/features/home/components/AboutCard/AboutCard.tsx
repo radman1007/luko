@@ -22,8 +22,16 @@ function ParadeRow({ residents, reverse }: { residents: Lukorian[]; reverse?: bo
       <div className={`${styles.track} ${reverse ? styles.reverse : ''}`}>
         {loop.map((r, i) => (
           <span key={`${r.id}-${i}`} className={styles.member} title={`${r.name} — ${r.role}`}>
-            <span className={styles.avatarRing}>
-              <img className={styles.avatar} src={r.image} alt="" />
+            <span className={styles.avatarRing} data-initial={r.name.slice(0, 1)}>
+              <img
+                className={styles.avatar}
+                src={r.image}
+                alt=""
+                loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
             </span>
             <span className={styles.memberName}>{r.name}</span>
           </span>
