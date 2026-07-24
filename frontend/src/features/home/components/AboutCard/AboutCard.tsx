@@ -4,7 +4,9 @@ import { LUKORIANS } from '@/lib/characters';
 import type { Lukorian } from '@/lib/characters';
 import styles from './AboutCard.module.css';
 
-const RESIDENTS = Object.values(LUKORIANS);
+// «دانا» (science) هنوز تصویر ندارد → از رژه‌ی درباره‌ی ما حذف می‌شود (در بقیه‌ی اپ می‌ماند)
+const HIDDEN_IN_PARADE = new Set(['science']);
+const RESIDENTS = Object.values(LUKORIANS).filter((r) => !HIDDEN_IN_PARADE.has(r.id));
 const ROW_A = RESIDENTS.slice(0, Math.ceil(RESIDENTS.length / 2));
 const ROW_B = RESIDENTS.slice(Math.ceil(RESIDENTS.length / 2));
 
