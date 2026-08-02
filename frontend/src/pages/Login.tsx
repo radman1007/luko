@@ -1,5 +1,5 @@
 import { LUKORIANS } from '@/lib/characters';
-import { LoginForm } from '@/features/auth/components/LoginForm/LoginForm';
+import { OtpAuthForm } from '@/features/auth/components/OtpAuthForm/OtpAuthForm';
 import styles from './Login.module.css';
 
 export default function Login() {
@@ -15,7 +15,7 @@ export default function Login() {
         </div>
         <img className={styles.character} src={guide.image} alt={guide.name} />
       </div>
-      <LoginForm />
+      <OtpAuthForm mode="login" />
     </main>
   );
 }

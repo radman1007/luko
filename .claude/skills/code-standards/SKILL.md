@@ -7,7 +7,9 @@ description: LUKO coding conventions for React + TypeScript — file structure, 
 
 ## Language & tooling
 - TypeScript everywhere, `strict: true`. No `any` unless unavoidable — then add a one-line justification comment.
-- Formatting is Prettier's job; linting is ESLint's. Never hand-format against them.
+- Formatting is Prettier's job; linting is **oxlint** (`npm run lint`). Never hand-format against them.
+- Brand/UI rules for anything a child sees (host character, theme, no emoji) live in
+  [luko-section](../luko-section/SKILL.md) — read it before building a screen.
 
 ## Frontend structure (`frontend/src/`)
 ```

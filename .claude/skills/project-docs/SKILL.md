@@ -1,21 +1,32 @@
 ---
 name: project-docs
-description: How project documentation is organized and kept current for LUKO. Use when writing docs, updating the README, or after a change that affects setup, APIs, or architecture.
+description: How LUKO documentation is organized and kept current. Use when writing docs, updating the README, or after a change that affects setup, env vars, endpoints, or architecture.
 ---
 
 # LUKO Documentation
 
-## Where docs live
-- `README.md` — project overview, quick start, how to run locally. Keep it short; link to `docs/` for depth.
-- `docs/architecture.md` — high-level system design, frontend/backend boundaries, key decisions
-- `docs/api.md` — backend endpoints: method, path, request/response shapes
-- `docs/decisions/` — one short ADR file per significant technical decision (`NNN-title.md`: context, decision, consequences)
+## Where docs actually live
+- [README.md](../../../README.md) — overview, quick start, env vars, brand summary. Keep it
+  short and link out for depth.
+- [docs/features.md](../../../docs/features.md) — the product spec: every feature the rebuild
+  must have, extracted from the old project. **Tick ✅ next to a feature when it ships.**
+- [docs/backend-integration.md](../../../docs/backend-integration.md) — the hook ↔ endpoint
+  map and the security notes for wiring the frontend to the API. Update the row when a
+  hook gets connected.
+- [backend/README.md](../../../backend/README.md) — backend stack, how to run it, the API
+  table. New or changed endpoints go here.
+- [frontend/public/games/README.md](../../../frontend/public/games/README.md) — how game
+  files are laid out and registered.
 
 ## Rules
-- Docs are updated in the same change that makes them stale — if you change setup steps, env vars, an endpoint, or architecture, update the matching doc before finishing.
-- Write for a new developer joining the team: assume they know React/TS but nothing about LUKO.
-- Persian or English is fine for prose, but keep code samples, commands, and API names exactly as they are in code.
-- Every env var the app reads must be listed in the README with a one-line description and an entry in `.env.example`.
+- Docs are updated in the same change that makes them stale — setup steps, env vars, an
+  endpoint, a route, or architecture.
+- Write for a new developer: assume React/TS knowledge, zero LUKO knowledge.
+- Persian or English prose is fine; keep commands, file paths, and API names exactly as in
+  code. Match the language of the file you're editing.
+- Every env var the app reads must appear in the README with a one-line description and in
+  the matching `.env.example` (`frontend/.env.example`, `backend/.env.example`).
 
 ## When creating a new doc
-Check this skill's list first — extend an existing file rather than creating a new one unless it's a genuinely new topic.
+Extend one of the files above rather than creating a new one, unless it's a genuinely new
+topic. If you do add a doc, link it from the README and add it to this list.

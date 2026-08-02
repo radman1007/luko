@@ -1,29 +1,40 @@
 import { apiClient, tokenStorage } from '@/lib/api';
 import type { User } from '@/types/user';
 
-export interface LoginPayload {
-  phone: string;
-  password: string;
+export interface RequestOtpResult {
+  /** اعتبارِ کد (ثانیه) */
+  expiresIn: number;
+  /** تا ارسالِ مجدد (ثانیه) */
+  resendIn: number;
+  /** فقط در حالتِ توسعه: کدِ تست */
+  devCode?: string;
 }
 
-export interface RegisterPayload {
-  firstName: string;
-  lastName: string;
+export interface VerifyOtpPayload {
   phone: string;
-  password: string;
+  code: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface VerifyOtpResult {
+  user: User;
+  /** حسابِ تازه ساخته شد؟ */
+  isNew: boolean;
 }
 
 export const authApi = {
-  async login(payload: LoginPayload): Promise<User> {
-    const { data } = await apiClient.post('/auth/login', payload);
-    tokenStorage.set(data.data.accessToken);
-    return data.data.user;
+  /** گام ۱: ارسالِ رمزِ یکبارمصرف به شماره */
+  async requestOtp(phone: string): Promise<RequestOtpResult> {
+    const { data } = await apiClient.post('/auth/request-otp', { phone });
+    return data.data;
   },
 
-  async register(payload: RegisterPayload): Promise<User> {
-    const { data } = await apiClient.post('/auth/register', payload);
+  /** گام ۲: بررسیِ کد؛ اگر حساب نبود ساخته می‌شود */
+  async verifyOtp(payload: VerifyOtpPayload): Promise<VerifyOtpResult> {
+    const { data } = await apiClient.post('/auth/verify-otp', payload);
     tokenStorage.set(data.data.accessToken);
-    return data.data.user;
+    return { user: data.data.user, isNew: data.data.isNew };
   },
 
   async getCurrentUser(): Promise<User> {

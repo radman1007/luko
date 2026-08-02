@@ -1,2863 +1,1385 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>جزیره حیوانات</title>
-<style>
-  /* ========== RESET & BASE ========== */
-  *, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-  }
-
-  :root {
-    --primary: #FF6B35;
-    --secondary: #4ECDC4;
-    --accent: #FFE66D;
-    --success: #95E06C;
-    --danger: #FF6B6B;
-    --purple: #A855F7;
-    --bg-sky: #87CEEB;
-    --bg-grass: #4CAF50;
-    --sand: #F4D03F;
-    --white: #FFFFFF;
-    --dark: #2C3E50;
-    --card-bg: rgba(255,255,255,0.92);
-    --shadow: 0 8px 32px rgba(0,0,0,0.18);
-    --font: 'Vazirmatn', 'Vazir', Tahoma, sans-serif;
-  }
-
-  html, body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    font-family: var(--font);
-    background: var(--bg-sky);
-    touch-action: none;
-  }
-
-  /* ========== SCREEN SYSTEM ========== */
-  .screen {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.4s ease;
-  }
-
-  .screen.active {
-    display: flex;
-  }
-
-  /* ========== BACKGROUND SCENES ========== */
-  .scene-bg {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    z-index: 0;
-  }
-
-  /* Default Island Theme */
-  .sky-layer {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, #87CEEB 0%, #B0E0FF 60%, #4CAF50 60%, #388E3C 100%);
-  }
-
-  .sun {
-    position: absolute;
-    top: 8%;
-    left: 10%;
-    width: clamp(40px, 8vw, 70px);
-    height: clamp(40px, 8vw, 70px);
-    background: radial-gradient(circle, #FFE66D, #FFB347);
-    border-radius: 50%;
-    box-shadow: 0 0 30px rgba(255,230,109,0.7);
-    animation: sunPulse 3s ease-in-out infinite;
-  }
-
-  @keyframes sunPulse {
-    0%, 100% { box-shadow: 0 0 30px rgba(255,230,109,0.7); }
-    50% { box-shadow: 0 0 50px rgba(255,230,109,1); transform: scale(1.05); }
-  }
-
-  .cloud {
-    position: absolute;
-    background: white;
-    border-radius: 50px;
-    opacity: 0.85;
-    animation: cloudFloat linear infinite;
-  }
-
-  .cloud::before, .cloud::after {
-    content: '';
-    position: absolute;
-    background: white;
-    border-radius: 50%;
-  }
-
-  .cloud1 { width: 80px; height: 28px; top: 12%; animation-duration: 18s; animation-delay: 0s; }
-  .cloud1::before { width: 40px; height: 40px; top: -18px; left: 12px; }
-  .cloud1::after { width: 28px; height: 28px; top: -12px; left: 38px; }
-
-  .cloud2 { width: 60px; height: 22px; top: 22%; animation-duration: 24s; animation-delay: -8s; }
-  .cloud2::before { width: 30px; height: 30px; top: -14px; left: 10px; }
-  .cloud2::after { width: 20px; height: 20px; top: -8px; right: 10px; }
-
-  .cloud3 { width: 90px; height: 30px; top: 8%; animation-duration: 30s; animation-delay: -15s; }
-  .cloud3::before { width: 45px; height: 45px; top: -20px; left: 15px; }
-  .cloud3::after { width: 32px; height: 32px; top: -14px; right: 12px; }
-
-  @keyframes cloudFloat {
-    from { transform: translateX(110vw); }
-    to { transform: translateX(-200px); }
-  }
-
-  .grass-hills {
-    position: absolute;
-    bottom: 38%;
-    left: 0;
-    right: 0;
-    height: 80px;
-    overflow: hidden;
-  }
-
-  .grass-hills::before {
-    content: '';
-    position: absolute;
-    width: 150%;
-    height: 100%;
-    background: #388E3C;
-    border-radius: 50% 50% 0 0;
-    left: -25%;
-    bottom: -20px;
-  }
-
-  /* Trees */
-  .tree {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    bottom: 38%;
-  }
-
-  .tree-top {
-    width: 0;
-    height: 0;
-    border-left: clamp(12px, 3vw, 22px) solid transparent;
-    border-right: clamp(12px, 3vw, 22px) solid transparent;
-    border-bottom: clamp(28px, 6vw, 50px) solid #2E7D32;
-    filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.2));
-  }
-
-  .tree-top2 {
-    border-bottom-color: #388E3C;
-    width: 0;
-    border-left-width: clamp(14px, 3.5vw, 26px);
-    border-right-width: clamp(14px, 3.5vw, 26px);
-    border-bottom-width: clamp(24px, 5vw, 42px);
-    margin-top: -10px;
-  }
-
-  .tree-trunk {
-    width: clamp(6px, 1.5vw, 12px);
-    height: clamp(14px, 3vw, 24px);
-    background: #795548;
-    border-radius: 2px;
-  }
-
-  /* Water / Sand Island */
-  .water {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 38%;
-    background: linear-gradient(180deg, #29B6F6 0%, #0288D1 100%);
-    overflow: hidden;
-  }
-
-  .wave {
-    position: absolute;
-    top: -10px;
-    left: 0;
-    width: 200%;
-    height: 20px;
-    background: rgba(255,255,255,0.3);
-    border-radius: 50%;
-    animation: waveMove 4s linear infinite;
-  }
-
-  .wave2 {
-    top: -5px;
-    animation-delay: -2s;
-    animation-duration: 6s;
-    opacity: 0.5;
-  }
-
-  @keyframes waveMove {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-
-  /* ======= NIGHT THEME ======= */
-  body.theme-night .sky-layer {
-    background: linear-gradient(180deg, #0a0a2e 0%, #1a1a4e 55%, #2d5a27 55%, #1e3a1e 100%);
-  }
-  body.theme-night .sun {
-    background: radial-gradient(circle, #f0f0f0, #c0c0c0);
-    box-shadow: 0 0 30px rgba(200,200,255,0.7);
-    animation: moonGlow 3s ease-in-out infinite;
-  }
-  body.theme-night .cloud { opacity: 0.15; }
-  body.theme-night .water { background: linear-gradient(180deg, #0d47a1 0%, #01579b 100%); }
-  body.theme-night .tree-top { border-bottom-color: #1a4a1a; }
-  @keyframes moonGlow {
-    0%,100% { box-shadow: 0 0 30px rgba(200,200,255,0.7); }
-    50% { box-shadow: 0 0 60px rgba(200,200,255,1); }
-  }
-
-  /* ======= SPACE THEME ======= */
-  body.theme-space .sky-layer {
-    background: linear-gradient(180deg, #0a0015 0%, #1a0030 55%, #1a0a2e 55%, #0a0015 100%);
-  }
-  body.theme-space .sun {
-    background: radial-gradient(circle, #ff4444, #ff0000);
-    box-shadow: 0 0 40px rgba(255,0,0,0.8);
-  }
-  body.theme-space .water { background: linear-gradient(180deg, #1a0030 0%, #2d0060 100%); }
-  body.theme-space .cloud { display: none; }
-  body.theme-space .tree-top { border-bottom-color: #4a0080; }
-  body.theme-space .grass-hills::before { background: #2d0060; }
-
-  /* ======= CANDY THEME ======= */
-  body.theme-candy .sky-layer {
-    background: linear-gradient(180deg, #FFB3C6 0%, #FFDDE6 55%, #90EE90 55%, #70CC70 100%);
-  }
-  body.theme-candy .sun {
-    background: radial-gradient(circle, #FF69B4, #FF1493);
-    box-shadow: 0 0 30px rgba(255,105,180,0.7);
-  }
-  body.theme-candy .water { background: linear-gradient(180deg, #87CEEB 0%, #6495ED 100%); }
-  body.theme-candy .tree-top { border-bottom-color: #FF69B4; }
-  body.theme-candy .grass-hills::before { background: #70CC70; }
-
-  /* ========== COIN DISPLAY ========== */
-  .coin-display {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(8px);
-    border-radius: 20px;
-    padding: 6px 14px 6px 8px;
-    border: 2px solid rgba(255,230,109,0.5);
-  }
-
-  .coin-icon {
-    width: 28px;
-    height: 28px;
-    background: radial-gradient(circle at 35% 35%, #FFE66D, #FFB347, #FF8C00);
-    border-radius: 50%;
-    border: 2px solid #FF8C00;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 900;
-    color: #7B3F00;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.5);
-    animation: coinSpin 0s;
-  }
-
-  .coin-amount {
-    font-size: clamp(14px, 3vw, 18px);
-    font-weight: 900;
-    color: #FFE66D;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-    min-width: 30px;
-  }
-
-  @keyframes coinBounce {
-    0% { transform: scale(1); }
-    30% { transform: scale(1.4) rotate(20deg); }
-    60% { transform: scale(0.9) rotate(-10deg); }
-    100% { transform: scale(1) rotate(0); }
-  }
-
-  .coin-icon.animate { animation: coinBounce 0.5s ease; }
-
-  /* Floating coin animation */
-  .float-coin {
-    position: fixed;
-    z-index: 9999;
-    font-size: 24px;
-    pointer-events: none;
-    animation: floatUp 1.2s ease forwards;
-    font-weight: 900;
-    color: #FFE66D;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
-  }
-
-  @keyframes floatUp {
-    0% { opacity: 1; transform: translateY(0) scale(1); }
-    100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
-  }
-
-  /* ========== MAIN MENU ========== */
-  #screen-menu {
-    z-index: 10;
-  }
-
-  .menu-container {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(10px, 2.5vh, 18px);
-    width: 100%;
-    padding: clamp(10px, 2vw, 20px);
-    max-height: 100vh;
-    overflow: hidden;
-  }
-
-  .menu-logo {
-    text-align: center;
-    animation: logoBounce 2s ease-in-out infinite;
-  }
-
-  @keyframes logoBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
-
-  .menu-logo .title {
-    font-size: clamp(22px, 5vw, 38px);
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 0 3px 10px rgba(0,0,0,0.4), 0 0 30px rgba(255,230,109,0.5);
-    letter-spacing: 2px;
-  }
-
-  .menu-logo .subtitle {
-    font-size: clamp(11px, 2.5vw, 15px);
-    color: rgba(255,255,255,0.9);
-    margin-top: 4px;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  }
-
-  .menu-animals-preview {
-    display: flex;
-    gap: clamp(8px, 2vw, 16px);
-    align-items: flex-end;
-  }
-
-  .preview-animal {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    animation: previewBounce ease-in-out infinite;
-  }
-
-  .preview-animal:nth-child(1) { animation-duration: 2.1s; animation-delay: 0s; }
-  .preview-animal:nth-child(2) { animation-duration: 2.4s; animation-delay: 0.3s; }
-  .preview-animal:nth-child(3) { animation-duration: 1.9s; animation-delay: 0.6s; }
-
-  @keyframes previewBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-  }
-
-  .preview-animal .emoji {
-    font-size: clamp(28px, 6vw, 48px);
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
-  }
-
-  .preview-animal .name {
-    font-size: clamp(9px, 2vw, 13px);
-    font-weight: 700;
-    color: #fff;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    background: rgba(0,0,0,0.3);
-    border-radius: 10px;
-    padding: 2px 8px;
-  }
-
-  .menu-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: clamp(8px, 1.8vh, 12px);
-    width: 100%;
-    max-width: 320px;
-  }
-
-  .btn-menu {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: clamp(12px, 2.5vh, 16px) 20px;
-    border: none;
-    border-radius: 16px;
-    font-family: var(--font);
-    font-size: clamp(14px, 3vw, 18px);
-    font-weight: 800;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.25), 0 2px 0 rgba(0,0,0,0.2);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-menu::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 50%;
-    background: rgba(255,255,255,0.2);
-    border-radius: 14px 14px 0 0;
-  }
-
-  .btn-menu:active { transform: translateY(3px); box-shadow: 0 3px 10px rgba(0,0,0,0.2); }
-
-  .btn-start { background: linear-gradient(135deg, #FF6B35, #FF8E53); color: white; }
-  .btn-shop { background: linear-gradient(135deg, #4ECDC4, #26A69A); color: white; }
-  .btn-stats { background: linear-gradient(135deg, #A855F7, #7C3AED); color: white; }
-
-  .btn-menu .btn-icon { font-size: clamp(18px, 3.5vw, 24px); }
-
-  /* ========== CARDS ========== */
-  .card {
-    background: var(--card-bg);
-    border-radius: 20px;
-    padding: clamp(14px, 3vw, 22px);
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255,255,255,0.6);
-    width: 100%;
-    max-width: 320px;
-  }
-
-  .card-title {
-    font-size: clamp(13px, 2.5vw, 16px);
-    font-weight: 800;
-    color: var(--dark);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  /* Best score card in menu */
-  .score-card {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .score-item {
-    flex: 1;
-    min-width: 60px;
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-    border-radius: 12px;
-    padding: 8px;
-    text-align: center;
-    border: 1px solid rgba(0,0,0,0.08);
-  }
-
-  .score-item .s-val {
-    font-size: clamp(16px, 3.5vw, 22px);
-    font-weight: 900;
-    color: var(--primary);
-  }
-
-  .score-item .s-lbl {
-    font-size: clamp(9px, 1.8vw, 11px);
-    color: #666;
-    margin-top: 2px;
-  }
-
-  /* ========== GAME SCREEN ========== */
-  #screen-game {
-    z-index: 10;
-  }
-
-  .game-wrapper {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: clamp(6px, 1.5vw, 12px);
-    gap: clamp(4px, 1vh, 8px);
-  }
-
-  /* Header Bar */
-  .game-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(10px);
-    border-radius: 14px;
-    padding: 8px 14px;
-    border: 1px solid rgba(255,255,255,0.2);
-    flex-shrink: 0;
-  }
-
-  .game-header .level-badge {
-    background: linear-gradient(135deg, #FF6B35, #FF8E53);
-    border-radius: 20px;
-    padding: 4px 14px;
-    font-size: clamp(11px, 2.5vw, 14px);
-    font-weight: 800;
-    color: white;
-  }
-
-  .timer-display {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: clamp(14px, 3vw, 18px);
-    font-weight: 900;
-    color: #FFE66D;
-  }
-
-  .timer-icon {
-    width: 20px;
-    height: 20px;
-  }
-
-  .errors-display {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: clamp(11px, 2.5vw, 14px);
-    font-weight: 700;
-    color: #FF6B6B;
-  }
-
-  .heart {
-    font-size: 16px;
-  }
-
-  /* Instruction Banner */
-  .instruction-banner {
-    background: rgba(255,255,255,0.92);
-    border-radius: 12px;
-    padding: 8px 14px;
-    text-align: center;
-    font-size: clamp(12px, 2.5vw, 15px);
-    font-weight: 700;
-    color: var(--dark);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    border: 2px solid rgba(255,107,53,0.3);
-    flex-shrink: 0;
-    line-height: 1.4;
-  }
-
-  .instruction-banner .highlight {
-    color: var(--primary);
-    font-size: clamp(14px, 3vw, 18px);
-  }
-
-  /* Animals Zone */
-  .animals-zone {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-around;
-    flex: 1;
-    padding: 0 clamp(4px, 1vw, 10px);
-    gap: clamp(4px, 1vw, 10px);
-    min-height: 0;
-  }
-
-  .animal-slot {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(4px, 1vh, 8px);
-    flex: 1;
-    max-width: 30%;
-  }
-
-  /* Animal Card */
-  .animal-card {
-    background: rgba(255,255,255,0.88);
-    border-radius: 20px;
-    padding: clamp(8px, 1.8vw, 14px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(4px, 1vh, 8px);
-    width: 100%;
-    border: 3px solid transparent;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
-    transition: all 0.3s ease;
-    position: relative;
-    cursor: default;
-    backdrop-filter: blur(6px);
-  }
-
-  .animal-card.drop-target-active {
-    border-color: var(--success);
-    box-shadow: 0 6px 20px rgba(149,224,108,0.5), 0 0 0 3px rgba(149,224,108,0.3);
-    transform: scale(1.04);
-  }
-
-  .animal-card.wrong-drop {
-    border-color: var(--danger);
-    animation: wrongShake 0.5s ease;
-  }
-
-  @keyframes wrongShake {
-    0%,100% { transform: translateX(0); }
-    20% { transform: translateX(-8px) rotate(-2deg); }
-    40% { transform: translateX(8px) rotate(2deg); }
-    60% { transform: translateX(-5px); }
-    80% { transform: translateX(5px); }
-  }
-
-  .animal-card.correct-feed {
-    animation: correctPop 0.6s ease;
-  }
-
-  @keyframes correctPop {
-    0% { transform: scale(1); }
-    40% { transform: scale(1.12); }
-    70% { transform: scale(0.95); }
-    100% { transform: scale(1); }
-  }
-
-  .animal-emoji {
-    font-size: clamp(30px, 6.5vw, 56px);
-    line-height: 1;
-    transition: transform 0.3s ease;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
-  }
-
-  .animal-card.fat .animal-emoji {
-    transform: scale(1.3) rotate(5deg);
-    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2)) saturate(1.5);
-  }
-
-  .animal-name {
-    font-size: clamp(10px, 2.2vw, 14px);
-    font-weight: 800;
-    color: var(--dark);
-    text-align: center;
-  }
-
-  /* Food plate inside animal card */
-  .food-plate {
-    display: flex;
-    gap: 3px;
-    min-height: clamp(16px, 3.5vw, 26px);
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .food-given {
-    font-size: clamp(12px, 2.5vw, 18px);
-    animation: foodPop 0.4s ease;
-  }
-
-  @keyframes foodPop {
-    0% { transform: scale(0) rotate(-30deg); opacity: 0; }
-    60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
-    100% { transform: scale(1) rotate(0); }
-  }
-
-  /* Dialog bubble */
-  .speech-bubble {
-    position: absolute;
-    top: -50px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: white;
-    border-radius: 14px;
-    padding: 8px 12px;
-    font-size: clamp(10px, 2vw, 13px);
-    font-weight: 700;
-    color: var(--dark);
-    white-space: nowrap;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    z-index: 100;
-    opacity: 0;
-    animation: bubbleShow 3s ease forwards;
-    border: 2px solid rgba(0,0,0,0.08);
-    pointer-events: none;
-  }
-
-  .speech-bubble::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 10px solid white;
-  }
-
-  @keyframes bubbleShow {
-    0% { opacity: 0; transform: translateX(-50%) translateY(6px) scale(0.8); }
-    15% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-    75% { opacity: 1; }
-    100% { opacity: 0; }
-  }
-
-  /* Hunger indicator */
-  .hunger-bar-wrap {
-    width: 100%;
-    height: 6px;
-    background: rgba(0,0,0,0.1);
-    border-radius: 3px;
-    overflow: visible;
-  }
-
-  .hunger-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #FF6B6B, #FF8E53);
-    border-radius: 3px;
-    transition: width 0.6s ease;
-    width: 100%;
-  }
-
-  /* Drop zone label */
-  .drop-zone-label {
-    font-size: clamp(9px, 1.8vw, 11px);
-    font-weight: 700;
-    color: rgba(255,255,255,0.9);
-    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    text-align: center;
-  }
-
-  /* Wants food indicator */
-  .wants-food {
-    position: absolute;
-    top: -10px;
-    right: -8px;
-    width: 22px;
-    height: 22px;
-    background: linear-gradient(135deg, #FF6B6B, #FF4444);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    animation: wantsPulse 1.5s ease-in-out infinite;
-    border: 2px solid white;
-  }
-
-  @keyframes wantsPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-  }
-
-  /* Checkmark when fed */
-  .fed-check {
-    position: absolute;
-    top: -10px;
-    right: -8px;
-    width: 22px;
-    height: 22px;
-    background: linear-gradient(135deg, #95E06C, #4CAF50);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    border: 2px solid white;
-    animation: checkPop 0.4s ease;
-  }
-
-  @keyframes checkPop {
-    0% { transform: scale(0); }
-    60% { transform: scale(1.3); }
-    100% { transform: scale(1); }
-  }
-
-  /* ======== FOOD ITEMS ZONE ======== */
-  .foods-zone {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(4px, 1vh, 8px);
-    flex-shrink: 0;
-  }
-
-  .foods-label {
-    font-size: clamp(11px, 2.3vw, 14px);
-    font-weight: 700;
-    color: rgba(255,255,255,0.9);
-    text-shadow: 0 1px 4px rgba(0,0,0,0.4);
-  }
-
-  .foods-container {
-    display: flex;
-    gap: clamp(10px, 2.5vw, 18px);
-    justify-content: center;
-    flex-wrap: wrap;
-    padding: clamp(8px, 1.8vw, 14px) clamp(12px, 3vw, 22px);
-    background: rgba(255,255,255,0.18);
-    backdrop-filter: blur(8px);
-    border-radius: 20px;
-    border: 2px dashed rgba(255,255,255,0.5);
-  }
-
-  .food-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    cursor: grab;
-    transition: all 0.2s ease;
-    position: relative;
-  }
-
-  .food-item:active { cursor: grabbing; }
-
-  .food-emoji-wrap {
-    width: clamp(44px, 9vw, 66px);
-    height: clamp(44px, 9vw, 66px);
-    background: rgba(255,255,255,0.92);
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: clamp(22px, 5vw, 38px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2), 0 2px 0 rgba(0,0,0,0.1);
-    border: 3px solid rgba(255,255,255,0.8);
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .food-emoji-wrap::after {
-    content: '';
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    right: 3px;
-    height: 40%;
-    background: rgba(255,255,255,0.3);
-    border-radius: 8px;
-  }
-
-  .food-item:hover .food-emoji-wrap,
-  .food-item.dragging-active .food-emoji-wrap {
-    transform: scale(1.15) rotate(-5deg);
-    box-shadow: 0 12px 28px rgba(0,0,0,0.3);
-  }
-
-  .food-item.used .food-emoji-wrap {
-    opacity: 0.35;
-    transform: scale(0.9);
-    filter: grayscale(1);
-  }
-
-  .food-count-badge {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: linear-gradient(135deg, #FF6B35, #FF4444);
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 900;
-    border: 2px solid white;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  }
-
-  .food-name {
-    font-size: clamp(9px, 1.8vw, 12px);
-    font-weight: 700;
-    color: rgba(255,255,255,0.95);
-    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    text-align: center;
-  }
-
-  /* ======== GHOST / DRAG ELEMENT ======== */
-  #drag-ghost {
-    position: fixed;
-    pointer-events: none;
-    z-index: 9999;
-    display: none;
-    font-size: clamp(32px, 7vw, 52px);
-    transform: translate(-50%, -50%) scale(1.2) rotate(-8deg);
-    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));
-    transition: transform 0.1s ease;
-  }
-
-  /* ======== LEVEL COMPLETE SCREEN ======== */
-  #screen-complete {
-    z-index: 50;
-  }
-
-  .complete-card {
-    background: rgba(255,255,255,0.96);
-    border-radius: 28px;
-    padding: clamp(18px, 4vw, 30px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(10px, 2vh, 16px);
-    max-width: 380px;
-    width: 90%;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-    border: 3px solid rgba(255,255,255,0.8);
-    animation: cardSlideIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
-  }
-
-  @keyframes cardSlideIn {
-    from { transform: scale(0.5) translateY(50px); opacity: 0; }
-    to { transform: scale(1) translateY(0); opacity: 1; }
-  }
-
-  .complete-title {
-    font-size: clamp(20px, 4.5vw, 30px);
-    font-weight: 900;
-    background: linear-gradient(135deg, #FF6B35, #FFE66D);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-align: center;
-  }
-
-  .complete-stars {
-    display: flex;
-    gap: 8px;
-    font-size: clamp(24px, 5.5vw, 38px);
-  }
-
-  .complete-star {
-    animation: starPop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;
-    transform: scale(0);
-    opacity: 0;
-  }
-
-  @keyframes starPop {
-    to { transform: scale(1) rotate(10deg); opacity: 1; }
-  }
-
-  .complete-stats {
-    display: flex;
-    gap: 10px;
-    width: 100%;
-  }
-
-  .complete-stat {
-    flex: 1;
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-    border-radius: 14px;
-    padding: clamp(8px, 2vw, 14px);
-    text-align: center;
-    border: 2px solid rgba(0,0,0,0.06);
-  }
-
-  .complete-stat .val {
-    font-size: clamp(18px, 4vw, 26px);
-    font-weight: 900;
-    color: var(--primary);
-  }
-
-  .complete-stat .lbl {
-    font-size: clamp(9px, 1.8vw, 12px);
-    color: #888;
-    margin-top: 2px;
-  }
-
-  .complete-coins-earned {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(135deg, #FFF8E1, #FFE082);
-    border-radius: 14px;
-    padding: 10px 20px;
-    font-size: clamp(14px, 3vw, 18px);
-    font-weight: 800;
-    color: #E65100;
-    border: 2px solid #FFB300;
-  }
-
-  .btn-complete {
-    width: 100%;
-    padding: clamp(12px, 2.5vh, 16px);
-    border: none;
-    border-radius: 16px;
-    font-family: var(--font);
-    font-size: clamp(14px, 3vw, 18px);
-    font-weight: 800;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.25), 0 2px 0 rgba(0,0,0,0.15);
-  }
-
-  .btn-complete:active { transform: translateY(3px); }
-
-  .btn-next { background: linear-gradient(135deg, #FF6B35, #FF8E53); color: white; }
-  .btn-menu-back { background: linear-gradient(135deg, #78909C, #546E7A); color: white; margin-top: 4px; }
-
-  /* ======== CONFETTI ======== */
-  .confetti-piece {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    pointer-events: none;
-    z-index: 9998;
-    animation: confettiFall linear forwards;
-  }
-
-  @keyframes confettiFall {
-    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-  }
-
-  /* ======== SHOP SCREEN ======== */
-  #screen-shop {
-    z-index: 20;
-  }
-
-  .shop-container {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    padding: clamp(8px, 2vw, 16px);
-    gap: clamp(8px, 1.8vh, 14px);
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .shop-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(10px);
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.2);
-    flex-shrink: 0;
-  }
-
-  .btn-back {
-    background: rgba(255,255,255,0.2);
-    border: 2px solid rgba(255,255,255,0.4);
-    color: white;
-    border-radius: 12px;
-    padding: 6px 12px;
-    font-family: var(--font);
-    font-size: clamp(11px, 2.5vw, 14px);
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-back:active { transform: scale(0.95); }
-
-  .shop-title {
-    flex: 1;
-    font-size: clamp(16px, 3.5vw, 22px);
-    font-weight: 900;
-    color: white;
-    text-align: center;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  }
-
-  .shop-tabs {
-    display: flex;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-
-  .shop-tab {
-    flex: 1;
-    padding: 8px;
-    background: rgba(255,255,255,0.2);
-    border: 2px solid rgba(255,255,255,0.3);
-    border-radius: 12px;
-    font-family: var(--font);
-    font-size: clamp(11px, 2.3vw, 14px);
-    font-weight: 700;
-    color: rgba(255,255,255,0.8);
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
-
-  .shop-tab.active {
-    background: rgba(255,255,255,0.9);
-    color: var(--dark);
-    border-color: rgba(255,255,255,0.9);
-  }
-
-  .shop-items {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: clamp(8px, 2vw, 14px);
-    overflow-y: auto;
-    flex: 1;
-    padding-bottom: 6px;
-  }
-
-  .shop-item {
-    background: rgba(255,255,255,0.92);
-    border-radius: 18px;
-    padding: clamp(12px, 2.5vw, 18px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    border: 3px solid rgba(255,255,255,0.7);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-  }
-
-  .shop-item:active { transform: scale(0.97); }
-
-  .shop-item.owned {
-    border-color: var(--success);
-    background: rgba(149,224,108,0.15);
-  }
-
-  .shop-item.equipped {
-    border-color: var(--accent);
-    background: rgba(255,230,109,0.2);
-  }
-
-  .shop-item-preview {
-    font-size: clamp(30px, 7vw, 50px);
-    line-height: 1;
-  }
-
-  .shop-item-name {
-    font-size: clamp(11px, 2.3vw, 14px);
-    font-weight: 800;
-    color: var(--dark);
-    text-align: center;
-  }
-
-  .shop-item-price {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: linear-gradient(135deg, #FFF8E1, #FFE082);
-    border-radius: 10px;
-    padding: 4px 10px;
-    font-size: clamp(11px, 2.3vw, 14px);
-    font-weight: 800;
-    color: #E65100;
-  }
-
-  .shop-item-badge {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: linear-gradient(135deg, #95E06C, #4CAF50);
-    color: white;
-    border-radius: 10px;
-    padding: 3px 8px;
-    font-size: 10px;
-    font-weight: 800;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  }
-
-  .shop-item.equipped .shop-item-badge {
-    background: linear-gradient(135deg, #FFE66D, #FF8C00);
-  }
-
-  /* ======== STATS SCREEN ======== */
-  #screen-stats {
-    z-index: 20;
-  }
-
-  .stats-container {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    padding: clamp(8px, 2vw, 16px);
-    gap: clamp(8px, 1.8vh, 12px);
-    max-width: 600px;
-    margin: 0 auto;
-    overflow-y: auto;
-  }
-
-  .stats-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(10px);
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.2);
-    flex-shrink: 0;
-  }
-
-  .stats-title {
-    flex: 1;
-    font-size: clamp(16px, 3.5vw, 22px);
-    font-weight: 900;
-    color: white;
-    text-align: center;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  }
-
-  .stat-card {
-    background: rgba(255,255,255,0.92);
-    border-radius: 18px;
-    padding: clamp(12px, 2.5vw, 18px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    border: 2px solid rgba(255,255,255,0.7);
-  }
-
-  .stat-card-title {
-    font-size: clamp(13px, 2.8vw, 16px);
-    font-weight: 800;
-    color: var(--dark);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-
-  .stat-box {
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-    border-radius: 12px;
-    padding: 10px 6px;
-    text-align: center;
-    border: 1px solid rgba(0,0,0,0.06);
-  }
-
-  .stat-box .val {
-    font-size: clamp(18px, 4vw, 26px);
-    font-weight: 900;
-    color: var(--primary);
-  }
-
-  .stat-box .lbl {
-    font-size: clamp(9px, 1.8vw, 11px);
-    color: #666;
-    margin-top: 2px;
-  }
-
-  /* Progress chart */
-  .progress-chart {
-    display: flex;
-    align-items: flex-end;
-    gap: 6px;
-    height: 80px;
-    padding: 0 4px;
-    margin-top: 8px;
-  }
-
-  .chart-bar-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    height: 100%;
-    justify-content: flex-end;
-  }
-
-  .chart-bar {
-    width: 100%;
-    background: linear-gradient(180deg, #FF6B35, #FF8E53);
-    border-radius: 4px 4px 0 0;
-    min-height: 4px;
-    transition: height 0.8s cubic-bezier(0.34,1.56,0.64,1);
-    position: relative;
-  }
-
-  .chart-bar.empty { background: #e0e0e0; }
-
-  .chart-label {
-    font-size: 9px;
-    color: #888;
-    text-align: center;
-  }
-
-  /* Stars chart */
-  .stars-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-  }
-
-  .stars-row:last-child { border-bottom: none; }
-
-  .stars-row .level-num {
-    font-size: clamp(11px, 2.3vw, 13px);
-    font-weight: 700;
-    color: var(--dark);
-    width: 50px;
-    flex-shrink: 0;
-  }
-
-  .stars-display { display: flex; gap: 3px; }
-
-  .star-ico { font-size: 16px; }
-
-  .stars-row .time-taken {
-    margin-right: auto;
-    font-size: clamp(10px, 2vw, 12px);
-    color: #888;
-  }
-
-  /* ======== TOAST / NOTIFICATION ======== */
-  .toast {
-    position: fixed;
-    bottom: clamp(80px, 15vh, 120px);
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: rgba(0,0,0,0.85);
-    color: white;
-    border-radius: 14px;
-    padding: 10px 20px;
-    font-size: clamp(13px, 2.8vw, 16px);
-    font-weight: 700;
-    z-index: 9000;
-    pointer-events: none;
-    opacity: 0;
-    transition: all 0.3s ease;
-    max-width: 80vw;
-    text-align: center;
-    backdrop-filter: blur(8px);
-  }
-
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  /* ======== LOADING / OVERLAY ======== */
-  .overlay-bg {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-    z-index: 49;
-    display: none;
-    animation: overlayFade 0.3s ease;
-  }
-
-  @keyframes overlayFade {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  /* Countdown overlay */
-  #countdown-overlay {
-    position: fixed;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(6px);
-  }
-
-  .countdown-num {
-    font-size: clamp(80px, 20vw, 140px);
-    font-weight: 900;
-    color: white;
-    text-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 60px rgba(255,107,53,0.8);
-    animation: countdownPop 0.9s cubic-bezier(0.34,1.56,0.64,1);
-  }
-
-  @keyframes countdownPop {
-    0% { transform: scale(2); opacity: 0; }
-    50% { opacity: 1; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  /* ======== RESPONSIVE ADJUSTMENTS ======== */
-  @media (max-height: 400px) {
-    .menu-logo .title { font-size: 18px; }
-    .preview-animal .emoji { font-size: 22px; }
-    .btn-menu { padding: 8px 14px; font-size: 13px; }
-    .animal-emoji { font-size: 24px; }
-    .food-emoji-wrap { width: 36px; height: 36px; font-size: 18px; }
-    .speech-bubble { font-size: 9px; padding: 5px 8px; top: -40px; }
-  }
-
-  @media (min-width: 600px) {
-    .animals-zone { padding: 0 20px; gap: 16px; }
-    .animal-slot { max-width: 26%; }
-  }
-
-  /* ======== STARS ANIMATION ======== */
-  .star-burst {
-    position: fixed;
-    pointer-events: none;
-    z-index: 9997;
-    animation: starBurst 1s ease forwards;
-    font-size: 28px;
-  }
-
-  @keyframes starBurst {
-    0% { transform: scale(0) rotate(-30deg); opacity: 1; }
-    50% { transform: scale(1.5) rotate(20deg); opacity: 1; }
-    100% { transform: scale(0.5) rotate(40deg) translateY(-60px); opacity: 0; }
-  }
-
-  /* ======== PROGRESS BAR (level) ======== */
-  .level-progress-wrap {
-    height: 8px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 4px;
-    overflow: hidden;
-    flex: 1;
-  }
-
-  .level-progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #95E06C, #4CAF50);
-    border-radius: 4px;
-    transition: width 1s ease;
-  }
-
-  /* ======== EMPTY STATE ======== */
-  .empty-state {
-    text-align: center;
-    padding: 20px;
-    color: #aaa;
-    font-size: 14px;
-    font-weight: 600;
-  }
-
-  /* Scrollbar style */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 2px; }
-
-  /* Menu quick stats */
-  .menu-quick-stats {
-    display: flex;
-    gap: 8px;
-    width: 100%;
-    max-width: 320px;
-  }
-
-  .quick-stat {
-    flex: 1;
-    background: rgba(255,255,255,0.88);
-    border-radius: 12px;
-    padding: 8px;
-    text-align: center;
-    backdrop-filter: blur(6px);
-    border: 2px solid rgba(255,255,255,0.6);
-  }
-
-  .quick-stat .qval {
-    font-size: clamp(16px, 3.5vw, 22px);
-    font-weight: 900;
-    color: var(--primary);
-  }
-
-  .quick-stat .qlbl {
-    font-size: clamp(9px, 1.8vw, 11px);
-    color: #666;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f766e">
+  <title>جزیره حیوانات — نسخه بازطراحی‌شده</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { color-scheme: light; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100dvh;
+      overflow: hidden;
+      font-family: Vazirmatn, Vazir, Tahoma, Arial, sans-serif;
+      color: #17324d;
+      background: #80d8ff;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button, input { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible { outline: 4px solid rgba(255, 230, 109, .95); outline-offset: 3px; }
+    [hidden] { display: none !important; }
+
+    :root {
+      --sky-1: #72d6ff;
+      --sky-2: #d9f6ff;
+      --sea-1: #18b9dc;
+      --sea-2: #087ea4;
+      --land-1: #7bd85d;
+      --land-2: #3eaa4f;
+      --sun: #ffe36e;
+      --ink: #17324d;
+      --muted: #60748a;
+      --panel: rgba(255, 255, 255, .91);
+      --panel-strong: rgba(255, 255, 255, .97);
+      --line: rgba(23, 50, 77, .12);
+      --primary: #ff6b35;
+      --primary-2: #ff934f;
+      --secondary: #0f9f95;
+      --accent: #ffe66d;
+      --success: #35b56a;
+      --danger: #ef476f;
+      --shadow: 0 18px 48px rgba(14, 54, 79, .22);
+      --soft-shadow: 0 8px 22px rgba(14, 54, 79, .16);
+    }
+
+    body[data-theme="night"] {
+      --sky-1: #09132f; --sky-2: #273a75; --sea-1: #163d73; --sea-2: #071e3c;
+      --land-1: #31634b; --land-2: #183d31; --sun: #e4ecff;
+    }
+    body[data-theme="candy"] {
+      --sky-1: #ffb8d2; --sky-2: #fff0f6; --sea-1: #8bd6ff; --sea-2: #5a96e8;
+      --land-1: #8fe388; --land-2: #55bd72; --sun: #ff78b7;
+    }
+    body[data-theme="space"] {
+      --sky-1: #09001d; --sky-2: #26104f; --sea-1: #531f8f; --sea-2: #150727;
+      --land-1: #593b85; --land-2: #2e1f50; --sun: #ff5577;
+    }
+    body[data-theme="sunset"] {
+      --sky-1: #ff8a65; --sky-2: #ffd180; --sea-1: #4f91c7; --sea-2: #245a8a;
+      --land-1: #7dbb67; --land-2: #3f744a; --sun: #fff0a8;
+    }
+
+    .app { position: relative; min-height: 100dvh; isolation: isolate; }
+    .world-bg { position: fixed; inset: 0; z-index: -3; overflow: hidden; background: linear-gradient(180deg, var(--sky-1), var(--sky-2) 58%, var(--land-1) 58%, var(--land-2) 72%, var(--sea-1) 72%, var(--sea-2)); transition: background .35s ease; }
+    .sun { position: absolute; top: 7%; left: 9%; width: clamp(54px, 11vw, 94px); aspect-ratio: 1; border-radius: 50%; background: var(--sun); box-shadow: 0 0 50px color-mix(in srgb, var(--sun), transparent 35%); }
+    .cloud { position: absolute; width: 96px; height: 30px; border-radius: 999px; background: rgba(255,255,255,.72); opacity: .85; animation: cloudMove 28s linear infinite; }
+    .cloud::before, .cloud::after { content: ""; position: absolute; border-radius: 50%; background: inherit; }
+    .cloud::before { width: 42px; height: 42px; top: -20px; right: 16px; }
+    .cloud::after { width: 32px; height: 32px; top: -13px; left: 15px; }
+    .cloud-a { top: 15%; left: 25%; animation-duration: 30s; }
+    .cloud-b { top: 27%; left: 70%; transform: scale(.72); animation-duration: 38s; animation-delay: -14s; }
+    .island { position: absolute; left: 50%; bottom: 16%; width: min(740px, 95vw); height: clamp(105px, 18vw, 165px); transform: translateX(-50%); border-radius: 50%; background: linear-gradient(#f6d96b 0 20%, var(--land-1) 20% 62%, var(--land-2)); box-shadow: inset 0 -18px 0 rgba(0,0,0,.08), 0 18px 30px rgba(0,0,0,.16); }
+    .water-line { position: absolute; inset-inline: 0; bottom: 0; height: 29%; opacity: .45; background: repeating-radial-gradient(ellipse at 50% -20%, transparent 0 34px, rgba(255,255,255,.4) 35px 39px, transparent 40px 68px); animation: waterDrift 8s linear infinite; }
+    .stars-bg { display: none; position: absolute; inset: 0; opacity: .65; background-image: radial-gradient(circle, #fff 0 1px, transparent 1.5px); background-size: 54px 54px; }
+    body[data-theme="night"] .stars-bg, body[data-theme="space"] .stars-bg { display: block; }
+    body[data-theme="night"] .cloud, body[data-theme="space"] .cloud { opacity: .15; }
+
+    @keyframes cloudMove { from { translate: 115vw 0; } to { translate: -125vw 0; } }
+    @keyframes waterDrift { to { background-position-x: 140px; } }
+
+    .screen { position: absolute; inset: 0; display: none; min-height: 100dvh; padding: max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); }
+    .screen.active { display: flex; animation: screenIn .25s ease both; }
+    .screen.scrollable { overflow-y: auto; align-items: flex-start; }
+    @keyframes screenIn { from { opacity: 0; transform: translateY(8px); } }
+
+    .glass { background: var(--panel); border: 1px solid rgba(255,255,255,.66); box-shadow: var(--shadow); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
+    .topbar { width: min(980px, 100%); margin-inline: auto; display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 20px; background: rgba(10, 38, 58, .55); color: #fff; box-shadow: var(--soft-shadow); }
+    .topbar-title { flex: 1; text-align: center; font-weight: 900; font-size: clamp(16px, 3vw, 22px); }
+    .icon-btn { min-width: 44px; min-height: 44px; border: 1px solid rgba(255,255,255,.25); border-radius: 14px; background: rgba(255,255,255,.16); color: #fff; cursor: pointer; display: inline-grid; place-items: center; font-weight: 800; transition: transform .16s ease, background .16s ease; }
+    .icon-btn:active { transform: scale(.95); }
+    .coin-pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; background: rgba(4, 23, 38, .55); color: var(--accent); font-weight: 900; white-space: nowrap; }
+
+    .menu-screen { align-items: center; justify-content: center; }
+    .menu-shell { width: min(560px, 100%); display: grid; gap: clamp(12px, 2.4vh, 20px); padding: clamp(16px, 4vw, 28px); border-radius: 32px; text-align: center; }
+    .menu-actions-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .brand-kicker { display: inline-flex; align-items: center; gap: 6px; margin-inline: auto; padding: 5px 11px; border-radius: 999px; color: var(--secondary); background: rgba(15, 159, 149, .12); font-weight: 900; font-size: 13px; }
+    .brand-title { margin: 2px 0 0; font-size: clamp(31px, 7vw, 52px); line-height: 1.05; color: var(--ink); text-shadow: 0 3px 0 rgba(255,255,255,.55); }
+    .brand-sub { margin: 7px 0 0; color: var(--muted); font-size: clamp(13px, 2.6vw, 16px); }
+    .hero-animals { display: flex; justify-content: center; align-items: end; gap: clamp(4px, 2vw, 14px); min-height: 78px; }
+    .hero-animal { position: relative; font-size: clamp(40px, 10vw, 68px); filter: drop-shadow(0 8px 8px rgba(20,52,75,.16)); animation: bob 2.4s ease-in-out infinite; }
+    .hero-animal:nth-child(2) { animation-delay: -.5s; }
+    .hero-animal:nth-child(3) { animation-delay: -1s; }
+    .hero-animal:nth-child(4) { animation-delay: -1.5s; }
+    .costume-mark { position: absolute; top: -12px; left: 50%; translate: -50% 0; font-size: .42em; }
+    @keyframes bob { 50% { transform: translateY(-8px) rotate(2deg); } }
+
+    .progress-card { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; text-align: right; padding: 12px 14px; border-radius: 18px; background: rgba(240,248,255,.8); border: 1px solid var(--line); }
+    .progress-card strong { font-size: 14px; }
+    .progress-card span { color: var(--muted); font-size: 13px; }
+    .progress-track { grid-column: 1 / -1; height: 10px; background: rgba(23,50,77,.1); border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--secondary), #4fd1c5); transition: width .5s ease; }
+
+    .menu-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn { position: relative; border: 0; border-radius: 17px; min-height: 52px; padding: 12px 16px; cursor: pointer; font-weight: 900; color: #fff; box-shadow: 0 6px 0 rgba(18,45,64,.18), var(--soft-shadow); transition: transform .15s ease, filter .15s ease; overflow: hidden; }
+    .btn::after { content: ""; position: absolute; inset: 2px 8px auto; height: 42%; border-radius: 12px; background: linear-gradient(rgba(255,255,255,.26), transparent); pointer-events: none; }
+    .btn:hover { filter: brightness(1.04); }
+    .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(18,45,64,.18); }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); }
+    .btn-secondary { background: linear-gradient(135deg, #19a99e, #087b74); }
+    .btn-purple { background: linear-gradient(135deg, #9b5de5, #6d3cbc); }
+    .btn-blue { background: linear-gradient(135deg, #3b82f6, #2363bd); }
+    .btn-muted { background: linear-gradient(135deg, #78909c, #526b78); }
+    .btn-wide { grid-column: 1 / -1; }
+    .btn:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .65; transform: none; }
+    .btn small { display: block; opacity: .85; margin-top: 2px; font-weight: 700; }
+
+    .map-wrap, .shop-wrap, .stats-wrap { width: min(980px, 100%); margin: 0 auto; display: grid; gap: 14px; padding-bottom: 20px; }
+    .section-card { border-radius: 24px; padding: clamp(14px, 3vw, 22px); }
+    .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .section-heading h2 { margin: 0; font-size: clamp(17px, 3.2vw, 23px); }
+    .section-heading p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+    .level-grid { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 10px; }
+    .level-node { min-height: 105px; padding: 10px 7px; border: 2px solid transparent; border-radius: 18px; background: rgba(255,255,255,.82); color: var(--ink); cursor: pointer; box-shadow: var(--soft-shadow); display: grid; place-items: center; align-content: center; gap: 5px; transition: transform .15s ease, border-color .15s ease; }
+    .level-node:hover:not(:disabled) { transform: translateY(-3px); border-color: rgba(15,159,149,.45); }
+    .level-node:disabled { cursor: not-allowed; opacity: .55; filter: grayscale(.7); }
+    .level-number { width: 42px; aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%; background: linear-gradient(135deg, var(--secondary), #5bd0c7); color: #fff; font-size: 19px; font-weight: 900; }
+    .level-node.current .level-number { background: linear-gradient(135deg, var(--primary), var(--primary-2)); }
+    .level-stars { min-height: 20px; font-size: 15px; letter-spacing: -2px; }
+    .level-label { font-size: 11px; font-weight: 800; line-height: 1.25; }
+
+    .game-screen { flex-direction: column; gap: 10px; }
+    .game-top { width: min(1080px,100%); margin: 0 auto; display: grid; grid-template-columns: auto 1fr auto auto auto; gap: 8px; align-items: center; padding: 8px; border-radius: 19px; background: rgba(7,35,53,.62); color: #fff; box-shadow: var(--soft-shadow); }
+    .game-level { min-width: 0; }
+    .game-level strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: clamp(13px,2.3vw,17px); }
+    .game-level small { opacity: .75; font-size: 11px; }
+    .hud-chip { min-height: 42px; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 7px 10px; border-radius: 13px; background: rgba(255,255,255,.14); font-weight: 900; white-space: nowrap; }
+    .hud-chip.danger { color: #ff99ae; }
+    .hud-chip.warning { color: var(--accent); }
+    .game-layout { width: min(1080px,100%); min-height: 0; flex: 1; margin: 0 auto; display: grid; grid-template-rows: auto minmax(0,1fr) auto; gap: 10px; }
+    .mission { padding: 9px 14px; border-radius: 17px; text-align: center; background: var(--panel-strong); box-shadow: var(--soft-shadow); }
+    .mission strong { color: var(--primary); }
+    .mission-progress { margin-top: 7px; height: 8px; border-radius: 99px; background: rgba(23,50,77,.1); overflow: hidden; }
+    .mission-progress > span { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--success), #7adf92); transition: width .3s ease; }
+    .orders { min-height: 0; display: grid; grid-template-columns: repeat(var(--animal-count, 3), minmax(0,1fr)); gap: clamp(7px,1.5vw,13px); align-items: end; }
+    .animal-card { position: relative; min-width: 0; min-height: clamp(150px, 28vh, 260px); padding: clamp(9px,1.8vw,15px); border: 3px solid transparent; border-radius: 24px; background: var(--panel); box-shadow: var(--shadow); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; color: var(--ink); transition: transform .18s ease, border-color .18s ease, filter .18s ease; }
+    .animal-card.drop-target, .animal-card.selected-target { border-color: var(--accent); transform: translateY(-4px) scale(1.015); }
+    .animal-card.complete { border-color: rgba(53,181,106,.65); background: rgba(237,255,242,.94); }
+    .animal-card.wrong { animation: shake .35s ease; border-color: var(--danger); }
+    .animal-card.correct { animation: pop .35s ease; }
+    .animal-emoji { position: relative; font-size: clamp(45px, 8vw, 78px); line-height: 1; filter: drop-shadow(0 7px 6px rgba(23,50,77,.18)); }
+    .animal-costume { position: absolute; top: -17px; left: 50%; translate: -50% 0; font-size: .44em; }
+    .animal-name { font-size: clamp(12px,2.2vw,16px); font-weight: 900; }
+    .order-badge { display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 32px; max-width: 100%; padding: 5px 9px; border-radius: 999px; color: #6a4a00; background: #fff6c7; border: 1px solid #f0d46a; font-weight: 900; transition: filter .3s ease, opacity .3s ease; }
+    .order-badge.memory-hidden { filter: blur(8px); opacity: .4; user-select: none; }
+    .served-row { min-height: 27px; display: flex; justify-content: center; gap: 2px; flex-wrap: wrap; font-size: clamp(15px,3vw,23px); }
+    .speech { position: absolute; inset: 9px auto auto 50%; translate: -50% 0; max-width: 90%; padding: 6px 9px; border-radius: 12px; background: #fff; box-shadow: var(--soft-shadow); font-size: 11px; font-weight: 800; white-space: nowrap; animation: speech .95s ease both; z-index: 4; }
+    @keyframes speech { 0% { opacity: 0; transform: translateY(8px) scale(.8); } 20%,75% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-5px); } }
+    @keyframes shake { 25% { transform: translateX(-8px) rotate(-1deg); } 50% { transform: translateX(8px) rotate(1deg); } 75% { transform: translateX(-4px); } }
+    @keyframes pop { 50% { transform: scale(1.06); } }
+
+    .tray-area { display: grid; gap: 6px; padding: 8px; border-radius: 22px; background: rgba(7,35,53,.42); border: 1px solid rgba(255,255,255,.25); box-shadow: var(--soft-shadow); }
+    .tray-caption { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-inline: 4px; color: #fff; font-size: 12px; font-weight: 800; }
+    .food-tray { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 7px; }
+    .food-item { position: relative; min-width: 0; min-height: 65px; border: 2px solid rgba(255,255,255,.78); border-radius: 17px; background: rgba(255,255,255,.94); color: var(--ink); box-shadow: 0 5px 0 rgba(12,54,78,.16); cursor: grab; display: grid; place-items: center; align-content: center; gap: 2px; touch-action: none; transition: transform .15s ease, opacity .15s ease, border-color .15s ease; }
+    .food-item:hover { transform: translateY(-2px); }
+    .food-item.selected { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(255,230,109,.32), 0 5px 0 rgba(12,54,78,.16); }
+    .food-item.used { opacity: .22; filter: grayscale(1); cursor: default; transform: scale(.92); }
+    .food-item.drag-source { opacity: .28; }
+    .food-emoji { font-size: clamp(25px,5vw,38px); line-height: 1; }
+    .food-name { font-size: 10px; font-weight: 800; }
+    .drag-ghost { position: fixed; z-index: 9999; pointer-events: none; display: none; width: 62px; height: 62px; place-items: center; border-radius: 18px; background: rgba(255,255,255,.95); box-shadow: 0 16px 35px rgba(0,0,0,.3); font-size: 38px; translate: -50% -50%; rotate: -7deg; }
+    .drag-ghost.show { display: grid; }
+
+    .modal-backdrop { position: fixed; inset: 0; z-index: 8000; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(4,18,30,.66); backdrop-filter: blur(7px); }
+    .modal-backdrop.show { display: flex; }
+    .modal { width: min(420px,100%); padding: 22px; border-radius: 26px; text-align: center; background: var(--panel-strong); box-shadow: 0 30px 80px rgba(0,0,0,.35); }
+    .modal h2 { margin: 0 0 6px; }
+    .modal p { color: var(--muted); }
+    .modal-actions { display: grid; gap: 9px; margin-top: 16px; }
+
+    .countdown { position: fixed; inset: 0; z-index: 9000; display: none; place-items: center; background: rgba(4,18,30,.52); backdrop-filter: blur(5px); color: #fff; }
+    .countdown.show { display: grid; }
+    .countdown-value { font-size: clamp(72px,20vw,145px); font-weight: 1000; text-shadow: 0 10px 34px rgba(0,0,0,.35); animation: countPop .7s ease; }
+    @keyframes countPop { from { opacity: 0; transform: scale(1.7); } }
+
+    .result-screen, .ending-screen { align-items: center; justify-content: center; }
+    .result-card, .ending-card { width: min(500px,100%); border-radius: 30px; padding: clamp(20px,5vw,34px); text-align: center; }
+    .result-icon { font-size: 70px; line-height: 1; }
+    .result-card h1, .ending-card h1 { margin: 10px 0 5px; font-size: clamp(27px,6vw,42px); }
+    .result-card > p, .ending-card > p { color: var(--muted); margin: 0 0 14px; }
+    .stars-big { min-height: 50px; font-size: clamp(31px,8vw,48px); letter-spacing: -5px; }
+    .result-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin: 14px 0; }
+    .metric { padding: 11px 7px; border-radius: 16px; background: rgba(237,246,252,.9); border: 1px solid var(--line); }
+    .metric strong { display: block; font-size: clamp(18px,4vw,26px); color: var(--primary); }
+    .metric span { font-size: 11px; color: var(--muted); }
+    .reward { margin: 12px 0; padding: 10px; border-radius: 15px; background: #fff5c7; color: #7b5600; font-weight: 900; border: 1px solid #edcf5c; }
+    .result-actions { display: grid; gap: 9px; }
+
+    .shop-tabs { display: flex; gap: 8px; }
+    .tab { flex: 1; min-height: 44px; border: 1px solid rgba(255,255,255,.5); border-radius: 14px; background: rgba(255,255,255,.28); color: #fff; font-weight: 900; cursor: pointer; }
+    .tab.active { color: var(--ink); background: var(--panel-strong); }
+    .shop-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+    .shop-item { position: relative; min-height: 175px; border: 2px solid transparent; border-radius: 21px; background: var(--panel-strong); box-shadow: var(--soft-shadow); padding: 14px; display: grid; place-items: center; align-content: center; gap: 7px; text-align: center; color: var(--ink); cursor: pointer; }
+    .shop-item.owned { border-color: rgba(53,181,106,.45); }
+    .shop-item.equipped { border-color: var(--accent); background: #fffbea; }
+    .shop-preview { font-size: 45px; }
+    .shop-name { font-weight: 900; }
+    .shop-price { padding: 5px 9px; border-radius: 99px; background: #fff5c7; color: #765200; font-size: 12px; font-weight: 900; }
+    .shop-badge { position: absolute; top: 7px; right: 7px; padding: 3px 7px; border-radius: 999px; background: var(--success); color: #fff; font-size: 9px; font-weight: 900; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 9px; }
+    .stat-tile { min-height: 90px; padding: 12px 7px; border-radius: 17px; background: rgba(255,255,255,.84); border: 1px solid var(--line); display: grid; place-items: center; align-content: center; text-align: center; }
+    .stat-tile strong { font-size: clamp(20px,4vw,29px); color: var(--primary); }
+    .stat-tile span { color: var(--muted); font-size: 11px; }
+    .achievement-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+    .achievement { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; padding: 11px; border-radius: 16px; background: rgba(255,255,255,.82); border: 1px solid var(--line); }
+    .achievement.locked { filter: grayscale(1); opacity: .55; }
+    .achievement-icon { font-size: 31px; }
+    .achievement strong { display: block; font-size: 13px; }
+    .achievement small { color: var(--muted); font-size: 10px; }
+    .danger-zone { display: flex; justify-content: flex-end; }
+    .text-btn { border: 0; background: transparent; color: #b42345; text-decoration: underline; cursor: pointer; font-weight: 800; padding: 8px; }
+
+    .ending-trophy { font-size: 92px; animation: bob 2s ease-in-out infinite; }
+    .ending-list { margin: 14px 0; display: grid; gap: 7px; text-align: right; }
+    .ending-list div { padding: 9px 11px; border-radius: 14px; background: rgba(238,248,255,.85); }
+
+    .toast { position: fixed; z-index: 10000; left: 50%; bottom: max(22px, env(safe-area-inset-bottom)); translate: -50% 30px; max-width: min(88vw,430px); padding: 10px 16px; border-radius: 14px; background: rgba(4,22,35,.92); color: #fff; text-align: center; font-weight: 800; box-shadow: var(--shadow); opacity: 0; pointer-events: none; transition: opacity .2s ease, translate .2s ease; }
+    .toast.show { opacity: 1; translate: -50% 0; }
+    .particle { position: fixed; z-index: 9500; pointer-events: none; font-size: 20px; animation: particle 1s ease-out forwards; }
+    @keyframes particle { to { transform: translate(var(--x), var(--y)) rotate(var(--r)); opacity: 0; } }
+    .confetti { position: fixed; z-index: 9400; top: -20px; width: 9px; height: 14px; pointer-events: none; animation: confetti var(--d) linear forwards; }
+    @keyframes confetti { to { transform: translateY(110vh) rotate(800deg); opacity: .2; } }
+
+    @media (max-width: 820px) {
+      .level-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+      .shop-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .game-top { grid-template-columns: auto 1fr auto auto; }
+      .game-top .score-chip { display: none; }
+      .animal-card { min-height: clamp(135px,24vh,220px); }
+    }
+    @media (max-width: 620px) {
+      .screen { padding: max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left)); }
+      .menu-buttons { grid-template-columns: 1fr; }
+      .btn-wide { grid-column: auto; }
+      .game-screen { gap: 6px; }
+      .game-top { gap: 5px; padding: 5px; grid-template-columns: auto 1fr auto auto; }
+      .game-top .lives-chip { max-width: 72px; overflow: hidden; }
+      .hud-chip { min-height: 38px; padding: 5px 7px; font-size: 12px; }
+      .game-layout { gap: 6px; }
+      .mission { padding: 7px 9px; font-size: 12px; }
+      .orders { overflow-x: auto; grid-template-columns: repeat(var(--animal-count,3), minmax(112px,1fr)); padding-bottom: 3px; scroll-snap-type: x proximity; }
+      .animal-card { scroll-snap-align: center; min-height: 155px; }
+      .food-tray { grid-template-columns: repeat(auto-fit,minmax(52px,1fr)); gap: 5px; }
+      .food-item { min-height: 57px; border-radius: 14px; }
+      .tray-caption { font-size: 10px; }
+      .level-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+      .level-node { min-height: 94px; }
+      .achievement-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-height: 560px) and (orientation: landscape) {
+      .game-layout { grid-template-rows: auto minmax(0,1fr); grid-template-columns: minmax(0,1fr) minmax(245px,.48fr); }
+      .mission { grid-column: 1 / -1; }
+      .orders { grid-row: 2; }
+      .tray-area { grid-row: 2; grid-column: 2; overflow-y: auto; }
+      .food-tray { grid-template-columns: repeat(3,1fr); }
+      .animal-card { min-height: 132px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
+    }
+    body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  </style>
 </head>
-<body>
-
-<!-- ========== DRAG GHOST ========== -->
-<div id="drag-ghost"></div>
-
-<!-- ========== TOAST ========== -->
-<div class="toast" id="toast"></div>
-
-<!-- ========== COUNTDOWN OVERLAY ========== -->
-<div id="countdown-overlay">
-  <div class="countdown-num" id="countdown-num">3</div>
-</div>
-
-<!-- ========== MAIN MENU SCREEN ========== -->
-<div class="screen active" id="screen-menu">
-  <div class="scene-bg">
-    <div class="sky-layer"></div>
-    <div class="sun"></div>
-    <div class="cloud cloud1" style="left:30%"></div>
-    <div class="cloud cloud2" style="left:60%"></div>
-    <div class="cloud cloud3" style="left:10%"></div>
-    <div class="grass-hills"></div>
-    <div class="tree" style="left:5%; bottom:38%">
-      <div class="tree-top"></div>
-      <div class="tree-top tree-top2"></div>
-      <div class="tree-trunk"></div>
+<body data-theme="sunny">
+  <div class="app" id="app">
+    <div class="world-bg" aria-hidden="true">
+      <div class="stars-bg"></div>
+      <div class="sun"></div>
+      <div class="cloud cloud-a"></div>
+      <div class="cloud cloud-b"></div>
+      <div class="island"></div>
+      <div class="water-line"></div>
     </div>
-    <div class="tree" style="right:6%; bottom:38%">
-      <div class="tree-top"></div>
-      <div class="tree-top tree-top2"></div>
-      <div class="tree-trunk"></div>
+
+    <section class="screen menu-screen active" id="screen-menu" aria-labelledby="menu-title">
+      <div class="menu-shell glass">
+        <div class="menu-actions-top">
+          <button class="icon-btn" type="button" data-action="toggle-sound" aria-label="قطع یا وصل صدا" id="sound-btn">🔊</button>
+          <div class="coin-pill">🪙 <span data-coins>۰</span></div>
+          <button class="icon-btn" type="button" data-action="toggle-motion" aria-label="تغییر انیمیشن" id="motion-btn">✨</button>
+        </div>
+        <div>
+          <div class="brand-kicker">نسخهٔ کامل کمپین</div>
+          <h1 class="brand-title" id="menu-title">🏝️ جزیره حیوانات</h1>
+          <p class="brand-sub">غذای درست را پیدا کن، مأموریت‌ها را تمام کن و جشن بزرگ جزیره را نجات بده.</p>
+        </div>
+        <div class="hero-animals" id="hero-animals" aria-hidden="true"></div>
+        <div class="progress-card">
+          <strong id="menu-progress-title">پیشرفت کمپین</strong>
+          <span id="menu-progress-label">۰ از ۱۵ مرحله</span>
+          <div class="progress-track"><div class="progress-fill" id="menu-progress-fill"></div></div>
+        </div>
+        <div class="menu-buttons">
+          <button class="btn btn-primary btn-wide" type="button" data-action="continue">🎮 ادامهٔ بازی <small id="continue-label">مرحلهٔ ۱</small></button>
+          <button class="btn btn-secondary" type="button" data-action="open-map">🗺️ نقشهٔ مراحل</button>
+          <button class="btn btn-purple" type="button" data-action="open-shop">🛍️ فروشگاه</button>
+          <button class="btn btn-blue" type="button" data-action="open-stats">📊 آمار و افتخارات</button>
+          <button class="btn btn-muted" type="button" data-action="start-endless" id="endless-btn">♾️ حالت بی‌پایان <small id="endless-label">پس از مرحلهٔ ۵</small></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen scrollable" id="screen-map" aria-labelledby="map-title">
+      <div class="map-wrap">
+        <header class="topbar">
+          <button class="icon-btn" type="button" data-action="go-menu">🏠</button>
+          <div class="topbar-title" id="map-title">نقشهٔ ماجراجویی</div>
+          <div class="coin-pill">🪙 <span data-coins>۰</span></div>
+        </header>
+        <div id="level-map-content"></div>
+      </div>
+    </section>
+
+    <section class="screen game-screen" id="screen-game" aria-labelledby="game-title">
+      <header class="game-top">
+        <button class="icon-btn" type="button" data-action="pause" aria-label="توقف بازی">⏸️</button>
+        <div class="game-level"><strong id="game-title">مرحله</strong><small id="game-subtitle">کمپین</small></div>
+        <div class="hud-chip warning">⏱️ <span id="hud-time">۰۰:۰۰</span></div>
+        <div class="hud-chip danger lives-chip">❤️ <span id="hud-lives">۳</span></div>
+        <div class="hud-chip score-chip">🏆 <span id="hud-score">۰</span></div>
+      </header>
+      <main class="game-layout">
+        <div class="mission" id="mission-text">برای شروع آماده شو…<div class="mission-progress"><span id="mission-progress"></span></div></div>
+        <div class="orders" id="orders" style="--animal-count:3"></div>
+        <div class="tray-area">
+          <div class="tray-caption"><span>🍽️ غذا را بکش یا انتخاب کن</span><span id="combo-label">کمبو ×۱</span></div>
+          <div class="food-tray" id="food-tray"></div>
+        </div>
+      </main>
+    </section>
+
+    <section class="screen result-screen" id="screen-result" aria-labelledby="result-title">
+      <div class="result-card glass">
+        <div class="result-icon" id="result-icon">🎉</div>
+        <h1 id="result-title">مرحله تمام شد!</h1>
+        <p id="result-message"></p>
+        <div class="stars-big" id="result-stars"></div>
+        <div class="result-stats">
+          <div class="metric"><strong id="result-time">۰۰:۰۰</strong><span>زمان</span></div>
+          <div class="metric"><strong id="result-errors">۰</strong><span>خطا</span></div>
+          <div class="metric"><strong id="result-score">۰</strong><span>امتیاز</span></div>
+        </div>
+        <div class="reward" id="result-reward">🪙 +۰ سکه</div>
+        <div class="result-actions">
+          <button class="btn btn-primary" type="button" data-action="result-primary" id="result-primary">مرحلهٔ بعد</button>
+          <button class="btn btn-secondary" type="button" data-action="retry">🔁 تلاش دوباره</button>
+          <button class="btn btn-muted" type="button" data-action="go-menu">🏠 منوی اصلی</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen scrollable" id="screen-shop" aria-labelledby="shop-title">
+      <div class="shop-wrap">
+        <header class="topbar">
+          <button class="icon-btn" type="button" data-action="go-menu">🏠</button>
+          <div class="topbar-title" id="shop-title">فروشگاه جزیره</div>
+          <div class="coin-pill">🪙 <span data-coins>۰</span></div>
+        </header>
+        <div class="shop-tabs">
+          <button class="tab active" type="button" data-shop-tab="themes">🌍 محیط‌ها</button>
+          <button class="tab" type="button" data-shop-tab="costumes">👑 لباس‌ها</button>
+        </div>
+        <div class="shop-grid" id="shop-grid"></div>
+      </div>
+    </section>
+
+    <section class="screen scrollable" id="screen-stats" aria-labelledby="stats-title">
+      <div class="stats-wrap">
+        <header class="topbar">
+          <button class="icon-btn" type="button" data-action="go-menu">🏠</button>
+          <div class="topbar-title" id="stats-title">آمار و افتخارات</div>
+          <div class="coin-pill">🪙 <span data-coins>۰</span></div>
+        </header>
+        <section class="section-card glass">
+          <div class="section-heading"><div><h2>خلاصهٔ عملکرد</h2><p>تمام رکوردهای ذخیره‌شده روی همین دستگاه</p></div></div>
+          <div class="stats-grid" id="stats-grid"></div>
+        </section>
+        <section class="section-card glass">
+          <div class="section-heading"><div><h2>افتخارات</h2><p>با بازی دقیق‌تر نشان‌های تازه باز کن</p></div></div>
+          <div class="achievement-grid" id="achievement-grid"></div>
+        </section>
+        <section class="section-card glass danger-zone">
+          <button class="text-btn" type="button" data-action="reset-progress">پاک‌کردن کامل پیشرفت بازی</button>
+        </section>
+      </div>
+    </section>
+
+    <section class="screen ending-screen" id="screen-ending" aria-labelledby="ending-title">
+      <div class="ending-card glass">
+        <div class="ending-trophy">🏆</div>
+        <h1 id="ending-title">جزیره را نجات دادی!</h1>
+        <p>هر ۱۵ مأموریت کمپین تمام شد و ضیافت بزرگ با موفقیت برگزار شد.</p>
+        <div class="ending-list" id="ending-summary"></div>
+        <div class="result-actions">
+          <button class="btn btn-purple" type="button" data-action="start-endless">♾️ ورود به حالت بی‌پایان</button>
+          <button class="btn btn-secondary" type="button" data-action="open-map">🗺️ مرور مراحل</button>
+          <button class="btn btn-muted" type="button" data-action="go-menu">🏠 منوی اصلی</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="modal-backdrop" id="pause-modal" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+      <div class="modal">
+        <h2 id="pause-title">بازی متوقف شد ⏸️</h2>
+        <p>زمان‌سنج تا برگشتن تو متوقف می‌ماند.</p>
+        <div class="modal-actions">
+          <button class="btn btn-primary" type="button" data-action="resume">ادامهٔ بازی</button>
+          <button class="btn btn-secondary" type="button" data-action="retry">شروع دوبارهٔ مرحله</button>
+          <button class="btn btn-muted" type="button" data-action="quit-level">بازگشت به منو</button>
+        </div>
+      </div>
     </div>
-    <div class="water">
-      <div class="wave"></div>
-      <div class="wave wave2"></div>
-    </div>
+
+    <div class="countdown" id="countdown" aria-live="assertive"><div class="countdown-value" id="countdown-value">۳</div></div>
+    <div class="drag-ghost" id="drag-ghost" aria-hidden="true"></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
   </div>
 
-  <div class="coin-display">
-    <div class="coin-icon" id="menu-coin-icon">🪙</div>
-    <div class="coin-amount" id="menu-coin-amount">0</div>
-  </div>
+  <script>
+  (() => {
+    'use strict';
 
-  <div class="menu-container">
-    <div class="menu-logo">
-      <div class="title">🏝️ جزیره حیوانات</div>
-      <div class="subtitle">یاد بگیر، بازی کن، رشد کن!</div>
-    </div>
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+    const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+    const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+    const clone = value => JSON.parse(JSON.stringify(value));
+    const STORAGE_KEY = 'animalIslandV2';
+    const OLD_STORAGE_KEY = 'islandGameState';
+    const TOTAL_LEVELS = 15;
 
-    <div class="menu-animals-preview">
-      <div class="preview-animal">
-        <div class="emoji" id="preview-bear">🐻</div>
-        <div class="name">خرس</div>
-      </div>
-      <div class="preview-animal">
-        <div class="emoji" id="preview-rabbit">🐰</div>
-        <div class="name">خرگوش</div>
-      </div>
-      <div class="preview-animal">
-        <div class="emoji" id="preview-chick">🐥</div>
-        <div class="name">جوجه</div>
-      </div>
-    </div>
+    const ANIMALS = [
+      { id: 'bear', emoji: '🐻', name: 'خرس', food: 'honey' },
+      { id: 'rabbit', emoji: '🐰', name: 'خرگوش', food: 'carrot' },
+      { id: 'chick', emoji: '🐥', name: 'جوجه', food: 'corn' },
+      { id: 'monkey', emoji: '🐵', name: 'میمون', food: 'banana' },
+      { id: 'panda', emoji: '🐼', name: 'پاندا', food: 'bamboo' },
+      { id: 'fox', emoji: '🦊', name: 'روباه', food: 'grape' }
+    ];
 
-    <div class="menu-quick-stats" id="menu-quick-stats" style="display:none">
-      <div class="quick-stat">
-        <div class="qval" id="stat-levels-done">0</div>
-        <div class="qlbl">مرحله</div>
-      </div>
-      <div class="quick-stat">
-        <div class="qval" id="stat-best-stars">⭐</div>
-        <div class="qlbl">بهترین ستاره</div>
-      </div>
-      <div class="quick-stat">
-        <div class="qval" id="stat-total-coins">0</div>
-        <div class="qlbl">سکه کل</div>
-      </div>
-    </div>
-
-    <div class="menu-buttons">
-      <button class="btn-menu btn-start" onclick="startGame()">
-        <span class="btn-icon">🎮</span>
-        <span>شروع بازی</span>
-      </button>
-      <button class="btn-menu btn-shop" onclick="openShop()">
-        <span class="btn-icon">🛒</span>
-        <span>فروشگاه</span>
-      </button>
-      <button class="btn-menu btn-stats" onclick="openStats()">
-        <span class="btn-icon">📊</span>
-        <span>آمار و پیشرفت</span>
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ========== GAME SCREEN ========== -->
-<div class="screen" id="screen-game">
-  <div class="scene-bg" id="game-scene-bg">
-    <div class="sky-layer"></div>
-    <div class="sun"></div>
-    <div class="cloud cloud1" style="left:20%"></div>
-    <div class="cloud cloud2" style="left:55%"></div>
-    <div class="cloud cloud3" style="left:75%"></div>
-    <div class="grass-hills"></div>
-    <div class="tree" style="left:2%; bottom:38%">
-      <div class="tree-top"></div>
-      <div class="tree-top tree-top2"></div>
-      <div class="tree-trunk"></div>
-    </div>
-    <div class="tree" style="right:3%; bottom:38%">
-      <div class="tree-top"></div>
-      <div class="tree-top tree-top2"></div>
-      <div class="tree-trunk"></div>
-    </div>
-    <div class="water">
-      <div class="wave"></div>
-      <div class="wave wave2"></div>
-    </div>
-  </div>
-
-  <div class="game-wrapper">
-    <!-- Header -->
-    <div class="game-header">
-      <button class="btn-back" onclick="goToMenu()" style="font-size:clamp(11px,2.2vw,14px)">🏠 منو</button>
-      <div class="level-badge" id="level-badge">مرحله ۱</div>
-      <div class="timer-display">
-        <svg class="timer-icon" viewBox="0 0 24 24" fill="none" stroke="#FFE66D" stroke-width="2.5">
-          <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M12 3v2"/>
-        </svg>
-        <span id="timer-display">00:00</span>
-      </div>
-      <div class="errors-display">
-        <span class="heart">❤️</span>
-        <span id="errors-display">0</span>
-      </div>
-    </div>
-
-    <!-- Instruction -->
-    <div class="instruction-banner" id="instruction-banner">
-      به هر حیوان <span class="highlight">یک دانه</span> غذا بده! 🍽️
-    </div>
-
-    <!-- Animals -->
-    <div class="animals-zone" id="animals-zone">
-      <!-- Dynamically generated -->
-    </div>
-
-    <!-- Foods -->
-    <div class="foods-zone">
-      <div class="foods-label">🍽️ غذاها را بکش و رها کن</div>
-      <div class="foods-container" id="foods-container">
-        <!-- Dynamically generated -->
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ========== LEVEL COMPLETE SCREEN ========== -->
-<div class="screen" id="screen-complete">
-  <div class="scene-bg">
-    <div class="sky-layer"></div>
-    <div class="sun"></div>
-    <div class="water"><div class="wave"></div></div>
-  </div>
-  <div class="overlay-bg" style="display:block; z-index:1"></div>
-  <div class="complete-card" style="position:relative;z-index:2">
-    <div class="complete-title" id="complete-title">آفرین! 🎉</div>
-    <div class="complete-stars" id="complete-stars"></div>
-    <div class="complete-stats">
-      <div class="complete-stat">
-        <div class="val" id="c-time">0:00</div>
-        <div class="lbl">زمان</div>
-      </div>
-      <div class="complete-stat">
-        <div class="val" id="c-errors">0</div>
-        <div class="lbl">خطا</div>
-      </div>
-      <div class="complete-stat">
-        <div class="val" id="c-level">۱</div>
-        <div class="lbl">مرحله</div>
-      </div>
-    </div>
-    <div class="complete-coins-earned" id="complete-coins">
-      🪙 <span id="coins-earned-num">+10</span> سکه گرفتی!
-    </div>
-    <button class="btn-complete btn-next" onclick="nextLevel()">
-      مرحله بعد ▶
-    </button>
-    <button class="btn-complete btn-menu-back" onclick="goToMenu()">
-      🏠 برگشت به منو
-    </button>
-  </div>
-</div>
-
-<!-- ========== SHOP SCREEN ========== -->
-<div class="screen" id="screen-shop">
-  <div class="scene-bg">
-    <div class="sky-layer"></div>
-    <div class="sun"></div>
-    <div class="cloud cloud1" style="left:30%"></div>
-    <div class="water"><div class="wave"></div></div>
-  </div>
-
-  <div class="shop-container">
-    <div class="shop-header">
-      <button class="btn-back" onclick="goToMenu()">◀ برگشت</button>
-      <div class="shop-title">🛒 فروشگاه</div>
-      <div class="coin-display" style="position:relative;top:auto;left:auto">
-        <div class="coin-icon">🪙</div>
-        <div class="coin-amount" id="shop-coin-amount">0</div>
-      </div>
-    </div>
-
-    <div class="shop-tabs">
-      <button class="shop-tab active" onclick="switchShopTab('themes')" id="tab-themes">🌍 محیط</button>
-      <button class="shop-tab" onclick="switchShopTab('skins')" id="tab-skins">🎨 اسکین</button>
-    </div>
-
-    <div class="shop-items" id="shop-items-grid">
-      <!-- dynamically filled -->
-    </div>
-  </div>
-</div>
-
-<!-- ========== STATS SCREEN ========== -->
-<div class="screen" id="screen-stats">
-  <div class="scene-bg">
-    <div class="sky-layer"></div>
-    <div class="sun"></div>
-    <div class="water"><div class="wave"></div></div>
-  </div>
-
-  <div class="stats-container">
-    <div class="stats-header">
-      <button class="btn-back" onclick="goToMenu()">◀ برگشت</button>
-      <div class="stats-title">📊 آمار پیشرفت</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-card-title">🏆 خلاصه کلی</div>
-      <div class="stats-grid" id="stats-overview"></div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-card-title">📈 نمودار پیشرفت (زمان هر مرحله)</div>
-      <div class="progress-chart" id="progress-chart"></div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-card-title">⭐ ستاره‌های مراحل</div>
-      <div id="stars-breakdown"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ========== JAVASCRIPT ========== -->
-<script>
-// ============================================================
-//  GAME STATE & DATA
-// ============================================================
-
-const ANIMALS = [
-  { id:'bear',   emoji:'🐻', name:'خرس',    food:'honey',   skin:'bear' },
-  { id:'rabbit', emoji:'🐰', name:'خرگوش',  food:'carrot',  skin:'rabbit' },
-  { id:'chick',  emoji:'🐥', name:'جوجه',   food:'corn',    skin:'chick' }
-];
-
-const FOODS = {
-  honey:  { emoji:'🍯', name:'عسل' },
-  carrot: { emoji:'🥕', name:'هویج' },
-  corn:   { emoji:'🌽', name:'ذرت' }
-};
-
-// Level config: animalsCount, foodsPerAnimal (total food items in tray)
-const LEVELS = [
-  // Level 1: 1 animal, 2 foods (1 correct + 1 wrong)
-  { animalsCount:1, extraFoods:1, description:'فقط به خرس غذا بده!' },
-  // Level 2: 2 animals, 4 foods
-  { animalsCount:2, extraFoods:0, description:'به دو تا حیوان غذا بده!' },
-  // Level 3: 3 animals, 6 foods (3 correct + 3 wrong - 1 each)
-  { animalsCount:3, extraFoods:0, description:'به همه حیوان‌ها غذا بده!' },
-  // Level 4: 3 animals, 6 foods with 2 of one type extra
-  { animalsCount:3, extraFoods:2, description:'مواظب باش! غذای اشتباه هم هست!' },
-  // Level 5+: repeat with increasing extras
-];
-
-function getLevelConfig(lvl) {
-  if (lvl <= 1) return { animalsCount:1, extraFoods:1 };
-  if (lvl <= 2) return { animalsCount:2, extraFoods:0 };
-  if (lvl <= 3) return { animalsCount:3, extraFoods:0 };
-  if (lvl <= 5) return { animalsCount:3, extraFoods:2 };
-  return { animalsCount:3, extraFoods:3 };
-}
-
-// ---- State ----
-let state = {
-  coins: 0,
-  currentLevel: 1,
-  currentErrors: 0,
-  timerSeconds: 0,
-  timerInterval: null,
-  levelHistory: [], // [{level, time, errors, stars, coinsEarned}]
-  totalCoinsEarned: 0,
-  shopOwned: ['default'],
-  equippedTheme: 'default',
-  equippedSkin: 'default',
-  currentAnimals: [],    // animal IDs in play
-  animalFedCount: {},    // animalId -> count fed
-  dragItem: null,
-  gameRunning: false,
-};
-
-// Load from localStorage
-function loadState() {
-  try {
-    const s = localStorage.getItem('islandGameState');
-    if (s) {
-      const parsed = JSON.parse(s);
-      Object.assign(state, parsed);
-    }
-  } catch(e) {}
-}
-
-function saveState() {
-  try {
-    const toSave = {
-      coins: state.coins,
-      currentLevel: state.currentLevel,
-      levelHistory: state.levelHistory,
-      totalCoinsEarned: state.totalCoinsEarned,
-      shopOwned: state.shopOwned,
-      equippedTheme: state.equippedTheme,
-      equippedSkin: state.equippedSkin,
+    const FOODS = {
+      honey: { emoji: '🍯', name: 'عسل' },
+      carrot: { emoji: '🥕', name: 'هویج' },
+      corn: { emoji: '🌽', name: 'ذرت' },
+      banana: { emoji: '🍌', name: 'موز' },
+      bamboo: { emoji: '🎋', name: 'بامبو' },
+      grape: { emoji: '🍇', name: 'انگور' }
     };
-    localStorage.setItem('islandGameState', JSON.stringify(toSave));
-  } catch(e) {}
-}
 
-// ============================================================
-//  SHOP DATA
-// ============================================================
-const SHOP_THEMES = [
-  { id:'default', name:'جزیره آفتابی', emoji:'🏝️', price:0, class:'' },
-  { id:'night',   name:'شب مهتابی',    emoji:'🌙', price:80, class:'theme-night' },
-  { id:'space',   name:'فضای کیهانی',  emoji:'🚀', price:150, class:'theme-space' },
-  { id:'candy',   name:'دنیای آبنباتی',emoji:'🍭', price:120, class:'theme-candy' },
-];
-
-const SHOP_SKINS = [
-  { id:'default', name:'معمولی', emoji:'🐻', price:0 },
-  { id:'party',   name:'جشن',  emoji:'🎉', price:60, bearEmoji:'🐻‍❄️', rabbitEmoji:'🐹', chickEmoji:'🦜' },
-  { id:'sea',     name:'دریایی', emoji:'🌊', price:100, bearEmoji:'🦭', rabbitEmoji:'🐠', chickEmoji:'🐙' },
-  { id:'farm',    name:'مزرعه', emoji:'🌾', price:90, bearEmoji:'🐮', rabbitEmoji:'🐑', chickEmoji:'🐓' },
-];
-
-let currentShopTab = 'themes';
-
-// ============================================================
-//  SCREEN MANAGER
-// ============================================================
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + id).classList.add('active');
-}
-
-// ============================================================
-//  COIN SYSTEM
-// ============================================================
-function updateCoinDisplays() {
-  document.getElementById('menu-coin-amount').textContent = state.coins;
-  const shopEl = document.getElementById('shop-coin-amount');
-  if (shopEl) shopEl.textContent = state.coins;
-}
-
-function addCoins(amount, sourceX, sourceY) {
-  state.coins += amount;
-  state.totalCoinsEarned += amount;
-  saveState();
-  updateCoinDisplays();
-
-  // Animate coin icon
-  const coinIcon = document.getElementById('menu-coin-icon');
-  if (coinIcon) {
-    coinIcon.classList.remove('animate');
-    void coinIcon.offsetWidth;
-    coinIcon.classList.add('animate');
-  }
-
-  // Float coin
-  if (sourceX && sourceY) {
-    floatCoin(sourceX, sourceY, amount);
-  }
-}
-
-function floatCoin(x, y, amount) {
-  const el = document.createElement('div');
-  el.className = 'float-coin';
-  el.textContent = '+' + amount + '🪙';
-  el.style.left = x + 'px';
-  el.style.top = y + 'px';
-  document.body.appendChild(el);
-  el.addEventListener('animationend', () => el.remove());
-}
-
-// ============================================================
-//  TIMER
-// ============================================================
-function startTimer() {
-  state.timerSeconds = 0;
-  clearInterval(state.timerInterval);
-  state.timerInterval = setInterval(() => {
-    state.timerSeconds++;
-    updateTimerDisplay();
-  }, 1000);
-}
-
-function stopTimer() {
-  clearInterval(state.timerInterval);
-  state.timerInterval = null;
-}
-
-function updateTimerDisplay() {
-  const m = Math.floor(state.timerSeconds / 60).toString().padStart(2,'0');
-  const s = (state.timerSeconds % 60).toString().padStart(2,'0');
-  const el = document.getElementById('timer-display');
-  if (el) el.textContent = m + ':' + s;
-}
-
-// ============================================================
-//  TOAST
-// ============================================================
-let toastTimer = null;
-function showToast(msg, duration=2200) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), duration);
-}
-
-// ============================================================
-//  THEME MANAGER
-// ============================================================
-function applyTheme(themeId) {
-  const theme = SHOP_THEMES.find(t => t.id === themeId);
-  // Remove all theme classes
-  SHOP_THEMES.forEach(t => { if (t.class) document.body.classList.remove(t.class); });
-  if (theme && theme.class) document.body.classList.add(theme.class);
-}
-
-// ============================================================
-//  SKIN MANAGER - get animal emoji based on skin
-// ============================================================
-function getAnimalEmoji(animalId) {
-  const skin = SHOP_SKINS.find(s => s.id === state.equippedSkin);
-  if (!skin || skin.id === 'default') {
-    return ANIMALS.find(a => a.id === animalId).emoji;
-  }
-  if (animalId === 'bear' && skin.bearEmoji) return skin.bearEmoji;
-  if (animalId === 'rabbit' && skin.rabbitEmoji) return skin.rabbitEmoji;
-  if (animalId === 'chick' && skin.chickEmoji) return skin.chickEmoji;
-  return ANIMALS.find(a => a.id === animalId).emoji;
-}
-
-// ============================================================
-//  MENU
-// ============================================================
-function updateMenuStats() {
-  const hist = state.levelHistory;
-  if (hist.length > 0) {
-    document.getElementById('menu-quick-stats').style.display = 'flex';
-    document.getElementById('stat-levels-done').textContent = state.currentLevel - 1;
-    const bestStars = hist.length > 0 ? Math.max(...hist.map(h => h.stars)) : 0;
-    document.getElementById('stat-best-stars').textContent = '⭐'.repeat(bestStars);
-    document.getElementById('stat-total-coins').textContent = state.totalCoinsEarned;
-  }
-}
-
-// ============================================================
-//  GAME INIT
-// ============================================================
-async function startGame() {
-  const cfg = getLevelConfig(state.currentLevel);
-  buildLevel(cfg);
-
-  showScreen('game');
-  updateErrorDisplay();
-  applyTheme(state.equippedTheme);
-
-  // Level badge
-  document.getElementById('level-badge').textContent = 'مرحله ' + toPersian(state.currentLevel);
-
-  // Countdown
-  await showCountdown();
-  startTimer();
-  state.gameRunning = true;
-}
-
-function toPersian(n) {
-  const digits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
-  return String(n).split('').map(d => digits[parseInt(d)] || d).join('');
-}
-
-async function showCountdown() {
-  const overlay = document.getElementById('countdown-overlay');
-  const numEl = document.getElementById('countdown-num');
-  overlay.style.display = 'flex';
-  state.gameRunning = false;
-
-  for (let i = 3; i >= 1; i--) {
-    numEl.textContent = toPersian(i);
-    numEl.style.animation = 'none';
-    void numEl.offsetWidth;
-    numEl.style.animation = 'countdownPop 0.9s cubic-bezier(0.34,1.56,0.64,1)';
-    await sleep(900);
-  }
-
-  numEl.textContent = '🚀 شروع!';
-  numEl.style.animation = 'none';
-  void numEl.offsetWidth;
-  numEl.style.animation = 'countdownPop 0.9s cubic-bezier(0.34,1.56,0.64,1)';
-  await sleep(800);
-  overlay.style.display = 'none';
-}
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-// ============================================================
-//  BUILD LEVEL
-// ============================================================
-function buildLevel(cfg) {
-  // Pick animals for this level
-  state.currentAnimals = ANIMALS.slice(0, cfg.animalsCount).map(a => a.id);
-  state.animalFedCount = {};
-  state.currentErrors = 0;
-  state.currentFoodItems = [];
-
-  state.currentAnimals.forEach(id => {
-    state.animalFedCount[id] = 0;
-  });
-
-  // Build animals UI
-  const zone = document.getElementById('animals-zone');
-  zone.innerHTML = '';
-
-  state.currentAnimals.forEach(animalId => {
-    const animal = ANIMALS.find(a => a.id === animalId);
-    const slot = document.createElement('div');
-    slot.className = 'animal-slot';
-    slot.innerHTML = `
-      <div class="animal-card" id="animal-${animalId}"
-           data-animal="${animalId}"
-           ondragover="handleDragOver(event)"
-           ondragleave="handleDragLeave(event)"
-           ondrop="handleDrop(event, '${animalId}')">
-        <div class="wants-food" id="wants-${animalId}">❓</div>
-        <div class="animal-emoji" id="emoji-${animalId}">${getAnimalEmoji(animalId)}</div>
-        <div class="animal-name">${animal.name}</div>
-        <div class="food-plate" id="plate-${animalId}"></div>
-        <div class="hunger-bar-wrap">
-          <div class="hunger-bar" id="hunger-${animalId}" style="width:0%"></div>
-        </div>
-      </div>
-      <div class="drop-zone-label">⬆️ اینجا رها کن</div>
-    `;
-    zone.appendChild(slot);
-  });
-
-  // Build food items
-  buildFoodItems(cfg);
-
-  // Start hunger animation (show hunger bars)
-  setTimeout(() => {
-    state.currentAnimals.forEach(id => {
-      const bar = document.getElementById('hunger-' + id);
-      if (bar) bar.style.width = '100%';
-    });
-  }, 500);
-
-  // Instruction
-  updateInstruction(cfg.animalsCount);
-}
-
-function updateInstruction(count) {
-  const banner = document.getElementById('instruction-banner');
-  if (count === 1) {
-    banner.innerHTML = 'به خرس <span class="highlight">یک دانه</span> عسل بده! 🍯';
-  } else if (count === 2) {
-    banner.innerHTML = 'به هر حیوان <span class="highlight">یک دانه</span> غذای درست بده! 🍽️';
-  } else {
-    banner.innerHTML = 'به هر حیوان <span class="highlight">یک دانه</span> غذای مخصوصش بده! 🎯';
-  }
-}
-
-function buildFoodItems(cfg) {
-  const container = document.getElementById('foods-container');
-  container.innerHTML = '';
-
-  // Correct foods: one per animal
-  let foodsInTray = [];
-  state.currentAnimals.forEach(animalId => {
-    const animal = ANIMALS.find(a => a.id === animalId);
-    foodsInTray.push({ foodId: animal.food, animalId: animalId, correct: true });
-  });
-
-  // Extra / decoy foods
-  const allFoodIds = Object.keys(FOODS);
-  for (let i = 0; i < cfg.extraFoods; i++) {
-    const rnd = allFoodIds[Math.floor(Math.random() * allFoodIds.length)];
-    foodsInTray.push({ foodId: rnd, animalId: null, correct: false });
-  }
-
-  // Shuffle
-  foodsInTray = shuffle(foodsInTray);
-  state.currentFoodItems = foodsInTray.map((f, idx) => ({ ...f, id: 'food_' + idx, used: false }));
-
-  state.currentFoodItems.forEach(foodItem => {
-    const food = FOODS[foodItem.foodId];
-    const el = document.createElement('div');
-    el.className = 'food-item';
-    el.id = foodItem.id;
-    el.setAttribute('draggable', 'true');
-    el.dataset.foodItemId = foodItem.id;
-    el.innerHTML = `
-      <div class="food-emoji-wrap" id="wrap-${foodItem.id}">${food.emoji}</div>
-      <div class="food-name">${food.name}</div>
-    `;
-
-    // Desktop drag events
-    el.addEventListener('dragstart', (e) => handleDragStart(e, foodItem.id));
-    el.addEventListener('dragend', handleDragEnd);
-
-    // Touch events
-    el.addEventListener('touchstart', (e) => handleTouchStart(e, foodItem.id), { passive: false });
-    el.addEventListener('touchmove', handleTouchMove, { passive: false });
-    el.addEventListener('touchend', handleTouchEnd, { passive: false });
-
-    // Click as fallback
-    el.addEventListener('click', () => handleFoodClick(foodItem.id));
-
-    container.appendChild(el);
-  });
-}
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-// ============================================================
-//  DRAG & DROP — Desktop
-// ============================================================
-function handleDragStart(e, foodItemId) {
-  if (!state.gameRunning) return;
-  const item = state.currentFoodItems.find(f => f.id === foodItemId);
-  if (!item || item.used) { e.preventDefault(); return; }
-
-  state.dragItem = foodItemId;
-  const food = FOODS[item.foodId];
-
-  const ghost = document.getElementById('drag-ghost');
-  ghost.textContent = food.emoji;
-  ghost.style.display = 'block';
-
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', foodItemId);
-
-  const el = document.getElementById(foodItemId);
-  if (el) el.classList.add('dragging-active');
-
-  // Use ghost image
-  setTimeout(() => {
-    if (el) el.style.opacity = '0.4';
-  }, 0);
-}
-
-function handleDragEnd(e) {
-  const ghost = document.getElementById('drag-ghost');
-  ghost.style.display = 'none';
-  state.dragItem = null;
-
-  document.querySelectorAll('.food-item').forEach(el => {
-    el.classList.remove('dragging-active');
-    el.style.opacity = '';
-  });
-
-  document.querySelectorAll('.animal-card').forEach(el => {
-    el.classList.remove('drop-target-active');
-  });
-}
-
-function handleDragOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  const card = e.currentTarget;
-  card.classList.add('drop-target-active');
-}
-
-function handleDragLeave(e) {
-  e.currentTarget.classList.remove('drop-target-active');
-}
-
-function handleDrop(e, animalId) {
-  e.preventDefault();
-  e.currentTarget.classList.remove('drop-target-active');
-
-  const foodItemId = e.dataTransfer.getData('text/plain') || state.dragItem;
-  if (!foodItemId) return;
-
-  processFeed(animalId, foodItemId, e.clientX, e.clientY);
-  handleDragEnd(e);
-}
-
-// ============================================================
-//  TOUCH DRAG & DROP
-// ============================================================
-let touchData = {
-  active: false,
-  foodItemId: null,
-  startX: 0,
-  startY: 0,
-};
-
-function handleTouchStart(e, foodItemId) {
-  if (!state.gameRunning) return;
-  const item = state.currentFoodItems.find(f => f.id === foodItemId);
-  if (!item || item.used) return;
-
-  e.preventDefault();
-  const touch = e.touches[0];
-
-  touchData.active = true;
-  touchData.foodItemId = foodItemId;
-  touchData.startX = touch.clientX;
-  touchData.startY = touch.clientY;
-
-  state.dragItem = foodItemId;
-
-  const food = FOODS[item.foodId];
-  const ghost = document.getElementById('drag-ghost');
-  ghost.textContent = food.emoji;
-  ghost.style.display = 'block';
-  ghost.style.left = touch.clientX + 'px';
-  ghost.style.top = touch.clientY + 'px';
-
-  const el = document.getElementById(foodItemId);
-  if (el) el.style.opacity = '0.4';
-}
-
-function handleTouchMove(e) {
-  if (!touchData.active) return;
-  e.preventDefault();
-  const touch = e.touches[0];
-
-  const ghost = document.getElementById('drag-ghost');
-  ghost.style.left = touch.clientX + 'px';
-  ghost.style.top = touch.clientY + 'px';
-
-  // Highlight drop target
-  document.querySelectorAll('.animal-card').forEach(card => card.classList.remove('drop-target-active'));
-  const el = document.elementFromPoint(touch.clientX, touch.clientY);
-  if (el) {
-    const card = el.closest('.animal-card');
-    if (card) card.classList.add('drop-target-active');
-  }
-}
-
-function handleTouchEnd(e) {
-  if (!touchData.active) return;
-  e.preventDefault();
-
-  const touch = e.changedTouches[0];
-  const ghost = document.getElementById('drag-ghost');
-  ghost.style.display = 'none';
-
-  document.querySelectorAll('.animal-card').forEach(card => card.classList.remove('drop-target-active'));
-
-  const dropEl = document.elementFromPoint(touch.clientX, touch.clientY);
-  if (dropEl) {
-    const card = dropEl.closest('.animal-card');
-    if (card) {
-      const animalId = card.dataset.animal;
-      processFeed(animalId, touchData.foodItemId, touch.clientX, touch.clientY);
-    }
-  }
-
-  const el = document.getElementById(touchData.foodItemId);
-  if (el) el.style.opacity = '';
-
-  touchData.active = false;
-  touchData.foodItemId = null;
-  state.dragItem = null;
-}
-
-// ============================================================
-//  CLICK TO FEED (mobile fallback)
-// ============================================================
-let selectedFood = null;
-
-function handleFoodClick(foodItemId) {
-  if (!state.gameRunning) return;
-  const item = state.currentFoodItems.find(f => f.id === foodItemId);
-  if (!item || item.used) return;
-
-  if (state.currentAnimals.length === 1) {
-    // Auto-feed single animal
-    processFeed(state.currentAnimals[0], foodItemId, 0, 0);
-    return;
-  }
-
-  // Multi-animal: select food first, then click animal
-  if (selectedFood === foodItemId) {
-    // Deselect
-    selectedFood = null;
-    document.querySelectorAll('.food-item').forEach(el => el.style.outline = '');
-    showToast('انتخاب لغو شد');
-    return;
-  }
-
-  selectedFood = foodItemId;
-  document.querySelectorAll('.food-item').forEach(el => el.style.outline = '');
-  const el = document.getElementById(foodItemId);
-  if (el) el.style.outline = '3px solid #FFE66D';
-  showToast('حالا روی حیوان بزن! 👇', 1800);
-
-  // Add click to animals
-  document.querySelectorAll('.animal-card').forEach(card => {
-    card.onclick = () => {
-      if (selectedFood) {
-        const aid = card.dataset.animal;
-        const rect = card.getBoundingClientRect();
-        processFeed(aid, selectedFood, rect.left + rect.width/2, rect.top);
-        selectedFood = null;
-        document.querySelectorAll('.food-item').forEach(el => el.style.outline = '');
-        document.querySelectorAll('.animal-card').forEach(c => c.onclick = null);
-      }
+    const LEVELS = [
+      { title: 'صبح آرام', chapter: 1, animals: ['bear'], qty: [1], decoys: 1, par: 16, lives: 3, tip: 'خرس فقط عسل دوست دارد.' },
+      { title: 'دو دوست گرسنه', chapter: 1, animals: ['bear','rabbit'], qty: [1,1], decoys: 1, par: 23, lives: 3, tip: 'هر غذا را فقط به صاحبش بده.' },
+      { title: 'مهمانی کوچک', chapter: 1, animals: ['bear','rabbit','chick'], qty: [1,1,1], decoys: 2, par: 31, lives: 3, tip: 'بین غذاهای اضافی انتخاب درست را پیدا کن.' },
+      { title: 'میمون بازیگوش', chapter: 1, animals: ['rabbit','chick','monkey'], qty: [1,1,1], decoys: 3, par: 33, lives: 3, tip: 'موز را برای میمون نگه دار.' },
+      { title: 'سفارش دوتایی', chapter: 1, animals: ['bear','rabbit','monkey'], qty: [2,1,1], decoys: 3, par: 38, lives: 3, tip: 'عدد روی سفارش را دقیق بخوان.' },
+
+      { title: 'جنگل بامبو', chapter: 2, animals: ['monkey','panda'], qty: [1,2], decoys: 3, par: 34, lives: 3, tip: 'پاندا دو شاخه بامبو می‌خواهد.' },
+      { title: 'چهار مزه', chapter: 2, animals: ['bear','rabbit','chick','panda'], qty: [1,1,1,1], decoys: 4, par: 43, lives: 3, tip: 'اول سفارش‌ها را مرور کن.' },
+      { title: 'آزمون حافظه', chapter: 2, animals: ['rabbit','monkey','panda'], qty: [2,1,2], decoys: 4, par: 44, lives: 3, memory: 4, tip: 'سفارش‌ها پس از چهار ثانیه محو می‌شوند.' },
+      { title: 'سریع و دقیق', chapter: 2, animals: ['bear','chick','monkey','fox'], qty: [1,1,1,1], decoys: 5, par: 34, timeLimit: 48, lives: 3, tip: 'قبل از تمام‌شدن زمان، همه را سیر کن.' },
+      { title: 'جشن جنگل', chapter: 2, animals: ['bear','rabbit','chick','monkey','panda'], qty: [1,1,1,1,1], decoys: 5, par: 52, lives: 4, tip: 'پنج سفارش هم‌زمان داری.' },
+
+      { title: 'شب پرستاره', chapter: 3, animals: ['bear','rabbit','panda','fox'], qty: [2,1,2,1], decoys: 5, par: 54, timeLimit: 68, lives: 4, memory: 5, tip: 'سفارش‌ها را حفظ کن و آرام بمان.' },
+      { title: 'همهٔ مهمان‌ها', chapter: 3, animals: ['bear','rabbit','chick','monkey','panda','fox'], qty: [1,1,1,1,1,1], decoys: 6, par: 58, lives: 4, tip: 'هر شش حیوان منتظر غذا هستند.' },
+      { title: 'سفارش ویژه', chapter: 3, animals: ['bear','rabbit','monkey','panda','fox'], qty: [2,1,2,1,2], decoys: 7, par: 68, lives: 4, tip: 'تعدادها متفاوت‌اند؛ عجله نکن.' },
+      { title: 'طوفان خوراکی', chapter: 3, animals: ['bear','rabbit','chick','monkey','panda','fox'], qty: [1,2,1,2,1,2], decoys: 8, par: 75, timeLimit: 92, lives: 4, tip: 'کمبو را حفظ کن تا امتیاز بیشتری بگیری.' },
+      { title: 'ضیافت نهایی', chapter: 3, animals: ['bear','rabbit','chick','monkey','panda','fox'], qty: [2,2,2,2,2,2], decoys: 9, par: 88, timeLimit: 115, lives: 5, memory: 6, final: true, tip: 'آخرین مأموریت؛ همه را دقیق و به‌موقع سیر کن!' }
+    ];
+
+    const CHAPTERS = {
+      1: { title: 'فصل اول: ساحل آفتابی', subtitle: 'یادگیری پایه‌ها و شناخت غذاها', icon: '🏖️' },
+      2: { title: 'فصل دوم: جنگل سبز', subtitle: 'سفارش‌های بیشتر، حافظه و زمان', icon: '🌿' },
+      3: { title: 'فصل سوم: جشن بزرگ', subtitle: 'مأموریت‌های حرفه‌ای و پایان داستان', icon: '🌌' }
     };
-  });
-}
 
+    const THEMES = [
+      { id: 'sunny', name: 'جزیره آفتابی', emoji: '🏝️', price: 0 },
+      { id: 'night', name: 'شب مهتابی', emoji: '🌙', price: 110 },
+      { id: 'candy', name: 'دنیای آبنباتی', emoji: '🍭', price: 150 },
+      { id: 'sunset', name: 'غروب نارنجی', emoji: '🌅', price: 180 },
+      { id: 'space', name: 'جزیره کیهانی', emoji: '🚀', price: 230 }
+    ];
 
-// ============================================================
-//  CORE FEED LOGIC
-// ============================================================
-function processFeed(animalId, foodItemId, dropX, dropY) {
-  if (!state.gameRunning) return;
+    const COSTUMES = [
+      { id: 'none', name: 'بدون لباس', emoji: '🙂', mark: '', price: 0 },
+      { id: 'party', name: 'کلاه جشن', emoji: '🎉', mark: '🎉', price: 75 },
+      { id: 'crown', name: 'تاج سلطنتی', emoji: '👑', mark: '👑', price: 110 },
+      { id: 'explorer', name: 'ماجراجو', emoji: '🧭', mark: '🧭', price: 145 },
+      { id: 'hero', name: 'قهرمان جزیره', emoji: '⭐', mark: '⭐', price: 190 }
+    ];
 
-  const foodItem = state.currentFoodItems.find(f => f.id === foodItemId);
-  if (!foodItem || foodItem.used) return;
+    const DEFAULT_STATE = {
+      version: 2,
+      coins: 0,
+      unlockedLevel: 1,
+      selectedLevel: 1,
+      levelResults: {},
+      totalCoinsEarned: 0,
+      totalCorrect: 0,
+      totalMistakes: 0,
+      totalTime: 0,
+      gamesPlayed: 0,
+      endlessBest: 0,
+      campaignCompleted: false,
+      ownedThemes: ['sunny'],
+      ownedCostumes: ['none'],
+      equippedTheme: 'sunny',
+      equippedCostume: 'none',
+      settings: { sound: true, reducedMotion: false }
+    };
 
-  const animal = ANIMALS.find(a => a.id === animalId);
-  const currentFed = state.animalFedCount[animalId] || 0;
+    let state = loadState();
+    let currentScreen = 'menu';
+    let shopTab = 'themes';
+    let toastTimer = null;
+    let game = null;
+    let drag = null;
+    let audioContext = null;
 
-  // Check if correct food
-  const isCorrect = foodItem.foodId === animal.food;
+    function loadState() {
+      let next = clone(DEFAULT_STATE);
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const saved = JSON.parse(raw);
+          next = { ...next, ...saved, settings: { ...next.settings, ...(saved.settings || {}) } };
+          next.ownedThemes = Array.isArray(saved.ownedThemes) ? saved.ownedThemes : ['sunny'];
+          next.ownedCostumes = Array.isArray(saved.ownedCostumes) ? saved.ownedCostumes : ['none'];
+          return normalizeState(next);
+        }
 
-  if (!isCorrect) {
-    // Wrong food
-    state.currentErrors++;
-    updateErrorDisplay();
-    showWrongFeedback(animalId, '❌ این غذای من نیست!');
-    shakeCard(animalId);
-    showToast('❌ این غذای ' + animal.name + ' نیست!', 1800);
-    return;
-  }
-
-  // Correct food — mark as used
-  foodItem.used = true;
-  const foodEl = document.getElementById(foodItemId);
-  if (foodEl) foodEl.classList.add('used');
-
-  // Increment fed count
-  state.animalFedCount[animalId] = currentFed + 1;
-  const newCount = state.animalFedCount[animalId];
-
-  if (newCount === 1) {
-    // Perfect — fed exactly once
-    feedAnimalCorrect(animalId, foodItem.foodId, dropX, dropY);
-  } else if (newCount > 1) {
-    // Overfed
-    feedAnimalOverfed(animalId, dropX, dropY);
-  }
-
-  // Check win condition
-  checkWinCondition();
-}
-
-function feedAnimalCorrect(animalId, foodId, dropX, dropY) {
-  const food = FOODS[foodId];
-  const card = document.getElementById('animal-' + animalId);
-  const plate = document.getElementById('plate-' + animalId);
-  const wantsEl = document.getElementById('wants-' + animalId);
-
-  // Add food to plate
-  const foodSpan = document.createElement('span');
-  foodSpan.className = 'food-given';
-  foodSpan.textContent = food.emoji;
-  plate.appendChild(foodSpan);
-
-  // Replace wants indicator with checkmark
-  if (wantsEl) {
-    wantsEl.className = 'fed-check';
-    wantsEl.textContent = '✅';
-  }
-
-  // Animate card
-  card.classList.add('correct-feed');
-  setTimeout(() => card.classList.remove('correct-feed'), 700);
-
-  // Update hunger bar
-  const bar = document.getElementById('hunger-' + animalId);
-  if (bar) bar.style.width = '0%';
-
-  // Coin reward
-  const coinAmt = 5;
-  addCoins(coinAmt, dropX, dropY);
-
-  // Star burst
-  spawnStarBurst(dropX, dropY);
-
-  // Speech bubble
-  const happyMessages = ['ممنون! 😊', 'آفرین! 🎉', 'خوشمزه بود! 😋', 'دوستت دارم! 💛'];
-  showSpeechBubble(animalId, happyMessages[Math.floor(Math.random() * happyMessages.length)]);
-}
-
-function feedAnimalOverfed(animalId, dropX, dropY) {
-  const card = document.getElementById('animal-' + animalId);
-  const emojiEl = document.getElementById('emoji-' + animalId);
-
-  // Make fat
-  card.classList.add('fat');
-  if (emojiEl) emojiEl.style.transform = 'scale(1.35) rotate(8deg)';
-
-  // Error count
-  state.currentErrors++;
-  updateErrorDisplay();
-
-  // Funny dialog
-  const fatMessages = ['دارم میترکم! 🤣', 'بسه دیگه! 😵', 'خیلی خوردم! 🤢', 'شکمم پر شد! 😂'];
-  showSpeechBubble(animalId, fatMessages[Math.floor(Math.random() * fatMessages.length)]);
-
-  // Shake
-  card.classList.add('wrong-drop');
-  setTimeout(() => card.classList.remove('wrong-drop'), 600);
-
-  showToast('🤣 حیوان داره میترکه! یه دونه کافیه!', 2000);
-}
-
-function showWrongFeedback(animalId, msg) {
-  showSpeechBubble(animalId, msg);
-  const card = document.getElementById('animal-' + animalId);
-  card.classList.add('wrong-drop');
-  setTimeout(() => card.classList.remove('wrong-drop'), 600);
-}
-
-function shakeCard(animalId) {
-  const card = document.getElementById('animal-' + animalId);
-  card.classList.add('wrong-drop');
-  setTimeout(() => card.classList.remove('wrong-drop'), 600);
-}
-
-function showSpeechBubble(animalId, text) {
-  const card = document.getElementById('animal-' + animalId);
-  // Remove existing bubble
-  const existing = card.querySelector('.speech-bubble');
-  if (existing) existing.remove();
-
-  const bubble = document.createElement('div');
-  bubble.className = 'speech-bubble';
-  bubble.textContent = text;
-  card.appendChild(bubble);
-  bubble.addEventListener('animationend', () => bubble.remove());
-}
-
-function updateErrorDisplay() {
-  const el = document.getElementById('errors-display');
-  if (el) el.textContent = toPersian(state.currentErrors);
-}
-
-// ============================================================
-//  HUNGER REMINDER — periodic "feed me" dialog
-// ============================================================
-let hungerReminderInterval = null;
-
-function startHungerReminders() {
-  clearInterval(hungerReminderInterval);
-  hungerReminderInterval = setInterval(() => {
-    if (!state.gameRunning) return;
-    state.currentAnimals.forEach(animalId => {
-      const fed = state.animalFedCount[animalId] || 0;
-      if (fed === 0) {
-        const msgs = ['به من هنوز غذا ندادی! 😢', 'گرسنمه! 🥺', 'منو فراموش کردی؟ 😭'];
-        showSpeechBubble(animalId, msgs[Math.floor(Math.random() * msgs.length)]);
+        const oldRaw = localStorage.getItem(OLD_STORAGE_KEY);
+        if (oldRaw) {
+          const old = JSON.parse(oldRaw);
+          next.coins = Number(old.coins) || 0;
+          next.totalCoinsEarned = Number(old.totalCoinsEarned) || next.coins;
+          next.unlockedLevel = clamp(Number(old.currentLevel) || 1, 1, TOTAL_LEVELS);
+          next.selectedLevel = next.unlockedLevel;
+          const themeMap = { default: 'sunny', night: 'night', candy: 'candy', space: 'space' };
+          next.equippedTheme = themeMap[old.equippedTheme] || 'sunny';
+          next.ownedThemes = ['sunny'];
+          if (next.equippedTheme !== 'sunny') next.ownedThemes.push(next.equippedTheme);
+          if (Array.isArray(old.levelHistory)) {
+            old.levelHistory.forEach(item => {
+              const level = clamp(Number(item.level) || 1, 1, TOTAL_LEVELS);
+              next.levelResults[level] = {
+                stars: clamp(Number(item.stars) || 0, 0, 3),
+                time: Math.max(0, Number(item.time) || 0),
+                errors: Math.max(0, Number(item.errors) || 0),
+                score: 0
+              };
+            });
+          }
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        }
+      } catch (error) {
+        console.warn('ذخیرهٔ بازی قابل خواندن نبود:', error);
       }
-    });
-  }, 5000);
-}
-
-function stopHungerReminders() {
-  clearInterval(hungerReminderInterval);
-}
-
-// ============================================================
-//  WIN CONDITION
-// ============================================================
-function checkWinCondition() {
-  const allFed = state.currentAnimals.every(id => state.animalFedCount[id] === 1);
-  if (allFed) {
-    setTimeout(() => levelComplete(), 600);
-  }
-}
-
-function levelComplete() {
-  state.gameRunning = false;
-  stopTimer();
-  stopHungerReminders();
-
-  const time = state.timerSeconds;
-  const errors = state.currentErrors;
-
-  // Calculate stars
-  let stars = 3;
-  if (errors >= 1) stars = 2;
-  if (errors >= 3) stars = 1;
-  if (errors >= 5) stars = 0;
-
-  // Bonus coins
-  const baseCoins = 10;
-  const starBonus = stars * 5;
-  const speedBonus = time < 20 ? 10 : time < 40 ? 5 : 0;
-  const totalCoins = baseCoins + starBonus + speedBonus;
-
-  addCoins(totalCoins);
-
-  // Save history
-  state.levelHistory.push({
-    level: state.currentLevel,
-    time: time,
-    errors: errors,
-    stars: stars,
-    coinsEarned: totalCoins
-  });
-
-  state.currentLevel++;
-  saveState();
-
-  // Show confetti
-  spawnConfetti();
-
-  // Fill complete screen
-  document.getElementById('complete-title').textContent =
-    stars === 3 ? '🌟 عالی بود!' :
-    stars === 2 ? '😊 آفرین!' :
-    stars === 1 ? '👍 خوب بود!' : '💪 تلاش کن!';
-
-  const starsEl = document.getElementById('complete-stars');
-  starsEl.innerHTML = '';
-  for (let i = 0; i < 3; i++) {
-    const s = document.createElement('span');
-    s.className = 'complete-star';
-    s.textContent = i < stars ? '⭐' : '☆';
-    s.style.animationDelay = (i * 0.2 + 0.3) + 's';
-    starsEl.appendChild(s);
-  }
-
-  const m = Math.floor(time / 60).toString().padStart(2,'0');
-  const sec = (time % 60).toString().padStart(2,'0');
-  document.getElementById('c-time').textContent = m + ':' + sec;
-  document.getElementById('c-errors').textContent = toPersian(errors);
-  document.getElementById('c-level').textContent = toPersian(state.currentLevel - 1);
-  document.getElementById('coins-earned-num').textContent = '+' + totalCoins;
-
-  showScreen('complete');
-}
-
-// ============================================================
-//  NEXT LEVEL
-// ============================================================
-function nextLevel() {
-  showScreen('game');
-  startGame();
-}
-
-// ============================================================
-//  GO TO MENU
-// ============================================================
-function goToMenu() {
-  state.gameRunning = false;
-  stopTimer();
-  stopHungerReminders();
-  updateMenuStats();
-  updateCoinDisplays();
-  applyTheme(state.equippedTheme);
-  showScreen('menu');
-}
-
-// ============================================================
-//  CONFETTI
-// ============================================================
-function spawnConfetti() {
-  const colors = ['#FF6B35','#FFE66D','#4ECDC4','#95E06C','#A855F7','#FF6B6B'];
-  for (let i = 0; i < 60; i++) {
-    const el = document.createElement('div');
-    el.className = 'confetti-piece';
-    el.style.left = Math.random() * 100 + 'vw';
-    el.style.top = '-10px';
-    el.style.background = colors[Math.floor(Math.random() * colors.length)];
-    el.style.width = (Math.random() * 8 + 6) + 'px';
-    el.style.height = (Math.random() * 8 + 6) + 'px';
-    el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-    el.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
-    el.style.animationDelay = (Math.random() * 0.8) + 's';
-    document.body.appendChild(el);
-    el.addEventListener('animationend', () => el.remove());
-  }
-}
-
-// ============================================================
-//  STAR BURST
-// ============================================================
-function spawnStarBurst(x, y) {
-  if (!x && !y) return;
-  const stars = ['⭐','✨','💫'];
-  for (let i = 0; i < 3; i++) {
-    const el = document.createElement('div');
-    el.className = 'star-burst';
-    el.textContent = stars[i % stars.length];
-    el.style.left = (x + (Math.random() - 0.5) * 60) + 'px';
-    el.style.top = (y + (Math.random() - 0.5) * 40) + 'px';
-    el.style.animationDelay = (i * 0.1) + 's';
-    document.body.appendChild(el);
-    el.addEventListener('animationend', () => el.remove());
-  }
-}
-
-// ============================================================
-//  SHOP
-// ============================================================
-function openShop() {
-  currentShopTab = 'themes';
-  document.getElementById('tab-themes').classList.add('active');
-  document.getElementById('tab-skins').classList.remove('active');
-  renderShopItems();
-  updateCoinDisplays();
-  showScreen('shop');
-}
-
-function switchShopTab(tab) {
-  currentShopTab = tab;
-  document.getElementById('tab-themes').classList.toggle('active', tab === 'themes');
-  document.getElementById('tab-skins').classList.toggle('active', tab === 'skins');
-  renderShopItems();
-}
-
-function renderShopItems() {
-  const grid = document.getElementById('shop-items-grid');
-  grid.innerHTML = '';
-  const items = currentShopTab === 'themes' ? SHOP_THEMES : SHOP_SKINS;
-
-  items.forEach(item => {
-    const owned = state.shopOwned.includes(item.id);
-    const equipped = currentShopTab === 'themes'
-      ? state.equippedTheme === item.id
-      : state.equippedSkin === item.id;
-
-    const el = document.createElement('div');
-    el.className = 'shop-item' + (owned ? ' owned' : '') + (equipped ? ' equipped' : '');
-
-    let badgeText = '';
-    if (equipped) badgeText = '✅ فعال';
-    else if (owned) badgeText = '✔ خریداری شده';
-
-    el.innerHTML = `
-      ${badgeText ? `<div class="shop-item-badge">${badgeText}</div>` : ''}
-      <div class="shop-item-preview">${item.emoji}</div>
-      <div class="shop-item-name">${item.name}</div>
-      ${owned
-        ? `<div class="shop-item-price" style="background:${equipped ? 'linear-gradient(135deg,#FFF8E1,#FFE082)' : 'linear-gradient(135deg,#e8f5e9,#c8e6c9)'}; color:${equipped ? '#E65100' : '#2E7D32'}">
-             ${equipped ? '🎮 در حال استفاده' : '👆 استفاده کن'}
-           </div>`
-        : `<div class="shop-item-price">🪙 ${item.price}</div>`
-      }
-    `;
-
-    el.addEventListener('click', () => handleShopItemClick(item.id, item.price, owned, equipped));
-    grid.appendChild(el);
-  });
-}
-
-function handleShopItemClick(itemId, price, owned, equipped) {
-  if (equipped) {
-    showToast('این آیتم در حال استفاده است! 🎮', 1500);
-    return;
-  }
-
-  if (owned) {
-    // Equip it
-    if (currentShopTab === 'themes') {
-      state.equippedTheme = itemId;
-      applyTheme(itemId);
-    } else {
-      state.equippedSkin = itemId;
+      return normalizeState(next);
     }
-    saveState();
-    renderShopItems();
-    showToast('✅ آیتم فعال شد!', 1500);
-    return;
-  }
 
-  // Buy
-  if (state.coins < price) {
-    showToast('🪙 سکه کافی نداری! بیشتر بازی کن!', 2000);
-    return;
-  }
+    function normalizeState(value) {
+      value.coins = Math.max(0, Number(value.coins) || 0);
+      value.unlockedLevel = clamp(Number(value.unlockedLevel) || 1, 1, TOTAL_LEVELS);
+      value.selectedLevel = clamp(Number(value.selectedLevel) || value.unlockedLevel, 1, value.unlockedLevel);
+      value.levelResults = value.levelResults && typeof value.levelResults === 'object' ? value.levelResults : {};
+      value.ownedThemes = [...new Set(['sunny', ...(value.ownedThemes || [])])];
+      value.ownedCostumes = [...new Set(['none', ...(value.ownedCostumes || [])])];
+      if (!value.ownedThemes.includes(value.equippedTheme)) value.equippedTheme = 'sunny';
+      if (!value.ownedCostumes.includes(value.equippedCostume)) value.equippedCostume = 'none';
+      return value;
+    }
 
-  state.coins -= price;
-  state.shopOwned.push(itemId);
+    function saveState() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+      catch (error) { console.warn('ذخیرهٔ بازی انجام نشد:', error); }
+    }
 
-  if (currentShopTab === 'themes') {
-    state.equippedTheme = itemId;
-    applyTheme(itemId);
-  } else {
-    state.equippedSkin = itemId;
-  }
+    function fa(value) {
+      return new Intl.NumberFormat('fa-IR').format(value);
+    }
 
-  saveState();
-  updateCoinDisplays();
-  renderShopItems();
-  spawnConfetti();
-  showToast('🎉 خریداری شد و فعال شد!', 2000);
-}
+    function formatTime(seconds) {
+      const safe = Math.max(0, Math.round(seconds));
+      const min = String(Math.floor(safe / 60)).padStart(2, '0');
+      const sec = String(safe % 60).padStart(2, '0');
+      return `${toFaDigits(min)}:${toFaDigits(sec)}`;
+    }
 
-// ============================================================
-//  STATS
-// ============================================================
-function openStats() {
-  renderStats();
-  showScreen('stats');
-}
+    function toFaDigits(value) {
+      return String(value).replace(/\d/g, digit => '۰۱۲۳۴۵۶۷۸۹'[digit]);
+    }
 
-function renderStats() {
-  const hist = state.levelHistory;
+    function showScreen(name) {
+      if (name !== currentScreen) hideToast();
+      $$('.screen').forEach(screen => screen.classList.toggle('active', screen.id === `screen-${name}`));
+      currentScreen = name;
+      if (name !== 'game') cancelDrag();
+      window.scrollTo(0, 0);
+    }
 
-  // Overview
-  const overview = document.getElementById('stats-overview');
-  const totalLevels = hist.length;
-  const totalErrors = hist.reduce((s, h) => s + h.errors, 0);
-  const avgTime = totalLevels > 0
-    ? Math.round(hist.reduce((s, h) => s + h.time, 0) / totalLevels)
-    : 0;
-  const totalStars = hist.reduce((s, h) => s + h.stars, 0);
-  const perfectLevels = hist.filter(h => h.errors === 0).length;
+    function applyPreferences() {
+      document.body.dataset.theme = state.equippedTheme;
+      document.body.classList.toggle('reduce-motion', state.settings.reducedMotion);
+      $('#sound-btn').textContent = state.settings.sound ? '🔊' : '🔇';
+      $('#motion-btn').textContent = state.settings.reducedMotion ? '🧊' : '✨';
+    }
 
-  overview.innerHTML = `
-    <div class="stat-box"><div class="val">${toPersian(totalLevels)}</div><div class="lbl">مرحله تموم شده</div></div>
-    <div class="stat-box"><div class="val">${toPersian(totalErrors)}</div><div class="lbl">کل خطاها</div></div>
-    <div class="stat-box"><div class="val">${toPersian(avgTime)}ث</div><div class="lbl">میانگین زمان</div></div>
-    <div class="stat-box"><div class="val">${toPersian(totalStars)}</div><div class="lbl">کل ستاره‌ها</div></div>
-    <div class="stat-box"><div class="val">${toPersian(perfectLevels)}</div><div class="lbl">مرحله بی‌خطا</div></div>
-    <div class="stat-box"><div class="val">${toPersian(state.totalCoinsEarned)}</div><div class="lbl">کل سکه‌ها</div></div>
-  `;
+    function updateCoins() {
+      $$('[data-coins]').forEach(el => { el.textContent = fa(state.coins); });
+    }
 
-  // Progress chart — last 8 levels
-  const chart = document.getElementById('progress-chart');
-  chart.innerHTML = '';
-  const recent = hist.slice(-8);
+    function costumeMark() {
+      return COSTUMES.find(item => item.id === state.equippedCostume)?.mark || '';
+    }
 
-  if (recent.length === 0) {
-    chart.innerHTML = '<div class="empty-state" style="width:100%;font-size:13px;color:#aaa">هنوز مرحله‌ای تموم نشده! 🎮</div>';
-  } else {
-    const maxTime = Math.max(...recent.map(h => h.time), 1);
-    recent.forEach((h, i) => {
-      const pct = Math.max(8, Math.round((h.time / maxTime) * 100));
-      const wrap = document.createElement('div');
-      wrap.className = 'chart-bar-wrap';
-      wrap.innerHTML = `
-        <div class="chart-bar ${h.time === 0 ? 'empty' : ''}"
-             style="height:${pct}%; background: linear-gradient(180deg, ${h.errors === 0 ? '#95E06C,#4CAF50' : '#FF6B35,#FF8E53'});"
-             title="مرحله ${h.level}: ${h.time}ث، ${h.errors} خطا">
-        </div>
-        <div class="chart-label">${toPersian(h.level)}</div>
-      `;
-      chart.appendChild(wrap);
+    function renderHeroAnimals() {
+      const mark = costumeMark();
+      $('#hero-animals').innerHTML = ANIMALS.slice(0, 4).map(animal => `
+        <div class="hero-animal">${animal.emoji}${mark ? `<span class="costume-mark">${mark}</span>` : ''}</div>
+      `).join('');
+    }
+
+    function renderMenu() {
+      applyPreferences();
+      updateCoins();
+      renderHeroAnimals();
+      const completed = Object.keys(state.levelResults).filter(key => Number(key) <= TOTAL_LEVELS).length;
+      const progress = (completed / TOTAL_LEVELS) * 100;
+      $('#menu-progress-label').textContent = `${fa(completed)} از ${fa(TOTAL_LEVELS)} مرحله`;
+      $('#menu-progress-fill').style.width = `${progress}%`;
+      const continueLevel = state.campaignCompleted ? TOTAL_LEVELS : state.unlockedLevel;
+      $('#continue-label').textContent = state.campaignCompleted ? 'کمپین کامل شده — مرور پایان' : `مرحلهٔ ${fa(continueLevel)}`;
+      const endlessUnlocked = state.unlockedLevel >= 6 || state.campaignCompleted;
+      $('#endless-btn').disabled = !endlessUnlocked;
+      $('#endless-label').textContent = endlessUnlocked ? `رکورد: ${fa(state.endlessBest)} دور` : 'پس از مرحلهٔ ۵';
+    }
+
+    function renderMap() {
+      const container = $('#level-map-content');
+      container.innerHTML = [1,2,3].map(chapterNumber => {
+        const chapter = CHAPTERS[chapterNumber];
+        const levelIndexes = LEVELS.map((level, index) => ({ level, number: index + 1 })).filter(item => item.level.chapter === chapterNumber);
+        return `
+          <section class="section-card glass">
+            <div class="section-heading">
+              <div><h2>${chapter.icon} ${chapter.title}</h2><p>${chapter.subtitle}</p></div>
+            </div>
+            <div class="level-grid">
+              ${levelIndexes.map(({ level, number }) => {
+                const result = state.levelResults[number];
+                const unlocked = number <= state.unlockedLevel;
+                const stars = result ? '⭐'.repeat(result.stars) + '☆'.repeat(3-result.stars) : '☆☆☆';
+                return `
+                  <button class="level-node ${number === state.unlockedLevel && !result ? 'current' : ''}" type="button" data-level="${number}" ${unlocked ? '' : 'disabled'}>
+                    <span class="level-number">${unlocked ? fa(number) : '🔒'}</span>
+                    <span class="level-stars">${stars}</span>
+                    <span class="level-label">${level.title}</span>
+                  </button>`;
+              }).join('')}
+            </div>
+          </section>`;
+      }).join('');
+      updateCoins();
+    }
+
+    function renderShop() {
+      const items = shopTab === 'themes' ? THEMES : COSTUMES;
+      const owned = shopTab === 'themes' ? state.ownedThemes : state.ownedCostumes;
+      const equipped = shopTab === 'themes' ? state.equippedTheme : state.equippedCostume;
+      $$('.tab').forEach(tab => tab.classList.toggle('active', tab.dataset.shopTab === shopTab));
+      $('#shop-grid').innerHTML = items.map(item => {
+        const isOwned = owned.includes(item.id);
+        const isEquipped = equipped === item.id;
+        return `
+          <button class="shop-item ${isOwned ? 'owned' : ''} ${isEquipped ? 'equipped' : ''}" type="button" data-shop-item="${item.id}">
+            ${isEquipped ? '<span class="shop-badge">فعال</span>' : isOwned ? '<span class="shop-badge">خریده‌شده</span>' : ''}
+            <span class="shop-preview">${item.emoji}</span>
+            <span class="shop-name">${item.name}</span>
+            <span class="shop-price">${isOwned ? (isEquipped ? 'در حال استفاده' : 'برای استفاده بزن') : `🪙 ${fa(item.price)}`}</span>
+          </button>`;
+      }).join('');
+      updateCoins();
+    }
+
+    const ACHIEVEMENTS = [
+      { icon: '🌱', title: 'اولین قدم', text: 'یک مرحله را تمام کن', test: s => Object.keys(s.levelResults).length >= 1 },
+      { icon: '⭐', title: 'بی‌نقص', text: 'در یک مرحله سه ستاره بگیر', test: s => Object.values(s.levelResults).some(r => r.stars === 3) },
+      { icon: '🎯', title: 'دقیق', text: 'پنج مرحله را بدون خطا تمام کن', test: s => Object.values(s.levelResults).filter(r => r.errors === 0).length >= 5 },
+      { icon: '🪙', title: 'سکه‌جمع‌کن', text: '۳۰۰ سکه به دست بیاور', test: s => s.totalCoinsEarned >= 300 },
+      { icon: '⚡', title: 'سریع', text: 'مرحله‌ای را زیر ۲۵ ثانیه تمام کن', test: s => Object.values(s.levelResults).some(r => r.time > 0 && r.time < 25) },
+      { icon: '♾️', title: 'پایان‌ناپذیر', text: 'پنج دور بی‌پایان را رد کن', test: s => s.endlessBest >= 5 },
+      { icon: '🏆', title: 'قهرمان جزیره', text: 'کمپین را کامل کن', test: s => s.campaignCompleted },
+      { icon: '💎', title: 'کلکسیونر', text: 'پنج آیتم فروشگاه داشته باش', test: s => s.ownedThemes.length + s.ownedCostumes.length >= 5 }
+    ];
+
+    function renderStats() {
+      const results = Object.values(state.levelResults);
+      const totalStars = results.reduce((sum, result) => sum + (result.stars || 0), 0);
+      const accuracyTotal = state.totalCorrect + state.totalMistakes;
+      const accuracy = accuracyTotal ? Math.round((state.totalCorrect / accuracyTotal) * 100) : 0;
+      const perfect = results.filter(result => result.errors === 0).length;
+      const tiles = [
+        [Object.keys(state.levelResults).length, 'مرحلهٔ ثبت‌شده'],
+        [totalStars, 'ستارهٔ جمع‌شده'],
+        [`${accuracy}%`, 'دقت کلی'],
+        [perfect, 'مرحلهٔ بی‌خطا'],
+        [state.totalCorrect, 'غذای درست'],
+        [state.totalMistakes, 'خطای بازی'],
+        [formatTime(state.totalTime), 'زمان بازی'],
+        [state.endlessBest, 'رکورد بی‌پایان']
+      ];
+      $('#stats-grid').innerHTML = tiles.map(([value, label]) => `<div class="stat-tile"><strong>${typeof value === 'number' ? fa(value) : value}</strong><span>${label}</span></div>`).join('');
+      $('#achievement-grid').innerHTML = ACHIEVEMENTS.map(item => {
+        const unlocked = item.test(state);
+        return `<div class="achievement ${unlocked ? '' : 'locked'}"><div class="achievement-icon">${unlocked ? item.icon : '🔒'}</div><div><strong>${item.title}</strong><small>${item.text}</small></div></div>`;
+      }).join('');
+      updateCoins();
+    }
+
+    function handleShopItem(id) {
+      const items = shopTab === 'themes' ? THEMES : COSTUMES;
+      const item = items.find(entry => entry.id === id);
+      if (!item) return;
+      const ownedKey = shopTab === 'themes' ? 'ownedThemes' : 'ownedCostumes';
+      const equippedKey = shopTab === 'themes' ? 'equippedTheme' : 'equippedCostume';
+      if (state[ownedKey].includes(id)) {
+        state[equippedKey] = id;
+        saveState();
+        applyPreferences();
+        renderShop();
+        renderHeroAnimals();
+        toast('✅ آیتم فعال شد.');
+        tone('equip');
+        return;
+      }
+      if (state.coins < item.price) {
+        toast('🪙 سکهٔ کافی نداری؛ چند مرحله بازی کن.');
+        tone('wrong');
+        return;
+      }
+      state.coins -= item.price;
+      state[ownedKey].push(id);
+      state[equippedKey] = id;
+      saveState();
+      applyPreferences();
+      renderShop();
+      burstConfetti(24);
+      tone('buy');
+      toast('🎉 خرید انجام شد و آیتم فعال شد.');
+    }
+
+    function endlessConfig(round) {
+      const count = clamp(2 + Math.floor((round - 1) / 2), 2, 6);
+      const animals = shuffle(ANIMALS).slice(0, count).map(item => item.id);
+      const qty = animals.map((_, index) => 1 + ((round + index) % (round >= 6 ? 3 : 2) === 0 ? 1 : 0));
+      const required = qty.reduce((sum, n) => sum + n, 0);
+      return {
+        title: `بی‌پایان — دور ${fa(round)}`,
+        animals,
+        qty,
+        decoys: clamp(2 + Math.floor(round * .8), 2, 10),
+        par: 28 + required * 5,
+        timeLimit: 45 + required * 5,
+        lives: clamp(3 + Math.floor(round / 5), 3, 5),
+        memory: round >= 4 && round % 3 === 0 ? 4 : 0,
+        tip: 'هر دور کمی سخت‌تر می‌شود.'
+      };
+    }
+
+    async function startCampaignLevel(levelNumber) {
+      const safeLevel = clamp(levelNumber, 1, state.unlockedLevel);
+      state.selectedLevel = safeLevel;
+      saveState();
+      await startGame({ mode: 'campaign', levelNumber: safeLevel, round: 0, config: LEVELS[safeLevel - 1] });
+    }
+
+    async function startEndless(round = 1) {
+      if (state.unlockedLevel < 6 && !state.campaignCompleted) return;
+      await startGame({ mode: 'endless', levelNumber: 0, round, config: endlessConfig(round) });
+    }
+
+    function buildFoodDeck(config) {
+      const deck = [];
+      config.animals.forEach((animalId, index) => {
+        const animal = ANIMALS.find(item => item.id === animalId);
+        for (let count = 0; count < config.qty[index]; count++) deck.push({ foodId: animal.food, required: true });
+      });
+      const foodIds = Object.keys(FOODS);
+      const activeFoodIds = new Set(config.animals.map(animalId => ANIMALS.find(item => item.id === animalId).food));
+      const preferredDecoys = foodIds.filter(foodId => !activeFoodIds.has(foodId));
+      const decoyPool = preferredDecoys.length ? preferredDecoys : foodIds;
+      for (let i = 0; i < config.decoys; i++) {
+        deck.push({ foodId: decoyPool[Math.floor(Math.random() * decoyPool.length)], required: false });
+      }
+      return shuffle(deck).map((item, index) => ({ ...item, uid: `f-${Date.now()}-${index}`, used: false }));
+    }
+
+    async function startGame(payload) {
+      stopGameLoop();
+      cancelDrag();
+      const orders = new Map();
+      payload.config.animals.forEach((animalId, index) => orders.set(animalId, { needed: payload.config.qty[index], given: 0 }));
+      game = {
+        ...payload,
+        orders,
+        foods: buildFoodDeck(payload.config),
+        running: false,
+        finished: false,
+        paused: false,
+        selectedFood: null,
+        lives: payload.config.lives || 3,
+        errors: 0,
+        correct: 0,
+        combo: 0,
+        score: 0,
+        earnedDuringPlay: 0,
+        elapsed: 0,
+        startedAt: 0,
+        pausedAt: 0,
+        pausedTotal: 0,
+        raf: 0,
+        lastSecond: -1,
+        memoryHidden: false
+      };
+      showScreen('game');
+      renderGame();
+      await countdown();
+      if (!game || game.finished || currentScreen !== 'game') return;
+      game.running = true;
+      game.startedAt = performance.now();
+      game.raf = requestAnimationFrame(gameLoop);
+    }
+
+    function renderGame() {
+      const config = game.config;
+      $('#game-title').textContent = game.mode === 'campaign' ? `مرحلهٔ ${fa(game.levelNumber)} — ${config.title}` : config.title;
+      $('#game-subtitle').textContent = game.mode === 'campaign' ? CHAPTERS[config.chapter].title.replace(/^فصل [^:]+:\s*/, '') : 'حالت بی‌پایان';
+      $('#orders').style.setProperty('--animal-count', config.animals.length);
+      $('#orders').innerHTML = config.animals.map(animalId => animalCardTemplate(animalId)).join('');
+      $('#food-tray').innerHTML = game.foods.map(food => foodTemplate(food)).join('');
+      const totalNeeded = [...game.orders.values()].reduce((sum, order) => sum + order.needed, 0);
+      $('#mission-text').innerHTML = `${config.tip} <strong>هدف: ${fa(totalNeeded)} غذای درست</strong><div class="mission-progress"><span id="mission-progress"></span></div>`;
+      updateGameHud(true);
+    }
+
+    function animalCardTemplate(animalId) {
+      const animal = ANIMALS.find(item => item.id === animalId);
+      const order = game.orders.get(animalId);
+      const food = FOODS[animal.food];
+      const mark = costumeMark();
+      return `
+        <button class="animal-card" type="button" data-animal="${animalId}" aria-label="${animal.name}؛ ${order.needed} عدد ${food.name}">
+          <span class="animal-emoji">${animal.emoji}${mark ? `<span class="animal-costume">${mark}</span>` : ''}</span>
+          <span class="animal-name">${animal.name}</span>
+          <span class="order-badge" id="order-${animalId}">${food.emoji} × ${fa(order.needed)}</span>
+          <span class="served-row" id="served-${animalId}"></span>
+        </button>`;
+    }
+
+    function foodTemplate(item) {
+      const food = FOODS[item.foodId];
+      return `<button class="food-item" type="button" data-food="${item.uid}" aria-label="${food.name}"><span class="food-emoji">${food.emoji}</span><span class="food-name">${food.name}</span></button>`;
+    }
+
+    async function countdown() {
+      const overlay = $('#countdown');
+      const value = $('#countdown-value');
+      overlay.classList.add('show');
+      for (const item of ['۳','۲','۱','شروع!']) {
+        value.textContent = item;
+        value.style.animation = 'none';
+        void value.offsetWidth;
+        value.style.animation = '';
+        tone(item === 'شروع!' ? 'start' : 'tick');
+        await wait(item === 'شروع!' ? 500 : 650);
+      }
+      overlay.classList.remove('show');
+    }
+
+    function gameLoop(now) {
+      if (!game || game.finished || !game.running) return;
+      if (!game.paused) {
+        game.elapsed = (now - game.startedAt - game.pausedTotal) / 1000;
+        const shownSecond = Math.floor(game.elapsed);
+        if (shownSecond !== game.lastSecond) {
+          game.lastSecond = shownSecond;
+          updateGameHud();
+          if (game.config.memory && !game.memoryHidden && game.elapsed >= game.config.memory) {
+            game.memoryHidden = true;
+            $$('.order-badge').forEach(el => { if (el.textContent !== '✅ آماده') el.classList.add('memory-hidden'); });
+            toast('🧠 حالا از حافظه‌ات کمک بگیر!');
+          }
+          if (game.config.timeLimit && game.config.timeLimit - game.elapsed <= 0) {
+            finishLevel(false, 'زمان تمام شد!');
+            return;
+          }
+        }
+      }
+      game.raf = requestAnimationFrame(gameLoop);
+    }
+
+    function stopGameLoop() {
+      if (game?.raf) cancelAnimationFrame(game.raf);
+      if (game) game.raf = 0;
+    }
+
+    function updateGameHud(force = false) {
+      if (!game) return;
+      const timeValue = game.config.timeLimit ? Math.max(0, Math.ceil(game.config.timeLimit - game.elapsed)) : Math.floor(game.elapsed);
+      $('#hud-time').textContent = game.config.timeLimit ? fa(timeValue) : formatTime(timeValue);
+      $('#hud-lives').textContent = '❤️'.repeat(game.lives) || '۰';
+      $('#hud-score').textContent = fa(game.score);
+      $('#combo-label').textContent = `کمبو ×${fa(Math.max(1, game.combo))}`;
+      const total = [...game.orders.values()].reduce((sum, order) => sum + order.needed, 0);
+      const done = [...game.orders.values()].reduce((sum, order) => sum + order.given, 0);
+      $('#mission-progress').style.width = `${(done / total) * 100}%`;
+      if (force) $('#mission-progress').style.width = '0%';
+    }
+
+    function selectFood(uid) {
+      if (!game?.running || game.paused || game.finished) return;
+      const item = game.foods.find(food => food.uid === uid && !food.used);
+      if (!item) return;
+      game.selectedFood = game.selectedFood === uid ? null : uid;
+      $$('.food-item').forEach(el => el.classList.toggle('selected', el.dataset.food === game.selectedFood));
+      $$('.animal-card').forEach(el => el.classList.toggle('selected-target', Boolean(game.selectedFood)));
+      if (game.selectedFood) toast('حالا حیوان مقصد را انتخاب کن.');
+    }
+
+    function feed(animalId, uid, x, y) {
+      if (!game?.running || game.paused || game.finished) return;
+      const item = game.foods.find(food => food.uid === uid);
+      const animal = ANIMALS.find(entry => entry.id === animalId);
+      const order = game.orders.get(animalId);
+      if (!item || item.used || !animal || !order) return;
+
+      if (order.given >= order.needed) {
+        registerMistake(animalId, 'من دیگه سیر شدم! 😅');
+        return;
+      }
+      if (item.foodId !== animal.food) {
+        registerMistake(animalId, 'این غذای من نیست! 🙈');
+        return;
+      }
+
+      item.used = true;
+      order.given += 1;
+      game.correct += 1;
+      game.combo += 1;
+      const comboBonus = Math.min(100, (game.combo - 1) * 12);
+      game.score += 100 + comboBonus;
+      game.earnedDuringPlay += 1;
+      state.totalCorrect += 1;
+
+      const foodEl = $(`[data-food="${uid}"]`);
+      foodEl?.classList.add('used');
+      foodEl?.setAttribute('disabled', '');
+      const card = $(`[data-animal="${animalId}"]`);
+      card?.classList.remove('wrong');
+      card?.classList.add('correct');
+      setTimeout(() => card?.classList.remove('correct'), 380);
+      $('#served-' + animalId).textContent += FOODS[item.foodId].emoji;
+      if (order.given >= order.needed) {
+        card?.classList.add('complete');
+        $('#order-' + animalId).textContent = '✅ آماده';
+        $('#order-' + animalId).classList.remove('memory-hidden');
+        speech(card, 'ممنون! 😋');
+      } else {
+        $('#order-' + animalId).textContent = `${FOODS[animal.food].emoji} ${fa(order.given)} از ${fa(order.needed)}`;
+      }
+      game.selectedFood = null;
+      $$('.food-item').forEach(el => el.classList.remove('selected'));
+      $$('.animal-card').forEach(el => el.classList.remove('selected-target','drop-target'));
+      tone('correct');
+      vibrate(28);
+      particles(x, y, ['⭐','✨','🪙']);
+      updateGameHud();
+
+      const complete = [...game.orders.values()].every(entry => entry.given >= entry.needed);
+      if (complete) setTimeout(() => finishLevel(true), 450);
+    }
+
+    function registerMistake(animalId, message) {
+      game.errors += 1;
+      game.combo = 0;
+      game.lives -= 1;
+      game.selectedFood = null;
+      state.totalMistakes += 1;
+      $$('.food-item').forEach(el => el.classList.remove('selected'));
+      $$('.animal-card').forEach(el => el.classList.remove('selected-target','drop-target'));
+      const card = $(`[data-animal="${animalId}"]`);
+      card?.classList.remove('wrong');
+      void card?.offsetWidth;
+      card?.classList.add('wrong');
+      setTimeout(() => card?.classList.remove('wrong'), 420);
+      speech(card, message);
+      tone('wrong');
+      vibrate([40,30,40]);
+      updateGameHud();
+      if (game.lives <= 0) setTimeout(() => finishLevel(false, 'قلب‌هایت تمام شد.'), 420);
+    }
+
+    function speech(card, text) {
+      if (!card) return;
+      card.querySelector('.speech')?.remove();
+      const el = document.createElement('span');
+      el.className = 'speech';
+      el.textContent = text;
+      card.appendChild(el);
+      setTimeout(() => el.remove(), 1000);
+    }
+
+    function calculateStars() {
+      if (!game) return 0;
+      if (game.errors === 0 && game.elapsed <= game.config.par) return 3;
+      if (game.errors <= 2 && (!game.config.timeLimit || game.elapsed <= game.config.timeLimit * .88)) return 2;
+      return 1;
+    }
+
+    function finishLevel(success, failureMessage = '') {
+      if (!game || game.finished) return;
+      game.finished = true;
+      game.running = false;
+      stopGameLoop();
+      cancelDrag();
+      $('#pause-modal').classList.remove('show');
+      const elapsed = Math.max(1, Math.round(game.elapsed));
+      state.totalTime += elapsed;
+      state.gamesPlayed += 1;
+
+      if (!success) {
+        $('#result-icon').textContent = '💔';
+        $('#result-title').textContent = 'این بار نشد';
+        $('#result-message').textContent = failureMessage || 'دوباره تلاش کن؛ هیچ مرحله‌ای بن‌بست ندارد.';
+        $('#result-stars').textContent = '☆☆☆';
+        $('#result-time').textContent = formatTime(elapsed);
+        $('#result-errors').textContent = fa(game.errors);
+        $('#result-score').textContent = fa(game.score);
+        $('#result-reward').textContent = 'با تلاش دوباره می‌توانی مرحله را کامل کنی.';
+        $('#result-primary').textContent = '🔁 تلاش دوباره';
+        $('#result-primary').dataset.resultMode = 'retry';
+        saveState();
+        showScreen('result');
+        tone('fail');
+        return;
+      }
+
+      const stars = calculateStars();
+      const speedBonus = game.elapsed <= game.config.par ? 8 : 3;
+      const reward = 10 + stars * 6 + speedBonus + game.earnedDuringPlay;
+      state.coins += reward;
+      state.totalCoinsEarned += reward;
+
+      if (game.mode === 'campaign') {
+        const previous = state.levelResults[game.levelNumber];
+        const nextResult = { stars, time: elapsed, errors: game.errors, score: game.score };
+        if (!previous || stars > previous.stars || (stars === previous.stars && elapsed < previous.time)) {
+          state.levelResults[game.levelNumber] = nextResult;
+        }
+        state.unlockedLevel = clamp(Math.max(state.unlockedLevel, game.levelNumber + 1), 1, TOTAL_LEVELS);
+        if (game.levelNumber === TOTAL_LEVELS) state.campaignCompleted = true;
+      } else {
+        state.endlessBest = Math.max(state.endlessBest, game.round);
+      }
+      saveState();
+      updateCoins();
+
+      $('#result-icon').textContent = stars === 3 ? '🏆' : '🎉';
+      $('#result-title').textContent = stars === 3 ? 'بی‌نقص بود!' : 'مرحله تمام شد!';
+      $('#result-message').textContent = game.mode === 'campaign' ? `${game.config.title} با موفقیت انجام شد.` : `دور ${fa(game.round)} حالت بی‌پایان را رد کردی.`;
+      $('#result-stars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+      $('#result-time').textContent = formatTime(elapsed);
+      $('#result-errors').textContent = fa(game.errors);
+      $('#result-score').textContent = fa(game.score);
+      $('#result-reward').textContent = `🪙 +${fa(reward)} سکه`;
+
+      let primaryText = 'مرحلهٔ بعد ▶';
+      let primaryMode = 'next';
+      if (game.mode === 'endless') {
+        primaryText = `دور ${fa(game.round + 1)} ▶`;
+        primaryMode = 'next-endless';
+      } else if (game.levelNumber === TOTAL_LEVELS) {
+        primaryText = 'دیدن پایان داستان 🏆';
+        primaryMode = 'ending';
+      }
+      $('#result-primary').textContent = primaryText;
+      $('#result-primary').dataset.resultMode = primaryMode;
+      showScreen('result');
+      burstConfetti(stars === 3 ? 55 : 32);
+      tone('win');
+    }
+
+    function pauseGame() {
+      if (!game?.running || game.finished || game.paused) return;
+      game.paused = true;
+      game.pausedAt = performance.now();
+      stopGameLoop();
+      $('#pause-modal').classList.add('show');
+    }
+
+    function resumeGame() {
+      if (!game?.paused) return;
+      game.pausedTotal += performance.now() - game.pausedAt;
+      game.paused = false;
+      $('#pause-modal').classList.remove('show');
+      game.raf = requestAnimationFrame(gameLoop);
+    }
+
+    function retryGame() {
+      if (!game) return;
+      const payload = { mode: game.mode, levelNumber: game.levelNumber, round: game.round, config: game.mode === 'campaign' ? LEVELS[game.levelNumber - 1] : endlessConfig(game.round) };
+      $('#pause-modal').classList.remove('show');
+      startGame(payload);
+    }
+
+    function quitLevel() {
+      stopGameLoop();
+      if (game) game.finished = true;
+      $('#pause-modal').classList.remove('show');
+      game = null;
+      renderMenu();
+      showScreen('menu');
+    }
+
+    function showEnding() {
+      const results = Object.values(state.levelResults);
+      const stars = results.reduce((sum, item) => sum + item.stars, 0);
+      const perfect = results.filter(item => item.errors === 0).length;
+      $('#ending-summary').innerHTML = `
+        <div>⭐ ستاره‌های کمپین: <strong>${fa(stars)} از ${fa(TOTAL_LEVELS * 3)}</strong></div>
+        <div>🎯 مراحل بی‌خطا: <strong>${fa(perfect)}</strong></div>
+        <div>🪙 کل سکه‌های به‌دست‌آمده: <strong>${fa(state.totalCoinsEarned)}</strong></div>`;
+      showScreen('ending');
+      burstConfetti(70);
+    }
+
+    function openMap() { renderMap(); showScreen('map'); }
+    function openShop() { renderShop(); showScreen('shop'); }
+    function openStats() { renderStats(); showScreen('stats'); }
+
+    function handleResultPrimary() {
+      const mode = $('#result-primary').dataset.resultMode;
+      if (mode === 'retry') return retryGame();
+      if (mode === 'ending') return showEnding();
+      if (mode === 'next-endless') return startEndless(game.round + 1);
+      return startCampaignLevel(clamp(game.levelNumber + 1, 1, TOTAL_LEVELS));
+    }
+
+    function pointerDown(event) {
+      const foodEl = event.target.closest('[data-food]');
+      if (!foodEl || !game?.running || game.paused || foodEl.classList.contains('used')) return;
+      event.preventDefault();
+      const uid = foodEl.dataset.food;
+      const item = game.foods.find(food => food.uid === uid);
+      if (!item || item.used) return;
+      drag = { uid, pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, moved: false, foodEl };
+      foodEl.setPointerCapture?.(event.pointerId);
+    }
+
+    function pointerMove(event) {
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      const distance = Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY);
+      if (!drag.moved && distance > 8) {
+        drag.moved = true;
+        const item = game.foods.find(food => food.uid === drag.uid);
+        $('#drag-ghost').textContent = FOODS[item.foodId].emoji;
+        $('#drag-ghost').classList.add('show');
+        drag.foodEl.classList.add('drag-source');
+      }
+      if (!drag.moved) return;
+      event.preventDefault();
+      $('#drag-ghost').style.left = `${event.clientX}px`;
+      $('#drag-ghost').style.top = `${event.clientY}px`;
+      $$('.animal-card').forEach(card => card.classList.remove('drop-target'));
+      const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-animal]');
+      target?.classList.add('drop-target');
+    }
+
+    function pointerUp(event) {
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      const current = drag;
+      if (current.moved) {
+        const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-animal]');
+        if (target) feed(target.dataset.animal, current.uid, event.clientX, event.clientY);
+      } else {
+        selectFood(current.uid);
+      }
+      cancelDrag();
+    }
+
+    function cancelDrag() {
+      if (drag?.foodEl) drag.foodEl.classList.remove('drag-source');
+      drag = null;
+      $('#drag-ghost')?.classList.remove('show');
+      $$('.animal-card').forEach(card => card.classList.remove('drop-target'));
+    }
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function hideToast() {
+      clearTimeout(toastTimer);
+      $('#toast')?.classList.remove('show');
+    }
+
+    function toast(message, duration = 1900) {
+      const el = $('#toast');
+      el.textContent = message;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), duration);
+    }
+
+    function particles(x, y, symbols) {
+      if (state.settings.reducedMotion || !x || !y) return;
+      const fragment = document.createDocumentFragment();
+      symbols.forEach((symbol, index) => {
+        const el = document.createElement('span');
+        el.className = 'particle';
+        el.textContent = symbol;
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        el.style.setProperty('--x', `${(Math.random() - .5) * 110}px`);
+        el.style.setProperty('--y', `${-45 - Math.random() * 80}px`);
+        el.style.setProperty('--r', `${(Math.random() - .5) * 180}deg`);
+        el.style.animationDelay = `${index * 35}ms`;
+        el.addEventListener('animationend', () => el.remove(), { once: true });
+        fragment.appendChild(el);
+      });
+      document.body.appendChild(fragment);
+    }
+
+    function burstConfetti(count = 35) {
+      if (state.settings.reducedMotion) return;
+      const colors = ['#ff6b35','#ffe66d','#35b56a','#3b82f6','#9b5de5','#ef476f'];
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement('i');
+        el.className = 'confetti';
+        el.style.left = `${Math.random() * 100}vw`;
+        el.style.background = colors[i % colors.length];
+        el.style.setProperty('--d', `${1.6 + Math.random() * 1.8}s`);
+        el.style.animationDelay = `${Math.random() * .45}s`;
+        el.addEventListener('animationend', () => el.remove(), { once: true });
+        fragment.appendChild(el);
+      }
+      document.body.appendChild(fragment);
+    }
+
+    function ensureAudio() {
+      if (!state.settings.sound) return null;
+      try {
+        audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+        if (audioContext.state === 'suspended') audioContext.resume();
+        return audioContext;
+      } catch { return null; }
+    }
+
+    function tone(type) {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+      const patterns = {
+        tick: [420, .055], start: [680, .12], correct: [760, .08], wrong: [190, .14],
+        win: [880, .2], fail: [130, .28], buy: [980, .16], equip: [620, .08]
+      };
+      const [frequency, duration] = patterns[type] || patterns.correct;
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      oscillator.type = type === 'wrong' || type === 'fail' ? 'sawtooth' : 'sine';
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.08, ctx.currentTime + .01);
+      gain.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + duration);
+      oscillator.connect(gain).connect(ctx.destination);
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + duration + .02);
+    }
+
+    function vibrate(pattern) {
+      if ('vibrate' in navigator) navigator.vibrate(pattern);
+    }
+
+    function resetProgress() {
+      const accepted = confirm('همهٔ سکه‌ها، مراحل، رکوردها و خریدها پاک شوند؟ این کار قابل بازگشت نیست.');
+      if (!accepted) return;
+      state = clone(DEFAULT_STATE);
+      saveState();
+      renderMenu();
+      showScreen('menu');
+      toast('پیشرفت بازی پاک شد.');
+    }
+
+    document.addEventListener('click', event => {
+      const action = event.target.closest('[data-action]')?.dataset.action;
+      if (action) {
+        ensureAudio();
+        const actions = {
+          'continue': () => state.campaignCompleted ? showEnding() : startCampaignLevel(state.unlockedLevel),
+          'open-map': openMap,
+          'open-shop': openShop,
+          'open-stats': openStats,
+          'go-menu': () => { if (currentScreen === 'game' && game?.running && !game.finished) pauseGame(); else { renderMenu(); showScreen('menu'); } },
+          'start-endless': () => startEndless(1),
+          'pause': pauseGame,
+          'resume': resumeGame,
+          'retry': retryGame,
+          'quit-level': quitLevel,
+          'result-primary': handleResultPrimary,
+          'toggle-sound': () => { state.settings.sound = !state.settings.sound; saveState(); applyPreferences(); toast(state.settings.sound ? '🔊 صدا روشن شد.' : '🔇 صدا خاموش شد.'); },
+          'toggle-motion': () => { state.settings.reducedMotion = !state.settings.reducedMotion; saveState(); applyPreferences(); toast(state.settings.reducedMotion ? 'انیمیشن‌ها محدود شدند.' : 'انیمیشن‌ها فعال شدند.'); },
+          'reset-progress': resetProgress
+        };
+        actions[action]?.();
+        return;
+      }
+
+      const levelButton = event.target.closest('[data-level]');
+      if (levelButton) return startCampaignLevel(Number(levelButton.dataset.level));
+
+      const tab = event.target.closest('[data-shop-tab]');
+      if (tab) { shopTab = tab.dataset.shopTab; renderShop(); return; }
+
+      const shopItem = event.target.closest('[data-shop-item]');
+      if (shopItem) return handleShopItem(shopItem.dataset.shopItem);
+
+      const foodButton = event.target.closest('[data-food]');
+      if (foodButton && event.detail === 0) return selectFood(foodButton.dataset.food);
+
+      const animalCard = event.target.closest('[data-animal]');
+      if (animalCard && game?.selectedFood) {
+        const rect = animalCard.getBoundingClientRect();
+        feed(animalCard.dataset.animal, game.selectedFood, rect.left + rect.width / 2, rect.top + rect.height / 2);
+      }
     });
-  }
 
-  // Stars breakdown
-  const breakdown = document.getElementById('stars-breakdown');
-  breakdown.innerHTML = '';
-
-  if (hist.length === 0) {
-    breakdown.innerHTML = '<div class="empty-state" style="font-size:13px;color:#aaa">هنوز مرحله‌ای تموم نشده! 🎮</div>';
-  } else {
-    hist.slice().reverse().slice(0, 8).forEach(h => {
-      const m = Math.floor(h.time / 60).toString().padStart(2,'0');
-      const s = (h.time % 60).toString().padStart(2,'0');
-      const row = document.createElement('div');
-      row.className = 'stars-row';
-      row.innerHTML = `
-        <div class="level-num">مرحله ${toPersian(h.level)}</div>
-        <div class="stars-display">
-          ${[0,1,2].map(i => `<span class="star-ico">${i < h.stars ? '⭐' : '☆'}</span>`).join('')}
-        </div>
-        <div class="time-taken">${m}:${s} | ${toPersian(h.errors)} خطا</div>
-      `;
-      breakdown.appendChild(row);
+    $('#food-tray').addEventListener('pointerdown', pointerDown);
+    window.addEventListener('pointermove', pointerMove, { passive: false });
+    window.addEventListener('pointerup', pointerUp);
+    window.addEventListener('pointercancel', cancelDrag);
+    window.addEventListener('blur', () => { if (currentScreen === 'game' && game?.running && !game.paused) pauseGame(); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && currentScreen === 'game' && game?.running && !game.paused) pauseGame(); });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && currentScreen === 'game') game?.paused ? resumeGame() : pauseGame();
     });
-  }
-}
 
-// ============================================================
-//  INIT
-// ============================================================
-function init() {
-  loadState();
-  applyTheme(state.equippedTheme);
-  updateCoinDisplays();
-  updateMenuStats();
-
-  // Update preview animals based on skin
-  document.getElementById('preview-bear').textContent = getAnimalEmoji('bear');
-  document.getElementById('preview-rabbit').textContent = getAnimalEmoji('rabbit');
-  document.getElementById('preview-chick').textContent = getAnimalEmoji('chick');
-
-  // Start hunger reminders when game starts
-  document.addEventListener('gameStarted', startHungerReminders);
-
-  showScreen('menu');
-}
-
-// Override startGame to fire event
-const _origStartGame = startGame;
-window.startGame = async function() {
-  const cfg = getLevelConfig(state.currentLevel);
-  buildLevel(cfg);
-  showScreen('game');
-  updateErrorDisplay();
-  applyTheme(state.equippedTheme);
-  document.getElementById('level-badge').textContent = 'مرحله ' + toPersian(state.currentLevel);
-  await showCountdown();
-  startTimer();
-  state.gameRunning = true;
-  startHungerReminders();
-};
-
-window.addEventListener('DOMContentLoaded', init);
-</script>
+    applyPreferences();
+    renderMenu();
+    showScreen('menu');
+  })();
+  </script>
 </body>
 </html>
