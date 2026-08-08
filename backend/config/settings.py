@@ -141,6 +141,21 @@ CELERY_TASK_ALWAYS_EAGER = env_bool("CELERY_EAGER", False)
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 # ---------------------------------------------------------------------------
+# پیامک (OTP) — sms.ir
+# کلیدها فقط از .env خوانده می‌شوند و هرگز کامیت نمی‌شوند.
+# SMS_BACKEND=console یعنی چیزی ارسال نمی‌شود و کد فقط در لاگ می‌آید (توسعه).
+# ---------------------------------------------------------------------------
+SMS_BACKEND = env("SMS_BACKEND", "console" if DEBUG else "smsir")
+SMS_IR_API_KEY = env("SMS_IR_API_KEY", "")
+SMS_IR_TEMPLATE_ID = env("SMS_IR_TEMPLATE_ID", "")
+# نامِ پارامتر داخلِ قالبِ پنل sms.ir (مثلاً {CODE} در متن قالب)
+SMS_IR_PARAM_NAME = env("SMS_IR_PARAM_NAME", "CODE")
+SMS_IR_BASE_URL = env("SMS_IR_BASE_URL", "https://api.sms.ir")
+SMS_IR_TIMEOUT = float(env("SMS_IR_TIMEOUT", "10"))
+# در حالتِ توسعه، کد در پاسخِ API هم برگردد تا تست بدون پیامک ممکن باشد
+OTP_EXPOSE_DEV_CODE = env_bool("OTP_EXPOSE_DEV_CODE", DEBUG)
+
+# ---------------------------------------------------------------------------
 # Django REST Framework + JWT
 # ---------------------------------------------------------------------------
 REST_FRAMEWORK = {

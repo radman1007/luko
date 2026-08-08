@@ -46,7 +46,11 @@ def _as_str(value) -> str | None:
 
 
 def request_otp(phone: str) -> dict:
-    """کدِ تازه می‌سازد و ذخیره می‌کند. اگر خیلی زود دوباره خواسته شد، خطا می‌دهد."""
+    """
+    کدِ تازه می‌سازد، ذخیره می‌کند و پیامک را می‌فرستد.
+    اگر خیلی زود دوباره خواسته شد OTPRateLimited می‌دهد و اگر پیامک نرفت،
+    کد و قفلِ ارسالِ مجدد را پس می‌گیرد تا کاربر بی‌خود ۶۰ ثانیه منتظر نماند.
+    """
     r = _conn()
     remaining = r.ttl(_resend_key(phone))
     if remaining and remaining > 0:
@@ -56,8 +60,14 @@ def request_otp(phone: str) -> dict:
     r.setex(_code_key(phone), OTP_TTL, code)
     r.setex(_resend_key(phone), OTP_RESEND, "1")
     r.delete(_att_key(phone))
-    _send_sms(phone, code)
-    return {"code": code, "ttl": OTP_TTL, "resend_in": OTP_RESEND}
+
+    try:
+        delivery = send_verification_code(phone, code)
+    except SmsError:
+        r.delete(_code_key(phone), _resend_key(phone))
+        raise
+
+    return {"code": code, "ttl": OTP_TTL, "resend_in": OTP_RESEND, "delivery": delivery}
 
 
 def verify_otp(phone: str, code: str) -> bool:
