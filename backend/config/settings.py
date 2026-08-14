@@ -59,6 +59,9 @@ INSTALLED_APPS = [
     "apps.club",
     "apps.garden",
     "apps.games",
+    "apps.content",
+    "apps.parent",
+    "apps.support",
 ]
 
 MIDDLEWARE = [
@@ -152,7 +155,8 @@ SMS_IR_TEMPLATE_ID = env("SMS_IR_TEMPLATE_ID", "")
 SMS_IR_PARAM_NAME = env("SMS_IR_PARAM_NAME", "CODE")
 SMS_IR_BASE_URL = env("SMS_IR_BASE_URL", "https://api.sms.ir")
 SMS_IR_TIMEOUT = float(env("SMS_IR_TIMEOUT", "10"))
-# در حالتِ توسعه، کد در پاسخِ API هم برگردد تا تست بدون پیامک ممکن باشد
+# در حالتِ توسعه، کد در پاسخِ API هم برگردد تا تست بدون پیامک ممکن باشد.
+# محافظِ واقعی در خودِ ویو است: کد فقط وقتی برمی‌گردد که DEBUG هم روشن باشد.
 OTP_EXPOSE_DEV_CODE = env_bool("OTP_EXPOSE_DEV_CODE", DEBUG)
 
 # ---------------------------------------------------------------------------
@@ -169,6 +173,15 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
     "DEFAULT_PAGINATION_CLASS": "apps.common.pagination.DefaultPagination",
     "PAGE_SIZE": 30,
+}
+
+# محتوای JSONFieldها (payloadِ رویدادهای بازی، وضعیت باغچه، رنگ‌های نقاشی) نباید
+# snake_case شود؛ بازی‌ها کلیدها را camelCase می‌فرستند و تحلیلِ گزارشِ والدین
+# روی همان کلیدها انجام می‌شود. (نامِ تنظیم را خودِ کتابخانه تعیین می‌کند.)
+JSON_CAMEL_CASE = {
+    "JSON_UNDERSCOREIZE": {
+        "ignore_fields": ("payload", "state", "colors", "extra", "ingredients"),
+    },
 }
 
 SIMPLE_JWT = {

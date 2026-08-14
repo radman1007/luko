@@ -19,6 +19,19 @@ export interface Lukorian {
 }
 
 export const LUKORIANS = {
+  /** لوکی — کاراکتر اصلیِ شهر و میزبانِ صفحه‌ی خانه (کلید `luko` می‌ماند چون شناسه است) */
+  luko: {
+    id: 'luko',
+    name: 'لوکی',
+    role: 'رفیقِ همیشگیِ شهر لوکو',
+    image: '/characters/luko.png',
+    theme: {
+      primary: '#f59322',
+      dark: '#d9750a',
+      soft: '#fff3e0',
+      accent: '#2f5f9f',
+    },
+  },
   health: {
     id: 'health',
     name: 'دکتر نیلا',
@@ -77,18 +90,6 @@ export const LUKORIANS = {
       dark: '#b8353c',
       soft: '#fdecec',
       accent: '#6fbe44',
-    },
-  },
-  tv: {
-    id: 'tv',
-    name: 'ویدا',
-    role: 'مجری تلویزیون شهر لوکو',
-    image: '/characters/tv.png',
-    theme: {
-      primary: '#9c5bc4',
-      dark: '#7b44a0',
-      soft: '#f5edfa',
-      accent: '#f2994a',
     },
   },
   garden: {
@@ -162,30 +163,6 @@ export const LUKORIANS = {
       dark: '#241f31',
       soft: '#efeaf8',
       accent: '#4fd8c8',
-    },
-  },
-  traffic: {
-    id: 'traffic',
-    name: 'سروان راه',
-    role: 'پلیس راهنمای شهر لوکو',
-    image: '/characters/traficman.png',
-    theme: {
-      primary: '#34456b',
-      dark: '#24304d',
-      soft: '#eaeef5',
-      accent: '#d4a935',
-    },
-  },
-  chef: {
-    id: 'chef',
-    name: 'سرآشپز زعفران',
-    role: 'آشپزِ شهر لوکو',
-    image: '/characters/chef.png',
-    theme: {
-      primary: '#d4384a',
-      dark: '#a82a3a',
-      soft: '#fdeef0',
-      accent: '#f5b914',
     },
   },
   guard: {

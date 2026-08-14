@@ -62,3 +62,18 @@ class Secret(TimeStampedModel):
 
     def __str__(self):
         return f"Secret<{self.user}>:{self.title}"
+
+
+class BreathingSession(TimeStampedModel):
+    """یک دورِ کاملِ تمرینِ تنفس ۴-۴-۴ — برای گزارشِ سلامتِ والدین."""
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             related_name="breathing_sessions")
+    cycles = models.PositiveSmallIntegerField(default=1)     # چند دور
+    seconds = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        indexes = [models.Index(fields=["user", "created_at"])]
+
+    def __str__(self):
+        return f"{self.user} — {self.cycles} دور"

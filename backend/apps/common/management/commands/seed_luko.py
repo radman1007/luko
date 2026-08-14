@@ -8,11 +8,16 @@ from django.core.management.base import BaseCommand
 from apps.club.models import Medal, MissionTemplate, ShopItem
 from apps.garden.models import GardenShopItem
 
+# (عنوان قدیمی، عنوان تازه، آیکون) — لحن «مدرسه‌ای» جای خود را به لحنِ بازی داد
+RENAMED_MISSIONS = [
+    ("یه درس از کتابت بخون", "یه دنیای تازه رو باز کن", "HiOutlineMap"),
+]
+
 DAILY_MISSIONS = [
     ("یه بازی رو کامل کن", 10, "HiOutlinePuzzlePiece"),
     ("حالت رو به دکتر نیلا بگو", 5, "HiOutlineFaceSmile"),
     ("یه دور نفس جادویی برو", 5, "HiOutlineCloud"),
-    ("یه درس از کتابت بخون", 10, "HiOutlineBookOpen"),
+    ("یه دنیای تازه رو باز کن", 10, "HiOutlineMap"),
 ]
 SPORT_TASKS = [
     ("یه دقیقه درجا بدو", 10, "HiOutlineBolt"),
@@ -46,6 +51,10 @@ class Command(BaseCommand):
     help = "پرکردنِ داده‌های پیش‌فرضِ کلاب و باغچه"
 
     def handle(self, *args, **options):
+        # عنوان‌هایی که عوض شده‌اند: ردیفِ قدیمی را rename می‌کنیم تا نسخه‌ی تکراری نسازیم
+        for old_title, new_title, new_icon in RENAMED_MISSIONS:
+            MissionTemplate.objects.filter(title=old_title).update(title=new_title, icon=new_icon)
+
         for i, (title, coin, icon) in enumerate(DAILY_MISSIONS):
             MissionTemplate.objects.get_or_create(
                 title=title, category=MissionTemplate.Category.MISSION,

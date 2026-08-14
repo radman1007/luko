@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from rest_framework import status
 from rest_framework.permissions import AllowAny
@@ -7,10 +9,18 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.common import cache
+from apps.common.sms import SmsError
 
 from .constants import BUILDER_PRICES, CUSTOM_CHARACTER
 from .models import User
-from .otp import OTPRateLimited, OTPTooManyAttempts, request_otp, verify_otp
+from .otp import (
+    OTPIPBlocked,
+    OTPRateLimited,
+    OTPTooManyAttempts,
+    check_ip_quota,
+    request_otp,
+    verify_otp,
+)
 from .serializers import (
     KidSettingsSerializer,
     LukorianSerializer,
@@ -19,6 +29,16 @@ from .serializers import (
     VerifyOTPSerializer,
 )
 from .services import build_profile_stats, get_profile_stats
+
+log = logging.getLogger("luko.auth")
+
+
+def _client_ip(request) -> str:
+    """پشتِ nginx، IP واقعی در اولین مقدارِ X-Forwarded-For است."""
+    forwarded = request.META.get("HTTP_X_FORWARDED_FOR", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.META.get("REMOTE_ADDR", "")
 
 
 def _tokens_for(user):
@@ -39,6 +59,16 @@ class RequestOTPView(APIView):
         serializer = RequestOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone = serializer.validated_data["phone"]
+
+        try:
+            check_ip_quota(_client_ip(request))
+        except OTPIPBlocked as exc:
+            return Response(
+                {"error": {"code": 429, "message": "درخواستِ زیادی از این دستگاه ثبت شده؛ بعداً تلاش کن.",
+                           "retryAfter": exc.args[0] if exc.args else 3600}},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
         try:
             info = request_otp(phone)
         except OTPRateLimited as exc:
@@ -48,8 +78,16 @@ class RequestOTPView(APIView):
                            "resendIn": resend_in}},
                 status=status.HTTP_429_TOO_MANY_REQUESTS,
             )
+        except SmsError as exc:
+            # جزئیاتِ فنی فقط در لاگ می‌ماند؛ کاربر پیامِ ساده می‌بیند
+            log.error("ارسال OTP ناموفق برای %s — %s", phone, exc.detail)
+            return Response(
+                {"error": {"code": 502, "message": exc.message}},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
         payload = {"expiresIn": info["ttl"], "resendIn": info["resend_in"]}
-        if settings.DEBUG:
+        if settings.OTP_EXPOSE_DEV_CODE and settings.DEBUG:
             payload["devCode"] = info["code"]  # فقط در حالتِ توسعه، برای تست
         return Response(payload)
 

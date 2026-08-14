@@ -65,7 +65,7 @@ export default function BookGames() {
           >
             <HiOutlineChevronRight />
           </button>
-          <span className={styles.topTitle}>کتاب پیدا نشد</span>
+          <span className={styles.topTitle}>دنیا پیدا نشد</span>
         </header>
       </main>
     );
@@ -96,7 +96,7 @@ export default function BookGames() {
           type="button"
           className={styles.back}
           onClick={() => navigate('/books')}
-          aria-label="بازگشت به کتاب‌ها"
+          aria-label="بازگشت به دنیاها"
         >
           <HiOutlineChevronRight />
         </button>
@@ -230,7 +230,7 @@ export default function BookGames() {
             مرحله‌های «{book.worldTitle}» تو راهه؛ زود برمی‌گردیم سراغش!
           </p>
           <button type="button" className={styles.soonBtn} onClick={() => navigate('/books')}>
-            بقیه‌ی کتاب‌ها
+            بقیه‌ی دنیاها
           </button>
         </div>
       )}

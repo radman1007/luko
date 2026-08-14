@@ -14,14 +14,14 @@
 
 | هوک / ماژول | کلید localStorage فعلی | endpoint هدف |
 |---|---|---|
-| `auth/AuthProvider` | `luko_access_token`, `luko_guest` | `POST /auth/login`, `GET /auth/me`, `POST /auth/refresh` (TODO در api.ts) |
+| `auth/AuthProvider` | `luko_access_token`, `luko_guest` | **متصل شد:** `POST /auth/request-otp`، `POST /auth/verify-otp`، `GET /auth/me` (پیامک واقعی با sms.ir). `POST /auth/refresh` هنوز در `api.ts` وصل نشده. |
 | `health/useMoodReminder` | `luko_last_mood`, `luko_last_mood_time` | `POST /moods/checkin`, `GET /moods/prompt` |
-| `health/useBreathing` | — (فقط state) | `POST /breathing/sessions` (ثبت جلسه‌ی کامل‌شده) |
+| `health/useBreathing` | — (فقط state) | **آماده شد:** `GET,POST /breathing/sessions` |
 | `health/useGarden` | `luko_garden` | `GET/POST /garden/state`, `POST /garden/water` |
 | `health/useSecrets` | `luko_secrets` | `GET/POST/DELETE /secrets` — payload رمزنگاری‌شده سمت کلاینت بماند (سرور متن خام نبیند) |
 | `health/artLog` | `luko_art_log` | `POST /moods/art` (حال + رنگ‌ها + بندانگشتی برای تحلیل) |
 | `club/useClub` | `luko_coins`, `luko_club_*`, `luko_sport_done_*` | `GET /club/summary`, `GET/POST /club/tasks`, `GET /club/rewards`, `POST /club/rewards/:id/redeem`, `GET /club/badges`, `GET /club/streak` |
-| `tv/useLikes` + `tvData` | `luko_tv_likes` | `GET /videos`, `GET /videos/categories`, `POST /videos/:id/interaction` |
+| ~~لوکو تلویزیون~~ | — | بخشِ فرانت حذف شد (مرداد ۱۴۰۵)؛ `GET /videos` و مدل‌هایش در بک‌اند نگه داشته شد تا اگر برگشت، آماده باشد |
 | `profile/useTreasure` | `luko_treasures` | `GET/POST /treasures` — **مقدار گنج حتماً سمت سرور محاسبه/اعتبارسنجی شود** |
 | `profile/useSettings` | `luko_settings` | `PATCH /users/me/settings` |
 | `profile` بازی‌های تمام‌شده | `luko_completed_games` | `POST /games/:id/complete` (سکه هم سمت سرور داده شود) |
@@ -33,3 +33,15 @@
 3. رازها (`useSecrets`) با AES-GCM + PBKDF2 سمت کلاینت رمز می‌شوند — سرور فقط payload رمزشده را نگه دارد و هرگز رمز بچه را نگیرد.
 4. آپلود عکس بچه (کاراکتر اختصاصی): حتماً محدودیت نوع/حجم فایل، اسکن سمت سرور و رضایت والدین لازم است.
 5. بازی‌های HTML5 که بعداً در iframe می‌آیند: `sandbox` بگیرند و پیام‌رسانی فقط با postMessage با origin مشخص.
+
+## APIهای تازه‌ی آماده (بک‌اند زده شده، فرانت هنوز وصل نشده)
+
+| فرانت | endpoint |
+|---|---|
+| `features/parent/mockData.ts` | `GET /parent/children` · `GET /parent/children/{id}/report` |
+| `features/podcast/podcastData.ts` | `GET /podcasts` (+ `today`) · `POST /podcasts/{id}/listen` |
+| ~~قانون روز جاده~~ | `GET /traffic-rules` — بخشِ فرانت حذف شد (مرداد ۱۴۰۵)؛ مدل و API در بک‌اند نگه داشته شد تا اگر برگشت، دوباره کار کند |
+| ~~آشپزی روز~~ | `GET /recipes` — همان وضعیت |
+| `features/books/booksData.ts` | `GET /books` (کتاب + مراحل + فهرستِ کامل‌شده‌ها) |
+| تبِ «پشتیبانی» پنل والدین | `GET,POST /tickets` · `POST /tickets/{id}/reply` |
+| رویدادهای بازی‌ها (تله‌متری) | `POST /games/events` — تک‌رویداد یا آرایه |

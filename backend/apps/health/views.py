@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import MoodCheckin, Painting, Secret
-from .serializers import MoodCheckinSerializer, PaintingSerializer, SecretSerializer
+from .serializers import BreathingSessionSerializer, MoodCheckinSerializer, PaintingSerializer, SecretSerializer
 from .services import mood_prompt
 
 
@@ -55,3 +55,15 @@ class SecretDestroyView(generics.DestroyAPIView):
 
     def get_queryset(self):
         return self.request.user.secrets.all()
+
+
+class BreathingSessionView(generics.ListCreateAPIView):
+    """ثبتِ دورِ کاملِ تمرینِ تنفس — ورودیِ بخشِ سلامتِ گزارشِ والدین."""
+    serializer_class = BreathingSessionSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return self.request.user.breathing_sessions.all()[:60]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

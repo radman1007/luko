@@ -20,9 +20,9 @@ import {
 import styles from './Books.module.css';
 
 const GUIDE_STEPS = [
-  'اینجا اتاقِ کتاب‌های منه، رفیق! همه‌ی دنیاهای بازی یه‌جا جمع‌ان.',
-  'بالای صفحه ببین چند مرحله رو زدی و چند تا سکه جمع کردی — بعد بپر تو هر کتاب!',
-  'هر کتاب یه مسیرِ پله‌پله‌ست؛ مرحله‌ها رو یکی‌یکی رد کن تا قهرمانش بشی!',
+  'اینجا اتاقِ بازیِ منه، رفیق! همه‌ی دنیاها یه‌جا جمع‌ان.',
+  'بالای صفحه ببین چند مرحله رو زدی و چند تا سکه جمع کردی — بعد بپر تو هر دنیا!',
+  'هر دنیا یه مسیرِ پله‌پله‌ست؛ مرحله‌ها رو یکی‌یکی رد کن تا قهرمانش بشی!',
 ];
 
 export default function Books() {
@@ -37,7 +37,7 @@ export default function Books() {
       : `${stats.completedLevels.toLocaleString('fa-IR')} مرحله رو زدی، ${stats.remainingLevels.toLocaleString('fa-IR')} تا مونده — جا نزنی!`;
 
   const statTiles = [
-    { label: 'کتاب‌ها', value: stats.totalBooks, icon: <HiOutlineRectangleStack size={20} /> },
+    { label: 'دنیاها', value: stats.totalBooks, icon: <HiOutlineRectangleStack size={20} /> },
     { label: 'مرحله تمومه', value: stats.completedLevels, icon: <HiOutlineCheckCircle size={20} /> },
     { label: 'مرحله مونده', value: stats.remainingLevels, icon: <HiOutlineSquares2X2 size={20} /> },
     { label: 'سکه', value: stats.coinsEarned, icon: <CoinIcon size={20} /> },
@@ -57,7 +57,7 @@ export default function Books() {
         <div className={styles.titleRow}>
           <h1 className={styles.title}>
             <HiOutlineBolt aria-hidden />
-            کتاب‌ها و مراحل
+            دنیاها و مرحله‌ها
           </h1>
           <span className={styles.gradeBadge}>{GRADE_LABEL}</span>
         </div>

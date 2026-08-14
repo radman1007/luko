@@ -53,6 +53,7 @@ export function useGarden() {
     maxWater,
     nextRefillMs,
     season,
+    lastWateredAt: state.lastWateredAt,
 
     canPlant: plants.length < slots && state.seeds > 0,
     canWater: plants.length > 0 && settled.waterCharges >= 1,

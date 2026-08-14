@@ -34,15 +34,17 @@ cd frontend && npm run lint && npx tsc -b --noEmit
 cd backend && USE_SQLITE=1 python manage.py check
 ```
 
-## Tests — read this before claiming tests pass
-**There is currently no test runner on either side.** `npm test` does not exist in
-`frontend/package.json`, and there are no test files under `backend/apps/`. Do not claim
-tests ran or passed; verify behavior by exercising the app in the preview browser and
-report what you actually saw.
+## Tests
+**Backend** — Django's runner, tests live in `apps/<app>/tests/`:
+```bash
+cd backend && USE_SQLITE=1 python manage.py test
+```
+Coverage today is the SMS/OTP layer (`apps/accounts/tests/test_sms.py`) — network calls are
+mocked, never hit sms.ir from a test. Add new tests beside it as features land.
 
-If you add testing, do it deliberately and update this file:
-- Frontend: Vitest + React Testing Library, `*.test.ts(x)` next to the code, test behavior
-  not implementation, add a `test` script to `package.json`.
-- Backend: `apps/<app>/tests/`, run with `USE_SQLITE=1 python manage.py test`.
+**Frontend** — **no test runner is installed.** `npm test` does not exist in
+`frontend/package.json`. Do not claim frontend tests ran; verify behavior in the preview
+browser and report what you actually saw. If you add one: Vitest + React Testing Library,
+`*.test.ts(x)` next to the code, plus a `test` script — then update this file.
 
 Report failures verbatim. Never report success for a step you skipped.

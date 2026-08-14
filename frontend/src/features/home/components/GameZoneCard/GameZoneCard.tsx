@@ -27,7 +27,7 @@ function teaseText(totalDone: number): string {
   return `لِوِل ${totalDone.toLocaleString('fa-IR')}؟ بدک نیست... ولی تا رکورد من کلی مونده. جرئت داری ادامه بده!`;
 }
 
-/** گیم‌زون — تمام کتاب‌های پایه در قالب دنیاهای بازی */
+/** تالار بازی‌ها — همه‌ی دنیاهای بازیِ پایه یک‌جا */
 export function GameZoneCard() {
   const navigate = useNavigate();
   const gamer = LUKORIANS.gamer;
@@ -35,7 +35,7 @@ export function GameZoneCard() {
   const done = completedGames();
 
   return (
-    <section className={styles.card} aria-label="گیم‌زون لوکو">
+    <section className={styles.card} aria-label="تالار بازی‌ها">
       <div className={styles.head}>
         {!imgFailed && (
           <img
@@ -55,7 +55,7 @@ export function GameZoneCard() {
       <div className={styles.titleRow}>
         <h2 className={styles.title}>
           <HiOutlineBolt aria-hidden />
-          گیم‌زون لوکو
+          تالار بازی‌ها
         </h2>
         <span className={styles.gradeBadge}>{GRADE_LABEL}</span>
       </div>
@@ -111,7 +111,7 @@ export function GameZoneCard() {
       </div>
 
       <button type="button" className={styles.allBtn} onClick={() => navigate('/books')}>
-        همه‌ی کتاب‌ها و مراحل
+        همه‌ی دنیاها و مرحله‌ها
         <HiOutlineChevronLeft aria-hidden />
       </button>
 

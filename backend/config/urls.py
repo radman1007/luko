@@ -15,6 +15,9 @@ api_v1 = [
     path("club/", include("apps.club.urls")),
     path("garden/", include("apps.garden.urls")),
     path("", include("apps.games.urls")),
+    path("", include("apps.content.urls")),
+    path("", include("apps.support.urls")),
+    path("parent/", include("apps.parent.urls")),
 ]
 
 urlpatterns = [

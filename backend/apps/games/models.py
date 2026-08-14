@@ -4,6 +4,28 @@ from django.db import models
 from apps.common.models import TimeStampedModel
 
 
+class Book(TimeStampedModel):
+    """
+    کتابِ درسی (دنیای بازی‌ها). `book_id` همان شناسه‌ی فرانت است (مثل `math-1`)
+    و بازی‌ها با همین رشته به کتاب وصل می‌شوند.
+    """
+
+    book_id = models.SlugField(max_length=60, unique=True)
+    title = models.CharField(max_length=120)
+    subject = models.CharField(max_length=40)                 # ریاضی، علوم، ...
+    grade = models.PositiveSmallIntegerField(default=1)
+    world_title = models.CharField(max_length=120, blank=True)
+    icon = models.CharField(max_length=40, blank=True)
+    is_active = models.BooleanField(default=True)
+    sort = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["grade", "sort", "id"]
+
+    def __str__(self):
+        return f"{self.title} ({self.book_id})"
+
+
 class Game(TimeStampedModel):
     """
     کاتالوگِ بازی‌های آموزشی (مراحلِ کتاب‌ها). slug همان levelId فرانت است

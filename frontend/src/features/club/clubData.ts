@@ -2,10 +2,10 @@
 import {
   HiOutlineArrowsUpDown,
   HiOutlineBolt,
-  HiOutlineBookOpen,
   HiOutlineCloud,
   HiOutlineFaceSmile,
   HiOutlineGift,
+  HiOutlineMap,
   HiOutlineMapPin,
   HiOutlinePaintBrush,
   HiOutlinePuzzlePiece,
@@ -18,7 +18,7 @@ export const DAILY_MISSIONS: Mission[] = [
   { id: 'game', title: 'یه بازی رو کامل کن', coinReward: 10, icon: HiOutlinePuzzlePiece },
   { id: 'mood', title: 'حالت رو به دکتر نیلا بگو', coinReward: 5, icon: HiOutlineFaceSmile },
   { id: 'breath', title: 'یه دور نفس جادویی برو', coinReward: 5, icon: HiOutlineCloud },
-  { id: 'book', title: 'یه درس از کتابت بخون', coinReward: 10, icon: HiOutlineBookOpen },
+  { id: 'book', title: 'یه دنیای تازه رو باز کن', coinReward: 10, icon: HiOutlineMap },
 ];
 
 export const SPORT_TASKS: Mission[] = [
