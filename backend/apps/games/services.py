@@ -64,11 +64,12 @@ def complete_game(user, slug: str) -> dict:
     grant_dew(user, dew, source="game")
     grant_fertilizer(user, fert)
 
-    # باطل‌سازیِ نماهای متأثر
+    # باطل‌سازیِ نماهای متأثر — گزارشِ پنل والدین هم همین‌جا تازه می‌شود
     cache.invalidate(
         cache.profile_key(user.id),
         cache.club_summary_key(user.id),
         cache.garden_key(user.id),
+        cache.parent_report_key(user.id),
     )
 
     return {"alreadyDone": False, "coins": coin, "dew": dew,

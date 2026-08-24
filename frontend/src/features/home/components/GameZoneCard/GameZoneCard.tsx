@@ -1,38 +1,48 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HiOutlineBolt, HiOutlineChevronLeft, HiOutlinePlay } from 'react-icons/hi2';
+import {
+  HiOutlineBolt,
+  HiOutlineCheck,
+  HiOutlineChevronLeft,
+  HiOutlineLockClosed,
+  HiOutlinePlay,
+} from 'react-icons/hi2';
 import { CoinIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
-import { MOCK_BOOKS } from '../../mockData';
+import { completedLevelIds } from '@/features/books/booksData';
+import { SEASON, seasonState } from '@/features/games/seasonData';
 import styles from './GameZoneCard.module.css';
 
-// TODO: پایه‌ی تحصیلی بعد از آماده شدن بک‌اند از پروفایل کاربر می‌آید
-const GRADE_LABEL = 'کلاس اول';
-
-function completedGames(): string[] {
-  try {
-    const raw = localStorage.getItem('luko_completed_games');
-    if (raw) return JSON.parse(raw) as string[];
-  } catch {
-    /* داده‌ی خراب → لیست خالی */
-  }
-  return [];
-}
-
 /** لحن پیکسل: گیمری، کل‌کلی ولی رفیق */
-function teaseText(totalDone: number): string {
-  if (totalDone === 0) {
-    return 'هنوز هیچ مرحله‌ای رو رد نکردی؟! کنترلرت خاک گرفت رفیق... بزن بریم ببینم چند مَرده حلاجی!';
+function teaseText(completed: number, remaining: number): string {
+  if (completed === 0) {
+    return 'مرحله‌های این هفته باز شدن و تو هنوز شروع نکردی؟! کنترلرت خاک گرفت رفیق.';
   }
-  return `لِوِل ${totalDone.toLocaleString('fa-IR')}؟ بدک نیست... ولی تا رکورد من کلی مونده. جرئت داری ادامه بده!`;
+  if (remaining === 0) {
+    return 'مرحله‌های بازشده رو تموم کردی! تا ابرها کنار برن، رکوردهاتو بهتر کن.';
+  }
+  return `${remaining.toLocaleString('fa-IR')} مرحله‌ی باز مونده — تا هفته‌ی بعد وقت داری تمومشون کنی!`;
 }
 
-/** تالار بازی‌ها — همه‌ی دنیاهای بازیِ پایه یک‌جا */
+/** تالار بازی‌ها — مسیرِ سیزن؛ مرحله‌های همین هفته و ابرهای هفته‌ی بعد */
 export function GameZoneCard() {
   const navigate = useNavigate();
   const gamer = LUKORIANS.gamer;
   const [imgFailed, setImgFailed] = useState(false);
-  const done = completedGames();
+
+  const done = completedLevelIds();
+  const state = seasonState(done);
+  const remaining = state.openStages - state.completedStages;
+  const percent =
+    state.openStages > 0 ? Math.round((state.completedStages / state.openStages) * 100) : 0;
+  // مرحله‌های همین هفته روی کارت می‌آیند؛ اگر مرحله‌ی بعدیِ بچه از هفته‌ی قبل
+  // مانده باشد، همان اول فهرست می‌نشیند تا کارت هیچ‌وقت بی‌«الان» نماند
+  const thisWeek = state.weeks.find((week) => week.index === state.currentWeek);
+  const weekStages = thisWeek?.stages ?? [];
+  const cardStages =
+    state.nextStage && !weekStages.some((stage) => stage.id === state.nextStage?.id)
+      ? [state.nextStage, ...weekStages]
+      : weekStages;
 
   return (
     <section className={styles.card} aria-label="تالار بازی‌ها">
@@ -46,8 +56,10 @@ export function GameZoneCard() {
           />
         )}
         <div className={styles.bubble}>
-          <p className={styles.speaker}>{gamer.name}، {gamer.role}</p>
-          <p className={styles.text}>{teaseText(done.length)}</p>
+          <p className={styles.speaker}>
+            {gamer.name}، {gamer.role}
+          </p>
+          <p className={styles.text}>{teaseText(state.completedStages, remaining)}</p>
           <span className={styles.tail} aria-hidden />
         </div>
       </div>
@@ -57,61 +69,82 @@ export function GameZoneCard() {
           <HiOutlineBolt aria-hidden />
           تالار بازی‌ها
         </h2>
-        <span className={styles.gradeBadge}>{GRADE_LABEL}</span>
+        <span className={styles.seasonBadge}>
+          {SEASON.title} · هفته‌ی {state.currentWeek.toLocaleString('fa-IR')}
+        </span>
       </div>
-      <p className={styles.desc}>
-        هر درس یه دنیاست، هر تمرین یه مرحله؛ رد کنی، سکه مال توئه!
-      </p>
 
-      <div className={styles.grid}>
-        {MOCK_BOOKS.map((book) => {
-          const doneCount = done.filter((id) => id.startsWith(book.id)).length;
-          const ready = book.gamesCount > 0;
-          const finished = ready && doneCount >= book.gamesCount;
-          // مرحله‌ای که کاربر الان باید بازی کند (بعدیِ کامل‌نشده)
-          const nextLevel = Math.min(doneCount + 1, book.gamesCount);
-          const percent = ready ? Math.round((doneCount / book.gamesCount) * 100) : 0;
+      <div className={styles.progressRow}>
+        <span className={styles.progressText}>
+          {state.completedStages.toLocaleString('fa-IR')} از{' '}
+          {state.openStages.toLocaleString('fa-IR')} مرحله‌ی بازشده
+        </span>
+        <span className={styles.coins}>
+          <CoinIcon size={14} aria-hidden />
+          {state.coinsEarned.toLocaleString('fa-IR')}
+        </span>
+      </div>
+      <div className={styles.track} aria-hidden>
+        <span className={styles.fill} style={{ width: `${percent}%` }} />
+      </div>
 
-          return (
-            <button
-              key={book.id}
-              type="button"
-              className={`${styles.world} ${!ready ? styles.locked : ''}`}
-              onClick={() => navigate(`/book/${book.id}`)}
-            >
-              <span className={styles.worldIcon} aria-hidden>
-                <book.icon />
-              </span>
-              <span className={styles.worldTitle}>{book.worldTitle}</span>
-              <span className={styles.worldSubject}>{book.title}</span>
+      {cardStages.length > 0 && (
+        <ul className={styles.stages}>
+          {cardStages.map((stage) => {
+            const isDone = done.has(stage.id);
 
-              {ready && (
-                <span className={styles.progressTrack} aria-hidden>
-                  <span className={styles.progressFill} style={{ width: `${percent}%` }} />
-                </span>
-              )}
-
-              <span className={styles.worldFooter}>
-                {!ready ? (
-                  <span className={styles.soonBadge}>بازی‌ش به‌زودی می‌رسه</span>
-                ) : finished ? (
-                  <span className={styles.finished}>تمومش کردی! ⚡</span>
-                ) : (
-                  <span className={styles.nextLevel}>
-                    الان: مرحله {nextLevel.toLocaleString('fa-IR')}
+            return (
+              <li key={stage.id}>
+                <button
+                  type="button"
+                  className={
+                    stage.id === state.nextStage?.id
+                      ? styles.stageNext
+                      : isDone
+                        ? styles.stageDone
+                        : styles.stage
+                  }
+                  onClick={() => navigate(`/game/${stage.id}`)}
+                >
+                  <span className={styles.stageOrder} aria-hidden>
+                    {stage.order.toLocaleString('fa-IR')}
                   </span>
-                )}
-                <span className={styles.playChip} aria-hidden>
-                  <HiOutlinePlay />
-                </span>
-              </span>
-            </button>
-          );
-        })}
-      </div>
+                  <span className={styles.stageTexts}>
+                    <b className={styles.stageTitle}>{stage.title}</b>
+                    <span className={styles.stageSubject}>
+                      {stage.subject}
+                      {stage.id === state.nextStage?.id && (
+                        <> · <span className={styles.nowTag}>الان نوبتِ توئه</span></>
+                      )}
+                    </span>
+                  </span>
+                  <span className={styles.stageIcon} aria-hidden>
+                    {isDone ? <HiOutlineCheck /> : <HiOutlinePlay />}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {state.cloudedWeeks.length > 0 && (
+        <div className={styles.cloudRow}>
+          <span className={styles.cloudIcon} aria-hidden>
+            <HiOutlineLockClosed />
+          </span>
+          <p className={styles.cloudText}>
+            {state.hiddenStages.toLocaleString('fa-IR')} مرحله پشتِ ابرهاست
+            {state.daysToNextWeek !== undefined &&
+              (state.daysToNextWeek === 0
+                ? ' — امروز باز می‌شود'
+                : ` — ${state.daysToNextWeek.toLocaleString('fa-IR')} روز دیگر`)}
+          </p>
+        </div>
+      )}
 
       <button type="button" className={styles.allBtn} onClick={() => navigate('/books')}>
-        همه‌ی دنیاها و مرحله‌ها
+        رفتن به مسیرِ سیزن
         <HiOutlineChevronLeft aria-hidden />
       </button>
 

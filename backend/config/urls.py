@@ -3,6 +3,8 @@ from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import include, path
 
+from apps.parent.views import MyAssignmentView as ParentAssignmentForChild
+
 
 def health_check(_request):
     return JsonResponse({"data": {"status": "ok", "service": "luko-backend"}})
@@ -18,6 +20,7 @@ api_v1 = [
     path("", include("apps.content.urls")),
     path("", include("apps.support.urls")),
     path("parent/", include("apps.parent.urls")),
+    path("my/assignment", ParentAssignmentForChild.as_view(), name="my-assignment"),
 ]
 
 urlpatterns = [

@@ -6,6 +6,7 @@ import { LUKORIANS } from '@/lib/characters';
 import { levelById, markLevelCompleted } from '@/features/books/booksData';
 import { DEW_REWARD } from '@/features/garden/gardenData';
 import { grantDew, grantFertilizer } from '@/features/garden/store';
+import { completeGame, flushEvents, trackEvent } from '@/features/games/telemetry';
 import styles from './BookGame.module.css';
 
 /**
@@ -19,30 +20,72 @@ export default function BookGame() {
   const found = levelById(gameId);
 
   const [justWon, setJustWon] = useState(false);
+  const [serverCoins, setServerCoins] = useState<number | null>(null);
   const rewardedRef = useRef(false);
 
-  const backToMap = () => navigate(found ? `/book/${found.book.id}` : '/books');
+  // همیشه به مسیرِ سیزن برمی‌گردیم؛ نقشه‌ی کتابیِ قدیمی دیگر مقصدِ برگشت نیست
+  const backToMap = () => navigate('/books');
 
   const finish = () => {
     if (!found || rewardedRef.current) return;
     rewardedRef.current = true;
     markLevelCompleted(found.level.id);
-    // پاداش باغچه: شبنم + یک کیسه کود برای هر بازیِ کامل‌شده
+    // پاداشِ محلی بلافاصله نشان داده می‌شود تا بچه منتظرِ شبکه نماند
     grantDew(DEW_REWARD.game, 'game');
     grantFertilizer(1);
     setJustWon(true);
+
+    // ثبتِ سرورمحور: سکه و گنج را سرور می‌دهد و گزارشِ والد از همین‌جا ساخته می‌شود
+    void (async () => {
+      await flushEvents();
+      try {
+        const result = await completeGame(found.level.id);
+        if (result && !result.alreadyDone) setServerCoins(result.coins);
+      } catch {
+        // اگر شبکه قطع بود، تکمیلِ محلی سرِ جایش می‌ماند و دفعهٔ بعد همگام می‌شود
+      }
+    })();
   };
 
-  // آماده برای آینده: بازی‌هایی که خودشان پایانِ بازی را اعلام می‌کنند
+  // پلِ بازی ← اپ: پایانِ بازی، و تله‌متری‌ای که گزارشِ والدین از رویش ساخته می‌شود
   useEffect(() => {
-    if (!found?.level.gameFile) return;
+    if (!found?.level.gameFile) return undefined;
+    const slug = found.level.id;
+
     const onMessage = (e: MessageEvent) => {
       // فقط پیام‌های هم‌ریشه (بازیِ داخل iframe) پذیرفته می‌شوند
       if (e.origin !== window.location.origin) return;
-      if (e.data && e.data.type === 'luko-game-complete') finish();
+      const data = e.data as { type?: string; event?: Record<string, unknown>; summary?: Record<string, unknown> };
+      if (!data?.type) return;
+
+      if (data.type === 'luko-game-event' && data.event) {
+        const { type, ...rest } = data.event as { type?: string };
+        if (type) trackEvent({ gameSlug: slug, eventType: type, payload: rest });
+        return;
+      }
+
+      if (data.type === 'luko-game-complete') {
+        trackEvent({ gameSlug: slug, eventType: 'game_complete', payload: data.summary ?? {} });
+        finish();
+        return;
+      }
+
+      if (data.type === 'luko-game-progress') {
+        // بچه وسطِ کار بیرون رفته — همین هم برای گزارش ارزش دارد
+        trackEvent({ gameSlug: slug, eventType: 'game_end', payload: data.summary ?? {} });
+        void flushEvents(true);
+      }
     };
+
+    const onLeave = () => void flushEvents(true);
+
     window.addEventListener('message', onMessage);
-    return () => window.removeEventListener('message', onMessage);
+    window.addEventListener('pagehide', onLeave);
+    return () => {
+      window.removeEventListener('message', onMessage);
+      window.removeEventListener('pagehide', onLeave);
+      void flushEvents();          // خروج از صفحه‌ی بازی هم بافر را خالی می‌کند
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [found?.level.id]);
 
@@ -65,7 +108,7 @@ export default function BookGame() {
   return (
     <main className={styles.page}>
       <header className={styles.topbar}>
-        <button type="button" className={styles.back} onClick={backToMap} aria-label="بازگشت به نقشه">
+        <button type="button" className={styles.back} onClick={backToMap} aria-label="بازگشت به مسیرِ سیزن">
           <HiOutlineChevronRight />
         </button>
         <div className={styles.topTexts}>
@@ -104,13 +147,14 @@ export default function BookGame() {
                 <img className={styles.winChar} src={gamer.image} alt={gamer.name} />
                 <p className={styles.winTitle}>ایول! این مرحله رو بردی!</p>
                 <p className={styles.winCoins}>
-                  <CoinIcon size={18} aria-hidden />+{level.coinReward.toLocaleString('fa-IR')} سکه
+                  <CoinIcon size={18} aria-hidden />+
+                  {(serverCoins ?? level.coinReward).toLocaleString('fa-IR')} سکه
                 </p>
                 <p className={styles.winDew}>
                   <DewIcon size={16} aria-hidden />+{DEW_REWARD.game.toLocaleString('fa-IR')} شبنم و یک کود برای باغچه
                 </p>
                 <button type="button" className={styles.winBtn} onClick={backToMap}>
-                  برگرد به نقشه
+                  برگرد به مسیرِ سیزن
                 </button>
               </div>
             </div>
@@ -126,7 +170,7 @@ export default function BookGame() {
             {gamer.name} داره این بازی رو می‌سازه؛ زود برمی‌گردیم که بترکونیش!
           </p>
           <button type="button" className={styles.soonBtn} onClick={backToMap}>
-            برگرد به نقشه
+            برگرد به مسیرِ سیزن
           </button>
         </div>
       )}

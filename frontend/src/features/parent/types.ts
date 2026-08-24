@@ -1,10 +1,12 @@
 import type { MoodVariant } from '@/components/ui/icons';
+import type { ChildAnalysis } from './analysis';
 
 /** فرزندِ متصل به حسابِ والد */
 export interface Child {
   id: string;
   firstName: string;
   lastName: string;
+  phone?: string;
   /** پایه‌ی تحصیلی (۱ تا ۶) */
   grade: number;
   school?: string;
@@ -40,19 +42,23 @@ export interface DayActivity {
 export interface TrendPoint {
   label: string;
   value: number;
+  /** تعدادِ پاسخ‌های آن هفته؛ ۰ یعنی هفته‌ی بدونِ داده (نه دقتِ صفر) */
+  samples?: number;
 }
 
 export type SubjectKey = 'math' | 'science' | 'writing' | 'quran' | 'life';
 
 /** پیشرفتِ یک درس */
 export interface SubjectProgressItem {
-  key: SubjectKey;
+  key: string;
   label: string;
   /** تسلط ۰ تا ۱۰۰ */
   mastery: number;
   gamesDone: number;
   gamesTotal: number;
   trend: 'up' | 'flat' | 'down';
+  /** ضعیف‌ترین مبحثِ همین درس (اگر بازی topic بفرستد) */
+  weakestTopic?: string;
 }
 
 /** وضعیتِ یک بازی برای این بچه */
@@ -62,7 +68,7 @@ export type GameStatus = 'mastered' | 'progress' | 'struggling' | 'untouched';
 export interface GameStat {
   id: string;
   title: string;
-  subject: SubjectKey;
+  subject: string;
   subjectLabel: string;
   book: string;
   /** تعداد دفعاتِ بازی */
@@ -97,9 +103,44 @@ export interface Insight {
   body: string;
 }
 
+/** یک ساعت از شبانه‌روز در نقشه‌ی فعالیت */
+export interface HourBucket {
+  hour: number;
+  count: number;
+  /** ۰ تا ۱۰۰ نسبت به پرکارترین ساعت */
+  intensity: number;
+}
+
+/** یک جلسه‌ی بازی */
+export interface PlaySession {
+  id: number;
+  game: string;
+  at: string;
+  time: string;
+  minutes: number;
+  accuracy: number;
+  stars?: number | null;
+}
+
+/** ریزنمره‌ی یک مبحث */
+export interface TopicScore {
+  key: string;
+  label: string;
+  asked: number;
+  accuracy: number;
+  avgSeconds: number;
+}
+
 /** همه‌ی دیتای داشبوردِ یک بچه */
 export interface ChildReport {
   childId: string;
+  /** تعدادِ پاسخ‌های ثبت‌شده در هفت روز گذشته — پایه‌ی تحلیلِ هفتگی */
+  answersThisWeek: number;
+  /**
+   * تحلیلِ آماده‌ی سرور. تا وقتی سرویسِ هوش مصنوعی وصل نشده خالی است و فرانت
+   * خودش با `buildAnalysis` می‌سازد؛ به‌محضِ آمدنِ این فیلد، همان نشان داده می‌شود.
+   */
+  analysis?: ChildAnalysis;
   kpis: Kpi[];
   week: DayActivity[];
   accuracyTrend: TrendPoint[];
@@ -113,4 +154,39 @@ export interface ChildReport {
     paintings: number;
     dominantMood: MoodVariant;
   };
+  hourly: HourBucket[];
+  sessions: PlaySession[];
+  topics: TopicScore[];
+}
+
+/** پیشنهادِ بازی روز که سرور می‌سازد */
+export interface Suggestion {
+  slug: string;
+  title: string;
+  bookTitle: string;
+  subject: string;
+  topic: string;
+  minutes: number;
+  coinReward: number;
+  /** جمله‌ای که به والد می‌گوید چرا این بازی پیشنهاد شده */
+  why: string;
+  recommended: boolean;
+  played: boolean;
+}
+
+/** سوییچ‌های تبِ تنظیمات */
+export interface ParentPreferences {
+  weeklyReport: boolean;
+  activityAlerts: boolean;
+}
+
+/** یک اعلان در شیتِ زنگوله */
+export interface ParentNotification {
+  id: number;
+  kind: 'weekly' | 'games' | 'mood' | 'idle' | 'assignment';
+  title: string;
+  body: string;
+  isRead: boolean;
+  childName: string;
+  at: string;
 }

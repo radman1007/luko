@@ -92,140 +92,193 @@
   padding: 4px 10px;
 }
 
-.desc {
-  margin-top: 5px;
-  font-size: 12px;
-  color: rgb(255 255 255 / 60%);
+/* نشانِ سیزن کنارِ عنوان */
+.seasonBadge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgb(79 216 200 / 16%);
+  border: 1px solid rgb(79 216 200 / 45%);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gamer-neon);
+  white-space: nowrap;
 }
 
-.grid {
-  margin-top: 14px;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-/* کارت دنیا — قاب نئونی مثل انتخاب مرحله‌ی بازی */
-.world {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 7px;
-  background: rgb(255 255 255 / 6%);
-  border: 1.5px solid rgb(124 92 191 / 55%);
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  text-align: right;
-  transition:
-    transform 0.12s,
-    border-color 0.15s,
-    box-shadow 0.15s;
-}
-
-.world:hover {
-  border-color: var(--gamer-neon);
-  box-shadow: 0 0 14px rgb(79 216 200 / 25%);
-}
-
-.world:active {
-  transform: scale(0.96);
-}
-
-.worldIcon {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--gamer-primary), var(--gamer-pink));
-  color: var(--color-on-primary);
-  font-size: 20px;
-}
-
-.worldTitle {
-  font-size: 13.5px;
-  font-weight: 800;
-  color: var(--color-on-primary);
-}
-
-.worldSubject {
-  font-size: 10.5px;
-  color: rgb(255 255 255 / 55%);
-}
-
-.progressTrack {
-  width: 100%;
-  height: 6px;
-  border-radius: 99px;
-  background: rgb(255 255 255 / 12%);
-  overflow: hidden;
-}
-
-.progressFill {
-  display: block;
-  height: 100%;
-  border-radius: 99px;
-  background: linear-gradient(90deg, var(--gamer-neon), var(--gamer-primary));
-  transition: width 0.4s;
-}
-
-.worldFooter {
-  width: 100%;
+/* پیشرفتِ مرحله‌های بازشده */
+.progressRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: rgb(255 255 255 / 75%);
 }
 
-/* مرحله‌ای که کاربر الان باید بازی کند */
-.nextLevel {
-  font-size: 10.5px;
+.coins {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.track {
+  margin-top: 7px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 10%);
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gamer-primary), var(--gamer-neon));
+  transition: width 0.5s ease;
+}
+
+/* مرحله‌های همین هفته */
+.stages {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stage,
+.stageNext,
+.stageDone {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 11px;
+  border-radius: 14px;
+  text-align: start;
+  background: rgb(255 255 255 / 7%);
+  border: 1.5px solid rgb(255 255 255 / 14%);
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.stage:active,
+.stageNext:active,
+.stageDone:active {
+  transform: scale(0.99);
+}
+
+.stageNext {
+  background: linear-gradient(120deg, rgb(124 92 191 / 45%), rgb(79 216 200 / 16%));
+  border-color: #b79cf0;
+  box-shadow: 0 0 18px rgb(124 92 191 / 40%);
+}
+
+.stageDone {
+  background: rgb(79 216 200 / 10%);
+  border-color: rgb(79 216 200 / 32%);
+}
+
+.stageOrder {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--gamer-primary);
+  color: #fff;
+  font-size: 13px;
   font-weight: 800;
-  color: var(--gamer-neon);
+  font-variant-numeric: tabular-nums;
 }
 
-.finished {
-  font-size: 10.5px;
-  font-weight: 800;
-  color: #f2d38b;
+.stageDone .stageOrder {
+  background: rgb(79 216 200 / 85%);
+  color: var(--gamer-dark);
 }
 
-.soonBadge {
-  font-size: 10px;
-  font-weight: 800;
-  color: rgb(255 255 255 / 55%);
+.stageTexts {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
 }
 
-.playChip {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
+.stageTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stageSubject {
+  font-size: 11px;
+  color: rgb(255 255 255 / 60%);
+}
+
+.stageIcon {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
+  background: rgb(255 255 255 / 12%);
+  color: #fff;
+}
+
+.stageIcon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.stageDone .stageIcon {
   background: var(--gamer-neon);
   color: var(--gamer-dark);
-  font-size: 14px;
-  flex-shrink: 0;
 }
 
-/* کتاب‌هایی که هنوز بازی ندارند — کم‌رنگ‌تر ولی همچنان قابل باز شدن */
-.locked {
-  border-style: dashed;
-  border-color: rgb(255 255 255 / 25%);
+/* یادآورِ ابرها */
+.cloudRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 5%);
+  border: 1px dashed rgb(255 255 255 / 20%);
 }
 
-.locked:hover {
-  border-color: rgb(255 255 255 / 40%);
-  box-shadow: none;
+.cloudIcon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgb(207 199 230 / 22%);
+  color: #cfc7e6;
 }
 
-.locked .worldIcon {
-  background: rgb(255 255 255 / 12%);
+.cloudIcon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.cloudText {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.8;
   color: rgb(255 255 255 / 70%);
-}
-
-.locked .playChip {
-  background: rgb(255 255 255 / 20%);
-  color: var(--color-on-primary);
 }
 
 .allBtn {
@@ -256,4 +309,15 @@
   font-size: 11.5px;
   font-weight: 500;
   color: #f2d38b;
+}
+
+.nowTag {
+  display: inline-block;
+  margin-inline-start: 7px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--gamer-neon);
+  color: var(--gamer-dark);
+  font-size: 10px;
+  font-weight: 800;
 }

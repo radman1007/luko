@@ -41,7 +41,7 @@ A manual "این مرحله رو تموم کردم" button is the fallback for g
 The product goal is per-child analytics in the parent panel, so a game that only reports
 "done" is half-built. Follow the contract in
 [public/games/README.md](../../../frontend/public/games/README.md) and the reference
-implementation in `grade-1/math/number-train.html`:
+implementation in `grade-1/math/04-number-train.html`:
 
 - `luko-game-event` on each interaction, `luko-game-complete` once on win,
   `luko-game-progress` on `pagehide` when the child quits mid-way.

@@ -16,7 +16,10 @@ from datetime import timedelta
 from django.db.models import Count, Sum
 from django.utils import timezone
 
+from apps.common import cache as cache_keys
+from apps.common.cache import get_or_set
 from apps.club.models import MissionCompletion
+from apps.common.fa import fa_date, fa_day, fa_digits, fa_time, to_jalali
 from apps.games.models import Book, Game, GameCompletion, GameEvent
 from apps.health.models import BreathingSession, MoodCheckin, Painting
 
@@ -44,6 +47,23 @@ def _pct(part: int, total: int) -> int:
 
 
 def build_child_report(child) -> dict:
+    """
+    گزارشِ کاملِ یک بچه. محاسبه‌اش گران است (همه‌ی رویدادهای هشت هفته)، پس پشتِ
+    cache می‌نشیند و با هر بازیِ تازه‌ی بچه صریحاً باطل می‌شود؛ TTL فقط سقفِ ایمنی است.
+    """
+    return get_or_set(
+        cache_keys.parent_report_key(child.id),
+        lambda: _build_child_report(child),
+        cache_keys.TTL_SHORT,
+    )
+
+
+def invalidate_child_report(child_id: int) -> None:
+    """بعد از هر رویداد/تکمیلِ بازی صدا زده می‌شود تا گزارشِ والد کهنه نماند."""
+    cache_keys.invalidate(cache_keys.parent_report_key(child_id))
+
+
+def _build_child_report(child) -> dict:
     now = timezone.localtime()
     today = now.date()
     week_start = today - timedelta(days=6)
@@ -60,8 +80,12 @@ def build_child_report(child) -> dict:
     games_meta = {g.slug: g for g in Game.objects.all()}
     books = {b.book_id: b for b in Book.objects.all()}
 
+    week_answers = [e for e in answers if e.created_at.date() >= week_start]
+
     return {
         "childId": str(child.id),
+        # پاسخ‌های همین هفته — تحلیلِ هفتگی روی همین بسته می‌شود، نه روی کلِ هشت هفته
+        "answersThisWeek": len(week_answers),
         "kpis": _kpis(child, events, answers, sessions, completions, week_start, today),
         "week": _week(events, sessions, completions, week_start, today),
         "accuracyTrend": _accuracy_trend(answers, today),
@@ -70,6 +94,9 @@ def build_child_report(child) -> dict:
         "moods": _moods(child),
         "insights": _insights(answers, events, games_meta),
         "wellbeing": _wellbeing(child),
+        "hourly": _hourly(events),
+        "sessions": _sessions(events, games_meta),
+        "topics": _topics(answers),
     }
 
 
@@ -168,13 +195,23 @@ def _week(events, sessions, completions, week_start, today) -> list[dict]:
 
 
 def _accuracy_trend(answers, today) -> list[dict]:
+    """
+    دقت هر هفته در هشت هفته‌ی گذشته.
+
+    `samples` تعدادِ پاسخ‌های همان هفته است؛ فرانت با آن «هفته‌ی بدونِ داده» را از
+    «هفته‌ی صفر درصد» جدا می‌کند تا نمودار، افتِ ساختگی نشان ندهد.
+    """
     out = []
     for week_no in range(7, -1, -1):
         start = today - timedelta(weeks=week_no + 1)
         end = today - timedelta(weeks=week_no)
         bucket = [e for e in answers if start < e.created_at.date() <= end]
         correct = sum(1 for e in bucket if _payload(e).get("correct"))
-        out.append({"label": f"هفتهٔ {8 - week_no}", "value": _pct(correct, len(bucket))})
+        out.append({
+            "label": f"هفتهٔ {fa_digits(8 - week_no)}",
+            "value": _pct(correct, len(bucket)),
+            "samples": len(bucket),
+        })
     return out
 
 
@@ -232,7 +269,10 @@ def _subjects(answers, completions, games_meta, books) -> list[dict]:
             "mastery": mastery,
             "gamesDone": len(done_by_subject.get(subject, ())),
             "gamesTotal": total_by_subject.get(subject, 0),
-            "trend": "up" if mastery >= 70 else "flat" if mastery >= 50 else "down",
+            # درسی که هنوز پاسخی ندارد نه رو به رشد است نه رو به افت
+            "trend": ("flat" if not bucket
+                      else "up" if mastery >= 70
+                      else "flat" if mastery >= 50 else "down"),
             "weakestTopic": weakest,      # فرانت می‌تواند بعداً نشانش دهد
         })
     return sorted(out, key=lambda item: -item["mastery"])
@@ -288,7 +328,7 @@ def _games(events, answers, completions, games_meta, books) -> list[dict]:
             "avgSeconds": round(bucket["ms"] / 1000 / bucket["sessions"]) if bucket["sessions"] else 0,
             "totalMinutes": round(bucket["ms"] / 60000),
             "hints": bucket["hints"],
-            "lastPlayedAt": timezone.localtime(bucket["last"]).strftime("%Y/%m/%d") if bucket["last"] else "—",
+            "lastPlayedAt": fa_date(timezone.localtime(bucket["last"]).date()) if bucket["last"] else "—",
             "coins": coins_by_slug.get(slug, 0),
             "status": status,
         })
@@ -316,7 +356,7 @@ def _moods(child) -> list[dict]:
         MoodCheckin.objects.filter(user=child).order_by("-created_at")[:14]
     )
     return [
-        {"day": str(timezone.localtime(e.created_at).day), "mood": e.mood}
+        {"day": fa_digits(to_jalali(timezone.localtime(e.created_at).date())[2]), "mood": e.mood}
         for e in reversed(list(entries))
     ]
 
@@ -373,14 +413,14 @@ def _insights(answers, events, games_meta) -> list[dict]:
         out.append({
             "id": "best", "tone": "good",
             "title": f"{TOPIC_LABELS.get(key, key)} را خوب گرفته",
-            "body": f"از {asked} پاسخ در این مبحث، {accuracy}٪ درست بوده است.",
+            "body": f"از {fa_digits(asked)} پاسخ در این مبحث، {fa_digits(accuracy)}٪ درست بوده است.",
         })
     if ranked and ranked[-1][1] < 70:
         key, accuracy, asked = ranked[-1]
         out.append({
             "id": "weak", "tone": "watch",
             "title": f"{TOPIC_LABELS.get(key, key)} نقطهٔ گیر است",
-            "body": f"دقت در این مبحث {accuracy}٪ است ({asked} پاسخ)؛ کمی تمرین بیشتر کمک می‌کند.",
+            "body": f"دقت در این مبحث {fa_digits(accuracy)}٪ است ({fa_digits(asked)} پاسخ)؛ کمی تمرین بیشتر کمک می‌کند.",
         })
 
     hinted = sorted(by_game.items(), key=lambda item: -item[1]["hints"])
@@ -390,9 +430,70 @@ def _insights(answers, events, games_meta) -> list[dict]:
         out.append({
             "id": "hints", "tone": "tip",
             "title": f"در «{game.title if game else slug}» زیاد راهنمایی گرفته",
-            "body": f"{bucket['hints']} بار راهنمایی خواسته است — یعنی مفهوم را کامل نگرفته، نه اینکه بی‌دقت باشد.",
+            "body": f"{fa_digits(bucket['hints'])} بار راهنمایی خواسته است — یعنی مفهوم را کامل نگرفته، نه اینکه بی‌دقت باشد.",
         })
     return out or [{
         "id": "steady", "tone": "good", "title": "روند یکنواخت است",
         "body": "داده‌ها نوسان خاصی نشان نمی‌دهند؛ ادامهٔ همین روال خوب است.",
     }]
+
+
+# ---------------------------------------------------------------- تحلیل‌های ریزتر
+def _hourly(events) -> list[dict]:
+    """
+    بچه در چه ساعت‌هایی بازی می‌کند — برای والد مهم است بداند بازی‌ها
+    نزدیکِ خواب انجام می‌شود یا بعدازظهر.
+    """
+    buckets = [0] * 24
+    for event in events:
+        if event.event_type in {"game_start", "answer"}:
+            buckets[timezone.localtime(event.created_at).hour] += 1
+    peak = max(buckets) if any(buckets) else 0
+    return [{"hour": hour, "count": count,
+             "intensity": round(count / peak * 100) if peak else 0}
+            for hour, count in enumerate(buckets)]
+
+
+def _sessions(events, games_meta) -> list[dict]:
+    """آخرین جلسه‌های بازی: کِی، چقدر، با چه دقتی."""
+    out = []
+    for event in reversed(events):
+        if event.event_type not in {"game_end", "game_complete"}:
+            continue
+        payload = _payload(event)
+        game = games_meta.get(event.game_slug)
+        local = timezone.localtime(event.created_at)
+        out.append({
+            "id": event.id,
+            "game": game.title if game else event.game_slug,
+            "at": fa_day(local.date(), timezone.localdate()),
+            "time": fa_time(local),
+            "minutes": round(payload.get("durationMs", 0) / 60000),
+            "accuracy": payload.get("accuracy", 0),
+            "stars": payload.get("stars"),
+        })
+        if len(out) >= 12:
+            break
+    return out
+
+
+def _topics(answers) -> list[dict]:
+    """ریزنمره‌ی مبحث‌ها — پایه‌ی «نقطه‌ی قوت و ضعف»."""
+    stats: dict = defaultdict(lambda: {"asked": 0, "correct": 0, "ms": 0})
+    for event in answers:
+        payload = _payload(event)
+        topic = payload.get("topic")
+        if not topic:
+            continue
+        bucket = stats[topic]
+        bucket["asked"] += 1
+        bucket["correct"] += 1 if payload.get("correct") else 0
+        bucket["ms"] += payload.get("ms", 0)
+    out = [{
+        "key": key,
+        "label": TOPIC_LABELS.get(key, key),
+        "asked": value["asked"],
+        "accuracy": _pct(value["correct"], value["asked"]),
+        "avgSeconds": round(value["ms"] / value["asked"] / 1000) if value["asked"] else 0,
+    } for key, value in stats.items()]
+    return sorted(out, key=lambda item: -item["accuracy"])

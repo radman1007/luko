@@ -32,6 +32,8 @@ def profile_key(uid: int) -> str: return user_key(uid, "profile")
 def club_summary_key(uid: int) -> str: return user_key(uid, "club:summary")
 def club_today_key(uid: int, day: str) -> str: return user_key(uid, f"club:today:{day}")
 def garden_key(uid: int) -> str: return user_key(uid, "garden")
+def parent_report_key(child_id: int) -> str: return user_key(child_id, "parent:report")
+def game_topics_key() -> str: return catalog_key("game-topics")
 
 
 # ---------- helperها ----------

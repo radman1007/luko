@@ -54,13 +54,13 @@ RECIPES = [
 # (book_id, عنوان، درس، پایه، عنوانِ دنیا، آیکون، [(عنوانِ مرحله، سکه، فایل)])
 BOOKS = [
     ('math-1', 'ریاضی اول', 'ریاضی', 1, 'جزیره\u200cی اعداد', 'HiOutlineCalculator',
-     [('جزیره\u200cی حیوانات', 10, 'animals-island.html'), ('قطار اعداد', 10, 'number-train.html'), ('شکارچی کوچک', 12, 'little-hunter.html'), ('هیولاهای گرسنه', 12, 'hungry-monsters.html'), ('آشپز کوچولو', 12, 'little-chef.html'), ('سفر ریتم', 14, 'rhythm-journey.html'), ('خرگوش مهربان', 14, 'kind-rabbit.html'), ('اعداد فارسی', 15, 'persian-numbers.html'), ('حدس اعداد فضایی', 15, 'space-numbers.html'), ('سفر ریاضی', 20, 'math-journey.html')]),
+     [('جزیره\u200cی حیوانات', 10, '01-animals-island.html'), ('قطار اعداد', 10, '04-number-train.html'), ('شکارچی کوچک', 12, '07-little-hunter.html'), ('هیولاهای گرسنه', 12, '09-hungry-monsters.html'), ('آشپز کوچولو', 12, '10-little-chef.html'), ('سفر ریتم', 14, '11-rhythm-journey.html'), ('خرگوش مهربان', 14, '12-kind-rabbit.html'), ('اعداد فارسی', 15, '13-persian-numbers.html'), ('حدس اعداد فضایی', 15, '14-space-numbers.html'), ('سفر ریاضی', 20, '15-math-journey.html')]),
     ('science-1', 'علوم اول', 'علوم', 1, 'آزمایشگاه مخفی', 'HiOutlineBeaker',
-     [('یادگیری سایه', 10, 'shadow.html'), ('آزمایشگاه گوجه', 12, 'tomato-lab.html'), ('آزمایشگاه جادویی آب', 15, 'water-lab.html')]),
+     [('یادگیری سایه', 10, '02-shadow.html'), ('آزمایشگاه گوجه', 12, '05-tomato-lab.html'), ('آزمایشگاه جادویی آب', 15, '08-water-lab.html')]),
     ('writing-1', 'نگارش اول', 'نگارش', 1, 'قصر کلمه\u200cها', 'HiOutlinePencil',
-     [('نگارش حرف سین', 12, 'letter-seen.html'), ('حرفِ اولِ اسمم', 12, ''), ('کلمه\u200cسازی', 14, ''), ('جمله\u200cی خندان', 16, '')]),
+     [('نگارش حرف سین', 12, '03-letter-seen.html'), ('حرفِ اولِ اسمم', 12, ''), ('کلمه\u200cسازی', 14, ''), ('جمله\u200cی خندان', 16, '')]),
     ('quran-1', 'قرآن اول', 'قرآن', 1, 'باغ نور', 'HiOutlineBookOpen',
-     [('قطار قرآن؛ سوره\u200cی توحید', 12, 'quran-train.html'), ('آیه\u200cهای نور', 15, '')]),
+     [('قطار قرآن؛ سوره\u200cی توحید', 12, '06-quran-train.html'), ('آیه\u200cهای نور', 15, '')]),
 ]
 
 

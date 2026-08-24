@@ -192,3 +192,26 @@ export function SeedIcon({ size = 24, ...props }: IconProps) {
     </svg>
   );
 }
+
+/** دسته‌بازی — برای بخشِ «بازی روز» در پنل والدین */
+export function GamepadIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M7.5 8h9a4.5 4.5 0 0 1 4.44 3.77l.63 3.78A2.6 2.6 0 0 1 19.4 18.6a2.6 2.6 0 0 1-2.2-1.2L16.3 16H7.7l-.9 1.4a2.6 2.6 0 0 1-2.2 1.2 2.6 2.6 0 0 1-2.17-3.05l.63-3.78A4.5 4.5 0 0 1 7.5 8Z" />
+      <path d="M7 11.5v2M6 12.5h2" />
+      <circle cx="16" cy="11.8" r=".9" fill="currentColor" stroke="none" />
+      <circle cx="17.8" cy="13.6" r=".9" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+/** حلقه‌ی نمره‌ی هفته */
+export function ScoreRingIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <circle cx="12" cy="12" r="8.5" opacity=".3" />
+      <path d="M12 3.5a8.5 8.5 0 0 1 8.5 8.5" />
+      <path d="M9.5 12.5 11.5 14.5 15 10.5" />
+    </svg>
+  );
+}

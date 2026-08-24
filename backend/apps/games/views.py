@@ -2,6 +2,8 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.parent.services import invalidate_child_report
+
 from .models import Book, Game
 from .serializers import BookSerializer, GameEventSerializer, GameSerializer
 from .services import complete_game
@@ -34,6 +36,8 @@ class GameEventView(APIView):
         serializer = GameEventSerializer(data=request.data, many=many)
         serializer.is_valid(raise_exception=True)
         serializer.save(user=request.user)
+        # گزارشِ والد از همین رویدادها ساخته می‌شود؛ پس کشِ آن باید بیفتد
+        invalidate_child_report(request.user.id)
         return Response({"stored": len(serializer.data) if many else 1})
 
 

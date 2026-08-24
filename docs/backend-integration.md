@@ -38,7 +38,7 @@
 
 | فرانت | endpoint |
 |---|---|
-| `features/parent/mockData.ts` | `GET /parent/children` · `GET /parent/children/{id}/report` |
+| `features/parent/api.ts` | `GET/POST /parent/children` · `DELETE /parent/children/{id}` · `GET /parent/children/{id}/report` · `GET/POST /parent/children/{id}/assignments` · `GET /parent/children/{id}/suggestions` · `GET/PATCH /parent/preferences` · `GET /parent/notifications` · `POST /parent/notifications/read` · `GET/POST /tickets` |
 | `features/podcast/podcastData.ts` | `GET /podcasts` (+ `today`) · `POST /podcasts/{id}/listen` |
 | ~~قانون روز جاده~~ | `GET /traffic-rules` — بخشِ فرانت حذف شد (مرداد ۱۴۰۵)؛ مدل و API در بک‌اند نگه داشته شد تا اگر برگشت، دوباره کار کند |
 | ~~آشپزی روز~~ | `GET /recipes` — همان وضعیت |

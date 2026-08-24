@@ -24,7 +24,7 @@ export const LUKORIANS = {
     id: 'luko',
     name: 'لوکی',
     role: 'رفیقِ همیشگیِ شهر لوکو',
-    image: '/characters/luko.png',
+    image: '/characters/luko.webp',
     theme: {
       primary: '#f59322',
       dark: '#d9750a',
@@ -36,7 +36,7 @@ export const LUKORIANS = {
     id: 'health',
     name: 'دکتر نیلا',
     role: 'پزشک مهربان شهر لوکو',
-    image: '/characters/health.png',
+    image: '/characters/health.webp',
     theme: {
       primary: '#4696e5',
       dark: '#2f6fb5',
@@ -48,7 +48,7 @@ export const LUKORIANS = {
     id: 'welcome',
     name: 'پری',
     role: 'راهنمای شهر لوکو',
-    image: '/characters/welcome.png',
+    image: '/characters/welcome.webp',
     theme: {
       primary: '#e56fa7',
       dark: '#c4568b',
@@ -60,7 +60,7 @@ export const LUKORIANS = {
     id: 'club',
     name: 'توپا',
     role: 'مربی باشگاه شهر لوکو',
-    image: '/characters/club.png',
+    image: '/characters/club.webp',
     theme: {
       primary: '#2e9e5b',
       dark: '#1f7a44',
@@ -72,7 +72,7 @@ export const LUKORIANS = {
     id: 'art',
     name: 'رنگو',
     role: 'نقاش شهر لوکو',
-    image: '/characters/art.png',
+    image: '/characters/art.webp',
     theme: {
       primary: '#4696e5',
       dark: '#2f6fb5',
@@ -84,7 +84,7 @@ export const LUKORIANS = {
     id: 'sport',
     name: 'چابک',
     role: 'قهرمان ورزش شهر لوکو',
-    image: '/characters/sport.png',
+    image: '/characters/sport.webp',
     theme: {
       primary: '#e0454a',
       dark: '#b8353c',
@@ -96,7 +96,7 @@ export const LUKORIANS = {
     id: 'garden',
     name: 'سبزو',
     role: 'باغبان شهر لوکو',
-    image: '/characters/garden.png',
+    image: '/characters/garden.webp',
     theme: {
       primary: '#6f9455',
       dark: '#55763f',
@@ -108,7 +108,7 @@ export const LUKORIANS = {
     id: 'maker',
     name: 'مکانو',
     role: 'سازنده و مکانیک شهر لوکو',
-    image: '/characters/maker.png',
+    image: '/characters/maker.webp',
     theme: {
       primary: '#e0813c',
       dark: '#b45f27',
@@ -120,7 +120,7 @@ export const LUKORIANS = {
     id: 'explorer',
     name: 'کاشف',
     role: 'جوینده‌ی گنج‌های شهر لوکو',
-    image: '/characters/explorer.png',
+    image: '/characters/explorer.webp',
     theme: {
       primary: '#566380',
       dark: '#3e4a63',
@@ -132,7 +132,7 @@ export const LUKORIANS = {
     id: 'podcast',
     name: 'آوا',
     role: 'پادکست‌ساز شهر لوکو',
-    image: '/characters/podcast.png',
+    image: '/characters/podcast.webp',
     theme: {
       primary: '#e27698',
       dark: '#c25577',
@@ -144,7 +144,9 @@ export const LUKORIANS = {
     id: 'science',
     name: 'دانا',
     role: 'دانشمند شهر لوکو',
-    image: '/characters/science.png',
+    // TODO: تصویرِ دانا هنوز نرسیده — این فایل وجود ندارد. پیش از استفاده از این
+    // کاراکتر در هر صفحه‌ای، باید شیتش گرفته و مثل بقیه به webp تبدیل شود.
+    image: '/characters/science.webp',
     theme: {
       primary: '#57b39a',
       dark: '#3d8a75',
@@ -157,7 +159,7 @@ export const LUKORIANS = {
     name: 'پیکسل',
     role: 'باحالِ شهر لوکو',
     // TODO: تصویر هنوز نرسیده — بعد از ذخیره در Downloads پردازش و جایگزین می‌شود
-    image: '/characters/gamer.png',
+    image: '/characters/gamer.webp',
     theme: {
       primary: '#7c5cbf',
       dark: '#241f31',
@@ -169,7 +171,7 @@ export const LUKORIANS = {
     id: 'guard',
     name: 'آهنین',
     role: 'نگهبان رازهای شهر لوکو',
-    image: '/characters/ironman_security.png',
+    image: '/characters/ironman_security.webp',
     theme: {
       primary: '#5b6b82',
       dark: '#2b3242',
@@ -181,7 +183,7 @@ export const LUKORIANS = {
     id: 'courier',
     name: 'چاپار',
     role: 'پیکِ دوچرخه‌سوار شهر لوکو',
-    image: '/characters/bikerider.png',
+    image: '/characters/bikerider.webp',
     theme: {
       primary: '#e07d3a',
       dark: '#b35d22',
@@ -193,7 +195,7 @@ export const LUKORIANS = {
     id: 'ranger',
     name: 'بلوط',
     role: 'طبیعت‌بانِ شهر لوکو',
-    image: '/characters/parkingattendant.png',
+    image: '/characters/parkingattendant.webp',
     theme: {
       primary: '#7a8b46',
       dark: '#5c6a33',

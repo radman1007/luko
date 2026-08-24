@@ -8,8 +8,7 @@ const Register = lazy(() => import('@/pages/Register'));
 const CompleteProfile = lazy(() => import('@/pages/CompleteProfile'));
 
 const Home = lazy(() => import('@/pages/Home'));
-const Books = lazy(() => import('@/pages/Books'));
-const BookGames = lazy(() => import('@/pages/BookGames'));
+const GameHall = lazy(() => import('@/pages/GameHall'));
 const BookGame = lazy(() => import('@/pages/BookGame'));
 const LukoClub = lazy(() => import('@/pages/LukoClub'));
 const LukoPodcast = lazy(() => import('@/pages/LukoPodcast'));
@@ -37,8 +36,9 @@ export function AppRouter() {
 
         {/* دانش‌آموز */}
         <Route path="/" element={student(<Home />)} />
-        <Route path="/books" element={student(<Books />)} />
-        <Route path="/book/:id" element={student(<BookGames />)} />
+        <Route path="/books" element={student(<GameHall />)} />
+        {/* نقشه‌ی کتابیِ قدیمی بازنشسته شد؛ هر لینکِ قدیمی به مسیرِ سیزن می‌رود */}
+        <Route path="/book/:id" element={<Navigate to="/books" replace />} />
         <Route path="/game/:gameId" element={student(<BookGame />)} />
         <Route path="/luko-club" element={student(<LukoClub />)} />
         <Route path="/luko-podcast" element={student(<LukoPodcast />)} />
