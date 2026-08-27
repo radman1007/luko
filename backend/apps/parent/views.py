@@ -61,24 +61,17 @@ class ChildrenView(APIView):
         data = serializer.validated_data
         phone = normalize_phone(data["phone"])
 
+        # نقش داخلِ جستجوست: اگر والد شماره‌ی خودش را بزند — که رایج است،
+        # چون بچه با گوشیِ پدر/مادر ثبت‌نام کرده — حسابِ دانش‌آموزِ همان
+        # شماره پیدا (یا ساخته) می‌شود، نه حسابِ والدِ خودش.
         child, _ = User.objects.get_or_create(
             phone=phone,
+            role=User.Role.STUDENT,
             defaults={
-                "role": User.Role.STUDENT,
                 "first_name": data.get("first_name", ""),
                 "last_name": data.get("last_name", ""),
             },
         )
-        if child == request.user:
-            return Response(
-                {"error": {"code": 400, "message": "نمی‌توانید خودتان را به‌عنوان فرزند اضافه کنید."}},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        if child.role != User.Role.STUDENT:
-            return Response(
-                {"error": {"code": 400, "message": "این شماره حسابِ دانش‌آموز نیست."}},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
 
         link, created = ParentChild.objects.get_or_create(
             parent=request.user, child=child,
@@ -131,7 +124,7 @@ class AssignmentsView(APIView):
     def _context(self, child):
         from apps.games.models import Book, Game, GameCompletion
         played = {
-            (c.game_slug, c.created_at.date())
+            (c.game_slug, timezone.localtime(c.created_at).date())
             for c in GameCompletion.objects.filter(user=child)
         }
         return {
@@ -199,7 +192,7 @@ class MyAssignmentView(APIView):
         context = {
             "games": {g.slug: g for g in Game.objects.all()},
             "books": {b.book_id: b for b in Book.objects.all()},
-            "played": {(c.game_slug, c.created_at.date())
+            "played": {(c.game_slug, timezone.localtime(c.created_at).date())
                        for c in GameCompletion.objects.filter(user=request.user)},
         }
         return Response({"assignment": AssignmentSerializer(assignment, context=context).data})

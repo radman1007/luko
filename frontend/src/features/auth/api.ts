@@ -1,4 +1,5 @@
 import { apiClient, tokenStorage } from '@/lib/api';
+import type { Audience } from '@/lib/api';
 import type { User } from '@/types/user';
 
 export interface RequestOtpResult {
@@ -16,8 +17,9 @@ export interface VerifyOtpPayload {
   firstName?: string;
   lastName?: string;
   /**
-   * نقشِ حسابِ تازه. سرور فقط `parent` و `student` را می‌پذیرد و نقشِ حسابِ
-   * موجود را هرگز با این عوض نمی‌کند — پس ورودِ والد، دانش‌آموز را والد نمی‌کند.
+   * نقشِ حساب. سرور فقط `parent` و `student` را می‌پذیرد و نقش را جزوِ
+   * جستجو حساب می‌کند: یک شماره می‌تواند هم حسابِ دانش‌آموز داشته باشد و
+   * هم حسابِ والد، و ورود از هر صفحه به حسابِ خودش می‌رسد.
    */
   role?: 'parent' | 'student';
 }
@@ -38,16 +40,21 @@ export const authApi = {
   /** گام ۲: بررسیِ کد؛ اگر حساب نبود ساخته می‌شود */
   async verifyOtp(payload: VerifyOtpPayload): Promise<VerifyOtpResult> {
     const { data } = await apiClient.post('/auth/verify-otp', payload);
-    tokenStorage.set(data.data.accessToken);
+    // توکن در فضای همان نقش می‌نشیند تا ورودِ والد نشستِ بچه را پاک نکند
+    const audience: Audience = payload.role === 'parent' ? 'parent' : 'kid';
+    tokenStorage.set(data.data.accessToken, audience);
     return { user: data.data.user, isNew: data.data.isNew };
   },
 
-  async getCurrentUser(): Promise<User> {
-    const { data } = await apiClient.get('/auth/me');
+  /** توکن صریح فرستاده می‌شود تا بازیابیِ نشست به مسیرِ لحظه‌ی درخواست وابسته نباشد */
+  async getCurrentUser(audience?: Audience): Promise<User> {
+    const token = audience ? tokenStorage.get(audience) : null;
+    const { data } = await apiClient.get('/auth/me',
+      token ? { headers: { Authorization: `Bearer ${token}` } } : undefined);
     return data.data;
   },
 
-  logout() {
-    tokenStorage.clear();
+  logout(audience?: Audience) {
+    tokenStorage.clear(audience);
   },
 };

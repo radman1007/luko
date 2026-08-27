@@ -26,10 +26,23 @@ from apps.health.models import BreathingSession, MoodCheckin, Painting
 WEEK_DAYS = ["شنبه", "یک‌شنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنج‌شنبه", "جمعه"]
 
 TOPIC_LABELS = {
+    # ریاضی — پایه‌ی اول
+    "count": "شمارش", "compare": "مقایسه", "sort": "ترتیب اعداد",
+    "missing": "دنباله‌ی اعداد", "pattern": "الگو", "match": "تطبیق و دسته‌بندی",
+    "classify": "دسته‌بندی", "number-id": "شناختِ عدد", "write-number": "نوشتنِ عدد",
+    "add": "جمع", "subtract": "تفریق", "arithmetic": "محاسبه", "balance": "تعادل و جمع",
+    "logic": "منطق و جدول", "direction": "جهت و مسیر",
+    # نگارش
+    "trace": "خط‌کشیدن روی الگو", "trace-curve": "خط خمیده",
+    "write-letter": "نوشتنِ حرف", "letter": "حرف‌شناسی", "line-shape": "تشخیصِ خطِ صاف و کج",
+    # علوم
+    "classify-science": "دسته‌بندیِ خوراکی‌ها",
+    # قرآن
+    "listen": "شنیدن و تشخیص", "quran-find": "یافتنِ نعمت‌ها",
+    "quran-read": "خواندنِ بسم‌الله", "quran-art": "نقاشیِ بسم‌الله",
+    # پایه‌های بالاتر (بازی‌های آینده)
     "fraction": "کسر", "ratio": "نسبت و تناسب", "percent": "درصد",
     "lcm": "ک.م.م و بخش‌پذیری", "integer": "عددهای صحیح", "average": "میانگین",
-    "sort": "ترتیب اعداد", "missing": "دنباله‌ی اعداد", "count": "شمارش",
-    "compare": "مقایسه", "pattern": "الگو",
 }
 
 

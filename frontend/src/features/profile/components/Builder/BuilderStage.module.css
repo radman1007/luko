@@ -11,13 +11,17 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
 }
 
 .options {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 0 0 84px;
+  /* عرضِ ثابت بود و روی موبایلِ باریک، ستونِ دوم را از صفحه بیرون می‌انداخت.
+     حالا دکمه‌ها کوچک می‌شوند تا کاراکتر — که عنصرِ اصلی است — جا بماند. */
+  flex: 0 1 84px;
+  min-width: 62px;
 }
 
 .option {
@@ -61,7 +65,9 @@
 }
 
 .stagePerspective {
-  flex: 1;
+  /* رشد آری، آب‌رفتن نه: اول دکمه‌های کناری کوچک شوند، نه خودِ کاراکتر */
+  flex: 1 0 110px;
+  min-width: 0;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -71,6 +77,11 @@
 }
 
 .stage {
+  /* عرضِ صریح لازم است تا `min(110px, 100%)`ِ سیلوئت مرجعِ درستی داشته باشد؛
+     بدونِ آن، عرضِ ذاتیِ متن ملاک می‌شد و کاراکتر بی‌دلیل باریک می‌ماند. */
+  width: 100%;
+  display: flex;
+  justify-content: center;
   transform-style: preserve-3d;
   transition: transform 0.5s cubic-bezier(0.33, 1, 0.68, 1);
 }
@@ -78,8 +89,10 @@
 .silhouette {
   display: grid;
   place-items: center;
-  width: 110px;
-  height: 170px;
+  width: min(110px, 100%);
+  aspect-ratio: 11 / 17;
+  height: auto;
+  min-height: 130px;
   border: 2px dashed rgb(255 255 255 / 35%);
   border-radius: 55px 55px 26px 26px;
   background: rgb(255 255 255 / 5%);
@@ -95,7 +108,8 @@
 }
 
 .floor {
-  width: 130px;
+  /* قبلاً ۱۳۰px ثابت بود — از خودِ سیلوئت پهن‌تر و عاملِ سرریز */
+  width: min(130px, 100%);
   height: 22px;
   margin-top: 6px;
   border-radius: 50%;
@@ -124,4 +138,61 @@
 .rotateHint {
   font-size: 11.5px;
   color: rgb(255 255 255 / 55%);
+}
+
+
+/* ---------------------------------------------------------------------------
+   موبایلِ باریک (زیر ۳۸۰px): سه‌ستونی جا نمی‌شود و ستونِ کناری از صفحه بیرون
+   می‌افتاد. اینجا کاراکتر بالا می‌آید و شش گزینه زیرش شبکه‌ای می‌شوند.
+   --------------------------------------------------------------------------- */
+@media (max-width: 380px) {
+  .wrap {
+    padding: 16px 12px 14px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  /* صحنه اول می‌آید و کلِ عرض را می‌گیرد */
+  .stagePerspective {
+    order: -1;
+    grid-column: 1 / -1;
+    padding-top: 0;
+  }
+
+  .silhouette {
+    width: min(130px, 60%);
+    min-height: 150px;
+  }
+
+  /* هر ستونِ گزینه به یک ردیفِ سه‌تایی تبدیل می‌شود */
+  .options {
+    display: contents;
+  }
+
+  .option {
+    padding: 9px 4px;
+  }
+
+  .optionLabel {
+    font-size: 10px;
+  }
+}
+
+/* صفحه‌های خیلی باریک (مثل Galaxy Fold بسته، ۲۸۰px) */
+@media (max-width: 300px) {
+  .row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rotateRow {
+    gap: 8px;
+  }
+
+  .rotateHint {
+    display: none;
+  }
 }

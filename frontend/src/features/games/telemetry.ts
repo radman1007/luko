@@ -50,7 +50,8 @@ export async function flushEvents(keepalive = false): Promise<void> {
     if (keepalive) {
       // موقعِ بستنِ صفحه درخواستِ معمولی لغو می‌شود. sendBeacon هدرِ Authorization
       // نمی‌گیرد، پس fetch با keepalive که هم هدر می‌دهد هم از unload جان سالم می‌برد.
-      const token = tokenStorage.get();
+      // تله‌متری همیشه مالِ بچه است، حتی اگر والد هم روی همین مرورگر لاگین باشد
+      const token = tokenStorage.get('kid');
       await fetch(`${apiClient.defaults.baseURL}/games/events`, {
         method: 'POST',
         keepalive: true,

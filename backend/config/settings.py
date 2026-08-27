@@ -35,6 +35,11 @@ SECRET_KEY = env("DJANGO_SECRET_KEY", "dev-insecure-key-change-me")
 DEBUG = env_bool("DJANGO_DEBUG", True)
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 
+# جنگو یکتا بودنِ USERNAME_FIELD را الزامی می‌داند، اما اینجا یکتایی روی
+# جفتِ (شماره، نقش) است و ورودِ کاربران با OTP انجام می‌شود نه این مسیر.
+# `get_by_natural_key` هم ابهامِ ورودِ ادمین را قطعی حل می‌کند.
+SILENCED_SYSTEM_CHECKS = ["auth.E003"]
+
 AUTH_USER_MODEL = "accounts.User"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ROOT_URLCONF = "config.urls"

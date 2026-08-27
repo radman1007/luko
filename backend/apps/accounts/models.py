@@ -16,7 +16,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         SCHOOL_ADMIN = "school_admin", "مدیر مدرسه"
         TEAM_ADMIN = "team_admin", "ادمین تیم"
 
-    phone = models.CharField(max_length=15, unique=True, db_index=True)
+    # شماره عمداً یکتا نیست: خیلی از بچه‌ها با شماره‌ی پدر/مادرشان ثبت‌نام
+    # می‌کنند، پس یک شماره می‌تواند هم‌زمان یک حسابِ دانش‌آموز و یک حسابِ
+    # والد داشته باشد. یکتاییِ واقعی روی جفتِ (شماره، نقش) است.
+    phone = models.CharField(max_length=15, db_index=True)
     first_name = models.CharField(max_length=60, blank=True)
     last_name = models.CharField(max_length=60, blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.STUDENT)
@@ -34,6 +37,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "phone"
     REQUIRED_FIELDS = []
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["phone", "role"], name="uniq_user_phone_role"),
+        ]
 
     def __str__(self):
         name = f"{self.first_name} {self.last_name}".strip()

@@ -169,11 +169,32 @@ class AccessTests(TestCase):
         response = self.api.get(f"/api/v1/parent/children/{self.child.id}/report")
         self.assertEqual(response.status_code, 200)
 
-    def test_parent_cannot_add_a_non_student_as_child(self):
+    def test_adding_a_phone_never_attaches_someone_elses_parent_account(self):
+        """
+        یک شماره می‌تواند حسابِ والد هم داشته باشد. افزودنِ آن شماره باید
+        حسابِ دانش‌آموزِ همان شماره را بسازد/بگیرد و هرگز به حسابِ والدِ
+        دیگری وصل نشود — وگرنه یک والد به پنلِ والدِ دیگر وصل می‌شد.
+        """
         self.api.force_authenticate(self.parent)
         response = self.api.post("/api/v1/parent/children",
                                  {"phone": self.stranger.phone}, format="json")
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 201)
+        linked = User.objects.get(id=response.json()["data"]["id"])
+        self.assertNotEqual(linked.id, self.stranger.id)
+        self.assertEqual(linked.role, User.Role.STUDENT)
+        self.assertEqual(linked.phone, self.stranger.phone)
+
+    def test_parent_adding_their_own_phone_links_the_child_account(self):
+        """سناریوی رایج: بچه با گوشیِ مادر ثبت‌نام کرده، مادر همان شماره را می‌زند."""
+        self.api.force_authenticate(self.parent)
+        response = self.api.post("/api/v1/parent/children",
+                                 {"phone": self.parent.phone, "firstName": "بچه"},
+                                 format="json")
+        self.assertEqual(response.status_code, 201)
+        linked = User.objects.get(id=response.json()["data"]["id"])
+        self.assertNotEqual(linked.id, self.parent.id)   # خودش نشد
+        self.assertEqual(linked.role, User.Role.STUDENT)
+        self.assertEqual(linked.phone, self.parent.phone)
 
 
 class AssignmentTests(TestCase):

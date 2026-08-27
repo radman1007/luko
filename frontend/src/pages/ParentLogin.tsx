@@ -96,13 +96,9 @@ export default function ParentLogin() {
         role: 'parent',
         firstName: firstName.trim() || undefined,
       });
+      // حسابِ والدِ همین شماره؛ حتی اگر بچه با همین شماره حساب داشته باشد و
+      // همین حالا روی این گوشی لاگین باشد، نشستش دست‌نخورده می‌ماند.
       setUser(user);
-      // اگر شماره از قبل حسابِ دانش‌آموز بوده، سرور نقشش را عوض نمی‌کند
-      if (user.role !== 'parent') {
-        setError('این شماره با حسابِ دانش‌آموز ثبت شده است. با شمارهٔ خودتان وارد شوید.');
-        setBusy(false);
-        return;
-      }
       navigate('/parent-panel', { replace: true });
     } catch (err) {
       setError(errorMessage(err, 'کد اشتباه یا منقضی شده است.'));
