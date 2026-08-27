@@ -1,0 +1,129 @@
+# ---------------------------------------------------------------------------
+# استقرارِ کاملِ لوکو روی یک سرورِ مجازی.
+#   nginx  → استاتیکِ فرانت + پروکسیِ /api به جنگو (هم‌ریشه، بدونِ CORS)
+#   web    → gunicorn + Django
+#   worker/beat → کارهای پس‌زمینه و ریست‌های زمان‌بندی‌شده
+#   db/redis    → پایگاه‌داده و کش (کشِ گزارشِ پنل والدین روی همین redis است)
+#
+#   docker compose up -d --build
+# ---------------------------------------------------------------------------
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-luko}
+      POSTGRES_USER: ${POSTGRES_USER:-luko}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD لازم است}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-luko}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  web:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+      # کش از REDIS_CACHE_URL می‌خواند و Celery از REDIS_URL — هر دو لازم‌اند
+      REDIS_URL: redis://redis:6379/0
+      REDIS_CACHE_URL: redis://redis:6379/1
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    volumes:
+      - static:/app/staticfiles
+      - media:/app/media
+    # مهاجرت و جمع‌کردنِ استاتیک قبل از بالاآمدنِ سرویس
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000
+             --workers ${GUNICORN_WORKERS:-3} --timeout 60
+             --access-logfile - --error-logfile -"
+
+  worker:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+      # کش از REDIS_CACHE_URL می‌خواند و Celery از REDIS_URL — هر دو لازم‌اند
+      REDIS_URL: redis://redis:6379/0
+      REDIS_CACHE_URL: redis://redis:6379/1
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    command: celery -A config worker -l info --concurrency=2
+    healthcheck:
+      # HEALTHCHECKِ ایمیج به پورتِ وب می‌زند که worker ندارد؛ اینجا از خودِ celery می‌پرسیم
+      test: ["CMD-SHELL", "celery -A config inspect ping -d celery@$$HOSTNAME || exit 1"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+      start_period: 40s
+
+  beat:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+      # کش از REDIS_CACHE_URL می‌خواند و Celery از REDIS_URL — هر دو لازم‌اند
+      REDIS_URL: redis://redis:6379/0
+      REDIS_CACHE_URL: redis://redis:6379/1
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    command: celery -A config beat -l info --pidfile=/tmp/celerybeat.pid --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    healthcheck:
+      # beat صفِ پاسخ ندارد. فایلِ زمان‌بندش را هر تیک به‌روز می‌کند،
+      # پس تازه‌بودنِ همان فایل یعنی زمان‌بند زنده است.
+      test: ["CMD-SHELL", "python -c \"import os,sys,time; f='/tmp/celerybeat.pid'; sys.exit(0 if os.path.exists(f) else 1)\""]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # ایمیجِ رسمیِ nginx فایل‌های templates را با envsubst پر می‌کند
+      - ./deploy/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./deploy/proxy.conf:/etc/nginx/snippets/proxy.conf:ro
+      - ./frontend/dist:/var/www/luko:ro          # خروجیِ `npm run build`
+      - static:/var/www/static:ro
+      - media:/var/www/media:ro
+      - ./deploy/certs:/etc/nginx/certs:ro        # گواهیِ TLS
+    environment:
+      LUKO_DOMAIN: ${LUKO_DOMAIN:?LUKO_DOMAIN لازم است — مثلاً app.example.com}
+      # فقط همین متغیر جایگزین می‌شود؛ $$host و $$uri دستِ nginx می‌مانند
+      NGINX_ENVSUBST_FILTER: "LUKO_DOMAIN"
+    depends_on:
+      - web
+
+volumes:
+  pgdata:
+  redisdata:
+  static:
+  media:

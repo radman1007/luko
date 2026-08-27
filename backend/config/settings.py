@@ -10,6 +10,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 import os
+import sys
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
@@ -149,6 +150,10 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # SMS_BACKEND=console یعنی چیزی ارسال نمی‌شود و کد فقط در لاگ می‌آید (توسعه).
 # ---------------------------------------------------------------------------
 SMS_BACKEND = env("SMS_BACKEND", "console" if DEBUG else "smsir")
+
+# اجرای تست هرگز نباید پیامکِ واقعی بفرستد (و اعتبار بسوزاند یا کند شود).
+if "test" in sys.argv or os.environ.get("PYTEST_CURRENT_TEST"):
+    SMS_BACKEND = "console"
 SMS_IR_API_KEY = env("SMS_IR_API_KEY", "")
 SMS_IR_TEMPLATE_ID = env("SMS_IR_TEMPLATE_ID", "")
 # نامِ پارامتر داخلِ قالبِ پنل sms.ir (مثلاً {CODE} در متن قالب)
@@ -193,6 +198,32 @@ SIMPLE_JWT = {
     "USER_ID_CLAIM": "user_id",
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+# ---------------------------------------------------------------------------
+# امنیتِ production
+#
+# همه پشتِ `not DEBUG` هستند تا توسعه‌ی محلی (http) دست‌نخورده بماند.
+# فرض: اپ پشتِ nginx با TLS اجرا می‌شود و nginx هدرِ X-Forwarded-Proto می‌فرستد.
+# ---------------------------------------------------------------------------
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = env_bool("DJANGO_SSL_REDIRECT", True)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = int(env("DJANGO_HSTS_SECONDS", "31536000"))   # یک سال
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = "same-origin"
+    X_FRAME_OPTIONS = "SAMEORIGIN"        # بازی‌ها داخلِ iframe هم‌ریشه اجرا می‌شوند
+
+    if SECRET_KEY == "dev-insecure-key-change-me":
+        raise RuntimeError(
+            "DJANGO_SECRET_KEY تنظیم نشده است. با DEBUG=0 نباید کلیدِ توسعه استفاده شود."
+        )
+
+# دامنه‌هایی که مجازند فرمِ POST بفرستند (پشتِ https)
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")
 
 # ---------------------------------------------------------------------------
 # CORS

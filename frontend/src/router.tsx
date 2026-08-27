@@ -4,6 +4,7 @@ import { ProtectedRoute } from '@/features/auth/ProtectedRoute';
 import { PageLoader } from '@/components/PageLoader/PageLoader';
 
 const Login = lazy(() => import('@/pages/Login'));
+const ParentLogin = lazy(() => import('@/pages/ParentLogin'));
 const Register = lazy(() => import('@/pages/Register'));
 const CompleteProfile = lazy(() => import('@/pages/CompleteProfile'));
 
@@ -31,6 +32,8 @@ export function AppRouter() {
       <Routes>
         {/* عمومی */}
         <Route path="/login" element={<Login />} />
+        {/* ورودِ جداگانه‌ی والدین — فضای بزرگسال، با شماره و پیامک */}
+        <Route path="/parent-login" element={<ParentLogin />} />
         <Route path="/register" element={<Register />} />
         <Route path="/complete-profile" element={<CompleteProfile />} />
 

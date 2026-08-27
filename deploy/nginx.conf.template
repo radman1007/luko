@@ -1,0 +1,113 @@
+# ---------------------------------------------------------------------------
+# لوکو — یک origin برای همه‌چیز.
+#
+# فرانت (فایل‌های استاتیک) و API زیرِ یک دامنه‌اند، پس مرورگر هیچ preflightِ
+# CORS نمی‌زند و کدِ فرانت هم که `/api/v1` نسبی صدا می‌کند، بدونِ تغییر کار می‌کند.
+# ---------------------------------------------------------------------------
+
+# --- HTTP: فقط ریدایرکت به HTTPS (به‌جز چالشِ Let's Encrypt) ---
+server {
+    # نامِ سرویس در هر درخواست resolve شود؛ وگرنه با بازسازیِ
+    # کانتینرِ web آی‌پیِ کش‌شده می‌ماند و nginx ۵۰۲ می‌دهد
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $luko_web web:8000;
+    listen 80;
+    server_name ${LUKO_DOMAIN};
+
+    location /.well-known/acme-challenge/ { root /var/www/certbot; }
+    location / { return 301 https://$host$request_uri; }
+}
+
+server {
+    # نامِ سرویس در هر درخواست resolve شود؛ وگرنه با بازسازیِ
+    # کانتینرِ web آی‌پیِ کش‌شده می‌ماند و nginx ۵۰۲ می‌دهد
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $luko_web web:8000;
+    listen 443 ssl;
+    http2 on;
+    server_name ${LUKO_DOMAIN};
+
+    ssl_certificate     /etc/nginx/certs/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    ssl_session_cache   shared:SSL:10m;
+
+    root /var/www/luko;
+    index index.html;
+
+    # سقفِ آپلود (نقاشی‌های لوکو سلامت)
+    client_max_body_size 12m;
+
+    # ---------- فشرده‌سازی ----------
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_types text/plain text/css application/javascript application/json
+               image/svg+xml application/wasm;
+    # اگر ماژولِ brotli موجود باشد، خیلی بهتر از gzip است:
+    # brotli on; brotli_types ...;
+
+    # ---------- API ----------
+    location /api/ {
+        proxy_pass http://$luko_web;
+        include /etc/nginx/snippets/proxy.conf;
+    }
+
+    location /healthz {
+        proxy_pass http://$luko_web;
+        include /etc/nginx/snippets/proxy.conf;
+        access_log off;
+    }
+
+    # پنلِ ادمینِ جنگو + استاتیکِ خودش
+    location /admin/ {
+        proxy_pass http://$luko_web;
+        include /etc/nginx/snippets/proxy.conf;
+    }
+    location /static/ { alias /var/www/static/; expires 30d; access_log off; }
+    location /media/  { alias /var/www/media/;  expires 7d;  access_log off; }
+
+    # ---------- استاتیکِ فرانت ----------
+    # نامِ فایل‌های داخلِ /assets هش‌دار است، پس بی‌خطر «برای همیشه» کش می‌شوند
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+
+    # تصویرِ کاراکترها و آیکونِ بازی‌ها هش ندارند ولی به‌ندرت عوض می‌شوند
+    location ~* ^/(characters|favicon|apple-touch-icon) {
+        expires 7d;
+        add_header Cache-Control "public";
+        access_log off;
+    }
+
+    # دارایی‌های بازی‌ها (تصویر/صدا/فونت)
+    location /games/assets/ {
+        expires 7d;
+        add_header Cache-Control "public";
+        access_log off;
+    }
+
+    # خودِ فایلِ بازی‌ها هنوز در حالِ تغییرند: هر بار اعتبارسنجی شود
+    location /games/ {
+        add_header Cache-Control "public, max-age=0, must-revalidate";
+    }
+
+    # ---------- SPA ----------
+    # هر مسیرِ ناشناخته به index.html می‌رود تا روتِ سمتِ کلاینت کار کند،
+    # ولی index.html خودش هرگز کش نمی‌شود تا کاربر روی نسخه‌ی قدیمی گیر نکند.
+    location = /index.html {
+        add_header Cache-Control "public, max-age=0, must-revalidate";
+    }
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # ---------- هدرهای امنیتی ----------
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "same-origin" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;   # بازی‌ها در iframe هم‌ریشه‌اند
+}

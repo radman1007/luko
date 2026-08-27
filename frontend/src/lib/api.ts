@@ -32,8 +32,11 @@ apiClient.interceptors.response.use(
     // TODO: وقتی بک‌اند refresh token داد، اینجا flow تمدید توکن اضافه شود
     if (error.response?.status === 401) {
       tokenStorage.clear();
-      if (!window.location.pathname.startsWith('/login')) {
-        window.location.href = '/login';
+      // والدی که توکنش منقضی شده باید به ورودِ والدین برگردد، نه لاگینِ کودکانه
+      const path = window.location.pathname;
+      const target = path.startsWith('/parent-panel') ? '/parent-login' : '/login';
+      if (!path.startsWith('/login') && !path.startsWith('/parent-login')) {
+        window.location.href = target;
       }
     }
     return Promise.reject(error);

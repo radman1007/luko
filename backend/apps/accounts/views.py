@@ -116,10 +116,13 @@ class VerifyOTPView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # نقش فقط هنگامِ ساختِ حسابِ تازه اعمال می‌شود؛ حسابِ موجود نقشش عوض
+        # نمی‌شود (وگرنه یک دانش‌آموز می‌توانست با ورود از صفحه‌ی والدین، والد شود).
+        requested_role = data.get("role") or User.Role.STUDENT
         user, is_new = User.objects.get_or_create(
             phone=phone,
             defaults={
-                "role": User.Role.STUDENT,
+                "role": requested_role,
                 "first_name": data.get("first_name", "") or "",
                 "last_name": data.get("last_name", "") or "",
             },

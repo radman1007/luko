@@ -34,6 +34,12 @@ class VerifyOTPSerializer(serializers.Serializer):
     # فقط هنگام ثبت‌نامِ حسابِ تازه استفاده می‌شوند
     first_name = serializers.CharField(max_length=60, required=False, allow_blank=True)
     last_name = serializers.CharField(max_length=60, required=False, allow_blank=True)
+    # نقشِ حسابِ تازه. عمداً محدود است: نقش‌های کارکنان (معلم/مدرسه/ادمین) هرگز
+    # از سمتِ کاربر ساخته نمی‌شوند و نقشِ حسابِ موجود هم با این تغییر نمی‌کند.
+    role = serializers.ChoiceField(
+        choices=[("student", "student"), ("parent", "parent")],
+        required=False, default="student",
+    )
 
 
 class KidSettingsSerializer(serializers.ModelSerializer):

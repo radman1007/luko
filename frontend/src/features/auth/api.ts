@@ -15,6 +15,11 @@ export interface VerifyOtpPayload {
   code: string;
   firstName?: string;
   lastName?: string;
+  /**
+   * نقشِ حسابِ تازه. سرور فقط `parent` و `student` را می‌پذیرد و نقشِ حسابِ
+   * موجود را هرگز با این عوض نمی‌کند — پس ورودِ والد، دانش‌آموز را والد نمی‌کند.
+   */
+  role?: 'parent' | 'student';
 }
 
 export interface VerifyOtpResult {
