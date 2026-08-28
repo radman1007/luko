@@ -1,0 +1,139 @@
+/* نقشه‌ی سیزن — مسیرِ مارپیچ از پایین به بالا */
+.map {
+  position: relative;
+  width: 100%;
+  margin-top: 6px;
+  /* گره‌های لبه‌ی موج کمی بیرون می‌زنند؛ برشِ افقی جلوی اسکرولِ جانبی را می‌گیرد */
+  overflow: hidden clip;
+}
+
+.path {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* جاده‌ی پایه: نوارِ روشنِ نیم‌شفاف — روی زمینه‌ی شب باید دیده شود */
+.trackBase {
+  stroke: rgb(255 255 255 / 9%);
+  stroke-width: 30;
+}
+
+/* خط‌چینِ وسطِ جاده — همان حسِ نقشه‌ی بازی‌ها */
+.trackDash {
+  stroke: rgb(255 255 255 / 32%);
+  stroke-width: 4;
+  stroke-dasharray: 2 18;
+}
+
+/* بخشِ طی‌شده: از بنفشِ پایین تا فیروزه‌ایِ مرحله‌ی جاری */
+.trackLit {
+  stroke: url(#luko-lit);
+  stroke-width: 9;
+  filter: drop-shadow(0 0 9px rgb(79 216 200 / 55%));
+}
+
+/* ── ایست‌گاهِ هفته ────────────────────────────────────────── */
+/* نشانِ هفته کنارِ مسیر می‌نشیند، نه رویش — وگرنه روی نامِ مرحله‌ها می‌افتد */
+.milestone {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  translate: 0 -50%;
+  pointer-events: none;
+}
+
+.mileLeft {
+  left: 12px;
+}
+
+.mileRight {
+  right: 12px;
+}
+
+/* یک خطِ کوتاه که نشان را به مسیر وصل می‌کند */
+.milestone::after {
+  content: '';
+  width: 22px;
+  height: 1.5px;
+  background: linear-gradient(90deg, rgb(255 255 255 / 26%), transparent);
+}
+
+.mileRight::after {
+  order: -1;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 26%));
+}
+
+.milePill,
+.milePillDone {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 13px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: rgb(255 255 255 / 78%);
+  background: rgb(36 31 49 / 92%);
+  border: 1.5px solid rgb(255 255 255 / 14%);
+  backdrop-filter: blur(2px);
+}
+
+.milePillDone {
+  color: #0d2b2a;
+  background: var(--gamer-neon);
+  border-color: transparent;
+}
+
+.mileCount {
+  font-size: 10.5px;
+  font-weight: 800;
+  opacity: 0.75;
+}
+
+/* ── پرچمِ شروع ───────────────────────────────────────────── */
+.start {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 26px;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.startPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: rgb(255 255 255 / 62%);
+  background: rgb(255 255 255 / 7%);
+  border: 1.5px dashed rgb(255 255 255 / 22%);
+}
+
+.startPill svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ── سایه‌ی مرحله‌های پشتِ ابر ──────────────────────────────── */
+.ghost {
+  position: absolute;
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  translate: -50% -50%;
+  background: rgb(255 255 255 / 6%);
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 9%);
+  pointer-events: none;
+}

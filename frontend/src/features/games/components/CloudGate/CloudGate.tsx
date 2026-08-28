@@ -19,44 +19,34 @@ function Cloud({ className }: { className: string }) {
   );
 }
 
+function countdown(days?: number): string {
+  if (days === undefined) return 'به‌زودی کنار می‌روند.';
+  if (days === 0) return 'همین امروز کنار می‌روند!';
+  return `${days.toLocaleString('fa-IR')} روز دیگر کنار می‌روند.`;
+}
+
 /**
- * پرده‌ی ابر روی هفته‌های نرسیده. مرحله‌ها عمداً دیده نمی‌شوند —
- * فقط سایه‌ی محوشان پیداست تا بچه بداند مسیر ادامه دارد.
+ * سقفِ نقشه. مسیر از زیرش رد می‌شود و ادامه‌اش پیدا نیست — مرحله‌های
+ * هفته‌های نرسیده نه شمرده می‌شوند نه دیده، فقط می‌دانی که هست.
  */
 export function CloudGate({ weeks, daysToNextWeek }: Props) {
   if (weeks.length === 0) return null;
 
-  const hiddenStages = weeks.reduce((sum, week) => sum + week.stages.length, 0);
-
   return (
     <section className={styles.gate} aria-label="مرحله‌های هنوز باز نشده">
-      {/* سایه‌ی مرحله‌های پنهان، پشتِ ابرها */}
-      <div className={styles.ghosts} aria-hidden>
-        {Array.from({ length: Math.min(hiddenStages, 6) }).map((_, i) => (
-          <span key={i} className={i % 2 === 0 ? styles.ghostStart : styles.ghostEnd} />
-        ))}
-      </div>
-
-      <div className={styles.clouds} aria-hidden>
-        <Cloud className={styles.cloudBack} />
-        <Cloud className={styles.cloudMid} />
-        <Cloud className={styles.cloudFront} />
+      <div className={styles.sky} aria-hidden>
+        <Cloud className={styles.back} />
+        <Cloud className={styles.mid} />
+        <Cloud className={styles.front} />
+        <Cloud className={styles.far} />
       </div>
 
       <div className={styles.note}>
         <span className={styles.lock} aria-hidden>
           <HiOutlineLockClosed />
         </span>
-        <p className={styles.noteTitle}>
-          پشتِ ابرها {hiddenStages.toLocaleString('fa-IR')} مرحله‌ی دیگر خوابیده است
-        </p>
-        <p className={styles.noteText}>
-          {daysToNextWeek === undefined
-            ? 'به‌زودی باز می‌شوند.'
-            : daysToNextWeek === 0
-              ? 'همین امروز ابرها کنار می‌روند و هفته‌ی تازه باز می‌شود!'
-              : `${daysToNextWeek.toLocaleString('fa-IR')} روز دیگر ابرها کنار می‌روند و هفته‌ی تازه باز می‌شود.`}
-        </p>
+        <p className={styles.title}>مسیر پشتِ ابرها ادامه دارد</p>
+        <p className={styles.text}>{countdown(daysToNextWeek)}</p>
       </div>
     </section>
   );

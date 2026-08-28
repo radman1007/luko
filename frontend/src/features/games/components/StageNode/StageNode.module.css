@@ -1,0 +1,244 @@
+/* یک مرحله روی نقشه — دایره‌ای که مرکزش روی منحنیِ مسیر می‌نشیند */
+.slot {
+  --node: 78px;
+  --subject-color: var(--gamer-primary);
+
+  position: absolute;
+  top: var(--node-y);
+  left: var(--node-x);
+  translate: -50% -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: max-content;
+}
+
+/* ── خودِ دایره ───────────────────────────────────────────── */
+.node {
+  position: relative;
+  width: var(--node);
+  height: var(--node);
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  /* لبه‌ی پایینِ ضخیم، حسِ دکمه‌ی سه‌بعدیِ بازی‌ها را می‌دهد */
+  transition: translate 120ms ease, box-shadow 200ms ease;
+}
+
+.node:active {
+  translate: 0 3px;
+}
+
+.face {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  color: #fff;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.9;
+}
+
+.order {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.2px;
+}
+
+.check {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: #fff;
+}
+
+.check svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── حالتِ «رفته» ─────────────────────────────────────────── */
+.done {
+  background:
+    radial-gradient(circle at 50% 24%, rgb(255 255 255 / 34%) 0%, transparent 58%),
+    linear-gradient(180deg, var(--subject-color) 0%, rgb(0 0 0 / 34%) 190%),
+    #2b2440;
+  box-shadow:
+    0 5px 0 rgb(0 0 0 / 45%),
+    0 8px 18px rgb(0 0 0 / 40%),
+    inset 0 0 0 3px rgb(255 255 255 / 26%);
+}
+
+/* ── حالتِ «نوبتِ توئه» ───────────────────────────────────── */
+.current {
+  --node: 92px;
+
+  background:
+    radial-gradient(circle at 50% 22%, rgb(255 255 255 / 45%) 0%, transparent 60%),
+    linear-gradient(180deg, var(--gamer-neon) 0%, #1f9d94 165%);
+  box-shadow:
+    0 6px 0 #14655f,
+    0 10px 26px rgb(79 216 200 / 45%),
+    inset 0 0 0 3px rgb(255 255 255 / 45%);
+  animation: bob 2.4s ease-in-out infinite;
+}
+
+.current .face {
+  color: #0d2b2a;
+}
+
+.current .icon {
+  width: 27px;
+  height: 27px;
+}
+
+.current .order {
+  font-size: 15px;
+}
+
+/* حلقه‌ی تپنده — چشمِ بچه را روی مرحله‌ی درست می‌نشاند */
+.current::before {
+  content: '';
+  position: absolute;
+  inset: -9px;
+  border-radius: 50%;
+  border: 2.5px solid var(--gamer-neon);
+  opacity: 0.85;
+  animation: ping 2.1s ease-out infinite;
+}
+
+.play {
+  position: absolute;
+  inset-block-end: -4px;
+  inset-inline-end: -4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: #14655f;
+  box-shadow: 0 3px 8px rgb(0 0 0 / 35%);
+}
+
+.play svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.4;
+  margin-inline-start: 1px;
+}
+
+/* ── حالتِ «باز ولی هنوز نرفته» ───────────────────────────── */
+.open {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 13%) 0%, rgb(255 255 255 / 5%) 100%),
+    #2f2843;
+  box-shadow:
+    0 5px 0 rgb(0 0 0 / 38%),
+    inset 0 0 0 2.5px color-mix(in srgb, var(--subject-color) 62%, transparent);
+}
+
+.open .face {
+  color: color-mix(in srgb, var(--subject-color) 85%, #fff);
+}
+
+/* ── برچسبِ بالای مرحله‌ی جاری ────────────────────────────── */
+.flag {
+  position: relative;
+  margin-bottom: 9px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--gamer-neon);
+  color: #0d2b2a;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgb(79 216 200 / 45%);
+  animation: bob 2.4s ease-in-out infinite;
+}
+
+.flag::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  translate: -50% 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--gamer-neon);
+}
+
+/* ── نامِ مرحله و سکه، زیرِ دایره ──────────────────────────── */
+.caption {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  max-width: 116px;
+}
+
+.title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: rgb(255 255 255 / 80%);
+  text-align: center;
+  line-height: 1.35;
+  text-shadow: 0 1px 3px rgb(20 16 30 / 90%);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.coin {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #ffc861;
+}
+
+.done .caption,
+.done + .caption {
+  opacity: 0.75;
+}
+
+/* ── انیمیشن‌ها ───────────────────────────────────────────── */
+@keyframes bob {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -5px; }
+}
+
+@keyframes ping {
+  0% { inset: -9px; opacity: 0.85; }
+  70% { inset: -20px; opacity: 0; }
+  100% { inset: -20px; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .current,
+  .flag { animation: none; }
+  .current::before { animation: none; opacity: 0.6; }
+}
+
+/* ── رنگِ هر درس ──────────────────────────────────────────── */
+.subjMath { --subject-color: #9b7ce0; }
+.subjScience { --subject-color: #4fd8c8; }
+.subjWriting { --subject-color: #e56fa7; }
+.subjQuran { --subject-color: #ffc861; }
+.subjReading { --subject-color: #7fb2ff; }
+.subjOther { --subject-color: #b7b3c4; }

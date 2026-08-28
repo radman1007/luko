@@ -1,13 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { HiOutlineBolt, HiOutlinePlay } from 'react-icons/hi2';
+import { HiOutlineBolt } from 'react-icons/hi2';
 import { StudentLayout } from '@/components/layout/StudentLayout/StudentLayout';
 import { CharacterGuide } from '@/components/characters/CharacterGuide/CharacterGuide';
 import { LUKORIANS } from '@/lib/characters';
 import { GRADE_LABEL, completedLevelIds } from '@/features/books/booksData';
 import { seasonState } from '@/features/games/seasonData';
 import { SeasonBanner } from '@/features/games/components/SeasonBanner/SeasonBanner';
-import { StagePath } from '@/features/games/components/StagePath/StagePath';
-import { CloudGate } from '@/features/games/components/CloudGate/CloudGate';
+import { SeasonMap } from '@/features/games/components/SeasonMap/SeasonMap';
 import styles from './GameHall.module.css';
 
 const GUIDE_STEPS = [
@@ -62,37 +61,18 @@ export default function GameHall() {
 
       <SeasonBanner state={state} />
 
-      {state.nextStage && (
-        <button
-          type="button"
-          className={styles.resume}
-          onClick={() => navigate(`/game/${state.nextStage?.id}`)}
-        >
-          <span className={styles.resumeIcon} aria-hidden>
-            <HiOutlinePlay />
-          </span>
-          <span className={styles.resumeTexts}>
-            <span className={styles.resumeLabel}>ادامه بده از</span>
-            <b className={styles.resumeTitle}>
-              مرحله‌ی {state.nextStage.order.toLocaleString('fa-IR')} — {state.nextStage.title}
-            </b>
-          </span>
-        </button>
-      )}
-
       {weekDone && (
         <p className={styles.weekCleared}>
           مرحله‌های بازشده تمام شد! تا هفته‌ی بعد می‌توانی هرکدام را دوباره بازی کنی.
         </p>
       )}
 
-      {/* ابرها سقفِ مسیرند: هرچه بالاتر، هفته‌ی نرسیده‌تر */}
-      <CloudGate weeks={state.cloudedWeeks} daysToNextWeek={state.daysToNextWeek} />
-
-      <StagePath
-        weeks={state.openWeeks}
+      <SeasonMap
+        openWeeks={state.openWeeks}
+        cloudedWeeks={state.cloudedWeeks}
+        daysToNextWeek={state.daysToNextWeek}
         done={done}
-        nextStageId={state.nextStage?.id}
+        currentStage={state.nextStage}
         onPlay={(stage) => navigate(`/game/${stage.id}`)}
       />
 
