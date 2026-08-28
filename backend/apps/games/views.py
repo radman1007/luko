@@ -1,13 +1,16 @@
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from apps.parent.services import invalidate_child_report
 
 from .models import Book, Game
 from .serializers import BookSerializer, GameEventSerializer, GameSerializer
-from .services import StageLocked, complete_game
+from .playlink import sign
+from .services import StageLocked, blocking_stage, complete_game
 
 
 class GameListView(ListAPIView):
@@ -31,6 +34,43 @@ class GameCompleteView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
         return Response(result)
+
+
+class GamePlayLinkView(APIView):
+    """
+    GET /games/<slug>/play-link — آدرسِ کوتاه‌عمرِ فایلِ بازی.
+
+    فایل‌ها دیگر مستقیم قابلِ دانلود نیستند؛ nginx فقط لینکِ امضاشده را
+    می‌پذیرد. امضا فقط برای مرحله‌ای داده می‌شود که همین کاربر بازش کرده،
+    پس یک حساب هم نمی‌تواند یک‌جا همه‌ی بازی‌ها را بردارد.
+    """
+
+    permission_classes = [AllowAny]     # مهمان فقط مرحله‌ی اول را می‌گیرد
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "play_link"
+
+    def get(self, request, slug):
+        game = Game.objects.filter(slug=slug, is_active=True).first()
+        if game is None or not game.game_file:
+            return Response(
+                {"error": {"code": 404, "message": "این بازی وجود ندارد."}},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if not request.user.is_authenticated:
+            # بدونِ حساب فقط مرحله‌ی اولِ مسیر باز است (حالتِ مهمان/نمایش)
+            if game.season_order != 1:
+                return Response(
+                    {"error": {"code": 401, "message": "برای بازیِ این مرحله باید وارد شوی."}},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+        elif blocking_stage(request.user, game) is not None:
+            return Response(
+                {"error": {"code": 403, "message": "این مرحله هنوز باز نشده است."}},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        return Response({"url": sign(game.game_file)})
 
 
 class GameEventView(APIView):

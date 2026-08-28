@@ -66,6 +66,17 @@ BOOKS = [
 ]
 
 
+def _game_path(book_id: str, grade: int, file_name: str | None) -> str:
+    """
+    مسیرِ عمومیِ فایلِ بازی. پوشه‌ی درس از پیشوندِ `book_id` می‌آید
+    (`math-1` → `math`) — همان چیدمانی که فرانت هم می‌سازد.
+    """
+    if not file_name:
+        return ""
+    subject_dir = book_id.split("-")[0]
+    return f"/games/grade-{grade}/{subject_dir}/{file_name}"
+
+
 def _file_order(name: str) -> tuple[int, str]:
     """`07-little-hunter.html` → ۷. فایلِ بدونِ پیشوند ته‌ی صف می‌رود."""
     match = re.match(r"(\d+)", name)
@@ -131,7 +142,8 @@ class Command(BaseCommand):
                 _, created = Game.objects.update_or_create(
                     slug=f"{book_id}-{order}",
                     defaults={"title": level_title, "book_id": book_id, "order": order,
-                              "coin_reward": coins, "is_active": bool(game_file)},
+                              "coin_reward": coins, "is_active": bool(game_file),
+                              "game_file": _game_path(book_id, grade, game_file)},
                 )
                 made["game"] = made.get("game", 0) + int(created)
                 if game_file:

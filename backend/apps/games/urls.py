@@ -7,4 +7,5 @@ urlpatterns = [
     path("games", views.GameListView.as_view(), name="games-list"),
     path("games/events", views.GameEventView.as_view(), name="games-events"),
     path("games/<slug:slug>/complete", views.GameCompleteView.as_view(), name="games-complete"),
+    path("games/<slug:slug>/play-link", views.GamePlayLinkView.as_view(), name="games-play-link"),
 ]

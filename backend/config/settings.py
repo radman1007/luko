@@ -154,6 +154,10 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # کلیدها فقط از .env خوانده می‌شوند و هرگز کامیت نمی‌شوند.
 # SMS_BACKEND=console یعنی چیزی ارسال نمی‌شود و کد فقط در لاگ می‌آید (توسعه).
 # ---------------------------------------------------------------------------
+# کلیدِ امضای لینکِ فایل‌های بازی. nginx با همین کلید امضا را بررسی می‌کند،
+# پس هر دو باید یکی باشند. در production حتماً از env بیاید.
+GAME_LINK_SECRET = env("GAME_LINK_SECRET", "dev-game-link-secret")
+
 SMS_BACKEND = env("SMS_BACKEND", "console" if DEBUG else "smsir")
 
 # اجرای تست هرگز نباید پیامکِ واقعی بفرستد (و اعتبار بسوزاند یا کند شود).
@@ -183,6 +187,9 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
     "DEFAULT_PAGINATION_CLASS": "apps.common.pagination.DefaultPagination",
     "PAGE_SIZE": 30,
+    # سقفِ گرفتنِ لینکِ بازی — جلوی برداشتِ انبوهِ فایل‌ها را می‌گیرد
+    "DEFAULT_THROTTLE_CLASSES": (),
+    "DEFAULT_THROTTLE_RATES": {"play_link": "40/hour"},
 }
 
 # محتوای JSONFieldها (payloadِ رویدادهای بازی، وضعیت باغچه، رنگ‌های نقاشی) نباید

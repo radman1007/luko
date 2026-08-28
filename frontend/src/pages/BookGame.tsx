@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { HiOutlineChevronRight, HiOutlineWrenchScrewdriver } from 'react-icons/hi2';
 import { CoinIcon, DewIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
@@ -9,6 +9,7 @@ import { seasonState } from '@/features/games/seasonData';
 import { DEW_REWARD } from '@/features/garden/gardenData';
 import { grantDew, grantFertilizer } from '@/features/garden/store';
 import { completeGame, flushEvents, trackEvent } from '@/features/games/telemetry';
+import { gamesApi } from '@/features/games/api';
 import { completeMission } from '@/features/club/store';
 import styles from './BookGame.module.css';
 
@@ -36,6 +37,20 @@ export default function BookGame() {
         .find((stage) => stage.id === gameId)?.locked ?? false,
     [gameId],
   );
+
+  /**
+   * آدرسِ فایلِ بازی از سرور می‌آید و امضا دارد. مسیرِ ثابتِ فایل دیگر
+   * مستقیم باز نمی‌شود، پس تا این نیامده iframe ساخته نمی‌شود.
+   */
+  const play = useQuery({
+    queryKey: ['games', 'play-link', gameId],
+    queryFn: () => gamesApi.playLink(gameId),
+    enabled: Boolean(found?.level.gameFile) && !locked,
+    // لینک کوتاه‌عمر است؛ با برگشتن به بازی باید تازه گرفته شود
+    staleTime: 0,
+    gcTime: 0,
+    retry: 1,
+  });
 
   const [justWon, setJustWon] = useState(false);
   const [serverCoins, setServerCoins] = useState<number | null>(null);
@@ -151,13 +166,19 @@ export default function BookGame() {
 
       {hasGame ? (
         <div className={styles.stage}>
-          <iframe
-            className={styles.frame}
-            src={level.gameFile}
-            title={level.title}
-            sandbox="allow-scripts allow-same-origin"
-            allow="autoplay; fullscreen"
-          />
+          {play.data ? (
+            <iframe
+              className={styles.frame}
+              src={play.data}
+              title={level.title}
+              sandbox="allow-scripts allow-same-origin"
+              allow="autoplay; fullscreen"
+            />
+          ) : (
+            <div className={styles.loading}>
+              {play.isError ? 'بازی باز نشد. یک‌بار دیگر امتحان کن.' : 'در حال باز کردنِ بازی…'}
+            </div>
+          )}
           {justWon && (
             <div className={styles.winOverlay} role="dialog" aria-label="مرحله کامل شد">
               <div className={styles.winCard}>

@@ -39,6 +39,9 @@ class Game(TimeStampedModel):
     # جایگاه در مسیرِ سیزن — یک صفِ واحد روی همه‌ی کتاب‌ها، از پیشوندِ عددیِ
     # نامِ فایل. ۰ یعنی این بازی روی مسیر نیست و ترتیبی برایش شرط نمی‌شود.
     season_order = models.PositiveIntegerField(default=0, db_index=True)
+    # مسیرِ عمومیِ فایلِ بازی (`/games/grade-1/math/01-....html`). سرور برای
+    # ساختنِ لینکِ امضاشده لازمش دارد؛ خالی یعنی بازی هنوز نرسیده است.
+    game_file = models.CharField(max_length=200, blank=True)
     coin_reward = models.PositiveIntegerField(default=10)
     dew_reward = models.PositiveIntegerField(default=6)       # شبنمِ باغچه
     fertilizer_reward = models.PositiveIntegerField(default=1)
