@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { completedLevelIds, replaceCompletedLevelIds } from '@/features/books/booksData';
 import { isGuestMode } from '@/features/auth/guest';
@@ -27,6 +28,7 @@ export function useSeasonProgress(): Set<string> {
     staleTime: 30_000,
   });
 
-  // تا رسیدنِ پاسخ، همان چیزی که محلی ذخیره است نشان داده می‌شود
-  return new Set(data ?? completedLevelIds());
+  // ارجاعِ Set باید پایدار بماند، وگرنه useMemoهای پایین‌دست (چیدمانِ نقشه)
+  // در هر رندر دوباره حساب می‌شوند.
+  return useMemo(() => new Set(data ?? completedLevelIds()), [data]);
 }

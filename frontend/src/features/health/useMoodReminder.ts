@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { completeMission } from '@/features/club/store';
 import type { Mood } from './types';
 
 const LAST_MOOD_TIME_KEY = 'luko_last_mood_time';
@@ -37,6 +38,8 @@ export function useMoodReminder() {
     localStorage.setItem(LAST_MOOD_KEY, mood);
     setLastMood(mood);
     setShow(false);
+    // مأموریتِ «حالت رو بگو» همین‌جا خودکار ثبت می‌شود
+    completeMission('mood');
   }, []);
 
   const open = useCallback(() => setShow(true), []);

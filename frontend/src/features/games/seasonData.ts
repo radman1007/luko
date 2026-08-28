@@ -113,8 +113,15 @@ function byFileName(a: string, b: string): number {
   return diff !== 0 ? diff : a.localeCompare(b, 'en');
 }
 
-/** همه‌ی مرحله‌های سیزن، مرتب‌شده بر اساسِ نامِ فایل */
+let stagesCache: SeasonStage[] | null = null;
+
+/**
+ * همه‌ی مرحله‌های سیزن، مرتب‌شده بر اساسِ نامِ فایل.
+ * ورودی‌اش ثابت است (BOOKS)، پس یک‌بار ساخته و نگه داشته می‌شود؛ وگرنه
+ * هر رندرِ نقشه یک flatMap و sort روی کلِ بازی‌ها می‌زد.
+ */
 export function seasonStages(): SeasonStage[] {
+  if (stagesCache) return stagesCache;
   const flat = BOOKS.flatMap((book) =>
     book.levels
       .filter((level) => Boolean(level.gameFile))
@@ -130,13 +137,14 @@ export function seasonStages(): SeasonStage[] {
 
   flat.sort((a, b) => byFileName(a.file, b.file));
 
-  return flat.map((stage, i) => ({
+  stagesCache = flat.map((stage, i) => ({
     ...stage,
     order: i + 1,
     week: Math.floor(i / SEASON.stagesPerWeek) + 1,
     // قفلِ واقعی به پیشرفتِ بچه بستگی دارد و در `seasonState` تعیین می‌شود
     locked: false,
   }));
+  return stagesCache;
 }
 
 function startOfDay(value: Date): Date {

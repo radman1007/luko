@@ -1,4 +1,5 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import { completeMission } from '@/features/club/store';
 import { WATER, seasonFrom } from './gardenData';
 import {
   buy,
@@ -19,6 +20,14 @@ import {
  */
 export function useGarden() {
   const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+
+  // آب‌دادنِ موفق، مأموریتِ روزانه‌ی باغچه را خودکار ثبت می‌کند.
+  // در هوک نشسته نه در استور، تا `garden/store` و `club/store` هم را وارد نکنند.
+  const water = useCallback(() => {
+    const result = waterAll();
+    if (result.ok) completeMission('garden');
+    return result;
+  }, []);
 
   // تیک سبک فقط برای زنده‌نگه‌داشتنِ محاسبه‌ی پر شدن آب‌پاش
   const [, tick] = useState(0);
@@ -60,7 +69,7 @@ export function useGarden() {
     canFertilize: plants.length > 0 && state.fertilizer > 0,
 
     plantSeed,
-    waterAll,
+    waterAll: water,
     fertilizeAll,
     buy,
   };

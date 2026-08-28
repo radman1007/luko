@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HiOutlineBolt } from 'react-icons/hi2';
 import { StudentLayout } from '@/components/layout/StudentLayout/StudentLayout';
@@ -33,7 +34,7 @@ export default function GameHall() {
   const gamer = LUKORIANS.gamer;
   // پیشرفت از سرور می‌آید تا قفلِ نقشه با قفلِ سرور یکی باشد
   const done = useSeasonProgress();
-  const state = seasonState(done);
+  const state = useMemo(() => seasonState(done), [done]);
 
   const remaining = state.openStages - state.completedStages;
   const weekDone = remaining === 0 && state.openStages > 0;

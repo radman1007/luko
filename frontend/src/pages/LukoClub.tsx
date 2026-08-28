@@ -23,8 +23,8 @@ export default function LukoClub() {
     <StudentLayout className={styles.page}>
       <ClubHero coins={club.coins} />
       <WeekStreak days={club.days} streak={club.streak} />
-      <DailyMissions doneIds={club.doneToday} onComplete={club.completeMission} />
-      <SportsSection doneIds={club.sportDoneToday} onComplete={club.completeSportTask} />
+      <DailyMissions doneIds={club.doneToday} />
+      <SportsSection doneIds={club.sportDoneToday} />
       <MedalsSection medals={club.medals} />
       <ShopSection coins={club.coins} ownedIds={club.owned} onBuy={club.buy} />
 

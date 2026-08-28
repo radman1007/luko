@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { completeMission } from '@/features/club/store';
 
 export type BreathPhase = 'rest' | 'inhale' | 'hold' | 'exhale';
 
@@ -42,6 +43,8 @@ export function useBreathing() {
       if (phaseIndex === PHASE_ORDER.length) {
         phaseIndex = 0;
         setCyclesDone((c) => c + 1);
+        // یک دورِ کاملِ دم‌ونگه‌داشتن‌وبازدم = مأموریتِ «نفس جادویی»
+        completeMission('breath');
       }
       remaining = PHASE_SECONDS[PHASE_ORDER[phaseIndex]];
       setPhase(PHASE_ORDER[phaseIndex]);

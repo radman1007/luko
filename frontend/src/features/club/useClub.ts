@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import {
   HiOutlineFire,
   HiOutlineRocketLaunch,
@@ -7,18 +7,10 @@ import {
 } from 'react-icons/hi2';
 import { DEW_REWARD } from '@/features/garden/gardenData';
 import { grantDew } from '@/features/garden/store';
-import { DAILY_MISSIONS, SPORT_TASKS } from './clubData';
-import type { Medal, Mission } from './types';
+import { buy, completeMission, completeSportTask, getSnapshot, subscribe } from './store';
+import type { Medal } from './types';
 
-const COINS_KEY = 'luko_coins';
-const DAYS_KEY = 'luko_club_days';
-const TOTAL_KEY = 'luko_club_total';
-const OWNED_KEY = 'luko_club_owned';
 const MEDAL_DEW_KEY = 'luko_medal_dew';
-
-const doneKey = (day: string) => `luko_club_done_${day}`;
-const sportDoneKey = (day: string) => `luko_sport_done_${day}`;
-const todayStr = () => new Date().toLocaleDateString('en-CA');
 
 function readJSON<T>(key: string, fallback: T): T {
   try {
@@ -43,82 +35,13 @@ function calcStreak(days: string[]): number {
   return streak;
 }
 
-/** وضعیت باشگاه: سکه، مأموریت‌های امروز، استریک، مدال‌ها و خریدها (TODO: sync با بک‌اند) */
+/**
+ * وضعیت باشگاه برای UI. نوشتن در استورِ ماژولی است، چون مأموریت‌ها را
+ * بخش‌های دیگرِ اپ ثبت می‌کنند نه دکمه‌ای در همین صفحه.
+ */
 export function useClub() {
-  const [coins, setCoins] = useState<number>(() => {
-    const raw = localStorage.getItem(COINS_KEY);
-    if (raw !== null) return Number(raw) || 0;
-    localStorage.setItem(COINS_KEY, '120'); // موجودی اولیه‌ی دمو
-    return 120;
-  });
-  const [doneToday, setDoneToday] = useState<string[]>(() => readJSON(doneKey(todayStr()), []));
-  const [sportDoneToday, setSportDoneToday] = useState<string[]>(() =>
-    readJSON(sportDoneKey(todayStr()), []),
-  );
-  const [days, setDays] = useState<string[]>(() => readJSON(DAYS_KEY, []));
-  const [total, setTotal] = useState<number>(() => Number(localStorage.getItem(TOTAL_KEY)) || 0);
-  const [owned, setOwned] = useState<string[]>(() => readJSON(OWNED_KEY, []));
-
-  /** تکمیل مأموریت از هر لیست: سکه + شمارنده‌ی کل + لاگ روز (پایه‌ی استریک) */
-  const completeFrom = useCallback(
-    (
-      list: Mission[],
-      done: string[],
-      setDone: (v: string[]) => void,
-      keyOf: (day: string) => string,
-      taskId: string,
-    ) => {
-      if (done.includes(taskId)) return;
-      const task = list.find((m) => m.id === taskId);
-      if (!task) return;
-
-      const day = todayStr();
-      const nextDone = [...done, taskId];
-      const nextCoins = coins + task.coinReward;
-      const nextTotal = total + 1;
-      const nextDays = days.includes(day) ? days : [...days, day];
-
-      setDone(nextDone);
-      setCoins(nextCoins);
-      setTotal(nextTotal);
-      setDays(nextDays);
-
-      localStorage.setItem(keyOf(day), JSON.stringify(nextDone));
-      localStorage.setItem(COINS_KEY, String(nextCoins));
-      localStorage.setItem(TOTAL_KEY, String(nextTotal));
-      localStorage.setItem(DAYS_KEY, JSON.stringify(nextDays));
-
-      // پاداش باغچه: هر مأموریت کمی شبنم می‌دهد
-      grantDew(DEW_REWARD.mission, 'mission');
-    },
-    [coins, days, total],
-  );
-
-  const completeMission = useCallback(
-    (missionId: string) =>
-      completeFrom(DAILY_MISSIONS, doneToday, setDoneToday, doneKey, missionId),
-    [completeFrom, doneToday],
-  );
-
-  const completeSportTask = useCallback(
-    (taskId: string) =>
-      completeFrom(SPORT_TASKS, sportDoneToday, setSportDoneToday, sportDoneKey, taskId),
-    [completeFrom, sportDoneToday],
-  );
-
-  const buy = useCallback(
-    (itemId: string, cost: number): boolean => {
-      if (owned.includes(itemId) || coins < cost) return false;
-      const nextCoins = coins - cost;
-      const nextOwned = [...owned, itemId];
-      setCoins(nextCoins);
-      setOwned(nextOwned);
-      localStorage.setItem(COINS_KEY, String(nextCoins));
-      localStorage.setItem(OWNED_KEY, JSON.stringify(nextOwned));
-      return true;
-    },
-    [coins, owned],
-  );
+  const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  const { coins, doneToday, sportDoneToday, days, total, owned } = state;
 
   const streak = useMemo(() => calcStreak(days), [days]);
 
@@ -168,14 +91,14 @@ export function useClub() {
   return {
     coins,
     doneToday,
-    completeMission,
     sportDoneToday,
-    completeSportTask,
     days,
     streak,
     medals,
     owned,
     buy,
+    completeMission,
+    completeSportTask,
     /** کل مأموریت‌های انجام‌شده از ابتدا (کلاب + ورزش) */
     total,
   };

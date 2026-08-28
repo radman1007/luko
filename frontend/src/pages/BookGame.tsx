@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { HiOutlineChevronRight, HiOutlineCheckCircle, HiOutlineWrenchScrewdriver } from 'react-icons/hi2';
+import { HiOutlineChevronRight, HiOutlineWrenchScrewdriver } from 'react-icons/hi2';
 import { CoinIcon, DewIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
 import { levelById, markLevelCompleted } from '@/features/books/booksData';
@@ -9,11 +9,16 @@ import { seasonState } from '@/features/games/seasonData';
 import { DEW_REWARD } from '@/features/garden/gardenData';
 import { grantDew, grantFertilizer } from '@/features/garden/store';
 import { completeGame, flushEvents, trackEvent } from '@/features/games/telemetry';
+import { completeMission } from '@/features/club/store';
 import styles from './BookGame.module.css';
 
 /**
  * اجرای بازیِ یک مرحله. بازی یک فایل HTML مستقل در public است که داخل iframe
  * (sandbox) بارگذاری می‌شود. اگر مرحله بازی نداشته باشد، «به‌زودی» نمایش داده می‌شود.
+ *
+ * تمام‌شدن **خودکار** است: خودِ بازی با `LUKO.finish()` پیام می‌دهد و همین‌جا
+ * ثبت می‌شود. دکمه‌ی دستیِ «تموم کردم» عمداً برداشته شده — بچه نباید بتواند
+ * بدونِ بردنِ بازی مرحله را ببندد و سکه بگیرد.
  */
 export default function BookGame() {
   const navigate = useNavigate();
@@ -43,6 +48,7 @@ export default function BookGame() {
     if (!found || rewardedRef.current) return;
     rewardedRef.current = true;
     markLevelCompleted(found.level.id);
+    completeMission('game');   // مأموریتِ روزانه‌ی «یه بازی رو کامل کن»
     // پاداشِ محلی بلافاصله نشان داده می‌شود تا بچه منتظرِ شبکه نماند
     grantDew(DEW_REWARD.game, 'game');
     grantFertilizer(1);
@@ -152,13 +158,6 @@ export default function BookGame() {
             sandbox="allow-scripts allow-same-origin"
             allow="autoplay; fullscreen"
           />
-          <div className={styles.actions}>
-            <button type="button" className={styles.doneBtn} onClick={finish} disabled={justWon}>
-              <HiOutlineCheckCircle aria-hidden />
-              {justWon ? 'ثبت شد! آفرین' : 'این مرحله رو تموم کردم'}
-            </button>
-          </div>
-
           {justWon && (
             <div className={styles.winOverlay} role="dialog" aria-label="مرحله کامل شد">
               <div className={styles.winCard}>
