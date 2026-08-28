@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { HiOutlineChevronRight, HiOutlineCheckCircle, HiOutlineWrenchScrewdriver } from 'react-icons/hi2';
 import { CoinIcon, DewIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
 import { levelById, markLevelCompleted } from '@/features/books/booksData';
+import { seasonState } from '@/features/games/seasonData';
 import { DEW_REWARD } from '@/features/garden/gardenData';
 import { grantDew, grantFertilizer } from '@/features/garden/store';
 import { completeGame, flushEvents, trackEvent } from '@/features/games/telemetry';
@@ -15,9 +17,20 @@ import styles from './BookGame.module.css';
  */
 export default function BookGame() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { gameId = '' } = useParams();
   const gamer = LUKORIANS.gamer;
   const found = levelById(gameId);
+
+  // مسیرِ سیزن پشتِ‌سرهم است؛ تایپ کردنِ آدرسِ یک مرحله‌ی قفل هم نباید بازش
+  // کند. مرحله‌های خارج از مسیر (بازیِ بخش‌های دیگر) شرطی ندارند.
+  const locked = useMemo(
+    () =>
+      seasonState()
+        .weeks.flatMap((week) => week.stages)
+        .find((stage) => stage.id === gameId)?.locked ?? false,
+    [gameId],
+  );
 
   const [justWon, setJustWon] = useState(false);
   const [serverCoins, setServerCoins] = useState<number | null>(null);
@@ -41,6 +54,9 @@ export default function BookGame() {
       try {
         const result = await completeGame(found.level.id);
         if (result && !result.alreadyDone) setServerCoins(result.coins);
+        // سرور مرجعِ قفلِ مسیر است؛ بدونِ این، نقشه با فهرستِ کهنه باز می‌شود
+        // و مرحله‌ای که همین الان تمام شد «نرفته» نشان داده می‌شود.
+        await queryClient.invalidateQueries({ queryKey: ['games', 'completed'] });
       } catch {
         // اگر شبکه قطع بود، تکمیلِ محلی سرِ جایش می‌ماند و دفعهٔ بعد همگام می‌شود
       }
@@ -88,6 +104,8 @@ export default function BookGame() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [found?.level.id]);
+
+  if (locked) return <Navigate to="/books" replace />;
 
   if (!found) {
     return (

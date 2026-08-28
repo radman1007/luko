@@ -154,6 +154,57 @@
   color: color-mix(in srgb, var(--subject-color) 85%, #fff);
 }
 
+/* ── حالتِ «قفل» ──────────────────────────────────────────── */
+.locked {
+  --node: 66px;
+
+  background: linear-gradient(180deg, rgb(255 255 255 / 7%) 0%, rgb(255 255 255 / 3%) 100%), #272138;
+  box-shadow:
+    0 4px 0 rgb(0 0 0 / 34%),
+    inset 0 0 0 2px rgb(255 255 255 / 8%);
+  cursor: default;
+}
+
+.locked .face {
+  color: rgb(255 255 255 / 32%);
+}
+
+.lock {
+  display: grid;
+  place-items: center;
+}
+
+.lock svg {
+  width: 21px;
+  height: 21px;
+  stroke-width: 1.9;
+}
+
+/* نامِ مرحله‌ی قفل عمداً کم‌رنگ است — هست، ولی دعوت نمی‌کند */
+.locked ~ .caption {
+  opacity: 0.42;
+}
+
+/* پیامِ لمسِ مرحله‌ی قفل */
+.hint {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: rgb(36 31 49 / 96%);
+  border: 1.5px solid rgb(255 255 255 / 16%);
+  color: rgb(255 255 255 / 88%);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  animation: fadeUp 180ms ease-out;
+  z-index: 2;
+}
+
+.shake {
+  animation: shake 420ms ease-in-out;
+}
+
 /* ── برچسبِ بالای مرحله‌ی جاری ────────────────────────────── */
 .flag {
   position: relative;
@@ -223,6 +274,18 @@
   50% { translate: 0 -5px; }
 }
 
+@keyframes shake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -5px 0; }
+  45% { translate: 4px 0; }
+  70% { translate: -3px 0; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; translate: 0 5px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
 @keyframes ping {
   0% { inset: -9px; opacity: 0.85; }
   70% { inset: -20px; opacity: 0; }
@@ -231,7 +294,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .current,
-  .flag { animation: none; }
+  .flag,
+  .shake,
+  .hint { animation: none; }
   .current::before { animation: none; opacity: 0.6; }
 }
 

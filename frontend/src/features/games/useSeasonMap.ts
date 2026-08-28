@@ -37,6 +37,8 @@ export interface MapNode {
   done: boolean;
   /** همان مرحله‌ای که بچه باید همین حالا برود */
   isCurrent: boolean;
+  /** نوبتش نرسیده — مرحله‌ی قبلی هنوز تمام نشده */
+  locked: boolean;
 }
 
 export interface WeekMark {
@@ -132,6 +134,7 @@ export function useSeasonMap(
       y: baseY - i * STEP,
       done: done.has(stage.id),
       isCurrent: stage.id === currentStageId,
+      locked: stage.locked,
     }));
 
     // نوارِ ایست‌گاه بینِ دو هفته؛ هفته‌ی اول نشان نمی‌خواهد چون شروعِ مسیر است

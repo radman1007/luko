@@ -1,8 +1,10 @@
+import { useEffect, useRef, useState } from 'react';
 import type { IconType } from 'react-icons';
 import {
   HiOutlineBeaker,
   HiOutlineBookOpen,
   HiOutlineCalculator,
+  HiOutlineLockClosed,
   HiOutlinePencil,
   HiOutlinePlay,
   HiOutlinePuzzlePiece,
@@ -55,9 +57,24 @@ function DoneMark() {
  * سه حالت دارد — رفته، نوبتِ توئه، و بازِ نرفته.
  */
 export function StageNode({ node, onPlay }: Props) {
-  const { stage, done, isCurrent } = node;
+  const { stage, done, isCurrent, locked } = node;
   const Icon = SUBJECT_ICON[stage.subjectKey];
-  const state = done ? styles.done : isCurrent ? styles.current : styles.open;
+  const state = locked ? styles.locked : done ? styles.done : isCurrent ? styles.current : styles.open;
+
+  // زدنِ مرحله‌ی قفل باید جواب بدهد؛ دکمه‌ی بی‌صدا بچه را سردرگم می‌کند
+  const [nudged, setNudged] = useState(false);
+  const timer = useRef<number>(0);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  const handleClick = () => {
+    if (!locked) {
+      onPlay();
+      return;
+    }
+    setNudged(true);
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setNudged(false), 1800);
+  };
 
   return (
     <div
@@ -65,15 +82,21 @@ export function StageNode({ node, onPlay }: Props) {
       style={{ '--node-x': `${node.x}px`, '--node-y': `${node.y}px` } as React.CSSProperties}
     >
       {isCurrent && <span className={styles.flag}>الان نوبتِ توئه</span>}
+      {nudged && <span className={styles.hint}>اول مرحله‌ی قبلی رو تموم کن</span>}
 
       <button
         type="button"
-        className={`${styles.node} ${state}`}
-        onClick={onPlay}
-        aria-label={`مرحله‌ی ${stage.order.toLocaleString('fa-IR')}، ${stage.title}، ${stage.subject}${done ? '، تمام‌شده' : ''}`}
+        className={`${styles.node} ${state} ${nudged ? styles.shake : ''}`}
+        onClick={handleClick}
+        aria-disabled={locked}
+        aria-label={`مرحله‌ی ${stage.order.toLocaleString('fa-IR')}، ${stage.title}، ${stage.subject}${done ? '، تمام‌شده' : locked ? '، هنوز باز نشده' : ''}`}
       >
         <span className={styles.face} aria-hidden>
-          {done ? (
+          {locked ? (
+            <span className={styles.lock}>
+              <HiOutlineLockClosed />
+            </span>
+          ) : done ? (
             <span className={styles.check}>
               <DoneMark />
             </span>

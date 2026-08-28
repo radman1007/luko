@@ -3,8 +3,9 @@ import { HiOutlineBolt } from 'react-icons/hi2';
 import { StudentLayout } from '@/components/layout/StudentLayout/StudentLayout';
 import { CharacterGuide } from '@/components/characters/CharacterGuide/CharacterGuide';
 import { LUKORIANS } from '@/lib/characters';
-import { GRADE_LABEL, completedLevelIds } from '@/features/books/booksData';
+import { GRADE_LABEL } from '@/features/books/booksData';
 import { seasonState } from '@/features/games/seasonData';
+import { useSeasonProgress } from '@/features/games/useSeasonProgress';
 import { SeasonBanner } from '@/features/games/components/SeasonBanner/SeasonBanner';
 import { SeasonMap } from '@/features/games/components/SeasonMap/SeasonMap';
 import styles from './GameHall.module.css';
@@ -30,7 +31,8 @@ function tease(completed: number, remaining: number, finishedWeek: boolean): str
 export default function GameHall() {
   const navigate = useNavigate();
   const gamer = LUKORIANS.gamer;
-  const done = completedLevelIds();
+  // پیشرفت از سرور می‌آید تا قفلِ نقشه با قفلِ سرور یکی باشد
+  const done = useSeasonProgress();
   const state = seasonState(done);
 
   const remaining = state.openStages - state.completedStages;

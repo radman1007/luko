@@ -36,6 +36,9 @@ class Game(TimeStampedModel):
     title = models.CharField(max_length=120)
     book_id = models.CharField(max_length=60, blank=True, db_index=True)
     order = models.PositiveIntegerField(default=0)
+    # جایگاه در مسیرِ سیزن — یک صفِ واحد روی همه‌ی کتاب‌ها، از پیشوندِ عددیِ
+    # نامِ فایل. ۰ یعنی این بازی روی مسیر نیست و ترتیبی برایش شرط نمی‌شود.
+    season_order = models.PositiveIntegerField(default=0, db_index=True)
     coin_reward = models.PositiveIntegerField(default=10)
     dew_reward = models.PositiveIntegerField(default=6)       # شبنمِ باغچه
     fertilizer_reward = models.PositiveIntegerField(default=1)

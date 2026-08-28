@@ -140,6 +140,16 @@ export function markLevelCompleted(levelId: string): void {
 
 const COMPLETED_KEY = 'luko_completed_games';
 
+/**
+ * جایگزینیِ کاملِ پیشرفتِ محلی با فهرستِ سرور.
+ * سرور تنها مرجعِ «چه چیزی تمام شده» است، چون سکه و قفلِ مسیر را همان
+ * می‌دهد. اگر محلی جلوتر باشد (مثلاً پستِ تکمیل در قطعیِ شبکه نرسیده)،
+ * همان مرحله دوباره «نرفته» می‌شود — که درست است، چون سرور هم نشمرده.
+ */
+export function replaceCompletedLevelIds(ids: string[]): void {
+  localStorage.setItem(COMPLETED_KEY, JSON.stringify(ids));
+}
+
 /** مجموعه‌ی شناسه‌ی مراحلِ تمام‌شده از localStorage */
 export function completedLevelIds(): Set<string> {
   try {

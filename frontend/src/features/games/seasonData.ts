@@ -26,6 +26,11 @@ export interface SeasonStage {
   /** نامِ فایل؛ همان چیزی که ترتیب را تعیین می‌کند */
   file: string;
   week: number;
+  /**
+   * مسیر پشتِ‌سرهم است: تا مرحله‌ی قبلی تمام نشود این یکی باز نمی‌شود.
+   * مرحله‌های تمام‌شده همیشه بازند تا بشود دوباره بازی‌شان کرد.
+   */
+  locked: boolean;
 }
 
 export type WeekState = 'done' | 'current' | 'past' | 'locked';
@@ -129,6 +134,8 @@ export function seasonStages(): SeasonStage[] {
     ...stage,
     order: i + 1,
     week: Math.floor(i / SEASON.stagesPerWeek) + 1,
+    // قفلِ واقعی به پیشرفتِ بچه بستگی دارد و در `seasonState` تعیین می‌شود
+    locked: false,
   }));
 }
 
@@ -159,9 +166,18 @@ export function seasonState(done: Set<string> = completedLevelIds(), today: Date
   const totalWeeks = Math.max(1, Math.ceil(stages.length / SEASON.stagesPerWeek));
   const currentWeek = releasedWeeks(today, totalWeeks);
 
+  // مرحله‌ی جاری = اولین نرفته‌ی هفته‌های بازشده. هرچه بعد از آن است قفل
+  // است، مگر خودش قبلاً رفته شده باشد (بازیِ دوباره همیشه آزاد است).
+  const releasedStages = stages.filter((stage) => stage.week <= currentWeek);
+  const current = releasedStages.find((stage) => !done.has(stage.id));
+  const withLock = (stage: SeasonStage): SeasonStage => ({
+    ...stage,
+    locked: !done.has(stage.id) && (current === undefined || stage.order > current.order),
+  });
+
   const weeks: SeasonWeek[] = [];
   for (let index = 1; index <= totalWeeks; index += 1) {
-    const weekStages = stages.filter((stage) => stage.week === index);
+    const weekStages = stages.filter((stage) => stage.week === index).map(withLock);
     const completedCount = weekStages.filter((stage) => done.has(stage.id)).length;
     const released = index <= currentWeek;
     const allDone = weekStages.length > 0 && completedCount === weekStages.length;
@@ -201,7 +217,7 @@ export function seasonState(done: Set<string> = completedLevelIds(), today: Date
     cloudedWeeks,
     currentWeek,
     totalWeeks,
-    nextStage: openStageList.find((stage) => !done.has(stage.id)),
+    nextStage: current && openStageList.find((stage) => stage.id === current.id),
     openStages: openStageList.length,
     completedStages,
     hiddenStages: stages.length - openStageList.length,

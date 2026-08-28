@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -6,7 +7,7 @@ from apps.parent.services import invalidate_child_report
 
 from .models import Book, Game
 from .serializers import BookSerializer, GameEventSerializer, GameSerializer
-from .services import complete_game
+from .services import StageLocked, complete_game
 
 
 class GameListView(ListAPIView):
@@ -21,7 +22,14 @@ class GameCompleteView(APIView):
     """POST /games/<slug>/complete — پاداش سمت سرور محاسبه می‌شود."""
 
     def post(self, request, slug):
-        result = complete_game(request.user, slug)
+        try:
+            result = complete_game(request.user, slug)
+        except StageLocked as exc:
+            return Response(
+                {"error": {"code": 403,
+                           "message": f"اول باید مرحله‌ی «{exc.args[0]}» را تمام کنی."}},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         return Response(result)
 
 

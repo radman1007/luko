@@ -10,6 +10,30 @@ from apps.common import cache
 from .models import Game, GameCompletion
 
 
+class StageLocked(Exception):
+    """مرحله‌ی قبلی تمام نشده. arg[0] = عنوانِ مرحله‌ای که باید اول برود."""
+
+
+def blocking_stage(user, game: Game) -> Game | None:
+    """
+    اولین مرحله‌ی مسیرِ سیزن که پیش از این بازی است و هنوز تمام نشده.
+    None یعنی راه باز است. بازی‌های خارج از مسیر (`season_order == 0`)
+    شرطی ندارند.
+    """
+    if not game.season_order:
+        return None
+    return (
+        Game.objects.filter(
+            is_active=True,
+            season_order__gt=0,
+            season_order__lt=game.season_order,
+        )
+        .exclude(slug__in=GameCompletion.objects.filter(user=user).values("game_slug"))
+        .order_by("season_order")
+        .first()
+    )
+
+
 def completed_count(user) -> int:
     return GameCompletion.objects.filter(user=user).count()
 
@@ -38,6 +62,15 @@ def complete_game(user, slug: str) -> dict:
     سکه/امتیاز روی پروفایل، شبنم/کود روی باغچه، و گنجِ اتمامِ کتاب اعمال می‌شود.
     """
     game = Game.objects.filter(slug=slug).first()
+
+    # مسیرِ سیزن پشتِ‌سرهم است: تا مرحله‌ی قبلی تمام نشود این یکی پاداش
+    # نمی‌گیرد. چون سکه اینجا صادر می‌شود، بررسی باید همین‌جا باشد نه فقط
+    # در UI — وگرنه با یک درخواستِ مستقیم دور می‌خورد.
+    if game is not None and not GameCompletion.objects.filter(user=user, game_slug=slug).exists():
+        blocker = blocking_stage(user, game)
+        if blocker is not None:
+            raise StageLocked(blocker.title)
+
     coin = game.coin_reward if game else 10
     dew = game.dew_reward if game else 6
     fert = game.fertilizer_reward if game else 1
