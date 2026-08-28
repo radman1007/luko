@@ -7,6 +7,7 @@ import { MOCK_STATS } from '@/features/home/mockData';
 import { ProfileHero } from '@/features/profile/components/ProfileHero/ProfileHero';
 import { StatsGrid } from '@/features/profile/components/StatsGrid/StatsGrid';
 import { BuilderCard } from '@/features/profile/components/Builder/BuilderCard';
+import { GalleryCard } from '@/features/profile/components/GalleryCard/GalleryCard';
 import { SettingsCard } from '@/features/profile/components/SettingsCard/SettingsCard';
 import { useTreasure } from '@/features/profile/useTreasure';
 import styles from './Profile.module.css';
@@ -14,6 +15,7 @@ import styles from './Profile.module.css';
 const GUIDE_STEPS = [
   'سلام! من مکانوام، سازنده و مکانیک شهر لوکو. اینجا اتاق خودته!',
   'همه‌ی سکه‌ها، امتیازها و مدال‌هات رو همین‌جا می‌بینی.',
+  'گنجینه‌ی نقاشی‌هات هم همین‌جاست؛ هرکدوم رو بزنی بزرگ می‌بینیش.',
   'پایین صفحه کارگاهمه؛ رفیقم «کاشف» اونجا از گنج‌های گمشده برات می‌گه!',
 ];
 
@@ -56,6 +58,7 @@ export default function Profile() {
         }}
         treasures={treasures}
       />
+      <GalleryCard />
       <SettingsCard />
 
       <CharacterGuide character={LUKORIANS.maker} steps={GUIDE_STEPS} storageKey="profile-intro" />

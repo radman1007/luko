@@ -8,6 +8,8 @@ urlpatterns = [
     path("moods", views.MoodCheckinView.as_view(), name="mood-list"),
     path("breathing/sessions", views.BreathingSessionView.as_view(), name="breathing"),
     path("paintings", views.PaintingListCreateView.as_view(), name="paintings"),
+    path("paintings/<int:pk>", views.PaintingDestroyView.as_view(), name="painting-detail"),
+    path("paintings/<int:pk>/image", views.PaintingImageView.as_view(), name="painting-image"),
     path("secrets", views.SecretListCreateView.as_view(), name="secrets"),
     path("secrets/<int:pk>", views.SecretDestroyView.as_view(), name="secret-detail"),
 ]

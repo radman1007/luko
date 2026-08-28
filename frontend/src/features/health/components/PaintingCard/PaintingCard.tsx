@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { HiOutlineCheck, HiOutlineTrash } from 'react-icons/hi2';
 import { LUKORIANS } from '@/lib/characters';
+import { isGuestMode } from '@/features/auth/guest';
 import { saveArtEntry } from '../../artLog';
+import { useSaveDrawing } from '../../useDrawings';
 import type { Mood } from '../../types';
 import styles from './PaintingCard.module.css';
 
@@ -18,6 +20,10 @@ const COLORS = [
 
 const BRUSH_SIZES = [4, 9, 16];
 const CANVAS_HEIGHT = 240;
+/** پهنای بندانگشتیِ گالری */
+const THUMB_WIDTH = 240;
+/** پهنای نسخه‌ی کامل — برای دیدن در گوشی کافی است و حجم را پایین نگه می‌دارد */
+const FULL_WIDTH = 720;
 
 export function PaintingCard() {
   const painter = LUKORIANS.art;
@@ -28,6 +34,7 @@ export function PaintingCard() {
   const [brush, setBrush] = useState(BRUSH_SIZES[1]);
   const [isEmpty, setIsEmpty] = useState(true);
   const [savedCount, setSavedCount] = useState<number | null>(null);
+  const saveDrawing = useSaveDrawing();
 
   const drawing = useRef(false);
   const last = useRef<{ x: number; y: number } | null>(null);
@@ -112,24 +119,40 @@ export function PaintingCard() {
     setSavedCount(null);
   };
 
-  const makeThumbnail = (canvas: HTMLCanvasElement): string => {
-    const thumb = document.createElement('canvas');
-    const width = 120;
-    thumb.width = width;
-    thumb.height = Math.round((canvas.height / canvas.width) * width);
-    thumb.getContext('2d')?.drawImage(canvas, 0, 0, thumb.width, thumb.height);
-    return thumb.toDataURL('image/jpeg', 0.6);
+  /** نسخه‌ی کوچک‌شده‌ی بوم به‌صورت data URL */
+  const scaled = (canvas: HTMLCanvasElement, width: number, quality: number): string => {
+    const out = document.createElement('canvas');
+    out.width = Math.min(width, canvas.width);
+    out.height = Math.round((canvas.height / canvas.width) * out.width);
+    const ctx = out.getContext('2d');
+    if (ctx) {
+      // بومِ نقاشی پس‌زمینه‌ی سفید دارد؛ JPEG شفافیت ندارد و همین درست است
+      ctx.drawImage(canvas, 0, 0, out.width, out.height);
+    }
+    return out.toDataURL('image/jpeg', quality);
   };
 
   const handleSave = () => {
     const canvas = canvasRef.current;
     if (!canvas || isEmpty) return;
-    const count = saveArtEntry({
-      at: Date.now(),
-      mood: localStorage.getItem('luko_last_mood') as Mood | null,
-      colors: { ...usage.current },
-      thumbnail: makeThumbnail(canvas),
-    });
+
+    const mood = localStorage.getItem('luko_last_mood') as Mood | null;
+    const colors = { ...usage.current };
+    const thumbnail = scaled(canvas, THUMB_WIDTH, 0.7);
+
+    // نسخه‌ی محلی همیشه نوشته می‌شود تا در قطعیِ شبکه چیزی از دست نرود
+    const count = saveArtEntry({ at: Date.now(), mood, colors, thumbnail });
+
+    // گالریِ پروفایل از سرور می‌آید؛ مهمان حسابِ سروری ندارد
+    if (!isGuestMode()) {
+      saveDrawing.mutate({
+        mood,
+        colors,
+        thumbnail,
+        image: scaled(canvas, FULL_WIDTH, 0.82),
+      });
+    }
+
     resetCanvas();
     setSavedCount(count);
   };

@@ -31,13 +31,22 @@ class MoodCheckin(TimeStampedModel):
 
 
 class Painting(TimeStampedModel):
-    """نقاشیِ ذخیره‌شده (دکمه‌ی «نگهش‌دار») + حال و رنگ‌ها برای تحلیل."""
+    """
+    نقاشیِ ذخیره‌شده (دکمه‌ی «نگهش‌دار») + حال و رنگ‌ها برای تحلیل.
+
+    تصویر به‌جای MEDIA در دیتابیس می‌ماند و فقط از راهِ APIِ احرازشده
+    برمی‌گردد: نقاشیِ بچه شخصی است و نباید با یک URLِ حدس‌زدنی از بیرون
+    قابلِ دیدن باشد. بندانگشتی جدا نگه داشته می‌شود تا فهرستِ گالری سبک
+    بماند و تصویرِ کامل فقط وقتی بیاید که بچه بازش کند.
+    """
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                              related_name="paintings")
     mood = models.CharField(max_length=10, choices=MOOD_CHOICES, blank=True)
     colors = models.JSONField(default=dict, blank=True)     # {رنگ: تعداد خط}
     thumbnail = models.TextField(blank=True)                # بندانگشتیِ JPEG (data URL)
+    image = models.TextField(blank=True)                    # تصویرِ کامل (data URL)
+    title = models.CharField(max_length=60, blank=True)     # اسمی که خودِ بچه گذاشته
 
     class Meta:
         ordering = ["-created_at"]

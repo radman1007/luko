@@ -14,6 +14,12 @@ class EnvelopeJSONRenderer(CamelCaseJSONRenderer):
         response = renderer_context.get("response")
         status_code = getattr(response, "status_code", 200)
 
+        # پاسخِ بدونِ محتوا باید واقعاً خالی باشد. پیچیدنِ آن در پاکت یک
+        # بدنه‌ی ۱۳ بایتی روی ۲۰۴ می‌گذارد که خلافِ HTTP است و کلاینت را
+        # می‌شکند (حذف در فرانت با خطا برمی‌گشت).
+        if status_code == 204 or data is None:
+            return b""
+
         # اگر view خودش پاکت‌بندی کرده باشد (کلید data/error دارد) دوباره نپیچ.
         if isinstance(data, dict) and ("data" in data or "error" in data):
             payload = data

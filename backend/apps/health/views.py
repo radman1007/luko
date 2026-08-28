@@ -3,7 +3,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import MoodCheckin, Painting, Secret
-from .serializers import BreathingSessionSerializer, MoodCheckinSerializer, PaintingSerializer, SecretSerializer
+from .serializers import (BreathingSessionSerializer, MoodCheckinSerializer,
+                          PaintingCreateSerializer, PaintingImageSerializer,
+                          PaintingSerializer, SecretSerializer)
 from .services import mood_prompt
 
 
@@ -25,13 +27,47 @@ class MoodCheckinView(generics.ListCreateAPIView):
         serializer.save(user=self.request.user)
 
 
+# سقفِ نقاشی‌های نگه‌داشته‌شده برای هر بچه؛ قدیمی‌ترین‌ها کنار می‌روند
+MAX_PAINTINGS = 60
+
+
 class PaintingListCreateView(generics.ListCreateAPIView):
-    """ذخیره‌ی نقاشی هنگام «نگهش‌دار» + فهرستِ نقاشی‌ها."""
-    serializer_class = PaintingSerializer
+    """ذخیره‌ی نقاشی هنگام «نگهش‌دار» + فهرستِ گالری (بدونِ تصویرِ کامل)."""
+
     pagination_class = None
 
+    def get_serializer_class(self):
+        return PaintingCreateSerializer if self.request.method == "POST" else PaintingSerializer
+
     def get_queryset(self):
-        return self.request.user.paintings.all()[:60]
+        # `image` عمداً از فهرست بیرون می‌ماند؛ چند ده تصویرِ کامل پاسخ را سنگین می‌کند
+        return self.request.user.paintings.defer("image")[:MAX_PAINTINGS]
+
+    def perform_create(self, serializer):
+        painting = serializer.save(user=self.request.user)
+        # نگه‌داشتنِ بی‌نهایت نقاشی نه لازم است نه سالم؛ قدیمی‌ها می‌روند
+        extra = list(
+            self.request.user.paintings.values_list("id", flat=True)[MAX_PAINTINGS:]
+        )
+        if extra:
+            Painting.objects.filter(id__in=extra).delete()
+        return painting
+
+
+class PaintingImageView(generics.RetrieveAPIView):
+    """تصویرِ کاملِ یک نقاشی — فقط برای صاحبش."""
+
+    serializer_class = PaintingImageSerializer
+
+    def get_queryset(self):
+        return self.request.user.paintings.all()
+
+
+class PaintingDestroyView(generics.DestroyAPIView):
+    """حذفِ نقاشی. کوئری به کاربر محدود است، پس شناسه‌ی دیگری کار نمی‌کند."""
+
+    def get_queryset(self):
+        return self.request.user.paintings.all()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

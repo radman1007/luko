@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
 
 from apps.common.fa import fa_date, fa_day, fa_digits, fa_time, fa_when, to_jalali
 
@@ -40,3 +40,21 @@ class FormattingTests(SimpleTestCase):
         today = date(2026, 8, 16)
         self.assertEqual(fa_when(datetime(2026, 8, 16, 9, 5), today), "امروز، ۰۹:۰۵")
         self.assertEqual(fa_when(datetime(2026, 8, 15, 21, 40), today), "دیروز، ۲۱:۴۰")
+
+
+class EnvelopeRendererTests(TestCase):
+    """پاکت نباید روی پاسخِ بدونِ محتوا بدنه بگذارد."""
+
+    def setUp(self):
+        from apps.accounts.models import User
+        from rest_framework.test import APIClient
+        self.user = User.objects.create(phone="09121116001", role=User.Role.STUDENT)
+        self.api = APIClient()
+        self.api.force_authenticate(self.user)
+
+    def test_204_has_an_empty_body(self):
+        from apps.health.models import Painting
+        painting = Painting.objects.create(user=self.user, thumbnail="x", image="y")
+        res = self.api.delete(f"/api/v1/paintings/{painting.id}")
+        self.assertEqual(res.status_code, 204)
+        self.assertEqual(res.content, b"")
