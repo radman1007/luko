@@ -8,8 +8,9 @@
  * (همان الگوی `features/garden/store.ts`.)
  */
 import { DEW_REWARD } from '@/features/garden/gardenData';
-import { grantDew } from '@/features/garden/store';
-import { DAILY_MISSIONS, SPORT_TASKS } from './clubData';
+import { grantDew, grantFertilizer, grantSeeds } from '@/features/garden/store';
+import { DAILY_MISSIONS, SHOP_ITEMS, SPORT_TASKS } from './clubData';
+import type { ShopReward } from './types';
 
 const COINS_KEY = 'luko_coins';
 const DAYS_KEY = 'luko_club_days';
@@ -147,14 +148,44 @@ export function completeSportTask(taskId: string): boolean {
   return complete('sport', taskId);
 }
 
-export function buy(itemId: string, cost: number): boolean {
+/** بستهٔ تصادفیِ صندوقِ شانس — همیشه دستِ بچه پر برمی‌گردد */
+function mysteryReward(): ShopReward {
+  const pick = (min: number, max: number) => min + Math.floor(Math.random() * (max - min + 1));
+  return { dew: pick(15, 40), fertilizer: pick(1, 3), seeds: pick(0, 2) };
+}
+
+function applyReward(reward: ShopReward) {
+  if (reward.dew) grantDew(reward.dew, 'mission');
+  if (reward.fertilizer) grantFertilizer(reward.fertilizer);
+  if (reward.seeds) grantSeeds(reward.seeds);
+}
+
+export interface BuyResult {
+  ok: boolean;
+  /** چرا نشد — برای پیامِ درست به بچه */
+  reason?: 'poor' | 'owned' | 'unknown';
+  /** چه چیزی گرفت (برای بسته‌ها) */
+  reward?: ShopReward;
+}
+
+/**
+ * خریدِ یک کالا.
+ *
+ * برخلافِ قبل، خرید فقط سکه کم نمی‌کند: بسته‌ها منبعشان را همان لحظه به
+ * باغچه می‌ریزند و نشان‌ها روی پروفایل می‌نشینند. نشان یک‌بار خریدنی است،
+ * بسته‌ها بارها.
+ */
+export function buy(itemId: string, cost: number): BuyResult {
   const snapshot = getSnapshot();
-  if (snapshot.owned.includes(itemId) || snapshot.coins < cost) return false;
-  const next = {
-    ...snapshot,
-    coins: snapshot.coins - cost,
-    owned: [...snapshot.owned, itemId],
-  };
+  const item = SHOP_ITEMS.find((i) => i.id === itemId);
+  if (!item) return { ok: false, reason: 'unknown' };
+  if (item.kind === 'badge' && snapshot.owned.includes(itemId)) {
+    return { ok: false, reason: 'owned' };
+  }
+  if (snapshot.coins < cost) return { ok: false, reason: 'poor' };
+
+  const owned = snapshot.owned.includes(itemId) ? snapshot.owned : [...snapshot.owned, itemId];
+  const next = { ...snapshot, coins: snapshot.coins - cost, owned };
   try {
     localStorage.setItem(COINS_KEY, String(next.coins));
     localStorage.setItem(OWNED_KEY, JSON.stringify(next.owned));
@@ -162,7 +193,10 @@ export function buy(itemId: string, cost: number): boolean {
     /* حافظه پر/غیرفعال */
   }
   set(next);
-  return true;
+
+  const reward = item.random ? mysteryReward() : item.reward;
+  if (reward) applyReward(reward);
+  return { ok: true, reward };
 }
 
 /** سکه‌ها را با مقدارِ سرور هم‌تراز می‌کند (سرور مرجعِ سکه است) */

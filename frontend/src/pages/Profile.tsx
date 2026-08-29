@@ -40,7 +40,7 @@ export default function Profile() {
 
   return (
     <StudentLayout className={styles.page}>
-      <ProfileHero user={user} />
+      <ProfileHero user={user} ownedIds={club.owned} />
       <StatsGrid
         coins={club.coins}
         xp={xp}

@@ -1,81 +1,219 @@
+/* فروشگاهِ لوکو — قفسه‌ی جایزه‌های شهر */
 .card {
   margin: 16px 20px 0;
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
   padding: 18px;
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(120% 80% at 100% 0%, color-mix(in srgb, var(--club-accent) 22%, transparent) 0%, transparent 55%),
+    var(--color-surface);
+  box-shadow: var(--shadow-card);
 }
 
-.title {
-  font-size: 16px;
-  font-weight: 800;
-}
-
-.subtitle {
-  margin-top: 4px;
-  font-size: 12.5px;
-  color: var(--color-text-secondary);
-}
-
-.grid {
-  margin-top: 14px;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+.head {
+  display: flex;
+  align-items: flex-start;
   gap: 10px;
 }
 
-.item {
+.titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--club-dark);
+}
+
+.title svg {
+  width: 18px;
+  height: 18px;
+  color: var(--club-accent-strong, #d19a2e);
+}
+
+.subtitle {
+  margin-top: 3px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--color-text) 55%, transparent);
+}
+
+/* کیفِ پول همیشه جلوی چشم است */
+.wallet {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: var(--club-dark);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* ── قفسه ────────────────────────────────────────────────── */
+.grid {
+  margin-top: 14px;
   display: flex;
   flex-direction: column;
+  gap: 9px;
+}
+
+.item {
+  position: relative;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  border: 1.5px solid var(--club-soft);
+  gap: 11px;
+  padding: 11px 12px;
   border-radius: var(--radius-sm);
-  padding: 14px 10px;
+  border: 1.5px solid var(--club-soft);
+  background: var(--color-surface);
+  transition: border-color 160ms ease, translate 160ms ease;
+}
+
+.item:has(.buyBtn:active) {
+  translate: 0 2px;
+}
+
+/* نشان‌ها کالای کمیاب‌اند و باید متفاوت دیده شوند */
+.rare {
+  border-color: color-mix(in srgb, var(--club-accent) 60%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--club-accent) 14%, transparent) 0%, transparent 60%),
+    var(--color-surface);
+}
+
+.ownedItem {
+  border-color: var(--club-primary);
 }
 
 .iconWrap {
   display: grid;
   place-items: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 14px;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 13px;
   background: var(--club-soft);
   color: var(--club-dark);
-  font-size: 24px;
+  font-size: 21px;
+}
+
+.rare .iconWrap {
+  background: linear-gradient(160deg, #f6d98a 0%, #d9a227 100%);
+  color: #5a3f06;
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 45%);
+}
+
+.ownedItem .iconWrap {
+  background: var(--club-primary);
+  color: #fff;
+}
+
+.texts {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .itemTitle {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 800;
-  text-align: center;
+  color: var(--color-text);
 }
 
-.buyBtn {
+.desc {
+  font-size: 11px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--color-text) 52%, transparent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── دکمه‌ی خرید ──────────────────────────────────────────── */
+.buyBtn,
+.buyBtnPoor {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 7px 16px;
-  border-radius: 10px;
-  background: var(--club-primary);
-  color: var(--color-on-primary);
+  padding: 9px 14px;
+  border-radius: 999px;
   font-size: 13px;
   font-weight: 800;
 }
 
-.buyBtn:disabled {
-  opacity: 0.45;
+.buyBtn {
+  background: var(--club-primary);
+  color: #fff;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--club-dark) 80%, #000);
+  transition: translate 110ms ease, box-shadow 110ms ease;
+}
+
+.buyBtn:active {
+  translate: 0 3px;
+  box-shadow: none;
+}
+
+/* سکه کم است: دکمه خاموش ولی قیمت خوانا می‌ماند */
+.buyBtnPoor {
+  background: var(--club-soft);
+  color: color-mix(in srgb, var(--color-text) 48%, transparent);
   cursor: default;
 }
 
 .owned {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 7px 12px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--club-accent) 25%, transparent);
-  color: var(--club-dark);
-  font-size: 12.5px;
+  gap: 4px;
+  font-size: 11.5px;
   font-weight: 800;
+  color: var(--club-primary);
+}
+
+.owned svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── پیامِ «چی گرفتی» ─────────────────────────────────────── */
+.flash {
+  position: absolute;
+  inset-inline: 10px;
+  bottom: calc(100% - 4px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--club-dark);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 22%);
+  animation: popIn 260ms cubic-bezier(0.34, 1.5, 0.64, 1);
+  z-index: 2;
+}
+
+@keyframes popIn {
+  from { opacity: 0; translate: 0 8px; scale: 0.9; }
+  to { opacity: 1; translate: 0 0; scale: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flash { animation: none; }
+  .item, .buyBtn { transition: none; }
 }

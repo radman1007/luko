@@ -29,9 +29,35 @@ export interface Medal {
   unlocked: boolean;
 }
 
+/**
+ * اثرِ خریدِ یک کالا. عمداً صریح است: تا دیروز خرید فقط سکه کم می‌کرد و
+ * هیچ‌جای اپ چیزی عوض نمی‌شد. هر کالا یا منبعی به باغچه می‌دهد یا نشانی
+ * روی پروفایل می‌گذارد — هر دو جایی که بچه ببیندش.
+ */
+export interface ShopReward {
+  /** دانه‌ی باغچه */
+  seeds?: number;
+  /** کودِ باغچه */
+  fertilizer?: number;
+  /** شبنم */
+  dew?: number;
+}
+
 export interface ShopItem {
   id: string;
   title: string;
+  /** بچه باید بداند دقیقاً چه می‌خرد */
+  desc: string;
   cost: number;
   icon: IconType;
+  /**
+   * `pack` بارها خریدنی است و منبع می‌دهد؛ `badge` یک‌بار خریده می‌شود و
+   * برای همیشه روی پروفایل می‌ماند.
+   */
+  kind: 'pack' | 'badge';
+  reward?: ShopReward;
+  /** فقط برای `badge` — متنی که روی پروفایل می‌نشیند */
+  badgeLabel?: string;
+  /** صندوقِ شانس: مقدارها تصادفی‌اند */
+  random?: boolean;
 }

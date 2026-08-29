@@ -46,11 +46,56 @@ export const SPORT_TASKS: SportTask[] = [
     seconds: 120, cue: 'دست‌ها رو بکش بالا و نفس عمیق بکش.' },
 ];
 
+/**
+ * فروشگاهِ لوکو. هر کالا اثرِ واقعی دارد: یا منبعی به باغچه می‌ریزد که
+ * همان لحظه در شمارنده‌هایش پیداست، یا نشانی روی پروفایل می‌گذارد.
+ */
 export const SHOP_ITEMS: ShopItem[] = [
-  { id: 'sticker', title: 'برچسب قهرمانی', cost: 40, icon: HiOutlineSparkles },
-  { id: 'paint', title: 'رنگ مخصوص باغچه', cost: 70, icon: HiOutlinePaintBrush },
-  { id: 'gift', title: 'جعبه‌ی شانس', cost: 100, icon: HiOutlineGift },
-  { id: 'cup', title: 'کاپ کوچولوی طلایی', cost: 180, icon: HiOutlineTrophy },
+  {
+    id: 'seeds',
+    title: 'کیسه‌ی دانه',
+    desc: '۳ دانه برای باغچه‌ات',
+    cost: 40,
+    icon: HiOutlineSparkles,
+    kind: 'pack',
+    reward: { seeds: 3 },
+  },
+  {
+    id: 'fertilizer',
+    title: 'کودِ جادویی',
+    desc: '۳ کیسه کود؛ گیاه‌ها تندتر بزرگ می‌شن',
+    cost: 60,
+    icon: HiOutlinePaintBrush,
+    kind: 'pack',
+    reward: { fertilizer: 3 },
+  },
+  {
+    id: 'mystery',
+    title: 'صندوقِ شانس',
+    desc: 'معلوم نیست چی توشه! شبنم، کود یا دانه',
+    cost: 90,
+    icon: HiOutlineGift,
+    kind: 'pack',
+    random: true,
+  },
+  {
+    id: 'badge-hero',
+    title: 'نشانِ قهرمانی',
+    desc: 'برای همیشه روی پروفایلت می‌مونه',
+    cost: 150,
+    icon: HiOutlineTrophy,
+    kind: 'badge',
+    badgeLabel: 'قهرمانِ لوکو',
+  },
+  {
+    id: 'badge-cup',
+    title: 'کاپ طلاییِ لوکو',
+    desc: 'بالاترین نشانِ شهر، روی پروفایلت',
+    cost: 250,
+    icon: HiOutlineTrophy,
+    kind: 'badge',
+    badgeLabel: 'دارنده‌ی کاپ طلایی',
+  },
 ];
 
 export const WEEK_DAY_LABELS = ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'] as const;
