@@ -6,7 +6,6 @@ import { PageLoader } from '@/components/PageLoader/PageLoader';
 const Login = lazy(() => import('@/pages/Login'));
 const ParentLogin = lazy(() => import('@/pages/ParentLogin'));
 const Register = lazy(() => import('@/pages/Register'));
-const CompleteProfile = lazy(() => import('@/pages/CompleteProfile'));
 
 const Home = lazy(() => import('@/pages/Home'));
 const GameHall = lazy(() => import('@/pages/GameHall'));
@@ -34,8 +33,8 @@ export function AppRouter() {
         <Route path="/login" element={<Login />} />
         {/* ورودِ جداگانه‌ی والدین — فضای بزرگسال، با شماره و پیامک */}
         <Route path="/parent-login" element={<ParentLogin />} />
+        {/* ثبت‌نامِ جدا بازنشسته شد؛ فقط لینک‌های قدیمی را نگه می‌دارد */}
         <Route path="/register" element={<Register />} />
-        <Route path="/complete-profile" element={<CompleteProfile />} />
 
         {/* دانش‌آموز */}
         <Route path="/" element={student(<Home />)} />

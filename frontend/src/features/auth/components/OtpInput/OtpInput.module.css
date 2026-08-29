@@ -1,0 +1,60 @@
+.boxes {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+}
+
+.box {
+  width: 100%;
+  max-width: 54px;
+  aspect-ratio: 3 / 3.4;
+  padding: 0;
+  border: 2.5px solid var(--welcome-soft);
+  border-radius: 15px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 24px;
+  font-weight: 800;
+  text-align: center;
+  caret-color: var(--welcome-primary);
+  transition: border-color 140ms ease, box-shadow 140ms ease, translate 140ms ease;
+}
+
+.box:focus {
+  outline: none;
+  border-color: var(--welcome-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--welcome-primary) 18%, transparent);
+  translate: 0 -2px;
+}
+
+.filled {
+  border-color: var(--welcome-primary);
+  background: var(--welcome-soft);
+}
+
+.box:disabled {
+  opacity: 0.6;
+}
+
+/* کدِ غلط: خانه‌ها قرمز می‌شوند و یک تکان می‌خورند */
+.invalid .box {
+  border-color: #d0453f;
+  background: #fdecec;
+}
+
+.invalid {
+  animation: shake 420ms ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -6px 0; }
+  45% { translate: 5px 0; }
+  70% { translate: -3px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invalid { animation: none; }
+  .box { transition: none; }
+}

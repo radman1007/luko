@@ -104,3 +104,41 @@ class OtpRoleTests(TestCase):
         User.objects.create(phone=phone, role=User.Role.STUDENT)
         admin = User.objects.create_superuser(phone=phone, password="x")
         self.assertEqual(User.objects.get_by_natural_key(phone).id, admin.id)
+
+
+@override_settings(SMS_BACKEND="console")
+class CompleteProfileTests(TestCase):
+    """گامِ آخرِ ثبت‌نام: اسم بعد از تأییدِ شماره پرسیده می‌شود."""
+
+    def setUp(self):
+        cache.clear()
+        self.client = APIClient()
+        self.user = User.objects.create(phone="09121117001", role=User.Role.STUDENT)
+        self.client.force_authenticate(self.user)
+
+    def test_saving_the_name(self):
+        res = self.client.patch("/api/v1/auth/me", {"firstName": "رادمان", "lastName": "ن"},
+                                format="json")
+        self.assertEqual(res.status_code, 200)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, "رادمان")
+        self.assertEqual(res.json()["data"]["firstName"], "رادمان")
+
+    def test_empty_name_is_rejected(self):
+        res = self.client.patch("/api/v1/auth/me", {"firstName": "   "}, format="json")
+        self.assertEqual(res.status_code, 400)
+
+    def test_role_and_phone_cannot_be_changed_here(self):
+        self.client.patch("/api/v1/auth/me",
+                          {"firstName": "ب", "role": "parent", "phone": "09129999999"},
+                          format="json")
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.role, User.Role.STUDENT)
+        self.assertEqual(self.user.phone, "09121117001")
+
+    def test_anonymous_cannot_patch(self):
+        self.client.force_authenticate(None)
+        self.assertEqual(
+            self.client.patch("/api/v1/auth/me", {"firstName": "خ"}, format="json").status_code,
+            401,
+        )

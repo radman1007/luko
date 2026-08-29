@@ -7,16 +7,82 @@
   --welcome-accent: #efb45c;
   --welcome-accent-soft: #fdf3e2;
 
+  position: relative;
+  overflow: hidden;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px;
-  background: linear-gradient(180deg, var(--welcome-soft) 0%, var(--color-bg) 65%);
+  padding: 24px 24px 32px;
+  background:
+    radial-gradient(120% 70% at 50% 0%, #fff6fa 0%, var(--welcome-soft) 42%, var(--color-bg) 100%);
+}
+
+/* ── آسمانِ شهر ───────────────────────────────────────────── */
+.sky {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* دو هاله‌ی نرم که آرام نفس می‌کشند */
+.glowOne,
+.glowTwo {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(46px);
+}
+
+.glowOne {
+  top: -70px;
+  inset-inline-end: -60px;
+  width: 240px;
+  height: 240px;
+  background: color-mix(in srgb, var(--welcome-primary) 30%, transparent);
+  animation: breathe 9s ease-in-out infinite;
+}
+
+.glowTwo {
+  bottom: 60px;
+  inset-inline-start: -70px;
+  width: 220px;
+  height: 220px;
+  background: color-mix(in srgb, var(--welcome-accent) 34%, transparent);
+  animation: breathe 11s ease-in-out infinite reverse;
+}
+
+.stars {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 220px;
+  color: color-mix(in srgb, var(--welcome-primary) 40%, transparent);
+  animation: twinkle 4.5s ease-in-out infinite;
+}
+
+/* تپه‌های پایین، مثل خطِ افقِ شهر */
+.hills {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 120px;
+  color: color-mix(in srgb, var(--welcome-primary) 16%, transparent);
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.18); opacity: 1; }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
 }
 
 .intro {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: flex-end;
   gap: 4px;
@@ -78,4 +144,12 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glowOne,
+  .glowTwo,
+  .stars,
+  .character,
+  .bubble { animation: none; }
 }

@@ -1,138 +1,239 @@
 .form {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 360px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: var(--color-surface);
+  gap: 12px;
+  padding: 20px 20px 22px;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  border: 1.5px solid var(--welcome-soft, transparent);
-  padding: 26px 24px 28px;
+  background: var(--color-surface);
+  box-shadow:
+    0 2px 0 color-mix(in srgb, var(--welcome-primary) 30%, transparent),
+    0 18px 40px rgb(196 86 139 / 22%);
+  animation: rise 0.42s cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
-.title {
-  font-size: 26px;
+@keyframes rise {
+  from { opacity: 0; translate: 0 18px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+/* ── نوارِ گام‌ها ──────────────────────────────────────────── */
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.step,
+.stepNow,
+.stepDone {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* خطِ رابطِ بینِ گام‌ها */
+.step:not(:first-child)::before,
+.stepNow:not(:first-child)::before,
+.stepDone:not(:first-child)::before {
+  content: '';
+  width: 16px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--welcome-soft);
+}
+
+.stepDone:not(:first-child)::before,
+.stepNow:not(:first-child)::before {
+  background: color-mix(in srgb, var(--welcome-primary) 55%, transparent);
+}
+
+.stepDot {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--welcome-soft);
+  color: var(--welcome-dark);
+  font-size: 11px;
   font-weight: 800;
-  color: var(--welcome-primary, var(--color-primary));
+}
+
+.stepNow .stepDot,
+.stepDone .stepDot {
+  background: var(--welcome-primary);
+  color: #fff;
+}
+
+.stepLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--color-text) 45%, transparent);
+}
+
+.stepNow .stepLabel {
+  color: var(--welcome-dark);
+}
+
+/* ── متن‌ها ───────────────────────────────────────────────── */
+.title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--welcome-dark);
+  text-align: center;
+  line-height: 1.4;
 }
 
 .subtitle {
-  margin-top: 4px;
-  font-size: 14px;
-  color: var(--color-text-secondary);
+  margin-top: -6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--color-text) 60%, transparent);
+  text-align: center;
 }
 
-.row {
+.phone {
+  color: var(--welcome-dark);
+  font-weight: 800;
+}
+
+/* ── ورودی‌ها ─────────────────────────────────────────────── */
+.field {
+  position: relative;
   width: 100%;
-  display: flex;
-  gap: 10px;
 }
 
-.row .input {
-  flex: 1;
-  min-width: 0;
+.fieldIcon {
+  position: absolute;
+  inset-inline-start: 13px;
+  top: 50%;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  color: var(--welcome-primary);
+  font-size: 20px;
+  pointer-events: none;
 }
 
 .input {
   width: 100%;
-  margin-top: 14px;
-  padding: 13px 16px;
-  font-size: 15px;
-  border: 1.5px solid var(--welcome-soft, var(--color-primary-light));
-  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  padding-inline-start: 42px;
+  border: 2.5px solid var(--welcome-soft);
+  border-radius: var(--radius-md);
   background: var(--color-bg);
+  font-size: 15px;
+  font-weight: 700;
   color: var(--color-text);
-  outline: none;
-  transition: border-color 0.15s;
+  /* شماره LTR است ولی وسط‌چین می‌ماند تا با آیکنِ سمتِ دیگر تراز شود */
+  text-align: center;
+  letter-spacing: 0.5px;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+/* گامِ اسم آیکن ندارد، پس تورفتگیِ اضافه هم نمی‌خواهد */
+.field:not(:has(.fieldIcon)) .input {
+  padding-inline-start: 16px;
+  text-align: center;
 }
 
 .input:focus {
-  border-color: var(--welcome-primary, var(--color-primary));
+  outline: none;
+  border-color: var(--welcome-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--welcome-primary) 16%, transparent);
 }
 
-.codeInput {
-  text-align: center;
-  letter-spacing: 8px;
-  font-size: 22px;
-  font-weight: 800;
-  direction: ltr;
+.input::placeholder {
+  color: color-mix(in srgb, var(--color-text) 32%, transparent);
+  font-weight: 600;
 }
 
-.hint {
-  width: 100%;
-  margin-top: 6px;
-  font-size: 13px;
-  color: var(--color-text-secondary);
-  text-align: center;
-  line-height: 1.9;
-}
-
-.devHint {
-  margin-top: 8px;
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--welcome-dark, var(--color-accent));
-  background: var(--color-accent-light);
-  border-radius: 999px;
-  padding: 4px 12px;
-}
-
-.error {
-  margin-top: 12px;
-  font-size: 13px;
-  color: var(--color-danger);
-  text-align: center;
-}
-
+/* ── دکمه‌ها ──────────────────────────────────────────────── */
 .submit {
   width: 100%;
-  margin-top: 18px;
-  padding: 13px;
-  font-size: 16px;
+  margin-top: 2px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--welcome-primary) 0%, var(--welcome-dark) 100%);
+  color: #fff;
+  font-size: 15.5px;
   font-weight: 800;
-  border-radius: var(--radius-sm);
-  background: var(--welcome-primary, var(--color-primary));
-  color: var(--color-on-primary);
-  transition: opacity 0.15s;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--welcome-dark) 75%, #000);
+  transition: translate 110ms ease, box-shadow 110ms ease;
+}
+
+.submit:active:not(:disabled) {
+  translate: 0 3px;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--welcome-dark) 75%, #000);
 }
 
 .submit:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
-.link {
-  margin-top: 12px;
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--welcome-dark, var(--color-primary));
-}
-
-.link:disabled {
   opacity: 0.5;
-  cursor: default;
+  box-shadow: none;
 }
 
 .guest {
   width: 100%;
-  margin-top: 12px;
-  padding: 13px;
-  font-size: 15px;
-  font-weight: 500;
-  border-radius: var(--radius-sm);
-  background: var(--welcome-accent-soft, var(--color-accent-light));
-  color: var(--color-text);
-}
-
-.footer {
-  margin-top: 18px;
-  font-size: 13px;
-  color: var(--color-text-secondary);
-}
-
-.footer a {
-  color: var(--welcome-dark, var(--color-accent));
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--welcome-accent-soft);
+  color: #8a6216;
+  font-size: 13.5px;
   font-weight: 800;
-  text-decoration: none;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 14px;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--welcome-dark);
+}
+
+.link svg {
+  width: 14px;
+  height: 14px;
+}
+
+.link:disabled {
+  color: color-mix(in srgb, var(--color-text) 38%, transparent);
+}
+
+/* ── پیام‌ها ──────────────────────────────────────────────── */
+.error {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  background: #fdecec;
+  color: #b3352f;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.devHint {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--welcome-dark);
+  background: var(--welcome-accent-soft);
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form { animation: none; }
 }

@@ -13,6 +13,26 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id", "role", "first_name", "last_name", "phone"]
 
 
+class MeUpdateSerializer(serializers.ModelSerializer):
+    """
+    تکمیلِ حساب بعد از ورود با پیامک.
+
+    نام هنگامِ ساختِ حساب گرفته نمی‌شود — اول شماره تأیید می‌شود و بعد،
+    فقط اگر حساب تازه باشد، اسم پرسیده می‌شود. نقش و شماره عمداً اینجا
+    نیستند تا از این راه عوض نشوند.
+    """
+
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name"]
+
+    def validate_first_name(self, value):
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("اسمت را بنویس.")
+        return value
+
+
 class PhoneField(serializers.CharField):
     """شماره را نرمال و اعتبارسنجی می‌کند (۰۹xxxxxxxxx)."""
 

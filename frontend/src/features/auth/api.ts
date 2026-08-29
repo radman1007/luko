@@ -47,6 +47,12 @@ export const authApi = {
   },
 
   /** توکن صریح فرستاده می‌شود تا بازیابیِ نشست به مسیرِ لحظه‌ی درخواست وابسته نباشد */
+  /** تکمیلِ نام بعد از ثبت‌نام — گامِ آخرِ ورود با پیامک */
+  async updateMe(payload: { firstName: string; lastName?: string }): Promise<User> {
+    const { data } = await apiClient.patch('/auth/me', payload);
+    return data.data;
+  },
+
   async getCurrentUser(audience?: Audience): Promise<User> {
     const token = audience ? tokenStorage.get(audience) : null;
     const { data } = await apiClient.get('/auth/me',

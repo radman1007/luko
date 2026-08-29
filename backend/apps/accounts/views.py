@@ -24,6 +24,7 @@ from .otp import (
 from .serializers import (
     KidSettingsSerializer,
     LukorianSerializer,
+    MeUpdateSerializer,
     RequestOTPSerializer,
     UserSerializer,
     VerifyOTPSerializer,
@@ -161,6 +162,13 @@ class LogoutView(APIView):
 
 class MeView(APIView):
     def get(self, request):
+        return Response(UserSerializer(request.user).data)
+
+    def patch(self, request):
+        """تکمیلِ نام بعد از ثبت‌نام (گامِ آخرِ ورود با پیامک)."""
+        serializer = MeUpdateSerializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(UserSerializer(request.user).data)
 
 
