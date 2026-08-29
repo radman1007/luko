@@ -16,6 +16,7 @@ from apps.games.models import Book, Game, GameCompletion, GameEvent
 from apps.health.models import BreathingSession, MoodCheckin
 
 from .models import DailyAssignment, ParentChild
+from .services import invalidate_child_report
 from .services import build_child_report
 
 
@@ -344,6 +345,9 @@ class NotificationTests(TestCase):
 
 class SuggestionTests(TestCase):
     def setUp(self):
+        # نقشه‌ی «هر بازی چه مبحثی» کشِ سراسری دارد؛ بدونِ پاک‌کردن، مقدارِ
+        # تستِ قبلی می‌ماند و نتیجه به ترتیبِ اجرا وابسته می‌شود.
+        cache.clear()
         self.parent = User.objects.create(phone="09121110014", role=User.Role.PARENT)
         self.child = User.objects.create(phone="09121110015", role=User.Role.STUDENT)
         ParentChild.objects.create(parent=self.parent, child=self.child, grade=1)
@@ -463,3 +467,43 @@ class ParentChildLoopTests(TestCase):
             f"/api/v1/parent/children/{self.child.id}/suggestions",
         ):
             self.assertEqual(client.get(url).status_code, 404, url)
+
+
+class SuggestionCacheTests(TestCase):
+    """پیشنهادها کش می‌شوند ولی با رویدادِ تازه باید تازه شوند."""
+
+    def setUp(self):
+        cache.clear()
+        self.parent = User.objects.create(phone="09121119001", role=User.Role.PARENT)
+        self.child = User.objects.create(phone="09121119002", role=User.Role.STUDENT)
+        ParentChild.objects.create(parent=self.parent, child=self.child)
+        Game.objects.create(slug="sg-1", title="یک", book_id="b", order=1)
+        Game.objects.create(slug="sg-2", title="دو", book_id="b", order=2)
+        self.api = APIClient()
+        self.api.force_authenticate(self.parent)
+
+    def _get(self):
+        return self.api.get(f"/api/v1/parent/children/{self.child.id}/suggestions")
+
+    def test_suggestions_are_served(self):
+        res = self._get()
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(res.json()["data"]["suggestions"])
+
+    def test_new_completion_refreshes_them(self):
+        first = self._get().json()["data"]["suggestions"]
+        self.assertIn("هنوز این بازی را انجام نداده است", [s["why"] for s in first])
+
+        GameCompletion.objects.create(user=self.child, game_slug="sg-1")
+        invalidate_child_report(self.child.id)
+
+        after = self._get().json()["data"]["suggestions"]
+        why = {s["slug"]: s["why"] for s in after}
+        self.assertNotEqual(why.get("sg-1"), "هنوز این بازی را انجام نداده است")
+
+    def test_game_of_the_day_is_never_stale(self):
+        """«بازی روز» عمداً کش نمی‌شود چون والد همین حالا عوضش می‌کند."""
+        self._get()
+        DailyAssignment.objects.create(assigned_by=self.parent, child=self.child,
+                                       game_slug="sg-2", date=timezone.localdate())
+        self.assertEqual(self._get().json()["data"]["currentSlug"], "sg-2")

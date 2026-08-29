@@ -15,6 +15,7 @@ from django.core.cache import cache
 from django.utils import timezone
 
 from apps.common import cache as cache_keys
+from apps.common import cache as cache_utils
 from apps.common.fa import fa_digits
 from apps.games.models import Book, Game, GameCompletion, GameEvent
 
@@ -176,9 +177,16 @@ def suggestion_payload(child) -> dict:
     from .models import DailyAssignment
 
     today = timezone.localdate()
+    # «بازی روز» را والد همین حالا ممکن است عوض کند، پس تازه خوانده می‌شود
+    # (یک کوئریِ ایندکس‌دار). چیزی که گران است تجمیعِ رویدادهاست و همان کش می‌شود.
     current = DailyAssignment.objects.filter(child=child, date=today).first()
+    suggestions = cache_utils.get_or_set(
+        cache_keys.parent_suggestions_key(child.id),
+        lambda: suggest_games(child),
+        cache_utils.TTL_MEDIUM,
+    )
     return {
         "date": today.isoformat(),
         "currentSlug": current.game_slug if current else None,
-        "suggestions": suggest_games(child),
+        "suggestions": suggestions,
     }

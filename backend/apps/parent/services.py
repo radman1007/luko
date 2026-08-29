@@ -72,8 +72,14 @@ def build_child_report(child) -> dict:
 
 
 def invalidate_child_report(child_id: int) -> None:
-    """بعد از هر رویداد/تکمیلِ بازی صدا زده می‌شود تا گزارشِ والد کهنه نماند."""
-    cache_keys.invalidate(cache_keys.parent_report_key(child_id))
+    """
+    بعد از هر رویداد/تکمیلِ بازی صدا زده می‌شود تا نماهای والد کهنه نمانند.
+    پیشنهادها هم از همان رویدادها ساخته می‌شوند، پس با هم باطل می‌شوند.
+    """
+    cache_keys.invalidate(
+        cache_keys.parent_report_key(child_id),
+        cache_keys.parent_suggestions_key(child_id),
+    )
 
 
 def _build_child_report(child) -> dict:

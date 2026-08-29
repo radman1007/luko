@@ -87,3 +87,17 @@ class GameEvent(TimeStampedModel):
 
     def __str__(self):
         return f"{self.game_slug}:{self.event_type}"
+
+
+# باطل‌سازیِ کشِ کاتالوگ. بدونِ این، ویرایشِ ادمین تا یک ساعت دیده نمی‌شد.
+def _drop_catalog_cache(*args, **kwargs) -> None:
+    from apps.common import cache
+    keys = [cache.book_catalog_key(None)]
+    keys += [cache.book_catalog_key(str(g)) for g in range(1, 7)]
+    cache.invalidate(*keys)
+
+
+models.signals.post_save.connect(_drop_catalog_cache, sender=Book)
+models.signals.post_delete.connect(_drop_catalog_cache, sender=Book)
+models.signals.post_save.connect(_drop_catalog_cache, sender=Game)
+models.signals.post_delete.connect(_drop_catalog_cache, sender=Game)

@@ -163,6 +163,10 @@ SMS_BACKEND = env("SMS_BACKEND", "console" if DEBUG else "smsir")
 # اجرای تست هرگز نباید پیامکِ واقعی بفرستد (و اعتبار بسوزاند یا کند شود).
 if "test" in sys.argv or os.environ.get("PYTEST_CURRENT_TEST"):
     SMS_BACKEND = "console"
+    # کش نمی‌تواند LocMem شود: OTP عمداً از اتصالِ خامِ Redis استفاده می‌کند
+    # (setex/incr اتمیک). به‌جایش دیتابیسِ جدا تا با داده‌ی توسعه قاطی نشود.
+    REDIS_CACHE_URL = env("REDIS_TEST_URL", "redis://localhost:6379/15")
+    CACHES["default"]["LOCATION"] = REDIS_CACHE_URL
 SMS_IR_API_KEY = env("SMS_IR_API_KEY", "")
 SMS_IR_TEMPLATE_ID = env("SMS_IR_TEMPLATE_ID", "")
 # نامِ پارامتر داخلِ قالبِ پنل sms.ir (مثلاً {CODE} در متن قالب)
@@ -189,7 +193,9 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 30,
     # سقفِ گرفتنِ لینکِ بازی — جلوی برداشتِ انبوهِ فایل‌ها را می‌گیرد
     "DEFAULT_THROTTLE_CLASSES": (),
-    "DEFAULT_THROTTLE_RATES": {"play_link": "40/hour"},
+    # سقفی که برداشتِ انبوه را می‌بندد ولی جلوی بچه‌ی پرکار را نگیرد:
+    # هر بازکردنِ بازی یک درخواست است و ۲۷ مرحله بیشتر نداریم.
+    "DEFAULT_THROTTLE_RATES": {"play_link": "90/hour"},
 }
 
 # محتوای JSONFieldها (payloadِ رویدادهای بازی، وضعیت باغچه، رنگ‌های نقاشی) نباید

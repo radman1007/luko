@@ -36,4 +36,12 @@ export default defineConfig({
       },
     },
   },
+  // `npm run preview` نسخه‌ی build‌شده را سرو می‌کند — برای سنجشِ رفتارِ
+  // واقعی، چون StrictMode فقط در dev افکت‌ها را دوبار اجرا می‌کند.
+  preview: {
+    port: 4173,
+    proxy: {
+      '/api': { target: 'http://localhost:8000', changeOrigin: true },
+    },
+  },
 });

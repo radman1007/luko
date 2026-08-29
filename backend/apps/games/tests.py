@@ -137,3 +137,37 @@ class PlayLinkTests(TestCase):
     def test_missing_game_is_404(self):
         self.api.force_authenticate(self.user)
         self.assertEqual(self._link("nope").status_code, 404)
+
+
+class CatalogCacheTests(TestCase):
+    """کاتالوگ کش می‌شود ولی ویرایشِ ادمین باید فوراً دیده شود."""
+
+    def setUp(self):
+        from django.core.cache import cache as django_cache
+        django_cache.clear()
+        self.user = User.objects.create(phone="09121118001", role=User.Role.STUDENT)
+        Profile.objects.get_or_create(user=self.user)
+        self.api = APIClient()
+        self.api.force_authenticate(self.user)
+
+    def test_editing_a_game_shows_up_immediately(self):
+        from apps.games.models import Book
+        Book.objects.create(book_id="cache-1", title="قدیمی", subject="ریاضی", grade=1)
+        first = self.api.get("/api/v1/books").json()["data"]["books"]
+        self.assertIn("قدیمی", [b["title"] for b in first])
+
+        Book.objects.filter(book_id="cache-1").update(title="تازه")
+        # update() سیگنال نمی‌زند، پس عمداً با save تست می‌کنیم — همان کاری که ادمین می‌کند
+        book = Book.objects.get(book_id="cache-1")
+        book.title = "تازه"
+        book.save()
+
+        second = self.api.get("/api/v1/books").json()["data"]["books"]
+        self.assertIn("تازه", [b["title"] for b in second])
+
+    def test_completed_endpoint_is_light(self):
+        """نقشه‌ی سیزن فقط همین را می‌خواهد، نه کلِ کاتالوگ."""
+        GameCompletion.objects.create(user=self.user, game_slug="x-1")
+        res = self.api.get("/api/v1/games/completed")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()["data"], {"completed": ["x-1"]})

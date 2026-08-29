@@ -9,8 +9,10 @@ from apps.parent.services import invalidate_child_report
 
 from .models import Book, Game
 from .serializers import BookSerializer, GameEventSerializer, GameSerializer
+from apps.common import cache
+
 from .playlink import sign
-from .services import StageLocked, blocking_stage, complete_game
+from .services import StageLocked, blocking_stage, complete_game, completed_slugs
 
 
 class GameListView(ListAPIView):
@@ -89,20 +91,35 @@ class GameEventView(APIView):
         return Response({"stored": len(serializer.data) if many else 1})
 
 
+class CompletedGamesView(APIView):
+    """
+    GET /games/completed — فقط شناسه‌ی مرحله‌های تمام‌شده.
+
+    نقشه‌ی سیزن همین را می‌خواهد و بس. تا دیروز برای گرفتنش کلِ کاتالوگ
+    (چهار کتاب و ۲۷ مرحله) سریالایز و فرستاده می‌شد؛ همان مسیر کندترین
+    نقطه‌ی APIها بود.
+    """
+
+    def get(self, request):
+        return Response({"completed": completed_slugs(request.user)})
+
+
 class BookListView(APIView):
     """GET /books — کاتالوگِ کتاب‌ها با مراحل (جایگزینِ booksData ثابتِ فرانت)."""
 
     def get(self, request):
-        books = Book.objects.filter(is_active=True)
         grade = request.query_params.get("grade")
-        if grade:
-            books = books.filter(grade=grade)
-        games_by_book: dict = {}
-        for game in Game.objects.filter(is_active=True):
-            games_by_book.setdefault(game.book_id, []).append(game)
-        data = BookSerializer(books, many=True,
-                              context={"games_by_book": games_by_book}).data
-        completed = list(
-            request.user.game_completions.values_list("game_slug", flat=True)
-        )
-        return Response({"books": data, "completed": completed})
+
+        def build():
+            books = Book.objects.filter(is_active=True)
+            if grade:
+                books = books.filter(grade=grade)
+            games_by_book: dict = {}
+            for game in Game.objects.filter(is_active=True):
+                games_by_book.setdefault(game.book_id, []).append(game)
+            return BookSerializer(books, many=True,
+                                  context={"games_by_book": games_by_book}).data
+
+        # کاتالوگ برای همه یکی است و فقط با ویرایشِ ادمین عوض می‌شود
+        data = cache.get_or_set(cache.book_catalog_key(grade), build, cache.TTL_LONG)
+        return Response({"books": data, "completed": completed_slugs(request.user)})

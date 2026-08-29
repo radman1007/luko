@@ -2,9 +2,13 @@ import { apiClient } from '@/lib/api';
 
 /** درخواست‌های بازی‌ها. پاکتِ {data} همین‌جا باز می‌شود. */
 export const gamesApi = {
-  /** شناسه‌ی مرحله‌هایی که سرور تمام‌شده می‌داند */
+  /**
+   * شناسه‌ی مرحله‌هایی که سرور تمام‌شده می‌داند.
+   * نقطه‌ی سبکِ اختصاصی، نه `/books` — آن یکی کلِ کاتالوگ را سریالایز
+   * می‌کرد فقط برای همین فهرست، و کندترین مسیرِ API بود.
+   */
   async completedSlugs(): Promise<string[]> {
-    const { data } = await apiClient.get('/books');
+    const { data } = await apiClient.get('/games/completed');
     return data.data.completed ?? [];
   },
 
