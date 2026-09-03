@@ -158,7 +158,12 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # پس هر دو باید یکی باشند. در production حتماً از env بیاید.
 GAME_LINK_SECRET = env("GAME_LINK_SECRET", "dev-game-link-secret")
 
-SMS_BACKEND = env("SMS_BACKEND", "console" if DEBUG else "smsir")
+# ملی‌پیامک — کلید در URLِ سرویس می‌نشیند، پس مثل هر رازِ دیگری فقط از env
+MELIPAYAMAK_API_KEY = env("MELIPAYAMAK_API_KEY", "")
+MELIPAYAMAK_BASE_URL = env("MELIPAYAMAK_BASE_URL", "https://console.melipayamak.com")
+MELIPAYAMAK_TIMEOUT = float(env("MELIPAYAMAK_TIMEOUT", "12"))
+
+SMS_BACKEND = env("SMS_BACKEND", "console" if DEBUG else "melipayamak")
 
 # اجرای تست هرگز نباید پیامکِ واقعی بفرستد (و اعتبار بسوزاند یا کند شود).
 if "test" in sys.argv or os.environ.get("PYTEST_CURRENT_TEST"):

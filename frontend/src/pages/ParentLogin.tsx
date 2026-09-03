@@ -45,6 +45,8 @@ export default function ParentLogin() {
   const [step, setStep] = useState<'phone' | 'code'>('phone');
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
+  // طولِ کد را سرور می‌گوید؛ سخت‌کد کردنش با عوض‌شدنِ پنلِ پیامک می‌شکست
+  const [codeLength, setCodeLength] = useState(5);
   const [firstName, setFirstName] = useState('');
   const [devCode, setDevCode] = useState<string>();
   const [resendIn, setResendIn] = useState(0);
@@ -73,6 +75,7 @@ export default function ParentLogin() {
     setBusy(true);
     try {
       const res = await authApi.requestOtp(phone);
+      setCodeLength(res.codeLength && res.codeLength > 0 ? res.codeLength : 5);
       setDevCode(res.devCode);
       setResendIn(res.resendIn);
       setStep('code');
@@ -84,7 +87,7 @@ export default function ParentLogin() {
   };
 
   const verify = async () => {
-    if (code.length < 4) {
+    if (code.length < codeLength) {
       setError('کد را کامل وارد کنید.');
       return;
     }
@@ -198,10 +201,10 @@ export default function ParentLogin() {
                   dir="ltr"
                   inputMode="numeric"
                   autoComplete="one-time-code"
-                  placeholder="- - - - -"
+                  placeholder={'- '.repeat(codeLength).trim()}
                   className={styles.codeInput}
                   value={code}
-                  onChange={(e) => setCode(digits(e.target.value).slice(0, 8))}
+                  onChange={(e) => setCode(digits(e.target.value).slice(0, codeLength))}
                 />
               </span>
             </label>
@@ -220,7 +223,7 @@ export default function ParentLogin() {
             {devCode && <p className={styles.devCode}>کد توسعه: {devCode}</p>}
             {error && <p className={styles.error}>{error}</p>}
 
-            <button type="submit" className={styles.primary} disabled={busy || code.length < 4}>
+            <button type="submit" className={styles.primary} disabled={busy || code.length < codeLength}>
               {busy ? 'در حال بررسی…' : 'ورود به پنل'}
             </button>
 

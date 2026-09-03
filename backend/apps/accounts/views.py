@@ -87,7 +87,13 @@ class RequestOTPView(APIView):
                 status=status.HTTP_502_BAD_GATEWAY,
             )
 
-        payload = {"expiresIn": info["ttl"], "resendIn": info["resend_in"]}
+        # طولِ کد را سرور می‌گوید چون ارائه‌دهنده‌ها یکی نیستند؛ فرانت به
+        # همین تعداد خانه می‌سازد و با عوض‌شدنِ پنلِ پیامک نمی‌شکند.
+        payload = {
+            "expiresIn": info["ttl"],
+            "resendIn": info["resend_in"],
+            "codeLength": info.get("length") or len(info["code"]),
+        }
         if settings.OTP_EXPOSE_DEV_CODE and settings.DEBUG:
             payload["devCode"] = info["code"]  # فقط در حالتِ توسعه، برای تست
         return Response(payload)

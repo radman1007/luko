@@ -73,27 +73,36 @@ def _as_str(value) -> str | None:
 
 def request_otp(phone: str) -> dict:
     """
-    کدِ تازه می‌سازد، ذخیره می‌کند و پیامک را می‌فرستد.
-    اگر خیلی زود دوباره خواسته شد OTPRateLimited می‌دهد و اگر پیامک نرفت،
-    کد و قفلِ ارسالِ مجدد را پس می‌گیرد تا کاربر بی‌خود ۶۰ ثانیه منتظر نماند.
+    پیامکِ کدِ تأیید را می‌فرستد و **کدی که واقعاً رفته** را ذخیره می‌کند.
+
+    بعضی ارائه‌دهنده‌ها (ملی‌پیامک) خودشان کد را می‌سازند، پس کدِ ما فقط یک
+    پیشنهاد است و مرجع، خروجیِ ارسال است. به همین دلیل اول می‌فرستیم و بعد
+    ذخیره می‌کنیم؛ برعکسش یعنی ممکن بود کدی ذخیره شود که هرگز ارسال نشده.
+
+    قفلِ ارسالِ مجدد قبل از فرستادن گرفته می‌شود تا دو درخواستِ هم‌زمان دو
+    پیامک نفرستند، و اگر ارسال شکست خورد پس گرفته می‌شود تا کاربر بی‌خود
+    ۶۰ ثانیه منتظر نماند.
     """
     r = _conn()
     remaining = r.ttl(_resend_key(phone))
     if remaining and remaining > 0:
         raise OTPRateLimited(remaining)
 
-    code = "".join(secrets.choice("0123456789") for _ in range(OTP_LENGTH))
-    r.setex(_code_key(phone), OTP_TTL, code)
     r.setex(_resend_key(phone), OTP_RESEND, "1")
-    r.delete(_att_key(phone))
+    proposed = "".join(secrets.choice("0123456789") for _ in range(OTP_LENGTH))
 
     try:
-        delivery = send_verification_code(phone, code)
+        delivery = send_verification_code(phone, proposed)
     except SmsError:
-        r.delete(_code_key(phone), _resend_key(phone))
+        r.delete(_resend_key(phone))
         raise
 
-    return {"code": code, "ttl": OTP_TTL, "resend_in": OTP_RESEND, "delivery": delivery}
+    code = str(delivery.get("code") or proposed)
+    r.setex(_code_key(phone), OTP_TTL, code)
+    r.delete(_att_key(phone))
+
+    return {"code": code, "length": len(code), "ttl": OTP_TTL,
+            "resend_in": OTP_RESEND, "delivery": delivery}
 
 
 def verify_otp(phone: str, code: str) -> bool:

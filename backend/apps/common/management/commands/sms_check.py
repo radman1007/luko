@@ -32,17 +32,22 @@ class Command(BaseCommand):
         if backend_name == "console":
             self.stdout.write(warn(
                 "  ⚠️  حالتِ console: هیچ پیامکی ارسال نمی‌شود و کد فقط در لاگ می‌آید.\n"
-                "      برای ارسالِ واقعی SMS_BACKEND=smsir بگذارید."
+                "      برای ارسالِ واقعی SMS_BACKEND=melipayamak بگذارید."
             ))
 
+        mp_key = settings.MELIPAYAMAK_API_KEY or ""
         key = settings.SMS_IR_API_KEY or ""
         tid = settings.SMS_IR_TEMPLATE_ID or 0
-        self.stdout.write(f"  SMS_IR_API_KEY      : {'تنظیم شده (' + str(len(key)) + ' کاراکتر)' if key else 'خالی'}")
+        shown = lambda v: f"تنظیم شده ({len(v)} کاراکتر)" if v else "خالی"   # noqa: E731
+        self.stdout.write(f"  MELIPAYAMAK_API_KEY : {shown(mp_key)}")
+        self.stdout.write(f"  MELIPAYAMAK_BASE_URL: {settings.MELIPAYAMAK_BASE_URL}")
+        self.stdout.write(f"  SMS_IR_API_KEY      : {shown(key)} (ارائه‌دهنده‌ی قبلی)")
         self.stdout.write(f"  SMS_IR_TEMPLATE_ID  : {tid or 'خالی'}")
-        self.stdout.write(f"  SMS_IR_PARAM_NAME   : {settings.SMS_IR_PARAM_NAME}")
         self.stdout.write(f"  OTP_EXPOSE_DEV_CODE : {settings.OTP_EXPOSE_DEV_CODE} (در production باید 0 باشد)")
 
         problems = []
+        if backend_name == "melipayamak" and not mp_key:
+            problems.append("MELIPAYAMAK_API_KEY خالی است")
         if backend_name == "smsir":
             if not key:
                 problems.append("SMS_IR_API_KEY خالی است")
@@ -56,7 +61,7 @@ class Command(BaseCommand):
             self.stdout.write(warn("\n  با این وضع، درخواستِ کد به کاربر خطای ۵۰۲ می‌دهد."))
             return
 
-        if backend_name == "smsir":
+        if backend_name in {"smsir", "melipayamak"}:
             self.stdout.write(ok("\n  ✓ پیکربندی کامل است."))
 
         to = options.get("to")

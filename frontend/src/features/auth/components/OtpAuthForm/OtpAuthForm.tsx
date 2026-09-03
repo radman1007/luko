@@ -10,7 +10,8 @@ import { enableGuestMode } from '../../guest';
 import { OtpInput } from '../OtpInput/OtpInput';
 import styles from './OtpAuthForm.module.css';
 
-const CODE_LENGTH = 5;
+/** تا وقتی سرور طولِ واقعی را نگفته، همین را نشان می‌دهیم */
+const DEFAULT_CODE_LENGTH = 5;
 
 /** گام‌های ورود. `name` فقط وقتی می‌آید که حساب همان لحظه ساخته شده باشد. */
 type Step = 'phone' | 'code' | 'name';
@@ -50,6 +51,7 @@ export function OtpAuthForm() {
   const [code, setCode] = useState('');
   const [firstName, setFirstName] = useState('');
   const [devCode, setDevCode] = useState<string | undefined>();
+  const [codeLength, setCodeLength] = useState(DEFAULT_CODE_LENGTH);
   const [resendIn, setResendIn] = useState(0);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -76,6 +78,7 @@ export function OtpAuthForm() {
     try {
       const res = await authApi.requestOtp(phone);
       setDevCode(res.devCode);
+      setCodeLength(res.codeLength && res.codeLength > 0 ? res.codeLength : DEFAULT_CODE_LENGTH);
       setResendIn(res.resendIn);
       setCode('');
       setStep('code');
@@ -87,7 +90,7 @@ export function OtpAuthForm() {
   };
 
   const verify = async (value = code) => {
-    if (value.length < CODE_LENGTH || busy) return;
+    if (value.length < codeLength || busy) return;
     setError('');
     setBusy(true);
     try {
@@ -207,14 +210,14 @@ export function OtpAuthForm() {
               if (error) setError('');
             }}
             onComplete={(v) => void verify(v)}
-            length={CODE_LENGTH}
+            length={codeLength}
             disabled={busy}
             invalid={Boolean(error)}
           />
 
           {devCode && <p className={styles.devHint}>کدِ تست: {devCode}</p>}
 
-          <button type="submit" className={styles.submit} disabled={busy || code.length < CODE_LENGTH}>
+          <button type="submit" className={styles.submit} disabled={busy || code.length < codeLength}>
             {busy ? 'در حال بررسی…' : 'تایید'}
           </button>
 

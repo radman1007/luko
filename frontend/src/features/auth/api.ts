@@ -7,6 +7,11 @@ export interface RequestOtpResult {
   expiresIn: number;
   /** تا ارسالِ مجدد (ثانیه) */
   resendIn: number;
+  /**
+   * چند رقم است. سرور می‌گوید چون پنل‌های پیامک طولِ یکسانی ندارند —
+   * ملی‌پیامک خودش کد را می‌سازد و ممکن است بلندتر از قبلی باشد.
+   */
+  codeLength?: number;
   /** فقط در حالتِ توسعه: کدِ تست */
   devCode?: string;
 }

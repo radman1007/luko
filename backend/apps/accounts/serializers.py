@@ -50,7 +50,9 @@ class RequestOTPSerializer(serializers.Serializer):
 
 class VerifyOTPSerializer(serializers.Serializer):
     phone = PhoneField()
-    code = serializers.CharField(min_length=4, max_length=8)
+    # طولِ کد را ارائه‌دهنده تعیین می‌کند، نه ما. ملی‌پیامک خودش کد می‌سازد و
+    # نمونه‌ی مستنداتش ۱۰ رقمی است؛ سقفِ ۸ رقمِ قبلی همان را رد می‌کرد.
+    code = serializers.CharField(min_length=4, max_length=12)
     # فقط هنگام ثبت‌نامِ حسابِ تازه استفاده می‌شوند
     first_name = serializers.CharField(max_length=60, required=False, allow_blank=True)
     last_name = serializers.CharField(max_length=60, required=False, allow_blank=True)
