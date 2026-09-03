@@ -11,6 +11,7 @@ import {
 import { BrandMark } from '@/components/ui/icons';
 import { authApi } from '@/features/auth/api';
 import { useAuth } from '@/features/auth/context';
+import { enableParentGuestMode, GUEST_PARENT_USER } from '@/features/auth/guest';
 import styles from './ParentLogin.module.css';
 
 /** ارقام فارسی/عربی → انگلیسی، و حذفِ هر چیزِ غیررقم */
@@ -163,6 +164,22 @@ export default function ParentLogin() {
                 </li>
               ))}
             </ul>
+
+            <div className={styles.guestDivider}>
+              <span>یا برای نمایش سریع</span>
+            </div>
+            <button
+              type="button"
+              className={styles.guestButton}
+              onClick={() => {
+                enableParentGuestMode();
+                setUser(GUEST_PARENT_USER);
+                navigate('/parent-panel', { replace: true });
+              }}
+            >
+              ورود به‌عنوان مهمان
+            </button>
+            <p className={styles.guestHint}>بدون پیامک؛ با داده‌های نمونه و مناسبِ دمو</p>
           </form>
         ) : (
           <form

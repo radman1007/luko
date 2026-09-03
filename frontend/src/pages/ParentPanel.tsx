@@ -10,6 +10,7 @@ import {
   HiOutlineTrophy,
 } from 'react-icons/hi2';
 import { useAuth } from '@/features/auth/context';
+import ParentGuestPanel from './ParentGuestPanel';
 import { BrandMark } from '@/components/ui/icons';
 import { buildAnalysis } from '@/features/parent/analysis';
 import type { Child, ParentPreferences, Suggestion } from '@/features/parent/types';
@@ -32,6 +33,7 @@ import type { PanelTab } from '@/features/parent/components/shell/BottomNav';
 import { ChildSwitch } from '@/features/parent/components/shell/ChildSwitch';
 import { Sheet } from '@/features/parent/components/shell/Sheet';
 import { Toast } from '@/features/parent/components/shell/Toast';
+import { ParentIntroGate } from '@/features/parent/components/intro/ParentIntroGate';
 import { DashboardView } from '@/features/parent/components/views/DashboardView';
 import { ReportsView } from '@/features/parent/components/views/ReportsView';
 import { DailyView } from '@/features/parent/components/views/DailyView';
@@ -65,7 +67,7 @@ function Skeleton() {
   );
 }
 
-export default function ParentPanel() {
+function AuthenticatedParentPanel() {
   const { user, logout } = useAuth();
   const [tab, setTab] = useState<PanelTab>('dashboard');
   const [childId, setChildId] = useState<string>();
@@ -487,5 +489,16 @@ export default function ParentPanel() {
 
       <Toast message={toast} onDone={() => setToast(null)} />
     </div>
+  );
+}
+
+export default function ParentPanel() {
+  const { user } = useAuth();
+  const viewerId = user?.isGuest ? 'guest-parent' : user?.id || user?.phone || 'parent';
+
+  return (
+    <ParentIntroGate viewerId={viewerId}>
+      {user?.isGuest ? <ParentGuestPanel /> : <AuthenticatedParentPanel />}
+    </ParentIntroGate>
   );
 }

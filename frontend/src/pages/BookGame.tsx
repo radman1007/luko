@@ -57,7 +57,7 @@ export default function BookGame() {
   const rewardedRef = useRef(false);
 
   // همیشه به مسیرِ سیزن برمی‌گردیم؛ نقشه‌ی کتابیِ قدیمی دیگر مقصدِ برگشت نیست
-  const backToMap = () => navigate('/books');
+  const backToMap = () => navigate('/games');
 
   const finish = () => {
     if (!found || rewardedRef.current) return;
@@ -126,13 +126,13 @@ export default function BookGame() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [found?.level.id]);
 
-  if (locked) return <Navigate to="/books" replace />;
+  if (locked) return <Navigate to="/games" replace />;
 
   if (!found) {
     return (
       <main className={styles.page}>
         <header className={styles.topbar}>
-          <button type="button" className={styles.back} onClick={() => navigate('/books')} aria-label="بازگشت">
+          <button type="button" className={styles.back} onClick={() => navigate('/games')} aria-label="بازگشت">
             <HiOutlineChevronRight />
           </button>
           <span className={styles.topTitle}>بازی پیدا نشد</span>

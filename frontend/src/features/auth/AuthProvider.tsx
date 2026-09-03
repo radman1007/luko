@@ -6,7 +6,14 @@ import { audienceForPath, tokenStorage } from '@/lib/api';
 import type { Audience } from '@/lib/api';
 import { AuthContext } from './context';
 import { authApi } from './api';
-import { GUEST_USER, disableGuestMode, isGuestMode } from './guest';
+import {
+  GUEST_PARENT_USER,
+  GUEST_USER,
+  disableGuestMode,
+  disableParentGuestMode,
+  isGuestMode,
+  isParentGuestMode,
+} from './guest';
 
 type Sessions = Record<Audience, User | null>;
 
@@ -39,7 +46,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .finally(() => setReady((r) => ({ ...r, [audience]: true })));
       return;
     }
-    // حالت مهمان فقط برای بچه‌هاست؛ پنل والدین همیشه ورودِ واقعی می‌خواهد
+    if (audience === 'parent' && isParentGuestMode()) {
+      setSessions((s) => ({ ...s, parent: GUEST_PARENT_USER }));
+    }
     if (audience === 'kid' && isGuestMode()) {
       setSessions((s) => ({ ...s, kid: GUEST_USER }));
     }
@@ -54,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     authApi.logout(audience);
     if (audience === 'kid') disableGuestMode();
+    if (audience === 'parent') disableParentGuestMode();
     setSessions((s) => ({ ...s, [audience]: null }));
   }, [audience]);
 
