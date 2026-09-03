@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بازی نقاشی بسم الله - LOKO System</title>
+    <style>
+/* ============================================
+   فونت‌های استاندارد LOKO
+   ============================================ */
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Medium.woff2") format("woff2");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Black.woff2") format("woff2");
+  font-weight: 900;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Medium.woff2") format("woff2");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Black.woff2") format("woff2");
+  font-weight: 900;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+}
+
+/* ============================================
+   متغیرهای CSS سیستم LOKO
+   ============================================ */
+:root {
+    --primary: #6C5CE7;
+    --neon-blue: #00D2FF;
+    --neon-pink: #FF00A0;
+    --neon-green: #00FF9D;
+    --accent: #FFEAA7;
+    --success: #00B894;
+    --danger: #FF7675;
+    --dark: #1E1E2F;
+    --gold: #FFC93C;
+    --gold-dark: #B96F00;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* جلوگیری از اسکرول عمودی در سطح بدنه */
+}
+
+body {
+    font-family: var(--font);
+    background: linear-gradient(135deg, #0c0a14, #181225);
+    color: #fff;
+    direction: rtl;
+    line-height: 1.6;
+}
+
+#app-wrapper {
+    max-width: 480px;
+    margin: 0 auto;
+    height: 100vh; /* استفاده از 100vh برای پوشش کامل صفحه موبایل */
+    height: 100dvh; /* پشتیبانی از مرورگرهای جدیدتر موبایل */
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+.page {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    padding: 20px;
+    flex-direction: column;
+}
+
+.page.active {
+    display: flex;
+    animation: pageIn 0.5s var(--transition-normal);
+}
+
+@keyframes pageIn {
+    from { opacity: 0; transform: scale(0.95) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* پس‌زمینه متحرک */
+.menu-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.floating-shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.15;
+    filter: blur(40px);
+    animation: float 8s ease-in-out infinite;
+}
+
+.shape-1 { width: 200px; height: 200px; background: var(--primary); top: 10%; right: 10%; }
+.shape-2 { width: 150px; height: 150px; background: var(--neon-pink); top: 20%; left: 15%; animation-delay: 1s; }
+.shape-3 { width: 180px; height: 180px; background: var(--neon-green); bottom: 30%; right: 5%; animation-delay: 2s; }
+.shape-4 { width: 120px; height: 120px; background: var(--neon-blue); bottom: 20%; left: 10%; animation-delay: 3s; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+    50% { transform: translateY(-30px) rotate(180deg) scale(1.1); }
+}
+
+/* سیستم سکه لوکو */
+.coin-display {
+    position: absolute;
+    top: 20px; left: 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    padding: 8px 20px 8px 15px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 100;
+    animation: coinPulse 2s infinite;
+}
+
+@keyframes coinPulse {
+    0%, 100% { box-shadow: 0 0 15px rgba(255, 201, 60, 0.3); }
+    50% { box-shadow: 0 0 25px rgba(255, 201, 60, 0.6); }
+}
+
+.coin-icon-img {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+}
+
+.coin-amount {
+    font-weight: 800;
+    color: var(--gold);
+    font-size: 1.2rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* دکمه‌های شیشه‌ای و عمومی */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+/* شخصیت و حباب */
+.pixel-character-wrapper {
+    position: relative;
+    text-align: center;
+    z-index: 2;
+    margin-bottom: 20px;
+}
+
+.speech-bubble {
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--dark);
+    padding: 12px 25px;
+    border-radius: 20px 20px 20px 5px;
+    margin-bottom: 15px;
+    display: inline-block;
+    font-weight: 700;
+    font-size: 1.1rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    animation: bubblePop 2s infinite alternate;
+}
+
+@keyframes bubblePop {
+    from { transform: translateY(0); }
+    to { transform: translateY(-5px); }
+}
+
+.pixel-character-img {
+    width: 120px;
+    max-height: 30vh; /* جلوگیری از اشغال فضای زیاد در موبایل‌های کوچک */
+    height: auto;
+    filter: drop-shadow(0 0 15px var(--neon-blue));
+    animation: charFloat 3s ease-in-out infinite;
+}
+
+@keyframes charFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+/* دکمه‌های استاندارد LOKO */
+.loko-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    font-family: var(--font);
+    font-size: 1.3rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.loko-btn-primary {
+    background: linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%);
+    color: var(--dark);
+    box-shadow: 0 6px 0 var(--gold-dark), 0 10px 20px rgba(255, 168, 0, 0.4);
+    margin-bottom: 15px;
+}
+
+.loko-btn-secondary {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+    color: #fff;
+    border: 2px solid var(--glass-border);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.loko-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 var(--gold-dark), 0 5px 10px rgba(255, 168, 0, 0.4);
+}
+
+.loko-btn-secondary:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-row {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-row .loko-btn-secondary {
+    flex: 1;
+}
+
+/* منو */
+.menu-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* پخش کردن فاصله‌ها در صفحه موبایل */
+    flex: 1;
+    padding-top: 40px; /* فاصله از بالا برای سکه */
+    padding-bottom: 20px;
+}
+
+.menu-header {
+    text-align: center;
+}
+
+.menu-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--neon-blue) 0%, var(--primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 2px 10px rgba(108, 92, 231, 0.5));
+}
+
+/* دکمه بازگشت */
+.back-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    font-family: var(--font);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    align-self: flex-start;
+    margin-bottom: 10px;
+}
+
+.back-btn:active { transform: scale(0.95); }
+
+/* صفحه راهنما */
+.help-container { max-width: 100%; margin: 0 auto; flex: 1; display: flex; flex-direction: column; }
+.help-header { text-align: center; margin-bottom: 20px; }
+.help-header img {
+    width: 100px;
+    max-height: 20vh;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 0 10px var(--neon-green));
+    animation: charFloat 3s infinite;
+}
+.help-header h2 {
+    font-size: 2rem;
+    color: var(--neon-green);
+    font-weight: 900;
+    text-shadow: 0 0 15px rgba(0, 255, 157, 0.3);
+}
+
+.help-steps { display: flex; flex-direction: column; gap: 15px; }
+.help-step {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+}
+
+.step-num {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--primary), var(--neon-pink));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(108, 92, 231, 0.4);
+}
+
+.step-content p { font-size: 1.05rem; line-height: 1.5; color: #fff; }
+
+/* صفحه فروشگاه */
+.shop-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.shop-header { text-align: center; margin-bottom: 15px; }
+.shop-header h2 {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 15px rgba(255, 201, 60, 0.4);
+}
+
+.shop-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    background: rgba(0,0,0,0.2);
+    padding: 5px;
+    border-radius: 12px;
+}
+
+.shop-tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    border-radius: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.shop-tab.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(108, 92, 231, 0.4);
+}
+
+.shop-items {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    overflow-y: auto;
+    padding-bottom: 10px;
+    flex: 1;
+}
+
+.shop-item {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 15px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.2s;
+}
+
+.shop-item:active { transform: scale(0.95); }
+.shop-item img { width: 60px; height: 60px; }
+.shop-item h3 { font-size: 1rem; color: #fff; }
+.shop-item-price {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255, 201, 60, 0.2);
+    padding: 5px 10px;
+    border-radius: 20px;
+    color: var(--gold);
+    font-weight: 700;
+}
+.shop-item-price img { width: 16px; height: 16px; }
+
+.buy-btn {
+    width: 100%;
+    padding: 8px;
+    background: linear-gradient(180deg, #FFE68A, #FFA800);
+    color: var(--dark);
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font);
+    font-weight: 800;
+    cursor: pointer;
+}
+.buy-btn:active { transform: scale(0.95); }
+.buy-btn.disabled {
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.3);
+    cursor: not-allowed;
+}
+
+/* صفحه بازی (موبایل فرست) */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 10px;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.game-stats { display: flex; gap: 10px; }
+
+.stat-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    padding: 8px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.stat-num { font-size: 1.2rem; font-weight: 900; color: #fff; }
+.timer-box .stat-num { color: var(--neon-green); }
+.moves-box .stat-num { color: var(--neon-pink); }
+
+/* پالت رنگ */
+.color-palette {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    padding: 12px;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+}
+
+.palette-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 10px;
+    color: rgba(255,255,255,0.8);
+}
+
+.colors-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+
+.color-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    background: rgba(0,0,0,0.2);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.color-btn.selected {
+    border-color: #fff;
+    box-shadow: 0 0 15px rgba(255,255,255,0.3);
+    transform: scale(1.05);
+}
+
+.color-fill {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 3px solid rgba(0,0,0,0.3);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: all var(--transition-fast);
+}
+
+.color-fill.yellow { background: #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+.color-fill.red { background: #E53935; box-shadow: 0 0 15px rgba(229, 57, 53, 0.5); }
+.color-fill.green { background: #4CAF50; box-shadow: 0 0 15px rgba(76, 175, 80, 0.5); }
+.color-fill.purple { background: #9C27B0; box-shadow: 0 0 15px rgba(156, 39, 176, 0.5); }
+
+.color-btn span { font-size: 0.85rem; font-weight: 700; color: #fff; }
+
+/* ناحیه نقاشی - فیلکس باکس برای پر کردن فضا */
+.canvas-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0; /* مهم برای flexbox در موبایل */
+}
+
+.drawing-frame {
+    width: 100%;
+    max-width: 400px;
+    height: 100%;
+    max-height: 100%;
+    aspect-ratio: 1;
+    background: #FFF8E1;
+    border: 4px solid var(--gold);
+    border-radius: 24px;
+    box-shadow: 0 0 30px rgba(255, 201, 60, 0.3), inset 0 0 20px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.bg-area {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #FFF8E1;
+    z-index: 1;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.main-frame {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%; height: 80%;
+    background: #fff;
+    border: 4px solid var(--dark);
+    border-radius: 16px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shapes-container {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.geo-shape {
+    position: absolute;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: all 0.3s ease;
+    border: 3px solid var(--dark);
+}
+
+.triangle-top {
+    top: -20px; left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 35px solid #FFD700;
+    background: transparent !important;
+    border-radius: 0;
+}
+
+.triangle-bottom {
+    bottom: -20px; left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 35px solid #E53935;
+    background: transparent !important;
+    border-radius: 0;
+}
+
+.circle-left {
+    left: -20px; top: 50%;
+    transform: translateY(-50%);
+    width: 40px; height: 40px;
+    background: #4CAF50;
+    border-radius: 50%;
+}
+
+.circle-right {
+    right: -20px; top: 50%;
+    transform: translateY(-50%);
+    width: 40px; height: 40px;
+    background: #9C27B0;
+    border-radius: 50%;
+}
+
+.corner-decor {
+    position: absolute;
+    width: 60px; height: 60px;
+    z-index: 10;
+}
+
+.corner-decor.top-right { top: -30px; right: -30px; }
+.corner-decor.top-left { top: -30px; left: -30px; transform: scaleX(-1); }
+.corner-decor.bottom-right { bottom: -30px; right: -30px; transform: scaleY(-1); }
+.corner-decor.bottom-left { bottom: -30px; left: -30px; transform: scale(-1); }
+
+.flower-svg { width: 100%; height: 100%; filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2)); }
+.petal, .flower-center { cursor: pointer; transition: all 0.3s ease; }
+
+.text-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    z-index: 6;
+    position: relative;
+}
+
+.text-frame {
+    padding: 8px 20px;
+    background: #fff;
+    border: 3px solid var(--dark);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.text-frame:hover { transform: scale(1.05); }
+.text-frame span {
+    font-family: 'Shoor', serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--primary);
+    pointer-events: none;
+}
+
+.progress-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.progress-label { font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.8); }
+.progress-track {
+    flex: 1; height: 12px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+    border-radius: 6px;
+    transition: width 0.4s ease;
+    box-shadow: 0 0 10px var(--neon-green);
+}
+
+.progress-percent { font-size: 1rem; font-weight: 900; color: var(--neon-green); min-width: 40px; text-align: center; }
+
+.game-footer { display: flex; gap: 15px; }
+
+.game-footer button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-family: var(--font);
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.reset-btn-game {
+    background: rgba(255, 118, 117, 0.2);
+    color: var(--danger);
+    border: 2px solid var(--danger);
+}
+
+.finish-btn {
+    background: linear-gradient(180deg, #00E676 0%, #00B894 100%);
+    color: #fff;
+    box-shadow: 0 4px 0 #00695C;
+}
+
+/* صفحه تبریک */
+.congrats-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+
+.confetti-container {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: var(--color);
+    top: -20px; left: var(--x);
+    animation: confettiFall 3s ease-in-out infinite;
+    animation-delay: var(--delay);
+    border-radius: 2px;
+}
+
+@keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg) scale(0.5); opacity: 0; }
+}
+
+.congrats-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.trophy-container { position: relative; margin-bottom: 20px; }
+
+.trophy-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150px; height: 150px;
+    background: radial-gradient(circle, rgba(255,201,60,0.4) 0%, transparent 70%);
+    animation: trophyGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes trophyGlow {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+    50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+}
+
+.congrats-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--neon-pink) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+.congrats-subtitle {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 30px;
+}
+
+.results-card {
+    padding: 25px;
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 20px;
+}
+
+.result-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.result-row:last-child { border-bottom: none; }
+.result-label { font-size: 1rem; color: rgba(255,255,255,0.8); }
+.result-value { font-size: 1.6rem; font-weight: 900; color: var(--neon-blue); }
+
+.coin-reward-row {
+    background: linear-gradient(135deg, rgba(255,201,60,0.2), rgba(255,168,0,0.2));
+    margin: 15px -25px -25px;
+    padding: 15px 25px;
+    border-radius: 0 0 20px 20px;
+    border-top: 1px solid var(--gold);
+}
+
+.coin-reward-row .result-value { color: var(--gold); }
+
+.congrats-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 320px;
+}
+
+/* انیمیشن رنگ‌آمیزی */
+.paint-flash { animation: paintFlash 0.4s ease; }
+
+@keyframes paintFlash {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.5) drop-shadow(0 0 10px currentColor); }
+    100% { filter: brightness(1); }
+}
+
+/* Toast Message */
+.toast-message {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(30, 30, 47, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 20px 30px;
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+    color: #fff;
+    font-weight: 700;
+    z-index: 10000;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: toastIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes toastIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* مدیا کوئری برای موبایل‌های بسیار کوچک */
+@media (max-width: 360px), (max-height: 600px) {
+    .menu-title { font-size: 2rem; }
+    .pixel-character-img { width: 90px; }
+    .speech-bubble { font-size: 1rem; padding: 10px 20px; }
+    .text-frame span { font-size: 1.1rem; }
+    .loko-btn { padding: 12px; font-size: 1.1rem; }
+}
+    </style>
+</head>
+<body>
+
+<div id="app-wrapper">
+    <!-- پس‌زمینه متحرک -->
+    <div class="menu-bg">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+    </div>
+
+    <!-- نمایش سکه لوکو -->
+    <div class="coin-display">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="Coin">
+        <div class="coin-amount" id="coin-amount">۰</div>
+    </div>
+
+    <!-- صفحه منو -->
+    <div id="menu-page" class="page active">
+        <div class="menu-content">
+            <div class="menu-header">
+                <h1 class="menu-title">نقاشی بسم الله</h1>
+            </div>
+            <div class="speech-bubble">سلام! آماده‌ای رنگ‌آمیزی کنیم؟</div>
+            <div class="pixel-character-wrapper">
+                
+                <img src="/games/assets/icons/gamer.png" class="pixel-character-img" alt="Gamer Character">
+            </div>
+            
+            <div class="menu-buttons">
+                <button class="loko-btn loko-btn-primary" onclick="startNewGame()">
+                    <span>شروع بازی</span>
+                </button>
+                
+                <div class="btn-row">
+                    <button class="loko-btn loko-btn-secondary" onclick="showPage('shop-page')">
+                        <span>فروشگاه</span>
+                    </button>
+                    <button class="loko-btn loko-btn-secondary" onclick="showPage('help-page')">
+                        <span>راهنما</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه فروشگاه -->
+    <div id="shop-page" class="page">
+        <button class="back-btn" onclick="showPage('menu-page')">
+            <span>→</span><span>بازگشت</span>
+        </button>
+        
+        <div class="shop-container">
+            <div class="shop-header">
+                <h2>فروشگاه لوکو</h2>
+            </div>
+            
+            <div class="shop-tabs">
+                <div class="shop-tab active" onclick="switchShopTab('skins', this)">پوسته‌ها</div>
+                <!-- <div class="shop-tab" onclick="switchShopTab('characters', this)">کاراکترها</div> -->
+                <div class="shop-tab" onclick="switchShopTab('custom', this)">شخصی‌سازی</div>
+            </div>
+            
+            <div class="shop-items" id="shop-items-container">
+                <!-- آیتم‌ها با جاوااسکریپت لود می‌شوند -->
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه راهنما -->
+    <div id="help-page" class="page">
+        <button class="back-btn" onclick="showPage('menu-page')">
+            <span>→</span><span>بازگشت</span>
+        </button>
+        
+        <div class="help-container">
+            <div class="help-header">
+                <img src="/games/assets/icons/gamerhi.png" alt="Gamer Help">
+                <h2>راهنمای بازی</h2>
+            </div>
+            
+            <div class="help-steps">
+                <div class="help-step glass-card">
+                    <div class="step-num">۱</div>
+                    <div class="step-content">
+                        <p>یکی از رنگ‌های زرد، قرمز، سبز یا بنفش رو انتخاب کن</p>
+                    </div>
+                </div>
+                <div class="help-step glass-card">
+                    <div class="step-num">۲</div>
+                    <div class="step-content">
+                        <p>روی هر قسمت خالی بزن تا رنگ بشه</p>
+                    </div>
+                </div>
+                <div class="help-step glass-card">
+                    <div class="step-num">۳</div>
+                    <div class="step-content">
+                        <p>وقتی همه جا رو رنگ کردی، دکمه «تمام کردم» رو بزن</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه بازی -->
+    <div id="game-page" class="page">
+        <div class="game-container">
+            <div class="game-header">
+                <button class="back-btn" onclick="exitGame()">
+                    <span>→</span><span>خروج</span>
+                </button>
+                
+                <div class="game-stats">
+                    <div class="stat-box timer-box">
+                        <span>⏱️</span>
+                        <span class="stat-num" id="timer-display">۰</span>
+                    </div>
+                    <div class="stat-box moves-box">
+                        <span>🎨</span>
+                        <span class="stat-num" id="moves-display">۰</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="color-palette">
+                <div class="palette-label">رنگ مورد نظرت رو انتخاب کن:</div>
+                <div class="colors-row">
+                    <div class="color-btn" data-color="#FFD700" onclick="selectColor(this)">
+                        <div class="color-fill yellow"></div>
+                        <span>زرد</span>
+                    </div>
+                    <div class="color-btn" data-color="#E53935" onclick="selectColor(this)">
+                        <div class="color-fill red"></div>
+                        <span>قرمز</span>
+                    </div>
+                    <div class="color-btn" data-color="#4CAF50" onclick="selectColor(this)">
+                        <div class="color-fill green"></div>
+                        <span>سبز</span>
+                    </div>
+                    <div class="color-btn" data-color="#9C27B0" onclick="selectColor(this)">
+                        <div class="color-fill purple"></div>
+                        <span>بنفش</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="canvas-area">
+                <div class="drawing-frame" id="drawing-frame">
+                    <div class="bg-area paintable" data-name="پس‌زمینه" onclick="paintArea(this)"></div>
+                    
+                    <div class="main-frame">
+                        <div class="corner-decor top-right">
+                            <svg viewBox="0 0 80 80" class="flower-svg">
+                                <path class="petal paintable" data-name="گلبرگ ۱" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2"/>
+                                <path class="petal paintable" data-name="گلبرگ ۲" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(72 40 40)"/>
+                                <path class="petal paintable" data-name="گلبرگ ۳" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(144 40 40)"/>
+                                <path class="petal paintable" data-name="گلبرگ ۴" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(216 40 40)"/>
+                                <path class="petal paintable" data-name="گلبرگ ۵" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(288 40 40)"/>
+                                <circle class="flower-center paintable" data-name="مرکز گل" onclick="paintArea(this)" cx="40" cy="40" r="12" fill="#FFA000" stroke="#333" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        
+                        <div class="corner-decor top-left">
+                            <svg viewBox="0 0 80 80" class="flower-svg">
+                                <path class="petal paintable" data-name="گلبرگ ۶" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2"/>
+                                <path class="petal paintable" data-name="گلبرگ ۷" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(72 40 40)"/>
+                                <path class="petal paintable" data-name="گلبرگ ۸" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(144 40 40)"/>
+                                <path class="petal paintable" data-name="گلبرگ ۹" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(216 40 40)"/>
+                                <path class="petal paintable" data-name="گلبرگ ۱۰" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(288 40 40)"/>
+                                <circle class="flower-center paintable" data-name="مرکز گل ۲" onclick="paintArea(this)" cx="40" cy="40" r="12" fill="#FFA000" stroke="#333" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        
+                        <div class="corner-decor bottom-right">
+                            <svg viewBox="0 0 80 80" class="flower-svg">
+                                <path class="petal paintable" data-name="گلبرگ ۱۱" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2"/>
+                                <path class="petal paintable" data-name="گلبرگ ۱۲" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(72 40 40)"/>
+                                <path class="petal paintable" data-name="گلبرگ ۱۳" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(144 40 40)"/>
+                                <path class="petal paintable" data-name="گلبرگ ۱۴" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(216 40 40)"/>
+                                <path class="petal paintable" data-name="گلبرگ ۱۵" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(288 40 40)"/>
+                                <circle class="flower-center paintable" data-name="مرکز گل ۳" onclick="paintArea(this)" cx="40" cy="40" r="12" fill="#FFA000" stroke="#333" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        
+                        <div class="corner-decor bottom-left">
+                            <svg viewBox="0 0 80 80" class="flower-svg">
+                                <path class="petal paintable" data-name="گلبرگ ۱۶" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2"/>
+                                <path class="petal paintable" data-name="گلبرگ ۱۷" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(72 40 40)"/>
+                                <path class="petal paintable" data-name="گلبرگ ۱۸" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(144 40 40)"/>
+                                <path class="petal paintable" data-name="گلبرگ ۱۹" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(216 40 40)"/>
+                                <path class="petal paintable" data-name="گلبرگ ۲۰" onclick="paintArea(this)" d="M40 10 Q60 20 55 40 Q50 60 40 55 Q30 50 25 40 Q20 30 40 10" fill="#FFD700" stroke="#333" stroke-width="2" transform="rotate(288 40 40)"/>
+                                <circle class="flower-center paintable" data-name="مرکز گل ۴" onclick="paintArea(this)" cx="40" cy="40" r="12" fill="#FFA000" stroke="#333" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        
+                        <div class="shapes-container">
+                            <div class="geo-shape triangle-top paintable" data-name="مثلث بالا" onclick="paintArea(this)"></div>
+                            <div class="geo-shape triangle-bottom paintable" data-name="مثلث پایین" onclick="paintArea(this)"></div>
+                            <div class="geo-shape circle-left paintable" data-name="دایره چپ" onclick="paintArea(this)"></div>
+                            <div class="geo-shape circle-right paintable" data-name="دایره راست" onclick="paintArea(this)"></div>
+                        </div>
+                        
+                        <div class="text-area">
+                            <div class="text-frame paintable" data-name="بسم" onclick="paintArea(this)">
+                                <span>بِسْمِ اللَّهِ</span>
+                            </div>
+                            <div class="text-frame paintable" data-name="الرحمن" onclick="paintArea(this)">
+                                <span>الرَّحْمَنِ</span>
+                            </div>
+                            <div class="text-frame paintable" data-name="الرحیم" onclick="paintArea(this)">
+                                <span>الرَّحِيمِ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="progress-indicator">
+                <div class="progress-label">پیشرفت:</div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="game-progress"></div>
+                </div>
+                <div class="progress-percent" id="progress-percent">۰٪</div>
+            </div>
+            
+            <div class="game-footer">
+                <button class="reset-btn-game" onclick="resetDrawing()">
+                    <span>🔄</span><span>شروع دوباره</span>
+                </button>
+                <button class="finish-btn" onclick="finishGame()">
+                    <span>✅</span><span>تمام کردم!</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه تبریک -->
+    <div id="congrats-page" class="page">
+        <div class="congrats-container">
+            <div class="confetti-container">
+                <div class="confetti-piece" style="--delay: 0s; --x: 10%; --color: #FFD700"></div>
+                <div class="confetti-piece" style="--delay: 0.2s; --x: 20%; --color: #E53935"></div>
+                <div class="confetti-piece" style="--delay: 0.4s; --x: 30%; --color: #4CAF50"></div>
+                <div class="confetti-piece" style="--delay: 0.6s; --x: 40%; --color: #9C27B0"></div>
+                <div class="confetti-piece" style="--delay: 0.8s; --x: 50%; --color: #FFD700"></div>
+                <div class="confetti-piece" style="--delay: 1s; --x: 60%; --color: #E53935"></div>
+                <div class="confetti-piece" style="--delay: 1.2s; --x: 70%; --color: #4CAF50"></div>
+                <div class="confetti-piece" style="--delay: 1.4s; --x: 80%; --color: #9C27B0"></div>
+                <div class="confetti-piece" style="--delay: 1.6s; --x: 90%; --color: #FFD700"></div>
+            </div>
+            
+            <div class="congrats-content">
+                <div class="trophy-container">
+                    <div class="trophy-glow"></div>
+                    <div class="trophy">🏆</div>
+                </div>
+                
+                <h1 class="congrats-title">آفرین! آفرین! 🎉</h1>
+                <p class="congrats-subtitle">تو همه جا رو قشنگ رنگ کردی!</p>
+                
+                <div class="results-card glass-card">
+                    <div class="result-row">
+                        <span class="result-label">⏱️ زمان:</span>
+                        <span class="result-value" id="final-time">۰</span>
+                        <span class="result-label">ثانیه</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">🎨 رنگ‌آمیزی:</span>
+                        <span class="result-value" id="final-moves">۰</span>
+                        <span class="result-label">بار</span>
+                    </div>
+                    <div class="result-row coin-reward-row">
+                        <span class="result-label">🪙 پاداش سکه لوکو:</span>
+                        <span class="result-value" id="coin-reward">+۰</span>
+                    </div>
+                </div>
+                
+                <div class="congrats-buttons">
+                    <button class="loko-btn loko-btn-primary" onclick="playAgain()">
+                        <span>🔄</span><span>بازی دوباره</span>
+                    </button>
+                    <button class="loko-btn loko-btn-secondary" onclick="showPage('menu-page')">
+                        <span>🏠</span><span>منوی اصلی</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script src="/games/assets/luko-sdk.js"></script>
+<script>
+// ============================================
+// متغیرهای سراسری
+// ============================================
+let timerInterval = null;
+let seconds = 0;
+let moves = 0;
+let selectedColor = null;
+let selectedColorName = null;
+let isGameActive = false;
+let paintedAreas = new Set();
+let timerStarted = false;
+
+let lokoCoins = 0;
+let initialCoins = 0;
+
+const TOTAL_AREAS = 29;
+
+let stats = {
+    bestTime: null,
+    totalMoves: 0,
+    gamesPlayed: 0,
+    history: []
+};
+
+// دیتای فروشگاه
+const shopData = {
+    skins: [
+        { id: 's1', name: 'پوسته طلایی', price: 10, icon: '🎨' },
+        { id: 's2', name: 'پوسته نئونی', price: 15, icon: '✨' },
+        { id: 's3', name: 'پوسته آبی', price: 8, icon: '🔵' },
+        { id: 's4', name: 'پوسته گل‌دار', price: 12, icon: '🌸' }
+    ],
+    characters: [
+        { id: 'c1', name: 'کاراکتر ربات', price: 15, icon: '🤖' },
+        { id: 'c2', name: 'کاراکتر حیوان', price: 10, icon: '🐱' },
+        { id: 'c3', name: 'کاراکتر فضایی', price: 14, icon: '👽' },
+        { id: 'c4', name: 'کاراکتر پادشاه', price: 12, icon: '🤴' }
+    ],
+    custom: [
+        { id: 'u1', name: 'افکت رنگی', price: 9, icon: '🌈' },
+        { id: 'u2', name: 'افکت صوتی', price: 11, icon: '🎵' },
+        { id: 'u3', name: 'بک‌گراند مخصوص', price: 13, icon: '🖼️' },
+        { id: 'u4', name: 'حباب متحرک', price: 8, icon: '💭' }
+    ]
+};
+
+// ============================================
+// راه‌اندازی اولیه
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    loadCoins();
+    loadStats();
+    renderShopItems('skins');
+    playSound('pageLoad');
+    window.addEventListener('online', syncOfflineData);
+});
+
+// ============================================
+// سیستم صفحات
+// ============================================
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.classList.add('active');
+        playSound('pageChange');
+    }
+}
+
+// ============================================
+// سیستم صدا
+// ============================================
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSound(type) {
+    try {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        switch(type) {
+            case 'pageLoad':
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.4);
+                break;
+            case 'pageChange':
+                oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.15);
+                break;
+            case 'select':
+                oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.15);
+                break;
+            case 'paint':
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(783.99, audioContext.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+                break;
+            case 'complete':
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, i) => {
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.frequency.setValueAtTime(freq, audioContext.currentTime + i * 0.15);
+                    gain.gain.setValueAtTime(0.3, audioContext.currentTime + i * 0.15);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.15 + 0.3);
+                    osc.start(audioContext.currentTime + i * 0.15);
+                    osc.stop(audioContext.currentTime + i * 0.15 + 0.3);
+                });
+                break;
+            case 'error':
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.2);
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+                break;
+            case 'coin':
+                oscillator.frequency.setValueAtTime(1318.51, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+                break;
+        }
+    } catch (e) {
+        console.log('صدا پشتیبانی نمی‌شود');
+    }
+}
+
+// ============================================
+// سیستم تایمر و بازی
+// ============================================
+function startTimer() {
+    if (timerStarted) return;
+    timerStarted = true;
+    isGameActive = true;
+    timerInterval = setInterval(() => {
+        seconds++;
+        updateTimerDisplay();
+    }, 1000);
+}
+
+function stopTimer() { clearInterval(timerInterval); timerInterval = null; }
+
+function resetTimer() {
+    stopTimer();
+    seconds = 0;
+    timerStarted = false;
+    isGameActive = false;
+    updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+    const display = document.getElementById('timer-display');
+    if (display) display.textContent = toPersianNumber(seconds);
+}
+
+function incrementMoves() {
+    moves++;
+    const display = document.getElementById('moves-display');
+    if (display) display.textContent = toPersianNumber(moves);
+}
+
+function selectColor(element) {
+    document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('selected'));
+    element.classList.add('selected');
+    selectedColor = element.dataset.color;
+    selectedColorName = element.querySelector('span').textContent;
+    playSound('select');
+    startTimer();
+}
+
+function paintArea(element) {
+    if (!selectedColor) {
+        showToast('اول یک رنگ انتخاب کن!');
+        playSound('error');
+        return;
+    }
+    startTimer();
+    
+    const tagName = element.tagName.toLowerCase();
+    if (tagName === 'path' || tagName === 'circle') {
+        element.setAttribute('fill', selectedColor);
+    } else {
+        element.style.backgroundColor = selectedColor;
+        if (element.classList.contains('triangle-top')) {
+            element.style.borderBottomColor = selectedColor;
+        } else if (element.classList.contains('triangle-bottom')) {
+            element.style.borderTopColor = selectedColor;
+        }
+    }
+    
+    element.classList.add('paint-flash');
+    setTimeout(() => element.classList.remove('paint-flash'), 400);
+    
+    incrementMoves();
+    paintedAreas.add(element);
+    playSound('paint');
+    updateGameProgress();
+}
+
+function updateGameProgress() {
+    const progress = Math.min((paintedAreas.size / TOTAL_AREAS) * 100, 100);
+    const progressBar = document.getElementById('game-progress');
+    const progressPercent = document.getElementById('progress-percent');
+    if (progressBar) progressBar.style.width = progress + '%';
+    if (progressPercent) progressPercent.textContent = toPersianNumber(Math.round(progress)) + '٪';
+}
+
+function startNewGame() {
+    initialCoins = lokoCoins;
+    resetGame();
+    showPage('game-page');
+}
+
+function resetGame() {
+    resetTimer();
+    moves = 0;
+    paintedAreas.clear();
+    selectedColor = null;
+    const movesDisplay = document.getElementById('moves-display');
+    if (movesDisplay) movesDisplay.textContent = '۰';
+    document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('selected'));
+    updateGameProgress();
+    resetDrawing();
+}
+
+function resetDrawing() {
+    const bgArea = document.querySelector('.bg-area');
+    if (bgArea) bgArea.style.backgroundColor = '';
+    document.querySelectorAll('.petal').forEach(petal => petal.setAttribute('fill', '#FFD700'));
+    document.querySelectorAll('.flower-center').forEach(center => center.setAttribute('fill', '#FFA000'));
+    document.querySelectorAll('.geo-shape').forEach(shape => {
+        if (shape.classList.contains('triangle-top')) {
+            shape.style.backgroundColor = '';
+            shape.style.borderBottomColor = '#FFD700';
+        } else if (shape.classList.contains('triangle-bottom')) {
+            shape.style.backgroundColor = '';
+            shape.style.borderTopColor = '#E53935';
+        } else if (shape.classList.contains('circle-left')) {
+            shape.style.backgroundColor = '#4CAF50';
+        } else if (shape.classList.contains('circle-right')) {
+            shape.style.backgroundColor = '#9C27B0';
+        }
+    });
+    document.querySelectorAll('.text-frame').forEach(frame => frame.style.backgroundColor = '');
+    paintedAreas.clear();
+    updateGameProgress();
+}
+
+function finishGame() {
+    stopTimer();
+    LUKO.answer({ topic: 'quran-art', topicLabel: 'نقاشیِ بسم‌الله', correct: true,
+                  given: paintedAreas.size, expected: TOTAL_AREAS });
+    LUKO.finish({ painted: paintedAreas.size, total: TOTAL_AREAS });
+    const unpaintedCount = TOTAL_AREAS - paintedAreas.size;
+    if (unpaintedCount > 3) {
+        if (!confirm(`هنوز ${toPersianNumber(unpaintedCount)} قسمت رنگ نشده داری!\nآیا می‌خوای همینطوری تمام کنی؟`)) return;
+    }
+    saveGameResult();
+    awardCoins();
+    showCongratsPage();
+}
+
+function showCongratsPage() {
+    document.getElementById('final-time').textContent = toPersianNumber(seconds);
+    document.getElementById('final-moves').textContent = toPersianNumber(moves);
+    playSound('complete');
+    showPage('congrats-page');
+}
+
+// ============================================
+// سیستم سکه LOKO
+// ============================================
+function loadCoins() {
+    const saved = localStorage.getItem('lokoCoins');
+    lokoCoins = saved ? parseInt(saved) : 0;
+    updateCoinUI();
+}
+
+function updateCoinUI() {
+    const coinAmount = document.getElementById('coin-amount');
+    if (coinAmount) coinAmount.textContent = toPersianNumber(lokoCoins);
+}
+
+function awardCoins() {
+    let reward = (initialCoins === 0) ? 10 : 1;
+    lokoCoins += reward;
+    localStorage.setItem('lokoCoins', lokoCoins);
+    updateCoinUI();
+    const rewardEl = document.getElementById('coin-reward');
+    if (rewardEl) rewardEl.textContent = `+${toPersianNumber(reward)}`;
+    playSound('coin');
+}
+
+// ============================================
+// سیستم فروشگاه
+// ============================================
+function switchShopTab(category, element) {
+    document.querySelectorAll('.shop-tab').forEach(tab => tab.classList.remove('active'));
+    element.classList.add('active');
+    renderShopItems(category);
+}
+
+function renderShopItems(category) {
+    const container = document.getElementById('shop-items-container');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    shopData[category].forEach(item => {
+        const isAffordable = lokoCoins >= item.price;
+        const itemHTML = `
+            <div class="shop-item">
+                <div style="font-size: 2.5rem;">${item.icon}</div>
+                <h3>${item.name}</h3>
+                <div class="shop-item-price">
+                    <img src="/games/assets/icons/coin.png" alt="Coin">
+                    <span>${item.price}</span>
+                </div>
+                <button class="buy-btn ${!isAffordable ? 'disabled' : ''}" onclick="buyItem('${category}', '${item.id}')" ${!isAffordable ? 'disabled' : ''}>
+                    ${isAffordable ? 'خرید' : 'سکه ناکافی'}
+                </button>
+            </div>
+        `;
+        container.innerHTML += itemHTML;
+    });
+}
+
+function buyItem(category, itemId) {
+    const item = shopData[category].find(i => i.id === itemId);
+    if (!item) return;
+    
+    if (lokoCoins < item.price) {
+        showToast('سکه کافی نداری!');
+        playSound('error');
+        return;
+    }
+    
+    lokoCoins -= item.price;
+    localStorage.setItem('lokoCoins', lokoCoins);
+    updateCoinUI();
+    showToast(`${item.name} خرید شد!`);
+    playSound('coin');
+    
+    renderShopItems(category);
+}
+
+// ============================================
+// سیستم آمار (پشت صحنه)
+// ============================================
+function saveGameResult() {
+    stats.totalMoves += moves;
+    stats.gamesPlayed++;
+    if (stats.bestTime === null || seconds < stats.bestTime) {
+        stats.bestTime = seconds;
+    }
+    stats.history.unshift({
+        date: new Date().toLocaleDateString('fa-IR'),
+        time: seconds,
+        moves: moves
+    });
+    if (stats.history.length > 10) stats.history = stats.history.slice(0, 10);
+    localStorage.setItem('bismillahGameStats', JSON.stringify(stats));
+}
+
+function loadStats() {
+    const saved = localStorage.getItem('bismillahGameStats');
+    if (saved) {
+        try { stats = JSON.parse(saved); } catch (e) { console.error('خطا در بارگذاری آمار:', e); }
+    }
+}
+
+function syncOfflineData() {
+    console.log("اتصال برقرار شد. در حال همگام‌سازی داده‌ها با سرور...");
+}
+
+// ============================================
+// توابع کمکی
+// ============================================
+function playAgain() { startNewGame(); }
+
+function exitGame() {
+    if (isGameActive && paintedAreas.size > 0) {
+        if (!confirm('آیا مطمئنی می‌خوای از بازی خارج بشی؟\nپیشرفتت ذخیره نمیشه!')) return;
+    }
+    resetGame();
+    showPage('menu-page');
+}
+
+function toPersianNumber(num) {
+    const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+    return String(num).replace(/[0-9]/g, d => persianDigits[d]);
+}
+
+function showToast(message, duration = 2000) {
+    const existingToast = document.querySelector('.toast-message');
+    if (existingToast) existingToast.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.innerHTML = `<span>${message}</span>`;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'toastIn 0.3s ease reverse forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+document.addEventListener('click', function initAudio() {
+    if (audioContext.state === 'suspended') audioContext.resume();
+}, { once: true });
+
+document.addEventListener('touchstart', function initAudioTouch() {
+    if (audioContext.state === 'suspended') audioContext.resume();
+}, { once: true });
+
+document.addEventListener('touchmove', function(e) {
+    if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+    </script>
+</body>
+</html>

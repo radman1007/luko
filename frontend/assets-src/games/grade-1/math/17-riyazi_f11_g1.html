@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#051428">
+<title>ماجراجویی ماهی کوچک</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+
+:root{
+  --bg-deep:#051428;--bg-mid:#0a1f3d;--bg-light:#1a3a5c;
+  --surface:rgba(26,58,92,.7);--surface-2:rgba(40,80,120,.6);--surface-3:rgba(60,100,140,.5);
+  --border:rgba(100,180,255,.2);--border-strong:rgba(100,180,255,.4);
+  --text:#e8f1fa;--text-muted:#7da3c5;--text-dim:#5a7a95;
+  --accent:#4dd0e1;--accent-2:#26a69a;--accent-glow:rgba(77,208,225,.5);
+  --gold:#ffd700;--gold-2:#ffb300;--gold-glow:rgba(255,215,0,.5);
+  --success:#66bb6a;--success-glow:rgba(102,187,106,.5);
+  --error:#ef5350;--warning:#ffa726;--purple:#b388ff;
+  --shadow-soft:0 8px 32px rgba(0,0,0,.4);
+  --r-sm:12px;--r-md:18px;--r-lg:28px;
+}
+
+html,body{height:100%;overflow:hidden;font-family:'Tahoma','Geneva','Verdana',sans-serif;background:var(--bg-deep);color:var(--text);font-size:16px;line-height:1.5;overscroll-behavior:none}
+
+#app{position:relative;width:100vw;height:100vh;height:100dvh;overflow:hidden;max-width:500px;margin:0 auto;background:var(--bg-deep);box-shadow:0 0 80px rgba(0,0,0,.5)}
+
+.bg-effects{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bubble{position:absolute;bottom:-20px;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.5),rgba(77,208,225,.1));border-radius:50%;animation:floatUp linear infinite;border:1px solid rgba(255,255,255,.15)}
+@keyframes floatUp{0%{transform:translateY(0) translateX(0);opacity:0}10%{opacity:.6}90%{opacity:.6}100%{transform:translateY(-110vh) translateX(var(--drift,30px));opacity:0}}
+
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;visibility:hidden;transform:translateY(20px);transition:opacity .4s ease,transform .4s ease,visibility .4s;z-index:1;overflow:hidden}
+.screen.active{opacity:1;visibility:visible;transform:translateY(0)}
+
+.top-bar{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;padding-top:max(16px,env(safe-area-inset-top));position:relative;z-index:10}
+.coin-display{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,179,0,.08));border:1.5px solid rgba(255,215,0,.3);padding:8px 14px 8px 10px;border-radius:100px;box-shadow:0 4px 16px rgba(255,215,0,.15)}
+.coin-icon,.coin-icon-small{width:26px;height:26px;display:inline-block;flex-shrink:0;object-fit:contain}
+.coin-icon-small{width:20px;height:20px}
+.coin-count,#shopCoin,#gameCoin{font-weight:700;color:var(--gold);font-size:16px;letter-spacing:.5px}
+.level-badge{display:flex;flex-direction:column;align-items:center;background:var(--surface);border:1.5px solid var(--border);padding:6px 16px;border-radius:12px;font-size:12px;color:var(--text-muted)}
+.level-badge span:last-child{font-size:18px;font-weight:700;color:var(--accent)}
+
+.home-content{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;position:relative;z-index:2;gap:8px}
+.game-title{font-size:clamp(30px,8vw,42px);font-weight:900;text-align:center;line-height:1.1;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;letter-spacing:-1px;text-shadow:0 0 60px var(--accent-glow)}
+.title-accent{display:inline-block;background:linear-gradient(135deg,var(--accent) 0%,var(--purple) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.game-subtitle{font-size:13px;color:var(--text-muted);margin-bottom:24px;text-align:center}
+.character-container{position:relative;margin-bottom:24px;width:180px;height:180px;display:flex;align-items:center;justify-content:center}
+.character{width:100%;height:100%;animation:floatChar 3s ease-in-out infinite;filter:drop-shadow(0 12px 24px rgba(77,208,225,.3))}
+.character img{width:100%;height:100%;object-fit:contain}
+@keyframes floatChar{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-12px) rotate(2deg)}}
+.character-shadow{position:absolute;bottom:-10px;width:120px;height:16px;background:radial-gradient(ellipse,rgba(0,0,0,.4),transparent 70%);border-radius:50%;animation:shadowPulse 3s ease-in-out infinite}
+@keyframes shadowPulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(.85);opacity:.3}}
+
+.home-buttons{display:flex;flex-direction:column;gap:12px;width:100%;max-width:280px}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 24px;border:none;border-radius:var(--r-md);font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s ease;position:relative;overflow:hidden;color:var(--text);background:var(--surface-2);border:1.5px solid var(--border)}
+.btn:active{transform:scale(.96)}
+.btn-icon{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center}
+.btn-icon svg{width:100%;height:100%}
+.btn-primary{background:linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 100%);color:#001b22;box-shadow:0 6px 20px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,.3);border:none}
+.btn-large{padding:18px 32px;font-size:18px;border-radius:var(--r-lg)}
+.btn-secondary{background:var(--surface-2);border:1.5px solid var(--border-strong);color:var(--text);backdrop-filter:blur(10px)}
+.btn-row{display:flex;gap:12px}
+.btn-row .btn{flex:1}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--text-muted)}
+
+#gameScreen{background:var(--bg-deep)}
+.sea-container{position:absolute;inset:0;overflow:hidden}
+.sea-bg{position:absolute;inset:0;transition:background 1s ease}
+.sea-effects{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.game-top-bar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;padding-top:max(14px,env(safe-area-inset-top));z-index:20;background:linear-gradient(180deg,rgba(0,0,0,.5),transparent)}
+.icon-btn{width:42px;height:42px;border-radius:12px;background:var(--surface);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:var(--text);backdrop-filter:blur(10px)}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn svg{width:20px;height:20px}
+.level-progress{flex:1;margin:0 14px;display:flex;flex-direction:column;gap:5px;align-items:center;font-size:12px;color:#fff;font-weight:600;text-shadow:0 2px 4px rgba(0,0,0,.6)}
+.progress-bar{width:100%;height:6px;background:rgba(0,0,0,.3);border-radius:100px;overflow:hidden;border:1px solid var(--border)}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--purple));border-radius:100px;transition:width .5s ease;box-shadow:0 0 10px var(--accent-glow);width:0%}
+.coin-display-mini{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.3);border:1.5px solid rgba(255,215,0,.3);padding:6px 10px;border-radius:100px;backdrop-filter:blur(10px)}
+
+.game-area{position:absolute;top:80px;left:0;right:0;bottom:210px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;gap:8px}
+.food-side{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;width:38%;max-width:170px;padding:14px;background:rgba(0,0,0,.15);border-radius:var(--r-lg);border:1.5px solid var(--border);min-height:140px;backdrop-filter:blur(8px);transition:transform .6s ease}
+.food-item{width:36px;height:36px;animation:foodAppear .5s ease backwards;transition: transform .3s;}
+.food-item svg{width:100%;height:100%;filter:drop-shadow(0 3px 6px rgba(0,0,0,.3))}
+@keyframes foodAppear{0%{transform:scale(0) rotate(180deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+.food-item.eaten{animation:foodEaten .5s ease forwards}
+@keyframes foodEaten{0%{transform:scale(1);opacity:1}50%{transform:scale(1.3) translateY(-10px);opacity:.8}100%{transform:scale(0) translateY(-30px);opacity:0}}
+.food-item.frown{animation:frown .5s ease}
+@keyframes frown{0%,100%{transform:translateY(0)}25%{transform:translateY(-5px) rotate(-10deg)}75%{transform:translateY(-5px) rotate(10deg)}}
+.food-item.highlighted{transform:scale(1.2);filter: drop-shadow(0 0 10px var(--accent));}
+
+.comparison-zone{display:flex;align-items:center;justify-content:center;width:60px;flex-shrink:0}
+.comparison-slot{width:60px;height:60px;background:rgba(0,0,0,.3);border:2.5px dashed var(--border-strong);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:var(--text-muted);transition:all .3s ease;backdrop-filter:blur(10px)}
+.comparison-slot.filled{background:linear-gradient(135deg,var(--accent),var(--accent-2));border-style:solid;border-color:var(--accent);color:#001b22;box-shadow:0 0 24px var(--accent-glow);transform:scale(1.1)}
+.comparison-slot.error{background:linear-gradient(135deg,var(--error),#c62828);border-color:var(--error);color:#fff;box-shadow:0 0 24px rgba(239,83,80,.45)}
+.slot-placeholder{font-size:28px;opacity:.6}
+
+.fish-container{position:absolute;bottom:170px;left:50%;transform:translateX(-50%);width:120px;height:80px;z-index:5;transition:left .8s cubic-bezier(.34,1.56,.64,1),transform .3s ease}
+.fish-svg{width:100%;height:100%;filter:drop-shadow(0 8px 16px rgba(0,0,0,.4));animation:fishBreathe 2s ease-in-out infinite}
+@keyframes fishBreathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.05)}}
+.fish-container.thinking .fish-svg{animation:fishThink 1.5s ease-in-out infinite}
+@keyframes fishThink{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+.fish-container.eating{animation:fishEat .8s ease}
+@keyframes fishEat{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.2)}}
+.fish-container.flipped .fish-svg{transform:scaleX(-1)}
+
+.answer-bar{position:absolute;bottom:0;left:0;right:0;display:flex;gap:8px;padding:14px;padding-bottom:max(14px,env(safe-area-inset-bottom));background:linear-gradient(0deg,rgba(0,0,0,.6),transparent);z-index:20}
+.answer-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:12px 6px;background:var(--surface);border:1.5px solid var(--border-strong);border-radius:var(--r-md);cursor:pointer;transition:all .2s ease;color:var(--text);font-family:inherit;backdrop-filter:blur(10px);position:relative;}
+.answer-btn:active{transform:scale(.94);background:var(--surface-2)}
+.answer-btn .symbol{font-size:30px;font-weight:900;color:var(--accent);line-height:1;direction:ltr;font-family:'Arial',sans-serif}
+.answer-btn .symbol-label{font-size:10px;color:var(--text-muted);font-weight:600}
+.answer-btn.correct{background:linear-gradient(135deg,var(--success),#43a047);border-color:var(--success);animation:pulseSuccess .6s ease}
+.answer-btn.correct .symbol,.answer-btn.correct .symbol-label{color:#fff}
+.answer-btn.wrong{background:linear-gradient(135deg,var(--error),#c62828);border-color:var(--error);animation:shake .4s ease}
+.answer-btn.wrong .symbol,.answer-btn.wrong .symbol-label{color:#fff}
+.answer-btn:disabled{opacity:.5;cursor:not-allowed}
+.answer-btn.tutorial-target{box-shadow: 0 0 0 4px var(--gold), 0 0 20px var(--gold-glow); animation: btnPulse 1s infinite alternate;}
+@keyframes btnPulse { from { transform: scale(1); } to { transform: scale(1.05); } }
+@keyframes pulseSuccess{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+.screen-header{display:flex;align-items:center;gap:12px;padding:16px 18px;padding-top:max(16px,env(safe-area-inset-top));position:relative;z-index:10}
+.screen-header h2{flex:1;text-align:center;font-size:20px;font-weight:700;color:var(--text);margin-right:-40px}
+.back-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:100px;color:var(--text);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s}
+.back-btn:active{transform:scale(.94)}
+.back-btn svg{width:14px;height:14px}
+
+.help-content{flex:1;overflow-y:auto;padding:8px 18px 32px;display:flex;flex-direction:column;gap:14px;align-items:center;-webkit-overflow-scrolling:touch}
+.help-character{width:140px;height:140px;margin-bottom:4px;animation:floatChar 3s ease-in-out infinite;filter:drop-shadow(0 8px 16px rgba(77,208,225,.3))}
+.help-character img{width:100%;height:100%;object-fit:contain}
+.help-card{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-md);padding:16px;display:flex;gap:14px;position:relative;overflow:hidden;backdrop-filter:blur(10px)}
+.help-card::before{content:'';position:absolute;top:0;right:0;width:4px;height:100%;background:linear-gradient(180deg,var(--accent),var(--purple))}
+.help-card-icon{width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--accent-glow),transparent);border-radius:var(--r-sm);flex-shrink:0;padding:8px}
+.help-card-icon svg{width:100%;height:100%}
+.help-card-content{flex:1}
+.help-card h3{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px}
+.help-card p{font-size:13px;color:var(--text);line-height:1.7}
+
+.shop-tabs{display:flex;gap:6px;padding:0 18px 13px;border-bottom:1px solid var(--border)}
+.tab{flex:1;padding:10px 8px;background:transparent;border:1.5px solid var(--border);border-radius:100px;color:var(--text-muted);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.tab.active{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#001b22;border-color:var(--accent);box-shadow:0 4px 12px var(--accent-glow)}
+.shop-content{flex:1;overflow-y:auto;padding:16px 18px;-webkit-overflow-scrolling:touch}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.shop-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-md);padding:12px;display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center;position:relative;transition:all .2s;backdrop-filter:blur(10px)}
+.shop-item.owned{border-color:rgba(102,187,106,.5)}
+.shop-item.equipped{border-color:var(--accent);background:linear-gradient(135deg,rgba(77,208,225,.15),var(--surface));box-shadow:0 0 20px var(--accent-glow)}
+.shop-item-preview{width:64px;height:64px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25);border-radius:var(--r-sm);padding:6px}
+.shop-item-preview svg{width:100%;height:100%}
+.shop-item-name{font-size:12px;font-weight:600;color:var(--text);min-height:32px;display:flex;align-items:center}
+.shop-item-price{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:700;color:var(--gold)}
+.shop-item-buy{width:100%;padding:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:var(--r-sm);color:#001b22;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.shop-item-buy:active{transform:scale(.95)}
+.shop-item-buy.owned{background:rgba(102,187,106,.2);color:var(--success);cursor:default}
+.shop-item-buy.equipped{background:linear-gradient(135deg,var(--success),#43a047);color:#fff}
+.shop-item-buy:disabled{opacity:.5;cursor:not-allowed}
+.shop-badge{position:absolute;top:8px;left:8px;font-size:9px;font-weight:700;padding:3px 8px;border-radius:100px;background:var(--success);color:#fff}
+.shop-badge.equipped{background:var(--accent)}
+
+.levels-grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px;align-content:start;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.level-card{aspect-ratio:1;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.level-card.unlocked{background:linear-gradient(135deg,var(--surface),var(--surface-2));border-color:var(--border-strong)}
+.level-card.unlocked:active{transform:scale(.95)}
+.level-card.locked{opacity:0.6;cursor:not-allowed;background:rgba(0,0,0,.2)}
+.level-card .level-num{font-size:32px;font-weight:900;color:var(--accent);text-shadow:0 0 10px var(--accent-glow)}
+.level-card.locked .level-num{color:var(--text-dim);text-shadow:none}
+.level-card .lock-icon{width:28px;height:28px;color:var(--text-dim)}
+.level-card .level-stars{display:flex;gap:2px}
+.level-card .star{width:12px;height:12px;color:#444}
+.level-card .star.filled{color:var(--gold)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;visibility:hidden;transition:all .3s ease;padding:20px}
+.modal-overlay.active{opacity:1;visibility:visible}
+.modal-card{background:linear-gradient(135deg,var(--bg-mid),var(--bg-light));border:1.5px solid var(--border-strong);border-radius:var(--r-lg);padding:28px 24px;max-width:360px;width:100%;text-align:center;box-shadow:var(--shadow-soft);transform:scale(.9);transition:transform .3s ease;position:relative;overflow:hidden}
+.modal-overlay.active .modal-card{transform:scale(1)}
+.modal-card h2{font-size:24px;font-weight:800;margin-bottom:12px;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.modal-card p{font-size:14px;color:var(--text-muted);margin-bottom:20px;line-height:1.6}
+.modal-buttons{display:flex;flex-direction:column;gap:10px}
+.message-icon{width:64px;height:64px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;border-radius:50%;padding:14px}
+.message-icon.success{background:linear-gradient(135deg,var(--success),#43a047);box-shadow:0 0 30px var(--success-glow);animation:pulseSuccess .6s ease}
+.message-icon.error{background:linear-gradient(135deg,var(--warning),#f57c00);box-shadow:0 0 30px rgba(255,167,38,.45);animation:shake .4s ease}
+.message-icon svg{width:100%;height:100%}
+.message-text{font-size:15px;color:var(--text);line-height:1.7;margin-bottom:20px;padding:14px;background:rgba(0,0,0,.25);border-radius:var(--r-md);border:1px solid var(--border)}
+.reward-box{display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,215,0,.1);border:1.5px solid rgba(255,215,0,.3);padding:10px 20px;border-radius:100px;margin-bottom:20px;font-size:18px;font-weight:700;color:var(--gold)}
+
+/* Tutorial Overlay */
+.tutorial-overlay{position:fixed;inset:0;z-index:90;pointer-events:none}
+.tutorial-hand{position:absolute;width:50px;height:50px;transform:translate(-50%,-50%);transition:all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);color:var(--gold);filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));}
+.tutorial-hand svg{width:100%;height:100%;animation:tutBounce 1s infinite;}
+@keyframes tutBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
+.tutorial-text{position:absolute;background:var(--surface);padding:12px 20px;border-radius:20px;border:1.5px solid var(--accent);color:var(--text);font-weight:700;font-size:14px;box-shadow:0 4px 20px rgba(0,0,0,.3);backdrop-filter:blur(10px);transform:translate(-50%, 20px);transition:opacity .3s;text-align:center;max-width:220px}
+.tutorial-text::before{content:'';position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid var(--accent)}
+
+.rain-drop{position:absolute;width:2px;height:25px;background:linear-gradient(to bottom,transparent,rgba(180,220,255,.6));animation:rainFall linear infinite}
+@keyframes rainFall{0%{transform:translateY(-30px);opacity:0}10%{opacity:.8}100%{transform:translateY(110vh);opacity:0}}
+.lightning-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;animation:lightningFlash 7s infinite}
+@keyframes lightningFlash{0%,93%,100%{opacity:0}94%,96%{opacity:.7}95%{opacity:0}}
+.bubble-rise{position:absolute;bottom:0;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.6),rgba(180,220,255,.2));border-radius:50%;animation:bubbleRise linear infinite;border:1px solid rgba(255,255,255,.2)}
+@keyframes bubbleRise{0%{transform:translateY(0) scale(.5);opacity:0}20%{opacity:.8}100%{transform:translateY(-110vh) scale(1.5);opacity:0}}
+.wave-layer{position:absolute;width:200%;height:80px;bottom:0;left:0;opacity:.3;pointer-events:none}
+.wave-layer svg{width:100%;height:100%}
+.wave-layer.wave-1{animation:waveMove 8s linear infinite;opacity:.3;bottom:0}
+.wave-layer.wave-2{animation:waveMove 12s linear infinite reverse;opacity:.2;bottom:30px}
+@keyframes waveMove{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle 3s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.3}50%{opacity:1}}
+.fog-layer{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent,rgba(200,210,220,.3));animation:fogMove 15s ease-in-out infinite}
+@keyframes fogMove{0%,100%{opacity:.6}50%{opacity:.9}}
+
+@media (max-width:360px){
+  .game-title{font-size:26px}
+  .character-container{width:140px;height:140px}
+  .food-item{width:30px;height:30px}
+  .answer-btn .symbol{font-size:24px}
+  .shop-grid{grid-template-columns:1fr}
+  .fish-container{width:90px;height:55px}
+}
+@media (min-width:768px){
+  #app{max-width:480px}
+  .game-title{font-size:46px}
+  .character-container{width:200px;height:200px}
+  .shop-grid{grid-template-columns:repeat(3,1fr)}
+}
+
+.scrollable{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.scrollable::-webkit-scrollbar{width:4px}
+.scrollable::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:4px}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--surface);border:1.5px solid var(--border-strong);padding:12px 20px;border-radius:100px;color:var(--text);font-size:13px;font-weight:600;z-index:300;transition:transform .4s ease;backdrop-filter:blur(10px);box-shadow:var(--shadow-soft)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+audio{display:none}
+</style>
+</head>
+<body>
+<audio id="bgMusic" src="/games/assets/musics/forest.mp3" loop preload="auto"></audio>
+
+<div id="app">
+  <div class="bg-effects" id="bgEffects"></div>
+  
+  <section id="homeScreen" class="screen active">
+    <header class="top-bar">
+      <div class="coin-display">
+        <img src="/games/assets/icons/coin.png" class="coin-icon" alt="سکه">
+        <span class="coin-count" id="coinCountHome">0</span>
+      </div>
+      <div class="level-badge">
+        <span>مرحله</span>
+        <span id="homeLevel">1</span>
+      </div>
+    </header>
+    <div class="home-content">
+      <h1 class="game-title">ماجراجویی<br><span class="title-accent">ماهی کوچک</span></h1>
+      <p class="game-subtitle">یادگیری علامت‌های بزرگتر، کوچکتر و مساوی</p>
+      <div class="character-container">
+        <div class="character" id="mainCharacter"></div>
+        <div class="character-shadow"></div>
+      </div>
+      <div class="home-buttons">
+        <button class="btn btn-primary btn-large" id="startBtn">
+          <span class="btn-icon" id="startIcon"></span>
+          <span>شروع بازی</span>
+        </button>
+        <div class="btn-row">
+          <button class="btn btn-secondary" id="shopBtn">
+            <span class="btn-icon" id="shopIcon"></span>
+            <span>فروشگاه</span>
+          </button>
+          <button class="btn btn-secondary" id="helpBtn">
+            <span class="btn-icon" id="helpIcon"></span>
+            <span>راهنما</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="levelSelectScreen" class="screen">
+    <header class="screen-header">
+      <button class="back-btn" id="levelSelectBackBtn"><span id="backIcon3"></span><span>بازگشت</span></button>
+      <h2>انتخاب مرحله</h2>
+    </header>
+    <div class="levels-grid" id="levelsGrid"></div>
+  </section>
+
+  <section id="gameScreen" class="screen">
+    <div class="sea-container">
+      <div class="sea-bg" id="seaBg"></div>
+      <div class="sea-effects" id="seaEffects"></div>
+      <header class="game-top-bar">
+        <button class="icon-btn" id="stopBtn" aria-label="توقف"></button>
+        <div class="level-progress">
+          <span>مرحله <span id="gameLevel">1</span></span>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+        <div class="coin-display-mini">
+          <img src="/games/assets/icons/coin.png" class="coin-icon-small" alt="سکه">
+          <span id="gameCoin">0</span>
+        </div>
+      </header>
+      <div class="game-area">
+        <div class="food-side" id="foodLeft"></div>
+        <div class="comparison-zone">
+          <div class="comparison-slot" id="comparisonSlot">
+            <span class="slot-placeholder">؟</span>
+          </div>
+        </div>
+        <div class="food-side" id="foodRight"></div>
+      </div>
+      <div class="fish-container" id="fishContainer"></div>
+      <div class="answer-bar">
+        <button class="answer-btn" data-symbol=">">
+          <span class="symbol">&gt;</span>
+          <span class="symbol-label">بزرگتر</span>
+        </button>
+        <button class="answer-btn" data-symbol="=">
+          <span class="symbol">=</span>
+          <span class="symbol-label">مساوی</span>
+        </button>
+        <button class="answer-btn" data-symbol="<">
+          <span class="symbol">&lt;</span>
+          <span class="symbol-label">کوچکتر</span>
+        </button>
+      </div>
+      <div class="tutorial-overlay" id="tutorialOverlay" style="display:none">
+        <div class="tutorial-hand" id="tutorialHand"></div>
+        <div class="tutorial-text" id="tutorialText"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="helpScreen" class="screen">
+    <header class="screen-header">
+      <button class="back-btn" id="helpBackBtn"><span id="backIcon1"></span><span>بازگشت</span></button>
+      <h2>راهنمای بازی</h2>
+    </header>
+    <div class="help-content">
+      <div class="help-character" id="helpCharacter"></div>
+      <div class="help-card">
+        <div class="help-card-icon" id="helpIcon1"></div>
+        <div class="help-card-content">
+          <h3>چگونه بازی کنیم؟</h3>
+          <p>در هر مرحله، یک سطل حاوی خوراکی‌ها در دریا ریخته می‌شود. امواج، آن‌ها را به دو دسته چپ و راست تقسیم می‌کنند.</p>
+        </div>
+      </div>
+      <div class="help-card">
+        <div class="help-card-icon" id="helpIcon2"></div>
+        <div class="help-card-content">
+          <h3>هدف تو چیست؟</h3>
+          <p>تعداد خوراکی‌های هر دسته را بشمار و علامت درست را بین آن‌ها قرار بده: بزرگتر (&gt;)، کوچکتر (&lt;) یا مساوی (=).</p>
+        </div>
+      </div>
+      <div class="help-card">
+        <div class="help-card-icon" id="helpIcon3"></div>
+        <div class="help-card-content">
+          <h3>پاداش‌ها</h3>
+          <p>برای اولین برد ۱۰ سکه می‌گیری و برای برد‌های بعدی ۱ سکه. با سکه‌ها می‌توانی پوسته‌ها و کاراکترهای جدید بخری!</p>
+        </div>
+      </div>
+      <div class="help-card">
+        <div class="help-card-icon" id="helpIcon4"></div>
+        <div class="help-card-content">
+          <h3>۱۰ مرحله هیجان‌انگیز</h3>
+          <p>در هر مرحله دریا تغییر می‌کند و اعداد بزرگتر می‌شوند. آماده‌ای برای ماجراجویی؟</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="shopScreen" class="screen">
+    <header class="screen-header">
+      <button class="back-btn" id="shopBackBtn"><span id="backIcon2"></span><span>بازگشت</span></button>
+      <h2>فروشگاه</h2>
+      <div class="coin-display" style="padding:6px 10px">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-small" alt="سکه">
+        <span id="shopCoin">0</span>
+      </div>
+    </header>
+    <div class="shop-tabs">
+      <button class="tab active" data-tab="skins">پوسته‌ها</button>
+      <button class="tab" data-tab="characters">کاراکترها</button>
+      <button class="tab" data-tab="custom">شخصی‌سازی</button>
+    </div>
+    <div class="shop-content scrollable">
+      <div class="tab-content active" id="tab-skins"><div class="shop-grid" id="skinsGrid"></div></div>
+      <div class="tab-content" id="tab-characters"><div class="shop-grid" id="charactersGrid"></div></div>
+      <div class="tab-content" id="tab-custom"><div class="shop-grid" id="customGrid"></div></div>
+    </div>
+  </section>
+
+  <div class="modal-overlay" id="pauseModal">
+    <div class="modal-card">
+      <h2>بازی متوقف شد</h2>
+      <p>می‌خواهی ادامه بدهی یا از نو شروع کنی؟</p>
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="resumeBtn">ادامه بازی</button>
+        <button class="btn btn-secondary" id="restartBtn">شروع مجدد</button>
+        <button class="btn btn-ghost" id="exitBtn">بازگشت به منو</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="messageModal">
+    <div class="modal-card" id="messageCard"></div>
+  </div>
+
+  <div class="modal-overlay" id="levelCompleteModal">
+    <div class="modal-card" id="levelCompleteCard"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="/games/assets/luko-sdk.js"></script>
+<script>
+const SVG = {
+  play: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
+  shop: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,
+  help: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  back: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`,
+  pause: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`,
+  check: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  warning: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  trophy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
+  fish: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8 2 4 6 4 12s4 10 8 10 8-4 8-10-4-10-8-10zm-2 7a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>`,
+  target: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+  sparkles: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.5 5.5L19 9l-5.5 1.5L12 16l-1.5-5.5L5 9l5.5-1.5z"/><path d="M19 14l.75 2.75L22.5 17.5l-2.75.75L19 21l-.75-2.75L15.5 17.5l2.75-.75z"/></svg>`,
+  wave: `<svg viewBox="0 0 1200 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,40 C150,80 300,0 600,40 C900,80 1050,0 1200,40 L1200,80 L0,80 Z" fill="currentColor"/></svg>`,
+  lock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+  star: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
+  hand: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 11V5.5C9 4.67 9.67 4 10.5 4S12 4.67 12 5.5V10h1V3.5C13 2.67 13.67 2 14.5 2S16 2.67 16 3.5V10h1V4.5C17 3.67 17.67 3 18.5 3S20 3.67 20 4.5V12c0 4.42-3.58 8-8 8s-8-3.58-8-8v-2.5C4 6.67 4.67 6 5.5 6S7 6.67 7 7.5V11h2z"/></svg>`
+};
+
+const FOODS = {
+  cake: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="cake1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffd1dc"/><stop offset="100%" stop-color="#ff8fab"/></linearGradient></defs><path d="M5 20 L35 20 L35 35 Q35 37 33 37 L7 37 Q5 37 5 35 Z" fill="#f4a460"/><path d="M5 20 L35 20 L35 25 L5 25 Z" fill="url(#cake1)"/><circle cx="12" cy="16" r="2.5" fill="#ff1744"/><circle cx="20" cy="14" r="2.5" fill="#ffeb3b"/><circle cx="28" cy="16" r="2.5" fill="#4caf50"/><path d="M5 25 L35 25" stroke="#fff" stroke-width="1" opacity="0.5"/></svg>`,
+  cookie: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cookie1" cx="35%" cy="35%"><stop offset="0%" stop-color="#e0c088"/><stop offset="100%" stop-color="#a87446"/></radialGradient></defs><circle cx="20" cy="20" r="16" fill="url(#cookie1)"/><circle cx="13" cy="14" r="2.5" fill="#4a2c17"/><circle cx="26" cy="15" r="2" fill="#4a2c17"/><circle cx="17" cy="25" r="2.5" fill="#4a2c17"/><circle cx="28" cy="26" r="2" fill="#4a2c17"/><circle cx="22" cy="10" r="1.5" fill="#4a2c17"/></svg>`,
+  donut: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="donut1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff80ab"/><stop offset="100%" stop-color="#f06292"/></linearGradient></defs><circle cx="20" cy="20" r="16" fill="url(#donut1)"/><circle cx="20" cy="20" r="6" fill="#3e2723"/><circle cx="13" cy="14" r="1.5" fill="#ffeb3b"/><circle cx="28" cy="13" r="1.5" fill="#4fc3f7"/><circle cx="26" cy="26" r="1.5" fill="#fff59d"/><circle cx="12" cy="26" r="1.5" fill="#aed581"/></svg>`,
+  bread: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bread1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e6c590"/><stop offset="100%" stop-color="#a87446"/></linearGradient></defs><ellipse cx="20" cy="22" rx="16" ry="11" fill="url(#bread1)"/><path d="M 8 18 Q 12 14 20 16 Q 28 14 32 18" stroke="#8b6914" stroke-width="1.5" fill="none" opacity="0.5"/><ellipse cx="14" cy="20" rx="2" ry="1" fill="#8b6914" opacity="0.3"/><ellipse cx="24" cy="19" rx="2" ry="1" fill="#8b6914" opacity="0.3"/></svg>`,
+  candy: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="candy1" cx="30%" cy="30%"><stop offset="0%" stop-color="#ff8a80"/><stop offset="100%" stop-color="#c62828"/></radialGradient></defs><circle cx="20" cy="20" r="9" fill="url(#candy1)"/><path d="M 6 14 L 12 18 M 6 26 L 12 22 M 34 14 L 28 18 M 34 26 L 28 22" stroke="#4dd0e1" stroke-width="3" stroke-linecap="round"/><path d="M 15 17 Q 20 19 25 17" stroke="#fff" stroke-width="1.5" fill="none" opacity="0.7"/></svg>`
+};
+
+function fishSVG(colors, id) {
+  return `<svg class="fish-svg" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="fg${id}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${colors.light}"/>
+        <stop offset="100%" stop-color="${colors.dark}"/>
+      </linearGradient>
+      <radialGradient id="fg${id}g" cx="30%" cy="30%" r="70%">
+        <stop offset="0%" stop-color="${colors.light}"/>
+        <stop offset="100%" stop-color="${colors.dark}"/>
+      </radialGradient>
+    </defs>
+    <path d="M 130 60 L 185 25 Q 195 60 185 95 Z" fill="${colors.dark}"/>
+    <path d="M 130 60 L 175 35 Q 180 60 175 85 Z" fill="${colors.light}" opacity="0.6"/>
+    <ellipse cx="80" cy="60" rx="60" ry="38" fill="url(#fg${id}g)"/>
+    <path d="M 60 25 Q 80 0 100 25 Z" fill="${colors.dark}"/>
+    <path d="M 65 25 Q 80 10 95 25 Z" fill="${colors.light}" opacity="0.7"/>
+    <path d="M 65 95 Q 80 115 95 95 Z" fill="${colors.dark}"/>
+    <circle cx="45" cy="55" r="9" fill="#fff"/>
+    <circle cx="47" cy="56" r="5.5" fill="#1a1a2e"/>
+    <circle cx="48" cy="54" r="2" fill="#fff"/>
+    <path d="M 25 65 Q 30 75 45 70" stroke="${colors.dark}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M 70 45 Q 80 55 90 45 M 90 45 Q 100 55 110 45 M 70 60 Q 80 70 90 60 M 90 60 Q 100 70 110 60 M 70 75 Q 80 85 90 75 M 90 75 Q 100 85 110 75" stroke="${colors.dark}" stroke-width="1.5" fill="none" opacity="0.3"/>
+  </svg>`;
+}
+
+const SEA_LEVELS = [
+  {name:'دریای آرام',bg:'linear-gradient(180deg,#1976d2 0%,#0d47a1 50%,#01243a 100%)',effect:'calm',wave:'#42a5f5'},
+  {name:'دریای عمیق',bg:'linear-gradient(180deg,#1a237e 0%,#000051 50%,#000000 100%)',effect:'bubbles',wave:'#534bae'},
+  {name:'دریای بارانی',bg:'linear-gradient(180deg,#455a64 0%,#263238 50%,#0a0e12 100%)',effect:'rain',wave:'#607d8b'},
+  {name:'دریای طوفانی',bg:'linear-gradient(180deg,#37474f 0%,#263238 50%,#0a0e12 100%)',effect:'storm',wave:'#546e7a'},
+  {name:'دریای رعدوبرق',bg:'linear-gradient(180deg,#1a237e 0%,#0d47a1 50%,#000000 100%)',effect:'lightning',wave:'#3949ab'},
+  {name:'دریای جوشان',bg:'linear-gradient(180deg,#00838f 0%,#006064 50%,#003540 100%)',effect:'bubbles',wave:'#26c6da'},
+  {name:'دریای غروب',bg:'linear-gradient(180deg,#ff7043 0%,#c2185b 50%,#4a148c 100%)',effect:'calm',wave:'#ff8a65'},
+  {name:'دریای شب پرستاره',bg:'linear-gradient(180deg,#0a0e27 0%,#050817 50%,#000000 100%)',effect:'stars',wave:'#3949ab'},
+  {name:'دریای مه‌آلود',bg:'linear-gradient(180deg,#90a4ae 0%,#607d8b 50%,#37474f 100%)',effect:'fog',wave:'#b0bec5'},
+  {name:'دریای نهایی',bg:'linear-gradient(180deg,#00bcd4 0%,#3f51b5 50%,#1a237e 100%)',effect:'lightning',wave:'#4dd0e1'}
+];
+
+const FISH_TYPES = [
+  {id:'f1',name:'ماهی قرمز',light:'#ff8a80',dark:'#c62828'},
+  {id:'f2',name:'ماهی نارنجی',light:'#ffab91',dark:'#e64a19'},
+  {id:'f3',name:'ماهی زرد',light:'#fff59d',dark:'#f9a825'},
+  {id:'f4',name:'ماهی سبز',light:'#a5d6a7',dark:'#2e7d32'},
+  {id:'f5',name:'ماهی آبی',light:'#81d4fa',dark:'#0277bd'},
+  {id:'f6',name:'ماهی بنفش',light:'#ce93d8',dark:'#6a1b9a'},
+  {id:'f7',name:'ماهی صورتی',light:'#f8bbd0',dark:'#ad1457'},
+  {id:'f8',name:'ماهی فیروزه‌ای',light:'#80deea',dark:'#00838f'}
+];
+
+const SHOP_ITEMS = {
+  skins: [
+    {id:'skin_default',name:'پوسته پیش‌فرض',price:0,bg:'linear-gradient(180deg,#1976d2,#0d47a1)'},
+    {id:'skin_sunset',name:'پوسته غروب',price:8,bg:'linear-gradient(180deg,#ff7043,#c2185b)'},
+    {id:'skin_night',name:'پوسته شب',price:12,bg:'linear-gradient(180deg,#0a0e27,#000000)'},
+    {id:'skin_coral',name:'پوسته مرجانی',price:13,bg:'linear-gradient(180deg,#ec407a,#4a148c)'},
+    {id:'skin_neon',name:'پوسته نئونی',price:15,bg:'linear-gradient(180deg,#6a1b9a,#1a0033)'},
+    {id:'skin_ice',name:'پوسته یخی',price:14,bg:'linear-gradient(180deg,#b3e5fc,#0277bd)'}
+  ],
+  characters: [
+    {id:'char_default',name:'ماهی قرمز',price:0,fishId:'f1'},
+    {id:'char_yellow',name:'ماهی زرد',price:8,fishId:'f3'},
+    {id:'char_blue',name:'ماهی آبی',price:10,fishId:'f5'},
+    {id:'char_purple',name:'ماهی بنفش',price:12,fishId:'f6'},
+    {id:'char_pink',name:'ماهی صورتی',price:11,fishId:'f7'},
+    {id:'char_green',name:'ماهی سبز',price:9,fishId:'f4'}
+  ],
+  custom: [
+    {id:'food_default',name:'کیک پیش‌فرض',price:0,food:'cake'},
+    {id:'food_cookie',name:'کوکی',price:8,food:'cookie'},
+    {id:'food_donut',name:'دونات',price:10,food:'donut'},
+    {id:'food_bread',name:'نان',price:8,food:'bread'},
+    {id:'food_candy',name:'آبنبات',price:11,food:'candy'},
+    {id:'food_mix',name:'چندقلبی',price:15,food:'mix'}
+  ]
+};
+
+const state = {
+  screen: 'home',
+  coins: 0,
+  currentLevel: 1,
+  unlockedLevel: 1,
+  totalLevels: 10,
+  currentFishIndex: 0,
+  leftCount: 0,
+  rightCount: 0,
+  currentFood: 'cake',
+  currentFish: 'f1',
+  paused: false,
+  savedGameState: null,
+  ownedItems: ['skin_default','char_default','food_default'],
+  equippedItems: {skins:'skin_default',characters:'char_default',custom:'food_default'},
+  metrics: { responseTimes: [], correctAnswers: 0, wrongAnswers: 0, totalQuestions: 0, levelStartTime: null, questionStartTime: null },
+  audioCtx: null,
+  musicOn: true,
+  tutorialActive: false,
+  tutorialStep: 0
+};
+
+const STORAGE_KEY = 'fishGameData_v3';
+const METRICS_KEY = 'fishGameMetrics_v3';
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      coins: state.coins,
+      ownedItems: state.ownedItems,
+      equippedItems: state.equippedItems,
+      unlockedLevel: state.unlockedLevel,
+      musicOn: state.musicOn
+    }));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if (data.coins !== undefined) state.coins = data.coins;
+    if (data.ownedItems) state.ownedItems = data.ownedItems;
+    if (data.equippedItems) state.equippedItems = data.equippedItems;
+    if (data.unlockedLevel) state.unlockedLevel = data.unlockedLevel;
+    if (data.musicOn !== undefined) state.musicOn = data.musicOn;
+  } catch(e) {}
+}
+
+function saveMetrics() {
+  try {
+    const m = state.metrics;
+    const total = m.correctAnswers + m.wrongAnswers;
+    const avgTime = m.responseTimes.length > 0 ? Math.round(m.responseTimes.reduce((a,b)=>a+b,0) / m.responseTimes.length) : 0;
+    const progress = Math.round((state.currentLevel - 1) / state.totalLevels * 100);
+    const data = { correct: m.correctAnswers, wrong: m.wrongAnswers, total: total, avgResponseTime: avgTime, progress: progress, timestamp: Date.now() };
+    const all = JSON.parse(localStorage.getItem(METRICS_KEY) || '[]');
+    all.push(data);
+    localStorage.setItem(METRICS_KEY, JSON.stringify(all));
+  } catch(e) {}
+}
+
+function initAudio() {
+  if (!state.audioCtx) {
+    try { state.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  const bgMusic = document.getElementById('bgMusic');
+  if (bgMusic && state.musicOn) {
+    bgMusic.volume = 0.4;
+    bgMusic.play().catch(e => {});
+  }
+}
+
+function playSound(type) {
+  if (!state.audioCtx) initAudio();
+  if (!state.audioCtx) return;
+  const ctx = state.audioCtx;
+  const now = ctx.currentTime;
+  
+  if (type === 'click') {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(800, now);
+    osc.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+    osc.start(now); osc.stop(now + 0.1);
+  } else if (type === 'success') {
+    [523, 659, 784].forEach((freq, i) => {
+      const osc = ctx.createOscillator(); const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq; osc.type = 'triangle';
+      gain.gain.setValueAtTime(0, now + i * 0.08);
+      gain.gain.linearRampToValueAtTime(0.1, now + i * 0.08 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.2);
+      osc.start(now + i * 0.08); osc.stop(now + i * 0.08 + 0.2);
+    });
+  } else if (type === 'error') {
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(300, now);
+    osc.frequency.exponentialRampToValueAtTime(150, now + 0.3);
+    osc.type = 'sawtooth';
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    osc.start(now); osc.stop(now + 0.3);
+  } else if (type === 'coin') {
+    [988, 1319].forEach((freq, i) => {
+      const osc = ctx.createOscillator(); const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq; osc.type = 'square';
+      gain.gain.setValueAtTime(0, now + i * 0.06);
+      gain.gain.linearRampToValueAtTime(0.06, now + i * 0.06 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.15);
+      osc.start(now + i * 0.06); osc.stop(now + i * 0.06 + 0.15);
+    });
+  } else if (type === 'eat') {
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+    osc.start(now); osc.stop(now + 0.2);
+  } else if (type === 'victory') {
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      const osc = ctx.createOscillator(); const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq; osc.type = 'triangle';
+      gain.gain.setValueAtTime(0, now + i * 0.12);
+      gain.gain.linearRampToValueAtTime(0.12, now + i * 0.12 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.3);
+      osc.start(now + i * 0.12); osc.stop(now + i * 0.12 + 0.3);
+    });
+  }
+}
+
+function toPersianNum(n) { return String(n).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]); }
+function $(id) { return document.getElementById(id); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+  state.screen = id.replace('Screen','');
+  playSound('click');
+}
+
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function createBubbles(container, count = 15) {
+  container.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const size = 4 + Math.random() * 16;
+    b.style.width = size + 'px';
+    b.style.height = size + 'px';
+    b.style.left = Math.random() * 100 + '%';
+    b.style.animationDuration = (8 + Math.random() * 8) + 's';
+    b.style.animationDelay = Math.random() * 10 + 's';
+    b.style.setProperty('--drift', (Math.random() * 100 - 50) + 'px');
+    container.appendChild(b);
+  }
+}
+
+function applySeaEffect(container, effect, waveColor) {
+  container.innerHTML = '';
+  const w1 = document.createElement('div');
+  w1.className = 'wave-layer wave-1';
+  w1.innerHTML = SVG.wave;
+  w1.style.color = waveColor;
+  container.appendChild(w1);
+  const w2 = document.createElement('div');
+  w2.className = 'wave-layer wave-2';
+  w2.innerHTML = SVG.wave;
+  w2.style.color = waveColor;
+  container.appendChild(w2);
+  
+  if (effect === 'rain' || effect === 'storm') {
+    const count = effect === 'storm' ? 80 : 50;
+    for (let i = 0; i < count; i++) {
+      const d = document.createElement('div');
+      d.className = 'rain-drop';
+      d.style.left = Math.random() * 100 + '%';
+      d.style.animationDuration = (0.5 + Math.random() * 0.5) + 's';
+      d.style.animationDelay = Math.random() * 2 + 's';
+      container.appendChild(d);
+    }
+  }
+  if (effect === 'lightning') {
+    const l = document.createElement('div');
+    l.className = 'lightning-flash';
+    container.appendChild(l);
+    for (let i = 0; i < 40; i++) {
+      const d = document.createElement('div');
+      d.className = 'rain-drop';
+      d.style.left = Math.random() * 100 + '%';
+      d.style.animationDuration = (0.5 + Math.random() * 0.5) + 's';
+      d.style.animationDelay = Math.random() * 2 + 's';
+      container.appendChild(d);
+    }
+  }
+  if (effect === 'bubbles') {
+    for (let i = 0; i < 25; i++) {
+      const b = document.createElement('div');
+      b.className = 'bubble-rise';
+      const size = 6 + Math.random() * 20;
+      b.style.width = size + 'px';
+      b.style.height = size + 'px';
+      b.style.left = Math.random() * 100 + '%';
+      b.style.animationDuration = (4 + Math.random() * 4) + 's';
+      b.style.animationDelay = Math.random() * 4 + 's';
+      container.appendChild(b);
+    }
+  }
+  if (effect === 'stars') {
+    for (let i = 0; i < 40; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const size = 1 + Math.random() * 3;
+      s.style.width = size + 'px';
+      s.style.height = size + 'px';
+      s.style.left = Math.random() * 100 + '%';
+      s.style.top = Math.random() * 70 + '%';
+      s.style.animationDelay = Math.random() * 3 + 's';
+      container.appendChild(s);
+    }
+  }
+  if (effect === 'fog') {
+    const f = document.createElement('div');
+    f.className = 'fog-layer';
+    container.appendChild(f);
+  }
+}
+
+function renderLevels() {
+  const grid = $('levelsGrid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= state.totalLevels; i++) {
+    const card = document.createElement('div');
+    const isUnlocked = i <= state.unlockedLevel;
+    card.className = 'level-card ' + (isUnlocked ? 'unlocked' : 'locked');
+    card.innerHTML = `
+      ${isUnlocked ? `<div class="level-num">${toPersianNum(i)}</div>` : `<div class="lock-icon">${SVG.lock}</div>`}
+      <div class="level-label">${isUnlocked ? 'مرحله' : 'قفل'}</div>
+    `;
+    if (isUnlocked) {
+      card.addEventListener('click', () => {
+        playSound('click');
+        startLevel(i);
+      });
+    }
+    grid.appendChild(card);
+  }
+}
+
+function getLevelConfig(level) {
+  return { maxNum: Math.min(12, 2 + level), fishCount: Math.min(7, 3 + Math.floor(level / 2)) };
+}
+
+function startLevel(levelNum) {
+  state.currentLevel = levelNum;
+  state.currentFishIndex = 0;
+  state.metrics.levelStartTime = Date.now();
+  
+  const seaConfig = SEA_LEVELS[(levelNum - 1) % SEA_LEVELS.length];
+  $('seaBg').style.background = seaConfig.bg;
+  applySeaEffect($('seaEffects'), seaConfig.effect, seaConfig.waveColor);
+  
+  updateProgressBar();
+  showScreen('gameScreen');
+  setTimeout(() => nextFish(), 400);
+}
+
+function updateProgressBar() {
+  const config = getLevelConfig(state.currentLevel);
+  const totalFish = config.fishCount;
+  const currentFish = state.currentFishIndex;
+  const percent = (currentFish / totalFish) * 100;
+  $('progressFill').style.width = percent + '%';
+  $('gameLevel').textContent = toPersianNum(state.currentLevel);
+}
+
+function nextFish() {
+  const config = getLevelConfig(state.currentLevel);
+  if (state.currentFishIndex >= config.fishCount) {
+    completeLevel();
+    return;
+  }
+  
+  state.currentFishIndex++;
+  state.metrics.questionStartTime = Date.now();
+  state.metrics.totalQuestions++;
+  
+  state.leftCount = Math.floor(Math.random() * (config.maxNum - 1)) + 1;
+  state.rightCount = Math.floor(Math.random() * (config.maxNum - 1)) + 1;
+  
+  if (Math.random() < 0.25) {
+    state.rightCount = state.leftCount;
+  } else if (state.leftCount === state.rightCount) {
+    state.rightCount = state.rightCount + 1 <= config.maxNum ? state.rightCount + 1 : state.rightCount - 1;
+  }
+  
+  const equippedFood = state.equippedItems.custom;
+  const foodItem = SHOP_ITEMS.custom.find(f => f.id === equippedFood);
+  if (foodItem && foodItem.food === 'mix') {
+    const foodKeys = Object.keys(FOODS);
+    state.currentFood = foodKeys[Math.floor(Math.random() * foodKeys.length)];
+  } else if (foodItem) {
+    state.currentFood = foodItem.food;
+  } else {
+    state.currentFood = 'cake';
+  }
+  
+  const fishId = state.equippedItems.characters;
+  const fishItem = SHOP_ITEMS.characters.find(f => f.id === fishId);
+  state.currentFish = fishItem ? fishItem.fishId : 'f1';
+  
+  renderGameScene();
+  updateProgressBar();
+
+  // Run tutorial only on Level 1, Fish 1
+  if (state.currentLevel === 1 && state.currentFishIndex === 1 && !localStorage.getItem('tutorialDone')) {
+    setTimeout(() => startTutorial(), 1000);
+  }
+}
+
+function renderGameScene() {
+  const slot = $('comparisonSlot');
+  slot.className = 'comparison-slot';
+  slot.innerHTML = '<span class="slot-placeholder">؟</span>';
+  
+  document.querySelectorAll('.answer-btn').forEach(b => {
+    b.classList.remove('correct', 'wrong', 'tutorial-target');
+    b.disabled = false;
+  });
+  
+  renderFood('foodLeft', state.leftCount);
+  renderFood('foodRight', state.rightCount);
+  
+  const fishType = FISH_TYPES.find(f => f.id === state.currentFish) || FISH_TYPES[0];
+  const fishId = Math.floor(Math.random() * 10000);
+  $('fishContainer').className = 'fish-container thinking';
+  $('fishContainer').style.left = '50%';
+  $('fishContainer').innerHTML = fishSVG(fishType, fishId);
+}
+
+function renderFood(containerId, count) {
+  const container = $(containerId);
+  container.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const item = document.createElement('div');
+    item.className = 'food-item';
+    const foodKey = state.currentFood === 'mix' ? 
+      ['cake','cookie','donut','bread','candy'][Math.floor(Math.random() * 5)] : state.currentFood;
+    item.innerHTML = FOODS[foodKey];
+    item.style.animationDelay = (i * 0.08) + 's';
+    container.appendChild(item);
+  }
+}
+
+function getCorrectAnswer() {
+  if (state.leftCount > state.rightCount) return '>';
+  if (state.leftCount < state.rightCount) return '<';
+  return '=';
+}
+
+function getBiggerSide() {
+  if (state.leftCount > state.rightCount) return 'left';
+  if (state.rightCount > state.leftCount) return 'right';
+  return 'equal';
+}
+
+function checkAnswer(symbol, btnEl) {
+  if (state.tutorialActive) {
+    const correct = getCorrectAnswer();
+    if (symbol !== correct) return; // Ignore wrong clicks during tutorial
+    endTutorial();
+  }
+
+  document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
+  const responseTime = Date.now() - state.metrics.questionStartTime;
+  state.metrics.responseTimes.push(responseTime);
+  
+  const correct = getCorrectAnswer();
+  const isCorrect = symbol === correct;
+  LUKO.answer({ topic: 'compare', topicLabel: 'مقایسه', correct: isCorrect, ms: responseTime,
+                given: symbol, expected: correct, tier: state.currentLevel });
+  const slot = $('comparisonSlot');
+  
+  slot.className = 'comparison-slot ' + (isCorrect ? 'filled' : 'error');
+  slot.innerHTML = '<span style="font-size:32px;font-weight:900;direction:ltr">' + symbol + '</span>';
+  
+  const fish = $('fishContainer');
+  fish.classList.remove('thinking');
+  
+  if (isCorrect) {
+    state.metrics.correctAnswers++;
+    btnEl.classList.add('correct');
+    playSound('success');
+    
+    setTimeout(() => {
+      const bigger = getBiggerSide();
+      if (bigger === 'left') {
+        fish.style.left = '25%';
+        fish.classList.add('flipped');
+      } else if (bigger === 'right') {
+        fish.style.left = '75%';
+        fish.classList.remove('flipped');
+      } else {
+        fish.style.left = '50%';
+      }
+      fish.classList.add('eating');
+      playSound('eat');
+      
+      setTimeout(() => {
+        const targetContainer = bigger === 'left' ? 'foodLeft' : (bigger === 'right' ? 'foodRight' : null);
+        if (targetContainer) {
+          const items = $(targetContainer).querySelectorAll('.food-item');
+          items.forEach((item, i) => {
+            setTimeout(() => item.classList.add('eaten'), i * 80);
+          });
+        } else {
+          ['foodLeft','foodRight'].forEach(id => {
+            $(id).querySelectorAll('.food-item').forEach((item, i) => {
+              setTimeout(() => item.classList.add('eaten'), i * 80);
+            });
+          });
+        }
+      }, 400);
+    }, 300);
+    
+    setTimeout(() => { nextFish(); }, 2200);
+  } else {
+    state.metrics.wrongAnswers++;
+    btnEl.classList.add('wrong');
+    playSound('error');
+    
+    setTimeout(() => {
+      const selectedSide = symbol === '>' ? 'left' : (symbol === '<' ? 'right' : 'left');
+      if (selectedSide === 'left') {
+        fish.style.left = '25%';
+        fish.classList.add('flipped');
+      } else {
+        fish.style.left = '75%';
+        fish.classList.remove('flipped');
+      }
+      const targetContainer = selectedSide === 'left' ? 'foodLeft' : 'foodRight';
+      $(targetContainer).querySelectorAll('.food-item').forEach(item => item.classList.add('frown'));
+    }, 300);
+    
+    setTimeout(() => { showErrorMessage(symbol, correct); }, 1200);
+  }
+}
+
+function showErrorMessage(selected, correct) {
+  const leftNum = toPersianNum(state.leftCount);
+  const rightNum = toPersianNum(state.rightCount);
+  let explanation = '';
+  if (correct === '>') {
+    explanation = `دسته چپ ${leftNum} تا است و دسته راست ${rightNum} تا. چون ${leftNum} از ${rightNum} بیشتر است، علامت بزرگتر (&gt;) درست است.`;
+  } else if (correct === '<') {
+    explanation = `دسته چپ ${leftNum} تا است و دسته راست ${rightNum} تا. چون ${leftNum} از ${rightNum} کمتر است، علامت کوچکتر (&lt;) درست است.`;
+  } else {
+    explanation = `دسته چپ ${leftNum} تا است و دسته راست ${rightNum} تا. چون هر دو یکسان هستند، علامت مساوی (=) درست است.`;
+  }
+  
+  $('messageCard').innerHTML = `
+    <div class="message-icon error">${SVG.warning}</div>
+    <h2>تلاش خوبی بود!</h2>
+    <div class="message-text">${explanation}</div>
+    <div class="modal-buttons">
+      <button class="btn btn-primary" id="continueBtn">ادامه</button>
+    </div>
+  `;
+  $('messageModal').classList.add('active');
+  
+  $('continueBtn').addEventListener('click', () => {
+    playSound('click');
+    $('messageModal').classList.remove('active');
+    nextFish();
+  });
+}
+
+function completeLevel(/*luko*/) { LUKO.finish({ level: state.currentLevel }); return __completeLevel.apply(this, arguments); }
+function __completeLevel() {
+  saveMetrics();
+  let reward = state.coins === 0 ? 10 : 1;
+  state.coins += reward;
+  
+  let isFinalLevel = state.currentLevel === state.totalLevels;
+  let unlockedNext = false;
+  
+  if (state.currentLevel === state.unlockedLevel && state.unlockedLevel < state.totalLevels) {
+    state.unlockedLevel++;
+    unlockedNext = true;
+  }
+  
+  saveState();
+  updateCoinDisplay();
+  playSound('victory');
+  
+  $('levelCompleteCard').innerHTML = `
+    <div class="message-icon success">${SVG.trophy}</div>
+    <h2>آفرین قهرمان!</h2>
+    <p>تو مرحله ${toPersianNum(state.currentLevel)} را با موفقیت کامل کردی.</p>
+    <div class="reward-box">
+      <img src="/games/assets/icons/coin.png" class="coin-icon-small" alt="سکه">
+      <span>+${toPersianNum(reward)} سکه</span>
+    </div>
+    ${unlockedNext ? `<p style="color:var(--accent);font-size:13px">مرحله ${toPersianNum(state.unlockedLevel)} باز شد!</p>` : ''}
+    <div class="modal-buttons">
+      ${!isFinalLevel ? `<button class="btn btn-primary" id="nextLevelBtn">مرحله بعد</button>` : ''}
+      <button class="btn btn-secondary" id="levelMenuBtn">منو مراحل</button>
+    </div>
+  `;
+  $('levelCompleteModal').classList.add('active');
+  
+  if (!isFinalLevel) {
+    $('nextLevelBtn').addEventListener('click', () => {
+      playSound('click');
+      $('levelCompleteModal').classList.remove('active');
+      startLevel(state.currentLevel + 1);
+    });
+  }
+  $('levelMenuBtn').addEventListener('click', () => {
+    playSound('click');
+    $('levelCompleteModal').classList.remove('active');
+    showScreen('levelSelectScreen');
+    renderLevels();
+  });
+}
+
+function updateCoinDisplay() {
+  $('coinCountHome').textContent = toPersianNum(state.coins);
+  $('shopCoin').textContent = toPersianNum(state.coins);
+  $('gameCoin').textContent = toPersianNum(state.coins);
+  $('homeLevel').textContent = toPersianNum(state.unlockedLevel);
+}
+
+function renderShop() {
+  ['skins', 'characters', 'custom'].forEach(type => {
+    const grid = $(type + 'Grid');
+    grid.innerHTML = '';
+    SHOP_ITEMS[type].forEach(item => {
+      const owned = state.ownedItems.includes(item.id);
+      const equipped = state.equippedItems[type] === item.id;
+      let preview = '';
+      if (type === 'skins') preview = `<div class="shop-item-preview" style="background:${item.bg};border-radius:12px"></div>`;
+      else if (type === 'characters') {
+        const fishType = FISH_TYPES.find(f => f.id === item.fishId);
+        preview = `<div class="shop-item-preview">${fishSVG(fishType, item.id)}</div>`;
+      } else {
+        const foodKey = item.food === 'mix' ? 'cake' : item.food;
+        preview = `<div class="shop-item-preview">${item.food === 'mix' ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px">' + Object.keys(FOODS).map(k => '<div style="width:24px;height:24px">' + FOODS[k] + '</div>').join('') + '</div>' : FOODS[foodKey]}</div>`;
+      }
+      
+      const card = document.createElement('div');
+      card.className = 'shop-item' + (owned ? ' owned' : '') + (equipped ? ' equipped' : '');
+      card.innerHTML = `
+        ${equipped ? '<div class="shop-badge equipped">فعال</div>' : (owned ? '<div class="shop-badge">دارد</div>' : '')}
+        ${preview}
+        <div class="shop-item-name">${item.name}</div>
+        ${item.price > 0 ? `<div class="shop-item-price"><img src="/games/assets/icons/coin.png" class="coin-icon-small">${toPersianNum(item.price)}</div>` : '<div style="height:20px"></div>'}
+        <button class="shop-item-buy ${equipped ? 'equipped' : (owned ? 'owned' : '')}" data-id="${item.id}" data-type="${type}" data-price="${item.price}" ${(!owned && state.coins < item.price) ? 'disabled' : ''}>
+          ${equipped ? 'فعال شده' : (owned ? 'انتخاب' : 'خرید')}
+        </button>
+      `;
+      grid.appendChild(card);
+    });
+  });
+  
+  document.querySelectorAll('.shop-item-buy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      handleShopBuy(btn.dataset.id, btn.dataset.type, parseInt(btn.dataset.price), btn);
+    });
+  });
+}
+
+function handleShopBuy(id, type, price, btn) {
+  playSound('click');
+  const owned = state.ownedItems.includes(id);
+  if (owned) {
+    state.equippedItems[type] = id;
+    saveState(); renderShop(); showToast('فعال شد!');
+  } else {
+    if (state.coins >= price) {
+      state.coins -= price;
+      state.ownedItems.push(id);
+      state.equippedItems[type] = id;
+      saveState(); updateCoinDisplay(); renderShop(); playSound('coin');
+      showToast('خرید موفق بود!');
+    } else {
+      showToast('سکه کافی نداری!'); playSound('error');
+    }
+  }
+}
+
+function pauseGame() {
+  if (state.tutorialActive) return;
+  playSound('click');
+  state.paused = true;
+  state.savedGameState = {
+    currentLevel: state.currentLevel,
+    currentFishIndex: state.currentFishIndex,
+    leftCount: state.leftCount,
+    rightCount: state.rightCount,
+    currentFood: state.currentFood,
+    currentFish: state.currentFish
+  };
+  $('pauseModal').classList.add('active');
+}
+
+function resumeGame() {
+  playSound('click');
+  if (state.savedGameState) {
+    Object.assign(state, state.savedGameState);
+    state.paused = false;
+    state.savedGameState = null;
+    const seaConfig = SEA_LEVELS[(state.currentLevel - 1) % SEA_LEVELS.length];
+    $('seaBg').style.background = seaConfig.bg;
+    applySeaEffect($('seaEffects'), seaConfig.effect, seaConfig.waveColor);
+    renderGameScene();
+    updateProgressBar();
+  }
+  $('pauseModal').classList.remove('active');
+}
+
+function restartGame() {
+  playSound('click');
+  startLevel(state.currentLevel);
+  $('pauseModal').classList.remove('active');
+}
+
+function exitToMenu() {
+  playSound('click');
+  state.paused = false;
+  $('pauseModal').classList.remove('active');
+  showScreen('homeScreen');
+  updateCoinDisplay();
+}
+
+// ============ INTERACTIVE TUTORIAL ============
+function startTutorial() {
+  state.tutorialActive = true;
+  state.tutorialStep = 0;
+  const overlay = $('tutorialOverlay');
+  const hand = $('tutorialHand');
+  const text = $('tutorialText');
+  
+  overlay.style.display = 'block';
+  hand.innerHTML = SVG.hand;
+  text.style.opacity = '1';
+  
+  document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
+  
+  setTimeout(() => {
+    text.textContent = "بیا خوراکی‌های سمت چپ را بشماریم!";
+    const leftFood = $('foodLeft');
+    const rect = leftFood.getBoundingClientRect();
+    const appRect = $('app').getBoundingClientRect();
+    hand.style.left = (rect.left - appRect.left + 30) + 'px';
+    hand.style.top = (rect.top - appRect.top + 30) + 'px';
+    
+    // Highlight items one by one
+    const items = leftFood.querySelectorAll('.food-item');
+    items.forEach((item, i) => {
+      setTimeout(() => {
+        item.classList.add('highlighted');
+        playSound('click');
+        setTimeout(() => item.classList.remove('highlighted'), 400);
+      }, 1000 + (i * 600));
+    });
+    
+    // Move to right side
+    setTimeout(() => {
+      text.textContent = "حالا خوراکی‌های سمت راست را بشمار...";
+      const rightFood = $('foodRight');
+      const rRect = rightFood.getBoundingClientRect();
+      hand.style.left = (rRect.left - appRect.left + 30) + 'px';
+      hand.style.top = (rRect.top - appRect.top + 30) + 'px';
+      
+      const rItems = rightFood.querySelectorAll('.food-item');
+      rItems.forEach((item, i) => {
+        setTimeout(() => {
+          item.classList.add('highlighted');
+          playSound('click');
+          setTimeout(() => item.classList.remove('highlighted'), 400);
+        }, i * 600);
+      });
+    }, 1000 + (state.leftCount * 600) + 500);
+    
+    // Move to correct button
+    setTimeout(() => {
+      const correct = getCorrectAnswer();
+      let label = correct === '>' ? 'بزرگتر' : (correct === '<' ? 'کوچکتر' : 'مساوی');
+      
+      if (correct === '>') text.textContent = "چپ بیشتر است، پس بزرگتر را بزن!";
+      else if (correct === '<') text.textContent = "چپ کمتر است، پس کوچکتر را بزن!";
+      else text.textContent = "هر دو برابرند، مساوی را بزن!";
+      
+      const btn = document.querySelector(`.answer-btn[data-symbol="${correct}"]`);
+      const bRect = btn.getBoundingClientRect();
+      hand.style.left = (bRect.left - appRect.left + bRect.width/2) + 'px';
+      hand.style.top = (bRect.top - appRect.top - 10) + 'px';
+      
+      btn.classList.add('tutorial-target');
+      btn.disabled = false;
+    }, 1000 + (state.leftCount * 600) + (state.rightCount * 600) + 1000);
+    
+  }, 500);
+}
+
+function endTutorial() {
+  state.tutorialActive = false;
+  $('tutorialOverlay').style.display = 'none';
+  document.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('tutorial-target'));
+  localStorage.setItem('tutorialDone', 'true');
+}
+
+function init() {
+  loadState();
+  
+  $('mainCharacter').innerHTML = `<img src="/games/assets/icons/gamer.png" alt="گیمر">`;
+  $('helpCharacter').innerHTML = `<img src="/games/assets/icons/gamerhi.png" alt="راهنما">`;
+  $('startIcon').innerHTML = SVG.play;
+  $('shopIcon').innerHTML = SVG.shop;
+  $('helpIcon').innerHTML = SVG.help;
+  $('backIcon1').innerHTML = SVG.back;
+  $('backIcon2').innerHTML = SVG.back;
+  $('backIcon3').innerHTML = SVG.back;
+  $('stopBtn').innerHTML = SVG.pause;
+  $('helpIcon1').innerHTML = SVG.target;
+  $('helpIcon2').innerHTML = SVG.sparkles;
+  $('helpIcon3').innerHTML = SVG.trophy;
+  $('helpIcon4').innerHTML = SVG.fish;
+  
+  createBubbles($('bgEffects'), 18);
+  updateCoinDisplay();
+  
+  $('startBtn').addEventListener('click', () => {
+    initAudio();
+    showScreen('levelSelectScreen');
+    renderLevels();
+  });
+  
+  $('shopBtn').addEventListener('click', () => { initAudio(); showScreen('shopScreen'); renderShop(); });
+  $('helpBtn').addEventListener('click', () => { initAudio(); showScreen('helpScreen'); });
+  
+  $('helpBackBtn').addEventListener('click', () => showScreen('homeScreen'));
+  $('shopBackBtn').addEventListener('click', () => showScreen('homeScreen'));
+  $('levelSelectBackBtn').addEventListener('click', () => showScreen('homeScreen'));
+  
+  $('stopBtn').addEventListener('click', pauseGame);
+  $('resumeBtn').addEventListener('click', resumeGame);
+  $('restartBtn').addEventListener('click', restartGame);
+  $('exitBtn').addEventListener('click', exitToMenu);
+  
+  document.querySelectorAll('.answer-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.disabled && !btn.classList.contains('tutorial-target')) return;
+      checkAnswer(btn.dataset.symbol, btn);
+    });
+  });
+  
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      playSound('click');
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      $('tab-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+  
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('touchstart', initAudio, {once: true});
+  document.addEventListener('mousedown', initAudio, {once: true});
+}
+
+init();
+</script>
+</body>
+</html>

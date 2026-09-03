@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#070d1c">
+<title>مأموریت مدار — ریاضی ششم</title>
+<style>
+/* ================= پایه ================= */
+*, *::before, *::after { box-sizing: border-box; }
+html { color-scheme: dark; }
+body {
+  margin: 0;
+  height: 100dvh;
+  overflow: hidden;
+  font-family: Vazirmatn, Vazir, system-ui, Tahoma, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+button { font: inherit; color: inherit; border: none; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+[hidden] { display: none !important; }
+
+:root {
+  --bg: #070d1c;
+  --bg-2: #0c1730;
+  --panel: rgba(148, 180, 224, .10);
+  --panel-2: rgba(148, 180, 224, .06);
+  --line: rgba(150, 185, 230, .20);
+  --ink: #e9f1ff;
+  --ink-2: #a8bcd8;
+  --muted: #7086a4;
+  --cyan: #35d6f0;
+  --cyan-deep: #1799b4;
+  --amber: #ffb44a;
+  --good: #34d399;
+  --bad: #f8717a;
+  --violet: #9d7bf5;
+  --glow: 0 0 24px rgba(53, 214, 240, .35);
+}
+
+.app { position: relative; height: 100dvh; overflow: hidden; }
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ================= فضا ================= */
+.space { position: absolute; inset: 0; background:
+  radial-gradient(120% 80% at 70% 0%, #16305c 0%, transparent 60%),
+  radial-gradient(90% 70% at 10% 100%, #142a4e 0%, transparent 55%),
+  linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%); }
+.stars { position: absolute; inset: 0; pointer-events: none; }
+.stars i { position: absolute; border-radius: 50%; background: #cfe4ff; animation: tw 4s ease-in-out infinite; }
+@keyframes tw { 0%,100%{opacity:.18} 50%{opacity:.9} }
+
+.planet { position: absolute; left: -18%; bottom: -30%; width: 90%; aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #2f5c8f 0%, #1b3560 45%, #101f3c 75%); opacity: .55;
+  box-shadow: inset -22px -16px 60px rgba(0,0,0,.55), 0 0 90px rgba(40,110,180,.25); }
+.planet::after { content: ''; position: absolute; inset: 12% 8% 55% 14%; border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, rgba(120,190,255,.16), transparent 65%); }
+
+.grid-floor { position: absolute; left: -10%; right: -10%; bottom: 0; height: 34%; pointer-events: none; opacity: .28;
+  background-image: linear-gradient(rgba(53,214,240,.35) 1px, transparent 1px), linear-gradient(90deg, rgba(53,214,240,.25) 1px, transparent 1px);
+  background-size: 100% 26px, 44px 100%;
+  mask-image: linear-gradient(to top, #000 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 100%);
+  transform: perspective(320px) rotateX(62deg); transform-origin: bottom; }
+
+/* ================= HUD ================= */
+.hud { position: relative; z-index: 4; display: flex; align-items: center; gap: 8px; padding: 10px 12px; }
+.route { flex: 1; display: flex; align-items: center; gap: 3px; }
+.node { flex: 1; height: 5px; border-radius: 99px; background: rgba(160,195,235,.22); position: relative; transition: background .3s; }
+.node.done { background: var(--cyan-deep); }
+.node.now { background: var(--cyan); box-shadow: var(--glow); }
+.node.now::after { content: ''; position: absolute; inset-inline-end: -3px; top: -5px; width: 15px; height: 15px; border-radius: 50%;
+  background: var(--cyan); box-shadow: 0 0 0 4px rgba(53,214,240,.22); }
+.chip { display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 11px; border-radius: 10px;
+  background: var(--panel); border: 1px solid var(--line); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.chip svg { width: 15px; height: 15px; }
+.icon-btn { width: 32px; height: 32px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); display: grid; place-items: center; }
+.icon-btn svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.icon-btn.off { color: var(--muted); }
+
+/* ================= صحنه ================= */
+.viewport { position: relative; z-index: 3; height: 24dvh; min-height: 130px; display: grid; place-items: center; }
+.ship { width: min(230px, 62%); filter: drop-shadow(0 8px 26px rgba(53,214,240,.28)); }
+.ship svg { width: 100%; height: auto; display: block; }
+.ship.travel { animation: cruise 1.25s cubic-bezier(.5,0,.5,1) both; }
+@keyframes cruise { 0%{transform:translateX(0) scale(1); opacity:1} 45%{transform:translateX(-46vw) scale(.72); opacity:.15} 46%{transform:translateX(46vw) scale(.72); opacity:0} 100%{transform:translateX(0) scale(1); opacity:1} }
+.thrust { transform-origin: right center; animation: flick .18s steps(2) infinite; }
+@keyframes flick { 0%{transform:scaleX(1)} 100%{transform:scaleX(.72)} }
+body[data-motion="off"] .thrust { animation: none; }
+
+.mission-tag { position: absolute; top: 4px; inset-inline-start: 16px; z-index: 5; font-size: 11.5px; color: var(--cyan);
+  letter-spacing: .4px; border: 1px solid rgba(53,214,240,.35); border-radius: 8px; padding: 3px 9px; background: rgba(53,214,240,.08); }
+
+/* ================= کنسول ================= */
+.console { position: relative; z-index: 5; flex: 1; min-height: 0; margin: 0 12px 12px; padding: 14px;
+  background: linear-gradient(180deg, rgba(20,38,70,.92), rgba(12,24,48,.94)); border: 1px solid var(--line);
+  border-radius: 20px; box-shadow: 0 -8px 40px rgba(0,0,0,.4); display: flex; flex-direction: column; gap: 12px; overflow: auto; }
+.task-head { display: flex; align-items: flex-start; gap: 10px; }
+.task-title { font-size: 15px; font-weight: 800; margin: 0; }
+.task-sub { margin: 4px 0 0; font-size: 12.5px; line-height: 1.8; color: var(--ink-2); }
+.topic-pill { flex: none; font-size: 10.5px; font-weight: 700; color: var(--amber); border: 1px solid rgba(255,180,74,.35);
+  background: rgba(255,180,74,.1); border-radius: 99px; padding: 3px 9px; white-space: nowrap; }
+
+.prompt { font-size: 17px; font-weight: 700; line-height: 2; margin: 0; }
+.prompt b { color: var(--cyan); font-variant-numeric: tabular-nums; }
+.work { display: flex; flex-direction: column; gap: 12px; }
+
+/* --- مخزن کسری --- */
+.tank { display: flex; gap: 3px; height: 76px; padding: 5px; border-radius: 14px; background: rgba(8,18,38,.8); border: 1px solid var(--line); }
+.seg { flex: 1; border-radius: 8px; background: rgba(150,185,230,.12); transition: background .18s, box-shadow .18s; }
+.seg.on { background: linear-gradient(180deg, var(--cyan), var(--cyan-deep)); box-shadow: inset 0 0 12px rgba(255,255,255,.25); }
+.tank-read { display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--ink-2); }
+.frac { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15; font-weight: 800; font-size: 15px; color: var(--ink); vertical-align: middle; }
+.frac span:first-child { border-bottom: 2px solid currentColor; padding: 0 5px; }
+
+/* --- محور اعداد --- */
+.numline { width: 100%; height: 92px; touch-action: none; }
+.numline text { fill: var(--muted); font-size: 11px; text-anchor: middle; }
+.numline .axis { stroke: rgba(150,185,230,.5); stroke-width: 2; stroke-linecap: round; }
+.numline .tick { stroke: rgba(150,185,230,.35); stroke-width: 1.5; }
+.numline .zero { stroke: var(--amber); stroke-width: 2.5; }
+.numline .marker { fill: var(--cyan); }
+
+/* --- تایم‌لاین سیگنال --- */
+.signals { display: flex; flex-direction: column; gap: 8px; }
+.sig-row { display: flex; align-items: center; gap: 8px; }
+.sig-name { flex: none; width: 66px; font-size: 12px; color: var(--ink-2); }
+.sig-track { flex: 1; display: flex; gap: 2px; }
+.sig-track i { flex: 1; height: 20px; border-radius: 4px; background: rgba(150,185,230,.12); }
+.sig-track i.hit { background: var(--cyan); box-shadow: 0 0 10px rgba(53,214,240,.5); }
+.sig-track i.hitB { background: var(--violet); box-shadow: 0 0 10px rgba(157,123,245,.5); }
+.sig-track i.both { background: var(--amber); box-shadow: 0 0 12px rgba(255,180,74,.6); }
+
+/* --- گزینه‌ها و شستی --- */
+.options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+.opt { min-height: 52px; padding: 10px 12px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line);
+  font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; transition: transform .12s, border-color .15s, background .15s; }
+.opt:active { transform: translateY(2px); }
+.opt.wrong { border-color: var(--bad); background: rgba(248,113,122,.14); animation: shake .4s; }
+.opt.right { border-color: var(--good); background: rgba(52,211,153,.16); }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+.readout { display: flex; align-items: center; justify-content: center; gap: 6px; height: 58px; border-radius: 14px;
+  background: rgba(8,18,38,.85); border: 1px solid var(--line); font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: 2px; }
+.readout.empty { color: var(--muted); font-size: 15px; letter-spacing: 0; font-weight: 600; }
+.readout .unit { font-size: 13px; color: var(--muted); font-weight: 600; letter-spacing: 0; }
+
+.pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.key { height: 50px; border-radius: 13px; background: var(--panel); border: 1px solid var(--line); font-size: 21px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.key:active { background: rgba(53,214,240,.2); }
+.key.wide { grid-column: span 2; font-size: 15px; }
+.key.go { background: linear-gradient(180deg, var(--cyan), var(--cyan-deep)); color: #05202b; }
+.key.del { color: var(--amber); }
+
+.confirm { height: 50px; border-radius: 13px; background: linear-gradient(180deg, var(--cyan), var(--cyan-deep)); color: #04212c; font-size: 16px; font-weight: 800; }
+.confirm[disabled] { opacity: .45; }
+
+.footer { display: flex; align-items: center; gap: 10px; }
+.hint-btn { height: 38px; padding: 0 14px; border-radius: 11px; background: rgba(255,180,74,.12); border: 1px solid rgba(255,180,74,.34);
+  color: var(--amber); font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+.hint-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.status { flex: 1; font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+/* ================= صفحه‌های شروع/پایان ================= */
+.center { justify-content: center; align-items: center; padding: 20px; z-index: 20; }
+.card { position: relative; z-index: 2; width: min(460px, 100%); max-height: 92dvh; overflow: auto; padding: 22px 20px;
+  background: linear-gradient(180deg, rgba(22,42,78,.96), rgba(11,22,44,.97)); border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+.card h1 { margin: 0 0 6px; font-size: 25px; font-weight: 800; letter-spacing: -.4px; }
+.card p.lead { margin: 0 0 14px; font-size: 13.5px; line-height: 2; color: var(--ink-2); }
+.badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.badge { font-size: 11.5px; padding: 4px 10px; border-radius: 99px; background: var(--panel); border: 1px solid var(--line); color: var(--ink-2); }
+.btn { width: 100%; height: 52px; border-radius: 15px; font-size: 16px; font-weight: 800; }
+.btn-primary { background: linear-gradient(180deg, var(--cyan), var(--cyan-deep)); color: #04212c; }
+.btn-ghost { margin-top: 9px; height: 44px; background: var(--panel); border: 1px solid var(--line); font-size: 14px; }
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0 4px; }
+.metric { background: var(--panel-2); border: 1px solid var(--line); border-radius: 13px; padding: 10px 4px; text-align: center; }
+.metric b { display: block; font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.metric span { font-size: 10.5px; color: var(--muted); }
+.hero { width: min(280px, 76%); margin: 0 auto 12px; }
+.hero svg { width: 100%; height: auto; }
+
+.stars-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
+.star-big { width: 42px; height: 42px; }
+.star-big svg { width: 100%; height: 100%; stroke-width: 1.4; }
+.star-big.on svg { fill: var(--amber); stroke: #c07d18; animation: pop .5s cubic-bezier(.2,1.5,.4,1) both; }
+.star-big.off svg { fill: rgba(150,185,230,.16); stroke: rgba(150,185,230,.3); }
+.star-big:nth-child(2).on svg { animation-delay: .15s; }
+.star-big:nth-child(3).on svg { animation-delay: .3s; }
+@keyframes pop { 0%{transform:scale(.4)} 60%{transform:scale(1.15)} 100%{transform:scale(1)} }
+
+.topic-table { margin-top: 12px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.topic-row { display: flex; align-items: center; gap: 8px; padding: 9px 12px; font-size: 12.5px; border-bottom: 1px solid var(--line); }
+.topic-row:last-child { border-bottom: none; }
+.topic-row b { flex: 1; font-weight: 700; }
+.topic-bar { width: 74px; height: 6px; border-radius: 99px; background: rgba(150,185,230,.16); overflow: hidden; }
+.topic-bar i { display: block; height: 100%; background: var(--cyan); }
+.topic-row span { width: 42px; text-align: left; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* ================= بازخورد ================= */
+.toast { position: absolute; z-index: 40; top: 56px; left: 50%; transform: translate(-50%,-12px); padding: 9px 18px; border-radius: 12px;
+  background: rgba(9,20,40,.96); border: 1px solid var(--line); font-size: 13.5px; font-weight: 700; opacity: 0; pointer-events: none;
+  transition: opacity .22s, transform .22s; max-width: 92vw; text-align: center; line-height: 1.7; }
+.toast.show { opacity: 1; transform: translate(-50%,0); }
+.toast.good { border-color: rgba(52,211,153,.5); color: #b8f5dd; }
+.toast.warn { border-color: rgba(255,180,74,.5); color: #ffdcae; }
+.flash { position: absolute; inset: 0; z-index: 30; pointer-events: none; opacity: 0; }
+.flash.on { animation: flashIn .5s ease-out; }
+@keyframes flashIn { 0%{opacity:.5; background: radial-gradient(circle at 50% 60%, rgba(53,214,240,.5), transparent 60%)} 100%{opacity:0} }
+.spark { position: fixed; width: 7px; height: 7px; border-radius: 50%; pointer-events: none; z-index: 45; animation: fly .7s ease-out forwards; }
+@keyframes fly { from{transform:translate(0,0) scale(1); opacity:1} to{transform:translate(var(--dx),var(--dy)) scale(.2); opacity:0} }
+
+.debug { position: absolute; z-index: 60; inset-inline-end: 8px; top: 50px; width: min(300px,82vw); max-height: 30dvh; overflow: auto;
+  background: rgba(4,10,22,.94); color: #9fd8ff; font-size: 10px; line-height: 1.55; padding: 8px 10px; border-radius: 10px; direction: ltr; text-align: left; }
+.debug b { color: var(--amber); }
+.debug button { background: var(--cyan-deep); color: #eaf8ff; border-radius: 7px; padding: 4px 9px; font-size: 10px; margin-top: 6px; }
+
+@media (max-height: 700px) { .viewport { height: 18dvh; min-height: 96px; } .prompt { font-size: 15.5px; } }
+/* روی نمایشگرهای بزرگ، کنسول پهن نشود تا خط‌ها و شستی خوانا بمانند */
+@media (min-width: 760px) {
+  .hud, .console { max-width: 700px; margin-inline: auto; }
+  .console { width: 100%; }
+  .options { grid-template-columns: repeat(4, 1fr); }
+  .pad { max-width: 420px; margin-inline: auto; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .05s !important; } }
+body[data-motion="off"] *, body[data-motion="off"] *::before { animation: none !important; }
+</style>
+</head>
+<body data-motion="on">
+<div class="app" id="app">
+  <div class="space"></div>
+  <div class="stars" id="starfield" aria-hidden="true"></div>
+  <div class="planet" aria-hidden="true"></div>
+  <div class="grid-floor" aria-hidden="true"></div>
+  <div class="flash" id="flash" aria-hidden="true"></div>
+
+  <!-- ===== بریفینگ ===== -->
+  <section class="screen center active" id="screen-start">
+    <div class="card">
+      <div class="hero" id="hero"></div>
+      <h1>مأموریت مدار</h1>
+      <p class="lead">کاوشگر لوکو باید از شش ایستگاه مداری عبور کند و به سیارهٔ مقصد برسد.
+        هر ایستگاه یک محاسبهٔ واقعی از ریاضی ششم است: بدون محاسبهٔ درست، موتور روشن نمی‌شود.</p>
+      <div class="badge-row">
+        <span class="badge">کسر</span><span class="badge">نسبت و تناسب</span><span class="badge">درصد</span>
+        <span class="badge">ک.م.م</span><span class="badge">عدد صحیح</span><span class="badge">میانگین</span>
+      </div>
+      <div class="metrics" id="start-metrics"></div>
+      <button class="btn btn-primary" id="btn-start" type="button">شروع مأموریت</button>
+      <button class="btn btn-ghost" id="btn-how" type="button">قوانین مأموریت</button>
+    </div>
+  </section>
+
+  <!-- ===== مأموریت ===== -->
+  <section class="screen" id="screen-play">
+    <div class="hud">
+      <div class="route" id="route"></div>
+      <span class="chip">
+        <svg viewBox="0 0 24 24" fill="#ffb44a" stroke="#c07d18" stroke-width="1.3"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/></svg>
+        <b id="stars-count">۰</b>
+      </span>
+      <button class="icon-btn" id="btn-sound" type="button" aria-label="صدا">
+        <svg viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9c1.2 1.2 1.2 4.8 0 6"/></svg>
+      </button>
+      <button class="icon-btn" id="btn-motion" type="button" aria-label="حرکت">
+        <svg viewBox="0 0 24 24"><path d="M5 12h4l2-5 2 10 2-5h4"/></svg>
+      </button>
+    </div>
+
+    <div class="viewport">
+      <span class="mission-tag" id="mission-tag"></span>
+      <div class="ship" id="ship"></div>
+    </div>
+
+    <div class="console">
+      <div class="task-head">
+        <div style="flex:1">
+          <h2 class="task-title" id="task-title"></h2>
+          <p class="task-sub" id="task-sub"></p>
+        </div>
+        <span class="topic-pill" id="topic-pill"></span>
+      </div>
+      <p class="prompt" id="prompt"></p>
+      <div class="work" id="work"></div>
+      <div style="flex:1"></div>
+      <div class="footer">
+        <button class="hint-btn" id="btn-hint" type="button">
+          <svg viewBox="0 0 24 24"><path d="M9.5 17h5M10 20h4"/><path d="M12 3a6 6 0 0 1 3.6 10.8c-.6.5-.9 1.1-1 1.7h-5.2c-.1-.6-.4-1.2-1-1.7A6 6 0 0 1 12 3z"/></svg>
+          راهنمایی
+        </button>
+        <p class="status" id="status"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== گزارش پایان ===== -->
+  <section class="screen center" id="screen-end">
+    <div class="card">
+      <div class="stars-row" id="end-stars"></div>
+      <h1 id="end-title">مأموریت کامل شد</h1>
+      <p class="lead" id="end-message"></p>
+      <div class="metrics" id="end-metrics"></div>
+      <div class="topic-table" id="end-topics"></div>
+      <button class="btn btn-primary" id="btn-again" type="button" style="margin-top:14px">مأموریت دوباره</button>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+   مأموریت مدار — ریاضی ششم ابتدایی
+   شش ایستگاه: کسر، نسبت، درصد، ک.م.م، عدد صحیح، میانگین.
+   سختیِ تطبیقی + تله‌متریِ کامل (هر رویداد topic دارد تا گزارشِ والدین
+   بتواند تسلط را درس‌به‌درس نشان دهد). بدون منبع بیرونی و بدون emoji.
+   ===================================================================== */
+
+const GAME = { slug: 'grade6-orbit-math', file: 'game_6aval_riyazi.html', title: 'مأموریت مدار', version: '1.0.0', subject: 'math', grade: 6 };
+const STORE_KEY = 'luko_game_' + GAME.slug;
+const $ = (s) => document.querySelector(s);
+const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+const pick = (arr) => arr[rnd(0, arr.length - 1)];
+const shuffle = (arr) => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = rnd(0, i); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const fa = (n) => String(n).replace(/[0-9]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+const clock = (ms) => fa(String(Math.floor(ms / 60000)).padStart(2, '0')) + ':' + fa(String(Math.floor(ms / 1000) % 60).padStart(2, '0'));
+const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a));
+/** دما با کلمه نوشته می‌شود تا علامتِ منفی در متنِ راست‌به‌چپ گیج‌کننده نباشد */
+const temp = (n) => (n < 0 ? fa(Math.abs(n)) + ' درجه زیر صفر' : n === 0 ? 'صفر درجه' : fa(n) + ' درجه بالای صفر');
+const signed = (n) => (n < 0 ? fa(Math.abs(n)) + '−' : fa(n));
+const lcm = (a, b) => Math.abs(a * b) / gcd(a, b);
+
+/* ================= تله‌متری ================= */
+const Telemetry = {
+  sessionId: '', startedAt: Date.now(), events: [], MAX: 600,
+  newSession() { this.sessionId = 's_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8); },
+  device() { return { w: innerWidth, h: innerHeight, dpr: Math.round(devicePixelRatio * 100) / 100, touch: matchMedia('(pointer:coarse)').matches }; },
+  send(msg) { try { parent.postMessage(msg, location.origin); } catch (_) { /* بیرون از iframe */ } },
+  log(type, payload) {
+    const event = Object.assign({ t: Date.now() - this.startedAt, type }, payload || {});
+    this.events.push(event);
+    if (this.events.length > this.MAX) this.events.shift();
+    this.send({ type: 'luko-game-event', game: GAME.slug, sessionId: this.sessionId, event: event });
+    if (Debug.on) Debug.render();
+    return event;
+  },
+  /** تسلطِ درس‌به‌درس — ورودیِ مستقیمِ بخشِ «تسلط در درس‌ها» در پنل والدین */
+  topics() {
+    const out = {};
+    this.events.filter((e) => e.type === 'answer').forEach((e) => {
+      const t = out[e.topic] || (out[e.topic] = { label: TOPIC_LABEL[e.topic] || e.topic, asked: 0, correct: 0, ms: 0, hints: 0 });
+      t.asked++; if (e.correct) t.correct++; t.ms += e.ms || 0; if (e.hintUsed) t.hints++;
+    });
+    Object.values(out).forEach((t) => { t.accuracy = Math.round((t.correct / t.asked) * 100); t.avgMs = Math.round(t.ms / t.asked); delete t.ms; });
+    return out;
+  },
+  summary(extra) {
+    const answers = this.events.filter((e) => e.type === 'answer');
+    const correct = answers.filter((e) => e.correct).length;
+    const times = answers.map((e) => e.ms).filter((n) => typeof n === 'number');
+    const sorted = [...times].sort((a, b) => a - b);
+    return Object.assign({
+      game: GAME.slug, file: GAME.file, version: GAME.version, subject: GAME.subject, grade: GAME.grade,
+      sessionId: this.sessionId, startedAt: this.startedAt, durationMs: Date.now() - this.startedAt,
+      answers: answers.length, correct: correct, errors: answers.length - correct,
+      accuracy: answers.length ? Math.round((correct / answers.length) * 100) : 0,
+      avgAnswerMs: times.length ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : 0,
+      medianAnswerMs: sorted.length ? sorted[Math.floor(sorted.length / 2)] : 0,
+      hints: this.events.filter((e) => e.type === 'hint').length,
+      idlePeriods: this.events.filter((e) => e.type === 'idle').length,
+      topics: this.topics(), missions: State.log.slice(), device: this.device(),
+    }, extra || {});
+  },
+};
+
+/* ================= صدا ================= */
+const Sound = {
+  ctx: null, on: true,
+  init() { if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) { this.on = false; } } },
+  tone(freq, dur, type, gain, delay) {
+    if (!this.on) return;
+    this.init(); if (!this.ctx) return;
+    const t0 = this.ctx.currentTime + (delay || 0);
+    const osc = this.ctx.createOscillator(); const amp = this.ctx.createGain();
+    osc.type = type || 'sine'; osc.frequency.setValueAtTime(freq, t0);
+    amp.gain.setValueAtTime(gain || 0.12, t0);
+    amp.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    osc.connect(amp); amp.connect(this.ctx.destination);
+    osc.start(t0); osc.stop(t0 + dur + 0.02);
+  },
+  key()    { this.tone(880, 0.06, 'square', 0.05); },
+  tap()    { this.tone(620, 0.08, 'triangle', 0.09); },
+  good()   { [659, 880, 1175].forEach((f, i) => this.tone(f, 0.16, 'sine', 0.12, i * 0.07)); },
+  wrong()  { this.tone(180, 0.2, 'sawtooth', 0.09); this.tone(140, 0.24, 'sawtooth', 0.07, 0.07); },
+  launch() { this.tone(120, 0.5, 'sawtooth', 0.08); this.tone(240, 0.4, 'sine', 0.07, 0.06); },
+  dock()   { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.22, 'sine', 0.12, i * 0.09)); },
+  win()    { [523, 659, 784, 1047, 1319, 1568].forEach((f, i) => this.tone(f, 0.3, 'sine', 0.13, i * 0.11)); },
+};
+
+/* ================= مأموریت‌ها ================= */
+const TOPIC_LABEL = {
+  fraction: 'کسر', ratio: 'نسبت و تناسب', percent: 'درصد',
+  lcm: 'ک.م.م و بخش‌پذیری', integer: 'عددهای صحیح', average: 'میانگین',
+};
+
+const MISSIONS = [
+  { topic: 'fraction', station: 'ایستگاه سوخت',   title: 'مخزن را دقیق پر کن' },
+  { topic: 'ratio',    station: 'ایستگاه مسیر',   title: 'سوختِ مسیر را حساب کن' },
+  { topic: 'percent',  station: 'ایستگاه سپر',    title: 'توانِ سپر را تنظیم کن' },
+  { topic: 'lcm',      station: 'ایستگاه مخابره', title: 'لحظهٔ هم‌زمانی را پیدا کن' },
+  { topic: 'integer',  station: 'ایستگاه دما',    title: 'دمای بدنه را علامت بزن' },
+  { topic: 'average',  station: 'ایستگاه سنسور',  title: 'میانگین را به هدف برسان' },
+];
+
+const State = {
+  index: 0, stars: 0, log: [], task: null, busy: false, finished: false, started: false,
+  tier: 2, correctTotal: 0, answerTotal: 0, errors: 0, hints: 0, hintUsed: false, attempt: 0,
+  taskStartedAt: 0, lastInteractionAt: Date.now(), input: '', tank: 0, mark: null,
+};
+
+/* ================= گرافیک ================= */
+/** idها یکتا هستند چون دو نسخه از فضاپیما هم‌زمان در DOM است */
+function shipSVG(key) {
+  const h = 'hull-' + key, g = 'glass-' + key;
+  return '' +
+  '<svg viewBox="0 0 260 120" aria-hidden="true">' +
+    '<defs><linearGradient id="' + h + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#dfe9f8"/><stop offset="1" stop-color="#8ea6c6"/></linearGradient>' +
+      '<linearGradient id="' + g + '" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0" stop-color="#7ff0ff"/><stop offset="1" stop-color="#2a8bb8"/></linearGradient></defs>' +
+    '<g class="thrust">' +
+      '<path d="M232 60 L262 48 L262 72 Z" fill="#ffb44a" opacity=".85"/>' +
+      '<path d="M232 60 L250 53 L250 67 Z" fill="#fff0cf"/>' +
+    '</g>' +
+    '<path d="M18 60 C60 16, 150 16, 214 44 L236 60 L214 76 C150 104, 60 104, 18 60 Z" fill="url(#' + h + ')"/>' +
+    '<path d="M18 60 C60 104, 150 104, 214 76 L236 60 Z" fill="#6f8bad" opacity=".5"/>' +
+    '<circle cx="96" cy="55" r="17" fill="url(#' + g + ')" stroke="#e7f6ff" stroke-width="2.5"/>' +
+    '<path d="M84 50 a14 14 0 0 1 14 -8" stroke="#fff" stroke-width="2.5" fill="none" opacity=".7" stroke-linecap="round"/>' +
+    '<path d="M120 30 L172 34 L166 46 L118 44 Z" fill="#35d6f0" opacity=".75"/>' +
+    '<path d="M120 90 L172 86 L166 74 L118 76 Z" fill="#35d6f0" opacity=".55"/>' +
+    '<circle cx="150" cy="60" r="4" fill="#ffb44a"/><circle cx="176" cy="60" r="3" fill="#9d7bf5"/>' +
+  '</svg>';
+}
+function starSVG() { return '<svg viewBox="0 0 24 24" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>'; }
+function fracHTML(n, d) { return '<span class="frac"><span>' + fa(n) + '</span><span>' + fa(d) + '</span></span>'; }
+
+function buildStars() {
+  let out = '';
+  for (let i = 0; i < 70; i++) {
+    const s = rnd(1, 3);
+    out += '<i style="width:' + s + 'px;height:' + s + 'px;top:' + rnd(0, 96) + '%;left:' + rnd(0, 99) + '%;animation-delay:' + rnd(0, 40) / 10 + 's"></i>';
+  }
+  $('#starfield').innerHTML = out;
+}
+
+let toastTimer = null;
+function toast(text, kind) {
+  const el = $('#toast');
+  el.innerHTML = text;
+  el.className = 'toast show ' + (kind || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = 'toast ' + (kind || ''); }, 2600);
+}
+function sparkle(target, color) {
+  if (document.body.dataset.motion === 'off' || !target) return;
+  const b = target.getBoundingClientRect();
+  for (let i = 0; i < 10; i++) {
+    const s = document.createElement('i');
+    const a = (Math.PI * 2 * i) / 10, d = rnd(36, 84);
+    s.className = 'spark';
+    s.style.cssText = 'left:' + (b.left + b.width / 2) + 'px;top:' + (b.top + b.height / 2) + 'px;background:' + (color || '#35d6f0') +
+      ';--dx:' + Math.cos(a) * d + 'px;--dy:' + Math.sin(a) * d + 'px';
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 740);
+  }
+}
+
+/* ================= ذخیره ================= */
+function loadStore() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (_) { return {}; } }
+function saveStore(patch) {
+  const next = Object.assign(loadStore(), patch);
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(next)); } catch (_) { /* پر */ }
+  return next;
+}
+
+/* ================= سختیِ تطبیقی ================= */
+function pickTier() {
+  if (State.answerTotal < 2) return 2;
+  const acc = State.correctTotal / State.answerTotal;
+  const recent = Telemetry.events.filter((e) => e.type === 'answer' && typeof e.ms === 'number').slice(-4);
+  const avg = recent.length ? recent.reduce((a, b) => a + b.ms, 0) / recent.length : 12000;
+  if (acc >= 0.85 && avg < 14000) return 3;
+  if (acc < 0.55 || avg > 32000) return 1;
+  return 2;
+}
+
+/* ================= ساخت تمرین‌ها ================= */
+function buildTask(mission, tier) {
+  const t = mission.topic;
+
+  if (t === 'fraction') {
+    // مخزن با den بخش؛ باید دقیقاً به کسرِ هدف پر شود (هدف ساده‌شده است)
+    const den = tier === 1 ? 4 : tier === 2 ? pick([6, 8]) : pick([9, 10, 12]);
+    const num = rnd(1, den - 1);
+    const g = gcd(num, den);
+    return { topic: t, input: 'tank', den: den, need: num,
+      targetNum: num / g, targetDen: den / g, answer: num,
+      title: mission.title,
+      sub: 'مخزن ' + fa(den) + ' بخش دارد. آن‌قدر بخش پر کن که کسرِ پرشده برابر هدف شود.',
+      prompt: 'هدف: مخزن دقیقاً ' + fracHTML(num / g, den / g) + ' پر شود.',
+      hint: 'هر بخش ' + fracHTML(1, den) + ' است. ' + fracHTML(num / g, den / g) + ' را با مخرج ' + fa(den) + ' بنویس: صورت و مخرج را در ' + fa(g) + ' ضرب کن.' };
+  }
+
+  if (t === 'ratio') {
+    const unit = tier === 1 ? rnd(2, 5) : tier === 2 ? rnd(3, 9) : rnd(4, 14);
+    const base = tier === 1 ? rnd(2, 4) : rnd(3, 7);
+    const mult = tier === 1 ? rnd(2, 4) : tier === 2 ? rnd(3, 7) : rnd(5, 12);
+    const dist = base * mult;
+    return { topic: t, input: 'pad', answer: unit * mult, unit: 'واحد سوخت',
+      title: mission.title,
+      sub: 'نسبت را ثابت نگه دار و مقدارِ خواسته‌شده را حساب کن.',
+      prompt: 'کاوشگر برای <b>' + fa(base) + '</b> سال نوری <b>' + fa(unit) + '</b> واحد سوخت می‌خورد. برای <b>' + fa(dist) + '</b> سال نوری چند واحد لازم است؟',
+      hint: fa(dist) + ' ÷ ' + fa(base) + ' = ' + fa(mult) + ' برابرِ مسیر؛ پس سوخت هم ' + fa(mult) + ' برابر می‌شود.' };
+  }
+
+  if (t === 'percent') {
+    const total = tier === 1 ? pick([100, 200, 300]) : tier === 2 ? pick([120, 150, 240, 260]) : pick([180, 320, 460, 540]);
+    const pct = tier === 1 ? pick([10, 25, 50]) : tier === 2 ? pick([15, 20, 40, 75]) : pick([12, 35, 45, 65]);
+    const value = Math.round((total * pct) / 100);
+    const asLoss = Math.random() < 0.5;
+    return { topic: t, input: 'pad', answer: asLoss ? total - value : value, unit: 'واحد',
+      title: mission.title,
+      sub: 'درصد را روی مقدار کل حساب کن.',
+      prompt: asLoss
+        ? 'سپر <b>' + fa(total) + '</b> واحد انرژی داشت و <b>' + fa(pct) + '٪</b> آن مصرف شد. چند واحد باقی مانده است؟'
+        : '<b>' + fa(pct) + '٪</b> از <b>' + fa(total) + '</b> واحد انرژی چقدر است؟',
+      hint: fa(pct) + '٪ یعنی ' + fracHTML(pct, 100) + ' ؛ پس ' + fa(total) + ' × ' + fa(pct) + ' ÷ ۱۰۰ = ' + fa(value) +
+        (asLoss ? ' و باقی‌مانده = ' + fa(total) + ' − ' + fa(value) : '') };
+  }
+
+  if (t === 'lcm') {
+    const a = tier === 1 ? pick([2, 3, 4]) : tier === 2 ? pick([3, 4, 6]) : pick([4, 6, 8]);
+    let b = tier === 1 ? pick([3, 4, 5]) : tier === 2 ? pick([5, 6, 8]) : pick([6, 9, 10, 12]);
+    while (b === a) b = b + 1;
+    const answer = lcm(a, b);
+    const pool = [answer, a * b, answer + a, answer - a, Math.max(a, b) * 2, answer + b, answer + Math.max(a, b)];
+    const options = shuffle([...new Set(pool.filter((n) => n > 0))]).slice(0, 4);
+    if (options.indexOf(answer) === -1) { options[rnd(0, options.length - 1)] = answer; }
+    return { topic: t, input: 'choice', answer: answer, options: shuffle(options),
+      a: a, b: b, span: Math.min(24, answer + Math.max(a, b)),
+      title: mission.title,
+      sub: 'دو فرستنده با فاصله‌های متفاوت پالس می‌فرستند.',
+      prompt: 'فرستندهٔ A هر <b>' + fa(a) + '</b> ثانیه و فرستندهٔ B هر <b>' + fa(b) + '</b> ثانیه پالس می‌دهد. اولین ثانیه‌ای که هر دو با هم پالس می‌دهند چند است؟',
+      hint: 'دنبالِ کوچک‌ترین عددی باش که هم بر ' + fa(a) + ' و هم بر ' + fa(b) + ' بخش‌پذیر است (ک.م.م).' };
+  }
+
+  if (t === 'integer') {
+    const range = tier === 1 ? 8 : tier === 2 ? 10 : 12;
+    // اول جواب را داخل محور انتخاب می‌کنیم تا صورتِ سؤال هیچ‌وقت از محور بیرون نزند
+    let answer, from, delta;
+    do {
+      answer = rnd(-range + 1, range - 1);
+      delta = pick([-1, 1]) * rnd(2, Math.min(range, 9));
+      from = answer - delta;
+    } while (from < -range || from > range || from === answer);
+    return { topic: t, input: 'line', answer: answer, min: -range, max: range,
+      title: mission.title,
+      sub: 'روی محور، نقطهٔ درست را لمس کن.',
+      prompt: 'دمای بدنه <b>' + temp(from) + '</b> بود و <b>' + fa(Math.abs(delta)) + '</b> درجه ' + (delta > 0 ? 'بالا رفت' : 'پایین آمد') + '. الان چند درجه است؟',
+      hint: (delta > 0 ? 'روی محور به سمت راست' : 'روی محور به سمت چپ') + ' برو: ' + fa(Math.abs(delta)) + ' واحد از ' + temp(from) + '.' };
+  }
+
+  // average
+  const count = tier === 1 ? 3 : tier === 2 ? 4 : 5;
+  const target = tier === 1 ? rnd(4, 9) : rnd(6, 15);
+  const known = Array.from({ length: count - 1 }, () => rnd(Math.max(1, target - 5), target + 5));
+  const answer = target * count - known.reduce((a, b) => a + b, 0);
+  if (answer < 1) known[0] = known[0] - (1 - answer);
+  const finalAnswer = target * count - known.reduce((a, b) => a + b, 0);
+  return { topic: 'average', input: 'pad', answer: finalAnswer, unit: 'واحد',
+    title: MISSIONS[5].title,
+    sub: 'میانگین یعنی مجموع تقسیم بر تعداد.',
+    prompt: '‌' + fa(count - 1) + ' سنسور این مقدارها را داده‌اند: <b>' + known.map(fa).join('، ') +
+      '</b>. سنسور آخر چند باشد تا میانگینِ هر <b>' + fa(count) + '</b> سنسور برابر <b>' + fa(target) + '</b> شود؟',
+    hint: 'مجموعِ لازم = ' + fa(target) + ' × ' + fa(count) + ' = ' + fa(target * count) + ' ؛ از آن، مجموعِ داده‌ها را کم کن.' };
+}
+
+/* ================= رندرِ ابزارِ هر تمرین ================= */
+function renderWork() {
+  const task = State.task;
+  const work = $('#work');
+  work.innerHTML = '';
+  State.input = ''; State.tank = 0; State.mark = null;
+
+  if (task.input === 'tank') {
+    const tank = document.createElement('div');
+    tank.className = 'tank';
+    for (let i = 0; i < task.den; i++) {
+      const seg = document.createElement('button');
+      seg.type = 'button';
+      seg.className = 'seg';
+      seg.setAttribute('aria-label', 'بخش ' + fa(i + 1));
+      seg.addEventListener('click', () => { State.tank = State.tank === i + 1 ? i : i + 1; Sound.tap(); markInteraction(); paintTank(); });
+      tank.appendChild(seg);
+    }
+    const read = document.createElement('div');
+    read.className = 'tank-read';
+    read.innerHTML = '<span>پرشده: <b id="tank-frac">۰</b></span><span>هدف: ' + fracHTML(task.targetNum, task.targetDen) + '</span>';
+    const go = document.createElement('button');
+    go.className = 'confirm'; go.type = 'button'; go.textContent = 'تأیید مخزن';
+    go.addEventListener('click', () => submit(State.tank, go));
+    work.append(tank, read, go);
+    paintTank();
+    return;
+  }
+
+  if (task.input === 'pad') {
+    const out = document.createElement('div');
+    out.className = 'readout empty';
+    out.id = 'readout';
+    out.textContent = 'عدد را وارد کن';
+    const pad = document.createElement('div');
+    pad.className = 'pad';
+    [1, 2, 3, 4, 5, 6, 7, 8, 9].forEach((n) => {
+      const k = document.createElement('button');
+      k.type = 'button'; k.className = 'key'; k.textContent = fa(n);
+      k.addEventListener('click', () => typeDigit(String(n)));
+      pad.appendChild(k);
+    });
+    const del = document.createElement('button');
+    del.type = 'button'; del.className = 'key del'; del.textContent = 'حذف';
+    del.style.fontSize = '14px';
+    del.addEventListener('click', () => { State.input = State.input.slice(0, -1); Sound.key(); markInteraction(); paintReadout(); });
+    const zero = document.createElement('button');
+    zero.type = 'button'; zero.className = 'key'; zero.textContent = fa(0);
+    zero.addEventListener('click', () => typeDigit('0'));
+    const go = document.createElement('button');
+    go.type = 'button'; go.className = 'key go'; go.textContent = 'تأیید';
+    go.addEventListener('click', () => { if (State.input) submit(Number(State.input), go); });
+    pad.append(del, zero, go);
+    work.append(out, pad);
+    return;
+  }
+
+  if (task.input === 'choice') {
+    const sig = document.createElement('div');
+    sig.className = 'signals';
+    sig.innerHTML = signalRows(task);
+    const box = document.createElement('div');
+    box.className = 'options';
+    task.options.forEach((value) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'opt'; b.textContent = fa(value) + ' ثانیه';
+      b.dataset.value = String(value);
+      b.addEventListener('click', () => submit(value, b));
+      box.appendChild(b);
+    });
+    work.append(sig, box);
+    return;
+  }
+
+  // محور اعداد
+  const holder = document.createElement('div');
+  holder.innerHTML = numberLineSVG(task.min, task.max);
+  const svg = holder.firstElementChild;
+  svg.addEventListener('click', (e) => {
+    // مختصاتِ کلیک را به دستگاهِ viewBox می‌بریم و حاشیه‌ی محور را کم می‌کنیم،
+    // وگرنه نقطه‌ی لمس‌شده با تیکِ زیرِ انگشت یکی نمی‌شود
+    const box = svg.getBoundingClientRect();
+    const px = ((e.clientX - box.left) / box.width) * LINE.W;
+    const ratio = (px - LINE.PAD) / (LINE.W - LINE.PAD * 2);
+    const raw = task.min + ratio * (task.max - task.min);
+    State.mark = Math.max(task.min, Math.min(task.max, Math.round(raw)));
+    Sound.tap(); markInteraction(); paintLine();
+  });
+  const go = document.createElement('button');
+  go.className = 'confirm'; go.type = 'button'; go.textContent = 'تأیید نقطه'; go.disabled = true; go.id = 'line-go';
+  go.addEventListener('click', () => submit(State.mark, go));
+  work.append(holder, go);
+}
+
+function paintTank() {
+  const segs = [...$('#work').querySelectorAll('.seg')];
+  segs.forEach((s, i) => s.classList.toggle('on', i < State.tank));
+  const readEl = $('#tank-frac');
+  if (readEl) readEl.innerHTML = State.tank ? fracHTML(State.tank, State.task.den) : '۰';
+}
+
+function typeDigit(d) {
+  if (State.input.length >= 4) return;
+  State.input += d;
+  Sound.key(); markInteraction(); paintReadout();
+}
+function paintReadout() {
+  const out = $('#readout');
+  if (!out) return;
+  if (!State.input) { out.className = 'readout empty'; out.textContent = 'عدد را وارد کن'; return; }
+  out.className = 'readout';
+  out.innerHTML = fa(State.input) + (State.task.unit ? ' <span class="unit">' + State.task.unit + '</span>' : '');
+}
+
+function signalRows(task) {
+  const cells = (step, cls) => Array.from({ length: task.span }, (_, i) => {
+    const sec = i + 1;
+    const on = sec % step === 0;
+    const both = sec % task.a === 0 && sec % task.b === 0;
+    return '<i class="' + (both ? 'both' : on ? cls : '') + '"></i>';
+  }).join('');
+  return '<div class="sig-row"><span class="sig-name">فرستنده A</span><span class="sig-track">' + cells(task.a, 'hit') + '</span></div>' +
+         '<div class="sig-row"><span class="sig-name">فرستنده B</span><span class="sig-track">' + cells(task.b, 'hitB') + '</span></div>' +
+         '<div class="sig-row"><span class="sig-name"></span><span class="sig-track" style="font-size:9px;color:var(--muted)">ثانیه ۱ تا ' + fa(task.span) + '</span></div>';
+}
+
+const LINE = { W: 320, H: 92, PAD: 16 };
+
+function numberLineSVG(min, max) {
+  const W = LINE.W, H = LINE.H, pad = LINE.PAD;
+  const x = (v) => pad + ((v - min) / (max - min)) * (W - pad * 2);
+  let ticks = '';
+  for (let v = min; v <= max; v++) {
+    const big = v === 0 || v % 5 === 0;
+    ticks += '<line class="' + (v === 0 ? 'zero' : 'tick') + '" x1="' + x(v) + '" y1="' + (46 - (big ? 12 : 7)) + '" x2="' + x(v) + '" y2="' + (46 + (big ? 12 : 7)) + '"/>';
+    if (big) ticks += '<text x="' + x(v) + '" y="76">' + signed(v) + '</text>';
+  }
+  return '<svg class="numline" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' +
+    '<line class="axis" x1="' + pad + '" y1="46" x2="' + (W - pad) + '" y2="46"/>' + ticks +
+    '<g id="line-marker" opacity="0"><circle class="marker" cx="0" cy="46" r="8"/><path d="M0 20 L0 36" stroke="#35d6f0" stroke-width="2.5" stroke-linecap="round"/></g>' +
+    '</svg>';
+}
+
+function paintLine() {
+  const task = State.task;
+  const svg = $('#work .numline');
+  const marker = svg.querySelector('#line-marker');
+  const x = LINE.PAD + ((State.mark - task.min) / (task.max - task.min)) * (LINE.W - LINE.PAD * 2);
+  marker.setAttribute('opacity', '1');
+  marker.setAttribute('transform', 'translate(' + x + ',0)');
+  const go = $('#line-go');
+  if (go) { go.disabled = false; go.textContent = 'تأیید: ' + temp(State.mark); }
+}
+
+/* ================= پاسخ ================= */
+function submit(given, el) {
+  if (State.busy || given === null || given === undefined) return;
+  markInteraction();
+  const task = State.task;
+  const ms = Date.now() - State.taskStartedAt;
+  State.attempt++;
+  const correct = Number(given) === Number(task.answer);
+  State.answerTotal++;
+  if (correct) State.correctTotal++;
+
+  const payload = { mission: State.index, topic: task.topic, kind: task.input, correct: correct,
+    given: Number(given), expected: Number(task.answer), ms: ms, attempt: State.attempt,
+    hintUsed: State.hintUsed, tier: State.tier };
+  if (task.input === 'line') payload.distance = Math.abs(Number(given) - Number(task.answer));
+  if (task.input === 'tank') payload.filled = State.tank + '/' + task.den;
+  Telemetry.log('answer', payload);
+
+  if (!correct) {
+    State.errors++;
+    Sound.wrong();
+    if (el) { el.classList.add('wrong'); setTimeout(() => el.classList.remove('wrong'), 420); }
+    toast(wrongNudge(task, Number(given)), 'warn');
+    if (task.input === 'pad') { State.input = ''; paintReadout(); }
+    return;
+  }
+
+  Sound.good();
+  if (el) el.classList.add('right');
+  sparkle(el || $('#ship'));
+  $('#flash').classList.add('on');
+  setTimeout(() => $('#flash').classList.remove('on'), 520);
+  finishMission();
+}
+
+/** بازخوردِ هدفمند — همان چیزی که سمت سرور هم برای تحلیل مفید است */
+function wrongNudge(task, given) {
+  if (task.topic === 'fraction') return given > task.answer ? 'بیشتر از هدف پر شد؛ چند بخش کم کن.' : 'هنوز کمتر از هدف است.';
+  if (task.topic === 'integer') return given > task.answer ? 'کمی به سمت چپِ محور بیا.' : 'کمی به سمت راستِ محور برو.';
+  if (task.topic === 'percent' || task.topic === 'ratio' || task.topic === 'average') {
+    return given > task.answer ? 'جوابت از مقدارِ درست بزرگ‌تر است.' : 'جوابت از مقدارِ درست کوچک‌تر است.';
+  }
+  return 'این عدد هم‌زمانیِ درست نیست؛ دوباره جدول پالس‌ها را نگاه کن.';
+}
+
+function showHint() {
+  if (State.busy || !State.task) return;
+  markInteraction();
+  State.hintUsed = true; State.hints++;
+  Telemetry.log('hint', { mission: State.index, topic: State.task.topic, attempt: State.attempt });
+  toast(State.task.hint, 'warn');
+}
+
+/* ================= چرخهٔ مأموریت ================= */
+function starsFor(ms, errors, hints) {
+  if (errors === 0 && hints === 0 && ms < 40000) return 3;
+  if (errors <= 1 && hints <= 1) return 2;
+  return 1;
+}
+
+function startMission() {
+  const mission = MISSIONS[State.index];
+  State.tier = pickTier();
+  State.task = buildTask(mission, State.tier);
+  State.taskStartedAt = Date.now();
+  State.errors = 0; State.hints = 0; State.hintUsed = false; State.attempt = 0;
+  State.busy = false;
+
+  Telemetry.log('mission_start', { mission: State.index, station: mission.station, topic: mission.topic, tier: State.tier, kind: State.task.input });
+
+  $('#mission-tag').textContent = mission.station + ' — ' + fa(State.index + 1) + '/' + fa(MISSIONS.length);
+  $('#task-title').textContent = State.task.title;
+  $('#task-sub').textContent = State.task.sub;
+  $('#topic-pill').textContent = TOPIC_LABEL[mission.topic];
+  $('#prompt').innerHTML = State.task.prompt;
+  $('#status').textContent = 'سطح سختی: ' + fa(State.tier) + ' از ۳';
+  renderWork();
+  renderRoute();
+}
+
+function finishMission() {
+  if (State.busy) return;
+  State.busy = true;
+  const ms = Date.now() - State.taskStartedAt;
+  const stars = starsFor(ms, State.errors, State.hints);
+  State.stars += stars;
+
+  const record = { index: State.index, station: MISSIONS[State.index].station, topic: MISSIONS[State.index].topic,
+    kind: State.task.input, tier: State.tier, ms: ms, errors: State.errors, hints: State.hints, stars: stars };
+  State.log.push(record);
+  Telemetry.log('mission_end', record);
+
+  Sound.dock();
+  toast(stars === 3 ? 'محاسبهٔ بی‌نقص — موتور با تمام توان روشن شد' : 'درست بود؛ کاوشگر به ایستگاه بعدی می‌رود', 'good');
+  renderRoute();
+
+  setTimeout(() => {
+    Sound.launch();
+    $('#ship').classList.add('travel');
+    setTimeout(() => {
+      $('#ship').classList.remove('travel');
+      State.index++;
+      if (State.index >= MISSIONS.length) endGame();
+      else startMission();
+    }, 1250);
+  }, 900);
+}
+
+function renderRoute() {
+  $('#route').innerHTML = MISSIONS.map((_, i) =>
+    '<span class="node ' + (i < State.index ? 'done' : i === State.index ? 'now' : '') + '"></span>').join('');
+  $('#stars-count').textContent = fa(State.stars);
+}
+
+function endGame() {
+  State.finished = true;
+  const maxStars = MISSIONS.length * 3;
+  const summary = Telemetry.summary({ completed: true, stars: State.stars, maxStars: maxStars, missionsDone: MISSIONS.length });
+  Telemetry.log('game_end', { stars: State.stars, accuracy: summary.accuracy, durationMs: summary.durationMs });
+
+  const store = loadStore();
+  saveStore({ plays: (store.plays || 0) + 1, bestStars: Math.max(store.bestStars || 0, State.stars),
+    bestMs: Math.min(store.bestMs || Infinity, summary.durationMs), lastSummary: summary });
+
+  Telemetry.send({ type: 'luko-game-complete', game: GAME.slug, sessionId: Telemetry.sessionId, summary: summary });
+
+  const ratio = State.stars / maxStars;
+  const big = ratio >= 0.85 ? 3 : ratio >= 0.6 ? 2 : 1;
+  $('#end-stars').innerHTML = [0, 1, 2].map((i) => '<span class="star-big ' + (i < big ? 'on' : 'off') + '">' + starSVG() + '</span>').join('');
+  $('#end-title').textContent = big === 3 ? 'مأموریت بی‌نقص' : 'کاوشگر به مقصد رسید';
+  $('#end-message').textContent = big === 3
+    ? 'هر شش محاسبه را بدون خطا و بدون راهنمایی انجام دادی.'
+    : 'همهٔ ایستگاه‌ها رد شدند. جدول پایین نشان می‌دهد کدام مبحث بیشتر تمرین می‌خواهد.';
+  $('#end-metrics').innerHTML =
+    '<div class="metric"><b>' + fa(State.stars) + '</b><span>ستاره</span></div>' +
+    '<div class="metric"><b>' + clock(summary.durationMs) + '</b><span>زمان</span></div>' +
+    '<div class="metric"><b>' + fa(summary.accuracy) + '٪</b><span>دقت</span></div>' +
+    '<div class="metric"><b>' + fa(summary.hints) + '</b><span>راهنمایی</span></div>';
+
+  const topics = summary.topics;
+  $('#end-topics').innerHTML = Object.keys(topics).map((key) => {
+    const t = topics[key];
+    return '<div class="topic-row"><b>' + t.label + '</b>' +
+      '<span class="topic-bar"><i style="width:' + t.accuracy + '%"></i></span>' +
+      '<span>' + fa(t.accuracy) + '٪</span></div>';
+  }).join('');
+
+  show('screen-end');
+  Sound.win();
+}
+
+/* ================= ناوبری ================= */
+function show(id) { document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('active', s.id === id)); }
+function markInteraction() { State.lastInteractionAt = Date.now(); }
+
+function startGame() {
+  State.index = 0; State.stars = 0; State.log = [];
+  State.finished = false; State.started = true;
+  State.correctTotal = 0; State.answerTotal = 0;
+  Telemetry.newSession();
+  Telemetry.startedAt = Date.now();
+  Telemetry.events = [];
+  Telemetry.log('game_start', { missions: MISSIONS.length, topics: MISSIONS.map((m) => m.topic), device: Telemetry.device() });
+  show('screen-play');
+  startMission();
+}
+
+function renderStartMetrics() {
+  const store = loadStore();
+  $('#start-metrics').innerHTML =
+    '<div class="metric"><b>' + fa(store.plays || 0) + '</b><span>مأموریت</span></div>' +
+    '<div class="metric"><b>' + fa(store.bestStars || 0) + '</b><span>رکورد ستاره</span></div>' +
+    '<div class="metric"><b>' + (store.bestMs && isFinite(store.bestMs) ? clock(store.bestMs) : '—') + '</b><span>بهترین زمان</span></div>' +
+    '<div class="metric"><b>' + fa(MISSIONS.length) + '</b><span>ایستگاه</span></div>';
+  $('#hero').innerHTML = shipSVG('hero');
+  $('#ship').innerHTML = shipSVG('play');
+}
+
+/* ================= سیگنال‌های رفتاری ================= */
+setInterval(() => {
+  if (State.finished || !State.started || !$('#screen-play').classList.contains('active')) return;
+  const idle = Date.now() - State.lastInteractionAt;
+  if (idle > 25000) { Telemetry.log('idle', { mission: State.index, topic: State.task ? State.task.topic : null, ms: idle }); State.lastInteractionAt = Date.now(); }
+}, 5000);
+
+let hiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+  if (!State.started) return;
+  if (document.hidden) { hiddenAt = Date.now(); return; }
+  const away = hiddenAt ? Date.now() - hiddenAt : 0;
+  if (away > 3000) Telemetry.log('away', { mission: State.index, ms: away });
+  hiddenAt = 0; markInteraction();
+});
+
+addEventListener('pagehide', () => {
+  if (!State.started || State.finished) return;
+  Telemetry.send({ type: 'luko-game-progress', game: GAME.slug, sessionId: Telemetry.sessionId,
+    summary: Telemetry.summary({ completed: false, stars: State.stars, missionsDone: State.index }) });
+});
+
+/* ================= دیباگ (?debug=1) ================= */
+const Debug = {
+  on: new URLSearchParams(location.search).get('debug') === '1', el: null,
+  init() { if (!this.on) return; this.el = document.createElement('div'); this.el.className = 'debug'; $('#app').appendChild(this.el); this.render(); },
+  render() {
+    if (!this.el) return;
+    const last = Telemetry.events.slice(-8).reverse()
+      .map((e) => '<div>' + e.t + 'ms <b>' + e.type + '</b> ' + JSON.stringify(e).slice(0, 130) + '</div>').join('');
+    this.el.innerHTML = '<div><b>events: ' + Telemetry.events.length + '</b> · ' + Telemetry.sessionId + '</div>' + last +
+      '<button id="dbg-copy" type="button">copy summary JSON</button>';
+    this.el.querySelector('#dbg-copy').onclick = () => {
+      const data = JSON.stringify({ summary: Telemetry.summary(), events: Telemetry.events }, null, 2);
+      if (navigator.clipboard) navigator.clipboard.writeText(data);
+      console.log(data);
+    };
+  },
+};
+
+window.LUKO_GAME = {
+  meta: GAME,
+  get events() { return Telemetry.events; },
+  get state() { return { index: State.index, stars: State.stars, finished: State.finished, topic: State.task ? State.task.topic : null, answer: State.task ? State.task.answer : null }; },
+  summary: () => Telemetry.summary(),
+};
+
+/* ================= رویدادهای رابط ================= */
+$('#btn-start').addEventListener('click', () => { Sound.init(); Sound.launch(); startGame(); });
+$('#btn-again').addEventListener('click', () => startGame());
+$('#btn-hint').addEventListener('click', showHint);
+$('#btn-how').addEventListener('click', () => {
+  toast('هر ایستگاه یک محاسبه است؛ جواب را وارد کن و تأیید بزن. راهنمایی هست، ولی ستاره کم می‌کند.');
+  Telemetry.log('help_open', {});
+});
+$('#btn-sound').addEventListener('click', (e) => {
+  Sound.on = !Sound.on;
+  e.currentTarget.classList.toggle('off', !Sound.on);
+  saveStore({ sound: Sound.on });
+  Telemetry.log('setting', { sound: Sound.on });
+  if (Sound.on) Sound.tap();
+});
+$('#btn-motion').addEventListener('click', (e) => {
+  const off = document.body.dataset.motion === 'on';
+  document.body.dataset.motion = off ? 'off' : 'on';
+  e.currentTarget.classList.toggle('off', off);
+  saveStore({ motion: !off });
+  Telemetry.log('setting', { motion: !off });
+});
+addEventListener('keydown', (e) => {
+  if (!State.started || State.busy || !State.task || State.task.input !== 'pad') return;
+  if (/^[0-9]$/.test(e.key)) typeDigit(e.key);
+  else if (e.key === 'Backspace') { State.input = State.input.slice(0, -1); paintReadout(); }
+  else if (e.key === 'Enter' && State.input) submit(Number(State.input), null);
+});
+
+/* ================= راه‌اندازی ================= */
+(function init() {
+  const store = loadStore();
+  if (store.sound === false) { Sound.on = false; $('#btn-sound').classList.add('off'); }
+  if (store.motion === false) { document.body.dataset.motion = 'off'; $('#btn-motion').classList.add('off'); }
+  Telemetry.newSession();
+  buildStars();
+  renderStartMetrics();
+  Debug.init();
+  addEventListener('pointerdown', markInteraction, { passive: true });
+})();
+</script>
+</body>
+</html>

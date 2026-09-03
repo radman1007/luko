@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>قطار نگارش - LOKO Edition</title>
+<style>
+/* ===== فونت‌های LOKO ===== */
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Medium.woff2") format("woff2");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Black.woff2") format("woff2");
+  font-weight: 900;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Medium.woff2") format("woff2");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Black.woff2") format("woff2");
+  font-weight: 900;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+}
+
+/* ===== ریست و متغیرهای LOKO ===== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+:root {
+  --primary: #6C5CE7;
+  --neon-blue: #00D2FF;
+  --neon-pink: #FF00A0;
+  --neon-green: #00FF9D;
+  --accent: #FFEAA7;
+  --success: #00B894;
+  --danger: #FF7675;
+  --dark: #1E1E2F;
+  --gold: #FFC93C;
+  --gold-dark: #B96F00;
+  
+  --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+  --bg-glass: rgba(255, 255, 255, 0.15);
+  --bg-glass-border: rgba(255, 255, 255, 0.3);
+  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.35);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  
+  --gradient-gold: linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%);
+  --gradient-bg: linear-gradient(135deg, #0c0a14, #181225);
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font);
+  background: var(--gradient-bg);
+  color: white;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  height: 100vh;
+  height: 100dvh;
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-bg);
+  box-shadow: 0 0 40px rgba(108, 92, 231, 0.2);
+}
+
+/* ===== اسکرین‌ها ===== */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  padding: 20px;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.screen.active {
+  display: flex;
+  opacity: 1;
+  transform: translateX(0);
+  animation: screenEnter 0.4s ease;
+}
+
+@keyframes screenEnter {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ===== هدر و آیکون‌ها ===== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0 20px;
+  position: relative;
+  z-index: 10;
+}
+
+/* ===== LOKO Coin System ===== */
+.coin-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--bg-glass-border);
+  box-shadow: 0 4px 15px rgba(255, 201, 60, 0.2);
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--gold);
+}
+
+.coin-icon-img {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 5px rgba(255, 201, 60, 0.6));
+  animation: coinSpin 4s ease-in-out infinite;
+}
+
+@keyframes coinSpin {
+  0%, 100% { transform: rotateY(0); }
+  50% { transform: rotateY(180deg); }
+}
+
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: white;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.btn-icon:active {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0.92);
+}
+
+.btn-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ===== منوی اصلی (LOKO Layout) ===== */
+.main-screen {
+  justify-content: space-between;
+  text-align: center;
+  padding: 30px 24px 40px;
+  align-items: center;
+}
+
+.game-title {
+  font-size: 36px;
+  font-weight: 900;
+  margin-top: 10px;
+  color: white;
+  text-shadow: 0 0 15px var(--primary), 2px 2px 0px var(--dark);
+  letter-spacing: -0.5px;
+}
+
+.game-subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 8px;
+  margin-bottom: 20px;
+}
+
+.character-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 260px;
+}
+
+.speech-bubble {
+  background: var(--bg-glass);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--bg-glass-border);
+  padding: 12px 24px;
+  border-radius: 20px;
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--accent);
+  position: relative;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  animation: float 3s ease-in-out infinite;
+}
+
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  border-top-color: var(--bg-glass-border);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.main-character {
+  width: 200px;
+  height: 220px;
+  filter: drop-shadow(0 0 25px rgba(108, 92, 231, 0.5));
+  animation: characterFloat 4s ease-in-out infinite;
+  object-fit: contain;
+}
+
+@keyframes characterFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.main-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+/* ===== دکمه‌های LOKO ===== */
+.btn {
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  font-weight: 900;
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.btn-primary {
+  background: var(--gradient-gold);
+  color: var(--dark);
+  padding: 18px 32px;
+  font-size: 20px;
+  border: 2px solid var(--gold);
+  box-shadow: 0 6px 0px var(--gold-dark), 0 10px 20px rgba(255, 201, 60, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0px var(--gold-dark), 0 5px 10px rgba(255, 201, 60, 0.4);
+}
+
+.btn-secondary {
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  color: var(--gold);
+  padding: 14px 24px;
+  font-size: 16px;
+  border: 2px solid var(--gold);
+  box-shadow: 0 4px 0px var(--gold-dark), 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.btn-secondary:active {
+  transform: translateY(4px);
+  box-shadow: 0 0px 0px var(--gold-dark), 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-danger {
+  background: linear-gradient(180deg, #FF8A8A 0%, #FF7675 45%, #D63030 100%);
+  color: white;
+  padding: 14px 24px;
+  font-size: 16px;
+  border: 2px solid #FF7675;
+  box-shadow: 0 4px 0px #D63030, 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.btn-danger:active {
+  transform: translateY(4px);
+  box-shadow: 0 0px 0px #D63030, 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-row {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-row .btn {
+  flex: 1;
+}
+
+.btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* ===== Result Screen (Win/Lose Menu) ===== */
+.result-screen {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.result-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4), 0 0 30px rgba(108, 92, 231, 0.2) inset;
+}
+
+.result-title {
+  font-size: 36px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.win-title {
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(255, 201, 60, 0.6);
+}
+
+.lose-title {
+  color: var(--danger);
+  text-shadow: 0 0 20px rgba(255, 118, 117, 0.6);
+}
+
+.result-character {
+  width: 140px;
+  height: 150px;
+  margin: 10px 0 20px 0;
+  animation: characterFloat 3s ease-in-out infinite;
+  object-fit: contain;
+}
+
+.coin-reward {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(255, 201, 60, 0.1);
+  border: 1px solid var(--gold);
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  margin: 10px 0 20px;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--gold);
+  box-shadow: 0 0 20px rgba(255, 201, 60, 0.2);
+}
+
+.result-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* ===== سایر صفحات (فروشگاه، راهنما، انتخاب مرحله) ===== */
+.section-title {
+  font-size: 28px;
+  font-weight: 900;
+  margin: 16px 0 20px;
+  text-align: center;
+  color: white;
+  text-shadow: 0 0 10px var(--primary);
+}
+
+.levels-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  padding-bottom: 20px;
+}
+
+.level-card {
+  aspect-ratio: 1;
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.level-card:active:not(.locked) {
+  transform: scale(0.95);
+  border-color: var(--gold);
+}
+
+.level-card.locked {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+/* ===== استاپ منو ===== */
+.stop-menu {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.stop-menu h2 {
+  font-size: 32px;
+  margin-bottom: 30px;
+  color: white;
+}
+
+.stop-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 280px;
+}
+
+/* ===== فروشگاه ===== */
+.shop-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  background: var(--dark);
+  padding: 6px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--bg-glass-border);
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 8px;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.tab.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
+}
+
+.shop-content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  align-content: start;
+  padding-bottom: 20px;
+}
+
+.shop-item {
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.shop-item-preview {
+  width: 80px;
+  height: 80px;
+  background: var(--dark);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.shop-item-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.btn-buy {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--gradient-gold);
+  color: var(--dark);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-buy:disabled {
+  background: #555;
+  color: #888;
+}
+.btn-buy.equipped { background: var(--success); color: white; }
+.btn-buy.owned { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+
+/* ===== راهنما ===== */
+.help-screen {
+  padding: 16px 20px;
+}
+
+.help-content {
+  flex: 1;
+  background: var(--bg-glass);
+  backdrop-filter: blur(15px);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--bg-glass-border);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.help-character {
+  width: 140px;
+  height: 140px;
+  margin-bottom: 16px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px var(--neon-blue));
+  animation: characterFloat 3s ease-in-out infinite;
+}
+
+.help-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--neon-blue);
+  margin-bottom: 16px;
+}
+
+.help-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.help-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--bg-glass-border);
+  text-align: right;
+}
+
+.step-number {
+  width: 28px;
+  height: 28px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px var(--primary);
+}
+
+.step-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.step-text strong {
+  color: var(--gold);
+}
+
+/* ===== محتوای بازی ===== */
+.game-screen {
+  padding: 16px;
+}
+
+.game-timer {
+  background: var(--bg-glass);
+  padding: 8px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--bg-glass-border);
+  font-weight: 800;
+  color: var(--neon-blue);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.timer-bar-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 4px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.timer-bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--success), var(--neon-blue));
+  transition: width 1s linear, background 0.3s;
+}
+
+.game-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--bg-glass-border);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.train-svg {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  touch-action: none;
+  display: block;
+}
+
+.missing-line-group .start-dot,
+.missing-line-group .end-dot {
+  cursor: pointer;
+  filter: drop-shadow(0 0 12px var(--neon-pink));
+  r: 14;
+  stroke-width: 3;
+}
+
+.drawing-path {
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px var(--neon-green));
+}
+
+.completed-line {
+  stroke: #2c2c2c !important;
+  stroke-width: 6 !important;
+}
+
+/* ===== Toast & Confetti ===== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--dark);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--primary);
+  box-shadow: 0 0 20px var(--primary);
+  font-weight: 700;
+  z-index: 300;
+  opacity: 0;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.confetti-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 200;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 14px;
+  top: -20px;
+  animation: confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+  to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== منوی اصلی ===== -->
+  <section id="screen-main" class="screen main-screen active">
+    <div class="header">
+      <div class="coin-display">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="coin">
+        <span id="coin-count">0</span>
+      </div>
+      <button class="btn-icon" id="btn-help-main" aria-label="راهنما">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4" stroke-linecap="round"/>
+          <circle cx="12" cy="17" r="1.2" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+    
+    <h1 class="game-title">قطار نگارش</h1>
+    <p class="game-subtitle">خطوط افقی را کامل کن و قطار را به حرکت درآور!</p>
+    
+    <div class="character-wrapper">
+      <div class="speech-bubble">سلام! آماده‌ای بریم؟</div>
+      <img src="/games/assets/icons/gamer.png" class="main-character" alt="gamer">
+    </div>
+    
+    <div class="main-actions">
+      <button class="btn btn-primary" id="btn-start">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        شروع بازی
+      </button>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="btn-shop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M6 7h12l1 14H5L6 7z" stroke-linejoin="round"/>
+            <path d="M9 7V5a3 3 0 0 1 6 0v2" stroke-linecap="round"/>
+          </svg>
+          فروشگاه
+        </button>
+        <button class="btn btn-secondary" id="btn-help">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4" stroke-linecap="round"/>
+            <circle cx="12" cy="17" r="1.2" fill="currentColor"/>
+          </svg>
+          راهنما
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== انتخاب مرحله ===== -->
+  <section id="screen-levels" class="screen">
+    <div class="header">
+      <button class="btn-icon" id="back-from-levels" aria-label="بازگشت">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+      <h2 style="font-size:20px;font-weight:900">مراحل بازی</h2>
+      <div class="coin-display">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="coin">
+        <span id="coin-count-levels">0</span>
+      </div>
+    </div>
+    <div class="levels-grid" id="levels-grid"></div>
+  </section>
+
+  <!-- ===== صفحه بازی ===== -->
+  <section id="screen-game" class="screen game-screen">
+    <div class="header">
+      <button class="btn-icon" id="btn-stop" aria-label="توقف">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <rect x="6" y="6" width="12" height="12" rx="2"/>
+        </svg>
+      </button>
+      <div class="game-timer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <span id="timer-text">45</span>
+      </div>
+      <div class="coin-display">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="coin">
+        <span id="coin-count-game">0</span>
+      </div>
+    </div>
+    <div class="timer-bar-container">
+      <div class="timer-bar" id="timer-bar"></div>
+    </div>
+    <div class="game-area" id="game-area"></div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div style="flex:1; height:12px; background:rgba(0,0,0,0.3); border-radius:6px; overflow:hidden; border:1px solid var(--bg-glass-border);">
+        <div id="progress-fill" style="height:100%; background:var(--gradient-gold); width:0%; transition:width 0.5s; box-shadow:0 0 10px var(--gold);"></div>
+      </div>
+      <span style="font-weight:800; color:var(--gold);"><span id="lines-completed">0</span> / <span id="lines-total">0</span></span>
+    </div>
+  </section>
+
+  <!-- ===== صفحه نتیجه (برنده/بازنده) ===== -->
+  <section id="screen-result" class="screen result-screen">
+    <div class="result-card">
+      <h2 class="result-title" id="result-title">آفرین! بردی</h2>
+      <img src="/games/assets/icons/gamer.png" class="result-character" alt="gamer">
+      
+      <div class="coin-reward" id="coin-reward-ui" style="display: none;">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="coin">
+        +<span id="earned-coins">0</span>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn btn-primary" id="btn-result-next" style="display: none;">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          مرحله بعد
+        </button>
+        <button class="btn btn-secondary" id="btn-result-restart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/>
+          </svg>
+          شروع مجدد
+        </button>
+        <button class="btn btn-danger" id="btn-result-home">رفتن به خانه</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== استاپ منو ===== -->
+  <section id="screen-stop" class="screen stop-menu">
+    <h2>بازی متوقف شد</h2>
+    <img src="/games/assets/icons/gamer.png" class="result-character" style="width:100px; height:100px; margin-bottom:20px;" alt="gamer">
+    <div class="stop-actions">
+      <button class="btn btn-primary" id="btn-resume">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        ادامه بازی
+      </button>
+      <button class="btn btn-secondary" id="btn-restart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/>
+        </svg>
+        شروع مجدد
+      </button>
+      <button class="btn btn-danger" id="btn-stop-home">منوی اصلی</button>
+    </div>
+  </section>
+
+  <!-- ===== فروشگاه ===== -->
+  <section id="screen-shop" class="screen">
+    <div class="header">
+      <button class="btn-icon" id="back-from-shop" aria-label="بازگشت">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+      <h2 style="font-size:20px;font-weight:900">فروشگاه</h2>
+      <div class="coin-display">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="coin">
+        <span id="coin-count-shop">0</span>
+      </div>
+    </div>
+    <div class="shop-tabs">
+      <button class="tab active" data-tab="skins">پوسته‌ها</button>
+      <button class="tab" data-tab="customizations">شخصی‌سازی</button>
+    </div>
+    <div class="shop-content" id="shop-content"></div>
+  </section>
+
+  <!-- ===== راهنما ===== -->
+  <section id="screen-help" class="screen help-screen">
+    <div class="header">
+      <button class="btn-icon" id="back-from-help" aria-label="بازگشت">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+      <h2 style="font-size:20px;font-weight:900">راهنمای بازی</h2>
+      <div style="width:44px"></div>
+    </div>
+    <div class="help-content">
+      <img src="/games/assets/icons/gamerhi.png" class="help-character" alt="guide">
+      <h3 class="help-title">سلام! من راهنمای تو هستم</h3>
+      <div class="help-steps">
+        <div class="help-step">
+          <div class="step-number">۱</div>
+          <div class="step-text">در هر مرحله یک <strong>قطار</strong> با واگن‌های ناتمام می‌بینی. بعضی خطوط افقی واگن‌ها <strong>خالی</strong> هستند.</div>
+        </div>
+        <div class="help-step">
+          <div class="step-number">۲</div>
+          <div class="step-text">روی <strong>نقطه صورتی</strong> لمس کن و انگشتت را تا نقطه دیگر <strong>بکش</strong>.</div>
+        </div>
+        <div class="help-step">
+          <div class="step-number">۳</div>
+          <div class="step-text">وقتی خط کامل شد، <strong>سبز می‌شود</strong> و صدای زیبایی می‌شنوی!</div>
+        </div>
+        <div class="help-step">
+          <div class="step-number">۴</div>
+          <div class="step-text">تمام خطوط را قبل از پایان <strong>زمان</strong> کامل کن تا برنده شیوی!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="confetti-container" class="confetti-container"></div>
+  <div id="toast" class="toast"></div>
+
+</div>
+
+<script src="/games/assets/luko-sdk.js"></script>
+<script>
+'use strict';
+
+/* ============================================================
+   === LOKO State Management (Preserved & Synced) ============
+   ============================================================ */
+const STORAGE_KEY = 'loko_trainWritingGame_v5';
+const defaultState = {
+  coins: 0,
+  unlockedLevels: 1,
+  equipped: { skin: 'default', customization: 'default' },
+  owned: { skins: ['default'], customizations: ['default'] },
+  metrics: { totalResponseTime: 0, totalAttempts: 0, correctFirstTry: 0, wrongAttempts: 0, levelsCompleted: 0, totalLinesDrawn: 0 },
+  pendingSync: false
+};
+
+let state = loadState();
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return { ...JSON.parse(JSON.stringify(defaultState)), ...JSON.parse(saved) };
+  } catch (e) {}
+  return JSON.parse(JSON.stringify(defaultState));
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    state.pendingSync = true;
+    syncData();
+  } catch (e) {}
+}
+
+function syncData() {
+  if (navigator.onLine && state.pendingSync) {
+    state.pendingSync = false;
+  }
+}
+window.addEventListener('online', syncData);
+
+/* ============================================================
+   === LOKO Sound Manager (Web Audio API) =====================
+   ============================================================ */
+class SoundManager {
+  constructor() { this.ctx = null; this.enabled = true; }
+  init() {
+    if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { this.enabled = false; } }
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+  }
+  play(freq, duration, type = 'sine', volume = 0.08, delay = 0) {
+    if (!this.enabled) return; this.init(); if (!this.ctx) return;
+    const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    const start = this.ctx.currentTime + delay;
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(volume, start + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(start); osc.stop(start + duration);
+  }
+  click() { this.play(600, 0.08, 'square', 0.04); }
+  success() { this.play(523, 0.12, 'sine', 0.08); this.play(659, 0.12, 'sine', 0.08, 0.08); this.play(784, 0.15, 'sine', 0.08, 0.16); }
+  error() { this.play(180, 0.2, 'sawtooth', 0.05); }
+  coin() { this.play(988, 0.06, 'triangle', 0.06); this.play(1319, 0.1, 'triangle', 0.06, 0.05); }
+  levelComplete() { [523, 587, 659, 784, 880, 1047].forEach((f, i) => this.play(f, 0.18, 'sine', 0.08, i * 0.1)); }
+  drawStart() { this.play(440, 0.1, 'sine', 0.05); }
+  drawing() { this.play(660, 0.04, 'sine', 0.02); }
+}
+const sound = new SoundManager();
+
+/* ============================================================
+   === Game Logic (PRESERVED) & Timers =======================
+   ============================================================ */
+// زمان هر مرحله به ثانیه (سختی به مرور بالاتر می‌رود)
+const levels = [
+  { id: 1, time: 45, timeOfDay: 'night', trainColor: '#6C5CE7', wagonColor: '#00D2FF', wagons: 2, missing: ['roof-0', 'roof-1'] },
+  { id: 2, time: 40, timeOfDay: 'morning', trainColor: '#FF00A0', wagonColor: '#00FF9D', wagons: 2, missing: ['roof-0', 'middle-0', 'roof-1'] },
+  { id: 3, time: 35, timeOfDay: 'noon', trainColor: '#00D2FF', wagonColor: '#FFC93C', wagons: 3, missing: ['roof-0', 'roof-1', 'roof-2'] },
+  { id: 4, time: 30, timeOfDay: 'sunset', trainColor: '#6C5CE7', wagonColor: '#FF7675', wagons: 3, missing: ['roof-0', 'middle-0', 'roof-1', 'roof-2'] },
+  { id: 5, time: 25, timeOfDay: 'night', trainColor: '#00FF9D', wagonColor: '#00B894', wagons: 3, missing: ['roof-0', 'middle-0', 'roof-1', 'middle-2'] },
+  { id: 6, time: 20, timeOfDay: 'morning', trainColor: '#FFC93C', wagonColor: '#FF00A0', wagons: 4, missing: ['roof-0', 'roof-1', 'middle-1', 'roof-2', 'roof-3'] }
+];
+
+const shopItems = {
+  skins: [
+    { id: 'default', name: 'کلاسیک', price: 0, color: '#6C5CE7', wagonColor: '#00D2FF' },
+    { id: 'neon', name: 'نئونی', price: 12, color: '#FF00A0', wagonColor: '#00FF9D' },
+    { id: 'gold', name: 'طلایی', price: 15, color: '#FFC93C', wagonColor: '#FF7675' },
+    { id: 'dark', name: 'تاریک', price: 8, color: '#1E1E2F', wagonColor: '#6C5CE7' }
+  ],
+  customizations: [
+    { id: 'default', name: 'پیش‌فرض', price: 0 },
+    { id: 'stars', name: 'ستاره‌ها', price: 8 },
+    { id: 'confetti', name: 'کنفتی', price: 12 },
+    { id: 'rainbow', name: 'رنگین‌کمان', price: 15 }
+  ]
+};
+
+function generateLevelSVG(level) {
+  const skin = shopItems.skins.find(s => s.id === state.equipped.skin);
+  const trainColor = skin && skin.id !== 'default' ? skin.color : level.trainColor;
+  const wagonColor = skin && skin.id !== 'default' ? skin.wagonColor : level.wagonColor;
+  
+  // رنگ‌بندی آسمان بر اساس زمان روز
+  const skyColors = {
+    night: ['#0c0a14', '#1E1E2F', '#181225'],
+    morning: ['#6C5CE7', '#FF00A0', '#FFEAA7'],
+    noon: ['#00D2FF', '#00FF9D', '#FFEAA7'],
+    sunset: ['#FF00A0', '#6C5CE7', '#181225']
+  };
+  const [skyTop, skyMid, skyBottom] = skyColors[level.timeOfDay] || skyColors.noon;
+  
+  let sleepers = '';
+  for (let x = 0; x < 800; x += 28) {
+    sleepers += `<rect x="${x}" y="335" width="18" height="14" fill="#1E1E2F" stroke="#0c0a14" stroke-width="0.5"/>`;
+  }
+  
+  // درختان جنگل به عنوان پس‌زمینه
+  let forestElements = `
+    <g opacity="0.9">
+      <path d="M 60 320 L 30 240 L 90 240 Z" fill="#1a5c2e"/>
+      <rect x="55" y="305" width="10" height="20" fill="#4a3010"/>
+      <path d="M 150 320 L 125 260 L 175 260 Z" fill="#226634"/>
+      <rect x="145" y="308" width="10" height="15" fill="#4a3010"/>
+      
+      <path d="M 300 320 L 270 220 L 330 220 Z" fill="#1a5c2e"/>
+      <rect x="295" y="305" width="10" height="20" fill="#4a3010"/>
+      <path d="M 420 320 L 395 250 L 445 250 Z" fill="#226634"/>
+      <rect x="415" y="308" width="10" height="15" fill="#4a3010"/>
+      
+      <path d="M 580 320 L 550 210 L 610 210 Z" fill="#1a5c2e"/>
+      <rect x="575" y="305" width="10" height="20" fill="#4a3010"/>
+      <path d="M 720 320 L 695 240 L 745 240 Z" fill="#226634"/>
+      <rect x="715" y="308" width="10" height="15" fill="#4a3010"/>
+      
+      <path d="M 620 320 L 600 260 L 640 260 Z" fill="#226634"/>
+      <rect x="615" y="308" width="10" height="15" fill="#4a3010"/>
+    </g>`;
+  
+  let trainSVG = `
+    <g class="locomotive">
+      <rect x="78" y="218" width="125" height="82" fill="${trainColor}" stroke="#1E1E2F" stroke-width="2" rx="5"/>
+      <rect x="98" y="190" width="85" height="30" fill="${trainColor}" stroke="#1E1E2F" stroke-width="2" rx="3"/>
+      <rect x="108" y="228" width="55" height="38" fill="#00D2FF" stroke="#1E1E2F" stroke-width="2" rx="3"/>
+      <circle cx="115" cy="305" r="18" fill="#1E1E2F"/>
+      <circle cx="170" cy="305" r="18" fill="#1E1E2F"/>
+    </g>`;
+  
+  for (let i = 0; i < level.wagons; i++) {
+    const x = 225 + i * 130;
+    const roofMissing = level.missing.includes(`roof-${i}`);
+    const middleMissing = level.missing.includes(`middle-${i}`);
+    
+    trainSVG += `<g class="wagon" data-wagon="${i}">`;
+    trainSVG += `<rect x="${x - 22}" y="282" width="22" height="6" fill="#1E1E2F"/>`;
+    trainSVG += `<rect x="${x}" y="218" width="115" height="82" fill="${wagonColor}" stroke="#1E1E2F" stroke-width="2" rx="4"/>`;
+    
+    if (roofMissing) {
+      trainSVG += `
+        <g class="missing-line-group" data-line-id="roof-${i}">
+          <line x1="${x + 5}" y1="218" x2="${x + 110}" y2="218" stroke="white" stroke-width="3" stroke-dasharray="6,4" class="dashed-line" opacity="0.5"/>
+          <circle class="start-dot" cx="${x + 5}" cy="218" r="14" fill="#FF00A0" stroke="white" stroke-width="3"/>
+          <circle class="end-dot" cx="${x + 110}" cy="218" r="14" fill="#FF00A0" stroke="white" stroke-width="3"/>
+        </g>`;
+    } else {
+      trainSVG += `<line x1="${x}" y1="218" x2="${x + 115}" y2="218" stroke="#1E1E2F" stroke-width="3"/>`;
+    }
+    
+    if (middleMissing) {
+      trainSVG += `
+        <g class="missing-line-group" data-line-id="middle-${i}">
+          <line x1="${x + 5}" y1="258" x2="${x + 110}" y2="258" stroke="white" stroke-width="3" stroke-dasharray="6,4" class="dashed-line" opacity="0.5"/>
+          <circle class="start-dot" cx="${x + 5}" cy="258" r="14" fill="#FF00A0" stroke="white" stroke-width="3"/>
+          <circle class="end-dot" cx="${x + 110}" cy="258" r="14" fill="#FF00A0" stroke="white" stroke-width="3"/>
+        </g>`;
+    }
+    
+    trainSVG += `<rect x="${x + 35}" y="228" width="40" height="22" fill="#00D2FF" stroke="#1E1E2F" stroke-width="1.5" rx="2"/>`;
+    trainSVG += `<circle cx="${x + 28}" cy="305" r="14" fill="#1E1E2F"/><circle cx="${x + 88}" cy="305" r="14" fill="#1E1E2F"/>`;
+    trainSVG += `</g>`;
+  }
+  
+  return `
+    <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" class="train-svg" preserveAspectRatio="xMidYMid meet" id="train-svg">
+      <defs>
+        <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="${skyTop}"/>
+          <stop offset="60%" stop-color="${skyMid}"/>
+          <stop offset="100%" stop-color="${skyBottom}"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="800" height="320" fill="url(#skyGrad)"/>
+      ${forestElements}
+      <rect y="320" width="800" height="80" fill="#2a4a2a"/>
+      ${sleepers}
+      <line x1="0" y1="335" x2="800" y2="335" stroke="#6C5CE7" stroke-width="3.5"/>
+      <line x1="0" y1="345" x2="800" y2="345" stroke="#6C5CE7" stroke-width="3.5"/>
+      ${trainSVG}
+    </svg>`;
+}
+
+/* ============================================================
+   === LOKO UI Navigation =====================================
+   ============================================================ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  updateCoinDisplays();
+}
+
+function updateCoinDisplays() {
+  ['coin-count', 'coin-count-levels', 'coin-count-game', 'coin-count-shop'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = state.coins;
+  });
+}
+
+/* ============================================================
+   === Levels & Game Flow (PRESERVED LOGIC) ==================
+   ============================================================ */
+let currentLevelIndex = 0;
+let currentLevel = null;
+let linesCompleted = 0;
+let linesTotal = 0;
+let timerInterval = null;
+let timeLeft = 0;
+
+function renderLevels() {
+  const grid = document.getElementById('levels-grid');
+  grid.innerHTML = '';
+  levels.forEach((level, i) => {
+    const card = document.createElement('div');
+    const locked = i + 1 > state.unlockedLevels;
+    card.className = 'level-card' + (locked ? ' locked' : '');
+    card.style.display = 'flex'; card.style.flexDirection = 'column'; card.style.alignItems = 'center'; card.style.justifyContent = 'center';
+    card.innerHTML = `
+      <div style="font-size:32px; font-weight:900; color:${locked ? '#555' : '#FFC93C'};">${level.id}</div>
+      <div style="font-size:12px; color:white;">مرحله ${level.id}</div>
+      ${locked ? `<svg style="position:absolute; inset:0; margin:auto; width:30px; height:30px;" viewBox="0 0 24 24" fill="#6C5CE7"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>` : ''}
+    `;
+    if (!locked) {
+      card.addEventListener('click', () => { sound.click(); startLevel(i); });
+    } else {
+      card.addEventListener('click', () => { sound.error(); showToast('ابتدا مرحله قبل را کامل کن'); });
+    }
+    grid.appendChild(card);
+  });
+}
+
+function startLevel(index) {
+  currentLevelIndex = index;
+  currentLevel = levels[index];
+  linesCompleted = 0;
+  linesTotal = currentLevel.missing.length;
+  
+  document.getElementById('lines-completed').textContent = '0';
+  document.getElementById('lines-total').textContent = linesTotal;
+  document.getElementById('progress-fill').style.width = '0%';
+  
+  const gameArea = document.getElementById('game-area');
+  gameArea.innerHTML = generateLevelSVG(currentLevel);
+  setupDrawingInteraction(document.getElementById('train-svg'));
+  showScreen('screen-game');
+  
+  startTimer(currentLevel.time);
+}
+
+function startTimer(duration) {
+  clearInterval(timerInterval);
+  timeLeft = duration;
+  const timerText = document.getElementById('timer-text');
+  const timerBar = document.getElementById('timer-bar');
+  
+  const updateTimerUI = () => {
+    timerText.textContent = timeLeft;
+    const percent = (timeLeft / duration) * 100;
+    timerBar.style.width = percent + '%';
+    if (percent < 25) timerBar.style.background = 'linear-gradient(90deg, #FF7675, #FF00A0)';
+    else if (percent < 50) timerBar.style.background = 'linear-gradient(90deg, #FFC93C, #FF7675)';
+    else timerBar.style.background = 'linear-gradient(90deg, #00B894, #00D2FF)';
+  };
+  
+  updateTimerUI();
+  
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerUI();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      handleTimeOut();
+    }
+  }, 1000);
+}
+
+function handleTimeOut() {
+  sound.error();
+  showResultScreen(false); // باخت
+}
+
+/* ============================================================
+   === LOKO Coin Reward System & Result Logic =================
+   ============================================================ */
+function completeLevel(/*luko*/) { LUKO.finish({}); return __completeLevel.apply(this, arguments); }
+function __completeLevel() {
+  sound.levelComplete();
+  clearInterval(timerInterval);
+  state.metrics.levelsCompleted++;
+  
+  // باز کردن مرحله بعدی در صورت بردن
+  if (currentLevelIndex + 1 >= state.unlockedLevels && currentLevelIndex + 1 < levels.length) {
+    state.unlockedLevels = currentLevelIndex + 2;
+  }
+
+  // منطق جدید سکه‌دهی: بعد از هر مرحله چک شود
+  let earnedCoins = 0;
+  if (state.coins === 0) {
+    earnedCoins = 10;
+  } else {
+    earnedCoins = 1;
+  }
+  state.coins += earnedCoins;
+  
+  saveState();
+  showConfetti();
+  showResultScreen(true, earnedCoins); // برد
+}
+
+function showResultScreen(isWin, coins = 0) {
+  const title = document.getElementById('result-title');
+  const coinUI = document.getElementById('coin-reward-ui');
+  const nextBtn = document.getElementById('btn-result-next');
+  
+  if (isWin) {
+    title.textContent = "آفرین! بردی";
+    title.className = "result-title win-title";
+    
+    // نمایش سکه‌های کسب شده
+    document.getElementById('earned-coins').textContent = coins;
+    coinUI.style.display = "flex";
+    if (coins > 0) sound.coin();
+    
+    // اگر مرحله آخر نبود، دکمه مرحله بعد رو نشون بده
+    if (currentLevelIndex + 1 < levels.length) {
+      nextBtn.style.display = "flex";
+    } else {
+      nextBtn.style.display = "none";
+    }
+  } else {
+    title.textContent = "باختی! دوباره امتحان کن";
+    title.className = "result-title lose-title";
+    coinUI.style.display = "none";
+    nextBtn.style.display = "none";
+  }
+  
+  showScreen('screen-result');
+}
+
+/* ============================================================
+   === Drawing Interaction (PRESERVED GAMEPLAY) ===============
+   ============================================================ */
+function setupDrawingInteraction(svg) {
+  let drawing = false;
+  let currentLineGroup = null;
+  let pathElement = null;
+  let startX = 0, endX = 0, lineY = 0;
+  let lastDrawX = 0;
+
+  function getSVGPoint(e) {
+    const pt = svg.createSVGPoint();
+    pt.x = e.touches ? e.touches[0].clientX : e.clientX;
+    pt.y = e.touches ? e.touches[0].clientY : e.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  function findNearestMissingLine(pt) {
+    let nearest = null;
+    let minDist = 80;
+    svg.querySelectorAll('.missing-line-group').forEach(line => {
+      if (line.classList.contains('completed')) return;
+      const startDot = line.querySelector('.start-dot');
+      const endDot = line.querySelector('.end-dot');
+      const sx = parseFloat(startDot.getAttribute('cx'));
+      const ex = parseFloat(endDot.getAttribute('cx'));
+      const y = parseFloat(startDot.getAttribute('cy'));
+      const minX = Math.min(sx, ex);
+      const maxX = Math.max(sx, ex);
+      if (pt.x >= minX - 40 && pt.x <= maxX + 40) {
+        const dist = Math.abs(pt.y - y);
+        if (dist < minDist) { minDist = dist; nearest = { group: line, sx, ex, y }; }
+      }
+    });
+    return nearest;
+  }
+
+  function handleStart(e) {
+    e.preventDefault();
+    const pt = getSVGPoint(e);
+    const found = findNearestMissingLine(pt);
+    if (found) {
+      drawing = true;
+      currentLineGroup = found.group;
+      startX = found.sx; endX = found.ex; lineY = found.y; lastDrawX = startX;
+      currentLineGroup.querySelector('.start-dot').style.opacity = '0';
+      
+      pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      pathElement.setAttribute('d', `M ${startX} ${lineY} L ${startX} ${lineY}`);
+      pathElement.setAttribute('stroke', '#00FF9D');
+      pathElement.setAttribute('stroke-width', '8');
+      pathElement.setAttribute('fill', 'none');
+      pathElement.setAttribute('stroke-linecap', 'round');
+      pathElement.classList.add('drawing-path');
+      svg.appendChild(pathElement);
+      sound.drawStart();
+    }
+  }
+
+  function handleMove(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const pt = getSVGPoint(e);
+    const minX = Math.min(startX, endX);
+    const maxX = Math.max(startX, endX);
+    const constrainedX = Math.max(minX, Math.min(maxX, pt.x));
+    if (Math.abs(constrainedX - lastDrawX) > 2) {
+      const d = pathElement.getAttribute('d');
+      pathElement.setAttribute('d', d + ` L ${constrainedX} ${lineY}`);
+      lastDrawX = constrainedX;
+      if (Math.random() < 0.3) sound.drawing();
+    }
+  }
+
+  function handleEnd(e) {
+    if (!drawing) return;
+    drawing = false;
+    if (!pathElement) return;
+    
+    const pathLength = pathElement.getTotalLength();
+    const expectedLength = Math.abs(endX - startX);
+    
+    if (pathLength >= expectedLength * 0.75) {
+      completeCurrentLine();
+      sound.success();
+    } else {
+      pathElement.style.transition = 'opacity 0.3s ease';
+      pathElement.style.opacity = '0';
+      setTimeout(() => pathElement && pathElement.remove(), 300);
+      if (currentLineGroup) currentLineGroup.querySelector('.start-dot').style.opacity = '1';
+      sound.error();
+    }
+    currentLineGroup = null; pathElement = null;
+  }
+
+  function completeCurrentLine(/*luko*/) { LUKO.answer({ topic: 'write-letter', topicLabel: 'نوشتنِ حرف', correct: true }); return __completeCurrentLine.apply(this, arguments); }
+function __completeCurrentLine() {
+    if (!currentLineGroup) return;
+    pathElement.setAttribute('d', `M ${startX} ${lineY} L ${endX} ${lineY}`);
+    pathElement.setAttribute('stroke', '#1E1E2F');
+    pathElement.setAttribute('stroke-width', '6');
+    currentLineGroup.classList.add('completed');
+    currentLineGroup.querySelector('.dashed-line').style.opacity = '0';
+    currentLineGroup.querySelector('.end-dot').style.opacity = '0';
+    
+    const permanentLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    permanentLine.setAttribute('x1', startX);
+    permanentLine.setAttribute('y1', lineY);
+    permanentLine.setAttribute('x2', endX);
+    permanentLine.setAttribute('y2', lineY);
+    permanentLine.setAttribute('stroke', '#1E1E2F');
+    permanentLine.setAttribute('stroke-width', '6');
+    permanentLine.setAttribute('stroke-linecap', 'round');
+    permanentLine.classList.add('completed-line');
+    currentLineGroup.appendChild(permanentLine);
+    
+    linesCompleted++;
+    state.metrics.totalLinesDrawn++;
+    document.getElementById('lines-completed').textContent = linesCompleted;
+    document.getElementById('progress-fill').style.width = (linesCompleted / linesTotal) * 100 + '%';
+    
+    if (linesCompleted >= linesTotal) {
+      setTimeout(() => completeLevel(), 500);
+    }
+  }
+
+  svg.addEventListener('pointerdown', handleStart);
+  svg.addEventListener('pointermove', handleMove);
+  svg.addEventListener('pointerup', handleEnd);
+  svg.addEventListener('pointercancel', handleEnd);
+  svg.addEventListener('pointerleave', handleEnd);
+}
+
+/* ============================================================
+   === Shop, Toast, Confetti (UI Elements) ===================
+   ============================================================ */
+let currentShopTab = 'skins';
+function renderShop() {
+  const content = document.getElementById('shop-content');
+  content.innerHTML = '';
+  shopItems[currentShopTab].forEach(item => {
+    const owned = state.owned[currentShopTab].includes(item.id);
+    const equipped = state.equipped[currentShopTab] === item.id;
+    let btnHTML = equipped ? `<button class="btn-buy equipped" disabled>انتخاب شده</button>` :
+                  owned ? `<button class="btn-buy owned" data-action="equip" data-id="${item.id}">انتخاب کن</button>` :
+                  `<button class="btn-buy" data-action="buy" data-id="${item.id}" ${state.coins < item.price ? 'disabled' : ''}>خرید (${item.price})</button>`;
+                  
+    let preview = `<div style="width:40px; height:40px; background:${item.color || '#6C5CE7'}; border-radius:8px;"></div>`;
+    
+    const shopItem = document.createElement('div');
+    shopItem.className = 'shop-item';
+    shopItem.innerHTML = `
+      <div class="shop-item-preview">${preview}</div>
+      <div style="font-size:14px; font-weight:700; margin-bottom:8px;">${item.name}</div>
+      ${btnHTML}
+    `;
+    content.appendChild(shopItem);
+  });
+  
+  content.querySelectorAll('.btn-buy[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      const id = btn.dataset.id;
+      const item = shopItems[currentShopTab].find(i => i.id === id);
+      sound.click();
+      if (action === 'buy' && state.coins >= item.price) {
+        state.coins -= item.price;
+        state.owned[currentShopTab].push(id);
+        saveState();
+        sound.success();
+        renderShop(); updateCoinDisplays();
+      } else if (action === 'equip') {
+        state.equipped[currentShopTab] = id;
+        saveState();
+        renderShop();
+      }
+    });
+  });
+}
+
+function showConfetti() {
+  const container = document.getElementById('confetti-container');
+  const colors = ['#6C5CE7', '#00D2FF', '#FF00A0', '#00FF9D', '#FFEAA7', '#FFC93C'];
+  for (let i = 0; i < 50; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDuration = (Math.random() * 1.5 + 1.5) + 's';
+    container.appendChild(c);
+    setTimeout(() => c.remove(), 3500);
+  }
+}
+
+let toastTimer;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+/* ============================================================
+   === Initialization (LOKO Shell) ============================
+   ============================================================ */
+function init() {
+  updateCoinDisplays();
+  renderLevels();
+  
+  document.getElementById('btn-start').addEventListener('click', () => {
+    sound.click();
+    renderLevels(); // رندر مجدد مراحل برای نمایش قفل‌های باز شده
+    showScreen('screen-levels');
+  });
+  
+  document.getElementById('btn-shop').addEventListener('click', () => { sound.click(); renderShop(); showScreen('screen-shop'); });
+  document.getElementById('btn-help').addEventListener('click', () => { sound.click(); showScreen('screen-help'); });
+  document.getElementById('btn-help-main').addEventListener('click', () => { sound.click(); showScreen('screen-help'); });
+  
+  document.getElementById('back-from-levels').addEventListener('click', () => { sound.click(); showScreen('screen-main'); });
+  document.getElementById('back-from-shop').addEventListener('click', () => { sound.click(); showScreen('screen-main'); });
+  document.getElementById('back-from-help').addEventListener('click', () => { sound.click(); showScreen('screen-main'); });
+  
+  document.getElementById('btn-stop').addEventListener('click', () => { sound.click(); clearInterval(timerInterval); showScreen('screen-stop'); });
+  document.getElementById('btn-resume').addEventListener('click', () => { sound.click(); showScreen('screen-game'); startTimer(timeLeft); });
+  document.getElementById('btn-restart').addEventListener('click', () => { sound.click(); startLevel(currentLevelIndex); });
+  document.getElementById('btn-stop-home').addEventListener('click', () => { sound.click(); showScreen('screen-main'); });
+  
+  // دکمه‌های منوی نتیجه
+  document.getElementById('btn-result-next').addEventListener('click', () => {
+    sound.click();
+    if (currentLevelIndex + 1 < levels.length) {
+      startLevel(currentLevelIndex + 1);
+    }
+  });
+  document.getElementById('btn-result-restart').addEventListener('click', () => { sound.click(); startLevel(currentLevelIndex); });
+  document.getElementById('btn-result-home').addEventListener('click', () => { sound.click(); showScreen('screen-main'); });
+  
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      sound.click();
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentShopTab = tab.dataset.tab;
+      renderShop();
+    });
+  });
+  
+  document.body.addEventListener('pointerdown', () => sound.init(), { once: true });
+}
+
+init();
+</script>
+</body>
+</html>

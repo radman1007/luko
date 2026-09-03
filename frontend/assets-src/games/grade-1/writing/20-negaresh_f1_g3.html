@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>ماجراجویی خط خمیده - LOKO Game</title>
+
+<style>
+/* LOKO Typography System */
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Medium.woff2") format("woff2");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Black.woff2") format("woff2");
+  font-weight: 900;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Medium.woff2") format("woff2");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Black.woff2") format("woff2");
+  font-weight: 900;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+}
+
+:root {
+  /* LOKO Color Palette */
+  --primary: #6C5CE7;
+  --neon-blue: #00D2FF;
+  --neon-pink: #FF00A0;
+  --neon-green: #00FF9D;
+  --accent: #FFEAA7;
+  --success: #00B894;
+  --danger: #FF7675;
+  --dark: #1E1E2F;
+  --gold: #FFC93C;
+  --gold-dark: #B96F00;
+  
+  /* Typography */
+  --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+  
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.25);
+  --glass-blur: blur(14px);
+  
+  /* Shadows */
+  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 20px rgba(108, 92, 231, 0.4);
+}
+
+* {
+  margin: 0; padding: 0; box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none; user-select: none;
+}
+
+html, body {
+  width: 100%; height: 100%; height: 100dvh;
+  overflow: hidden;
+  font-family: var(--font);
+  background: linear-gradient(135deg, #0c0a14, #181225);
+  color: #fff;
+  overscroll-behavior: none; touch-action: none;
+}
+
+#app-wrapper {
+  position: relative; width: 100%; height: 100%; max-width: 480px;
+  margin: 0 auto; overflow: hidden;
+  background: 
+    radial-gradient(ellipse at top, rgba(108, 92, 231, 0.2), transparent 55%),
+    radial-gradient(ellipse at bottom right, rgba(255, 0, 160, 0.15), transparent 55%),
+    radial-gradient(ellipse at bottom left, rgba(0, 210, 255, 0.15), transparent 50%);
+  box-shadow: 0 0 40px rgba(0,0,0,0.5);
+}
+
+.bg-particles { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.bg-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; animation: float-blob 22s ease-in-out infinite; }
+.bg-blob.b1 { width: 300px; height: 300px; background: var(--primary); top: -80px; right: -50px; }
+.bg-blob.b2 { width: 260px; height: 260px; background: var(--neon-pink); bottom: -80px; left: -50px; animation-delay: -10s; }
+.bg-blob.b3 { width: 200px; height: 200px; background: var(--neon-blue); top: 40%; left: 50%; opacity: 0.2; animation-delay: -5s; }
+
+@keyframes float-blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(20px, -20px) scale(1.1); }
+  66% { transform: translate(-15px, 15px) scale(0.95); }
+}
+
+.screen {
+  position: absolute; inset: 0; display: none; flex-direction: column;
+  padding: env(safe-area-inset-top) 18px env(safe-area-inset-bottom); z-index: 1;
+}
+.screen.active { display: flex; animation: screen-in 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+@keyframes screen-in {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ===== LOKO Coin System ===== */
+.coin-display {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 16px 6px 8px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 100px;
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: 0 4px 14px rgba(255, 201, 60, 0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+  animation: coin-pop 0.5s ease;
+}
+
+@keyframes coin-pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.coin-icon-img { width: 28px; height: 28px; border-radius: 50%; animation: coin-spin 4s linear infinite; }
+.coin-img-reward { width: 50px; height: 50px; border-radius: 50%; animation: coin-spin 2s linear infinite; }
+.coin-img-mini { width: 18px; height: 18px; border-radius: 50%; }
+
+@keyframes coin-spin {
+  0%, 100% { transform: rotateY(0); }
+  50% { transform: rotateY(180deg); }
+}
+
+.coin-amount {
+  font-size: 18px; font-weight: 900; color: var(--gold);
+  text-shadow: 0 0 10px rgba(255, 201, 60, 0.5); min-width: 24px; text-align: center;
+}
+
+.top-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; gap: 12px; position: relative; z-index: 10; }
+
+/* ===== Main Menu Structure ===== */
+#screen-main { align-items: center; justify-content: space-between; padding-top: 14px; padding-bottom: 28px; }
+.main-header { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+
+.game-title {
+  text-align: center; font-size: 30px; font-weight: 900;
+  background: linear-gradient(135deg, var(--neon-blue) 0%, var(--primary) 50%, var(--neon-pink) 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 20px rgba(108, 92, 231, 0.4));
+}
+
+/* Speech Bubble */
+.speech-bubble {
+  position: relative; margin-top: 14px; padding: 12px 24px;
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  border-radius: 16px; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-soft); font-size: 14px; font-weight: 500; color: #fff;
+  animation: float-bubble 3s ease-in-out infinite;
+}
+.speech-bubble::after {
+  content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+  border-width: 10px 10px 0; border-style: solid; border-color: var(--glass-border) transparent transparent transparent;
+}
+.speech-bubble::before {
+  content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+  border-width: 9px 9px 0; border-style: solid; border-color: rgba(255,255,255,0.12) transparent transparent transparent;
+}
+
+@keyframes float-bubble {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Pixel Character */
+.character-wrapper {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  position: relative; width: 100%; min-height: 200px;
+}
+.character-img {
+  width: 160px; height: auto; max-height: 200px;
+  filter: drop-shadow(0 15px 30px rgba(108, 92, 231, 0.6)) drop-shadow(0 0 15px var(--neon-blue));
+  animation: character-float 3.5s ease-in-out infinite;
+  position: relative; z-index: 2; border-radius: 12px;
+  image-rendering: pixelated;
+}
+@keyframes character-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+/* ===== LOKO Buttons ===== */
+.main-buttons { width: 100%; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+
+.btn-primary-loko {
+  width: 100%; max-width: 280px; padding: 16px 32px;
+  font-size: 18px; font-weight: 900; font-family: var(--font); color: var(--gold-dark);
+  background: linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%);
+  border: 2px solid #FFD700; border-radius: 18px; cursor: pointer;
+  box-shadow: 0 8px 0 #B96F00, 0 12px 24px rgba(255, 201, 60, 0.4);
+  transition: all 0.15s ease; position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+}
+.btn-primary-loko:active {
+  transform: translateY(6px);
+  box-shadow: 0 2px 0 #B96F00, 0 4px 8px rgba(255, 201, 60, 0.4);
+}
+.btn-primary-loko svg { width: 24px; height: 24px; }
+
+.btn-row { display: flex; gap: 12px; width: 100%; max-width: 280px; }
+
+.btn-secondary-loko {
+  flex: 1; padding: 12px 18px; font-size: 14px; font-weight: 700; font-family: var(--font);
+  color: #fff; background: var(--glass-bg); border: 1px solid var(--glass-border);
+  border-radius: 14px; cursor: pointer; transition: all 0.15s ease;
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.2), var(--shadow-soft);
+}
+.btn-secondary-loko:active { transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0.2); }
+.btn-secondary-loko svg { width: 20px; height: 20px; }
+
+.back-btn {
+  display: flex; align-items: center; gap: 6px; padding: 8px 14px;
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  border-radius: 100px; color: #fff; font-size: 13px; font-weight: 700; font-family: var(--font);
+  cursor: pointer; transition: all 0.2s; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+}
+.back-btn:active { transform: scale(0.94); }
+.back-btn svg { width: 16px; height: 16px; }
+
+.page-title {
+  text-align: center; font-size: 24px; font-weight: 900; margin: 14px 0 18px;
+  background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+/* ===== Level Selection (Modern Grid) ===== */
+.level-grid {
+  flex: 1; display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 12px; overflow-y: auto; padding: 4px 2px 20px;
+  -webkit-overflow-scrolling: touch; align-content: start;
+}
+
+.level-card {
+  position: relative; border-radius: 24px; overflow: hidden; cursor: pointer;
+  transition: all 0.25s ease; border: 1px solid var(--glass-border);
+  aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  opacity: 0; transform: translateY(20px);
+  animation: card-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  background: rgba(255, 255, 255, 0.05); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.level-card::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1), transparent 30%);
+  pointer-events: none;
+}
+
+@keyframes card-in { to { opacity: 1; transform: translateY(0); } }
+
+.level-card.unlocked {
+  background: linear-gradient(135deg, var(--primary), var(--neon-blue));
+  box-shadow: 0 8px 20px rgba(108, 92, 231, 0.4);
+  border: none;
+}
+.level-card.unlocked:active { transform: scale(0.96); }
+
+.level-card.completed {
+  background: linear-gradient(135deg, var(--success), #14b8a6);
+  box-shadow: 0 8px 20px rgba(0, 184, 148, 0.3);
+  border: none;
+}
+.level-card.completed:active { transform: scale(0.96); }
+
+.level-card.locked {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: none;
+}
+
+.level-card-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.level-card-num { font-size: 42px; font-weight: 900; color: rgba(255, 255, 255, 0.95); text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+.level-card.locked .level-card-num { color: rgba(255, 255, 255, 0.15); font-size: 36px; }
+
+.level-card-info { 
+  font-size: 11px; color: rgba(255,255,255,0.8); font-weight: 600;
+  background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 10px; margin-top: 4px;
+}
+.level-card.locked .level-card-info { display: none; }
+
+.level-card-icon {
+  position: absolute; top: 16px; left: 16px;
+  width: 32px; height: 32px; padding: 6px;
+  background: rgba(255,255,255,0.15); border-radius: 50%; 
+  display: flex; align-items: center; justify-content: center; color: white;
+  z-index: 2;
+}
+.level-card.unlocked .level-card-icon { background: rgba(255,255,255,0.2); color: #fff; }
+.level-card.completed .level-card-icon { background: rgba(255,255,255,0.2); color: #fff; }
+.level-card.locked .level-card-icon { 
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 48px; height: 48px; padding: 12px;
+  background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); 
+}
+
+/* ===== Help (Mini Game) ===== */
+.help-content {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 0 4px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 16px;
+}
+.help-character-img {
+  width: 100px; height: auto; max-height: 120px;
+  margin-bottom: 8px; filter: drop-shadow(0 12px 24px rgba(108, 92, 231, 0.5));
+  animation: character-float 3.5s ease-in-out infinite; border-radius: 12px;
+}
+.help-bubble {
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  border-radius: 20px; padding: 18px;
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-soft); width: 100%; margin-bottom: 14px;
+}
+.help-intro { font-size: 14px; line-height: 1.7; color: #fff; margin-bottom: 16px; text-align: justify; }
+.help-intro strong { color: var(--neon-blue); font-weight: 700; }
+
+.help-interactive-demo {
+  margin-top: 4px; padding: 12px;
+  background: rgba(0,0,0,0.3); border-radius: 16px; border: 1px solid var(--glass-border);
+}
+.help-demo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.help-demo-title { font-size: 13px; color: #fff; font-weight: 700; }
+.help-demo-score {
+  font-size: 13px; font-weight: 800; padding: 4px 12px;
+  background: var(--glass-bg); border-radius: 100px; transition: all 0.3s; color: #fff; border: 1px solid var(--glass-border);
+}
+.help-demo-score.positive { color: var(--success); border-color: var(--success); box-shadow: 0 0 10px rgba(0,184,148,0.4); }
+.help-demo-score.negative { color: var(--danger); border-color: var(--danger); box-shadow: 0 0 10px rgba(255,118,117,0.4); }
+
+.mini-board-frame {
+  width: 100%; height: 240px;
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #022c22 100%);
+  border-radius: 14px; padding: 8px; position: relative; overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3);
+  margin-bottom: 10px; border: 1px solid var(--glass-border);
+}
+.mini-board { position: relative; width: 100%; height: 100%; }
+.mini-board::before {
+  content: ''; position: absolute; inset: 0; background-image: 
+  linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), 
+  linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.mini-target-zone {
+  height: 60px; background: var(--glass-bg); border: 2px dashed var(--glass-border);
+  border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s; overflow: visible;
+}
+.mini-target-zone.active { border-color: var(--neon-blue); background: rgba(0, 210, 255, 0.15); box-shadow: 0 0 15px rgba(0, 210, 255, 0.4); }
+.mini-target-slot { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 100%; z-index: 2; }
+.mini-target-line { position: absolute; top: 50%; left: 10px; right: 10px; height: 2px; background: linear-gradient(90deg, transparent, var(--neon-blue), transparent); transform: translateY(-50%); opacity: 0.7; }
+
+.mini-shape {
+  position: absolute; width: 44px; height: 44px; cursor: grab;
+  touch-action: none; z-index: 2; display: flex; align-items: center; justify-content: center;
+}
+.mini-shape svg { width: 100%; height: 100%; pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+.mini-shape.dragging { z-index: 1000; transform: scale(1.1); }
+.mini-shape.dragging svg { filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5)) drop-shadow(0 0 8px var(--neon-blue)); }
+.mini-shape.wrong-drop { animation: shake 0.5s; }
+.mini-shape.wrong-drop::after {
+  content: ''; position: absolute; inset: -4px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 118, 117, 0.5), transparent 70%);
+  animation: halo-pulse 0.5s ease; pointer-events: none; z-index: -1;
+}
+.mini-placed { width: 40px; height: 40px; animation: place-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.mini-placed svg { width: 100%; height: 100%; }
+
+.help-mini-reset {
+  width: 100%; margin-top: 12px; padding: 8px;
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  color: #fff; border-radius: 10px; font-family: var(--font); font-size: 12px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.help-mini-reset:active { transform: scale(0.97); }
+.help-mini-reset svg { width: 14px; height: 14px; }
+
+/* ===== Shop ===== */
+.shop-tabs {
+  display: flex; gap: 4px; margin-bottom: 14px;
+  background: var(--glass-bg); padding: 5px; border-radius: 100px;
+  border: 1px solid var(--glass-border); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+}
+.shop-tab {
+  flex: 1; padding: 9px 14px; font-size: 13px; font-weight: 700; font-family: var(--font);
+  color: #fff; background: transparent; border: none; border-radius: 100px; cursor: pointer;
+  transition: all 0.25s ease; text-align: center;
+}
+.shop-tab.active {
+  color: var(--dark); background: linear-gradient(135deg, var(--neon-blue), var(--primary));
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
+}
+
+.shop-items { flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; overflow-y: auto; padding: 2px 2px 20px; }
+.shop-item {
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  border-radius: 16px; padding: 10px; text-align: center; transition: all 0.2s ease;
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  display: flex; flex-direction: column; align-items: center;
+}
+.shop-item:active { transform: scale(0.97); }
+.shop-item.owned { border-color: var(--success); background: linear-gradient(135deg, rgba(0,184,148,0.1), var(--glass-bg)); }
+.shop-item.active { border-color: var(--neon-blue); background: linear-gradient(135deg, rgba(0,210,255,0.18), var(--glass-bg)); box-shadow: 0 0 20px rgba(0,210,255,0.3); }
+
+.shop-item-preview { width: 100%; aspect-ratio: 1; background: rgba(0,0,0,0.2); border-radius: 12px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.shop-item-preview svg { width: 70%; height: 70%; }
+.shop-item-name { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.shop-item-price { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 14px; font-weight: 800; color: var(--gold); }
+.shop-item-action {
+  width: 100%; margin-top: 8px; padding: 7px; font-size: 12px; font-weight: 800; font-family: var(--font);
+  color: #fff; background: linear-gradient(135deg, var(--primary), var(--neon-pink));
+  border: none; border-radius: 10px; cursor: pointer; transition: transform 0.15s;
+}
+.shop-item-action:active { transform: scale(0.95); }
+.shop-item-action.owned { background: linear-gradient(135deg, var(--success), #14b8a6); }
+.shop-item-action.active { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); }
+.shop-item-action.locked { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
+
+/* ===== Game ===== */
+#screen-game { padding: env(safe-area-inset-top) 14px env(safe-area-inset-bottom); }
+.game-top-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 0 8px; gap: 10px; }
+
+.level-info { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 100px; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); font-size: 13px; font-weight: 700; }
+.timer-icon { width: 14px; height: 14px; color: var(--neon-blue); }
+.timer-text { color: var(--neon-blue); font-weight: 800; min-width: 35px; text-align: center; }
+.level-info-divider { width: 1px; height: 16px; background: var(--glass-border); }
+
+.progress-container { padding: 0 0 10px; }
+.progress-bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; border: 1px solid var(--glass-border); }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--primary), var(--neon-pink)); border-radius: 100px; width: 0; transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 0 10px rgba(0,210,255,0.6); }
+
+.board-container { flex: 1; display: flex; flex-direction: column; gap: 10px; position: relative; min-height: 0; }
+.board-frame {
+  flex: 1; position: relative; border-radius: 20px; padding: 12px; min-height: 0; overflow: hidden;
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0,0,0,0.3);
+  border: 1px solid var(--glass-border);
+}
+.board-frame::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.05), transparent 40%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.04), transparent 40%); pointer-events: none; }
+.board { position: relative; width: 100%; height: 100%; border-radius: 14px; overflow: hidden; }
+.board::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px); background-size: 28px 28px; pointer-events: none; border-radius: 14px; }
+
+.shape { position: absolute; cursor: grab; transition: filter 0.25s ease; touch-action: none; user-select: none; -webkit-user-drag: none; z-index: 2; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; }
+.shape svg { width: 100%; height: 100%; display: block; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+.shape.dragging { z-index: 1000; cursor: grabbing; }
+.shape.dragging svg { filter: drop-shadow(0 12px 24px rgba(0,0,0,0.5)) drop-shadow(0 0 12px var(--neon-blue)); }
+.shape.found { pointer-events: none; animation: found-glow 0.6s ease; }
+
+@keyframes found-glow {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); filter: drop-shadow(0 0 20px var(--success)); }
+  100% { transform: scale(1); }
+}
+
+.shape.wrong-drop { animation: shake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+.shape.wrong-drop::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 118, 117, 0.5), transparent 70%); animation: halo-pulse 0.55s ease; pointer-events: none; z-index: -1; }
+
+@keyframes halo-pulse { 0% { opacity: 0; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.4); } 100% { opacity: 0; transform: scale(1); } }
+@keyframes shake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  10% { transform: translateX(-10px) rotate(-4deg); }
+  20% { transform: translateX(10px) rotate(4deg); }
+  30% { transform: translateX(-8px) rotate(-3deg); }
+  40% { transform: translateX(8px) rotate(3deg); }
+  50% { transform: translateX(-6px) rotate(-2deg); }
+  60% { transform: translateX(6px) rotate(2deg); }
+  70% { transform: translateX(-4px) rotate(-1deg); }
+  80% { transform: translateX(4px) rotate(1deg); }
+  90% { transform: translateX(-2px); }
+}
+
+.target-zone {
+  flex-shrink: 0; height: 84px; background: var(--glass-bg);
+  border: 2px dashed var(--glass-border); border-radius: 16px;
+  position: relative; display: flex; align-items: center; justify-content: center;
+  padding: 0 14px; transition: all 0.3s ease; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-soft); overflow: visible;
+}
+.target-zone.active { border-color: var(--neon-blue); background: rgba(0, 210, 255, 0.15); box-shadow: 0 0 24px rgba(0, 210, 255, 0.3), inset 0 0 12px rgba(0, 210, 255, 0.1); transform: scale(1.02); }
+.target-label { position: absolute; top: -10px; right: 14px; background: var(--dark); padding: 2px 10px; font-size: 11px; font-weight: 700; color: #fff; border-radius: 100px; border: 1px solid var(--glass-border); }
+.target-line { position: absolute; top: 50%; left: 16px; right: 16px; height: 3px; background: linear-gradient(90deg, transparent, var(--neon-blue), var(--primary), var(--neon-blue), transparent); transform: translateY(-50%); border-radius: 100px; pointer-events: none; box-shadow: 0 0 12px rgba(0,210,255,0.4); }
+.target-slot { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 100%; position: relative; z-index: 2; flex-wrap: wrap; }
+
+.placed-curve { width: 50px; height: 50px; pointer-events: none; animation: place-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; }
+.placed-curve svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3)); }
+
+@keyframes place-bounce {
+  0% { transform: scale(0.3) translateY(-30px); opacity: 0; }
+  60% { transform: scale(1.2) translateY(0); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.placement-feedback { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); pointer-events: none; animation: feedback-float 1s ease-out forwards; z-index: 10; }
+.placement-feedback svg { width: 28px; height: 28px; color: var(--success); filter: drop-shadow(0 0 8px var(--success)); }
+
+@keyframes feedback-float {
+  0% { opacity: 0; transform: translateX(-50%) translateY(0) scale(0.5); }
+  20% { opacity: 1; transform: translateX(-50%) translateY(-10px) scale(1.3); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-45px) scale(1); }
+}
+
+/* ===== Modals ===== */
+.modal-overlay { position: fixed; inset: 0; background: rgba(12, 10, 20, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal-overlay.active { display: flex; animation: fade-in 0.3s ease; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.modal {
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  border-radius: 24px; padding: 28px 22px; max-width: 320px; width: 100%; text-align: center;
+  box-shadow: 0 0 40px rgba(108, 92, 231, 0.3), var(--shadow-soft);
+  animation: modal-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; overflow: hidden;
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  display: flex; flex-direction: column; align-items: center;
+}
+.modal::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 100%; background: radial-gradient(ellipse at center, rgba(108, 92, 231, 0.15), transparent 60%); pointer-events: none; }
+@keyframes modal-in { from { transform: scale(0.7) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+
+.modal-icon { width: 80px; height: 80px; margin: 0 auto 14px; position: relative; z-index: 1; animation: icon-float 2.5s ease-in-out infinite; }
+@keyframes icon-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+.modal-title { font-size: 24px; font-weight: 900; margin-bottom: 8px; background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; position: relative; z-index: 1; }
+.modal-text { font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 18px; line-height: 1.6; position: relative; z-index: 1; }
+.modal-buttons { display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 1; width: 100%; }
+.modal-buttons .btn-primary-loko, .modal-buttons .btn-secondary-loko { max-width: 100%; }
+
+/* Game Complete Modal Specifics */
+.game-complete-stars { display: flex; justify-content: center; gap: 8px; margin: 10px 0 15px; z-index: 1; }
+.game-complete-stars svg { width: 32px; height: 32px; fill: var(--gold); filter: drop-shadow(0 0 8px var(--gold)); animation: star-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+.game-complete-stars svg:nth-child(2) { animation-delay: 0.2s; }
+.game-complete-stars svg:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes star-pop {
+  0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.reward-display { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 10px 0 18px; padding: 14px; background: rgba(255, 201, 60, 0.1); border: 1px solid rgba(255, 201, 60, 0.3); border-radius: 16px; position: relative; z-index: 1; width: 100%; }
+.reward-value { font-size: 32px; font-weight: 900; color: var(--gold); text-shadow: 0 0 12px rgba(255, 201, 60, 0.5); }
+
+/* ===== Toast ===== */
+.toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-30px); background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 100px; padding: 11px 22px; color: #fff; font-size: 13px; font-weight: 700; z-index: 200; opacity: 0; pointer-events: none; transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: var(--shadow-soft); white-space: nowrap; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.error { border-color: var(--danger); color: var(--danger); box-shadow: 0 0 20px rgba(255,118,117,0.3); }
+.toast.success { border-color: var(--success); color: var(--success); box-shadow: 0 0 20px rgba(0,184,148,0.3); }
+.toast.info { border-color: var(--neon-blue); color: var(--neon-blue); }
+
+/* ===== Confetti ===== */
+.confetti { position: fixed; top: -20px; width: 10px; height: 14px; pointer-events: none; z-index: 150; animation: confetti-fall linear forwards; border-radius: 2px; }
+@keyframes confetti-fall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
+.shape.flying-back { transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1), top 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s ease, width 0.4s ease, height 0.4s ease; }
+
+/* ===== Responsive (Mobile First) ===== */
+@media (min-width: 480px) {
+  .game-title { font-size: 36px; }
+  .character-img { width: 180px; max-height: 220px; }
+  .level-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 768px) {
+  .game-title { font-size: 42px; }
+  .character-img { width: 200px; max-height: 240px; }
+  .level-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div id="app-wrapper">
+  <div class="bg-particles">
+    <div class="bg-blob b1"></div>
+    <div class="bg-blob b2"></div>
+    <div class="bg-blob b3"></div>
+  </div>
+
+  <!-- ===== Main Menu ===== -->
+  <section id="screen-main" class="screen active">
+    <div class="main-header">
+      <div class="top-bar" style="width: 100%; justify-content: space-between;">
+        <div class="coin-display">
+          <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="LOKO Coin">
+          <div class="coin-amount" id="main-coins">0</div>
+        </div>
+        <button class="icon-btn" id="btn-sound" style="background: var(--glass-bg); border: 1px solid var(--glass-border); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+          <svg id="sound-on-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          <svg id="sound-off-icon" style="display:none" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </button>
+      </div>
+      <h1 class="game-title">ماجراجویی خط خمیده</h1>
+      <div class="speech-bubble">سلام! آماده‌ای بریم؟</div>
+    </div>
+
+    <div class="character-wrapper">
+      <img src="/games/assets/icons/gamer.png" class="character-img" alt="Pixel Character">
+    </div>
+
+    <div class="main-buttons">
+      <button class="btn-primary-loko" id="btn-start">
+        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        شروع بازی
+      </button>
+      <div class="btn-row" id="pause-row" style="display:none">
+        <button class="btn-primary-loko" id="btn-continue" style="font-size:15px; padding: 12px 24px;">
+          ادامه بازی
+        </button>
+        <button class="btn-secondary-loko" id="btn-restart-game">
+          شروع مجدد
+        </button>
+      </div>
+      <div class="btn-row">
+        <button class="btn-secondary-loko" id="btn-shop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 L3 6 L3 20 A2 2 0 0 0 5 22 L19 22 A2 2 0 0 0 21 20 L21 6 L18 2 Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10 A4 4 0 0 1 8 10"/></svg>
+          فروشگاه
+        </button>
+        <button class="btn-secondary-loko" id="btn-help">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9 a3 3 0 0 1 5.83 1 c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          راهنما
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Level Selection ===== -->
+  <section id="screen-levels" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" data-back="main">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        بازگشت
+      </button>
+      <div class="coin-display">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="LOKO Coin">
+        <div class="coin-amount" id="levels-coins">0</div>
+      </div>
+    </div>
+    <h2 class="page-title">انتخاب مرحله</h2>
+    <div class="level-grid" id="level-grid"></div>
+  </section>
+
+  <!-- ===== Help Screen ===== -->
+  <section id="screen-help" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" data-back="main">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        بازگشت
+      </button>
+      <div class="coin-display">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="LOKO Coin">
+        <div class="coin-amount" id="help-coins">0</div>
+      </div>
+    </div>
+    <h2 class="page-title">راهنمای بازی</h2>
+    <div class="help-content">
+      <img src="/games/assets/icons/gamerhi.png" class="help-character-img" alt="Help Character">
+      <div class="help-bubble">
+        <p class="help-intro">سلام دوست من! به <strong>شهربازی آینه‌ها</strong> خوش آمدی. تو باید <strong>خط‌های خمیده</strong> را پیدا کنی و آن‌ها را روی خط پایین صفحه قرار دهی. بیایید در همان منطقه بازی چند بار تمرین کنیم!</p>
+        
+        <div class="help-interactive-demo">
+          <div class="help-demo-header">
+            <p class="help-demo-title">آزمایش خودت را انجام بده:</p>
+            <div class="help-demo-score" id="help-score" data-val="0">امتیاز: ۰</div>
+          </div>
+          <div class="mini-board-frame">
+            <div class="mini-board" id="mini-board"></div>
+          </div>
+          <div class="mini-target-zone" id="mini-target-zone">
+            <span class="target-label">خط سرمشق</span>
+            <div class="mini-target-line"></div>
+            <div class="mini-target-slot" id="mini-target-slot"></div>
+          </div>
+          <button class="help-mini-reset" id="help-reset">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            ریست آزمایش
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Shop Screen ===== -->
+  <section id="screen-shop" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" data-back="main">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        بازگشت
+      </button>
+      <div class="coin-display">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="LOKO Coin">
+        <div class="coin-amount" id="shop-coins">0</div>
+      </div>
+    </div>
+    <h2 class="page-title">فروشگاه</h2>
+    <div class="shop-tabs">
+      <button class="shop-tab active" data-tab="skins">پوسته‌ها</button>
+      <button class="shop-tab" data-tab="customization">شخصی‌سازی</button>
+    </div>
+    <div class="shop-items" id="shop-items"></div>
+  </section>
+
+  <!-- ===== Game Screen ===== -->
+  <section id="screen-game" class="screen">
+    <div class="game-top-bar">
+      <button class="icon-btn" id="btn-stop" aria-label="توقف بازی" style="background: var(--glass-bg); border: 1px solid var(--glass-border); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9" stroke-opacity="0.3"/>
+          <line x1="10" y1="9" x2="10" y2="15" stroke-width="3.5"/>
+          <line x1="14" y1="9" x2="14" y2="15" stroke-width="3.5"/>
+        </svg>
+      </button>
+      <div class="level-info">
+        <span id="level-text">مرحله ۱</span>
+        <div class="level-info-divider"></div>
+        <svg class="timer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span id="game-timer" class="timer-text">۰:۰۰</span>
+      </div>
+      <div class="coin-display">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="LOKO Coin">
+        <div class="coin-amount" id="game-coins">0</div>
+      </div>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <div class="board-container">
+      <div class="board-frame" id="board-frame">
+        <div class="board" id="board"></div>
+      </div>
+      <div class="target-zone" id="target-zone">
+        <span class="target-label">خط سرمشق</span>
+        <div class="target-line"></div>
+        <div class="target-slot" id="target-slot"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Stop Modal ===== -->
+  <div class="modal-overlay" id="stop-modal">
+    <div class="modal">
+      <svg class="modal-icon" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="36" fill="rgba(255,118,117,0.15)" stroke="var(--danger)" stroke-width="2"/>
+        <line x1="32" y1="24" x2="32" y2="56" stroke="var(--danger)" stroke-width="6" stroke-linecap="round"/>
+        <line x1="48" y1="24" x2="48" y2="56" stroke="var(--danger)" stroke-width="6" stroke-linecap="round"/>
+      </svg>
+      <h2 class="modal-title">بازی متوقف شد</h2>
+      <p class="modal-text">می‌خواهی ادامه دهی یا از مرحله‌ای دیگر شروع کنی؟</p>
+      <div class="modal-buttons">
+        <button class="btn-primary-loko" id="btn-restart-level">شروع مجدد</button>
+        <button class="btn-secondary-loko" id="btn-go-levels">انتخاب مرحله</button>
+        <button class="btn-secondary-loko" id="btn-go-home">رفتن به خانه</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Level Complete Modal ===== -->
+  <div class="modal-overlay" id="level-complete-modal">
+    <div class="modal">
+      <svg class="modal-icon" viewBox="0 0 80 80">
+        <defs><linearGradient id="trophyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFE68A"/><stop offset="100%" stop-color="#FFA800"/></linearGradient></defs>
+        <path d="M 24 18 L 56 18 L 56 30 A 16 16 0 0 1 24 30 Z" fill="url(#trophyG)"/>
+        <path d="M 24 22 L 14 22 L 14 28 A 12 12 0 0 0 24 36" fill="none" stroke="url(#trophyG)" stroke-width="4"/>
+        <path d="M 56 22 L 66 22 L 66 28 A 12 12 0 0 1 56 36" fill="none" stroke="url(#trophyG)" stroke-width="4"/>
+        <rect x="34" y="40" width="12" height="14" fill="url(#trophyG)"/>
+        <rect x="26" y="54" width="28" height="6" rx="2" fill="url(#trophyG)"/>
+      </svg>
+      <h2 class="modal-title">آفرین!</h2>
+      <p class="modal-text" id="level-complete-text">مرحله را کامل کردی</p>
+      <div class="modal-buttons">
+        <button class="btn-primary-loko" id="btn-next-level">مرحله بعد</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Game Complete Modal (LOKO Style) ===== -->
+  <div class="modal-overlay" id="game-complete-modal">
+    <div class="modal">
+      <svg class="modal-icon" viewBox="0 0 80 80">
+        <defs><linearGradient id="starG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFE68A"/><stop offset="100%" stop-color="#FFA800"/></linearGradient></defs>
+        <path d="M 40 10 L 48 28 L 68 30 L 53 44 L 58 64 L 40 54 L 22 64 L 27 44 L 12 30 L 32 28 Z" fill="url(#starG)" stroke="var(--gold-dark)" stroke-width="2"/>
+      </svg>
+      <h2 class="modal-title">قهرمان آینه‌ها!</h2>
+      <div class="game-complete-stars">
+        <svg viewBox="0 0 24 24"><path d="M12 2 L15.09 8.26 L22 9.27 L17 14.14 L18.18 21.02 L12 17.77 L5.82 21.02 L7 14.14 L2 9.27 L8.91 8.26 Z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 L15.09 8.26 L22 9.27 L17 14.14 L18.18 21.02 L12 17.77 L5.82 21.02 L7 14.14 L2 9.27 L8.91 8.26 Z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 L15.09 8.26 L22 9.27 L17 14.14 L18.18 21.02 L12 17.77 L5.82 21.02 L7 14.14 L2 9.27 L8.91 8.26 Z"/></svg>
+      </div>
+      <p class="modal-text">تمام مراحل شهربازی را با موفقیت کامل کردی.</p>
+      <div class="reward-display">
+        <img src="/games/assets/icons/coin.png" class="coin-img-reward" alt="LOKO Coin">
+        <span class="reward-value" id="game-complete-reward">+10</span>
+      </div>
+      <div class="modal-buttons">
+        <button class="btn-primary-loko" id="btn-back-to-main">بازگشت به منو</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="/games/assets/luko-sdk.js"></script>
+<script>
+'use strict';
+
+// ============ Audio System ============
+const audioSystem = {
+  ctx: null, enabled: true, masterGain: null,
+  init() {
+    if (this.ctx) return;
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      this.masterGain = this.ctx.createGain();
+      this.masterGain.gain.value = 0.3;
+      this.masterGain.connect(this.ctx.destination);
+    } catch(e) {}
+  },
+  note(freq, start, duration, type='sine', vol=0.15) {
+    if (!this.enabled || !this.ctx) return;
+    const t = this.ctx.currentTime + start;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.connect(gain); gain.connect(this.masterGain);
+    osc.frequency.value = freq; osc.type = type;
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(vol, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    osc.start(t); osc.stop(t + duration);
+  },
+  click() { this.init(); this.note(880, 0, 0.05, 'triangle', 0.08); this.note(1320, 0.02, 0.04, 'triangle', 0.04); },
+  success() { this.init(); this.note(523.25, 0, 0.1, 'sine', 0.12); this.note(659.25, 0.08, 0.1, 'sine', 0.12); this.note(783.99, 0.16, 0.15, 'sine', 0.12); },
+  error() { this.init(); this.note(220, 0, 0.12, 'sawtooth', 0.06); this.note(180, 0.08, 0.15, 'sawtooth', 0.05); this.note(140, 0.16, 0.2, 'sawtooth', 0.04); },
+  win() { this.init(); [523.25, 523.25, 523.25, 523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+    const d = [0.1, 0.1, 0.1, 0.15, 0.1, 0.3, 0.4][i];
+    this.note(f, i * 0.1, d, 'sine', 0.12);
+  });},
+  coin() { this.init(); this.note(988, 0, 0.06, 'sine', 0.1); this.note(1319, 0.04, 0.08, 'sine', 0.1); this.note(1976, 0.08, 0.1, 'sine', 0.08); },
+  unlock() { this.init(); [440, 554, 659, 880].forEach((f, i) => this.note(f, i * 0.06, 0.1, 'sine', 0.1)); }
+};
+
+// ============ Game State ============
+const state = {
+  currentScreen: 'main', coins: 0, currentLevel: 0, soundOn: true,
+  unlockedLevels: 1, completedLevels: [], 
+  initialCoins: 0, // For LOKO Reward System
+  ownedItems: { skins: ['default'], customization: ['default'] },
+  activeItems: { skin: 'default', customization: 'default' },
+  game: { active: false, paused: false, levelStartTime: 0, found: [], totalCurves: 0, shapes: [] },
+  metrics: { sessionStartTime: Date.now(), levelTimes: [], totalCorrect: 0, totalWrong: 0, perLevel: [] } // Hidden Stats
+};
+
+let timerInterval = null;
+let elapsedSeconds = 0;
+
+// ============ 10 Levels Config ============
+const LEVELS = [
+  { name: 'اتاق آینه آبی', theme: { bg: 'linear-gradient(135deg, #0c1e3e 0%, #072a4a 50%, #0c1e3e 100%)', shapeGradients: [['#22d3ee','#0ea5e9'],['#06b6d4','#0891b2'],['#67e8f9','#22d3ee'],['#38bdf8','#0ea5e9'],['#0ea5e9','#0369a1']] }, curves: 2, decoys: 8 },
+  { name: 'اتاق آینه فیروزه‌ای', theme: { bg: 'linear-gradient(135deg, #042f2e 0%, #134e4a 50%, #042f2e 100%)', shapeGradients: [['#2dd4bf','#14b8a6'],['#5eead4','#2dd4bf'],['#14b8a6','#0d9488'],['#99f6e4','#5eead4'],['#0d9488','#115e59']] }, curves: 3, decoys: 10 },
+  { name: 'اتاق آینه بنفش', theme: { bg: 'linear-gradient(135deg, #2a1845 0%, #3b0764 50%, #1e1033 100%)', shapeGradients: [['#c084fc','#a855f7'],['#d946ef','#a855f7'],['#e879f9','#c084fc'],['#f0abfc','#e879f9'],['#a855f7','#7c3aed']] }, curves: 3, decoys: 12 },
+  { name: 'اتاق آینه صورتی', theme: { bg: 'linear-gradient(135deg, #3b0733 0%, #831843 50%, #3b0733 100%)', shapeGradients: [['#f472b6','#ec4899'],['#f9a8d4','#f472b6'],['#ec4899','#db2777'],['#fbcfe8','#f9a8d4'],['#db2777','#9d174d']] }, curves: 4, decoys: 12 },
+  { name: 'اتاق آینه سبز', theme: { bg: 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #022c22 100%)', shapeGradients: [['#34d399','#10b981'],['#6ee7b7','#34d399'],['#10b981','#059669'],['#a7f3d0','#6ee7b7'],['#059669','#047857']] }, curves: 4, decoys: 14 },
+  { name: 'اتاق آینه نارنجی', theme: { bg: 'linear-gradient(135deg, #431407 0%, #7c2d12 50%, #431407 100%)', shapeGradients: [['#fb923c','#f97316'],['#fdba74','#fb923c'],['#f97316','#ea580c'],['#fed7aa','#fdba74'],['#ea580c','#c2410c']] }, curves: 5, decoys: 14 },
+  { name: 'اتاق آینه قرمز', theme: { bg: 'linear-gradient(135deg, #450a0a 0%, #7f1d1d 50%, #450a0a 100%)', shapeGradients: [['#f87171','#ef4444'],['#fca5a5','#f87171'],['#ef4444','#dc2626'],['#fecaca','#fca5a5'],['#dc2626','#b91c1c']] }, curves: 5, decoys: 16 },
+  { name: 'اتاق آینه زرد', theme: { bg: 'linear-gradient(135deg, #422006 0%, #713f12 50%, #422006 100%)', shapeGradients: [['#facc15','#eab308'],['#fde047','#facc15'],['#eab308','#ca8a04'],['#fef08a','#fde047'],['#ca8a04','#854d0e']] }, curves: 6, decoys: 16 },
+  { name: 'اتاق آینه نیلی', theme: { bg: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)', shapeGradients: [['#818cf8','#6366f1'],['#a5b4fc','#818cf8'],['#6366f1','#4f46e5'],['#c7d2fe','#a5b4fc'],['#4f46e5','#3730a3']] }, curves: 6, decoys: 18 },
+  { name: 'اتاق آینه طلایی', theme: { bg: 'linear-gradient(135deg, #1c1917 0%, #78350f 50%, #1c1917 100%)', shapeGradients: [['#fbbf24','#f59e0b'],['#fcd34d','#fbbf24'],['#f59e0b','#d97706'],['#fef3c7','#fcd34d'],['#d97706','#92400e']] }, curves: 7, decoys: 20 }
+];
+
+// Help Level Config (Mini Game)
+const HELP_LEVEL = {
+  theme: { bg: 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #022c22 100%)', shapeGradients: [['#34d399','#10b981'],['#6ee7b7','#34d399'],['#10b981','#059669'],['#a7f3d0','#6ee7b7'],['#059669','#047857']] },
+  curves: 2, decoys: 6
+};
+
+// ============ Shape Templates ============
+const CURVE_TEMPLATES = [
+  '<path d="M 12 55 Q 50 12 88 55" stroke="COLOR" stroke-width="5" fill="none" stroke-linecap="round"/>',
+  '<path d="M 12 45 Q 50 88 88 45" stroke="COLOR" stroke-width="5" fill="none" stroke-linecap="round"/>',
+  '<path d="M 55 12 Q 12 50 55 88" stroke="COLOR" stroke-width="5" fill="none" stroke-linecap="round"/>',
+  '<path d="M 45 12 Q 88 50 45 88" stroke="COLOR" stroke-width="5" fill="none" stroke-linecap="round"/>',
+  '<path d="M 12 58 Q 50 28 88 58" stroke="COLOR" stroke-width="5" fill="none" stroke-linecap="round"/>',
+  '<path d="M 12 42 Q 50 72 88 42" stroke="COLOR" stroke-width="5" fill="none" stroke-linecap="round"/>',
+  '<path d="M 15 82 Q 55 22 85 48" stroke="COLOR" stroke-width="5" fill="none" stroke-linecap="round"/>',
+  '<path d="M 15 48 Q 45 78 85 18" stroke="COLOR" stroke-width="5" fill="none" stroke-linecap="round"/>'
+];
+
+const WAVY_TEMPLATES = [
+  '<path d="M 5 50 Q 17 22 30 50 T 55 50 T 80 50 T 95 50" stroke="COLOR" stroke-width="4" fill="none" stroke-linecap="round"/>',
+  '<path d="M 5 30 Q 18 58 30 30 T 55 30 T 80 30 T 95 30" stroke="COLOR" stroke-width="4" fill="none" stroke-linecap="round"/>',
+  '<path d="M 10 50 q 10 -22 20 0 t 20 0 t 20 0 t 20 0" stroke="COLOR" stroke-width="4" fill="none" stroke-linecap="round"/>'
+];
+
+const ZIGZAG_TEMPLATES = [
+  '<path d="M 8 28 L 25 68 L 42 28 L 59 68 L 76 28 L 92 68" stroke="COLOR" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  '<path d="M 8 68 L 25 28 L 42 68 L 59 28 L 76 68 L 92 28" stroke="COLOR" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+];
+
+const STRAIGHT_TEMPLATES = [
+  '<line x1="10" y1="50" x2="90" y2="50" stroke="COLOR" stroke-width="5" stroke-linecap="round"/>',
+  '<line x1="20" y1="20" x2="80" y2="80" stroke="COLOR" stroke-width="5" stroke-linecap="round"/>',
+  '<line x1="80" y1="20" x2="20" y2="80" stroke="COLOR" stroke-width="5" stroke-linecap="round"/>',
+  '<line x1="50" y1="10" x2="50" y2="90" stroke="COLOR" stroke-width="5" stroke-linecap="round"/>'
+];
+
+const CLOSED_TEMPLATES = [
+  '<circle cx="50" cy="50" r="35" stroke="COLOR" stroke-width="4" fill="none"/>',
+  '<ellipse cx="50" cy="50" rx="38" ry="22" stroke="COLOR" stroke-width="4" fill="none"/>',
+  '<ellipse cx="50" cy="50" rx="22" ry="38" stroke="COLOR" stroke-width="4" fill="none"/>',
+  '<rect x="15" y="20" width="70" height="60" rx="6" stroke="COLOR" stroke-width="4" fill="none"/>',
+  '<polygon points="50,15 85,80 15,80" stroke="COLOR" stroke-width="4" fill="none" stroke-linejoin="round"/>',
+  '<polygon points="50,12 85,38 72,82 28,82 15,38" stroke="COLOR" stroke-width="4" fill="none" stroke-linejoin="round"/>'
+];
+
+const DOT_TEMPLATES = [
+  '<circle cx="25" cy="50" r="6" fill="COLOR"/><circle cx="50" cy="50" r="6" fill="COLOR"/><circle cx="75" cy="50" r="6" fill="COLOR"/>',
+  '<circle cx="50" cy="25" r="6" fill="COLOR"/><circle cx="50" cy="75" r="6" fill="COLOR"/>',
+  '<circle cx="30" cy="30" r="5" fill="COLOR"/><circle cx="70" cy="30" r="5" fill="COLOR"/><circle cx="30" cy="70" r="5" fill="COLOR"/><circle cx="70" cy="70" r="5" fill="COLOR"/>'
+];
+
+const SCURVE_TEMPLATES = [
+  '<path d="M 10 50 Q 30 20 50 50 Q 70 80 90 50" stroke="COLOR" stroke-width="4" fill="none" stroke-linecap="round"/>',
+  '<path d="M 10 30 Q 35 60 50 30 Q 65 0 90 30" stroke="COLOR" stroke-width="4" fill="none" stroke-linecap="round"/>'
+];
+
+// ============ Shop Items ============
+const SHOP_ITEMS = {
+  skins: [
+    { id: 'default', name: 'پوسته پیش‌فرض', price: 0, icon: '<rect x="20" y="20" width="60" height="60" rx="8" fill="#6C5CE7"/><rect x="30" y="30" width="40" height="40" rx="4" fill="#00D2FF"/>' },
+    { id: 'ocean', name: 'اقیانوس', price: 8, icon: '<rect x="20" y="20" width="60" height="60" rx="8" fill="#0e7490"/><rect x="30" y="30" width="40" height="40" rx="4" fill="#00D2FF"/>' },
+    { id: 'sunset', name: 'غروب', price: 10, icon: '<rect x="20" y="20" width="60" height="60" rx="8" fill="#FF00A0"/><rect x="30" y="30" width="40" height="40" rx="4" fill="#FFC93C"/>' },
+    { id: 'forest', name: 'جنگل', price: 9, icon: '<rect x="20" y="20" width="60" height="60" rx="8" fill="#065f46"/><rect x="30" y="30" width="40" height="40" rx="4" fill="#00FF9D"/>' },
+    { id: 'rose', name: 'گل سرخ', price: 12, icon: '<rect x="20" y="20" width="60" height="60" rx="8" fill="#9f1239"/><rect x="30" y="30" width="40" height="40" rx="4" fill="#FF7675"/>' },
+    { id: 'galaxy', name: 'کهکشان', price: 15, icon: '<rect x="20" y="20" width="60" height="60" rx="8" fill="#1E1E2F"/><rect x="30" y="30" width="40" height="40" rx="4" fill="#6C5CE7"/>' }
+  ],
+  customization: [
+    { id: 'default', name: 'افکت پیش‌فرض', price: 0, icon: '<circle cx="50" cy="50" r="10" fill="#6C5CE7"/>' },
+    { id: 'sparkle', name: 'جرقه طلایی', price: 8, icon: '<path d="M 50 20 L 55 45 L 80 50 L 55 55 L 50 80 L 45 55 L 20 50 L 45 45 Z" fill="#FFC93C"/>' },
+    { id: 'hearts', name: 'قلب‌های شناور', price: 11, icon: '<path d="M 50 30 Q 35 15 25 35 Q 25 55 50 75 Q 75 55 75 35 Q 65 15 50 30 Z" fill="#FF00A0"/>' },
+    { id: 'stars', name: 'ستاره‌ها', price: 13, icon: '<path d="M 50 20 L 58 40 L 80 42 L 62 55 L 70 78 L 50 65 L 30 78 L 38 55 L 20 42 L 42 40 Z" fill="#00D2FF"/>' },
+    { id: 'fireworks', name: 'آتش‌بازی', price: 15, icon: '<g stroke="#FFEAA7" stroke-width="3" fill="none" stroke-linecap="round"><line x1="50" y1="50" x2="50" y2="20"/><line x1="50" y1="50" x2="50" y2="80"/><line x1="50" y1="50" x2="20" y2="50"/><line x1="50" y1="50" x2="80" y2="50"/><line x1="50" y1="50" x2="28" y2="28"/><line x1="50" y1="50" x2="72" y2="72"/><line x1="50" y1="50" x2="72" y2="28"/><line x1="50" y1="50" x2="28" y2="72"/></g>' }
+  ]
+};
+
+// ============ Utilities ============
+function $(id) { return document.getElementById(id); }
+function shuffle(arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function randomFrom(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+function toPersianNum(n) { const d=['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹']; return String(n).replace(/[0-9]/g,x=>d[x]); }
+
+function showToast(msg, type='info', dur=2200) {
+  const t = $('toast'); t.textContent = msg; t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+function spawnConfetti(count=40) {
+  const colors = ['#6C5CE7','#00D2FF','#FF00A0','#00FF9D','#FFEAA7','#FFC93C'];
+  for (let i=0; i<count; i++) {
+    const c = document.createElement('div'); c.className = 'confetti';
+    c.style.left = Math.random()*100+'vw'; c.style.background = randomFrom(colors);
+    c.style.animationDuration = (2+Math.random()*2)+'s'; c.style.animationDelay = (Math.random()*0.5)+'s';
+    c.style.width = (6+Math.random()*8)+'px'; c.style.height = (10+Math.random()*8)+'px';
+    document.body.appendChild(c); setTimeout(()=>c.remove(), 4500);
+  }
+}
+
+// ============ SVG Rendering ============
+function renderShapeSVG(shape, prefix, includeBg=true) {
+  const gradId = 'sg-' + prefix + '-' + shape.id + '-' + Math.random().toString(36).substr(2, 5);
+  const defs = `<defs><linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${shape.color1}"/><stop offset="100%" stop-color="${shape.color2}"/></linearGradient></defs>`;
+  const bg = includeBg ? `<rect x="3" y="3" width="94" height="94" rx="16" fill="${shape.color1}" fill-opacity="0.05" stroke="${shape.color1}" stroke-opacity="0.15" stroke-width="1"/>` : '';
+  const path = shape.template.replace(/COLOR/g, `url(#${gradId})`);
+  return defs + bg + path;
+}
+
+// ============ Save/Load (Offline Cache) ============
+function saveState() {
+  try {
+    localStorage.setItem('loko-curved-line-game', JSON.stringify({
+      coins: state.coins, soundOn: state.soundOn,
+      unlockedLevels: state.unlockedLevels, completedLevels: state.completedLevels,
+      ownedItems: state.ownedItems, activeItems: state.activeItems,
+      initialCoins: state.initialCoins
+    }));
+    // Hidden metrics sync simulation
+    console.log('[LOKO Sync] Data saved locally:', state);
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('loko-curved-line-game');
+    if (s) Object.assign(state, JSON.parse(s));
+  } catch(e) {}
+}
+
+// ============ Timer ============
+function startTimer() {
+  stopTimer();
+  elapsedSeconds = 0;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    elapsedSeconds++;
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(elapsedSeconds / 60);
+  const s = elapsedSeconds % 60;
+  $('game-timer').textContent = `${toPersianNum(m)}:${toPersianNum(s.toString().padStart(2, '0'))}`;
+}
+
+// ============ Screen Management ============
+function showScreen(name) {
+  audioSystem.click();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $('screen-' + name).classList.add('active');
+  state.currentScreen = name;
+  updateCoinDisplays();
+  if (name === 'main') updatePauseButtons();
+  if (name === 'help') initHelpDemo();
+}
+
+function updateCoinDisplays() {
+  ['main-coins','help-coins','shop-coins','levels-coins','game-coins'].forEach(id => {
+    const el = $(id); if (el) el.textContent = state.coins;
+  });
+}
+
+function updatePauseButtons() {
+  if (state.game.paused) {
+    $('btn-start').style.display = 'none';
+    $('pause-row').style.display = 'flex';
+  } else {
+    $('btn-start').style.display = '';
+    $('pause-row').style.display = 'none';
+  }
+}
+
+// ============ Level Rendering ============
+function renderLevels() {
+  const grid = $('level-grid');
+  grid.innerHTML = '';
+  
+  LEVELS.forEach((level, i) => {
+    const isUnlocked = i < state.unlockedLevels;
+    const isCompleted = state.completedLevels.includes(i);
+    
+    const card = document.createElement('div');
+    card.className = 'level-card ' + (isUnlocked ? 'unlocked' : 'locked') + (isCompleted ? ' completed' : '');
+    card.dataset.level = i;
+    card.style.animationDelay = (i * 0.06) + 's';
+    
+    const content = document.createElement('div');
+    content.className = 'level-card-content';
+    
+    let iconHTML;
+    if (!isUnlocked) {
+      iconHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 8 0 v4"/></svg>';
+    } else if (isCompleted) {
+      iconHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    } else {
+      iconHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+    }
+    
+    content.innerHTML = `
+      <div class="level-card-icon">${iconHTML}</div>
+      <div class="level-card-num">${toPersianNum(i + 1)}</div>
+      <div class="level-card-info">${toPersianNum(level.curves)} خط خمیده</div>
+    `;
+    card.appendChild(content);
+    
+    if (isUnlocked) {
+      card.addEventListener('click', () => {
+        audioSystem.click();
+        showScreen('game');
+        startLevel(i);
+      });
+    } else {
+      card.addEventListener('click', () => {
+        audioSystem.error();
+        showToast('این مرحله هنوز باز نشده!', 'error');
+      });
+    }
+    
+    grid.appendChild(card);
+  });
+}
+
+// ============ Shape Generation ============
+function generateShapes(level) {
+  const shapes = [];
+  const grads = level.theme.shapeGradients;
+  
+  for (let i = 0; i < level.curves; i++) {
+    const [c1, c2] = grads[i % grads.length];
+    shapes.push({
+      id: 'curve-' + i, template: CURVE_TEMPLATES[i % CURVE_TEMPLATES.length],
+      color1: c1, color2: c2, correct: true, placed: false
+    });
+  }
+  
+  const decoyTypes = [
+    { templates: WAVY_TEMPLATES, weight: 3 },
+    { templates: ZIGZAG_TEMPLATES, weight: 2 },
+    { templates: STRAIGHT_TEMPLATES, weight: 2 },
+    { templates: CLOSED_TEMPLATES, weight: 3 },
+    { templates: DOT_TEMPLATES, weight: 2 },
+    { templates: SCURVE_TEMPLATES, weight: 3 }
+  ];
+  
+  const allDecoys = [];
+  decoyTypes.forEach(t => { for (let i=0; i<t.weight; i++) allDecoys.push(...t.templates); });
+  const shuffledDecoys = shuffle(allDecoys);
+  
+  for (let i = 0; i < level.decoys; i++) {
+    const [c1, c2] = grads[(i + level.curves) % grads.length];
+    shapes.push({
+      id: 'decoy-' + i, template: shuffledDecoys[i % shuffledDecoys.length],
+      color1: c1, color2: c2, correct: false, placed: false
+    });
+  }
+  
+  return shuffle(shapes);
+}
+
+function positionShapes(shapes) {
+  const board = $('board');
+  const boardRect = board.getBoundingClientRect();
+  if (boardRect.width === 0 || boardRect.height === 0) return;
+  
+  const cols = shapes.length <= 16 ? 4 : 5;
+  const rows = Math.ceil(shapes.length / cols);
+  const cellW = boardRect.width / cols;
+  const cellH = boardRect.height / rows;
+  const shapeSize = Math.max(44, Math.min(72, Math.min(cellW, cellH) * 0.82));
+  
+  board.innerHTML = '';
+  
+  shapes.forEach((shape, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const baseX = col * cellW + cellW / 2;
+    const baseY = row * cellH + cellH / 2;
+    const rx = (Math.random() - 0.5) * cellW * 0.2;
+    const ry = (Math.random() - 0.5) * cellH * 0.2;
+    const x = baseX + rx - shapeSize / 2;
+    const y = baseY + ry - shapeSize / 2;
+    
+    const el = document.createElement('div');
+    el.className = 'shape';
+    el.dataset.id = shape.id;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.width = shapeSize + 'px';
+    el.style.height = shapeSize + 'px';
+    el.innerHTML = `<svg viewBox="0 0 100 100">${renderShapeSVG(shape, 'board', true)}</svg>`;
+    
+    setupDrag(el, shape);
+    board.appendChild(el);
+    shape.element = el;
+  });
+}
+
+// ============ Drag & Drop ============
+function setupDrag(elem, shape) {
+  let dragging = false, pointerId = null;
+  let startX = 0, startY = 0, origLeft = 0, origTop = 0;
+  
+  elem.addEventListener('pointerdown', (e) => {
+    if (shape.placed) return;
+    e.preventDefault();
+    audioSystem.init(); audioSystem.click();
+    
+    dragging = true; pointerId = e.pointerId;
+    startX = e.clientX; startY = e.clientY;
+    const elemRect = elem.getBoundingClientRect();
+    origLeft = parseFloat(elem.style.left);
+    origTop = parseFloat(elem.style.top);
+    
+    elem.style.position = 'fixed';
+    elem.style.left = elemRect.left + 'px';
+    elem.style.top = elemRect.top + 'px';
+    elem.style.zIndex = '1000';
+    elem.classList.add('dragging');
+    
+    try { elem.setPointerCapture(pointerId); } catch(e) {}
+  });
+  
+  elem.addEventListener('pointermove', (e) => {
+    if (!dragging || e.pointerId !== pointerId) return;
+    e.preventDefault();
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    elem.style.transform = `translate(${dx}px, ${dy}px) scale(1.15) rotate(${dx * 0.04}deg)`;
+    
+    const elemR = elem.getBoundingClientRect();
+    const targetR = $('target-zone').getBoundingClientRect();
+    const ec = { x: elemR.left + elemR.width/2, y: elemR.top + elemR.height/2 };
+    const tc = { x: targetR.left + targetR.width/2, y: targetR.top + targetR.height/2 };
+    const dist = Math.hypot(ec.x - tc.x, ec.y - tc.y);
+    
+    if (dist < 100) $('target-zone').classList.add('active');
+    else $('target-zone').classList.remove('active');
+  });
+  
+  const endDrag = (e) => {
+    if (!dragging) return;
+    dragging = false; pointerId = null;
+    elem.classList.remove('dragging');
+    $('target-zone').classList.remove('active');
+    
+    const elemR = elem.getBoundingClientRect();
+    const targetR = $('target-zone').getBoundingClientRect();
+    
+    const onTarget = !(
+      elemR.right < targetR.left + 25 || elemR.left > targetR.right - 25 ||
+      elemR.bottom < targetR.top + 25 || elemR.top > targetR.bottom - 25
+    );
+    
+    if (onTarget) handleDrop(elem, shape, origLeft, origTop);
+    else returnToOriginal(elem, origLeft, origTop);
+  };
+  
+  elem.addEventListener('pointerup', endDrag);
+  elem.addEventListener('pointercancel', endDrag);
+}
+
+function returnToOriginal(elem, origLeft, origTop) {
+  elem.classList.add('flying-back');
+  elem.style.transform = '';
+  const board = $('board');
+  const boardRect = board.getBoundingClientRect();
+  elem.style.left = (boardRect.left + origLeft) + 'px';
+  elem.style.top = (boardRect.top + origTop) + 'px';
+  
+  setTimeout(() => {
+    elem.classList.remove('flying-back');
+    elem.style.position = 'absolute';
+    elem.style.left = origLeft + 'px';
+    elem.style.top = origTop + 'px';
+    elem.style.zIndex = '';
+  }, 400);
+}
+
+function handleDrop(elem, shape, origLeft, origTop) {
+  const targetSlot = $('target-slot');
+  
+  if (shape.correct) {
+    shape.placed = true;
+    state.game.found.push(shape.id);
+    state.metrics.totalCorrect++; // Hidden stat
+    audioSystem.success();
+    
+    const slotRect = targetSlot.getBoundingClientRect();
+    const placedCount = targetSlot.children.length;
+    const slotWidth = 56;
+    const totalWidth = state.game.totalCurves * slotWidth;
+    const startX = slotRect.left + (slotRect.width - totalWidth) / 2;
+    const targetX = startX + placedCount * slotWidth;
+    const targetY = slotRect.top + slotRect.height / 2 - 25;
+    
+    elem.classList.add('flying-back');
+    elem.style.transform = '';
+    elem.style.left = targetX + 'px';
+    elem.style.top = targetY + 'px';
+    elem.style.width = '50px';
+    elem.style.height = '50px';
+    
+    setTimeout(() => {
+      const placed = document.createElement('div');
+      placed.className = 'placed-curve';
+      placed.innerHTML = `<svg viewBox="0 0 100 100">${renderShapeSVG(shape, 'placed', false)}</svg>`;
+      targetSlot.appendChild(placed);
+      elem.remove();
+      
+      const fb = document.createElement('div');
+      fb.className = 'placement-feedback';
+      fb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      $('target-zone').appendChild(fb);
+      setTimeout(() => fb.remove(), 1000);
+      
+      state.game.shapes = state.game.shapes.filter(s => s.id !== shape.id);
+    }, 400);
+    
+    updateProgress();
+    
+    if (state.game.found.length === state.game.totalCurves) {
+      setTimeout(completeLevel, 800);
+    }
+  } else {
+    state.metrics.totalWrong++; // Hidden stat
+    audioSystem.error();
+    elem.classList.add('wrong-drop');
+    showToast('اشتباه! این خط خمیده نیست', 'error', 1500);
+    
+    setTimeout(() => {
+      elem.classList.remove('wrong-drop');
+      returnToOriginal(elem, origLeft, origTop);
+    }, 550);
+  }
+}
+
+function updateProgress() {
+  const pct = (state.game.found.length / state.game.totalCurves) * 100;
+  $('progress-fill').style.width = pct + '%';
+}
+
+// ============ Level Management ============
+function startLevel(idx) {
+  state.currentLevel = idx;
+  const level = LEVELS[idx];
+  state.game.found = [];
+  state.game.totalCurves = level.curves;
+  state.game.levelStartTime = Date.now();
+  state.game.active = true;
+  state.game.paused = false;
+  
+  // LOKO Reward System: Check initial coins at the very start of the game
+  if (idx === 0) {
+    state.initialCoins = state.coins;
+    saveState();
+  }
+  
+  $('level-text').textContent = `مرحله ${toPersianNum(idx + 1)}`;
+  $('progress-fill').style.width = '0%';
+  $('target-slot').innerHTML = '';
+  
+  const frame = $('board-frame');
+  frame.style.background = level.theme.bg;
+  
+  const shapes = generateShapes(level);
+  state.game.shapes = shapes;
+  
+  startTimer();
+  
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => positionShapes(shapes));
+  });
+}
+
+function completeLevel() {
+  state.game.active = false;
+  stopTimer();
+  LUKO.answer({ topic: 'trace-curve', topicLabel: 'خط خمیده', correct: true,
+                ms: elapsedSeconds * 1000, tier: state.game.level });
+  LUKO.finish({ level: state.game.level, seconds: elapsedSeconds });
+  const levelTime = elapsedSeconds;
+  state.metrics.levelTimes.push(levelTime);
+  state.metrics.perLevel.push({
+    level: state.currentLevel + 1, time: levelTime,
+    correct: state.game.found.length, wrong: state.metrics.totalWrong
+  });
+  
+  if (!state.completedLevels.includes(state.currentLevel)) {
+    state.completedLevels.push(state.currentLevel);
+    audioSystem.unlock();
+  }
+  
+  if (state.currentLevel + 1 < LEVELS.length) {
+    state.unlockedLevels = Math.max(state.unlockedLevels, state.currentLevel + 2);
+  }
+  
+  saveState();
+  
+  // Check if game is fully completed
+  if (state.currentLevel + 1 >= LEVELS.length) {
+    // LOKO Reward System: Give reward ONLY at the end of all levels
+    let reward = state.initialCoins === 0 ? 10 : 1;
+    state.coins += reward;
+    saveState();
+    updateCoinDisplays();
+    
+    $('game-complete-reward').textContent = '+' + reward;
+    $('game-complete-modal').classList.add('active');
+    audioSystem.win();
+    spawnConfetti(80);
+    setTimeout(() => audioSystem.coin(), 500);
+  } else {
+    $('level-complete-text').textContent = `مرحله ${toPersianNum(state.currentLevel + 1)} را کامل کردی`;
+    $('level-complete-modal').classList.add('active');
+    audioSystem.win();
+    spawnConfetti(40);
+  }
+}
+
+function nextLevel() {
+  $('level-complete-modal').classList.remove('active');
+  audioSystem.click();
+  if (state.currentLevel + 1 < LEVELS.length) {
+    startLevel(state.currentLevel + 1);
+  }
+}
+
+// ============ Interactive Help Demo (Mini Game) ============
+function initHelpDemo() {
+  const board = $('mini-board');
+  $('mini-target-slot').innerHTML = '';
+  const scoreEl = $('help-score');
+  scoreEl.textContent = 'امتیاز: ۰';
+  scoreEl.setAttribute('data-val', '0');
+  scoreEl.className = 'help-demo-score';
+  board.innerHTML = '';
+
+  const shapes = generateShapes(HELP_LEVEL);
+  const boardRect = board.getBoundingClientRect();
+  const cols = 4;
+  const rows = Math.ceil(shapes.length / cols);
+  const cellW = boardRect.width / cols;
+  const cellH = boardRect.height / rows;
+  const shapeSize = Math.max(36, Math.min(48, Math.min(cellW, cellH) * 0.8));
+
+  shapes.forEach((shape, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const x = col * cellW + (cellW - shapeSize) / 2;
+    const y = row * cellH + (cellH - shapeSize) / 2;
+
+    const el = document.createElement('div');
+    el.className = 'mini-shape';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.width = shapeSize + 'px';
+    el.style.height = shapeSize + 'px';
+    el.innerHTML = `<svg viewBox="0 0 100 100">${renderShapeSVG(shape, 'mini', true)}</svg>`;
+    
+    setupMiniDrag(el, shape, x, y);
+    board.appendChild(el);
+  });
+}
+
+function setupMiniDrag(el, shape, origLeft, origTop) {
+  let dragging = false, sx = 0, sy = 0;
+  
+  el.addEventListener('pointerdown', (e) => {
+    if (shape.placed) return;
+    dragging = true;
+    audioSystem.init(); audioSystem.click();
+    sx = e.clientX; sy = e.clientY;
+    const rect = el.getBoundingClientRect();
+    el.style.position = 'fixed';
+    el.style.left = rect.left + 'px';
+    el.style.top = rect.top + 'px';
+    el.style.zIndex = '1000';
+    el.classList.add('dragging');
+    try { el.setPointerCapture(e.pointerId); } catch(e){}
+  });
+
+  el.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    el.style.left = (parseFloat(el.style.left) + e.clientX - sx) + 'px';
+    el.style.top = (parseFloat(el.style.top) + e.clientY - sy) + 'px';
+    sx = e.clientX; sy = e.clientY;
+
+    const r = el.getBoundingClientRect();
+    const t = $('mini-target-zone').getBoundingClientRect();
+    const onTarget = !(r.right < t.left + 15 || r.left > t.right - 15 || r.bottom < t.top + 15 || r.top > t.bottom - 15);
+    if (onTarget) $('mini-target-zone').classList.add('active');
+    else $('mini-target-zone').classList.remove('active');
+  });
+
+  el.addEventListener('pointerup', (e) => {
+    if (!dragging) return;
+    dragging = false;
+    el.classList.remove('dragging');
+    $('mini-target-zone').classList.remove('active');
+
+    const r = el.getBoundingClientRect();
+    const t = $('mini-target-zone').getBoundingClientRect();
+    const onTarget = !(r.right < t.left + 15 || r.left > t.right - 15 || r.bottom < t.top + 15 || r.top > t.bottom - 15);
+
+    if (onTarget) {
+      if (shape.correct) {
+        shape.placed = true;
+        audioSystem.success();
+        const slotRect = $('mini-target-slot').getBoundingClientRect();
+        const placedCount = $('mini-target-slot').children.length;
+        const slotWidth = 44;
+        const startX = slotRect.left + (slotRect.width - (2 * slotWidth)) / 2;
+        const targetX = startX + placedCount * slotWidth;
+        const targetY = slotRect.top + slotRect.height/2 - 20;
+
+        el.classList.add('flying-back');
+        el.style.left = targetX + 'px';
+        el.style.top = targetY + 'px';
+        el.style.width = '40px';
+        el.style.height = '40px';
+
+        setTimeout(() => {
+          const placed = document.createElement('div');
+          placed.className = 'mini-placed';
+          placed.innerHTML = `<svg viewBox="0 0 100 100">${renderShapeSVG(shape, 'mini-placed', false)}</svg>`;
+          $('mini-target-slot').appendChild(placed);
+          el.remove();
+        }, 400);
+
+        updateHelpScore(1);
+        showToast('آفرین! درست بود', 'success', 1200);
+        
+        if ($('mini-target-slot').children.length === 2) {
+          setTimeout(() => showToast('آموزش کامل شد! می‌توانی بازی را شروع کنی', 'success', 2500), 500);
+        }
+      } else {
+        audioSystem.error();
+        el.classList.add('wrong-drop');
+        updateHelpScore(-1);
+        showToast('اشتباه! این خط خمیده نیست', 'error', 1200);
+        setTimeout(() => {
+          el.classList.remove('wrong-drop');
+          el.style.position = 'absolute';
+          el.style.left = origLeft + 'px';
+          el.style.top = origTop + 'px';
+          el.style.zIndex = '';
+        }, 500);
+      }
+    } else {
+      el.style.position = 'absolute';
+      el.style.left = origLeft + 'px';
+      el.style.top = origTop + 'px';
+      el.style.zIndex = '';
+    }
+  });
+}
+
+function updateHelpScore(val) {
+  const scoreEl = $('help-score');
+  let currentScore = parseInt(scoreEl.getAttribute('data-val') || '0');
+  currentScore += val;
+  scoreEl.setAttribute('data-val', currentScore);
+  scoreEl.textContent = `امتیاز: ${toPersianNum(currentScore)}`;
+  scoreEl.className = 'help-demo-score ' + (currentScore > 0 ? 'positive' : (currentScore < 0 ? 'negative' : ''));
+}
+
+// ============ Shop ============
+function renderShopItems(tab) {
+  const container = $('shop-items');
+  container.innerHTML = '';
+  const items = SHOP_ITEMS[tab];
+  
+  items.forEach(item => {
+    const owned = state.ownedItems[tab].includes(item.id);
+    const active = state.activeItems[tab] === item.id;
+    const canAfford = state.coins >= item.price;
+    
+    const el = document.createElement('div');
+    el.className = 'shop-item' + (owned ? ' owned' : '') + (active ? ' active' : '');
+    
+    let actionBtn;
+    if (active) actionBtn = `<button class="shop-item-action active">فعال ✓</button>`;
+    else if (owned) actionBtn = `<button class="shop-item-action owned" data-action="activate" data-tab="${tab}" data-id="${item.id}">انتخاب</button>`;
+    else if (canAfford || item.price === 0) actionBtn = `<button class="shop-item-action" data-action="buy" data-tab="${tab}" data-id="${item.id}" data-price="${item.price}">خرید</button>`;
+    else actionBtn = `<button class="shop-item-action locked" disabled>سکه ناکافی</button>`;
+    
+    el.innerHTML = `
+      <div class="shop-item-preview"><svg viewBox="0 0 100 100">${item.icon}</svg></div>
+      <div class="shop-item-name">${item.name}</div>
+      <div class="shop-item-price">${item.price === 0 ? 'رایگان' : `<img src="/games/assets/icons/coin.png" class="coin-img-mini" alt="LOKO Coin">${item.price}`}</div>
+      ${actionBtn}
+    `;
+    container.appendChild(el);
+  });
+  
+  container.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      audioSystem.click();
+      const action = btn.dataset.action;
+      const tab = btn.dataset.tab;
+      const id = btn.dataset.id;
+      
+      if (action === 'buy') {
+        const price = parseInt(btn.dataset.price);
+        const item = SHOP_ITEMS[tab].find(i => i.id === id);
+        if (state.coins >= price) {
+          state.coins -= price;
+          state.ownedItems[tab].push(id);
+          state.activeItems[tab] = id;
+          saveState(); updateCoinDisplays();
+          audioSystem.coin();
+          showToast(item.name + ' خرید شد!', 'success');
+          renderShopItems(tab);
+        } else { showToast('سکه کافی نداری!', 'error'); }
+      } else if (action === 'activate') {
+        state.activeItems[tab] = id;
+        saveState(); audioSystem.success();
+        showToast('فعال شد!', 'success');
+        renderShopItems(tab);
+      }
+    });
+  });
+}
+
+// ============ Event Listeners ============
+function setupEventListeners() {
+  $('btn-start').addEventListener('click', () => {
+    audioSystem.click();
+    showScreen('levels');
+    renderLevels();
+  });
+  
+  $('btn-shop').addEventListener('click', () => {
+    audioSystem.click();
+    showScreen('shop');
+    renderShopItems('skins');
+  });
+  
+  $('btn-help').addEventListener('click', () => { audioSystem.click(); showScreen('help'); });
+  
+  $('btn-sound').addEventListener('click', () => {
+    audioSystem.init();
+    audioSystem.enabled = !audioSystem.enabled;
+    state.soundOn = audioSystem.enabled;
+    $('sound-on-icon').style.display = audioSystem.enabled ? '' : 'none';
+    $('sound-off-icon').style.display = audioSystem.enabled ? 'none' : '';
+    if (audioSystem.enabled) audioSystem.click();
+    saveState();
+  });
+  
+  document.querySelectorAll('.back-btn').forEach(btn => {
+    btn.addEventListener('click', () => { audioSystem.click(); showScreen(btn.dataset.back); });
+  });
+  
+  document.querySelectorAll('.shop-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      audioSystem.click();
+      document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderShopItems(tab.dataset.tab);
+    });
+  });
+  
+  // Stop Button
+  $('btn-stop').addEventListener('click', () => {
+    audioSystem.click();
+    state.game.active = false;
+    stopTimer();
+    $('stop-modal').classList.add('active');
+  });
+  
+  // Stop Modal Actions
+  $('btn-restart-level').addEventListener('click', () => {
+    audioSystem.click();
+    $('stop-modal').classList.remove('active');
+    startLevel(state.currentLevel);
+  });
+  
+  $('btn-go-levels').addEventListener('click', () => {
+    audioSystem.click();
+    $('stop-modal').classList.remove('active');
+    state.game.paused = false;
+    state.game.active = false;
+    showScreen('levels');
+    renderLevels();
+  });
+  
+  $('btn-go-home').addEventListener('click', () => {
+    audioSystem.click();
+    $('stop-modal').classList.remove('active');
+    state.game.paused = false;
+    state.game.active = false;
+    stopTimer();
+    showScreen('main');
+  });
+  
+  // Pause Menu on Main Screen Actions
+  $('btn-continue').addEventListener('click', () => {
+    audioSystem.click();
+    state.game.paused = false;
+    state.game.active = true;
+    showScreen('game');
+    startTimer();
+  });
+  
+  $('btn-restart-game').addEventListener('click', () => {
+    audioSystem.click();
+    state.game.paused = false;
+    showScreen('levels');
+    renderLevels();
+  });
+  
+  // Level Complete Actions
+  $('btn-next-level').addEventListener('click', nextLevel);
+  
+  // Game Complete Action
+  $('btn-back-to-main').addEventListener('click', () => {
+    audioSystem.click();
+    $('game-complete-modal').classList.remove('active');
+    showScreen('main');
+  });
+  
+  // Help Reset Action
+  $('help-reset').addEventListener('click', () => {
+    audioSystem.click();
+    initHelpDemo();
+  });
+  
+  // Prevent context menu on long press
+  document.addEventListener('contextmenu', (e) => {
+    if (e.target.closest('.shape, .btn-primary-loko, .btn-secondary-loko, .icon-btn, .level-card, .mini-shape')) e.preventDefault();
+  });
+  
+  // Prevent double-tap zoom
+  let lastTouch = 0;
+  document.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTouch < 300) e.preventDefault();
+    lastTouch = now;
+  }, { passive: false });
+  
+  // Resize handler
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (state.currentScreen === 'game' && state.game.active && state.game.shapes.length > 0) {
+        positionShapes(state.game.shapes.filter(s => !s.placed));
+      } else if (state.currentScreen === 'help') {
+        initHelpDemo();
+      }
+    }, 200);
+  });
+}
+
+// ============ Init ============
+function init() {
+  loadState();
+  audioSystem.enabled = state.soundOn;
+  $('sound-on-icon').style.display = state.soundOn ? '' : 'none';
+  $('sound-off-icon').style.display = state.soundOn ? 'none' : '';
+  setupEventListeners();
+  updateCoinDisplays();
+  updatePauseButtons();
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+</script>
+</body>
+</html>

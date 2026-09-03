@@ -1,0 +1,397 @@
+/* نقشه‌ی مراحلِ کتاب — تم گیمرِ پیکسل (بنفش نئونی + فیروزه‌ای روی پس‌زمینه‌ی تیره) */
+.page {
+  --gamer-primary: #7c5cbf;
+  --gamer-dark: #241f31;
+  --gamer-neon: #4fd8c8;
+  --gamer-pink: #e56fa7;
+  --gamer-green: #57d977;
+
+  min-height: 100dvh;
+  /* padding پایین: هم margin-collapse نقشه را می‌بندد (رفعِ نوار سفید)
+     هم فضای تیره برای جامِ پایان که کمی overflow می‌کند فراهم می‌کند */
+  padding-bottom: 56px;
+  background:
+    radial-gradient(circle at 12% 6%, rgb(124 92 191 / 30%) 0%, transparent 42%),
+    radial-gradient(circle at 88% 30%, rgb(79 216 200 / 16%) 0%, transparent 40%),
+    linear-gradient(180deg, #2b2440 0%, var(--gamer-dark) 100%);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+}
+
+.back {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  background: rgb(255 255 255 / 12%);
+  color: var(--color-on-primary);
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.topTexts {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.topWorld {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-on-primary);
+}
+
+.topSubject {
+  font-size: 11.5px;
+  color: rgb(255 255 255 / 55%);
+}
+
+.topIcon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--gamer-primary), var(--gamer-pink));
+  color: var(--color-on-primary);
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+/* حباب کمیک‌بوکی */
+.intro {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 4px 18px 0;
+}
+
+.character {
+  width: 92px;
+  height: auto;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 14px rgb(79 216 200 / 45%));
+}
+
+.bubble {
+  position: relative;
+  flex: 1;
+  background: rgb(255 255 255 / 8%);
+  border: 1.5px solid rgb(79 216 200 / 45%);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+.tail {
+  position: absolute;
+  bottom: 12px;
+  right: -8px;
+  width: 14px;
+  height: 14px;
+  background: #2b2942;
+  border-left: 1.5px solid rgb(79 216 200 / 45%);
+  border-bottom: 1.5px solid rgb(79 216 200 / 45%);
+  transform: rotate(-45deg);
+  border-radius: 3px;
+}
+
+.speaker {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--gamer-neon);
+}
+
+.text {
+  margin-top: 4px;
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: rgb(255 255 255 / 90%);
+}
+
+/* خلاصه‌ی پیشرفت */
+.summary {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 6px 18px 0;
+}
+
+.sumItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: rgb(255 255 255 / 75%);
+  background: rgb(255 255 255 / 7%);
+  border: 1.5px solid rgb(255 255 255 / 12%);
+  border-radius: 999px;
+  padding: 6px 12px;
+}
+
+.sumItem b {
+  color: var(--gamer-neon);
+  font-weight: 800;
+}
+
+/* نقشه‌ی مارپیچی */
+.trail {
+  position: relative;
+  margin: 14px 14px 32px;
+}
+
+.trailSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.pathBase {
+  fill: none;
+  stroke: rgb(255 255 255 / 22%);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 1 13;
+}
+
+.pathLit {
+  fill: none;
+  stroke: var(--gamer-neon);
+  stroke-width: 5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 5px rgb(79 216 200 / 70%));
+}
+
+/* گرهِ هر مرحله */
+.node {
+  position: absolute;
+  width: 62px;
+  height: 62px;
+  transform: translate(-50%, -50%);
+}
+
+.circle {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 3px solid transparent;
+  transition: transform 0.12s;
+}
+
+.circle:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.circleNum {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.circleIcon {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  padding: 3px;
+  border-radius: 50%;
+  background: var(--gamer-dark);
+  font-size: 15px;
+}
+
+/* تمام‌شده — سبزِ درخشان با تیک */
+.completed {
+  background: linear-gradient(145deg, var(--gamer-green), #3bbf5e);
+  border-color: rgb(255 255 255 / 40%);
+  color: var(--color-on-primary);
+}
+
+.completed .circleIcon {
+  color: var(--gamer-green);
+}
+
+/* مرحله‌ی فعلی — درخشانِ فیروزه‌ای و ضربان‌دار */
+.current {
+  background: linear-gradient(145deg, var(--gamer-neon), #2bb6a8);
+  border-color: var(--color-on-primary);
+  color: var(--gamer-dark);
+  box-shadow: 0 0 0 5px rgb(79 216 200 / 25%);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.current .circleIcon {
+  color: var(--gamer-neon);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 5px rgb(79 216 200 / 22%);
+  }
+  50% {
+    box-shadow: 0 0 0 11px rgb(79 216 200 / 8%);
+  }
+}
+
+/* قفل — خاکستری */
+.locked {
+  background: rgb(255 255 255 / 10%);
+  border-color: rgb(255 255 255 / 18%);
+  color: rgb(255 255 255 / 45%);
+  cursor: default;
+}
+
+.locked .circleIcon {
+  color: rgb(255 255 255 / 55%);
+}
+
+/* برچسبِ «الان اینجایی» بالای مرحله‌ی فعلی */
+.hereBadge {
+  position: absolute;
+  bottom: calc(100% + 9px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--gamer-dark);
+  background: var(--gamer-neon);
+  border-radius: 999px;
+  padding: 4px 10px;
+  box-shadow: 0 4px 10px rgb(79 216 200 / 40%);
+}
+
+.hereBadge::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--gamer-neon);
+}
+
+/* عنوان و جایزه‌ی هر مرحله زیر گره */
+.caption {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.capTitle {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgb(255 255 255 / 88%);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.capCoin {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #f2d38b;
+}
+
+/* پرچمِ شروع */
+.startFlag {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--gamer-dark);
+  background: #f2d38b;
+  border-radius: 999px;
+  padding: 4px 12px;
+  white-space: nowrap;
+}
+
+/* جامِ پایان */
+.finish {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 10%);
+  border: 2px dashed rgb(255 255 255 / 30%);
+  color: rgb(255 255 255 / 55%);
+  font-size: 24px;
+}
+
+.finishWon {
+  background: linear-gradient(145deg, #f2d38b, #e0a93a);
+  border: 2px solid #fff3d6;
+  color: #8a5a12;
+  box-shadow: 0 0 18px rgb(242 211 139 / 55%);
+}
+
+/* حالت به‌زودی */
+.soon {
+  margin: 24px 24px 40px;
+  text-align: center;
+  background: rgb(255 255 255 / 6%);
+  border: 1.5px dashed rgb(255 255 255 / 25%);
+  border-radius: var(--radius-md);
+  padding: 32px 20px;
+}
+
+.soonIcon {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  margin: 0 auto;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--gamer-primary), var(--gamer-pink));
+  color: var(--color-on-primary);
+  font-size: 34px;
+}
+
+.soonTitle {
+  margin-top: 16px;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--color-on-primary);
+}
+
+.soonDesc {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 2;
+  color: rgb(255 255 255 / 70%);
+}
+
+.soonBtn {
+  margin-top: 18px;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  background: var(--gamer-neon);
+  color: var(--gamer-dark);
+  font-size: 14px;
+  font-weight: 800;
+}

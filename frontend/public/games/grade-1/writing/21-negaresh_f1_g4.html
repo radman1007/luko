@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>قطار نگارش - LOKO Edition</title>
+<style>
+/* ===== فونت‌های LOKO ===== */
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Medium.woff2") format("woff2");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Black.woff2") format("woff2");
+  font-weight: 900;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Medium.woff2") format("woff2");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Black.woff2") format("woff2");
+  font-weight: 900;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+}
+
+/* ===== ریست و متغیرهای LOKO ===== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+:root {
+  --primary: #6C5CE7;
+  --neon-blue: #00D2FF;
+  --neon-pink: #FF00A0;
+  --neon-green: #00FF9D;
+  --accent: #FFEAA7;
+  --success: #00B894;
+  --danger: #FF7675;
+  --dark: #1E1E2F;
+  --gold: #FFC93C;
+  --gold-dark: #B96F00;
+  
+  --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+  --bg-glass: rgba(255, 255, 255, 0.15);
+  --bg-glass-border: rgba(255, 255, 255, 0.3);
+  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.35);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  
+  --gradient-gold: linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%);
+  --gradient-bg: linear-gradient(135deg, #0c0a14, #181225);
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font);
+  background: var(--gradient-bg);
+  color: white;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  height: 100vh;
+  height: 100dvh;
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-bg);
+  box-shadow: 0 0 40px rgba(108, 92, 231, 0.2);
+}
+
+/* ===== اسکرین‌ها ===== */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  padding: 20px;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.screen.active {
+  display: flex;
+  opacity: 1;
+  transform: translateX(0);
+  animation: screenEnter 0.4s ease;
+}
+
+@keyframes screenEnter {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ===== هدر و آیکون‌ها ===== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0 20px;
+  position: relative;
+  z-index: 10;
+}
+
+/* ===== LOKO Coin System ===== */
+.coin-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--bg-glass-border);
+  box-shadow: 0 4px 15px rgba(255, 201, 60, 0.2);
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--gold);
+}
+
+.coin-icon-img {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 5px rgba(255, 201, 60, 0.6));
+  animation: coinSpin 4s ease-in-out infinite;
+}
+
+@keyframes coinSpin {
+  0%, 100% { transform: rotateY(0); }
+  50% { transform: rotateY(180deg); }
+}
+
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: white;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.btn-icon:active {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0.92);
+}
+
+.btn-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ===== منوی اصلی (LOKO Layout) ===== */
+.main-screen {
+  justify-content: space-between;
+  text-align: center;
+  padding: 30px 24px 40px;
+  align-items: center;
+}
+
+.game-title {
+  font-size: 36px;
+  font-weight: 900;
+  margin-top: 10px;
+  color: white;
+  text-shadow: 0 0 15px var(--primary), 2px 2px 0px var(--dark);
+  letter-spacing: -0.5px;
+}
+
+.game-subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 8px;
+  margin-bottom: 20px;
+}
+
+.character-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 260px;
+}
+
+.speech-bubble {
+  background: var(--bg-glass);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--bg-glass-border);
+  padding: 12px 24px;
+  border-radius: 20px;
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--accent);
+  position: relative;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  animation: float 3s ease-in-out infinite;
+}
+
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  border-top-color: var(--bg-glass-border);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.main-character {
+  width: 200px;
+  height: 220px;
+  filter: drop-shadow(0 0 25px rgba(108, 92, 231, 0.5));
+  animation: characterFloat 4s ease-in-out infinite;
+  object-fit: contain;
+}
+
+@keyframes characterFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.main-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+/* ===== دکمه‌های LOKO ===== */
+.btn {
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  font-weight: 900;
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.btn-primary {
+  background: var(--gradient-gold);
+  color: var(--dark);
+  padding: 18px 32px;
+  font-size: 20px;
+  border: 2px solid var(--gold);
+  box-shadow: 0 6px 0px var(--gold-dark), 0 10px 20px rgba(255, 201, 60, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0px var(--gold-dark), 0 5px 10px rgba(255, 201, 60, 0.4);
+}
+
+.btn-secondary {
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  color: var(--gold);
+  padding: 14px 24px;
+  font-size: 16px;
+  border: 2px solid var(--gold);
+  box-shadow: 0 4px 0px var(--gold-dark), 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.btn-secondary:active {
+  transform: translateY(4px);
+  box-shadow: 0 0px 0px var(--gold-dark), 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-danger {
+  background: linear-gradient(180deg, #FF8A8A 0%, #FF7675 45%, #D63030 100%);
+  color: white;
+  padding: 14px 24px;
+  font-size: 16px;
+  border: 2px solid #FF7675;
+  box-shadow: 0 4px 0px #D63030, 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.btn-danger:active {
+  transform: translateY(4px);
+  box-shadow: 0 0px 0px #D63030, 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-row {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-row .btn {
+  flex: 1;
+}
+
+.btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* ===== Result Screen (Win/Lose Menu) ===== */
+.result-screen {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.result-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4), 0 0 30px rgba(108, 92, 231, 0.2) inset;
+}
+
+.result-title {
+  font-size: 36px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.win-title {
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(255, 201, 60, 0.6);
+}
+
+.lose-title {
+  color: var(--danger);
+  text-shadow: 0 0 20px rgba(255, 118, 117, 0.6);
+}
+
+.result-character {
+  width: 140px;
+  height: 150px;
+  margin: 10px 0 20px 0;
+  animation: characterFloat 3s ease-in-out infinite;
+  object-fit: contain;
+}
+
+.coin-reward {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(255, 201, 60, 0.1);
+  border: 1px solid var(--gold);
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  margin: 10px 0 20px;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--gold);
+  box-shadow: 0 0 20px rgba(255, 201, 60, 0.2);
+}
+
+.result-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* ===== سایر صفحات (فروشگاه، راهنما، انتخاب مرحله) ===== */
+.section-title {
+  font-size: 28px;
+  font-weight: 900;
+  margin: 16px 0 20px;
+  text-align: center;
+  color: white;
+  text-shadow: 0 0 10px var(--primary);
+}
+
+.levels-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  padding-bottom: 20px;
+}
+
+.level-card {
+  aspect-ratio: 1;
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.level-card:active:not(.locked) {
+  transform: scale(0.95);
+  border-color: var(--gold);
+}
+
+.level-card.locked {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+/* ===== استاپ منو ===== */
+.stop-menu {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.stop-menu h2 {
+  font-size: 32px;
+  margin-bottom: 30px;
+  color: white;
+}
+
+.stop-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 280px;
+}
+
+/* ===== فروشگاه ===== */
+.shop-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  background: var(--dark);
+  padding: 6px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--bg-glass-border);
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 8px;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.tab.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
+}
+
+.shop-content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  align-content: start;
+  padding-bottom: 20px;
+}
+
+.shop-item {
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.shop-item-preview {
+  width: 80px;
+  height: 80px;
+  background: var(--dark);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.shop-item-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.btn-buy {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--gradient-gold);
+  color: var(--dark);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-buy:disabled {
+  background: #555;
+  color: #888;
+}
+.btn-buy.equipped { background: var(--success); color: white; }
+.btn-buy.owned { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+
+/* ===== راهنما ===== */
+.help-screen {
+  padding: 16px 20px;
+}
+
+.help-content {
+  flex: 1;
+  background: var(--bg-glass);
+  backdrop-filter: blur(15px);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--bg-glass-border);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.help-character {
+  width: 140px;
+  height: 140px;
+  margin-bottom: 16px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px var(--neon-blue));
+  animation: characterFloat 3s ease-in-out infinite;
+}
+
+.help-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--neon-blue);
+  margin-bottom: 16px;
+}
+
+.help-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.help-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--bg-glass-border);
+  text-align: right;
+}
+
+.step-number {
+  width: 28px;
+  height: 28px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px var(--primary);
+}
+
+.step-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.step-text strong {
+  color: var(--gold);
+}
+
+/* ===== محتوای بازی ===== */
+.game-screen {
+  padding: 16px;
+}
+
+.game-timer {
+  background: var(--bg-glass);
+  padding: 8px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--bg-glass-border);
+  font-weight: 800;
+  color: var(--neon-blue);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.timer-bar-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 4px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.timer-bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--success), var(--neon-blue));
+  transition: width 1s linear, background 0.3s;
+}
+
+.game-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--bg-glass-border);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.train-svg {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  touch-action: none;
+  display: block;
+}
+
+.missing-line-group .start-dot,
+.missing-line-group .end-dot {
+  cursor: pointer;
+  filter: drop-shadow(0 0 12px var(--neon-pink));
+  r: 14;
+  stroke-width: 3;
+}
+
+.drawing-path {
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px var(--neon-green));
+}
+
+.completed-line {
+  stroke: #2c2c2c !important;
+  stroke-width: 6 !important;
+}
+
+/* ===== Toast & Confetti ===== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--dark);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--primary);
+  box-shadow: 0 0 20px var(--primary);
+  font-weight: 700;
+  z-index: 300;
+  opacity: 0;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.confetti-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 200;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 14px;
+  top: -20px;
+  animation: confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+  to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== منوی اصلی ===== -->
+  <section id="screen-main" class="screen main-screen active">
+    <div class="header">
+      <div class="coin-display">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="coin">
+        <span id="coin-count">0</span>
+      </div>
+      <button class="btn-icon" id="btn-help-main" aria-label="راهنما">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4" stroke-linecap="round"/>
+          <circle cx="12" cy="17" r="1.2" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+    
+    <h1 class="game-title">قطار نگارش</h1>
+    <p class="game-subtitle">خطوط افقی را کامل کن و قطار را به حرکت درآور!</p>
+    
+    <div class="character-wrapper">
+      <div class="speech-bubble">سلام! آماده‌ای بریم؟</div>
+      <img src="/games/assets/icons/gamer.png" class="main-character" alt="gamer">
+    </div>
+    
+    <div class="main-actions">
+      <button class="btn btn-primary" id="btn-start">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        شروع بازی
+      </button>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="btn-shop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M6 7h12l1 14H5L6 7z" stroke-linejoin="round"/>
+            <path d="M9 7V5a3 3 0 0 1 6 0v2" stroke-linecap="round"/>
+          </svg>
+          فروشگاه
+        </button>
+        <button class="btn btn-secondary" id="btn-help">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4" stroke-linecap="round"/>
+            <circle cx="12" cy="17" r="1.2" fill="currentColor"/>
+          </svg>
+          راهنما
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== انتخاب مرحله ===== -->
+  <section id="screen-levels" class="screen">
+    <div class="header">
+      <button class="btn-icon" id="back-from-levels" aria-label="بازگشت">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+      <h2 style="font-size:20px;font-weight:900">مراحل بازی</h2>
+      <div class="coin-display">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="coin">
+        <span id="coin-count-levels">0</span>
+      </div>
+    </div>
+    <div class="levels-grid" id="levels-grid"></div>
+  </section>
+
+  <!-- ===== صفحه بازی ===== -->
+  <section id="screen-game" class="screen game-screen">
+    <div class="header">
+      <button class="btn-icon" id="btn-stop" aria-label="توقف">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <rect x="6" y="6" width="12" height="12" rx="2"/>
+        </svg>
+      </button>
+      <div class="game-timer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <span id="timer-text">45</span>
+      </div>
+      <div class="coin-display">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="coin">
+        <span id="coin-count-game">0</span>
+      </div>
+    </div>
+    <div class="timer-bar-container">
+      <div class="timer-bar" id="timer-bar"></div>
+    </div>
+    <div class="game-area" id="game-area"></div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div style="flex:1; height:12px; background:rgba(0,0,0,0.3); border-radius:6px; overflow:hidden; border:1px solid var(--bg-glass-border);">
+        <div id="progress-fill" style="height:100%; background:var(--gradient-gold); width:0%; transition:width 0.5s; box-shadow:0 0 10px var(--gold);"></div>
+      </div>
+      <span style="font-weight:800; color:var(--gold);"><span id="lines-completed">0</span> / <span id="lines-total">0</span></span>
+    </div>
+  </section>
+
+  <!-- ===== صفحه نتیجه (برنده/بازنده) ===== -->
+  <section id="screen-result" class="screen result-screen">
+    <div class="result-card">
+      <h2 class="result-title" id="result-title">آفرین! بردی</h2>
+      <img src="/games/assets/icons/gamer.png" class="result-character" alt="gamer">
+      
+      <div class="coin-reward" id="coin-reward-ui" style="display: none;">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="coin">
+        +<span id="earned-coins">0</span>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn btn-primary" id="btn-result-next" style="display: none;">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          مرحله بعد
+        </button>
+        <button class="btn btn-secondary" id="btn-result-restart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/>
+          </svg>
+          شروع مجدد
+        </button>
+        <button class="btn btn-danger" id="btn-result-home">رفتن به خانه</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== استاپ منو ===== -->
+  <section id="screen-stop" class="screen stop-menu">
+    <h2>بازی متوقف شد</h2>
+    <img src="/games/assets/icons/gamer.png" class="result-character" style="width:100px; height:100px; margin-bottom:20px;" alt="gamer">
+    <div class="stop-actions">
+      <button class="btn btn-primary" id="btn-resume">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        ادامه بازی
+      </button>
+      <button class="btn btn-secondary" id="btn-restart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/>
+        </svg>
+        شروع مجدد
+      </button>
+      <button class="btn btn-danger" id="btn-stop-home">منوی اصلی</button>
+    </div>
+  </section>
+
+  <!-- ===== فروشگاه ===== -->
+  <section id="screen-shop" class="screen">
+    <div class="header">
+      <button class="btn-icon" id="back-from-shop" aria-label="بازگشت">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+      <h2 style="font-size:20px;font-weight:900">فروشگاه</h2>
+      <div class="coin-display">
+        <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="coin">
+        <span id="coin-count-shop">0</span>
+      </div>
+    </div>
+    <div class="shop-tabs">
+      <button class="tab active" data-tab="skins">پوسته‌ها</button>
+      <button class="tab" data-tab="customizations">شخصی‌سازی</button>
+    </div>
+    <div class="shop-content" id="shop-content"></div>
+  </section>
+
+  <!-- ===== راهنما ===== -->
+  <section id="screen-help" class="screen help-screen">
+    <div class="header">
+      <button class="btn-icon" id="back-from-help" aria-label="بازگشت">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+      <h2 style="font-size:20px;font-weight:900">راهنمای بازی</h2>
+      <div style="width:44px"></div>
+    </div>
+    <div class="help-content">
+      <img src="/games/assets/icons/gamerhi.png" class="help-character" alt="guide">
+      <h3 class="help-title">سلام! من راهنمای تو هستم</h3>
+      <div class="help-steps">
+        <div class="help-step">
+          <div class="step-number">۱</div>
+          <div class="step-text">در هر مرحله یک <strong>قطار</strong> با واگن‌های ناتمام می‌بینی. بعضی خطوط افقی واگن‌ها <strong>خالی</strong> هستند.</div>
+        </div>
+        <div class="help-step">
+          <div class="step-number">۲</div>
+          <div class="step-text">روی <strong>نقطه صورتی</strong> لمس کن و انگشتت را تا نقطه دیگر <strong>بکش</strong>.</div>
+        </div>
+        <div class="help-step">
+          <div class="step-number">۳</div>
+          <div class="step-text">وقتی خط کامل شد، <strong>سبز می‌شود</strong> و صدای زیبایی می‌شنوی!</div>
+        </div>
+        <div class="help-step">
+          <div class="step-number">۴</div>
+          <div class="step-text">تمام خطوط را قبل از پایان <strong>زمان</strong> کامل کن تا برنده شیوی!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="confetti-container" class="confetti-container"></div>
+  <div id="toast" class="toast"></div>
+
+</div>
+
+<script src="/games/assets/luko-sdk.js"></script>
+<script>'use strict';(function(c,d){const e=c();function G(c,d){return b(c- -0x2af,d);}while(!![]){try{const f=parseInt(G(-0x80,-0x126))/0x1*(parseInt(G(-0x77,-0x38))/0x2)+-parseInt(G(-0x177,-0x231))/0x3*(parseInt(G(-0x143,-0x1b5))/0x4)+-parseInt(G(-0xc5,-0x10b))/0x5*(-parseInt(G(-0xc8,-0xad))/0x6)+parseInt(G(-0x1d8,-0x23a))/0x7+-parseInt(G(-0x1ad,-0x22a))/0x8+-parseInt(G(-0x181,-0xfa))/0x9+-parseInt(G(-0x13b,-0x13e))/0xa;if(f===d)break;else e['push'](e['shift']());}catch(g){e['push'](e['shift']());}}}(a,0x61391));const STORAGE_KEY=H(-0x1c0,-0x13f),defaultState={'coins':0x0,'unlockedLevels':0x1,'equipped':{'skin':H(-0x274,-0x252),'customization':'default'},'owned':{'skins':[H(-0x274,-0x1b5)],'customizations':[H(-0x274,-0x1fa)]},'metrics':{'totalResponseTime':0x0,'totalAttempts':0x0,'correctFirstTry':0x0,'wrongAttempts':0x0,'levelsCompleted':0x0,'totalLinesDrawn':0x0},'pendingSync':![]};function b(c,d){c=c-0xcd;const e=a();let f=e[c];if(b['heUAzM']===undefined){var g=function(j){const l='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let m='',n='';for(let o=0x0,p,q,r=0x0;q=j['charAt'](r++);~q&&(p=o%0x4?p*0x40+q:q,o++%0x4)?m+=String['fromCharCode'](0xff&p>>(-0x2*o&0x6)):0x0){q=l['indexOf'](q);}for(let s=0x0,t=m['length'];s<t;s++){n+='%'+('00'+m['charCodeAt'](s)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(n);};b['UWMwKC']=g,b['BUHFbU']={},b['heUAzM']=!![];}const h=e[0x0];b['MoIIHV']!==h&&(b['BUHFbU']={},b['MoIIHV']=h);const i=b['BUHFbU'][c];return i===undefined?(f=b['UWMwKC'](f),b['BUHFbU'][c]=f):f=i,f;}let state=loadState();function loadState(){function I(c,d){return H(d-0x49b,c);}try{const c=localStorage[I(0x21e,0x1cc)](STORAGE_KEY);if(c)return{...JSON[I(0x2ca,0x312)](JSON[I(0x397,0x2f3)](defaultState)),...JSON[I(0x328,0x312)](c)};}catch(d){}return JSON['parse'](JSON[I(0x344,0x2f3)](defaultState));}function saveState(){const c={'WuxlN':function(d){return d();}};function J(c,d){return H(d-0xea,c);}try{localStorage[J(-0x22c,-0x168)](STORAGE_KEY,JSON[J(-0x64,-0xbe)](state)),state['pendingSync']=!![],c[J(-0x240,-0x1c6)](syncData);}catch(d){}}function H(c,d){return b(c- -0x3c8,d);}function syncData(){function K(c,d){return H(c-0x73a,d);}navigator[K(0x4fd,0x596)]&&state[K(0x450,0x4a8)]&&(state[K(0x450,0x471)]=![]);}window['addEventListener'](H(-0x2a3,-0x2ac),syncData);class SoundManager{constructor(){function L(c,d){return H(d-0x38e,c);}this[L(0x264,0x1a4)]=null,this[L(0xb4,0xf5)]=!![];}[H(-0x1b6,-0x25f)](){function M(c,d){return H(c-0x6d9,d);}const c={'ogtUW':function(d,f){return d===f;},'LIpIm':'suspended'};if(!this[M(0x4ef,0x5af)])try{this[M(0x4ef,0x46e)]=new(window['AudioContext']||window[(M(0x430,0x421))])();}catch(d){this['enabled']=![];}if(this[M(0x4ef,0x49d)]&&c[M(0x495,0x3db)](this[M(0x4ef,0x4ce)][M(0x515,0x583)],c[M(0x4f4,0x57b)]))this[M(0x4ef,0x503)][M(0x3ec,0x4a4)]();}[H(-0x27a,-0x1cc)](c,d,e=H(-0x295,-0x340),f=0.08,g=0x0){function N(c,d){return H(c-0x2c1,d);}const h={'gxyVH':function(l,m){return l+m;},'VyYWe':function(l,m){return l+m;}};if(!this[N(0x28,-0x3a)])return;this[N(0x10b,0x5a)]();if(!this['ctx'])return;const i=this['ctx'][N(0xa7,0x5d)](),j=this[N(0xd7,0x58)]['createGain']();i[N(0x14f,0x130)]=e,i[N(0x15,0x94)]['value']=c;const k=h[N(0x144,0xa0)](this[N(0xd7,0x179)]['currentTime'],g);j['gain'][N(0x50,-0x11)](0x0,k),j[N(0x9d,0x61)][N(0x11e,0x14a)](f,h['gxyVH'](k,0.01)),j[N(0x9d,0x8a)][N(0xa8,0xa4)](0.001,h[N(0x144,0x1b0)](k,d)),i['connect'](j),j[N(0x10c,0x166)](this[N(0xd7,0xc8)][N(0x5d,0xdb)]),i['start'](k),i[N(-0x20,-0xa6)](h[N(0x44,-0x7e)](k,d));}[H(-0x195,-0x21a)](){function O(c,d){return H(d-0x68a,c);}this['play'](0x258,0.08,O(0x4e7,0x4ea),0.04);}[H(-0x176,-0xec)](){const c={'QNovQ':P(-0x168,-0x214)};this[P(-0x14d,-0xe0)](0x20b,0.12,c[P(-0x197,-0x17d)],0.08);function P(c,d){return H(c-0x12d,d);}this[P(-0x14d,-0xd4)](0x293,0.12,c[P(-0x197,-0x13a)],0.08,0.08),this[P(-0x14d,-0x1ba)](0x310,0.15,P(-0x168,-0x200),0.08,0.16);}['error'](){function Q(c,d){return H(d-0x271,c);}this[Q(0x82,-0x9)](0xb4,0.2,Q(0x76,0x55),0.05);}[H(-0x1ac,-0xf4)](){const c={'Pvbxl':R(0x1bc,0x15e)};this[R(0x1cc,0x13a)](0x3dc,0.06,c[R(0x207,0x232)],0.06);function R(c,d){return H(c-0x446,d);}this['play'](0x527,0.1,R(0x1bc,0x26c),0.06,0.05);}[H(-0x1d3,-0x143)](){function S(c,d){return H(d-0xd3,c);}[0x20b,0x24b,0x293,0x310,0x370,0x417][S(-0x222,-0x16f)]((c,d)=>this[S(-0x260,-0x1a7)](c,0.18,S(-0x24b,-0x1c2),0.08,d*0.1));}[H(-0x2db,-0x330)](){function T(c,d){return H(d-0x61c,c);}const c={'fJDqa':T(0x422,0x387)};this[T(0x3b1,0x3a2)](0x1b8,0.1,c[T(0x47e,0x423)],0.05);}[H(-0x24c,-0x1a0)](){const c={'waRcA':U(0x46c,0x4a6)};function U(c,d){return H(c-0x701,d);}this[U(0x487,0x441)](0x294,0.04,c[U(0x41f,0x3e1)],0.02);}}const sound=new SoundManager(),levels=[{'id':0x1,'time':0x2d,'timeOfDay':'night','trainColor':H(-0x245,-0x23e),'wagonColor':'#00D2FF','wagons':0x2,'missing':[H(-0x248,-0x1bc),'roof-1']},{'id':0x2,'time':0x28,'timeOfDay':H(-0x1f3,-0x13b),'trainColor':H(-0x25a,-0x234),'wagonColor':H(-0x27c,-0x316),'wagons':0x2,'missing':['roof-0',H(-0x1e4,-0x235),H(-0x1d9,-0x24f)]},{'id':0x3,'time':0x23,'timeOfDay':H(-0x2ec,-0x323),'trainColor':'#00D2FF','wagonColor':H(-0x1cc,-0x17c),'wagons':0x3,'missing':[H(-0x248,-0x218),H(-0x1d9,-0x1e5),H(-0x22c,-0x198)]},{'id':0x4,'time':0x1e,'timeOfDay':H(-0x28e,-0x267),'trainColor':H(-0x245,-0x1a9),'wagonColor':H(-0x1b7,-0x231),'wagons':0x3,'missing':['roof-0','middle-0',H(-0x1d9,-0x1e4),H(-0x22c,-0x2d6)]},{'id':0x5,'time':0x19,'timeOfDay':'night','trainColor':H(-0x27c,-0x2ca),'wagonColor':'#00B894','wagons':0x3,'missing':[H(-0x248,-0x220),H(-0x1e4,-0x1a9),H(-0x1d9,-0x168),H(-0x1ed,-0x16e)]},{'id':0x6,'time':0x14,'timeOfDay':'morning','trainColor':H(-0x1cc,-0x262),'wagonColor':'#FF00A0','wagons':0x4,'missing':[H(-0x248,-0x228),H(-0x1d9,-0x1a7),H(-0x1ee,-0x2b0),H(-0x22c,-0x2cb),H(-0x2ab,-0x331)]}],shopItems={'skins':[{'id':H(-0x274,-0x23a),'name':H(-0x213,-0x175),'price':0x0,'color':H(-0x245,-0x231),'wagonColor':H(-0x2d5,-0x25a)},{'id':'neon','name':H(-0x1b3,-0x206),'price':0xc,'color':H(-0x25a,-0x1dd),'wagonColor':H(-0x27c,-0x32a)},{'id':H(-0x1f7,-0x1fe),'name':H(-0x1d7,-0x242),'price':0xf,'color':'#FFC93C','wagonColor':H(-0x1b7,-0x205)},{'id':H(-0x196,-0x235),'name':H(-0x2ee,-0x30b),'price':0x8,'color':H(-0x2f0,-0x33f),'wagonColor':H(-0x245,-0x1cd)}],'customizations':[{'id':H(-0x274,-0x1bd),'name':H(-0x194,-0x10a),'price':0x0},{'id':H(-0x184,-0x22b),'name':H(-0x218,-0x275),'price':0x8},{'id':H(-0x2e7,-0x26f),'name':H(-0x1bc,-0x169),'price':0xc},{'id':H(-0x1ce,-0x19f),'name':H(-0x20b,-0x2c3),'price':0xf}]};function generateLevelSVG(c){const d={'wyLUi':'default','cQjBL':V(0x19e,0x13c),'efWXD':V(-0x16,0xaf),'lpYaO':V(0x1a5,0x103),'fpJbD':V(0x7f,0x118),'dpcLp':'#00FF9D','xSMmx':V(0x121,0x15a),'rJNeg':function(p,q){return p<q;},'GdeDj':function(p,q){return p-q;},'MQYRu':function(p,q){return p+q;},'uPYXb':function(p,q){return p+q;},'rLKFd':function(p,q){return p+q;}},e=shopItems[V(0x207,0x169)]['find'](p=>p['id']===state['equipped'][V(0x106,0xf0)]),f=e&&e['id']!==d[V(0xc0,0x15c)]?e[V(0x66,0xbb)]:c[V(0xc,0xb4)];function V(c,d){return H(d-0x39f,c);}const g=e&&e['id']!==d[V(0x1a9,0x15c)]?e['wagonColor']:c[V(0xcc,0x146)],h={'night':[d[V(0x1c1,0x19d)],d[V(0x1ef,0x18a)],d[V(0x172,0x135)]],'morning':[V(0x1f5,0x15a),V(0x1b7,0x145),d[V(0x145,0x131)]],'noon':[V(0x5f,0xca),d[V(0x1a1,0x150)],V(0x1a7,0x118)],'sunset':[V(0xa2,0x145),d[V(0x1e9,0x1bd)],V(0x136,0x103)]},[j,k,l]=h[c[V(0xfe,0x180)]]||h['noon'];let m='';for(let p=0x0;p<0x320;p+=0x1c){m+=V(0xd1,0x129)+p+V(0xb1,0x15e);}let n=V(0x82,0x126),o=V(0x65,0xc8)+f+V(0x12a,0x142)+f+V(0x0,0xb7);for(let q=0x0;d['rJNeg'](q,c[V(0x88,0x11e)]);q++){const r=0xe1+q*0x82,s=c[V(0x1e0,0x1f2)][V(0x155,0x1fe)](V(0x118,0x1a7)+q),t=c[V(0x1f1,0x1f2)][V(0x1bf,0x1fe)](V(0x257,0x1c5)+q);o+=V(0x138,0x16f)+q+'\x22>',o+=V(0x74,0x129)+d[V(0x96,0xba)](r,0x16)+V(0xab,0x151),o+=V(0x1d5,0x129)+r+'\x22\x20y=\x22218\x22\x20width=\x22115\x22\x20height=\x2282\x22\x20fill=\x22'+g+'\x22\x20stroke=\x22#1E1E2F\x22\x20stroke-width=\x222\x22\x20rx=\x224\x22/>',s?o+=V(0x22a,0x198)+q+V(0x1ea,0x210)+(r+0x5)+V(0x226,0x1a0)+d[V(0x12e,0xe1)](r,0x6e)+V(0x185,0x1cb)+d[V(0xde,0xff)](r,0x5)+V(0x166,0x1e6)+d[V(0x34,0xe1)](r,0x6e)+V(0x11e,0x18b):o+='<line\x20x1=\x22'+r+V(0x17f,0x1a0)+d[V(0xaa,0xff)](r,0x73)+V(0x13b,0x158),t&&(o+='\x0a\x20\x20\x20\x20\x20\x20\x20\x20<g\x20class=\x22missing-line-group\x22\x20data-line-id=\x22middle-'+q+'\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<line\x20x1=\x22'+d['uPYXb'](r,0x5)+V(0x110,0xbc)+(r+0x6e)+V(0x1e5,0x13f)+(r+0x5)+V(0x10a,0x12f)+d[V(0x151,0xff)](r,0x6e)+'\x22\x20cy=\x22258\x22\x20r=\x2214\x22\x20fill=\x22#FF00A0\x22\x20stroke=\x22white\x22\x20stroke-width=\x223\x22/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20</g>'),o+=V(0x179,0x129)+(r+0x23)+V(0xec,0xa8),o+=V(0x60,0x101)+(r+0x1c)+V(0x167,0x1a1)+d[V(0x80,0x124)](r,0x58)+V(0x16c,0x1d8),o+=V(0x2b3,0x1fd);}return V(0x227,0x1dd)+j+V(0x199,0x1fb)+k+V(0x172,0x192)+l+V(0x11f,0x1ad)+n+V(0xd9,0xd3)+m+'\x0a\x20\x20\x20\x20\x20\x20<line\x20x1=\x220\x22\x20y1=\x22335\x22\x20x2=\x22800\x22\x20y2=\x22335\x22\x20stroke=\x22#6C5CE7\x22\x20stroke-width=\x223.5\x22/>\x0a\x20\x20\x20\x20\x20\x20<line\x20x1=\x220\x22\x20y1=\x22345\x22\x20x2=\x22800\x22\x20y2=\x22345\x22\x20stroke=\x22#6C5CE7\x22\x20stroke-width=\x223.5\x22/>\x0a\x20\x20\x20\x20\x20\x20'+o+V(0x185,0xfb);}function a(){const aI=['r3fHtwu','vNLzv2u','iZaWrKy5ra','CKXlrMq','CgXHEq','cIaGica8zYbVCgfJAxr5psiWlJKIpGOGicaGica8Cgf0AcbKpsjnidyWidmYmcbmidmWidi0mcbmidKWidi0mcbAiIbMAwXSpsiJmwe1yZjLiI8+cIaGicaGidXYzwn0ihG9iJu1iIb5psiZmduIihDPzhrOpsiXmciGAgvPz2H0psiYmciGzMLSBd0IiZrHmZaXmciVpGOGicaGica8Cgf0AcbKpsjnide1mcaZmJaGtcaXmJuGmJyWieWGmtC1idi2mcbAiIbMAwXSpsiJmJi2nJm0iI8+cIaGicaGidXYzwn0ihG9iJe0nsiGEt0ImZa4iIb3Awr0Ad0ImtaIigHLAwDODd0ImtuIigzPBgW9iIm0ytmWmtaIlZ4kicaGicaGcIaGicaGidXWyxrOigq9iK0GmZaWidmYmcbmidi3mcaYmJaGtcaZmZaGmJiWifOIigzPBgW9iImXytvJmMuIlZ4kicaGicaGphjLy3qGEd0ImJK1iIb5psiZmduIihDPzhrOpsiXmciGAgvPz2H0psiYmciGzMLSBd0IiZrHmZaXmciVpGOGicaGica8Cgf0AcbKpsjnidqYmcaZmJaGtcaZotuGmJuWieWGndq1idi1mcbAiIbMAwXSpsiJmJi2nJm0iI8+cIaGicaGidXYzwn0ihG9iJqXnsiGEt0ImZa4iIb3Awr0Ad0ImtaIigHLAwDODd0ImtuIigzPBgW9iIm0ytmWmtaIlZ4kicaGicaGcIaGicaGidXWyxrOigq9iK0GntGWidmYmcbmidu1mcaYmtaGtca2mtaGmJeWifOIigzPBgW9iImXytvJmMuIlZ4kicaGicaGphjLy3qGEd0IntC1iIb5psiZmduIihDPzhrOpsiXmciGAgvPz2H0psiYmciGzMLSBd0IiZrHmZaXmciVpGOGicaGica8Cgf0AcbKpsjnidCYmcaZmJaGtca2otuGmJqWieWGnZq1idi0mcbAiIbMAwXSpsiJmJi2nJm0iI8+cIaGicaGidXYzwn0ihG9iJCXnsiGEt0ImZa4iIb3Awr0Ad0ImtaIigHLAwDODd0ImtuIigzPBgW9iIm0ytmWmtaIlZ4kicaGicaGcIaGicaGidXWyxrOigq9iK0GnJiWidmYmcbmidyWmcaYnJaGtca2ndaGmJyWifOIigzPBgW9iImYmJy2mZqIlZ4kicaGicaGphjLy3qGEd0InJe1iIb5psiZmdGIihDPzhrOpsiXmciGAgvPz2H0psiXnsiGzMLSBd0IiZrHmZaXmciVpGOGicaGpc9NpG','tMzLAe4','y29PBNm','phjLy3qGEd0I','cIaGicaGidXKAxyGy2XHC3m9iNnOB3aTAxrLBs1WCMv2Awv3iJ4','zgvMyxvSDa','mNWXnhW4Fdb8mtj8nxWXmhW5Fde1Fdz8m3W3FdeXFdeZFdr8mq','Dg90ywXmAw5LC0rYyxDU','C2v0vMfSDwvbDfrPBwu','iIbJEt0ImJu4iIbYpsiXnciGzMLSBd0Ii0zgmdbbmciGC3rYB2TLpsj3AgL0zsiGC3rYB2TLlxDPzhrOpsiZiI8+cIaGicaGicaGica8y2LYy2XLignSyxnZpsjLBMqTzg90iIbJEd0I','lNnJCMvLBG','zNbkyKq','C2HVDW','pgj1DhrVBIbJBgfZCZ0IyNrUlwj1EsbVD25LzciGzgf0ys1Hy3rPB249iMvXDwLWiIbKyxrHlwLKpsi','yNv5','Bhbzyu8','D1fWtMm','yNrUlxjLC3vTzq','z3jVDxa','ChjPy2u','u2LrDfG','zgvZDgLUyxrPB24','iZbJmgeXna','y29TCgXLDgvK','Ahr0CdOVl3D3DY53mY5VCMCVmJaWmc9ZDMC','iIb5mJ0ImJu4iIbZDhjVA2u9iNDOAxrLiIbZDhjVA2uTD2LKDgG9iJmIihn0CM9Rzs1KyxnOyxjYyxK9iJySnciGy2XHC3m9iMrHC2HLzc1SAw5LiIbVCgfJAxr5psiWlJuIlZ4kicaGicaGicaGidXJAxjJBguGy2XHC3m9iNn0yxj0lwrVDciGy3G9iG','uevcrwG','q0Ldqu0','iIbZDhjVA2u9iImXrtffmKyIihn0CM9Rzs13Awr0Ad0ImIiGCNG9iJuIlZ4kicaGicaGphjLy3qGEd0IotGIihK9iJe5mciGD2LKDgG9iJG1iIbOzwLNAhq9iJmWiIbMAwXSpsi','mZuYmtj1t2D5Eg4','qKDdCuO','i0zgmdbbma','D2fNB25dB2XVCG','Bwf4','BKjiEgC','EMzqEue','Dg91y2HLCW','odC5ndCWmg5PCNHXwG','C3bSAxq','C2v0sxrLBq','shz2r1G','rNz1y3i','zhbJtha','iIb5psiYodiIihDPzhrOpsiYmIiGAgvPz2H0psi2iIbMAwXSpsiJmuuXrtjgiI8+','zgL2','zhjHD2LUzW','zxjYB3i','yNrUlwHLBhaTBwfPBG','C2HVCc1PDgvT','CM9VzI0W','iIb5mJ0ImJe4iIbZDhjVA2u9iImXrtffmKyIihn0CM9Rzs13Awr0Ad0ImYiVpG','BwLU','iZzdnunfnW','B2D0vvC','D3LmvwK','zM9YrwfJAa','iIb5psiZmZuIihDPzhrOpsiXociGAgvPz2H0psiXnciGzMLSBd0IiZffmuuYrIiGC3rYB2TLpsiJmgmWyte0iIbZDhjVA2uTD2LKDgG9iJaUnsiVpG','BgvUz3rO','uhzIEgW','r1zKuKu','B25mAw5L','CxvLCNLtzwXLy3rVCKfSBa','DhjHBNnPDgLVBG','wNHgqwG','mxW0Fdj8m3WWFdu','y1nHz2G','Bgv2zwXZlwDYAwq','C2TPBNm','C3rYB2TLlxDPzhrO','y3jLyxrLrwXLBwvUDe5t','Bw1Ay3C','y29PBI1JB3vUDa','y29PBI1JB3vUDc1ZAg9W','pgCGy2XHC3m9iNDHz29UiIbKyxrHlxDHz29Upsi','s2Ldtvi','DuP4D1e','pc9KAxy+cIaGicaGidXKAxyGC3r5Bgu9iMzVBNqTC2L6ztOXmNb4oYbJB2XVCJP3AgL0ztSIpTMf2lhyRDMe2yCG','CM9VzI0Y','r3jmv2u','pc9KAxy+cIaGicaGidXKAxyGC3r5Bgu9iMzVBNqTC2L6ztOXnhb4oYbMB250lxDLAwDODdO3mda7ig1HCMDPBI1IB3r0B206ohb4oYi+','r2PSyvO','v2jArLm','y29PBI1JB3vUDc1SzxzLBhm','zM5tteO','ktWVyNv0Dg9UpG','z2fPBG','B3bHy2L0Eq','Bwf0CML4vhjHBNnMB3jT','BM9Uzq','u2vcv0u','DgLTzu9Mrgf5','yxbWzw5Kq2HPBgq','zMLSBa','C2f3Dg9VDgG','EhnnAhC','y3jLyxrLt3nJAwXSyxrVCG','zxHWB25LBNrPywXsyw1Wvg9wywX1zuf0vgLTzq','2lpyQTIN2lhzH+kaJnMh2kC','cIaGicaGidXKAxyGC3r5Bgu9iMzVBNqTC2L6ztOZmNb4oYbMB250lxDLAwDODdO5mda7ignVBg9YoG','AhLjyNC','zwzxweq','iIbJEt0ImJe4iIbYpsiXnciGzMLSBd0Ii0zgmdbbmciGC3rYB2TLpsj3AgL0zsiGC3rYB2TLlxDPzhrOpsiZiI8+cIaGicaGicaGpc9NpG','2QNzHnIN2lpBJnQP','yNrUlxjLC3vSDc1Yzxn0yxj0','zfrXELK','mhWYFdr8mxWZFdu','cIaGica','CxvLCNLtzwXLy3rVCG','iI8+cIaGicaGicaGica8C3rVCcbVzMzZzxq9iJeWmcuIihn0B3aTy29SB3i9iG','vuvbvxu','2lhzHTQV24ZzHUkaJnQP2yxyP9Mg','mNWWFdf8m3W0','z2v0vg90ywXmzw5NDgG','D3PsA00','cIaGicaGicaGpgCGy2XHC3m9iM1PC3nPBMCTBgLUzs1NCM91CciGzgf0ys1SAw5LlwLKpsjYB29Mlq','yxbWBhK','zMXLEerPCMvJDgLVBG','v3PPB2u','DxrdzMe','y1fQqKW','wvDnyNq','vg94zLK','iIb5mt0ImJe4iIb4mJ0I','iIbJEt0ImZa1iIbYpsiXnciGzMLSBd0IiZffmuuYrIiVpJXJAxjJBguGy3G9iG','pgrPDIbZDhLSzt0ID2LKDgG6ndbWEdSGAgvPz2H0oJqWChG7igjHy2TNCM91BMq6','D09HBhG','zNfrwfK','DgLTzxiTDgv4Da','zKPeCwe','CM9VzI0','z29Sza','yNrUlxjLC3vSDc1OB21L','pgj1DhrVBIbJBgfZCZ0IyNrUlwj1EsiGzgf0ys1Hy3rPB249iMj1EsiGzgf0ys1Pzd0I','EKHxweW','Bw9YBMLUzW','iI8+cIaGicaGicaGpc9SAw5LyxjhCMfKAwvUDd4kicaGicaGpc9KzwzZpGOGicaGica8CMvJDcb4psiWiIb5psiWiIb3Awr0Ad0IodaWiIbOzwLNAhq9iJmYmciGzMLSBd0IDxjSkcnZA3LhCMfKksiVpGOGicaGica','ChjLDMvUDerLzMf1Bhq','CM91BMq','C2HVCc1JB250zw50','BwLKzgXLlte','BwLKzgXLlti','z2v0rwXLBwvUDej5swq','CMfUzg9T','y3r4','BgvMDa','Cg9PBNrLCMnHBMnLBa','DgfI','Bwv0CMLJCW','teLWsw0','BwLKzgXLlta','pc9KAxy+cIaGicaGia','EfnnBxG','nLHgwMvWvG','zw53tgW','lMvUzc1KB3q','mJe0nJK2nwjqB0DUAq','rvHNyNy','ChjVz3jLC3mTzMLSBa','sgrOu0S','BwLKzgXLlq','CM9VzI0X','ChvZAa','2lFzHnIN24ZBJa','oYi+','2kJyP9IU2kRBJceG2k/zInIO2kFySDMhinIN2yxyQTIT2kFzHIdAQDMg','iIb5mJ0ImJe4iIbZDhjVA2u9iNDOAxrLiIbZDhjVA2uTD2LKDgG9iJmIihn0CM9Rzs1KyxnOyxjYyxK9iJySnciGy2XHC3m9iMrHC2HLzc1SAw5LiIbVCgfJAxr5psiWlJuIlZ4kicaGicaGicaGidXJAxjJBguGy2XHC3m9iNn0yxj0lwrVDciGy3G9iG','Bgv2zwXdB21WBgv0zq','ywrK','D2LKDgG','BMfTzq','C2nYzwvUlwDHBwu','CMfPBMjVDW','ywXPz25jDgvTCW','i0zgqZKZqW','wKP6z1m','y2XPzw50wa','D3rXzuq','BgLUzwfYlwDYywrPzw50kdKWzgvNlcaJrKy3nJC1lcaJrKyWmeeWkq','iIbJEt0ImZa1iIbYpsiXnciGzMLSBd0IiZffmuuYrIiVpG','yK5dC1G','zxfyuwy','C3rHDgu','ruTNDMS','cIaGica8C3zNihzPzxDcB3G9iJaGmca4mdaGndaWiIb4BwXUCZ0IAhr0CdOVl3D3DY53mY5VCMCVmJaWmc9ZDMCIignSyxnZpsj0CMfPBI1ZDMCIihbYzxnLCNzLqxnWzwn0uMf0Aw89iNHnAwrztwLKig1LzxqIigLKpsj0CMfPBI1ZDMCIpGOGicaGica8zgvMCZ4kicaGicaGica8BgLUzwfYr3jHzgLLBNqGAwq9iNnREuDYywqIihGXpsiWjsiGEte9iJaLiIb4mJ0ImcuIihKYpsiXmdaLiJ4kicaGicaGicaGidXZDg9Wig9MzNnLDd0ImcuIihn0B3aTy29SB3i9iG','CMvZDwX0lxrPDgXLigXVC2uTDgL0Bgu','Bg9RB190CMfPBLDYAxrPBMDhyw1Lx3y1','DhjHAw4TC3zN','seL6q2S','Dgv4DenVBNrLBNq','2QNzHTMb2kRBJa','zhjHD2LUzY1WyxrO','yMfJA2DYB3vUza','iIbJEt0ImJe4iIbYpsiXnciGzMLSBd0Ii0zgmdbbmciGC3rYB2TLpsj3AgL0zsiGC3rYB2TLlxDPzhrOpsiZiI8+cIaGicaGicaGica8y2LYy2XLignSyxnZpsjLBMqTzg90iIbJEd0I','y3vzthK','i0zgnZy3nq','Aw5PDa','y29UBMvJDa','y2XHC3noyw1L','2yByPTMi2yBBJa','zxf1AxbWzwq','C3rYB2TL','EgXkrg0','CMvTB3zL','yNrUlxn0yxj0','BwLZC2LUzW','y29PBG','Bgv2zwXZq29TCgXLDgvK','yMfJAY1MCM9TlxnOB3a','y29PBI1JB3vUDc1Nyw1L','C3rYAw5NAwz5','zgLZywjSzwq','Bgv2zwWTy2fYza','wenZCNm','iI8+cIaGicaGicaGica8C3rVCcbVzMzZzxq9iJyWjsiGC3rVCc1JB2XVCJ0I','BgLUzwfYuMfTCfrVvMfSDwvbDfrPBwu','pc9NpG','Aw5JBhvKzxm','C3f1yxjL','ywrKrxzLBNrmAxn0zw5LCG','sNnUt1q','r01juhm','u29fAM8','ywn0Aw9U','lNn0yxj0lwrVDa','mZuZDKrlEhn6','y29SDw1U','lMrHC2HLzc1SAw5L','zgfYAW','y2XPy2S','2B7BJnI04Ocm2yhySDI2','t0nvy2K','ufrmyLy','iJ7yP9Mg2kRyRTIN2kGG2QNzHJWVyNv0Dg9UpG','mJuXogXdquTvza','iJ4kicaGicaGicaGidXSAw5LihGXpsi','igXVy2TLza','teH4Cvu','BgLUzxmTy29TCgXLDgvK','zMXVB3i','C2nYzwvUlw1HAw4','CgfYC2u','yw5ZD2vY','ENDUqK8','yK1Qvw4','D2PNDhq','C3rHCNm','z2v0qxr0CMLIDxrL','zMLUza','zMLUAxnO','y29TCgXLDgvKlwXPBMu','CwfXzLK','ENj4C0O','z3H5vKG','DKnKs2q','y3jLyxrLrwXLBwvUDa','pgj1DhrVBIbJBgfZCZ0IyNrUlwj1EsbLCxvPChbLzciGzgLZywjSzwq+2kFzHTIQ2k7yP9IOinI02k/zHZWVyNv0Dg9UpG','yNrUlxjLC3vSDc1UzxH0','y2XHC3nmAxn0','q2LcvNy','C3vJy2vZCW','quLMvuq','C3rYB2TLlwXPBMvJyxa','Cgf0Aa','DhLWzq','lMj0BI1IDxLBzgf0ys1Hy3rPB25D','vuz1sg4','DgjhCgW','z2fTzs1HCMvH','iIb5psiYmJGIihDPzhrOpsi0mciGAgvPz2H0psiYmIiGzMLSBd0IiZaWrdjgrIiGC3rYB2TLpsiJmuuXrtjgiIbZDhjVA2uTD2LKDgG9iJeUnsiGCNG9iJiIlZ4','ieWG','2yBzInI02kRzHTMqinIT2lhzGq','Cvrrque','zMXLEa','vgLvA28','nteZodm5mKLqDwPKuG','iZffmuuYrG','wufovNq','2kRyP9IX24ZAQq','CMvZDw1L','BM9VBG','DhjHAw5dB2XVCG','CgvUzgLUz1n5BMm','y2vUDgvY','iIbZDhjVA2u9iImXrtffmKyIihn0CM9Rzs13Awr0Ad0ImIiGCNG9iJmIlZ4kicaGicaGphjLy3qGEd0Imta4iIb5psiYmJGIihDPzhrOpsi1nsiGAgvPz2H0psiZociGzMLSBd0IiZaWrdjgrIiGC3rYB2TLpsiJmuuXrtjgiIbZDhjVA2uTD2LKDgG9iJiIihj4psiZiI8+cIaGicaGidXJAxjJBguGy3G9iJeXnsiGy3K9iJmWnsiGCJ0ImtGIigzPBgW9iImXrtffmKyIlZ4kicaGicaGpgnPCMnSzsbJEd0ImtCWiIbJEt0ImZa1iIbYpsiXociGzMLSBd0IiZffmuuYrIiVpGOGicaGpc9NpG','y29UzMv0DgK','yNrUlwHLBha','r2rLrgO','y29SB3i','iIb5mt0ImJu4iIb4mJ0I','D2fsy0e','C3rVCa','sgvgAvm','zev4Bhi','uuvzAhC','Aw5Uzxjive1m','vgPzBfq','zhjHD1n0yxj0','tNHgweK','z2v0u2nYzwvUq1rn','ywn0AxzL','cIaGica8zYbJBgfZCZ0IBg9JB21VDgL2zsi+cIaGicaGidXYzwn0ihG9iJC4iIb5psiYmtGIihDPzhrOpsiXmJuIigHLAwDODd0IodiIigzPBgW9iG','2kFyQnIQ2k/yPYdzHDIX2k3zHnMhinMc2kJzHcdySDINinQP2kFzHDMeinQP2yy','iZaWrdjgrG','C2nYzwvUlxjLC3vSDa','q3ryyMS','Dw5SB2nRzwrmzxzLBhm','B3bHy2L0EsaWlJnZigvHC2u','zxf1Axa','z2v0sxrLBq','B3DUzwq','yNvRsLq','cIaGicaGidXYzwn0ihK9iJmYmciGD2LKDgG9iJGWmciGAgvPz2H0psi4mciGzMLSBd0IiZjHngeYysiVpGOGicaGica','tKvQB2S','AgzlB3G','DMzjy3q','CMvZDwX0lxrPDgXLihDPBI10AxrSzq','y2XPzw50wq','mZa1nZq0BMrdq05o','BK9Ure8','uu5VDLe','yMfJAY1MCM9TlwHLBha','ywjZ','z3b6zxu','rhzHruS','iZu1nq','tvfzuNu','y29UzMv0DgKTy29UDgfPBMvY','D090u04','y29PBI1YzxDHCMqTDwK','BwHZwu4','Cg9PBNrLCMrVD24','vwLlzwO','yMfJAY1MCM9TlwXLDMvSCW','lNrHyG','ywPXBvm','vLvnBM8','2klzGDIX24ZzHIeG2kJySDIV24W','Aw52zxjZzq','A2jLvNO','v3v4Be4','C2TPBG','tM5Kq2S','C3r5Bgu','zNjLCxvLBMn5','CM9VzI0Z','ANvZDgLMEunVBNrLBNq','D2vIA2L0qxvKAw9dB250zxH0','mNWZFdb8nhWX','yw5PBwf0Aw9UrhvYyxrPB24','Ce1vuwq','zgLZCgXHEq','cIaGica8l3n2zZ4','B25SAw5L','C2v0qxr0CMLIDxrL','BuHir04','Dvbzwgi','EKr0EuS','pgnPCMnSzsbJEd0I','r0DkB0y','iZe4mtiYnq','wKHczuy','oda1ndq2zuvLueLL','zw5HyMXLza','y29UDgfPBNm','BgLUzwfYlwDYywrPzw50kdKWzgvNlcaJrKzdotndlcaJrKy3nJC1kq','vxLxB3O','C2LUzq','C2nYzwvUlwHLBha','Dg9HC3q','ENzoBwK','DgLTzxiTyMfY','nJLdwwXdr0S','zfvOuLe','C3vUC2v0','CeLHyKu','C2nYzwvUlxn0B3a','C2nYzwvUlxnOB3a','DhjPyw5NBgu','zgf0yxnLDa','t2rvDfG','i0zgrufbnW','tujmvvC','qNzpBeO','lM1PC3nPBMCTBgLUzs1NCM91Ca','DwTrAwW','BgLUzq','D2fNB25Z','Cg9PBNrLCNvW','D3jPDguTBgv0DgvY'];a=function(){return aI;};return a();}function showScreen(c){const d={'zDtyK':W(0x14f,0x14d)};document[W(0x1eb,0x149)](W(0x1b8,0x265))[W(0x1e5,0x1a7)](e=>e[W(0x2af,0x299)][W(0x278,0x21d)](W(0x14f,0x98)));function W(c,d){return H(c-0x427,d);}document[W(0x23b,0x267)](c)[W(0x2af,0x276)][W(0x255,0x286)](d[W(0x188,0x154)]),updateCoinDisplays();}function updateCoinDisplays(){function X(c,d){return H(c-0x123,d);}const c={'fnSLJ':X(-0x10f,-0x107),'QEYhw':X(-0x104,-0x1a4),'gpzeu':X(-0x86,-0x2e),'dExlr':X(-0x10e,-0x11b)};[c[X(-0x103,-0x11f)],c[X(-0x1bb,-0x13f)],c[X(-0x19e,-0x1cc)],c[X(-0x1bc,-0x27f)]][X(-0x11f,-0x1b6)](d=>{const e=document[Y(0x490,0x465)](d);function Y(c,d){return X(c-0x559,d);}if(e)e[Y(0x4bf,0x40a)]=state[Y(0x405,0x389)];});}let currentLevelIndex=0x0,currentLevel=null,linesCompleted=0x0,linesTotal=0x0,timerInterval=null,timeLeft=0x0;function renderLevels(){function Z(c,d){return H(c-0x220,d);}const c={'TjYlT':function(e,f){return e(f);},'WbZFS':Z(-0xb6,-0xd7),'qaqfY':Z(-0x2d,0x2c),'zfPyA':function(e,f){return e+f;},'EXgbv':function(e,f){return e+f;},'NfehN':Z(0x88,0xfe),'wQpNc':Z(0x54,0x10d),'bPqlq':Z(0x8b,-0x29),'fqQXY':Z(-0x17,-0xd4)},d=document[Z(0x34,0xcf)](c[Z(0x25,0x36)]);d[Z(-0xbd,-0xad)]='',levels['forEach']((e,f)=>{const g={'XCsrs':function(k,l){function a0(c,d){return b(c- -0x2f5,d);}return c[a0(-0x209,-0x250)](k,l);},'YANVt':c[a1(-0xb4,-0xdc)]},h=document[a1(-0x7,0x11)](c[a1(-0xb,-0xc7)]);function a1(c,d){return Z(c- -0xac,d);}const j=c[a1(-0xe2,-0x163)](f,0x1)>state['unlockedLevels'];h['className']=c[a1(-0x69,-0xd7)](a1(-0x32,-0xc9),j?a1(-0x1a,0x2d):''),h[a1(-0x139,-0x12d)][a1(-0x131,-0x90)]=a1(-0x17f,-0x193),h[a1(-0x139,-0x132)][a1(-0x91,-0x15)]=c[a1(-0x104,-0x121)],h[a1(-0x139,-0x196)][a1(-0x59,-0xd7)]=a1(-0x175,-0x1f9),h['style'][a1(-0x136,-0x10c)]=a1(-0x175,-0x142),h['innerHTML']=a1(-0xa3,-0xf5)+(j?a1(-0x14b,-0x1dc):c[a1(-0xf5,-0x57)])+a1(-0x62,-0x27)+e['id']+a1(-0xb9,-0x132)+e['id']+a1(-0x6f,-0x14)+(j?'<svg\x20style=\x22position:absolute;\x20inset:0;\x20margin:auto;\x20width:30px;\x20height:30px;\x22\x20viewBox=\x220\x200\x2024\x2024\x22\x20fill=\x22#6C5CE7\x22><path\x20d=\x22M18\x208h-1V6c0-2.76-2.24-5-5-5S7\x203.24\x207\x206v2H6c-1.1\x200-2\x20.9-2\x202v10c0\x201.1.9\x202\x202\x202h12c1.1\x200\x202-.9\x202-2V10c0-1.1-.9-2-2-2zm-6\x209c-1.1\x200-2-.9-2-2s.9-2\x202-2\x202\x20.9\x202\x202-.9\x202-2\x202zm3.1-9H8.9V6c0-1.71\x201.39-3.1\x203.1-3.1s3.1\x201.39\x203.1\x203.1v2z\x22/></svg>':'')+a1(-0x9b,-0x66),!j?h[a1(-0x2b,-0xa4)]('click',()=>{sound[a2(0x45b,0x3dc)]();function a2(c,d){return a1(c-0x47c,d);}startLevel(f);}):h[a1(-0x2b,0x5d)](c['bPqlq'],()=>{sound[a3(0x1b1,0xf5)]();function a3(c,d){return a1(c-0x288,d);}g[a3(0x257,0x1f8)](showToast,g[a3(0x10d,0x53)]);}),d[a1(-0xaa,-0xd5)](h);});}function startLevel(c){const d={'ZxFAh':'lines-total','tbGpl':a4(0x1d4,0x27b),'dUhRQ':function(f,g){return f(g);},'kbeVz':function(f,g){return f(g);},'mhsYN':a4(0x1e1,0x274)};currentLevelIndex=c,currentLevel=levels[c];function a4(c,d){return H(c-0x3b0,d);}linesCompleted=0x0,linesTotal=currentLevel[a4(0x203,0x1fa)][a4(0x170,0x214)],document[a4(0x1c4,0x1fc)]('lines-completed')['textContent']='0',document[a4(0x1c4,0x139)](d[a4(0x176,0xb7)])[a4(0x1f3,0x2a9)]=linesTotal,document[a4(0x1c4,0x1b6)](d[a4(0xb7,0xc5)])[a4(0x103,0x11d)][a4(0x1df,0x218)]='0%';const e=document[a4(0x1c4,0x244)](a4(0xb8,0xd0));e['innerHTML']=d[a4(0x121,0x74)](generateLevelSVG,currentLevel),d['dUhRQ'](setupDrawingInteraction,document[a4(0x1c4,0x10d)](a4(0x1f1,0x249))),d[a4(0xff,0xab)](showScreen,d[a4(0xf6,0x16b)]),startTimer(currentLevel['time']);}function startTimer(c){const d={'dTqzY':function(h,i){return h*i;},'utCfa':function(h,i){return h/ i;},'hfKox':a5(0x488,0x50e),'AsInk':'linear-gradient(90deg,\x20#00B894,\x20#00D2FF)','ToxfY':function(h){return h();},'mmZcw':function(h,i){return h<=i;},'PEBEh':function(h,i){return h(i);},'zvNmi':a5(0x5c2,0x514),'bukJT':function(h){return h();},'zHWXL':function(h,i,j){return h(i,j);}};d[a5(0x49c,0x546)](clearInterval,timerInterval),timeLeft=c;const e=document[a5(0x615,0x5b9)](a5(0x644,0x5ab)),f=document[a5(0x53d,0x5b9)](d[a5(0x490,0x513)]),g=()=>{e['textContent']=timeLeft;function a6(c,d){return a5(d,c- -0x4e5);}const h=d[a6(0xaf,0xe0)](d[a6(0xbd,0x142)](timeLeft,c),0x64);f[a6(0x13,0x6e)]['width']=h+'%';if(h<0x19)f[a6(0x13,-0x1b)][a6(0x106,0x1ad)]=a6(0xf8,0x61);else{if(h<0x32)f[a6(0x13,0x4f)][a6(0x106,0x137)]=d[a6(-0xa,-0x9f)];else f[a6(0x13,-0x68)][a6(0x106,0x195)]=d['AsInk'];}};function a5(c,d){return H(d-0x7a5,c);}d[a5(0x583,0x4d8)](g),timerInterval=d[a5(0x5b1,0x5b1)](setInterval,()=>{timeLeft--;function a7(c,d){return a5(c,d- -0x37a);}d[a7(0x273,0x22b)](g),d[a7(0x13b,0x1f8)](timeLeft,0x0)&&(d['PEBEh'](clearInterval,timerInterval),handleTimeOut());},0x3e8);}function handleTimeOut(){sound[a8(-0x5c,-0xb8)]();function a8(c,d){return H(c-0x1ef,d);}showResultScreen(![]);}function completeLevel(){LUKO[a9(0x25a,0x2c7)]({});function a9(c,d){return H(d-0x448,c);}return __completeLevel[a9(0x25f,0x242)](this,arguments);}function __completeLevel(){const c={'ajqmS':function(e,f){return e(f);},'kyfHO':function(e,f){return e+f;},'BvOlJ':function(e){return e();},'pMUQd':function(e,f,g){return e(f,g);}};sound[aa(-0x242,-0x196)](),c[aa(-0x1dc,-0x278)](clearInterval,timerInterval),state[aa(-0xe6,-0x1a9)][aa(-0x1e1,-0x16e)]++;currentLevelIndex+0x1>=state['unlockedLevels']&&currentLevelIndex+0x1<levels[aa(-0x1b2,-0x203)]&&(state[aa(-0x1d3,-0x295)]=c['kyfHO'](currentLevelIndex,0x2));let d=0x0;function aa(c,d){return H(d-0x3d,c);}state[aa(-0x212,-0x23a)]===0x0?d=0xa:d=0x1,state[aa(-0x1fc,-0x23a)]+=d,c[aa(-0x1b0,-0x248)](saveState),c[aa(-0x1a7,-0x248)](showConfetti),c[aa(-0x2b6,-0x269)](showResultScreen,!![],d);}function showResultScreen(c,d=0x0){const e={'vfIct':'result-title','wOalx':function(i,j){return i>j;},'uJxwQ':'earned-coins','JHjci':function(i,j){return i<j;},'SiQtX':ab(0x226,0x2c6),'OdUtX':ab(0x344,0x383),'enwLl':ab(0x358,0x338),'HvvGX':ab(0x245,0x1fa)},f=document[ab(0x32d,0x297)](e[ab(0x250,0x1bd)]);function ab(c,d){return H(c-0x519,d);}const g=document[ab(0x32d,0x3b0)](ab(0x25e,0x1e2)),h=document[ab(0x32d,0x268)]('btn-result-next');if(c){const i=ab(0x2e0,0x2e0)[ab(0x2c6,0x2dd)]('|');let j=0x0;while(!![]){switch(i[j++]){case'0':if(e[ab(0x31d,0x2b2)](d,0x0))sound[ab(0x36d,0x33e)]();continue;case'1':f['textContent']=ab(0x266,0x314);continue;case'2':document[ab(0x32d,0x35c)](e[ab(0x2eb,0x229)])[ab(0x35c,0x347)]=d;continue;case'3':g[ab(0x26c,0x1be)][ab(0x274,0x27d)]=ab(0x226,0x211);continue;case'4':f[ab(0x365,0x38a)]=ab(0x251,0x1fe);continue;case'5':e['JHjci'](currentLevelIndex+0x1,levels[ab(0x2d9,0x2c4)])?h[ab(0x26c,0x281)][ab(0x274,0x25e)]=e[ab(0x2b4,0x2a0)]:h[ab(0x26c,0x1dc)][ab(0x274,0x2d7)]='none';continue;}break;}}else f[ab(0x35c,0x29e)]=e[ab(0x291,0x1d3)],f[ab(0x365,0x341)]=e[ab(0x339,0x368)],g[ab(0x26c,0x2b9)][ab(0x274,0x1be)]=ab(0x2f8,0x364),h[ab(0x26c,0x28c)][ab(0x274,0x2c1)]=ab(0x2f8,0x331);showScreen(e[ab(0x2c8,0x362)]);}function setupDrawingInteraction(c){const d={'mHHGN':function(s,t){return s-t;},'iJKMy':function(s,t){return s+t;},'zwnBO':function(s,t){return s(t);},'HdhSK':ac(-0xef,-0x10c),'OXQzP':ac(-0x1af,-0x12d),'Wzioe':function(s,t){return s<t;},'CICAM':function(s,t){return s>=t;},'kLbqk':ac(-0x2cc,-0x21a),'YWMbt':ac(-0x26e,-0x243),'QUnRO':ac(-0x184,-0x1f1),'EKgvk':ac(-0x19c,-0x123),'xlJDm':ac(-0x16a,-0x1a7),'NEjok':ac(-0x1af,-0x1d3),'vCdKd':'round','pIabE':ac(-0xa6,-0xfe),'cSagh':'progress-fill','GrLWe':function(s,t){return s+t;},'KshDl':function(s,t,u){return s(t,u);},'UFuHn':ac(-0x2ce,-0x22b)};let e=![],f=null,g=null,h=0x0,i=0x0,j=0x0,k=0x0;function l(s){const t=c['createSVGPoint']();t['x']=s[ad(0x337,0x309)]?s['touches'][0x0][ad(0x3f5,0x394)]:s[ad(0x434,0x394)];function ad(c,d){return ac(c,d-0x4d0);}return t['y']=s[ad(0x2f0,0x309)]?s[ad(0x268,0x309)][0x0][ad(0x2cf,0x297)]:s[ad(0x2da,0x297)],t[ad(0x35c,0x33c)](c[ad(0x1cc,0x285)]()[ad(0x259,0x2ac)]());}function m(s){function ae(c,d){return ac(c,d- -0x5e);}const t={'eqXQf':ae(-0x1a4,-0x232),'VUMno':ae(-0x11e,-0x16a),'wzRkM':function(w,x){return w(x);},'GjlaZ':function(w,z){function af(c,d){return ae(d,c-0x2f9);}return d[af(0x88,-0x29)](w,z);},'AIfUD':function(w,z){return d['iJKMy'](w,z);},'ZHBeF':function(w,z){return w<z;}};let u=null,v=0x50;return c[ae(-0x170,-0x20c)](ae(-0x1dd,-0x254))[ae(-0x1c9,-0x212)](w=>{if(w[ag(0x4c3,0x40b)][ag(0x2ae,0x2eb)](t[ag(0x3e1,0x3be)]))return;const x=w[ag(0x3d1,0x375)](t[ag(0x2b6,0x2cf)]);function ag(c,d){return ae(c,d-0x553);}const z=w[ag(0x42d,0x375)](ag(0x358,0x3a4)),A=parseFloat(x[ag(0x40e,0x400)]('cx')),B=t[ag(0x3c7,0x37b)](parseFloat,z[ag(0x3d5,0x400)]('cx')),C=t[ag(0x418,0x37b)](parseFloat,x[ag(0x40b,0x400)]('cy')),D=Math[ag(0x294,0x33d)](A,B),E=Math[ag(0x2c3,0x32b)](A,B);if(s['x']>=t[ag(0x343,0x35a)](D,0x28)&&s['x']<=t[ag(0x3dc,0x40e)](E,0x28)){const F=Math['abs'](t[ag(0x392,0x35a)](s['y'],C));t[ag(0x24a,0x2e8)](F,v)&&(v=F,u={'group':w,'sx':A,'ex':B,'y':C});}}),u;}function n(s){function ah(c,d){return ac(d,c-0x46);}s[ah(-0x11d,-0xc9)]();const t=d[ah(-0xb3,0xe)](l,s),u=d[ah(-0xb3,-0x60)](m,t);if(u){const v=ah(-0x19f,-0x157)[ah(-0x17f,-0x181)]('|');let w=0x0;while(!![]){switch(v[w++]){case'0':i=u['ex'];continue;case'1':sound[ah(-0x207,-0x299)]();continue;case'2':e=!![];continue;case'3':g[ah(-0x1ce,-0x24b)](ah(-0x161,-0x200),'8');continue;case'4':c[ah(-0x14a,-0x1b7)](g);continue;case'5':k=h;continue;case'6':g[ah(-0x1ce,-0x280)]('stroke',ah(-0x1a8,-0x16e));continue;case'7':g[ah(-0x1ce,-0x188)](ah(-0x149,-0x140),ah(-0x14d,-0x18e));continue;case'8':h=u['sx'];continue;case'9':g=document[ah(-0x160,-0x1f6)](ah(-0x18d,-0x23d),ah(-0x9f,-0xa4));continue;case'10':f['querySelector'](d[ah(-0x107,-0xb5)])[ah(-0x1d9,-0x143)][ah(-0x14f,-0x11e)]='0';continue;case'11':g[ah(-0x1ce,-0x188)](ah(-0xa0,-0x1b),ah(-0x11c,-0xbf));continue;case'12':j=u['y'];continue;case'13':g[ah(-0xa4,-0x128)][ah(-0xfe,-0x89)](d['OXQzP']);continue;case'14':f=u[ah(-0x193,-0x171)];continue;case'15':g[ah(-0x1ce,-0x21d)]('d','M\x20'+h+'\x20'+j+ah(-0x222,-0x215)+h+'\x20'+j);continue;}break;}}}function o(s){if(!e)return;function ai(c,d){return ac(d,c-0x2c5);}s[ai(0x162,0xd9)]();const t=l(s),u=Math[ai(0x10d,0x74)](h,i),v=Math[ai(0xfb,0x158)](h,i),w=Math['max'](u,Math[ai(0x10d,0x16d)](v,t['x']));if(Math[ai(0x91,0x106)](w-k)>0x2){const x=g[ai(0x1d0,0x292)]('d');g[ai(0xb1,0x125)]('d',x+(ai(0x5d,0xee)+w+'\x20'+j)),k=w;if(d[ai(0x14f,0x8d)](Math[ai(0x168,0x136)](),0.3))sound[ai(0x107,0x115)]();}}function p(s){if(!e)return;e=![];if(!g)return;function aj(c,d){return ac(d,c-0x378);}const t=g[aj(0x1fd,0x15c)](),u=Math[aj(0x144,0x194)](i-h);if(d['CICAM'](t,u*0.75))q(),sound['success']();else{const v=d['kLbqk'][aj(0x1b3,0x1a1)]('|');let w=0x0;while(!![]){switch(v[w++]){case'0':setTimeout(()=>g&&g['remove'](),0x12c);continue;case'1':sound[aj(0x1bb,0x208)]();continue;case'2':g[aj(0x159,0x1be)][aj(0x1cb,0x1ec)]=d[aj(0x205,0x163)];continue;case'3':g[aj(0x159,0x14c)]['opacity']='0';continue;case'4':if(f)f[aj(0x1f8,0x2ba)](aj(0x26c,0x208))[aj(0x159,0x140)]['opacity']='1';continue;}break;}}f=null,g=null;}function q(){LUKO[ak(-0x12f,-0x1e2)]({'topic':d['QUnRO'],'topicLabel':ak(-0x29c,-0x349),'correct':!![]});function ak(c,d){return ac(d,c- -0x35);}return r[ak(-0x1ad,-0x1d3)](this,arguments);}function ac(c,d){return H(d-0x8e,c);}function r(){if(!f)return;g['setAttribute']('d','M\x20'+h+'\x20'+j+al(0x1a1,0x1f7)+i+'\x20'+j),g['setAttribute'](d['EKgvk'],'#1E1E2F'),g[al(0x1d0,0x24b)](d[al(0x3bc,0x33d)],'6'),f[al(0x38a,0x375)]['add'](al(0x2a9,0x28b)),f[al(0x23e,0x2df)](al(0x37f,0x356))[al(0x220,0x240)][al(0x32c,0x2ca)]='0',f[al(0x316,0x2df)]('.end-dot')[al(0x216,0x240)][al(0x2b0,0x2ca)]='0';const s=document[al(0x227,0x2b9)](d[al(0x27d,0x222)],al(0x29f,0x26b));s[al(0x219,0x24b)]('x1',h),s[al(0x1c2,0x24b)]('y1',j),s[al(0x239,0x24b)]('x2',i),s[al(0x1c1,0x24b)]('y2',j),s['setAttribute'](d[al(0x278,0x32a)],al(0x237,0x1fd)),s[al(0x26e,0x24b)](d['xlJDm'],'6'),s[al(0x2e1,0x24b)](al(0x410,0x379),d[al(0x2fb,0x371)]),s[al(0x3ea,0x375)][al(0x3d7,0x31b)](al(0x394,0x36d)),f[al(0x292,0x2cf)](s),linesCompleted++,state[al(0x28a,0x307)][al(0x281,0x27b)]++,document['getElementById'](d[al(0x2ac,0x260)])[al(0x37a,0x330)]=linesCompleted;function al(c,d){return ac(c,d-0x45f);}document[al(0x385,0x301)](d[al(0x301,0x2b5)])['style'][al(0x2e3,0x31c)]=d[al(0x222,0x2c2)](linesCompleted/linesTotal*0x64,'%'),d[al(0x34a,0x28f)](linesCompleted,linesTotal)&&d['KshDl'](setTimeout,()=>completeLevel(),0x1f4);}c[ac(-0x8e,-0x111)](d[ac(-0x320,-0x26c)],n),c[ac(-0x190,-0x111)]('pointermove',o),c[ac(-0x1bd,-0x111)](ac(-0x1cb,-0x1f2),p),c[ac(-0x12b,-0x111)](ac(-0x1ea,-0x15a),p),c[ac(-0x159,-0x111)]('pointerleave',p);}let currentShopTab=H(-0x236,-0x289);function renderShop(){const c={'ukQil':function(e,f){return e===f;},'GGJoF':function(e,f){return e<f;},'PTLbV':'#6C5CE7','xsMhw':am(0x10e,0x1aa),'OCUci':am(0x113,0x18c),'BGCqJ':am(0x1c7,0x262),'GVdRE':am(0x1b9,0x208)},d=document[am(0x19c,0x20b)](c[am(0x1d6,0x1b9)]);d[am(0x1a9,0x11a)]='';function am(c,d){return H(d-0x3f7,c);}shopItems[currentShopTab][am(0x11a,0x1b5)](e=>{const f=state[an(0x474,0x459)][currentShopTab][an(0x5cb,0x586)](e['id']),g=c[an(0x4b9,0x4a4)](state[an(0x619,0x575)][currentShopTab],e['id']);function an(c,d){return am(c,d-0x330);}let h=g?an(0x5ce,0x5ad):f?an(0x544,0x4bb)+e['id']+an(0x5b6,0x596):an(0x5ed,0x532)+e['id']+'\x22\x20'+(c[an(0x3ed,0x48a)](state['coins'],e[an(0x476,0x4c1)])?an(0x63c,0x580):'')+'>خرید\x20('+e[an(0x4d9,0x4c1)]+an(0x533,0x502),i=an(0x51f,0x52a)+(e['color']||c[an(0x51c,0x595)])+';\x20border-radius:8px;\x22></div>';const j=document[an(0x593,0x5ac)](c[an(0x4b8,0x50c)]);j['className']=an(0x4c5,0x4de),j[an(0x4f1,0x44a)]=an(0x4c5,0x4b2)+i+an(0x449,0x4fd)+e[an(0x52f,0x557)]+an(0x4d0,0x544)+h+'\x0a\x20\x20\x20\x20',d[an(0x46e,0x509)](j);}),d['querySelectorAll'](am(0x122,0xfc))['forEach'](e=>{const f={'NxFXI':function(g,h){return g===h;},'KiCMR':c[ao(0x57c,0x559)],'hyIbw':function(g,h){return g>=h;},'CtXbk':ao(0x4ff,0x59b),'bMjUn':function(g){return g();},'GMIPs':function(g){return g();},'wjgtt':function(g){return g();}};function ao(c,d){return am(d,c-0x318);}e[ao(0x570,0x61c)](c[ao(0x4b4,0x4f8)],()=>{const g=e[ap(0x4d3,0x4b7)][ap(0x5c1,0x549)],h=e[ap(0x4d3,0x450)]['id'];function ap(c,d){return ao(c-0x4d,d);}const i=shopItems[currentShopTab][ap(0x5da,0x65f)](j=>j['id']===h);sound[ap(0x5c7,0x67b)]();if(f[ap(0x482,0x4af)](g,f[ap(0x52d,0x564)])&&f[ap(0x546,0x536)](state[ap(0x4e5,0x44c)],i[ap(0x4f6,0x481)])){const j=f[ap(0x489,0x4ea)][ap(0x509,0x509)]('|');let k=0x0;while(!![]){switch(j[k++]){case'0':state[ap(0x4e5,0x4e9)]-=i[ap(0x4f6,0x59c)];continue;case'1':sound[ap(0x5e6,0x5ac)]();continue;case'2':state[ap(0x48e,0x531)][currentShopTab][ap(0x584,0x615)](h);continue;case'3':f[ap(0x5d6,0x642)](renderShop);continue;case'4':f[ap(0x5bf,0x635)](saveState);continue;case'5':updateCoinDisplays();continue;}break;}}else g===ap(0x48c,0x52b)&&(state[ap(0x5aa,0x587)][currentShopTab]=h,saveState(),f[ap(0x5d7,0x5cf)](renderShop));});});}function showConfetti(){const d={'HIzCk':aq(-0x24a,-0x264),'SeBWE':aq(-0x1d2,-0x21c),'bNCsX':aq(-0x262,-0x2a3),'nBHxg':aq(-0x1e7,-0x18e),'DvaEK':aq(-0x209,-0x191),'nOnDO':aq(-0x214,-0x19a),'UyWoz':'#FFC93C','JsnOT':function(g,h){return g*h;},'vZFba':function(g,h,j){return g(h,j);}};function aq(c,d){return H(c-0x73,d);}const e=document['getElementById'](d[aq(-0x14b,-0x1a0)]),f=[d[aq(-0x1ad,-0x15f)],d[aq(-0x153,-0x1b8)],d[aq(-0x1e4,-0x271)],d[aq(-0x24d,-0x2e4)],d[aq(-0x252,-0x1a3)],d[aq(-0x223,-0x1c8)]];for(let g=0x0;g<0x32;g++){const h=document['createElement'](aq(-0x1da,-0x144));h[aq(-0x141,-0xec)]='confetti',h['style'][aq(-0x176,-0x1d6)]=Math[aq(-0x178,-0x107)]()*0x64+'%',h[aq(-0x23a,-0x1e8)][aq(-0x147,-0x136)]=f[Math[aq(-0x118,-0xc6)](d[aq(-0x12b,-0x149)](Math['random'](),f[aq(-0x1cd,-0x225)]))],h[aq(-0x23a,-0x27a)][aq(-0x234,-0x227)]=Math['random']()*1.5+1.5+'s',e['appendChild'](h),d['vZFba'](setTimeout,()=>h[aq(-0x13c,-0x1d2)](),0xdac);}}let toastTimer;function showToast(c){const d={'wOtSN':ar(-0x1ef,-0x169),'UEAUu':'toast\x20show','ZJzgS':function(f,g,h){return f(g,h);}},e=document[ar(-0xb,-0xc2)](d[ar(-0x1b6,-0x192)]);e[ar(0x11,-0x93)]=c;function ar(c,d){return H(d-0x12a,c);}e[ar(-0xbd,-0x8a)]=d[ar(-0xbc,-0xe2)],clearTimeout(toastTimer),toastTimer=d[ar(-0xb6,-0xa1)](setTimeout,()=>e[ar(-0x49,-0x4e)][ar(-0xda,-0x85)](ar(-0xda,-0x143)),0x9c4);}function init(){const c={'SoEjo':function(d,e){return d(e);},'MBLUW':'screen-levels','NndCk':function(d){return d();},'mSQNd':function(d,e){return d(e);},'GqaMe':as(0x485,0x428),'PirlW':as(0x41b,0x41f),'Fvucr':as(0x56f,0x529),'UiKej':function(d,e){return d(e);},'cuYLy':function(d,e){return d(e);},'zrxsJ':function(d,e){return d+e;},'jGPoA':function(d,e){return d(e);},'CiBVv':as(0x483,0x3cd),'wtqeD':'click','TiUko':as(0x35f,0x3fc),'CauOe':'btn-stop','taMDq':as(0x46e,0x44b),'qTQAA':as(0x4e1,0x4bd),'LHxqU':'.tab'};updateCoinDisplays(),renderLevels(),document[as(0x472,0x4c7)](as(0x5c0,0x505))[as(0x5d2,0x514)](as(0x569,0x51e),()=>{function at(c,d){return as(c,d-0x49);}sound['click'](),renderLevels(),c[at(0x5c4,0x560)](showScreen,c[at(0x3c5,0x476)]);}),document[as(0x493,0x4c7)]('btn-shop')[as(0x5b9,0x514)](as(0x4e9,0x51e),()=>{sound[au(0x258,0x228)]();function au(c,d){return as(d,c- -0x2c6);}c[au(0x13f,0x108)](renderShop),c['mSQNd'](showScreen,c[au(0x16f,0xad)]);}),document[as(0x476,0x4c7)](c[as(0x4a4,0x53c)])[as(0x46e,0x514)](c[as(0x507,0x4ea)],()=>{sound[av(0x3da,0x3f3)]();function av(c,d){return as(c,d- -0x12b);}showScreen(av(0x265,0x2f4));}),document['getElementById'](as(0x3f0,0x469))['addEventListener']('click',()=>{function aw(c,d){return as(d,c- -0x3c4);}sound[aw(0x15a,0x1c3)](),c['SoEjo'](showScreen,c['PirlW']);}),document[as(0x460,0x4c7)](c[as(0x463,0x3c1)])[as(0x47f,0x514)]('click',()=>{function ax(c,d){return as(c,d- -0x26b);}sound[ax(0x313,0x2b3)](),showScreen(c[ax(0x166,0x1f8)]);});function as(c,d){return H(d-0x6b3,c);}document[as(0x421,0x4c7)](as(0x48e,0x509))[as(0x582,0x514)](as(0x574,0x51e),()=>{function ay(c,d){return as(d,c- -0x594);}sound[ay(-0x76,-0xf5)](),showScreen(ay(-0x6b,-0xed));}),document[as(0x533,0x4c7)](as(0x3aa,0x3f0))[as(0x597,0x514)]('click',()=>{sound[az(0x402,0x443)]();function az(c,d){return as(d,c- -0x11c);}showScreen(c[az(0x347,0x3a3)]);}),document[as(0x4d4,0x4c7)](c['CauOe'])[as(0x551,0x514)](c[as(0x435,0x4ea)],()=>{sound[aA(-0x224,-0x1a9)]();function aA(c,d){return as(c,d- -0x6c7);}c[aA(-0x238,-0x1b0)](clearInterval,timerInterval),showScreen(aA(-0x2b0,-0x2a0));}),document[as(0x47d,0x4c7)](c['taMDq'])['addEventListener'](c[as(0x49e,0x4ea)],()=>{function aB(c,d){return as(d,c- -0x392);}sound[aB(0x18c,0x1c3)](),c[aB(0x69,0x123)](showScreen,aB(0x152,0x1ed)),startTimer(timeLeft);}),document[as(0x451,0x4c7)]('btn-restart')[as(0x54f,0x514)](c[as(0x58f,0x4ea)],()=>{sound[aC(0xe,-0x96)]();function aC(c,d){return as(d,c- -0x510);}c[aC(-0x15,0x80)](startLevel,currentLevelIndex);}),document[as(0x443,0x4c7)]('btn-stop-home')['addEventListener'](as(0x474,0x51e),()=>{sound['click']();function aD(c,d){return as(d,c- -0x91);}showScreen(c[aD(0x3d2,0x34c)]);}),document[as(0x430,0x4c7)](as(0x569,0x53a))[as(0x4ca,0x514)](c[as(0x56d,0x4ea)],()=>{sound[aE(0x7b,-0x42)]();function aE(c,d){return as(d,c- -0x4a3);}c[aE(0x92,0x1b)](currentLevelIndex,0x1)<levels['length']&&startLevel(c[aE(0x92,0x114)](currentLevelIndex,0x1));}),document[as(0x4fd,0x4c7)](as(0x4a8,0x4a1))['addEventListener'](as(0x4d0,0x51e),()=>{sound['click'](),startLevel(currentLevelIndex);}),document['getElementById'](c[as(0x3cb,0x3bf)])[as(0x5ce,0x514)](c[as(0x552,0x4ea)],()=>{sound[aF(0x383,0x2c3)]();function aF(c,d){return as(d,c- -0x19b);}c['jGPoA'](showScreen,c[aF(0x2c8,0x364)]);}),document['querySelectorAll'](c[as(0x51d,0x526)])[as(0x3e5,0x471)](d=>{const e={'HeFiS':'active'};function aG(c,d){return as(d,c- -0x54f);}d['addEventListener'](aG(-0x31,-0x4e),()=>{const f=aH(-0x14f,-0xd8)[aH(-0x198,-0x145)]('|');function aH(c,d){return aG(c- -0xa9,d);}let g=0x0;while(!![]){switch(f[g++]){case'0':document[aH(-0x181,-0x227)](aH(-0x1fb,-0x29a))['forEach'](h=>h[aH(-0xbd,-0x89)][aH(-0xf4,-0x35)]('active'));continue;case'1':d[aH(-0xbd,-0xe8)][aH(-0x117,-0x71)](e[aH(-0x225,-0x1fa)]);continue;case'2':sound[aH(-0xda,-0x14f)]();continue;case'3':currentShopTab=d[aH(-0x1ce,-0x113)][aH(-0x12c,-0x161)];continue;case'4':renderShop();continue;}break;}});}),document['body'][as(0x54f,0x514)]('pointerdown',()=>sound[as(0x4dd,0x4fd)](),{'once':!![]});}init();</script>
+</body>
+</html>

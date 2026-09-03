@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>جدول شگفت‌انگیز - LOKO</title>
+<style>
+/* === LOKO TYPOGRAPHY SYSTEM === */
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Medium.woff2") format("woff2");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-Black.woff2") format("woff2");
+  font-weight: 900;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("/games/assets/fonts/Shoor-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Medium.woff2") format("woff2");
+  font-weight: 500;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-Black.woff2") format("woff2");
+  font-weight: 900;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("/games/assets/fonts/ShoorRounded-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
+
+/* === LOKO DESIGN SYSTEM VARIABLES === */
+:root{
+  --primary: #6C5CE7;
+  --neon-blue: #00D2FF;
+  --neon-pink: #FF00A0;
+  --neon-green: #00FF9D;
+  --accent: #FFEAA7;
+  --success: #00B894;
+  --danger: #FF7675;
+  --dark: #1E1E2F;
+  --gold: #FFC93C;
+  --gold-dark: #B96F00;
+  
+  --surface: rgba(255, 255, 255, 0.08);
+  --surface-2: rgba(255, 255, 255, 0.15);
+  --border: rgba(255, 255, 255, 0.2);
+  
+  --text: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.7);
+  
+  --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 24px;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glow-primary: 0 0 20px rgba(108, 92, 231, 0.5);
+}
+
+html,body{height:100%;width:100%;overflow:hidden;font-family:var(--font)}
+body{
+  background: linear-gradient(135deg, #0c0a14, #181225);
+  background-attachment:fixed;color:var(--text);min-height:100vh;position:relative;overflow:hidden;
+}
+
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0}
+.particle{position:absolute;border-radius:50%;animation:drift linear infinite}
+@keyframes drift{from{transform:translateY(110vh) translateX(0)}to{transform:translateY(-10vh) translateX(60px)}}
+
+.page{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;z-index:1;animation:fadeIn 0.4s ease;max-width:480px;margin:0 auto;left:0;right:0}
+.page.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+
+/* === LOKO COIN DISPLAY === */
+.coin-counter{
+  position:fixed;top:16px;left:16px;
+  display:flex;align-items:center;gap:8px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
+  padding:6px 16px 6px 6px;border-radius:999px;z-index:100;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3), inset 0 0 10px rgba(255,201,60,0.2);
+  animation: coinGlow 3s ease-in-out infinite;
+}
+@keyframes coinGlow {0%, 100% {box-shadow: 0 4px 15px rgba(0,0,0,0.3), inset 0 0 10px rgba(255,201,60,0.2);} 50% {box-shadow: 0 4px 20px rgba(255,201,60,0.4), inset 0 0 15px rgba(255,201,60,0.4);}}
+.coin-counter img,.coin-counter .coin-svg{width:32px;height:32px;display:block;filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));animation: spin 4s linear infinite;}
+@keyframes spin {0%{transform:rotateY(0)}100%{transform:rotateY(360deg)}}
+.coin-counter span{font-weight:900;color:var(--gold);font-size:20px;text-shadow: 0 2px 4px rgba(0,0,0,0.5);}
+
+.game-title{
+  font-size:clamp(32px,9vw,52px);font-weight:900;text-align:center;margin-bottom:10px;
+  background: linear-gradient(135deg, var(--neon-blue) 0%, var(--primary) 50%, var(--neon-pink) 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:-0.5px;line-height:1.2;filter:drop-shadow(0 4px 20px rgba(108,92,231,0.4));
+  text-transform: uppercase;
+}
+
+/* === LOKO WELCOME BUBBLE === */
+.speech-bubble {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 16px;
+  padding: 10px 20px;
+  margin-bottom: 15px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text);
+  position: relative;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  animation: float 3s ease-in-out infinite;
+}
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 10px 10px 0;
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.3) transparent;
+  display: block;
+  width: 0;
+}
+
+.main-character{
+  width:clamp(150px,40vw,220px);height:clamp(150px,40vw,220px);
+  object-fit:contain;margin-bottom:24px;animation:float 3s ease-in-out infinite;
+  filter: drop-shadow(0 10px 30px rgba(108,92,231,0.4));
+  z-index: 2;
+}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+/* === LOKO BUTTONS === */
+.btn{
+  position:relative;border:none;cursor:pointer;font-family:var(--font);font-weight:500;
+  color:var(--text);background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
+  padding:14px 24px;border-radius:var(--r-md);font-size:16px;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  min-height:48px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.btn:hover{ transform: translateY(-2px); background: rgba(255, 255, 255, 0.25); }
+.btn:active{ transform: translateY(2px) scale(0.98); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+.btn-primary{
+  background: linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%);
+  color: var(--dark);font-size:20px;padding:18px 48px;
+  box-shadow: 0 8px 20px rgba(255, 168, 0, 0.4), inset 0 -4px 0 rgba(0,0,0,0.1);
+  border: 1px solid rgba(255,255,255,0.4);
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.3);
+  margin-bottom: 16px;
+}
+.btn-primary:hover{ box-shadow: 0 12px 28px rgba(255, 168, 0, 0.6), inset 0 -4px 0 rgba(0,0,0,0.1); }
+.btn-primary:active{ box-shadow: 0 2px 10px rgba(255, 168, 0, 0.4), inset 0 -2px 0 rgba(0,0,0,0.1); }
+
+.btn-icon{width:48px;height:48px;padding:0;border-radius:50%}
+.btn-icon svg{width:24px;height:24px}
+.btn-row{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;justify-content:center;width:100%;}
+.btn-row .btn{flex:1;min-width:140px}
+
+.back-btn{position:fixed;top:16px;right:16px;z-index:100}
+
+.page-title{font-size:28px;font-weight:800;margin-bottom:20px;color:var(--text);text-shadow: 0 2px 10px rgba(108,92,231,0.5);}
+
+/* === LOKO GLASS CONTAINERS === */
+.help-content{
+  width:100%;max-width:480px;background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255,255,255,0.2); border-radius: var(--r-lg); padding: 24px;
+  box-shadow: var(--shadow); margin-top: 8px; overflow-y: auto; max-height: 60vh;
+}
+.help-character{
+  width:clamp(100px,28vw,130px);height:clamp(100px,28vw,130px);
+  object-fit:contain;margin-bottom:8px;animation:float 3s ease-in-out infinite;
+  filter: drop-shadow(0 10px 20px rgba(0, 255, 157, 0.3));
+}
+.help-title{font-size:24px;font-weight:800;margin-bottom:16px;color:var(--neon-green);text-align:center;text-shadow: 0 0 15px rgba(0,255,157,0.5)}
+.help-step{
+  display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;
+  padding:14px;background: rgba(255, 255, 255, 0.05); border-radius: var(--r-sm);
+  border-right:4px solid var(--primary)
+}
+.help-step-num{
+  width:32px;height:32px;background: linear-gradient(135deg, var(--primary), var(--neon-blue));
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:#fff;font-size:15px;flex-shrink:0;
+  box-shadow: 0 4px 10px rgba(108,92,231,0.4);
+}
+.help-step p{font-size:15px;line-height:1.7;color:var(--text)}
+
+/* === LOKO SHOP === */
+.tabs{
+  display:flex;gap:6px;margin-bottom:20px;background: rgba(255, 255, 255, 0.1);
+  padding:5px;border-radius:999px;border: 1px solid rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px); width:100%;max-width:480px
+}
+.tab{
+  flex:1;border:none;background:transparent;color:var(--text-muted);
+  padding:10px 14px;border-radius:999px;font-family:var(--font);font-weight:500;
+  cursor:pointer;transition:all 0.2s ease;font-size:14px
+}
+.tab.active{
+  background: linear-gradient(135deg, var(--primary), var(--neon-blue));
+  color:#fff;box-shadow: 0 4px 12px rgba(108,92,231,0.4)
+}
+.tab-content{display:none;width:100%;max-width:480px}
+.tab-content.active{display:block;animation:fadeIn 0.3s ease}
+.shop-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
+  max-height:60vh;overflow-y:auto;padding:4px
+}
+.shop-item{
+  background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--r-md); padding: 14px; text-align: center; backdrop-filter: blur(10px);
+  transition:all 0.2s ease;position:relative
+}
+.shop-item:hover{transform:translateY(-4px);border-color:var(--neon-blue);box-shadow: 0 8px 24px rgba(0,210,255,0.2)}
+.shop-item.selected{border-color:var(--neon-green);box-shadow: 0 0 20px rgba(0,255,157,0.3)}
+.shop-item-preview{
+  width:70px;height:70px;margin:0 auto 10px;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;font-size:36px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))
+}
+.shop-item-name{font-weight:500;font-size:15px;margin-bottom:8px}
+.shop-item-price{
+  display:inline-flex;align-items:center;gap:4px;
+  background: rgba(255,201,60,0.2);color:var(--gold);
+  padding:4px 10px;border-radius:999px;font-weight:800;font-size:13px;
+  border: 1px solid rgba(255,201,60,0.3);
+}
+.shop-item-price svg{width:14px;height:14px}
+.shop-item-buy{
+  width:100%;margin-top:10px;padding:10px;border-radius:var(--r-sm);border:none;
+  background: linear-gradient(180deg, #FFE68A, #FFC93C);color:var(--dark);
+  font-weight:800;cursor:pointer;font-family:var(--font);font-size:14px;transition:all 0.2s ease;
+  box-shadow: 0 4px 0 #B96F00;
+}
+.shop-item.owned .shop-item-buy{background: rgba(0,184,148,0.2);color:var(--success);box-shadow:none;border:1px solid var(--success)}
+.shop-item.selected .shop-item-buy{background:var(--success);color:#fff;box-shadow: 0 4px 0 #007e63}
+.shop-item.cant-afford .shop-item-buy{opacity:0.5;background: rgba(255,255,255,0.1);color:var(--text-muted);box-shadow:none}
+.shop-item-buy:active{transform:translateY(2px);box-shadow: 0 2px 0 #B96F00}
+
+/* === GAME BOARD === */
+#gamePage{justify-content:flex-start;padding-top:56px}
+.game-header{
+  width:100%;max-width:500px;display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:16px;padding:0 4px
+}
+.level-badge{
+  background: linear-gradient(135deg, var(--primary), var(--neon-blue));
+  color:#fff;padding:8px 20px;border-radius:999px;font-weight:800;font-size:15px;
+  box-shadow: 0 4px 12px rgba(108,92,231,0.4);
+}
+.stop-btn{
+  background: rgba(255, 118, 117, 0.2); border: 1px solid var(--danger);
+  color:var(--danger);padding:8px 16px;border-radius:999px;font-weight:500;
+  font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:6px;font-size:14px
+}
+.stop-btn svg{width:14px;height:14px}
+
+.sudoku-container{
+  background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
+  border: 1px solid rgba(255,255,255,0.2); border-radius: var(--r-lg);
+  padding:14px; box-shadow: var(--shadow); margin-bottom:20px; position:relative
+}
+.sudoku-grid{display:grid;gap:8px}
+.sudoku-grid.size-3{grid-template-columns:repeat(3,1fr);width:min(280px,75vw)}
+.sudoku-grid.size-4{grid-template-columns:repeat(4,1fr);width:min(360px,85vw)}
+.sudoku-cell{
+  aspect-ratio:1;background: rgba(255, 255, 255, 0.05);
+  border:2px solid rgba(255,255,255,0.1); border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(26px,7vw,42px);cursor:pointer;transition:all 0.2s ease;
+  position:relative
+}
+.sudoku-cell.empty{border:2px dashed rgba(108,92,231,0.5);background: rgba(108,92,231,0.1)}
+.sudoku-cell.selected{border-color:var(--neon-blue);background: rgba(0,210,255,0.2);box-shadow: 0 0 15px rgba(0,210,255,0.4);transform:scale(1.05)}
+.sudoku-cell.prefilled{background: rgba(255,255,255,0.1);cursor:default}
+.sudoku-cell.user-filled{animation:pop 0.3s ease}
+.sudoku-cell.wrong{animation:shake 0.4s ease;border-color:var(--danger);background: rgba(255,118,117,0.2)}
+.sudoku-cell.correct{border-color:var(--success);background: rgba(0,184,148,0.2)}
+.sudoku-cell.highlight{background:rgba(0,210,255,0.1);border-color:rgba(0,210,255,0.2)}
+.sudoku-cell.tutorial-highlight{border-color:var(--gold);background:rgba(255,201,60,0.2);box-shadow: 0 0 15px rgba(255,201,60,0.4)}
+.sudoku-cell.tutorial-empty{border-color:var(--primary);background:rgba(108,92,231,0.2);animation:pulse 1.2s ease-in-out infinite}
+.sudoku-cell.tutorial-row,.sudoku-cell.tutorial-col{background: rgba(0,210,255,0.1); border-color: rgba(0,210,255,0.3)}
+@keyframes pop{0%{transform:scale(0.7)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes pulse{0%,100%{transform:scale(1);box-shadow: 0 0 15px rgba(108,92,231,0.4)}50%{transform:scale(1.08);box-shadow: 0 0 25px rgba(108,92,231,0.7)}}
+
+.emoji-palette{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;max-width:500px}
+.emoji-btn{
+  width:clamp(54px,14vw,64px);height:clamp(54px,14vw,64px);border-radius:var(--r-md);
+  background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255,255,255,0.2); cursor:pointer;
+  font-size:30px;display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s ease; backdrop-filter:blur(10px); font-family:var(--font)
+}
+.emoji-btn:hover{transform:translateY(-4px);border-color:var(--neon-blue);box-shadow: 0 8px 20px rgba(0,210,255,0.3)}
+.emoji-btn:active{transform:translateY(0)}
+
+/* === LOKO TUTORIAL === */
+.tutorial-overlay{
+  position:fixed;top:0;left:0;right:0;
+  background: linear-gradient(to bottom, rgba(12,10,20,0.95) 0%, rgba(24,18,37,0.8) 80%, transparent 100%);
+  padding:16px;z-index:200;display:none;animation:slideDown 0.4s ease
+}
+.tutorial-overlay.active{display:block}
+@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+.tutorial-card{
+  background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
+  border: 1px solid rgba(255,255,255,0.2); border-radius: var(--r-lg); padding: 14px;
+  display:flex;gap:12px;align-items:center;max-width:480px;margin:0 auto;
+  box-shadow: var(--shadow), 0 0 30px rgba(108,92,231,0.3)
+}
+.tutorial-card img,.tutorial-card .tutorial-char-svg{
+  width:60px;height:60px;flex-shrink:0;animation:float 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(0,255,157,0.5));
+}
+.tutorial-content{flex:1;text-align:right}
+.tutorial-text{font-size:15px;line-height:1.6;margin-bottom:10px;min-height:42px}
+.tutorial-buttons{display:flex;gap:8px}
+.tutorial-next-btn{
+  background: linear-gradient(180deg, #FFE68A, #FFC93C); color: var(--dark);
+  padding:8px 20px;border:none;border-radius:999px;font-weight:800;
+  cursor:pointer;font-family:var(--font);font-size:14px;
+  box-shadow: 0 3px 0 #B96F00;
+}
+.tutorial-next-btn:active{transform:translateY(2px);box-shadow: 0 1px 0 #B96F00}
+.tutorial-skip-btn{
+  background:transparent;color:var(--text-muted);padding:8px 14px;
+  border:1px solid rgba(255,255,255,0.3);cursor:pointer;font-family:var(--font);
+  border-radius:999px;font-size:13px
+}
+
+/* === LOKO MODALS === */
+.modal{
+  position:fixed;inset:0;background:rgba(12,10,20,0.9);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;z-index:1000;padding:20px
+}
+.modal.active{display:flex;animation:fadeIn 0.3s ease}
+.modal-box{
+  background: linear-gradient(135deg, rgba(30,30,47,0.95), rgba(24,18,37,0.95));
+  border: 1px solid rgba(255,255,255,0.2); border-radius: var(--r-lg);
+  padding:32px 24px;max-width:340px;width:100%;text-align:center;
+  box-shadow: var(--shadow), 0 0 40px rgba(108,92,231,0.2);animation:modalIn 0.4s cubic-bezier(0.34,1.56,0.64,1)
+}
+@keyframes modalIn{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-title{
+  font-size:28px;font-weight:800;margin-bottom:12px;
+  background: linear-gradient(135deg, var(--neon-blue), var(--primary));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.modal-text{color:var(--text-muted);margin-bottom:22px;line-height:1.6;font-size:15px}
+.modal-text strong{color:var(--gold)}
+.modal-buttons{display:flex;gap:10px;flex-direction:column}
+.celebration{font-size:64px;animation:celebrate 1s ease;margin-bottom:8px}
+@keyframes celebrate{0%{transform:scale(0) rotate(0)}50%{transform:scale(1.3) rotate(180deg)}100%{transform:scale(1) rotate(360deg)}}
+
+/* === LOKO TOAST & EFFECTS === */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);
+  background: rgba(30,30,47,0.95); border:1px solid var(--primary);color:var(--text);
+  padding:12px 24px;border-radius:999px;font-weight:500;z-index:2000;
+  transition:transform 0.4s ease;box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  display:flex;align-items:center;gap:8px;font-size:14px;max-width:90vw;
+  backdrop-filter: blur(10px);
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:var(--success);color:var(--success)}
+.toast.error{border-color:var(--danger);color:var(--danger)}
+
+.voice-indicator{
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);
+  background: rgba(255, 255, 255, 0.15); border: 1px solid var(--neon-blue);
+  padding:6px 14px;border-radius:999px;display:none;align-items:center;gap:8px;
+  backdrop-filter:blur(10px);z-index:150
+}
+.voice-indicator.active{display:flex}
+.voice-wave{display:flex;gap:3px;align-items:center}
+.voice-wave span{width:3px;background:var(--neon-blue);border-radius:2px;animation:vw 0.8s ease-in-out infinite}
+.voice-wave span:nth-child(1){height:8px;animation-delay:0s}
+.voice-wave span:nth-child(2){height:14px;animation-delay:0.1s}
+.voice-wave span:nth-child(3){height:10px;animation-delay:0.2s}
+.voice-wave span:nth-child(4){height:16px;animation-delay:0.3s}
+.voice-wave span:nth-child(5){height:6px;animation-delay:0.4s}
+@keyframes vw{0%,100%{transform:scaleY(0.5)}50%{transform:scaleY(1.5)}}
+
+.confetti-container{position:fixed;inset:0;pointer-events:none;z-index:1500;overflow:hidden}
+.confetti{position:absolute;top:-20px;animation:confettiFall linear forwards}
+@keyframes confettiFall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+.effect-particle{
+  position:fixed;bottom:-50px;pointer-events:none;z-index:0;opacity:0.4;
+  animation:floatUp linear infinite
+}
+@keyframes floatUp{0%{transform:translateY(0) rotate(0);opacity:0}10%{opacity:0.4}90%{opacity:0.4}100%{transform:translateY(-110vh) rotate(360deg);opacity:0}}
+body.fx-glow .btn-primary{animation:glowPulse 2s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{box-shadow: 0 0 20px var(--accent), 0 8px 24px rgba(255,138,76,0.4)}50%{box-shadow: 0 0 40px var(--accent), 0 8px 32px rgba(255,138,76,0.6)}}
+
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--primary);border-radius:3px}
+
+@media(min-width:768px){
+  .shop-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:380px){
+  .sudoku-cell{font-size:24px}
+  .emoji-btn{width:48px;height:48px;font-size:26px}
+}
+</style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<!-- صفحه منوی اصلی -->
+<div class="page active" id="mainMenu">
+  <div class="coin-counter">
+    <img src="/games/assets/icons/coin.png" alt="سکه" onerror="this.onerror=null;this.outerHTML=decodeURIComponent('&lt;svg class=%27coin-svg%27 viewBox=%270 0 100 100%27 xmlns=%27http://www.w3.org/2000/svg%27&gt;&lt;defs&gt;&lt;radialGradient id=%27cg%27 cx=%2735%25%27 cy=%2735%25%27&gt;&lt;stop offset=%270%25%27 stop-color=%27%23fff5b3%27/&gt;&lt;stop offset=%2760%25%27 stop-color=%27%23ffc93c%27/&gt;&lt;stop offset=%27100%25%27 stop-color=%27%23d49020%27/&gt;&lt;/radialGradient&gt;&lt;/defs&gt;&lt;circle cx=%2750%27 cy=%2750%27 r=%2746%27 fill=%27url(%23cg)%27 stroke=%27%23a06810%27 stroke-width=%272%27/&gt;&lt;text x=%2750%27 y=%2765%27 text-anchor=%27middle%27 font-size=%2740%27 font-weight=%27900%27 fill=%27%23a06810%27&gt;★&lt;/text&gt;&lt;/svg&gt;')">
+    <span id="coinCount">0</span>
+  </div>
+  
+  <h1 class="game-title">جدول شگفت‌انگیز</h1>
+  
+  <div class="speech-bubble">سلام! آماده‌ای بریم؟</div>
+  
+  <img src="/games/assets/icons/gamer.png" alt="کاراکتر" class="main-character" id="mainCharacter" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,'+encodeURIComponent(this.dataset.fallback||'<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22><defs><radialGradient id=%22bg%22 cx=%2250%25%22 cy=%2240%25%22><stop offset=%220%25%22 stop-color=%22%23ffaa66%22/><stop offset=%22100%25%22 stop-color=%22%23ff6b4a%22/></radialGradient></defs><circle cx=%22100%22 cy=%22100%22 r=%2295%22 fill=%22url(%23bg)%22/><circle cx=%22100%22 cy=%2290%22 r=%2250%22 fill=%22%23ffd9b3%22/><path d=%22M50 80 Q55 60 85 65 L80 85 Z%22 fill=%22%233d251a%22/><path d=%22M150 80 Q145 60 115 65 L120 85 Z%22 fill=%22%233d251a%22/><circle cx=%2280%22 cy=%2290%22 r=%2210%22 fill=%22%231a1216%22/><circle cx=%22120%22 cy=%2290%22 r=%2210%22 fill=%22%231a1216%22/><circle cx=%2283%22 cy=%2287%22 r=%224%22 fill=%22%23fff%22/><circle cx=%22123%22 cy=%2287%22 r=%224%22 fill=%22%23fff%22/><path d=%22M82 115 Q100 128 118 115%22 stroke=%22%231a1216%22 stroke-width=%224%22 fill=%22none%22 stroke-linecap=%22round%22/><circle cx=%2265%22 cy=%22105%22 r=%227%22 fill=%22%23ff6b6b%22 opacity=%220.4%22/><circle cx=%22135%22 cy=%22105%22 r=%227%22 fill=%22%23ff6b6b%22 opacity=%220.4%22/></svg>')">
+  
+  <button class="btn btn-primary" id="startBtn">
+    <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+    شروع بازی
+  </button>
+  
+  <div class="btn-row" id="mainMenuButtons">
+    <button class="btn" id="shopBtn">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 9l1.5-5h15L21 9M3 9v11a1 1 0 001 1h16a1 1 0 001-1V9M3 9h18M9 13h6"/></svg>
+      فروشگاه
+    </button>
+    <button class="btn" id="helpBtn">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+      راهنما
+    </button>
+  </div>
+</div>
+
+<!-- صفحه راهنما -->
+<div class="page" id="helpPage">
+  <button class="btn btn-icon back-btn" data-back="mainMenu">
+    <svg viewBox="0 0 24 24" width="22" height="22"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M15 6l-6 6 6 6"/></svg>
+  </button>
+  
+  <img src="/games/assets/icons/gamerhi.png" alt="راهنما" class="help-character" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22><defs><radialGradient id=%22bg2%22 cx=%2250%25%22 cy=%2240%25%22><stop offset=%220%25%22 stop-color=%22%237ee8d8%22/><stop offset=%22100%25%22 stop-color=%22%232da89a%22/></radialGradient></defs><circle cx=%22100%22 cy=%22100%22 r=%2295%22 fill=%22url(%23bg2)%22/><circle cx=%22100%22 cy=%2290%22 r=%2250%22 fill=%22%23ffd9b3%22/><path d=%22M50 80 Q55 60 85 65 L80 85 Z%22 fill=%22%233d251a%22/><path d=%22M150 80 Q145 60 115 65 L120 85 Z%22 fill=%22%233d251a%22/><circle cx=%2280%22 cy=%2290%22 r=%2210%22 fill=%22%231a1216%22/><circle cx=%22120%22 cy=%2290%22 r=%2210%22 fill=%22%231a1216%22/><circle cx=%2283%22 cy=%2287%22 r=%224%22 fill=%22%23fff%22/><circle cx=%22123%22 cy=%2287%22 r=%224%22 fill=%22%23fff%22/><path d=%22M75 110 Q100 130 125 110%22 stroke=%22%231a1216%22 stroke-width=%224%22 fill=%22none%22 stroke-linecap=%22round%22/><circle cx=%2260%22 cy=%22105%22 r=%228%22 fill=%22%23ff6b6b%22 opacity=%220.4%22/><circle cx=%22140%22 cy=%22105%22 r=%228%22 fill=%22%23ff6b6b%22 opacity=%220.4%22/><path d=%22M40 50 L48 42 M160 50 L152 42 M100 30 L100 22%22 stroke=%22%23ffc93c%22 stroke-width=%223%22 stroke-linecap=%22round%22/><circle cx=%2240%22 cy=%2250%22 r=%225%22 fill=%22%23ffc93c%22/><circle cx=%22160%22 cy=%2250%22 r=%225%22 fill=%22%23ffc93c%22/><circle cx=%22100%22 cy=%2222%22 r=%225%22 fill=%22%23ffc93c%22/></svg>')">
+  
+  <div class="help-content">
+    <h2 class="help-title">چطور بازی کنیم؟</h2>
+    <div class="help-step">
+      <div class="help-step-num">۱</div>
+      <p>در جدول شگفت‌انگیز، در هر <strong>سطر</strong> و هر <strong>ستون</strong>، هر ایموجی فقط یک بار می‌آید.</p>
+    </div>
+    <div class="help-step">
+      <div class="help-step-num">۲</div>
+      <p>روی خانه خالی کلیک کن تا انتخاب شود و رنگش عوض شود.</p>
+    </div>
+    <div class="help-step">
+      <div class="help-step-num">۳</div>
+      <p>از پایین صفحه، ایموجی مناسب را انتخاب کن تا در خانه قرار بگیرد.</p>
+    </div>
+    <div class="help-step">
+      <div class="help-step-num">۴</div>
+      <p>اگر درست باشد، خانه سبز می‌شود. اگر غلط باشد، خانه می‌لرزد!</p>
+    </div>
+    <div class="help-step">
+      <div class="help-step-num">۵</div>
+      <p>با کامل کردن هر جدول <strong>سکه</strong> می‌گیری! اگر سکه نداشته باشی <strong>۱۰ سکه</strong> می‌گیری و اگر بیشتر از صفر سکه داشته باشی <strong>۱ سکه</strong> پاداش می‌گیری!</p>
+    </div>
+    <div class="help-step">
+      <div class="help-step-num">۶</div>
+      <p>با سکه‌ها می‌توانی از فروشگاه، پوسته و کاراکتر جدید بخری.</p>
+    </div>
+  </div>
+</div>
+
+<!-- صفحه فروشگاه -->
+<div class="page" id="shopPage">
+  <button class="btn btn-icon back-btn" data-back="mainMenu">
+    <svg viewBox="0 0 24 24" width="22" height="22"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M15 6l-6 6 6 6"/></svg>
+  </button>
+  
+  <h2 class="page-title">فروشگاه</h2>
+  
+  <div class="tabs">
+    <button class="tab active" data-tab="skins">پوسته‌ها</button>
+    <button class="tab" data-tab="characters">کاراکترها</button>
+    <button class="tab" data-tab="customization">شخصی‌سازی</button>
+  </div>
+  
+  <div class="tab-content active" id="skinsTab"><div class="shop-grid" id="skinsGrid"></div></div>
+  <div class="tab-content" id="charactersTab"><div class="shop-grid" id="charactersGrid"></div></div>
+  <div class="tab-content" id="customizationTab"><div class="shop-grid" id="customizationGrid"></div></div>
+</div>
+
+<!-- صفحه بازی -->
+<div class="page" id="gamePage">
+  <div class="game-header">
+    <div class="level-badge">مرحله <span id="levelNum">1</span></div>
+    <button class="stop-btn" id="stopBtn">
+      <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>
+      توقف
+    </button>
+  </div>
+  <div class="sudoku-container">
+    <div class="sudoku-grid" id="sudokuGrid"></div>
+  </div>
+  <div class="emoji-palette" id="emojiPalette"></div>
+</div>
+
+<!-- آموزش -->
+<div class="tutorial-overlay" id="tutorialOverlay">
+  <div class="tutorial-card">
+    <img src="/games/assets/icons/gamerhi.png" alt="راهنما" class="tutorial-char-svg" id="tutorialChar" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22><defs><radialGradient id=%22bg2%22 cx=%2250%25%22 cy=%2240%25%22><stop offset=%220%25%22 stop-color=%22%237ee8d8%22/><stop offset=%22100%25%22 stop-color=%22%232da89a%22/></radialGradient></defs><circle cx=%22100%22 cy=%22100%22 r=%2295%22 fill=%22url(%23bg2)%22/><circle cx=%22100%22 cy=%2290%22 r=%2250%22 fill=%22%23ffd9b3%22/><path d=%22M50 80 Q55 60 85 65 L80 85 Z%22 fill=%22%233d251a%22/><path d=%22M150 80 Q145 60 115 65 L120 85 Z%22 fill=%22%233d251a%22/><circle cx=%2280%22 cy=%2290%22 r=%2210%22 fill=%22%231a1216%22/><circle cx=%22120%22 cy=%2290%22 r=%2210%22 fill=%22%231a1216%22/><circle cx=%2283%22 cy=%2287%22 r=%224%22 fill=%22%23fff%22/><circle cx=%22123%22 cy=%2287%22 r=%224%22 fill=%22%23fff%22/><path d=%22M75 110 Q100 130 125 110%22 stroke=%22%231a1216%22 stroke-width=%224%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>')">
+    <div class="tutorial-content">
+      <div class="tutorial-text" id="tutorialText"></div>
+      <div class="tutorial-buttons">
+        <button class="tutorial-next-btn" id="tutorialNext">بعدی</button>
+        <button class="tutorial-skip-btn" id="tutorialSkip">رد کردن</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- مدال توقف -->
+<div class="modal" id="pauseModal">
+  <div class="modal-box">
+    <h2 class="modal-title">بازی متوقف شد</h2>
+    <p class="modal-text">می‌خواهی ادامه بدهی یا از اول شروع کنی؟</p>
+    <div class="modal-buttons">
+      <button class="btn btn-primary" id="continueGameBtn">ادامه بازی</button>
+      <button class="btn" id="restartGameBtn">شروع مجدد</button>
+    </div>
+  </div>
+</div>
+
+<!-- مدال برد -->
+<div class="modal" id="winModal">
+  <div class="modal-box">
+    <div class="celebration">🎉</div>
+    <h2 class="modal-title">آفرین!</h2>
+    <p class="modal-text" id="winText">تو جدول را کامل کردی! <strong>+۲ سکه</strong></p>
+    <div class="modal-buttons">
+      <button class="btn btn-primary" id="nextLevelBtn">مرحله بعد</button>
+      <button class="btn" id="backToMenuBtn">منوی اصلی</button>
+    </div>
+  </div>
+</div>
+
+<div class="voice-indicator" id="voiceIndicator">
+  <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span></div>
+  <span>در حال صحبت...</span>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script src="/games/assets/luko-sdk.js"></script>
+<script>
+// === مدیریت تصاویر جایگزین ===
+const imgFallbacks = {
+  gamer: "data:image/svg+xml;utf8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><radialGradient id="bg" cx="50%" cy="40%"><stop offset="0%" stop-color="#ffaa66"/><stop offset="100%" stop-color="#ff6b4a"/></radialGradient></defs><circle cx="100" cy="100" r="95" fill="url(#bg)"/><circle cx="100" cy="90" r="50" fill="#ffd9b3"/><path d="M50 80 Q55 60 85 65 L80 85 Z" fill="#3d251a"/><path d="M150 80 Q145 60 115 65 L120 85 Z" fill="#3d251a"/><circle cx="80" cy="90" r="10" fill="#1a1216"/><circle cx="120" cy="90" r="10" fill="#1a1216"/><circle cx="83" cy="87" r="4" fill="#fff"/><circle cx="123" cy="87" r="4" fill="#fff"/><path d="M82 115 Q100 128 118 115" stroke="#1a1216" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="65" cy="105" r="7" fill="#ff6b6b" opacity="0.4"/><circle cx="135" cy="105" r="7" fill="#ff6b6b" opacity="0.4"/></svg>'),
+  gamerhi: "data:image/svg+xml;utf8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><radialGradient id="bg2" cx="50%" cy="40%"><stop offset="0%" stop-color="#7ee8d8"/><stop offset="100%" stop-color="#2da89a"/></radialGradient></defs><circle cx="100" cy="100" r="95" fill="url(#bg2)"/><circle cx="100" cy="90" r="50" fill="#ffd9b3"/><path d="M50 80 Q55 60 85 65 L80 85 Z" fill="#3d251a"/><path d="M150 80 Q145 60 115 65 L120 85 Z" fill="#3d251a"/><circle cx="80" cy="90" r="10" fill="#1a1216"/><circle cx="120" cy="90" r="10" fill="#1a1216"/><circle cx="83" cy="87" r="4" fill="#fff"/><circle cx="123" cy="87" r="4" fill="#fff"/><path d="M75 110 Q100 130 125 110" stroke="#1a1216" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="60" cy="105" r="8" fill="#ff6b6b" opacity="0.4"/><circle cx="140" cy="105" r="8" fill="#ff6b6b" opacity="0.4"/><path d="M40 50 L48 42 M160 50 L152 42 M100 30 L100 22" stroke="#ffc93c" stroke-width="3" stroke-linecap="round"/><circle cx="40" cy="50" r="5" fill="#ffc93c"/><circle cx="160" cy="50" r="5" fill="#ffc93c"/><circle cx="100" cy="22" r="5" fill="#ffc93c"/></svg>')
+};
+document.querySelectorAll('img[src="/games/assets/icons/gamer.png"]').forEach(img=>{
+  img.addEventListener('error',()=>{if(img.dataset.fb!=='1'){img.dataset.fb='1';img.src=imgFallbacks.gamer;}},{once:true});
+});
+document.querySelectorAll('img[src="/games/assets/icons/gamerhi.png"]').forEach(img=>{
+  img.addEventListener('error',()=>{if(img.dataset.fb!=='1'){img.dataset.fb='1';img.src=imgFallbacks.gamerhi;}},{once:true});
+});
+
+// === وضعیت بازی ===
+const state = {
+  coins: 0, level: 1,
+  ownedItems: {skins:['default'],characters:['gamer'],customization:['none']},
+  selectedSkin: 'default', selectedCharacter: 'gamer', selectedCustomization: 'none',
+  hasPausedGame: false, pausedGame: null,
+  metrics: {responseTimes:[],correctCount:0,wrongCount:0,totalPuzzles:0,puzzleStartTime:null},
+  currentPuzzle: null, currentSolution: null, currentEmojis: null, currentSize: 3,
+  selectedCell: null, filledCells: 0, totalEmptyCells: 0, tutorialCellToSolve: null
+};
+
+// بارگذاری از localStorage
+try{
+  const saved = localStorage.getItem('amazingTableState');
+  if(saved){
+    const p = JSON.parse(saved);
+    state.coins=p.coins||0; state.level=p.level||1;
+    state.ownedItems=p.ownedItems||{skins:['default'],characters:['gamer'],customization:['none']};
+    state.selectedSkin=p.selectedSkin||'default';
+    state.selectedCharacter=p.selectedCharacter||'gamer';
+    state.selectedCustomization=p.selectedCustomization||'none';
+  }
+}catch(e){}
+
+function saveState(){
+  try{
+    localStorage.setItem('amazingTableState',JSON.stringify({
+      coins:state.coins,level:state.level,ownedItems:state.ownedItems,
+      selectedSkin:state.selectedSkin,selectedCharacter:state.selectedCharacter,
+      selectedCustomization:state.selectedCustomization
+    }));
+  }catch(e){}
+}
+
+// === صدا (Web Audio API) ===
+let audioCtx=null;
+function initAudio(){
+  if(!audioCtx){
+    try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}
+  }
+  if(audioCtx&&audioCtx.state==='suspended'){audioCtx.resume();}
+}
+function playSound(type){
+  initAudio(); if(!audioCtx) return;
+  const now=audioCtx.currentTime;
+  if(type==='click'){
+    const osc=audioCtx.createOscillator(),g=audioCtx.createGain();
+    osc.type='sine'; osc.frequency.setValueAtTime(800,now);
+    osc.frequency.exponentialRampToValueAtTime(400,now+0.08);
+    g.gain.setValueAtTime(0.12,now);
+    g.gain.exponentialRampToValueAtTime(0.001,now+0.08);
+    osc.connect(g); g.connect(audioCtx.destination);
+    osc.start(now); osc.stop(now+0.1);
+  } else if(type==='success'){
+    [523.25,659.25,783.99].forEach((f,i)=>{
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type='triangle'; o.frequency.value=f;
+      g.gain.setValueAtTime(0.1,now+i*0.08);
+      g.gain.exponentialRampToValueAtTime(0.001,now+i*0.08+0.3);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(now+i*0.08); o.stop(now+i*0.08+0.3);
+    });
+  } else if(type==='error'){
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type='square'; o.frequency.setValueAtTime(220,now);
+    o.frequency.exponentialRampToValueAtTime(110,now+0.15);
+    g.gain.setValueAtTime(0.07,now);
+    g.gain.exponentialRampToValueAtTime(0.001,now+0.15);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(now); o.stop(now+0.15);
+  } else if(type==='win'){
+    [523.25,659.25,783.99,1046.50].forEach((f,i)=>{
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type='sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(0.13,now+i*0.1);
+      g.gain.exponentialRampToValueAtTime(0.001,now+i*0.1+0.5);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(now+i*0.1); o.stop(now+i*0.1+0.5);
+    });
+  }
+}
+
+// === راهنمای صوتی (Web Speech API) ===
+let voices=[];
+function loadVoices(){
+  if('speechSynthesis' in window){voices=speechSynthesis.getVoices();}
+}
+loadVoices();
+if('speechSynthesis' in window){speechSynthesis.onvoiceschanged=loadVoices;}
+
+function speak(text,cb){
+  if(!('speechSynthesis' in window)){if(cb)cb();return;}
+  const ind=document.getElementById('voiceIndicator');
+  ind.classList.add('active');
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='fa-IR'; u.rate=0.85; u.pitch=1.15; u.volume=1;
+  const faV=voices.find(v=>v.lang&&v.lang.startsWith('fa'));
+  if(faV)u.voice=faV;
+  let done=false;
+  const finish=()=>{if(!done){done=true;ind.classList.remove('active');if(cb)cb();}};
+  u.onend=finish; u.onerror=finish;
+  setTimeout(()=>{try{speechSynthesis.speak(u);}catch(e){finish();}},100);
+  setTimeout(finish,8000);
+}
+
+// === ناوبری صفحات ===
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// === Toast ===
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+type;
+  setTimeout(()=>t.classList.add('show'),10);
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// === ذرات پس‌زمینه ===
+function createParticles(){
+  const c=document.getElementById('particles');
+  const colors=['var(--primary)','var(--neon-blue)','var(--neon-pink)','var(--neon-green)'];
+  for(let i=0;i<25;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.left=Math.random()*100+'%';
+    p.style.animationDuration=(15+Math.random()*20)+'s';
+    p.style.animationDelay=(Math.random()*20)+'s';
+    p.style.opacity=0.1+Math.random()*0.3;
+    p.style.background=colors[Math.floor(Math.random()*4)];
+    const s=2+Math.random()*4;
+    p.style.width=s+'px'; p.style.height=s+'px';
+    c.appendChild(p);
+  }
+}
+
+// === تولید سودوکو ===
+const emojiSets={
+  fruits:['🍎','🍌','🍇','🍓'],
+  animals:['🐱','🐶','🐰','🦊'],
+  nature:['🌟','🌈','☀️','🌙'],
+  toys:['⚽','🎈','🎁','🧸'],
+  food:['🍕','🍔','🍩','🍦']
+};
+
+function generateSudoku(size,emptyCount){
+  const sets=Object.values(emojiSets);
+  const set=sets[Math.floor(Math.random()*sets.length)];
+  const emojis=set.slice(0,size);
+  for(let i=emojis.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [emojis[i],emojis[j]]=[emojis[j],emojis[i]];
+  }
+  const grid=[];
+  for(let i=0;i<size;i++){
+    grid.push([]);
+    for(let j=0;j<size;j++){grid[i].push(emojis[(i+j)%size]);}
+  }
+  for(let k=0;k<3;k++){
+    const r1=Math.floor(Math.random()*size);
+    let r2=Math.floor(Math.random()*size);
+    while(r2===r1)r2=Math.floor(Math.random()*size);
+    [grid[r1],grid[r2]]=[grid[r2],grid[r1]];
+  }
+  for(let k=0;k<3;k++){
+    const c1=Math.floor(Math.random()*size);
+    let c2=Math.floor(Math.random()*size);
+    while(c2===c1)c2=Math.floor(Math.random()*size);
+    for(let i=0;i<size;i++){[grid[i][c1],grid[i][c2]]=[grid[i][c2],grid[i][c1]];}
+  }
+  const puzzle=grid.map(r=>[...r]);
+  const cellsToRemove=[];
+  const all=[];
+  for(let i=0;i<size;i++)for(let j=0;j<size;j++)all.push([i,j]);
+  all.sort(()=>Math.random()-0.5);
+  for(let i=0;i<emptyCount;i++){
+    const [r,c]=all[i]; puzzle[r][c]=null; cellsToRemove.push([r,c]);
+  }
+  return {puzzle,solution:grid,emojis,emptyCells:cellsToRemove};
+}
+
+// === شروع مرحله ===
+function startLevel(level){
+  state.level=level;
+  state.selectedCell=null;
+  state.filledCells=0;
+  state.tutorialCellToSolve=null;
+  
+  let size,emptyCount,tutorial=false;
+  if(level===1){size=3;emptyCount=2;tutorial=true;}
+  else if(level<=3){size=3;emptyCount=1;}
+  else if(level<=5){size=3;emptyCount=2;}
+  else if(level<=8){size=4;emptyCount=2;}
+  else{size=4;emptyCount=3;}
+  
+  state.currentSize=size;
+  const pd=generateSudoku(size,emptyCount);
+  state.currentPuzzle=pd.puzzle;
+  state.currentSolution=pd.solution;
+  state.currentEmojis=pd.emojis;
+  state.totalEmptyCells=pd.emptyCells.length;
+  state.metrics.puzzleStartTime=Date.now();
+  
+  renderGame();
+  document.getElementById('levelNum').textContent=level;
+  showPage('gamePage');
+  
+  if(tutorial){setTimeout(()=>startTutorial(),500);}
+}
+
+function renderGame(){
+  const grid=document.getElementById('sudokuGrid');
+  grid.className='sudoku-grid size-'+state.currentSize;
+  grid.innerHTML='';
+  for(let i=0;i<state.currentSize;i++){
+    for(let j=0;j<state.currentSize;j++){
+      const cell=document.createElement('div');
+      cell.className='sudoku-cell';
+      cell.dataset.row=i; cell.dataset.col=j;
+      const v=state.currentPuzzle[i][j];
+      if(v){cell.textContent=v; cell.classList.add('prefilled');}
+      else{cell.classList.add('empty'); cell.addEventListener('click',()=>selectCell(i,j));}
+      grid.appendChild(cell);
+    }
+  }
+  const pal=document.getElementById('emojiPalette');
+  pal.innerHTML='';
+  state.currentEmojis.forEach(e=>{
+    const b=document.createElement('button');
+    b.className='emoji-btn'; b.textContent=e;
+    b.addEventListener('click',()=>placeEmoji(e));
+    pal.appendChild(b);
+  });
+}
+
+function selectCell(row,col){
+  if(state.currentPuzzle[row][col]!==null)return;
+  document.querySelectorAll('.sudoku-cell.selected').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('.sudoku-cell.highlight').forEach(c=>c.classList.remove('highlight'));
+  const cell=document.querySelector(`.sudoku-cell[data-row="${row}"][data-col="${col}"]`);
+  cell.classList.add('selected');
+  for(let i=0;i<state.currentSize;i++){
+    const rCell=document.querySelector(`.sudoku-cell[data-row="${row}"][data-col="${i}"]`);
+    const cCell=document.querySelector(`.sudoku-cell[data-row="${i}"][data-col="${col}"]`);
+    if(rCell&&!rCell.classList.contains('empty'))rCell.classList.add('highlight');
+    if(cCell&&!cCell.classList.contains('empty'))cCell.classList.add('highlight');
+  }
+  state.selectedCell={row,col};
+  playSound('click');
+}
+
+function placeEmoji(emoji){
+  if(!state.selectedCell){showToast('اول یک خانه خالی انتخاب کن!','error');playSound('error');return;}
+  const {row,col}=state.selectedCell;
+  const cell=document.querySelector(`.sudoku-cell[data-row="${row}"][data-col="${col}"]`);
+  const correct=state.currentSolution[row][col];
+  const rt=Date.now()-state.metrics.puzzleStartTime;
+  
+  LUKO.answer({ topic: 'logic', topicLabel: 'منطق و جدول', correct: emoji===correct,
+                ms: rt, given: emoji, expected: correct, tier: state.level });
+  if(emoji===correct){
+    state.currentPuzzle[row][col]=emoji;
+    cell.textContent=emoji;
+    cell.classList.remove('empty','selected','highlight');
+    cell.classList.add('user-filled','correct');
+    state.filledCells++;
+    state.metrics.correctCount++;
+    state.metrics.responseTimes.push(rt);
+    state.metrics.puzzleStartTime=Date.now();
+    playSound('success');
+    document.querySelectorAll('.sudoku-cell.highlight').forEach(c=>c.classList.remove('highlight'));
+    state.selectedCell=null;
+    if(state.filledCells===state.totalEmptyCells){LUKO.finish({level:state.level});setTimeout(winLevel,500);}
+  } else {
+    cell.classList.add('wrong');
+    state.metrics.wrongCount++;
+    playSound('error');
+    showToast('اشتباه بود! دوباره فکر کن.','error');
+    setTimeout(()=>cell.classList.remove('wrong'),500);
+  }
+}
+
+// === بردن مرحله و سیستم پاداش سکه (LOKO) ===
+function winLevel(){
+  state.metrics.totalPuzzles++;
+  
+  // منطق پاداش سکه LOKO
+  let reward;
+  if (state.coins === 0) {
+    reward = 10;
+  } else {
+    reward = 1;
+  }
+  
+  state.coins += reward;
+  saveState();
+  document.getElementById('coinCount').textContent = state.coins;
+  
+  const persianReward = reward.toLocaleString('fa-IR');
+  document.getElementById('winText').innerHTML = `تو جدول را کامل کردی! <strong>+${persianReward} سکه لوکو</strong>`;
+  
+  playSound('win');
+  createConfetti();
+  document.getElementById('winModal').classList.add('active');
+}
+
+function createConfetti(){
+  const c=document.getElementById('confettiContainer');
+  c.innerHTML='';
+  const colors=['#6C5CE7','#00D2FF','#FF00A0','#00FF9D','#FFEAA7','#fff'];
+  for(let i=0;i<50;i++){
+    const e=document.createElement('div');
+    e.className='confetti';
+    e.style.background=colors[Math.floor(Math.random()*colors.length)];
+    e.style.left=Math.random()*100+'%';
+    e.style.animationDelay=(Math.random()*0.5)+'s';
+    e.style.animationDuration=(1.5+Math.random()*1.5)+'s';
+    const w=6+Math.random()*6;
+    e.style.width=w+'px'; e.style.height=w+'px';
+    e.style.borderRadius=Math.random()>0.5?'50%':'2px';
+    c.appendChild(e);
+  }
+  setTimeout(()=>c.innerHTML='',3500);
+}
+
+// === آموزش ===
+const tutorialSteps=[
+  {text:'سلام دوست من! من راهنمای تو هستم. بیا با هم یاد بگیریم چطور جدول شگفت‌انگیز را حل کنیم!',action:null},
+  {text:'قانون مهم: در هر سطر و هر ستون، هر ایموجی فقط یک بار می‌آید. هیچ ایموجی تکراری نیست!',action:'highlightRow'},
+  {text:'ببین! در این ستون هم هر ایموجی فقط یک بار آمده است.',action:'highlightCol'},
+  {text:'اوه! یکی از خانه‌ها خالی است. باید بفهمیم چه ایموجی باید اینجا باشد.',action:'highlightEmpty1'},
+  {text:'بیا ببینیم در این سطر و ستون چه ایموجی‌هایی هست...',action:'highlightRowCol1'},
+  {text:'آها! پس این ایموجی باید اینجا باشد! من آن را برایت قرار می‌دهم.',action:'solveFirst'},
+  {text:'حالا تو امتحان کن! روی خانه خالی دیگر کلیک کن و ایموجی درست را انتخاب کن.',action:'close'}
+];
+let tutorialStep=0;
+
+function startTutorial(){
+  tutorialStep=0;
+  document.getElementById('tutorialOverlay').classList.add('active');
+  showTutorialStep();
+}
+
+function showTutorialStep(){
+  const step=tutorialSteps[tutorialStep];
+  document.getElementById('tutorialText').textContent=step.text;
+  speak(step.text);
+  performTutorialAction(step.action);
+  document.getElementById('tutorialNext').textContent=(tutorialStep===tutorialSteps.length-1)?'شروع بازی':'بعدی';
+}
+
+function performTutorialAction(action){
+  document.querySelectorAll('.sudoku-cell').forEach(c=>{
+    c.classList.remove('tutorial-highlight','tutorial-row','tutorial-col','tutorial-empty');
+  });
+  if(!action)return;
+  const size=state.currentSize;
+  
+  if(action==='highlightRow'){
+    document.querySelectorAll('.sudoku-cell[data-row="0"]').forEach(c=>c.classList.add('tutorial-highlight'));
+  } else if(action==='highlightCol'){
+    document.querySelectorAll('.sudoku-cell[data-col="0"]').forEach(c=>c.classList.add('tutorial-highlight'));
+  } else if(action==='highlightEmpty1'){
+    for(let i=0;i<size;i++){
+      for(let j=0;j<size;j++){
+        if(state.currentPuzzle[i][j]===null){
+          const cell=document.querySelector(`.sudoku-cell[data-row="${i}"][data-col="${j}"]`);
+          cell.classList.add('tutorial-empty');
+          state.tutorialCellToSolve={row:i,col:j};
+          return;
+        }
+      }
+    }
+  } else if(action==='highlightRowCol1'){
+    if(state.tutorialCellToSolve){
+      const {row,col}=state.tutorialCellToSolve;
+      for(let i=0;i<size;i++){
+        const rc=document.querySelector(`.sudoku-cell[data-row="${row}"][data-col="${i}"]`);
+        const cc=document.querySelector(`.sudoku-cell[data-row="${i}"][data-col="${col}"]`);
+        if(rc&&!rc.classList.contains('empty'))rc.classList.add('tutorial-row');
+        if(cc&&!cc.classList.contains('empty'))cc.classList.add('tutorial-col');
+      }
+      const ec=document.querySelector(`.sudoku-cell[data-row="${row}"][data-col="${col}"]`);
+      if(ec)ec.classList.add('tutorial-empty');
+    }
+  } else if(action==='solveFirst'){
+    if(state.tutorialCellToSolve){
+      const {row,col}=state.tutorialCellToSolve;
+      const correct=state.currentSolution[row][col];
+      state.currentPuzzle[row][col]=correct;
+      state.filledCells++;
+      const cell=document.querySelector(`.sudoku-cell[data-row="${row}"][data-col="${col}"]`);
+      cell.classList.remove('tutorial-empty','tutorial-row','tutorial-col','empty');
+      cell.classList.add('user-filled','correct');
+      cell.textContent=correct;
+      playSound('success');
+    }
+  } else if(action==='close'){
+    document.getElementById('tutorialOverlay').classList.remove('active');
+    state.metrics.puzzleStartTime=Date.now();
+    if('speechSynthesis' in window)speechSynthesis.cancel();
+    document.getElementById('voiceIndicator').classList.remove('active');
+  }
+}
+
+document.getElementById('tutorialNext').addEventListener('click',()=>{
+  playSound('click');
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  document.getElementById('voiceIndicator').classList.remove('active');
+  tutorialStep++;
+  if(tutorialStep>=tutorialSteps.length){
+    document.getElementById('tutorialOverlay').classList.remove('active');
+    state.metrics.puzzleStartTime=Date.now();
+  } else {
+    showTutorialStep();
+  }
+});
+
+document.getElementById('tutorialSkip').addEventListener('click',()=>{
+  playSound('click');
+  document.getElementById('tutorialOverlay').classList.remove('active');
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  document.getElementById('voiceIndicator').classList.remove('active');
+  state.metrics.puzzleStartTime=Date.now();
+});
+
+// === فروشگاه ===
+const shopItems={
+  skins:[
+    {id:'default',name:'پیش‌فرض',price:0,color:'#6C5CE7',color2:'#00D2FF',emoji:'🎨'},
+    {id:'neon',name:'نئون',price:8,color:'#00D2FF',color2:'#00FF9D',emoji:'⚡'},
+    {id:'pink',name:'پینک',price:10,color:'#FF00A0',color2:'#6C5CE7',emoji:'🌸'},
+    {id:'gold',name:'طلایی',price:12,color:'#FFEAA7',color2:'#FFC93C',emoji:'✨'},
+    {id:'matrix',name:'ماتریکس',price:15,color:'#00FF9D',color2:'#00B894',emoji:'🟢'}
+  ],
+  characters:[
+    {id:'gamer',name:'گیمر',price:0,emoji:'🎮'},
+    {id:'robot',name:'ربات',price:8,emoji:'🤖'},
+    {id:'wizard',name:'جادوگر',price:10,emoji:'🧙'},
+    {id:'cat',name:'گربه',price:12,emoji:'🐱'},
+    {id:'dragon',name:'اژدها',price:15,emoji:'🐲'}
+  ],
+  customization:[
+    {id:'none',name:'بدون افکت',price:0,emoji:'⭕'},
+    {id:'glow',name:'درخشش',price:8,emoji:'✨'},
+    {id:'hearts',name:'قلب‌ها',price:10,emoji:'💖'},
+    {id:'stars',name:'ستاره‌ها',price:12,emoji:'⭐'},
+    {id:'bubbles',name:'حباب‌ها',price:15,emoji:'🫧'}
+  ]
+};
+
+function renderShop(){
+  ['skins','characters','customization'].forEach(cat=>{
+    const grid=document.getElementById(cat+'Grid');
+    grid.innerHTML='';
+    const selKey='selected'+cat.charAt(0).toUpperCase()+cat.slice(1);
+    shopItems[cat].forEach(item=>{
+      const owned=state.ownedItems[cat].includes(item.id);
+      const selected=state[selKey]===item.id;
+      const canAfford=state.coins>=item.price;
+      const el=document.createElement('div');
+      el.className='shop-item';
+      if(owned)el.classList.add('owned');
+      if(selected)el.classList.add('selected');
+      if(!owned&&!canAfford)el.classList.add('cant-afford');
+      el.innerHTML=`
+        <div class="shop-item-preview">${item.emoji}</div>
+        <div class="shop-item-name">${item.name}</div>
+        <div class="shop-item-price">
+          <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#FFC93C" stroke="#B96F00" stroke-width="2"/><text x="50" y="65" text-anchor="middle" font-size="40" font-weight="900" fill="#B96F00">★</text></svg>
+          ${item.price}
+        </div>
+        <button class="shop-item-buy">${selected?'انتخاب شده':(owned?'انتخاب':(canAfford?'خرید':'سکه کافی نیست'))}</button>
+      `;
+      el.querySelector('.shop-item-buy').addEventListener('click',()=>buyItem(cat,item.id));
+      grid.appendChild(el);
+    });
+  });
+}
+
+function buyItem(cat,id){
+  playSound('click');
+  const item=shopItems[cat].find(i=>i.id===id);
+  const owned=state.ownedItems[cat].includes(id);
+  const selKey='selected'+cat.charAt(0).toUpperCase()+cat.slice(1);
+  if(owned){
+    state[selKey]=id;
+    saveState(); renderShop(); applyCustomization();
+    showToast('انتخاب شد!','success'); playSound('success');
+  } else if(state.coins>=item.price){
+    state.coins-=item.price;
+    state.ownedItems[cat].push(id);
+    state[selKey]=id;
+    saveState();
+    document.getElementById('coinCount').textContent=state.coins;
+    renderShop(); applyCustomization();
+    showToast('خریداری شد!','success'); playSound('success');
+  } else {
+    showToast('سکه کافی نداری!','error'); playSound('error');
+  }
+}
+
+function applyCustomization(){
+  const skin=shopItems.skins.find(s=>s.id===state.selectedSkin);
+  if(skin){
+    document.documentElement.style.setProperty('--primary',skin.color);
+    document.documentElement.style.setProperty('--neon-blue',skin.color2);
+  }
+  
+  const charImg=document.getElementById('mainCharacter');
+  const char=shopItems.characters.find(c=>c.id===state.selectedCharacter);
+  if(char&&char.id!=='gamer'){
+    const skinColor=skin?skin.color:'#6C5CE7';
+    charImg.onerror=null;
+    charImg.src="data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><radialGradient id="cbg" cx="50%" cy="40%"><stop offset="0%" stop-color="${skinColor}"/><stop offset="100%" stop-color="${skin?skin.color2:'#00D2FF'}"/></radialGradient></defs><circle cx="100" cy="100" r="95" fill="url(#cbg)"/><text x="100" y="135" text-anchor="middle" font-size="100">${char.emoji}</text></svg>`);
+  } else {
+    charImg.src='/games/assets/icons/gamer.png';
+    charImg.onerror=()=>{charImg.onerror=null;charImg.src=imgFallbacks.gamer;};
+  }
+  
+  document.body.classList.remove('fx-glow');
+  document.querySelectorAll('.effect-particle').forEach(e=>e.remove());
+  if(state.selectedCustomization==='glow'){
+    document.body.classList.add('fx-glow');
+  } else if(state.selectedCustomization==='hearts'||state.selectedCustomization==='stars'||state.selectedCustomization==='bubbles'){
+    const emojis={hearts:'💖',stars:'⭐',bubbles:'🫧'};
+    const e=emojis[state.selectedCustomization];
+    for(let i=0;i<10;i++){
+      const el=document.createElement('div');
+      el.className='effect-particle';
+      el.textContent=e;
+      el.style.left=Math.random()*100+'%';
+      el.style.animationDelay=(Math.random()*10)+'s';
+      el.style.animationDuration=(8+Math.random()*8)+'s';
+      el.style.fontSize=(16+Math.random()*16)+'px';
+      document.body.appendChild(el);
+    }
+  }
+}
+
+// === مدیریت منوی اصلی ===
+function updateMainMenuState(){
+  const startBtn=document.getElementById('startBtn');
+  const buttonsDiv=document.getElementById('mainMenuButtons');
+  const existingRestart=document.getElementById('restartBtn');
+  
+  if(state.hasPausedGame){
+    startBtn.innerHTML=`<svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>ادامه بازی`;
+    if(!existingRestart){
+      const r=document.createElement('button');
+      r.id='restartBtn'; r.className='btn';
+      r.innerHTML=`<svg viewBox="0 0 24 24" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M1 4v6h6M23 20v-6h-6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>شروع مجدد`;
+      r.addEventListener('click',()=>{
+        playSound('click');
+        state.hasPausedGame=false; state.pausedGame=null;
+        state.level=1;
+        state.metrics={responseTimes:[],correctCount:0,wrongCount:0,totalPuzzles:0,puzzleStartTime:null};
+        saveState();
+        startLevel(1);
+        updateMainMenuState();
+      });
+      buttonsDiv.insertBefore(r,document.getElementById('shopBtn'));
+    }
+  } else {
+    startBtn.innerHTML=`<svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>شروع بازی`;
+    if(existingRestart)existingRestart.remove();
+  }
+}
+
+// === رویدادها ===
+document.getElementById('startBtn').addEventListener('click',()=>{
+  playSound('click'); initAudio();
+  if(state.hasPausedGame&&state.pausedGame){
+    Object.assign(state,state.pausedGame);
+    state.pausedGame=null;
+    state.hasPausedGame=false;
+    state.selectedCell=null;
+    state.metrics.puzzleStartTime=Date.now();
+    renderGame();
+    document.getElementById('levelNum').textContent=state.level;
+    showPage('gamePage');
+    updateMainMenuState();
+  } else {
+    startLevel(state.level||1);
+  }
+});
+
+document.getElementById('shopBtn').addEventListener('click',()=>{
+  playSound('click'); renderShop(); showPage('shopPage');
+});
+
+document.getElementById('helpBtn').addEventListener('click',()=>{
+  playSound('click'); showPage('helpPage');
+});
+
+document.querySelectorAll('[data-back]').forEach(btn=>{
+  btn.addEventListener('click',()=>{playSound('click');showPage(btn.dataset.back);});
+});
+
+document.getElementById('stopBtn').addEventListener('click',()=>{
+  playSound('click');
+  state.pausedGame={
+    level:state.level,
+    currentPuzzle:state.currentPuzzle,
+    currentSolution:state.currentSolution,
+    currentEmojis:state.currentEmojis,
+    currentSize:state.currentSize,
+    filledCells:state.filledCells,
+    totalEmptyCells:state.totalEmptyCells
+  };
+  state.hasPausedGame=true;
+  showPage('mainMenu');
+  updateMainMenuState();
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  document.getElementById('voiceIndicator').classList.remove('active');
+  document.getElementById('tutorialOverlay').classList.remove('active');
+});
+
+document.getElementById('continueGameBtn').addEventListener('click',()=>{
+  playSound('click');
+  document.getElementById('pauseModal').classList.remove('active');
+  if(state.pausedGame){
+    Object.assign(state,state.pausedGame);
+    state.pausedGame=null;
+    state.hasPausedGame=false;
+    state.selectedCell=null;
+    state.metrics.puzzleStartTime=Date.now();
+    renderGame();
+    document.getElementById('levelNum').textContent=state.level;
+    showPage('gamePage');
+    updateMainMenuState();
+  }
+});
+
+document.getElementById('restartGameBtn').addEventListener('click',()=>{
+  playSound('click');
+  document.getElementById('pauseModal').classList.remove('active');
+  state.hasPausedGame=false; state.pausedGame=null;
+  state.level=1;
+  state.metrics={responseTimes:[],correctCount:0,wrongCount:0,totalPuzzles:0,puzzleStartTime:null};
+  saveState();
+  startLevel(1);
+  updateMainMenuState();
+});
+
+document.getElementById('nextLevelBtn').addEventListener('click',()=>{
+  playSound('click');
+  document.getElementById('winModal').classList.remove('active');
+  startLevel(state.level+1);
+});
+
+document.getElementById('backToMenuBtn').addEventListener('click',()=>{
+  playSound('click');
+  document.getElementById('winModal').classList.remove('active');
+  showPage('mainMenu');
+  updateMainMenuState();
+});
+
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    playSound('click');
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab+'Tab').classList.add('active');
+  });
+});
+
+document.body.addEventListener('touchstart',initAudio,{once:true});
+document.body.addEventListener('click',initAudio,{once:true});
+
+// === راه‌اندازی اولیه ===
+document.getElementById('coinCount').textContent=state.coins;
+createParticles();
+applyCustomization();
+updateMainMenuState();
+</script>
+</body>
+</html>

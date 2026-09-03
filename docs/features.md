@@ -42,6 +42,11 @@
 - کارتِ «تالار بازی‌ها» در خانه هم همین را نشان می‌دهد: هفته‌ی جاری، مرحله‌ی بعدی و شمارشِ ابرها
 - نقشه‌ی کتابیِ قدیمی بازنشسته شد: `/book/:id` به `/books` ریدایرکت می‌شود و برگشتِ صفحه‌ی بازی هم همیشه به مسیرِ سیزن است
   (فایلِ `pages/BookGames.tsx` فعلاً نگه داشته شده ولی از هیچ مسیری رندر نمی‌شود)
+- **۲۷ بازیِ پایه‌ی اول** (ریاضی ۱۷، نگارش ۵، قرآن ۴، علوم ۱) — هر کدام
+  [`LUKO SDK`](../frontend/public/games/assets/luko-sdk.js) را بارگذاری می‌کند و
+  پاسخ/راهنمایی/پایانِ بازی را گزارش می‌دهد. شرحِ کاملِ داده:
+  [game-telemetry.md](game-telemetry.md)
+- کدِ بازی‌ها **مبهم‌سازی‌شده** منتشر می‌شود (نسخه‌ی خوانا در `frontend/assets-src/games/`)
 - اجرای بازی داخل اپ (iframe از public/games)؛ تله‌متریِ داخلِ بازی با
   [telemetry.ts](../frontend/src/features/games/telemetry.ts) دسته‌ای به `POST /games/events`
   می‌رود و پایانِ بازی `POST /games/{slug}/complete` را صدا می‌زند (سکه را سرور می‌دهد).
@@ -113,6 +118,17 @@
 - **کوئری‌ها**: فهرست فرزندان ۵→۱، اعلان‌ها ۱۹→۲، گزارش ۱۱→۱ (کش)
 - **هدرهای کش** در [netlify.toml](../netlify.toml): `/assets/*` تا یک سال (نامِ هش‌دار)،
   کاراکترها یک هفته، بازی‌ها و HTML همیشه اعتبارسنجی
+
+## استقرار
+- **یک سرور، یک دامنه**: nginx استاتیکِ فرانت را می‌دهد و `/api/*` را به جنگو پروکسی
+  می‌کند — همان origin، پس نه CORS لازم است نه تغییری در کد
+- استک: [docker-compose.yml](../docker-compose.yml) — nginx · gunicorn · postgres · redis ·
+  celery worker · celery beat (هر پنج سرویس healthcheck دارند)
+- تنظیمِ محیط: [.env.example](../.env.example) · راهنمای گام‌به‌گام: [deploy.md](deploy.md)
+- پیش از هر استقرار: `./deploy/preflight.sh` (SECRET_KEY، DEBUG، گواهی، بیلدِ فرانت را چک می‌کند)
+- امنیتِ production در `settings.py` پشتِ `not DEBUG`: HSTS، کوکیِ secure، ریدایرکتِ SSL،
+  و توقفِ عمدیِ بالاآمدن اگر `DJANGO_SECRET_KEY` تنظیم نشده باشد
+  (`X_FRAME_OPTIONS` عمداً `SAMEORIGIN` است چون بازی‌ها در iframe هم‌ریشه اجرا می‌شوند)
 
 ## زیرساخت فنی (که در نسخه‌ی جدید هم لازم است)
 - axios client واحد با interceptor توکن و مدیریت 401 → [frontend/src/lib/api.ts](../frontend/src/lib/api.ts)

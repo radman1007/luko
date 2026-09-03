@@ -1,0 +1,156 @@
+/* مسیرِ امروز — چهار گرهِ روی یک خط؛ هر گره رنگِ کاراکترِ همان بخش را دارد */
+.card {
+  margin: 16px 20px 0;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.title {
+  font-size: 15.5px;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--home-dark);
+  background: var(--home-soft);
+  border-radius: 999px;
+  padding: 5px 10px;
+}
+
+.streak svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ---------- مسیر ---------- */
+.path {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 4px;
+}
+
+/* خطِ اتصالِ گره‌ها. عمداً «پر شونده» نیست: کارهای انجام‌شده لزوماً پشت‌سرهم
+   نیستند و نوارِ پرشونده باعث می‌شد گرهِ انجام‌نشده هم انجام‌شده به‌نظر بیاید. */
+.line {
+  position: absolute;
+  top: 22px;
+  inset-inline: 26px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-bg);
+}
+
+.step {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+.node,
+.nodeDone {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 2.5px solid var(--color-bg);
+  color: var(--node);
+  transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.node svg,
+.nodeDone svg {
+  width: 21px;
+  height: 21px;
+}
+
+.nodeDone {
+  background: var(--node);
+  border-color: var(--node);
+  color: #fff;
+}
+
+.step:active .node,
+.step:active .nodeDone {
+  transform: scale(0.94);
+}
+
+.label,
+.labelDone {
+  font-size: 11.5px;
+  color: var(--color-text-secondary);
+}
+
+.labelDone {
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+/* ---------- پایین ---------- */
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-bg);
+}
+
+.summary {
+  flex: 1;
+  min-width: 150px;
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: var(--color-text-secondary);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--home-primary);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.cta svg {
+  width: 15px;
+  height: 15px;
+}
+
+.cta:active {
+  background: var(--home-dark);
+}

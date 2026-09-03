@@ -1,0 +1,3394 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سلام و علیکم - بازی آموزشی قرآن</title>
+    <style>
+        @font-face {
+            font-family: "Shoor";
+            src: url("/games/assets/fonts/Shoor-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor";
+            src: url("/games/assets/fonts/Shoor-Medium.woff2") format("woff2");
+            font-weight: 500;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor";
+            src: url("/games/assets/fonts/Shoor-Black.woff2") format("woff2");
+            font-weight: 900;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("/games/assets/fonts/ShoorRounded-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("/games/assets/fonts/ShoorRounded-Medium.woff2") format("woff2");
+            font-weight: 500;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("/games/assets/fonts/ShoorRounded-Black.woff2") format("woff2");
+            font-weight: 900;
+            font-display: swap;
+        }
+    </style>
+    <style>
+        /* ==================== سیستم طراحی ==================== */
+        :root {
+            --primary: #9D4EDD;
+            --secondary: #00D2FF;
+            --neon-pink: #FF3CAC;
+            --neon-green: #00FF9D;
+            --gold: #FFC93C;
+            --gold-bright: #FFD966;
+            --gold-deep: #E8A800;
+            --gold-text: #1a1200;
+            --danger: #FF4757;
+            --dark: #050510;
+            --glass-bg: rgba(5, 5, 16, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --text-color: #ffffff;
+            --text-secondary: #00D2FF;
+            --font-family: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+            --shadow-lg: 0 8px 50px rgba(123, 31, 162, 0.3);
+            --shadow-xl: 0 15px 70px rgba(0, 0, 0, 0.5);
+            --glow-purple: 0 0 20px rgba(157, 78, 221, 0.6);
+            --glow-blue: 0 0 20px rgba(0, 210, 255, 0.6);
+            --glow-gold: 0 0 20px rgba(255, 201, 60, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            font-family: var(--font-family);
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background:
+                radial-gradient(circle at 10% 20%, rgba(157, 78, 221, 0.4), transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 210, 255, 0.4), transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(255, 60, 172, 0.2), transparent 60%),
+                #050510;
+            color: var(--text-color);
+            touch-action: manipulation;
+        }
+
+        #starfield-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* ==================== صفحات ==================== */
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            z-index: 1;
+            overflow-y: auto;
+        }
+
+        .screen.active {
+            display: flex;
+            animation: screenFadeIn 0.5s ease;
+        }
+
+        @keyframes screenFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px) saturate(150%);
+            -webkit-backdrop-filter: blur(12px) saturate(150%);
+            border: 1px solid var(--glass-border);
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
+            border-left: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 24px;
+            box-shadow: var(--shadow-xl), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        /* ==================== پس‌زمینه منو ==================== */
+        .menu-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .magic-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            animation: magicMove 12s infinite alternate ease-in-out;
+        }
+
+        .magic-glow.purple {
+            background: var(--primary);
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            right: -100px;
+        }
+
+        .magic-glow.blue {
+            background: var(--secondary);
+            width: 350px;
+            height: 350px;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: 2s;
+        }
+
+        .magic-glow.pink {
+            background: var(--gold);
+            width: 250px;
+            height: 250px;
+            top: 40%;
+            left: 20%;
+            animation-delay: 4s;
+            opacity: 0.2;
+        }
+
+        @keyframes magicMove {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(80px, 50px) scale(1.3);
+            }
+        }
+
+        .floating-ingredient {
+            position: absolute;
+            font-size: 2.5rem;
+            animation: floatUp 8s ease-in-out infinite;
+            animation-delay: var(--delay);
+            left: var(--x);
+            top: 100%;
+            opacity: 0.2;
+            filter: drop-shadow(0 0 10px var(--gold));
+        }
+
+        @keyframes floatUp {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.1;
+            }
+
+            50% {
+                transform: translateY(-80vh) rotate(180deg);
+                opacity: 0.4;
+            }
+        }
+
+        /* ==================== نمایش سکه ==================== */
+        .coin-display {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 15px rgba(255, 201, 60, 0.3);
+            z-index: 100;
+        }
+
+        .coin-display.inline {
+            position: relative;
+            top: 0;
+            right: 0;
+            padding: 6px 12px;
+        }
+
+        .coin-amount {
+            color: var(--gold);
+            font-weight: 800;
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px var(--gold);
+        }
+
+        .coin-icon-img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            animation: coinMagic 2s ease-in-out infinite;
+        }
+
+        .coin-display.inline .coin-icon-img {
+            width: 22px;
+            height: 22px;
+        }
+
+        @keyframes coinMagic {
+            0% {
+                transform: rotateY(0deg) scale(1);
+                filter: drop-shadow(0 0 3px var(--gold));
+            }
+
+            25% {
+                transform: rotateY(0deg) scale(1.2) rotate(15deg);
+                filter: drop-shadow(0 0 12px var(--gold));
+            }
+
+            50% {
+                transform: rotateY(180deg) scale(1);
+                filter: drop-shadow(0 0 3px var(--gold));
+            }
+
+            75% {
+                transform: rotateY(180deg) scale(1.2) rotate(-15deg);
+                filter: drop-shadow(0 0 12px var(--gold));
+            }
+
+            100% {
+                transform: rotateY(360deg) scale(1);
+                filter: drop-shadow(0 0 3px var(--gold));
+            }
+        }
+
+        /* ==================== منوی اصلی ==================== */
+        .menu-container {
+            padding: 40px 24px 25px;
+            text-align: center;
+            max-width: 420px;
+            width: 100%;
+            animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .menu-title-banner {
+            background: linear-gradient(135deg, var(--glass-bg), var(--glass-bg));
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 20px rgba(255, 201, 60, 0.4), inset 0 0 20px var(--glass-bg);
+            padding: 15px 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-title {
+            font-size: 2.4rem;
+            font-weight: 900;
+            margin-bottom: 5px;
+            color: var(--gold);
+            filter: drop-shadow(0 0 15px var(--gold));
+        }
+
+        .game-subtitle {
+            color: var(--gold-bright);
+            font-size: 1.05rem;
+            font-weight: 700;
+            text-shadow: 0 0 10px var(--gold), 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .character-wrapper {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 15px auto 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .character-frame {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%);
+            border: 4px solid var(--gold);
+            box-shadow: 0 0 30px var(--gold), inset 0 0 30px rgba(255, 201, 60, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            animation: framePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes framePulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 30px var(--gold), inset 0 0 30px rgba(255, 201, 60, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 50px var(--gold), inset 0 0 40px rgba(255, 201, 60, 0.4);
+            }
+        }
+
+        .gamer-img {
+            width: 88%;
+            height: 88%;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.4));
+            animation: gamerFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes gamerFloat {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-10px) scale(1.02);
+            }
+        }
+
+        .speech-bubble-inside {
+            position: absolute;
+            top: -12px;
+            right: -45px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--gold);
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: var(--gold-bright);
+            white-space: nowrap;
+            box-shadow: var(--glow-gold);
+            animation: bubblePop 2s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        .speech-bubble-inside::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 15px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: var(--gold) transparent;
+        }
+
+        @keyframes bubblePop {
+
+            0%,
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+
+            50% {
+                transform: scale(1.05) rotate(2deg);
+            }
+        }
+
+        /* ==================== دکمه‌ها (طلایی) ==================== */
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-family: var(--font-family);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-magic.btn-large {
+            background: linear-gradient(45deg, var(--gold), #ffae00);
+            color: var(--gold-text);
+            border: 2px solid var(--gold-bright);
+            box-shadow: 0 5px 20px rgba(255, 201, 60, 0.5), 0 0 25px var(--gold);
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
+            animation: btnPulse 2s infinite;
+        }
+
+        .btn-magic.btn-large:hover {
+            background: linear-gradient(45deg, var(--gold-bright), var(--gold));
+            box-shadow: 0 8px 30px rgba(255, 201, 60, 0.7), 0 0 40px var(--gold);
+            transform: translateY(-2px);
+        }
+
+        @keyframes btnPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 5px 20px rgba(255, 201, 60, 0.5), 0 0 25px var(--gold);
+            }
+
+            50% {
+                box-shadow: 0 5px 25px rgba(255, 201, 60, 0.8), 0 0 40px var(--gold);
+            }
+        }
+
+        .btn-magic {
+            background: rgba(255, 201, 60, 0.12);
+            backdrop-filter: blur(15px);
+            color: var(--gold-bright);
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 15px rgba(255, 201, 60, 0.25), inset 0 0 10px rgba(255, 201, 60, 0.08);
+        }
+
+        .btn-magic:hover {
+            background: linear-gradient(45deg, var(--gold), #ffae00);
+            color: var(--gold-text);
+            border-color: var(--gold-bright);
+            box-shadow: 0 0 25px var(--gold), inset 0 0 15px rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .secondary-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .secondary-buttons .btn {
+            flex: 1;
+            font-size: 0.95rem;
+            padding: 11px;
+        }
+
+        /* دکمه خطرناک (قرمز) */
+        .btn-danger {
+            background: linear-gradient(45deg, var(--danger), #d63031);
+            color: #fff;
+            border: 1px solid #ff6b74;
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(45deg, #ff6b74, var(--danger));
+            box-shadow: 0 0 25px rgba(255, 71, 87, 0.7);
+            transform: translateY(-2px);
+        }
+
+        /* دکمه ریست بازی */
+        .reset-game-btn {
+            margin-top: 18px;
+            padding: 9px 22px;
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.45);
+            color: #ff8a95;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: var(--font-family);
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .reset-game-btn:hover {
+            background: rgba(255, 71, 87, 0.3);
+            color: #fff;
+            border-color: var(--danger);
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.4);
+        }
+
+        .reset-game-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* ==================== راهنمای سینمایی ==================== */
+        .help-cinematic-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+            position: relative;
+            gap: 18px;
+        }
+
+        .gamer-aura-wrapper {
+            width: 240px;
+            height: 240px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeScaleIn 1s ease;
+        }
+
+        .gamer-aura-wrapper::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--gold);
+            filter: blur(50px);
+            opacity: 0.5;
+            animation: pulseAura 2s infinite ease-in-out;
+            z-index: 0;
+        }
+
+        .help-gamer-img {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            z-index: 1;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+            animation: gamerFloat 3s ease-in-out infinite;
+        }
+
+        .help-speech-bubble {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--gold);
+            padding: 22px 32px;
+            border-radius: 25px;
+            max-width: 90%;
+            width: 450px;
+            text-align: center;
+            font-size: 1.15rem;
+            line-height: 1.9;
+            color: var(--text-color);
+            box-shadow: var(--glow-gold), inset 0 0 20px rgba(255, 255, 255, 0.1);
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: opacity 0.25s ease;
+        }
+
+        .help-speech-bubble::after {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 12px 12px;
+            border-style: solid;
+            border-color: var(--gold) transparent transparent transparent;
+        }
+
+        .help-nav {
+            display: flex;
+            justify-content: center;
+        }
+
+        .next-help-btn {
+            padding: 13px 45px;
+            background: linear-gradient(45deg, var(--gold), #ffae00);
+            color: var(--gold-text);
+            border: 2px solid var(--gold-bright);
+            border-radius: 16px;
+            cursor: pointer;
+            font-family: var(--font-family);
+            font-weight: 800;
+            font-size: 1.15rem;
+            box-shadow: 0 5px 20px rgba(255, 201, 60, 0.5), 0 0 30px rgba(255, 201, 60, 0.4);
+            transition: all 0.3s;
+            animation: btnPulse 2s infinite;
+        }
+
+        .next-help-btn:hover {
+            background: linear-gradient(45deg, var(--gold-bright), var(--gold));
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 8px 30px rgba(255, 201, 60, 0.7), 0 0 40px var(--gold);
+        }
+
+        .next-help-btn:active {
+            transform: scale(0.95);
+        }
+
+        .help-dots {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .help-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 201, 60, 0.5);
+            transition: all 0.3s;
+        }
+
+        .help-dot.active {
+            background: var(--gold);
+            box-shadow: 0 0 12px var(--gold);
+            transform: scale(1.25);
+        }
+
+        .skip-help-btn {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 25px;
+            background: rgba(0, 0, 0, 0.3);
+            color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 201, 60, 0.4);
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: var(--font-family);
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .skip-help-btn:hover {
+            background: rgba(255, 201, 60, 0.2);
+            color: var(--gold-bright);
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(255, 201, 60, 0.4);
+        }
+
+        @keyframes fadeScaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes pulseAura {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+
+            50% {
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
+        }
+
+        /* ==================== فروشگاه ==================== */
+        .shop-container {
+            padding: 25px 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .shop-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .shop-header h2 {
+            flex: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            border: 1px solid var(--gold);
+            background: rgba(255, 201, 60, 0.12);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            color: var(--gold-bright);
+            flex-shrink: 0;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(45deg, var(--gold), #ffae00);
+            box-shadow: var(--glow-gold);
+            color: var(--gold-text);
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .shop-hint {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin-bottom: 18px;
+            line-height: 1.8;
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .shop-item {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .shop-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 201, 60, 0.2);
+        }
+
+        .shop-item.active-item {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px var(--gold);
+            background: rgba(255, 201, 60, 0.08);
+        }
+
+        .shop-item-icon {
+            font-size: 3.2rem;
+            filter: drop-shadow(0 4px 12px rgba(255, 201, 60, 0.4));
+            animation: wiggle 3s ease-in-out infinite;
+        }
+
+        @keyframes wiggle {
+
+            0%,
+            100% {
+                transform: rotate(-5deg);
+            }
+
+            50% {
+                transform: rotate(5deg);
+            }
+        }
+
+        .shop-item-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-color);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .shop-item-price {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            color: var(--gold);
+            font-weight: 800;
+            text-shadow: 0 0 5px var(--gold);
+        }
+
+        .shop-item-price img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .shop-btn {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 12px;
+            font-family: var(--font-family);
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            margin-top: auto;
+        }
+
+        .shop-btn.buy {
+            background: linear-gradient(45deg, var(--gold), #ffae00);
+            color: var(--gold-text);
+            box-shadow: 0 0 10px var(--gold);
+        }
+
+        .shop-btn.buy:hover {
+            transform: scale(1.04);
+        }
+
+        .shop-btn.select {
+            background: rgba(255, 201, 60, 0.15);
+            color: var(--gold-bright);
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 10px rgba(255, 201, 60, 0.2);
+        }
+
+        .shop-btn.select:hover {
+            background: linear-gradient(45deg, var(--gold), #ffae00);
+            color: var(--gold-text);
+            transform: scale(1.04);
+        }
+
+        .shop-btn.active {
+            background: linear-gradient(45deg, var(--gold-deep), #c79000);
+            color: #fff;
+            box-shadow: 0 0 10px var(--gold-deep);
+        }
+
+        /* مودال خرید موفق */
+        .buy-congrats {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .buy-congrats.active {
+            display: flex;
+        }
+
+        .congrats-modal {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--gold);
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 24px;
+            padding: 30px;
+            text-align: center;
+            max-width: 320px;
+            box-shadow: var(--shadow-xl), var(--glow-gold);
+            animation: cookPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes cookPop {
+            from {
+                transform: scale(0.5) rotate(-10deg);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1) rotate(0);
+                opacity: 1;
+            }
+        }
+
+        .congrats-emoji {
+            font-size: 5rem;
+            margin-bottom: 10px;
+            animation: gamerFloat 2s infinite;
+            filter: drop-shadow(0 0 20px var(--gold));
+        }
+
+        /* ==================== صفحه بازی ==================== */
+        .game-interface {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 520px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+        }
+
+        .game-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px) saturate(150%);
+            border: 1px solid var(--glass-border);
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 18px;
+            padding: 10px 14px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+
+        .pause-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--gold);
+            background: rgba(255, 201, 60, 0.12);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-bright);
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .pause-btn:hover {
+            background: linear-gradient(45deg, var(--gold), #ffae00);
+            box-shadow: var(--glow-gold);
+            color: var(--gold-text);
+        }
+
+        .level-indicator {
+            background: linear-gradient(135deg, var(--gold), #ffae00);
+            padding: 5px 14px;
+            border-radius: 12px;
+            color: var(--gold-text);
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255, 201, 60, 0.5);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .level-label,
+        .level-total {
+            font-size: 0.65rem;
+            opacity: 0.85;
+        }
+
+        .level-num {
+            font-size: 1.2rem;
+            font-weight: 900;
+        }
+
+        .header-coin-display {
+            background: rgba(255, 201, 60, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--gold);
+            padding: 6px 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 10px rgba(255, 201, 60, 0.2);
+        }
+
+        .header-coin-value {
+            color: var(--gold);
+            font-weight: 800;
+            font-size: 1.1rem;
+            text-shadow: 0 0 5px var(--gold);
+        }
+
+        .header-coin-display .coin-icon-img {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* صحنه شهر تاریک */
+        .city-scene {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(5, 5, 16, 0.2) 0%, rgba(5, 5, 16, 0.55) 100%);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+        }
+
+        .sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(180deg, rgba(157, 78, 221, 0.15) 0%, rgba(0, 210, 255, 0.08) 100%);
+        }
+
+        .sky .cloud {
+            position: absolute;
+            border-radius: 50px;
+            opacity: 0.7;
+        }
+
+        .sky .cloud::before,
+        .sky .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 50%;
+        }
+
+        .sky .c1 {
+            width: 60px;
+            height: 25px;
+            top: 20%;
+            left: -80px;
+            animation: floatCloud 15s linear infinite;
+        }
+
+        .sky .c1::before {
+            width: 30px;
+            height: 30px;
+            top: -15px;
+            left: 8px;
+        }
+
+        .sky .c1::after {
+            width: 25px;
+            height: 25px;
+            top: -8px;
+            left: 32px;
+        }
+
+        .sky .c2 {
+            width: 50px;
+            height: 20px;
+            top: 35%;
+            right: -70px;
+            animation: floatCloud 20s linear infinite reverse;
+        }
+
+        .sky .c2::before {
+            width: 25px;
+            height: 25px;
+            top: -12px;
+            left: 6px;
+        }
+
+        .sky .c2::after {
+            width: 20px;
+            height: 20px;
+            top: -6px;
+            left: 25px;
+        }
+
+        .sky .c3 {
+            width: 55px;
+            height: 22px;
+            top: 15%;
+            right: 30%;
+            animation: floatCloud 18s linear infinite;
+            animation-delay: 5s;
+        }
+
+        .sky .c3::before {
+            width: 28px;
+            height: 28px;
+            top: -14px;
+            left: 10px;
+        }
+
+        .sky .c3::after {
+            width: 22px;
+            height: 22px;
+            top: -8px;
+            left: 30px;
+        }
+
+        @keyframes floatCloud {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(calc(100vw + 150px));
+            }
+        }
+
+        .sun-bright {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, #FFC93C 0%, #FF9E00 100%);
+            border-radius: 50%;
+            top: 10%;
+            left: 15%;
+            box-shadow: 0 0 30px #FFC93C, 0 0 60px rgba(255, 201, 60, 0.4);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .buildings-back {
+            position: absolute;
+            bottom: 35%;
+            left: 0;
+            width: 100%;
+            height: 25%;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+        }
+
+        .building {
+            background: linear-gradient(180deg, rgba(157, 78, 221, 0.25) 0%, rgba(10, 8, 25, 0.9) 100%);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.15);
+        }
+
+        .buildings-back .b1 {
+            width: 15%;
+            height: 70%;
+        }
+
+        .buildings-back .b2 {
+            width: 12%;
+            height: 90%;
+        }
+
+        .buildings-back .b3 {
+            width: 18%;
+            height: 60%;
+        }
+
+        .buildings-back .b4 {
+            width: 14%;
+            height: 80%;
+        }
+
+        .buildings-back .b5 {
+            width: 16%;
+            height: 65%;
+        }
+
+        .buildings-front {
+            position: absolute;
+            bottom: 20%;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+        }
+
+        .building-front {
+            background: linear-gradient(180deg, rgba(20, 15, 45, 0.9) 0%, rgba(8, 6, 20, 0.95) 100%);
+            border: 1px solid var(--glass-border);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 8px;
+            gap: 4px;
+        }
+
+        .bf1 {
+            width: 25%;
+            height: 100%;
+        }
+
+        .bf2 {
+            width: 30%;
+            height: 120%;
+        }
+
+        .bf3 {
+            width: 22%;
+            height: 90%;
+        }
+
+        .building-front .window {
+            width: 18px;
+            height: 22px;
+            background: linear-gradient(180deg, rgba(255, 201, 60, 0.9), rgba(255, 174, 0, 0.5));
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(255, 201, 60, 0.8);
+        }
+
+        .building-front .door {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 22px;
+            height: 30px;
+            background: linear-gradient(180deg, #4a3060, #2a1840);
+            border: 1px solid rgba(255, 201, 60, 0.3);
+            border-radius: 5px 5px 0 0;
+        }
+
+        .trees {
+            position: absolute;
+            bottom: 18%;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            z-index: 2;
+        }
+
+        .tree {
+            position: relative;
+        }
+
+        .tree .trunk {
+            width: 12px;
+            height: 35px;
+            background: linear-gradient(90deg, #3d2a56, #241638);
+            border-radius: 3px;
+            margin: 0 auto;
+        }
+
+        .tree .leaves {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, rgba(255, 201, 60, 0.55) 0%, rgba(232, 168, 0, 0.3) 100%);
+            border-radius: 50%;
+            position: relative;
+            top: -8px;
+            box-shadow: 0 0 20px rgba(255, 201, 60, 0.35);
+            border: 1px solid rgba(255, 201, 60, 0.4);
+        }
+
+        .tree .leaves::before {
+            content: '';
+            position: absolute;
+            width: 38px;
+            height: 38px;
+            background: radial-gradient(circle, rgba(255, 201, 60, 0.45), rgba(232, 168, 0, 0.2));
+            border-radius: 50%;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .t1 {
+            transform: scale(0.8);
+        }
+
+        .t2 {
+            transform: scale(1);
+        }
+
+        .t3 {
+            transform: scale(0.7);
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            background: linear-gradient(180deg, rgba(157, 78, 221, 0.35) 0%, rgba(5, 5, 16, 0.95) 100%);
+            border-top: 3px solid var(--gold);
+            box-shadow: 0 -5px 25px rgba(255, 201, 60, 0.3);
+        }
+
+        .ground::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: repeating-linear-gradient(90deg,
+                    rgba(255, 201, 60, 0.4) 0px,
+                    rgba(255, 201, 60, 0.4) 20px,
+                    transparent 20px,
+                    transparent 40px);
+        }
+
+        /* ==================== کاراکترها ==================== */
+        .characters-area {
+            position: absolute;
+            bottom: 22%;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 20px;
+            padding: 0 10px;
+            z-index: 5;
+            flex-wrap: wrap;
+        }
+
+        .character {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+            position: relative;
+        }
+
+        .character:hover {
+            transform: scale(1.1);
+        }
+
+        .character.selected {
+            transform: scale(1.15);
+        }
+
+        .character.correct {
+            animation: celebrate 0.5s ease-in-out;
+        }
+
+        .character.wrong {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes celebrate {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2) rotate(10deg);
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-8px);
+            }
+
+            75% {
+                transform: translateX(8px);
+            }
+        }
+
+        .character-body {
+            width: 95px;
+            height: 110px;
+            position: relative;
+            animation: idle 2s ease-in-out infinite;
+        }
+
+        @keyframes idle {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+
+        .character-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 10px rgba(255, 201, 60, 0.4));
+            transition: filter 0.3s, transform 0.3s;
+            -webkit-user-drag: none;
+            pointer-events: none;
+        }
+
+        .character.speaking .character-img {
+            animation: speakBounce 0.35s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px var(--gold));
+        }
+
+        @keyframes speakBounce {
+
+            0%,
+            100% {
+                transform: scale(1) translateY(0);
+            }
+
+            50% {
+                transform: scale(1.08) translateY(-6px);
+            }
+        }
+
+        .character.happy .character-img {
+            animation: happyJump 0.55s ease-in-out infinite;
+            filter: drop-shadow(0 0 25px var(--gold));
+        }
+
+        @keyframes happyJump {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        .character.sad .character-img {
+            filter: grayscale(0.7) brightness(0.7);
+            transform: translateY(4px);
+        }
+
+        .character-name {
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 201, 60, 0.5);
+            padding: 4px 14px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-top: 6px;
+            color: var(--gold-bright);
+            text-shadow: 0 0 10px rgba(255, 201, 60, 0.5);
+            white-space: nowrap;
+            box-shadow: 0 0 12px rgba(255, 201, 60, 0.25);
+        }
+
+        .char-accessory {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.6rem;
+            z-index: 5;
+            filter: drop-shadow(0 0 8px var(--gold));
+            pointer-events: none;
+        }
+
+        /* ==================== حباب پیام ==================== */
+        .character-message {
+            position: absolute;
+            top: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            width: 92%;
+            max-width: 340px;
+        }
+
+        .message-bubble {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--gold);
+            padding: 14px 18px;
+            border-radius: 18px;
+            text-align: center;
+            position: relative;
+            animation: popIn 0.4s ease-out;
+            box-shadow: var(--glow-gold), inset 0 0 20px rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .message-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 12px 12px 0;
+            border-style: solid;
+            border-color: var(--gold) transparent transparent transparent;
+        }
+
+        .message-bubble p {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .msg-char-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            vertical-align: middle;
+            margin-left: 6px;
+        }
+
+        /* ==================== دکمه‌های انتخاب ==================== */
+        .selection-buttons {
+            position: absolute;
+            bottom: 4%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            width: 95%;
+            max-width: 420px;
+            z-index: 15;
+        }
+
+        .selection-buttons.show {
+            display: flex;
+        }
+
+        .selection-btn {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--gold);
+            color: var(--gold-bright);
+            padding: 10px 18px;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-family: var(--font-family);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            min-width: 42%;
+        }
+
+        .selection-btn:hover {
+            background: linear-gradient(45deg, var(--gold), #ffae00);
+            color: var(--gold-text);
+            transform: translateY(-3px) scale(1.04);
+            box-shadow: 0 0 20px var(--gold);
+        }
+
+        .selection-btn.correct {
+            background: var(--neon-green);
+            border-color: var(--neon-green);
+            color: #050510;
+            box-shadow: 0 0 25px var(--neon-green);
+            animation: pulse-success 0.5s ease-in-out;
+        }
+
+        .selection-btn.wrong {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: #fff;
+            box-shadow: 0 0 25px var(--danger);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes pulse-success {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
+        }
+
+        .btn-char-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        /* ==================== بخش سلام دادن ==================== */
+        .greet-section {
+            position: absolute;
+            bottom: 6%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            z-index: 15;
+            width: 90%;
+            max-width: 320px;
+        }
+
+        .greet-section.show {
+            display: flex;
+            animation: slideUpGreet 0.4s ease-out;
+        }
+
+        @keyframes slideUpGreet {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(25px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .greet-prompt {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--gold);
+            padding: 12px 22px;
+            border-radius: 16px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--gold-bright);
+            text-align: center;
+            box-shadow: var(--glow-gold);
+        }
+
+        .greet-btn {
+            background: linear-gradient(45deg, var(--gold), #ffae00);
+            color: var(--gold-text);
+            border: 2px solid var(--gold-bright);
+            padding: 14px 30px;
+            border-radius: 16px;
+            font-size: 1.15rem;
+            font-family: var(--font-family);
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 20px rgba(255, 201, 60, 0.5), 0 0 30px rgba(255, 201, 60, 0.4);
+            transition: all 0.3s;
+            animation: btnPulse 2s infinite;
+        }
+
+        .greet-btn:hover {
+            transform: translateY(-2px) scale(1.04);
+        }
+
+        .greet-btn:active {
+            transform: scale(0.95);
+        }
+
+        .greet-btn.animate {
+            animation: greetPulse 1s ease-in-out;
+        }
+
+        @keyframes greetPulse {
+            0% {
+                transform: scale(1);
+            }
+
+            25% {
+                transform: scale(1.08) rotate(-3deg);
+            }
+
+            50% {
+                transform: scale(1.12);
+            }
+
+            75% {
+                transform: scale(1.08) rotate(3deg);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* ==================== نوار پیشرفت ==================== */
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-deep), var(--gold));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 15px var(--gold);
+            width: 0%;
+        }
+
+        /* ==================== پیام نتیجه ==================== */
+        .result-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 500;
+        }
+
+        .result-message.show {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .result-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--gold);
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 30px;
+            border-radius: 24px;
+            text-align: center;
+            animation: bounceIn 0.5s ease-out;
+            max-width: 85%;
+            width: 300px;
+            box-shadow: var(--shadow-xl), var(--glow-gold);
+            color: var(--text-color);
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            70% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .result-emoji {
+            font-size: 4rem;
+            margin-bottom: 12px;
+            animation: wiggle 0.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px var(--gold));
+        }
+
+        .result-content p {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        /* ==================== شمارش معکوس ==================== */
+        #countdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 8rem;
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 40px var(--gold);
+        }
+
+        #countdown-overlay.active {
+            display: flex;
+            animation: countdownPop 1s ease;
+        }
+
+        @keyframes countdownPop {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* ==================== صفحه پایان ==================== */
+        .result-card {
+            padding: 30px 20px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .trophy-animation {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .trophy {
+            font-size: 5.5rem;
+            animation: trophyBounce 1s ease-in-out infinite;
+            filter: drop-shadow(0 0 25px var(--gold));
+        }
+
+        @keyframes trophyBounce {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(-5deg);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(5deg);
+            }
+        }
+
+        .confetti {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            pointer-events: none;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            animation: confettiFall 2s ease-in-out infinite;
+        }
+
+        .cp1 {
+            background: #FFC93C;
+            left: 20%;
+            animation-delay: 0s;
+        }
+
+        .cp2 {
+            background: #FFD966;
+            left: 40%;
+            animation-delay: 0.3s;
+        }
+
+        .cp3 {
+            background: #ffae00;
+            left: 60%;
+            animation-delay: 0.6s;
+        }
+
+        .cp4 {
+            background: #FFEB99;
+            left: 80%;
+            animation-delay: 0.9s;
+        }
+
+        .cp5 {
+            background: #E8A800;
+            left: 50%;
+            animation-delay: 1.2s;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-80px) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(80px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .result-title {
+            color: var(--gold);
+            font-size: 1.8rem;
+            margin: 10px 0;
+            text-shadow: 0 0 15px var(--gold);
+        }
+
+        .result-subtitle {
+            opacity: 0.85;
+            margin-bottom: 22px;
+        }
+
+        .end-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* ==================== مودال ==================== */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 30px;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 85%;
+            width: 300px;
+            box-shadow: var(--shadow-xl);
+            animation: bounceIn 0.4s ease-out;
+            color: var(--text-color);
+        }
+
+        .modal-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+        }
+
+        .modal-content p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-buttons .btn {
+            flex: 1;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+
+        /* مودال ریست (قرمز) */
+        #reset-modal .modal-content {
+            border: 1px solid rgba(255, 71, 87, 0.5);
+            box-shadow: var(--shadow-xl), 0 0 30px rgba(255, 71, 87, 0.3);
+        }
+
+        #reset-modal h3 {
+            color: #ff8a95;
+        }
+
+        /* ==================== Toast ==================== */
+        #toast-container {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+            width: 90%;
+            max-width: 350px;
+        }
+
+        .toast {
+            background: rgba(40, 30, 0, 0.9);
+            backdrop-filter: blur(15px);
+            padding: 13px 20px;
+            border-radius: 14px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: toastIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #fff;
+            border: 1px solid var(--gold);
+            transition: opacity 0.3s;
+        }
+
+        .toast.success {
+            border-right: 4px solid var(--gold);
+            box-shadow: 0 0 15px var(--gold);
+        }
+
+        .toast.error {
+            border-right: 4px solid var(--danger);
+            box-shadow: 0 0 15px var(--danger);
+        }
+
+        @keyframes toastIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* ==================== ذرات جشن ==================== */
+        .celebration-particle {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999;
+            animation: particleFly 1s ease-out forwards;
+        }
+
+        @keyframes particleFly {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0);
+            }
+        }
+
+        /* ==================== ریسپانسیو ==================== */
+        @media (min-width: 480px) {
+            .game-title {
+                font-size: 2.6rem;
+            }
+
+            .character-body {
+                width: 110px;
+                height: 125px;
+            }
+
+            .character-wrapper {
+                width: 200px;
+                height: 200px;
+            }
+
+            .help-gamer-img {
+                width: 220px;
+                height: 220px;
+            }
+
+            .gamer-aura-wrapper {
+                width: 260px;
+                height: 260px;
+            }
+
+            .shop-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .selection-btn {
+                padding: 12px 20px;
+                font-size: 1.05rem;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .character-wrapper {
+                width: 140px;
+                height: 140px;
+                margin: 10px auto 18px;
+            }
+
+            .game-title {
+                font-size: 1.9rem;
+            }
+
+            .menu-container {
+                padding: 30px 20px 20px;
+            }
+
+            .help-gamer-img {
+                width: 140px;
+                height: 140px;
+            }
+
+            .gamer-aura-wrapper {
+                width: 170px;
+                height: 170px;
+            }
+
+            .help-speech-bubble {
+                padding: 16px 24px;
+                font-size: 1rem;
+                min-height: 80px;
+            }
+
+            .next-help-btn {
+                padding: 10px 35px;
+                font-size: 1rem;
+            }
+
+            .skip-help-btn {
+                bottom: 12px;
+                padding: 8px 20px;
+            }
+
+            .reset-game-btn {
+                margin-top: 12px;
+                padding: 7px 18px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕌</text></svg>">
+</head>
+
+<body>
+    <canvas id="starfield-canvas"></canvas>
+    <div id="toast-container"></div>
+    <div id="countdown-overlay"></div>
+
+    <!-- مودال خرید موفق -->
+    <div id="buy-congrats" class="buy-congrats">
+        <div class="congrats-modal">
+            <div class="congrats-emoji" id="congrats-emoji">🎩</div>
+            <h2 style="color: var(--gold); margin-bottom: 10px;">آفرین! 🎉</h2>
+            <p style="margin-bottom: 20px; font-size: 1.05rem;">خریدت با موفقیت انجام شد!<br>آیتم جدیدت فعال شد.</p>
+            <button class="btn btn-magic" style="width: 100%;" onclick="closeBuyCongrats()">حله!</button>
+        </div>
+    </div>
+
+    <!-- ==================== منوی اصلی ==================== -->
+    <div id="menu-page" class="screen active">
+        <div class="menu-bg">
+            <div class="magic-glow purple"></div>
+            <div class="magic-glow blue"></div>
+            <div class="magic-glow pink"></div>
+            <div class="floating-ingredient" style="--delay:0s; --x:15%;">🕌</div>
+            <div class="floating-ingredient" style="--delay:1.4s; --x:35%;">🌙</div>
+            <div class="floating-ingredient" style="--delay:2.8s; --x:55%;">⭐</div>
+            <div class="floating-ingredient" style="--delay:4.2s; --x:75%;">✨</div>
+        </div>
+        <div class="menu-container glass-card">
+            <div class="coin-display">
+                <span class="coin-amount" id="menu-coins">۰</span>
+                <img src="/games/assets/icons/coin.png" alt="سکه" class="coin-icon-img">
+            </div>
+            <div class="menu-title-banner">
+                <h1 class="game-title">سلام و علیکم</h1>
+                <p class="game-subtitle">بازی آموزشی قرآن کلاس اول</p>
+            </div>
+            <div class="character-wrapper">
+                <div class="character-frame">
+                    <div class="speech-bubble-inside">سلام! آماده‌ای بریم؟</div>
+                    <img src="/games/assets/icons/gamer.png" alt="همستر کوچولو" class="gamer-img">
+                </div>
+            </div>
+            <div class="menu-buttons">
+                <button class="btn btn-magic btn-large" onclick="startGame()"><span>🎮</span><span>شروع
+                        بازی</span></button>
+                <div class="secondary-buttons">
+                    <button class="btn btn-magic" onclick="showHelp()">راهنما</button>
+                    <button class="btn btn-magic" onclick="showShop()">فروشگاه</button>
+                </div>
+            </div>
+            <!-- <button class="reset-game-btn" onclick="confirmReset()">🔄 ریست بازی</button> -->
+        </div>
+    </div>
+
+    <!-- ==================== راهنما ==================== -->
+    <div id="help-page" class="screen">
+        <div class="help-cinematic-container">
+            <div class="gamer-aura-wrapper">
+                <img src="/games/assets/icons/gamerhi.png" alt="راهنما" class="help-gamer-img">
+            </div>
+            <div class="help-speech-bubble" id="help-speech-text">سلام! به بازی سلام و علیکم خوش اومدی! 👋</div>
+            <div class="help-nav">
+                <button class="next-help-btn" id="help-next-btn" onclick="nextHelpStep()">بعدی ←</button>
+            </div>
+            <div class="help-dots" id="help-dots"></div>
+            <button class="skip-help-btn" onclick="skipHelp()">رد کردن</button>
+        </div>
+    </div>
+
+    <!-- ==================== فروشگاه ==================== -->
+    <div id="shop-page" class="screen">
+        <div class="shop-container glass-card">
+            <div class="shop-header">
+                <button class="back-btn" onclick="goToMenu()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                </button>
+                <h2>🛍️ فروشگاه</h2>
+                <div class="coin-display inline">
+                    <span class="coin-amount" id="shop-coins" style="font-size:1rem;">۰</span>
+                    <img src="/games/assets/icons/coin.png" alt="سکه" class="coin-icon-img">
+                </div>
+            </div>
+            <p class="shop-hint">
+                با برنده شدن تو بازی، سکه بگیر و اینجا خرجش کن! 💰<br>
+                اکسسوری می‌خری و همه کاراکترها سرشون می‌ذارنش! 😍
+            </p>
+            <div class="shop-grid" id="shop-grid"></div>
+        </div>
+    </div>
+
+    <!-- ==================== بازی ==================== -->
+    <div id="game-page" class="screen">
+        <div class="game-interface">
+            <div class="game-header">
+                <button class="pause-btn" onclick="confirmExit()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M3 10.5L12 3l9 7.5" />
+                        <path d="M5 9.5V21h14V9.5" />
+                    </svg>
+                </button>
+                <div class="level-indicator">
+                    <span class="level-label">مرحله</span>
+                    <span class="level-num" id="current-level">۱</span>
+                    <span class="level-total">از ۵</span>
+                </div>
+                <div class="header-coin-display">
+                    <img src="/games/assets/icons/coin.png" alt="سکه" class="coin-icon-img">
+                    <span class="header-coin-value" id="coins-count">۰</span>
+                </div>
+            </div>
+            <div class="city-scene">
+                <div class="sky">
+                    <div class="cloud c1"></div>
+                    <div class="cloud c2"></div>
+                    <div class="cloud c3"></div>
+                    <div class="sun-bright"></div>
+                </div>
+                <div class="buildings-back">
+                    <div class="building b1"></div>
+                    <div class="building b2"></div>
+                    <div class="building b3"></div>
+                    <div class="building b4"></div>
+                    <div class="building b5"></div>
+                </div>
+                <div class="buildings-front">
+                    <div class="building-front bf1">
+                        <div class="window"></div>
+                        <div class="window"></div>
+                        <div class="door"></div>
+                    </div>
+                    <div class="building-front bf2">
+                        <div class="window"></div>
+                        <div class="window"></div>
+                        <div class="window"></div>
+                        <div class="door"></div>
+                    </div>
+                    <div class="building-front bf3">
+                        <div class="window"></div>
+                        <div class="window"></div>
+                        <div class="door"></div>
+                    </div>
+                </div>
+                <div class="trees">
+                    <div class="tree t1">
+                        <div class="trunk"></div>
+                        <div class="leaves"></div>
+                    </div>
+                    <div class="tree t2">
+                        <div class="trunk"></div>
+                        <div class="leaves"></div>
+                    </div>
+                    <div class="tree t3">
+                        <div class="trunk"></div>
+                        <div class="leaves"></div>
+                    </div>
+                </div>
+                <div class="characters-area" id="characters-area"></div>
+                <div class="ground"></div>
+            </div>
+            <div class="character-message" id="character-message">
+                <div class="message-bubble" id="message-bubble">
+                    <p id="message-text">سلام!</p>
+                </div>
+            </div>
+            <div class="selection-buttons" id="selection-buttons"></div>
+            <div class="greet-section" id="greet-section">
+                <p class="greet-prompt" id="greet-prompt">حالا تو هم سلام بده!</p>
+                <button class="greet-btn" id="greet-btn" onclick="performGreeting()">
+                    <span>🤲</span><span>سلام بده!</span>
+                </button>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+        <div class="result-message" id="result-message">
+            <div class="result-content">
+                <div class="result-emoji" id="result-emoji">🎉</div>
+                <p id="result-text">آفرین! درست بود!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== پایان بازی ==================== -->
+    <div id="end-page" class="screen">
+        <div class="result-card glass-card">
+            <div class="trophy-animation">
+                <div class="trophy">🏆</div>
+                <div class="confetti">
+                    <div class="confetti-piece cp1"></div>
+                    <div class="confetti-piece cp2"></div>
+                    <div class="confetti-piece cp3"></div>
+                    <div class="confetti-piece cp4"></div>
+                    <div class="confetti-piece cp5"></div>
+                </div>
+            </div>
+            <h2 class="result-title" id="end-title">تبریک! مرحله تمام شد!</h2>
+            <p class="result-subtitle" id="end-message">آفرین! حالا آماده مرحله بعد شو!</p>
+            <div class="end-buttons">
+                <button class="btn btn-magic btn-large" id="btn-next" onclick="nextLevel()"><span>مرحله
+                        بعد</span><span>←</span></button>
+                <button class="btn btn-magic" onclick="restartGame()"><span>🔄</span><span>شروع مجدد</span></button>
+                <button class="btn btn-magic" onclick="goToMenu()"><span>🏠</span><span>منوی اصلی</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال تأیید خروج -->
+    <div class="modal" id="exit-modal">
+        <div class="modal-content">
+            <h3>خروج از بازی؟</h3>
+            <p>آیا مطمئنی می‌خوای از بازی خارج بشی؟</p>
+            <div class="modal-buttons">
+                <button class="btn btn-magic" onclick="exitGame()">بله، خروج</button>
+                <button class="btn btn-magic" onclick="closeModal()">انصراف</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال تأیید ریست -->
+    <div class="modal" id="reset-modal">
+        <div class="modal-content">
+            <h3>🔄 ریست کل بازی؟</h3>
+            <p>سکه‌ها و خریدهای فروشگاهت <strong style="color:#ff8a95;">برای همیشه پاک</strong> می‌شن و از صفر شروع
+                می‌کنی!<br>مطمئنی؟</p>
+            <div class="modal-buttons">
+                <button class="btn btn-danger" onclick="doReset()">بله، ریست کن!</button>
+                <button class="btn btn-magic" onclick="closeResetModal()">انصراف</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/games/assets/luko-sdk.js"></script>
+<script>
+        // ============================================
+        // متغیرهای سراسری
+        // ============================================
+        let currentLevel = 1;
+        let gamePhase = 'idle';
+        let currentSpeaker = null;
+        let characters = [];
+        let selectedCharacter = null;
+        let audioContext = null;
+        let helpStepIndex = 0;
+
+        // تنظیمات هر مرحله (با ۴ کاراکتر)
+        const levelSettings = {
+            1: { characterCount: 2, greetingCount: 1 },
+            2: { characterCount: 3, greetingCount: 1 },
+            3: { characterCount: 3, greetingCount: 2 },
+            4: { characterCount: 4, greetingCount: 2 },
+            5: { characterCount: 4, greetingCount: 3 }  // همه کاراکترها!
+        };
+
+        // کاراکترهای بازی (۴ کاراکتر) — هر کدوم صدای مخصوص خودش رو داره
+        const characterData = [
+            {
+                id: 'hamster',
+                name: 'همستر کوچولو',
+                image: '/games/assets/icons/hamester.png',
+                voice: '/games/assets/musics/girl1.mp3',
+                phrases: ['سلام! خوبی؟', 'سلام علیکم!', 'سلام رفیق کوچولو!']
+            },
+            {
+                id: 'rabbit',
+                name: 'خرگوشک',
+                image: '/games/assets/icons/4.png',
+                voice: '/games/assets/musics/girl2.mp3',
+                phrases: ['سلام! خوبی؟', 'سلام علیکم!', 'سلام بر تو!']
+            },
+            {
+                id: 'horse',
+                name: 'اسب تیزپا',
+                image: '/games/assets/icons/asb.png',
+                voice: '/games/assets/musics/man1.mp3',
+                phrases: ['سلام! خوش اومدی!', 'سلام علیکم!', 'سلام دوست من!']
+            },
+            {
+                id: 'monkey',
+                name: 'میمون بازیگوش',
+                image: '/games/assets/icons/6.png',
+                voice: '/games/assets/musics/man2.mp3',
+                phrases: ['سلام! هاها!', 'سلام علیکم!', 'سلام رفیق!']
+            }
+        ];
+
+        // ============================================
+        // 🔊 پخش صدای سلام (هر کاراکتر صدای خودش)
+        // ============================================
+        const voiceAudio = new Audio();
+
+        // پخش صدای سلام کاراکتر:
+        function playSalamSound(voiceFile) {
+            return new Promise(resolve => {
+                let audioDone = false;
+                let minTimeDone = false;
+                let resolved = false;
+
+                const finish = () => {
+                    if (resolved) return;
+                    resolved = true;
+                    voiceAudio.onended = null;
+                    voiceAudio.onerror = null;
+                    resolve();
+                };
+
+                const check = () => {
+                    if (audioDone && minTimeDone) finish();
+                };
+
+                // حداقل زمان نمایش صحبت کاراکتر
+                setTimeout(() => { minTimeDone = true; check(); }, 1500);
+
+                // سقف امنیت: حداکثر ۸ ثانیه صبر
+                setTimeout(finish, 8000);
+
+                try {
+                    voiceAudio.src = voiceFile;
+                    voiceAudio.currentTime = 0;
+                    voiceAudio.onended = () => { audioDone = true; check(); };
+                    voiceAudio.onerror = () => { audioDone = true; check(); };
+
+                    const playPromise = voiceAudio.play();
+                    if (playPromise) {
+                        playPromise.catch(() => { audioDone = true; check(); });
+                    }
+                } catch (e) {
+                    audioDone = true;
+                    check();
+                }
+            });
+        }
+
+        // ============================================
+        // ذخیره‌سازی (Storage)
+        // ============================================
+        const STORAGE_KEY = 'salamShop_v3';
+
+        let shopData = {
+            coins: 0,
+            owned: [],
+            equipped: null
+        };
+
+        function loadShopData() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                if (saved && typeof saved.coins === 'number' && Array.isArray(saved.owned)) {
+                    shopData = saved;
+                }
+            } catch (e) { }
+        }
+
+        function saveShopData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(shopData));
+        }
+
+        function addCoins(count) {
+            shopData.coins += count;
+            saveShopData();
+            updateAllCoinDisplays();
+        }
+
+        function updateAllCoinDisplays() {
+            const menuEl = document.getElementById('menu-coins');
+            if (menuEl) menuEl.textContent = toPersianNumber(shopData.coins);
+            const gameEl = document.getElementById('coins-count');
+            if (gameEl) gameEl.textContent = toPersianNumber(shopData.coins);
+            const shopEl = document.getElementById('shop-coins');
+            if (shopEl) shopEl.textContent = toPersianNumber(shopData.coins);
+        }
+
+        // ============================================
+        // ریست کامل بازی
+        // ============================================
+        function confirmReset() {
+            playSound('click');
+            document.getElementById('reset-modal').classList.add('show');
+        }
+
+        function closeResetModal() {
+            document.getElementById('reset-modal').classList.remove('show');
+        }
+
+        function doReset() {
+            shopData = {
+                coins: 0,
+                owned: [],
+                equipped: null
+            };
+            saveShopData();
+
+            currentLevel = 1;
+            gamePhase = 'idle';
+
+            closeResetModal();
+            updateAllCoinDisplays();
+            goToMenu();
+
+            playSound('lose');
+            showToast('🔄 همه چیز ریست شد! از صفر شروع کن!', 'success');
+        }
+
+        // ============================================
+        // توابع کمکی
+        // ============================================
+        function toPersianNumber(num) {
+            const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+            return num.toString().replace(/\d/g, d => persianDigits[d]);
+        }
+
+        function randomChoice(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function shuffleArray(arr) {
+            const shuffled = [...arr];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // ============================================
+        // صداها (بدون فایل - با WebAudio)
+        // ============================================
+        function initAudio() {
+            if (!audioContext) {
+                try { audioContext = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { }
+            }
+            if (audioContext && audioContext.state === 'suspended') audioContext.resume();
+        }
+
+        function playTone(frequency, duration = 0.1, type = 'sine', volume = 0.2) {
+            if (!audioContext) return;
+            try {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.frequency.value = frequency;
+                osc.type = type;
+                gain.gain.setValueAtTime(volume, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                osc.start();
+                osc.stop(audioContext.currentTime + duration);
+            } catch (e) { }
+        }
+
+        function playSound(type) {
+            if (!audioContext) return;
+            if (type === 'click') playTone(600, 0.05, 'sine', 0.15);
+            else if (type === 'win') [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => playTone(f, 0.15, 'sine', 0.2), i * 100));
+            else if (type === 'lose') [400, 300, 200].forEach((f, i) => setTimeout(() => playTone(f, 0.2, 'sawtooth', 0.2), i * 150));
+            else if (type === 'countdown') playTone(500, 0.2, 'sine', 0.3);
+            else if (type === 'correct') playTone(880, 0.1, 'sine', 0.25);
+            else if (type === 'wrong') playTone(200, 0.25, 'sawtooth', 0.25);
+        }
+
+        // ============================================
+        // Toast (نوتیفیکیشن)
+        // ============================================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        // ============================================
+        // مدیریت صفحات
+        // ============================================
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function goToMenu() {
+            updateAllCoinDisplays();
+            showScreen('menu-page');
+        }
+
+        // ============================================
+        // راهنما (با دکمه بعدی)
+        // ============================================
+        const helpSteps = [
+            "سلام! به بازی سلام و علیکم خوش اومدی! 👋",
+            "کاراکترها بهت سلام می‌دن، تو باید بفهمی کی سلام داده! 👂",
+            "اگه درست حدس بزنی و برنده بشی، سکه می‌گیری! 🪙",
+            "با سکه‌ها می‌تونی از فروشگاه خرید کنی. بریم! 🚀"
+        ];
+
+        function showHelp() {
+            initAudio();
+            helpStepIndex = 0;
+            const speechText = document.getElementById('help-speech-text');
+            speechText.style.opacity = '1';
+            speechText.innerHTML = helpSteps[0];
+            updateHelpUI();
+            showScreen('help-page');
+        }
+
+        function nextHelpStep() {
+            playSound('click');
+            helpStepIndex++;
+
+            if (helpStepIndex >= helpSteps.length) {
+                finishHelp();
+                return;
+            }
+
+            const speechText = document.getElementById('help-speech-text');
+            speechText.style.opacity = '0';
+            setTimeout(() => {
+                speechText.innerHTML = helpSteps[helpStepIndex];
+                speechText.style.opacity = '1';
+            }, 250);
+
+            updateHelpUI();
+        }
+
+        function updateHelpUI() {
+            const btn = document.getElementById('help-next-btn');
+            if (helpStepIndex >= helpSteps.length - 1) {
+                btn.textContent = 'تمام! 🏠';
+            } else {
+                btn.textContent = 'بعدی ←';
+            }
+
+            const dots = document.getElementById('help-dots');
+            dots.innerHTML = '';
+            helpSteps.forEach((_, i) => {
+                const dot = document.createElement('div');
+                dot.className = 'help-dot' + (i === helpStepIndex ? ' active' : '');
+                dots.appendChild(dot);
+            });
+        }
+
+        function skipHelp() {
+            finishHelp();
+        }
+
+        function finishHelp() {
+            goToMenu();
+        }
+
+        // ============================================
+        // فروشگاه
+        // ============================================
+        // 💰 قیمت‌ها بین ۸ تا ۱۵ سکه
+        const shopItems = [
+            { id: 'cap', emoji: '🎩', name: 'کلاه فاخر', price: 8 },
+            { id: 'rose', emoji: '🌹', name: 'گل سرخ', price: 10 },
+            { id: 'ribbon', emoji: '🎀', name: 'پاپیون شیک', price: 11 },
+            { id: 'crescent', emoji: '🌙', name: 'هلال ماه', price: 12 },
+            { id: 'star', emoji: '⭐', name: 'ستاره درخشان', price: 14 },
+            { id: 'crown', emoji: '👑', name: 'تاج پادشاهی', price: 15 }
+        ];
+
+        function getEquippedItem() {
+            return shopItems.find(item => item.id === shopData.equipped) || null;
+        }
+
+        function showShop() {
+            initAudio();
+            renderShop();
+            showScreen('shop-page');
+        }
+
+        function renderShop() {
+            updateAllCoinDisplays();
+            const grid = document.getElementById('shop-grid');
+            grid.innerHTML = '';
+
+            shopItems.forEach(item => {
+                const isOwned = shopData.owned.includes(item.id);
+                const isEquipped = shopData.equipped === item.id;
+
+                const card = document.createElement('div');
+                card.className = `shop-item ${isEquipped ? 'active-item' : ''}`;
+
+                card.innerHTML = `
+            <div class="shop-item-icon">${item.emoji}</div>
+            <div class="shop-item-name">${item.name}</div>
+            <div class="shop-item-price">
+                <img src="/games/assets/icons/coin.png" alt="سکه">
+                <span>${toPersianNumber(item.price)}</span>
+            </div>
+        `;
+
+                const btn = document.createElement('button');
+
+                if (isEquipped) {
+                    btn.className = 'shop-btn active';
+                    btn.textContent = 'فعال ✓';
+                    btn.addEventListener('click', () => unequipItem(item.id));
+                } else if (isOwned) {
+                    btn.className = 'shop-btn select';
+                    btn.textContent = 'انتخاب';
+                    btn.addEventListener('click', () => equipItem(item.id));
+                } else {
+                    const canAfford = shopData.coins >= item.price;
+                    if (canAfford) {
+                        btn.className = 'shop-btn buy';
+                        btn.textContent = 'خرید';
+                        btn.addEventListener('click', () => buyItem(item.id));
+                    } else {
+                        btn.className = 'shop-btn select';
+                        btn.style.opacity = '0.4';
+                        btn.style.cursor = 'not-allowed';
+                        btn.textContent = 'قفل';
+                        btn.addEventListener('click', () => {
+                            const needed = item.price - shopData.coins;
+                            playSound('wrong');
+                            showToast(`سکه کافی نداری! ${toPersianNumber(needed)} تا کم داری 😢`, 'error');
+                        });
+                    }
+                }
+
+                card.appendChild(btn);
+                grid.appendChild(card);
+            });
+        }
+
+        function buyItem(itemId) {
+            const item = shopItems.find(i => i.id === itemId);
+            if (shopData.owned.includes(itemId)) return;
+
+            if (shopData.coins < item.price) {
+                const needed = item.price - shopData.coins;
+                playSound('wrong');
+                showToast(`سکه کافی نداری! ${toPersianNumber(needed)} تا کم داری 😢`, 'error');
+                return;
+            }
+
+            shopData.coins -= item.price;
+            shopData.owned.push(itemId);
+            shopData.equipped = itemId;
+            saveShopData();
+            updateAllCoinDisplays();
+            playSound('win');
+
+            document.getElementById('congrats-emoji').textContent = item.emoji;
+            document.getElementById('buy-congrats').classList.add('active');
+            renderShop();
+        }
+
+        function closeBuyCongrats() {
+            document.getElementById('buy-congrats').classList.remove('active');
+        }
+
+        function equipItem(itemId) {
+            shopData.equipped = itemId;
+            saveShopData();
+            playSound('click');
+            showToast('اکسسوری فعال شد! ✨', 'success');
+            renderShop();
+        }
+
+        function unequipItem(itemId) {
+            if (shopData.equipped === itemId) {
+                shopData.equipped = null;
+                saveShopData();
+                playSound('click');
+                showToast('اکسسوری برداشته شد', 'success');
+            }
+            renderShop();
+        }
+
+        // ============================================
+        // مدیریت بازی
+        // ============================================
+        function startGame() {
+            initAudio();
+            currentLevel = 1;
+            showScreen('game-page');
+            initLevel();
+        }
+
+        function initLevel() {
+            const settings = levelSettings[currentLevel];
+
+            gamePhase = 'listening';
+            selectedCharacter = null;
+
+            document.getElementById('current-level').textContent = toPersianNumber(currentLevel);
+            document.getElementById('progress-bar').style.width = '0%';
+            updateAllCoinDisplays();
+
+            document.getElementById('result-message').classList.remove('show');
+            document.getElementById('greet-section').classList.remove('show');
+            document.getElementById('selection-buttons').classList.remove('show');
+            document.getElementById('selection-buttons').innerHTML = '';
+            document.getElementById('message-text').textContent = 'گوش بده...';
+
+            const shuffledChars = shuffleArray(characterData);
+            characters = shuffledChars.slice(0, settings.characterCount);
+
+            renderCharacters();
+
+            startCountdown(() => playGreetings());
+        }
+
+        function startCountdown(callback) {
+            const overlay = document.getElementById('countdown-overlay');
+            overlay.classList.add('active');
+            let count = 3;
+            overlay.textContent = toPersianNumber(count);
+            playSound('countdown');
+            const interval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    overlay.textContent = toPersianNumber(count);
+                    playSound('countdown');
+                } else if (count === 0) {
+                    overlay.textContent = 'بریم!';
+                    playSound('win');
+                } else {
+                    clearInterval(interval);
+                    overlay.classList.remove('active');
+                    callback();
+                }
+            }, 800);
+        }
+
+        function renderCharacters() {
+            const area = document.getElementById('characters-area');
+            area.innerHTML = '';
+
+            const equippedAccessory = getEquippedItem();
+
+            characters.forEach((char, index) => {
+                const charEl = document.createElement('div');
+                charEl.className = 'character';
+                charEl.id = `char-${char.id}`;
+                charEl.dataset.id = char.id;
+
+                charEl.innerHTML = `
+            <div class="character-body">
+                ${equippedAccessory ? `<div class="char-accessory">${equippedAccessory.emoji}</div>` : ''}
+                <img src="${char.image}" alt="${char.name}" class="character-img">
+            </div>
+            <div class="character-name">${char.name}</div>
+        `;
+
+                charEl.querySelector('.character-body').style.animationDelay = `${index * 0.15}s`;
+
+                charEl.addEventListener('click', () => selectCharacter(char.id));
+                area.appendChild(charEl);
+            });
+        }
+
+        async function playGreetings() {
+            const settings = levelSettings[currentLevel];
+
+            const shuffledChars = shuffleArray([...characters]);
+            const speakers = shuffledChars.slice(0, settings.greetingCount);
+
+            document.getElementById('message-text').textContent = 'به حرف‌ها گوش بده!';
+
+            await delay(1000);
+
+            for (let i = 0; i < speakers.length; i++) {
+                const char = speakers[i];
+                const charEl = document.getElementById(`char-${char.id}`);
+                const phrase = randomChoice(char.phrases);
+
+                // حالت صحبت کردن
+                charEl.classList.add('speaking');
+
+                // نمایش پیام همراه با عکس کاراکتر
+                document.getElementById('message-text').innerHTML =
+                    `<img src="${char.image}" class="msg-char-img" alt="${char.name}"> ${char.name}: «${phrase}»`;
+
+                // 🔊 پخش صدای سلام مخصوص همون کاراکتر — تا آخرین لحظه صدا صبر می‌کنیم
+                await playSalamSound(char.voice);
+
+                // پایان صحبت
+                charEl.classList.remove('speaking');
+
+                await delay(500);
+            }
+
+            currentSpeaker = speakers;
+            gamePhase = 'answering';
+
+            showSelectionButtons();
+        }
+
+        function showSelectionButtons() {
+            const buttonsContainer = document.getElementById('selection-buttons');
+            buttonsContainer.innerHTML = '';
+
+            const shuffledChars = shuffleArray([...characters]);
+
+            shuffledChars.forEach(char => {
+                const btn = document.createElement('button');
+                btn.className = 'selection-btn';
+                btn.dataset.id = char.id;
+                btn.innerHTML = `
+            <img src="${char.image}" class="btn-char-img" alt="${char.name}">
+            <span>${char.name}</span>
+        `;
+                btn.addEventListener('click', () => checkAnswer(char.id));
+                buttonsContainer.appendChild(btn);
+            });
+
+            buttonsContainer.classList.add('show');
+            document.getElementById('message-text').textContent = 'کدوم کاراکتر سلام داد؟ 🤔';
+        }
+
+        function selectCharacter(charId) {
+            if (gamePhase !== 'answering') return;
+
+            document.querySelectorAll('.character').forEach(c => c.classList.remove('selected'));
+
+            const charEl = document.getElementById(`char-${charId}`);
+            charEl.classList.add('selected');
+            selectedCharacter = charId;
+
+            checkAnswer(charId);
+        }
+
+        function checkAnswer(charId) {
+            if (gamePhase !== 'answering') return;
+
+            gamePhase = 'checking';
+
+            const isCorrect = currentSpeaker.some(s => s.id === charId);
+            LUKO.answer({ topic: 'listen', topicLabel: 'شنیدن و تشخیص', correct: isCorrect,
+                          given: charId, tier: (typeof currentLevel!=='undefined'?currentLevel:1) });
+            const charEl = document.getElementById(`char-${charId}`);
+            const btn = document.querySelector(`.selection-btn[data-id="${charId}"]`);
+
+            if (isCorrect) {
+                playSound('correct');
+
+                document.getElementById('progress-bar').style.width = '50%';
+
+                charEl.classList.add('correct');
+                if (btn) btn.classList.add('correct');
+
+                createCelebrationParticles(charEl);
+                showResult(true);
+
+                currentSpeaker.forEach(s => {
+                    const sEl = document.getElementById(`char-${s.id}`);
+                    sEl.classList.add('happy');
+                });
+
+                setTimeout(() => {
+                    showGreetSection();
+                }, 1500);
+
+            } else {
+                playSound('wrong');
+
+                charEl.classList.add('wrong');
+                if (btn) btn.classList.add('wrong');
+
+                showResult(false);
+                charEl.classList.add('sad');
+
+                setTimeout(() => {
+                    currentSpeaker.forEach(s => {
+                        const sEl = document.getElementById(`char-${s.id}`);
+                        sEl.classList.add('happy');
+                    });
+
+                    setTimeout(() => {
+                        showGreetSection();
+                    }, 1000);
+                }, 1500);
+            }
+        }
+
+        function showResult(isCorrect) {
+            const resultMsg = document.getElementById('result-message');
+            const resultEmoji = document.getElementById('result-emoji');
+            const resultText = document.getElementById('result-text');
+
+            if (isCorrect) {
+                resultEmoji.textContent = '🎉';
+                resultText.textContent = 'آفرین! درست بود!';
+                resultText.style.color = 'var(--gold)';
+            } else {
+                resultEmoji.textContent = '😢';
+                resultText.textContent = 'اشتباه بود! دوباره تلاش کن!';
+                resultText.style.color = 'var(--danger)';
+            }
+
+            resultMsg.classList.add('show');
+
+            setTimeout(() => {
+                resultMsg.classList.remove('show');
+            }, 1500);
+        }
+
+        function showGreetSection() {
+            gamePhase = 'greeting';
+
+            document.getElementById('selection-buttons').classList.remove('show');
+            document.getElementById('selection-buttons').innerHTML = '';
+
+            const greetSection = document.getElementById('greet-section');
+            const greetPrompt = document.getElementById('greet-prompt');
+
+            if (currentSpeaker.length > 1) {
+                greetPrompt.textContent = 'حالا به همه‌شون سلام علیکم بگو!';
+            } else {
+                greetPrompt.textContent = `حالا تو هم به ${currentSpeaker[0].name} سلام علیکم بگو!`;
+            }
+
+            greetSection.classList.add('show');
+        }
+
+        async function performGreeting() {
+            const greetBtn = document.getElementById('greet-btn');
+            const greetPrompt = document.getElementById('greet-prompt');
+
+            greetBtn.classList.add('animate');
+            greetPrompt.textContent = 'علیکم السلام! 🤲';
+
+            document.getElementById('progress-bar').style.width = '100%';
+
+            currentSpeaker.forEach(s => {
+                const sEl = document.getElementById(`char-${s.id}`);
+                sEl.classList.remove('sad');
+                sEl.classList.add('happy');
+            });
+
+            await delay(1500);
+
+            completeLevel();
+        }
+
+        function completeLevel(/*luko*/) { LUKO.finish({}); return __completeLevel.apply(this, arguments); }
+function __completeLevel() {
+            gamePhase = 'complete';
+            
+            // نحوه امتیازدهی برنده شدن در مرحله/بازی:
+            // اگر 0 سکه داشت و برنده شد -> 10 سکه میگیره
+            // اگر بیشتر از 0 سکه داشت -> 1 سکه میگیره
+            let rewardAmount = (shopData.coins === 0) ? 10 : 1;
+            addCoins(rewardAmount);
+            playSound('win');
+            showToast(`🎁 پاداش برنده شدن! ${toPersianNumber(rewardAmount)} سکه گرفتی!`, 'success');
+
+            const btnNext = document.getElementById('btn-next');
+
+            if (currentLevel >= 5) {
+                document.getElementById('end-title').textContent = '🎊 تبریک! بازی تمام شد!';
+                document.getElementById('end-message').textContent = 'تو همه مراحل را با موفقیت پشت سر گذاشتی!';
+                btnNext.innerHTML = '<span>🔄</span><span>بازی مجدد</span>';
+                btnNext.onclick = restartGame;
+            } else {
+                document.getElementById('end-title').textContent = 'تبریک! مرحله تمام شد!';
+                document.getElementById('end-message').textContent = 'آفرین! حالا آماده مرحله بعد شو!';
+                btnNext.innerHTML = '<span>مرحله بعد</span><span>←</span>';
+                btnNext.onclick = nextLevel;
+            }
+
+            showScreen('end-page');
+        }
+
+        function nextLevel() {
+            if (currentLevel < 5) {
+                currentLevel++;
+                showScreen('game-page');
+                initLevel();
+            }
+        }
+
+        function restartGame() {
+            currentLevel = 1;
+            showScreen('game-page');
+            initLevel();
+        }
+
+        // ============================================
+        // ذرات جشن
+        // ============================================
+        function createCelebrationParticles(element) {
+            const rect = element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const colors = ['#FFC93C', '#FFD966', '#ffae00', '#FFEB99', '#E8A800', '#ffffff'];
+
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'celebration-particle';
+                particle.style.left = centerX + 'px';
+                particle.style.top = centerY + 'px';
+                particle.style.background = randomChoice(colors);
+
+                const angle = (Math.PI * 2 * i) / 15;
+                const distance = 50 + Math.random() * 100;
+                particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+
+                document.body.appendChild(particle);
+
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+
+        // ============================================
+        // مدیریت خروج
+        // ============================================
+        function confirmExit() {
+            document.getElementById('exit-modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('exit-modal').classList.remove('show');
+        }
+
+        function exitGame() {
+            closeModal();
+            goToMenu();
+        }
+
+        // ============================================
+        // ستاره‌های متحرک (پس‌زمینه)
+        // ============================================
+        function initStarfield() {
+            const canvas = document.getElementById('starfield-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width, height, particles;
+
+            const resize = () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+                particles = [];
+                const count = (width * height) / 6000;
+                for (let i = 0; i < count; i++) {
+                    particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 3 + 1,
+                        speed: Math.random() * 1 + 0.5,
+                        opacity: Math.random() * 0.5 + 0.3
+                    });
+                }
+            };
+
+            const animate = () => {
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                particles.forEach(p => {
+                    ctx.globalAlpha = p.opacity;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    p.y += p.speed;
+                    p.x += Math.sin(p.y * 0.01) * 0.5;
+                    if (p.y > height) { p.y = -5; p.x = Math.random() * width; }
+                });
+                ctx.globalAlpha = 1;
+                requestAnimationFrame(animate);
+            };
+
+            window.addEventListener('resize', resize);
+            resize();
+            animate();
+        }
+
+        // ============================================
+        // شروع اولیه
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 🧹 پاک کردن داده‌های نسخه‌های قبلی
+            localStorage.removeItem('salamStats');
+            localStorage.removeItem('salamShop');
+            localStorage.removeItem('salamShop2');
+
+            loadShopData();
+            updateAllCoinDisplays();
+            initStarfield();
+
+            // فعال‌سازی صدا با اولین لمس/کلیک
+            const unlockAudio = () => {
+                initAudio();
+                document.removeEventListener('click', unlockAudio);
+                document.removeEventListener('touchstart', unlockAudio);
+            };
+            document.addEventListener('click', unlockAudio);
+            document.addEventListener('touchstart', unlockAudio);
+
+            // جلوگیری از زوم دو انگشتی
+            document.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 1) e.preventDefault();
+            }, { passive: false });
+        });
+    </script>
+</body>
+
+</html>

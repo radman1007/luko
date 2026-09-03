@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a14">
+<title>نعمت‌یاب | LOKO System</title>
+<style>
+:root {
+  --primary: #6C5CE7; --neon-blue: #00D2FF; --neon-pink: #FF00A0;
+  --neon-green: #00FF9D; --accent: #FFEAA7; --success: #00B894;
+  --danger: #FF7675; --dark: #1E1E2F; --gold: #FFC93C;
+  --gold-dark: #B96F00; --text: #FFFFFF; --text-soft: #E0E0E0;
+  --text-muted: #A0A0B0; --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+}
+
+@font-face { font-family: "Shoor"; src: url("/games/assets/fonts/Shoor-Regular.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Shoor"; src: url("/games/assets/fonts/Shoor-Black.woff2") format("woff2"); font-weight: 900; }
+@font-face { font-family: "Shoor Rounded"; src: url("/games/assets/fonts/ShoorRounded-Regular.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Shoor Rounded"; src: url("/games/assets/fonts/ShoorRounded-Black.woff2") format("woff2"); font-weight: 900; }
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+html, body { width: 100%; height: 100%; overflow: hidden; font-family: var(--font); background: #0c0a14; color: var(--text); overscroll-behavior: none; touch-action: manipulation; }
+#app { position: relative; width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; background: linear-gradient(135deg, #0c0a14, #181225); display: flex; justify-content: center; }
+.app-wrapper { width: 100%; max-width: 480px; height: 100%; position: relative; overflow: hidden; background: radial-gradient(circle at 10% 20%, rgba(108, 92, 231, 0.2) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(0, 210, 255, 0.15) 0%, transparent 40%), linear-gradient(135deg, #0c0a14, #181225); }
+
+/* === Animations & Effects === */
+.bg-particles { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.particle { position: absolute; bottom: -10px; width: 6px; height: 6px; background: var(--primary); border-radius: 50%; opacity: 0.3; animation: float-up linear infinite; }
+@keyframes float-up { 0% { transform: translateY(0) scale(1); opacity: 0; } 10% { opacity: 0.4; } 90% { opacity: 0.4; } 100% { transform: translateY(-100vh) scale(0.5); opacity: 0; } }
+
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; transform: scale(0.98); z-index: 1; overflow-y: auto; }
+.screen.active { opacity: 1; pointer-events: auto; transform: scale(1); }
+.glass { background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-soft); }
+
+/* === Coin Display === */
+.coin-display { position: fixed; top: 20px; left: 20px; display: flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px 16px 8px 12px; border-radius: 50px; box-shadow: 0 4px 15px rgba(255, 201, 60, 0.3); z-index: 100; }
+.coin-display.pulse { animation: coin-pulse 0.4s ease; }
+@keyframes coin-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); box-shadow: 0 0 20px var(--gold); } }
+.coin-icon-img { width: 24px; height: 24px; }
+.coin-amount { font-weight: 800; color: var(--gold); font-size: 18px; }
+.game-screen .coin-display.hide { display: none; }
+
+/* === Main Menu === */
+.menu-screen { align-items: center; justify-content: center; text-align: center; }
+.game-title { background: linear-gradient(180deg, #FFFFFF 0%, var(--neon-blue) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-size: 42px; font-weight: 900; margin-bottom: 30px; filter: drop-shadow(0 4px 10px rgba(0, 210, 255, 0.3)); }
+.speech-bubble { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px 20px 20px 4px; padding: 12px 20px; color: var(--text); font-size: 15px; margin-bottom: 15px; box-shadow: var(--shadow-soft); animation: pop-in 0.5s ease; }
+@keyframes pop-in { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.pixel-character { width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle, rgba(108, 92, 231, 0.3) 0%, transparent 70%); display: flex; align-items: center; justify-content: center; margin-bottom: 40px; animation: float-char 3s ease-in-out infinite; }
+@keyframes float-char { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.pixel-character img, .pixel-character svg { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 15px rgba(108, 92, 231, 0.5)); }
+
+/* === Buttons === */
+.btn { border: none; outline: none; cursor: pointer; font-family: inherit; font-weight: 800; transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text); border-radius: 16px; }
+.btn:active { transform: translateY(4px); }
+.btn-primary { background: linear-gradient(180deg, #FFE68A 0%, var(--gold) 45%, var(--gold-dark) 100%); color: var(--dark); padding: 16px 36px; font-size: 18px; font-weight: 900; border-radius: 16px; box-shadow: 0 6px 0 #8a5200, 0 10px 20px rgba(255, 201, 60, 0.4); width: 100%; max-width: 320px; }
+.btn-primary:active { box-shadow: 0 2px 0 #8a5200, 0 3px 5px rgba(255, 201, 60, 0.4); }
+.btn-row { display: flex; gap: 12px; margin-top: 14px; width: 100%; max-width: 320px; }
+.btn-secondary { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 12px 18px; font-size: 14px; font-weight: 700; flex: 1; color: var(--gold); box-shadow: 0 4px 0 rgba(0,0,0,0.3); border-radius: 12px; }
+.btn-secondary:active { box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
+.btn-back { position: absolute; top: 20px; right: 20px; background: rgba(255, 118, 117, 0.2); border: 1px solid var(--danger); color: var(--danger); padding: 8px 16px; border-radius: 50px; font-size: 13px; z-index: 50; box-shadow: 0 3px 0 rgba(0,0,0,0.3); }
+.btn-success { background: linear-gradient(180deg, #00FF9D 0%, #00B894 100%); color: var(--dark); box-shadow: 0 6px 0 #00705a; width: 100%; max-width: 320px; padding: 16px; font-size: 18px; font-weight: 900; border-radius: 16px; margin-bottom: 10px; }
+.btn-danger { background: rgba(255, 118, 117, 0.15); border: 2px solid var(--danger); color: var(--danger); box-shadow: 0 4px 0 rgba(0,0,0,0.3); width: 100%; max-width: 320px; padding: 12px; font-weight: 800; border-radius: 16px; }
+
+/* === Level Screen === */
+.level-screen { padding-top: 80px; }
+.level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 10px; }
+.level-card { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; border-radius: 16px; position: relative; transition: transform 0.2s; }
+.level-card:active { transform: scale(0.95); }
+.level-card.locked { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.05); }
+.level-card.unlocked { background: var(--glass-bg); border: 2px solid var(--gold); color: var(--gold); box-shadow: 0 0 15px rgba(255, 201, 60, 0.2); animation: pulse-glow 3s infinite; }
+.level-card.current { border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: 0 0 20px var(--neon-blue); }
+@keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 10px rgba(255, 201, 60, 0.2); } 50% { box-shadow: 0 0 25px rgba(255, 201, 60, 0.6); } }
+.level-card.completed::after { content: '✓'; position: absolute; top: 5px; left: 5px; background: var(--neon-green); color: #000; width: 20px; height: 20px; border-radius: 50%; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+
+/* === Shop Screen === */
+.shop-screen { padding-top: 80px; }
+.shop-tabs { display: flex; background: var(--glass-bg); border-radius: 50px; padding: 5px; margin-bottom: 18px; border: 1px solid var(--glass-border); gap: 4px; }
+.shop-tab { flex: 1; background: transparent; border: none; color: var(--text-soft); padding: 10px; border-radius: 50px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.25s ease; }
+.shop-tab.active { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--dark); box-shadow: 0 4px 12px rgba(255, 201, 60, 0.3); }
+.shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding-bottom: 20px; }
+.shop-item { background: var(--glass-bg); border: 1.5px solid var(--glass-border); border-radius: 16px; padding: 16px 12px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.shop-item.active { border-color: var(--gold); box-shadow: 0 0 20px rgba(255, 201, 60, 0.4); }
+.shop-item-preview { width: 50px; height: 50px; border-radius: 12px; background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
+.shop-item-name { font-size: 13px; color: var(--text); font-weight: 700; text-align: center; }
+.shop-item-price { color: var(--gold-light); font-weight: 800; font-size: 13px; }
+.shop-item-btn { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--dark); border: none; padding: 8px 16px; border-radius: 50px; font-family: inherit; font-weight: 800; font-size: 12px; cursor: pointer; width: 100%; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+
+/* === Game UI === */
+.game-screen { padding: 0; }
+.game-top-bar { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 50; }
+.game-timer { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 8px 16px; border-radius: 50px; font-weight: 800; color: var(--neon-blue); display: flex; align-items: center; gap: 6px; font-size: 16px; transition: all 0.3s; }
+.game-timer.urgent { color: var(--danger); border-color: var(--danger); animation: shake 0.5s infinite; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+.stop-btn { background: rgba(255, 118, 117, 0.2); border: 1px solid var(--danger); color: var(--danger); padding: 8px 16px; border-radius: 50px; font-weight: 700; box-shadow: 0 3px 0 rgba(0,0,0,0.3); display: flex; align-items: center; gap: 6px; }
+
+.factory-area { position: absolute; inset: 0; overflow: hidden; }
+.conveyor-belt { position: absolute; bottom: 80px; left: 0; right: 0; height: 60px; background: linear-gradient(180deg, #1E1E2F 0%, #111118 100%); border-top: 4px solid var(--primary); box-shadow: 0 -5px 20px rgba(108, 92, 231, 0.3); overflow: hidden; }
+.conveyor-belt::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0, transparent 30px, rgba(108, 92, 231, 0.2) 30px, rgba(108, 92, 231, 0.2) 60px); animation: belt-scroll 1s linear infinite; }
+@keyframes belt-scroll { from { transform: translateX(0); } to { transform: translateX(-60px); } }
+
+#gameArea { position: absolute; bottom: 140px; left: 0; right: 0; height: 100px; pointer-events: none; z-index: 10; }
+.emoji-item { position: absolute; right: -100px; bottom: 10px; width: 80px; height: 80px; background: var(--glass-bg); backdrop-filter: blur(10px); border-radius: 16px; border: 2px solid var(--glass-border); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-soft); pointer-events: auto; will-change: transform; animation: spawn-in 0.3s ease-out; }
+@keyframes spawn-in { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.emoji-inner { display: flex; flex-direction: column; align-items: center; animation: bob 1.2s ease-in-out infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.emoji-item:active .emoji-inner { transform: scale(0.9); }
+.emoji-item.correct .emoji-inner { animation: correct-pop 0.5s forwards; }
+.emoji-item.wrong .emoji-inner { animation: wrong-shake 0.4s forwards; }
+@keyframes correct-pop { 0% { transform: scale(1); } 40% { transform: scale(1.3); box-shadow: 0 0 30px var(--success); } 100% { transform: scale(0); opacity: 0; } }
+@keyframes wrong-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+.emoji-char { font-size: 36px; }
+.emoji-name { font-size: 11px; color: var(--text-soft); text-align: center; margin-top: 2px; }
+
+/* === Modals & Toast === */
+.modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+.modal-card { padding: 30px; width: 100%; max-width: 340px; text-align: center; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.modal-overlay.active .modal-card { transform: scale(1); }
+.tutorial-card { max-width: 320px; }
+.tutorial-char { width: 80px; height: 80px; margin: 0 auto 16px; border-radius: 50%; overflow: hidden; }
+.tutorial-message { margin-bottom: 14px; line-height: 1.6; font-weight: 500; font-size: 15px; }
+.tutorial-hint { font-size: 22px; margin-bottom: 24px; }
+.tutorial-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
+.tutorial-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: all 0.3s; }
+.tutorial-dot.active { background: var(--neon-green); width: 24px; border-radius: 4px; }
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(30, 30, 47, 0.95); border: 1px solid var(--primary); padding: 12px 24px; border-radius: 50px; z-index: 10001; transition: transform 0.3s; box-shadow: 0 0 20px rgba(108, 92, 231, 0.3); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="app-wrapper">
+    
+    <div class="bg-particles" id="particles"></div>
+    
+    <div class="coin-display" id="coinCounter">
+      <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="coin" onerror="this.style.display='none'; document.getElementById('svgCoin').style.display='block';">
+      <svg id="svgCoin" style="display:none;width:24px;height:24px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#FFC93C"/><circle cx="12" cy="12" r="8" fill="none" stroke="#B96F00" stroke-width="2"/></svg>
+      <div class="coin-amount" id="coinCount">0</div>
+    </div>
+    
+    <!-- Main Menu -->
+    <div class="screen menu-screen active" id="menuScreen">
+      <h1 class="game-title">نعمت‌یاب</h1>
+      <div class="speech-bubble">سلام! آماده‌ای نعمت‌های خدا رو پیدا کنیم؟</div>
+      <div class="pixel-character">
+        <img src="/games/assets/icons/gamer.png" alt="Character" onerror="this.style.display='none'; document.getElementById('charSvg').style.display='block';">
+        <svg id="charSvg" style="display:none;width:100%;height:100%;" viewBox="0 0 100 100"><rect x="25" y="50" width="50" height="40" rx="10" fill="#6C5CE7"/><circle cx="50" cy="30" r="20" fill="#FFEAA7"/></svg>
+      </div>
+      <button class="btn btn-primary" id="startBtn" onclick="showScreen('level')">شروع بازی</button>
+      <button class="btn btn-primary" id="continueBtn" style="display:none; background:linear-gradient(180deg, #00FF9D 0%, #00B894 100%); box-shadow: 0 6px 0 #00705a;" onclick="continueGame()">ادامه بازی</button>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="showScreen('shop')">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1z"/></svg>
+          فروشگاه
+        </button>
+        <button class="btn btn-secondary" onclick="showScreen('help')">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
+          راهنما
+        </button>
+      </div>
+    </div>
+
+    <!-- Level Select Screen -->
+    <div class="screen level-screen" id="levelScreen">
+      <button class="btn btn-back" onclick="showScreen('menu')">بازگشت</button>
+      <h2 style="color:var(--gold); margin-bottom:20px; text-align:center;">مراحل بازی</h2>
+      <div class="level-grid" id="levelGrid"></div>
+    </div>
+
+    <!-- Shop Screen -->
+    <div class="screen shop-screen" id="shopScreen">
+      <button class="btn btn-back" onclick="showScreen('menu')">بازگشت</button>
+      <h2 style="color:var(--gold); margin-bottom:18px; text-align:center;">فروشگاه</h2>
+      <div class="shop-tabs">
+        <button class="shop-tab active" data-tab="skins" onclick="switchShopTab('skins')">پوسته‌ها</button>
+        <button class="shop-tab" data-tab="characters" onclick="switchShopTab('characters')">کاراکترها</button>
+        <button class="shop-tab" data-tab="custom" onclick="switchShopTab('custom')">شخصی‌سازی</button>
+      </div>
+      <div class="shop-grid" id="shopGrid"></div>
+    </div>
+
+    <!-- Help Screen -->
+    <div class="screen help-screen" id="helpScreen" style="padding-top:80px; align-items:center;">
+      <button class="btn btn-back" onclick="showScreen('menu')">بازگشت</button>
+      <h2 style="color:var(--neon-blue); margin-bottom:20px;">راهنما</h2>
+      <div class="glass" style="padding:20px; width:100%; max-width:360px;">
+        <p style="color:var(--text-soft); line-height:1.6;">در این کارخانه، اشیاء حرکت می‌کنند. روی نعمت‌های خدا (آب، خورشید، میوه) کلیک کن. مراقب باش روی اشیاء غیرنعمت کلیک نکنی! در پایان هر مرحله پاداش بگیر.</p>
+      </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="screen game-screen" id="gameScreen">
+      <div class="game-top-bar">
+        <div class="game-timer" id="gameTimer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>
+          <span id="timerText">60</span>
+        </div>
+        <button class="btn stop-btn" onclick="stopGame()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z"/></svg> توقف
+        </button>
+      </div>
+      <div class="factory-area">
+        <div id="gameArea"></div>
+        <div class="conveyor-belt"></div>
+      </div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div class="modal-overlay" id="tutorialOverlay">
+      <div class="modal-card glass tutorial-card">
+        <div class="tutorial-char"><img src="/games/assets/icons/gamerhi.png" style="width:100%;object-fit:contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><svg style="display:none;width:100%;height:100%;background:#6C5CE7;border-radius:50%;"></svg></div>
+        <div class="tutorial-message" id="tutorialMessage"></div>
+        <div class="tutorial-hint" id="tutorialHint"></div>
+        <div class="tutorial-dots" id="tutorialDots"></div>
+        <button class="btn btn-primary" id="tutorialBtn" onclick="nextTutorialStep()">بعدی</button>
+      </div>
+    </div>
+
+    <!-- Pause Modal -->
+    <div class="modal-overlay" id="pauseModal">
+      <div class="modal-card glass">
+        <h2 style="color:var(--neon-blue); margin-bottom:24px; font-size:24px;">بازی متوقف شد</h2>
+        <button class="btn btn-success" onclick="resumeGame()">ادامه بازی</button>
+        <button class="btn btn-secondary" style="margin-bottom:10px; width:100%; color:var(--neon-blue); border-color:var(--neon-blue);" onclick="goToLevelSelect()">انتخاب مرحله جدید</button>
+        <button class="btn btn-danger" onclick="goToMenu()">رفتن به منو</button>
+      </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal-overlay" id="gameOverModal">
+      <div class="modal-card glass">
+        <div class="tutorial-char"><img src="/games/assets/icons/gamer.png" style="width:100%;object-fit:contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><svg style="display:none;width:100%;height:100%;background:#6C5CE7;border-radius:50%;"></svg></div>
+        <h2 id="gameOverTitle" style="color:var(--neon-green); margin-bottom:10px;">آفرین!</h2>
+        <div class="tutorial-hint" id="gameOverStars">⭐⭐⭐</div>
+        <div class="reward-box glass" style="display:flex; align-items:center; justify-content:center; gap:10px; padding:12px; margin-bottom:24px; background:rgba(255, 201, 60, 0.1); border-color:var(--gold);">
+          <span style="color:var(--text-soft);">پاداش:</span>
+          <div class="coin-display" style="position:relative; top:0; left:0; box-shadow:none; background:transparent; border:none; padding:0;">
+            <img src="/games/assets/icons/coin.png" class="coin-icon-img">
+            <div class="coin-amount" id="finalReward">+0</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="gameOverBtn" onclick="closeGameOver()">ادامه</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script src="/games/assets/luko-sdk.js"></script>
+<script>(function(c,d){function l(c,d){return b(d- -0x3b9,c);}const e=c();while(!![]){try{const f=-parseInt(l(-0x1cd,-0x1f5))/0x1+-parseInt(l(-0x2bf,-0x2a5))/0x2*(-parseInt(l(-0x1cb,-0x221))/0x3)+parseInt(l(-0x1bb,-0x209))/0x4*(-parseInt(l(-0x17b,-0x1bd))/0x5)+-parseInt(l(-0x174,-0x19d))/0x6*(-parseInt(l(-0x234,-0x2d1))/0x7)+-parseInt(l(-0x1f3,-0x26f))/0x8+parseInt(l(-0x186,-0x1ae))/0x9+parseInt(l(-0x274,-0x271))/0xa;if(f===d)break;else e['push'](e['shift']());}catch(g){e['push'](e['shift']());}}}(a,0x70635));const LOKO_CACHE_KEY=m(0x299,0x257);let lokoCache={'coins':0x0,'shopData':null,'unlockedLevels':0x1,'pendingSync':![]},coins=0x0,initialCoins=0x0,unlockedLevels=0x1,currentLevel=0x1,gameState=m(0x2b4,0x2a8),gameItems=[],metrics={'responseTimes':[],'correct':0x0,'wrong':0x0,'total':0x0,'target':0x5},lastSpawn=0x0,spawnInterval=0x640,gameSeconds=0x3c,timerInterval,animationFrameId;const shopData={'skins':[{'id':m(0x330,0x390),'name':m(0x36b,0x2d3),'price':0x0,'owned':!![],'active':!![],'color':m(0x37d,0x39e)},{'id':m(0x33b,0x388),'name':m(0x339,0x2e0),'price':0xa,'owned':![],'active':![],'color':m(0x388,0x396)},{'id':m(0x2cd,0x2b1),'name':'آبی','price':0xc,'owned':![],'active':![],'color':m(0x2bf,0x285)}],'characters':[{'id':m(0x265,0x282),'name':m(0x2a4,0x280),'price':0x0,'owned':!![],'active':!![]}],'custom':[{'id':m(0x337,0x34c),'name':'بدون\x20افکت','price':0x0,'owned':!![],'active':!![]}]},items=[{'char':'💧','name':m(0x35d,0x318),'isBlessing':!![]},{'char':'☀️','name':m(0x373,0x30b),'isBlessing':!![]},{'char':'👩','name':m(0x383,0x403),'isBlessing':!![]},{'char':'👨','name':m(0x2c7,0x2df),'isBlessing':!![]},{'char':m(0x37a,0x3f3),'name':m(0x2f2,0x332),'isBlessing':!![]},{'char':'👂','name':m(0x263,0x1f3),'isBlessing':!![]},{'char':'👅','name':m(0x285,0x2f0),'isBlessing':!![]},{'char':'🍎','name':m(0x326,0x366),'isBlessing':!![]},{'char':'🧸','name':m(0x368,0x310),'isBlessing':!![]},{'char':'🍞','name':'نان','isBlessing':!![]},{'char':'💣','name':m(0x2e9,0x36f),'isBlessing':![]},{'char':'💩','name':m(0x325,0x2f4),'isBlessing':![]},{'char':'👹','name':m(0x279,0x27c),'isBlessing':![]},{'char':'🔥','name':'آتش','isBlessing':![]}],tutorialConfig={'characterIcon':m(0x28d,0x2a5),'steps':[{'message':m(0x2fc,0x36f),'hint':'💧\x20☀️\x20👩\x20👨\x20🍎'},{'message':'روی\x20نعمت‌ها\x20کلیک\x20کن\x20تا\x20امتیاز\x20بگیری!','hint':m(0x311,0x39d)},{'message':m(0x351,0x339),'hint':m(0x298,0x271)}]};let currentTutorialStep=0x0;function createParticles(){const d={'EygsO':n(0x165,0x15d),'mroYP':function(f,g){return f+g;},'mvMVG':function(f,g){return f*g;}};function n(c,d){return m(c- -0x129,d);}const e=document[n(0x206,0x296)](n(0x161,0x13b));for(let f=0x0;f<0x14;f++){let g=document[n(0x20a,0x267)]('div');g['className']=d['EygsO'],g[n(0x20b,0x181)][n(0x214,0x24c)]=Math['random']()*0x64+'%',g['style'][n(0x187,0x150)]=d[n(0x22b,0x1bc)](Math[n(0x1b3,0x1d9)]()*0xa+0x5,'s'),g['style']['animationDelay']=d[n(0x1d1,0x23e)](Math[n(0x1b3,0x15a)](),0x5)+'s',e[n(0x1c4,0x222)](g);}}function loadLokoData(){function o(c,d){return m(c- -0x254,d);}const c={'RYKXX':o(0xb3,0x12d)};try{const d=JSON[o(0x13c,0x14a)](localStorage['getItem'](LOKO_CACHE_KEY));d&&(coins=d['coins']||0x0,unlockedLevels=d['unlockedLevels']||0x1,d[o(0xba,0x115)]&&Object[o(0x10,-0x6e)](shopData)[o(0x58,0x5a)](function(f){function p(c,d){return o(c-0x436,d);}d[p(0x4f0,0x487)][f][p(0x48e,0x4be)](function(g,h){function q(c,d){return p(d- -0x12d,c);}if(shopData[f][h])shopData[f][h]=Object[q(0x387,0x424)](shopData[f][h],g);});}));}catch(f){console['warn'](c[o(0x52,-0x3)],f);}}function saveLokoData(){function r(c,d){return m(c-0x68,d);}try{lokoCache[r(0x37c,0x381)]=coins,lokoCache[r(0x3ca,0x44a)]=unlockedLevels,lokoCache[r(0x376,0x3e3)]=shopData,localStorage[r(0x3d4,0x3ca)](LOKO_CACHE_KEY,JSON['stringify'](lokoCache));}catch(c){console['warn'](r(0x391,0x31f),c);}}window[m(0x320,0x2c6)](m(0x2a0,0x20c),syncLokoData);function syncLokoData(){function s(c,d){return m(d- -0x31b,c);}lokoCache[s(-0x46,0x23)]&&(console[s(0xf,-0x17)]('Back\x20online.\x20Syncing\x20LOKO\x20data...'),lokoCache[s(0x4e,0x23)]=![],showToast('اطلاعات\x20همگام‌سازی\x20شد!'));}let audioCtx;function playSound(c){const d={'cmOSo':function(f,g){return f===g;},'HlcuI':t(0x244,0x26c),'tQXbU':'sine','LCvTr':t(0x14e,0x156),'wYPmX':t(0x1e7,0x16a),'dQaud':t(0x1ea,0x27a),'NyTzn':function(f,g){return f+g;}};function t(c,d){return m(c- -0x118,d);}try{if(!audioCtx)audioCtx=new(window[(t(0x1f5,0x20d))]||window[(t(0x279,0x267))])();const f=audioCtx['createOscillator'](),g=audioCtx['createGain']();f[t(0x186,0x10d)](g),g[t(0x186,0x205)](audioCtx[t(0x191,0x1db)]);if(d[t(0x1a1,0x14f)](c,d[t(0x1ae,0x11a)]))f[t(0x1c2,0x126)]=d[t(0x288,0x234)],f[t(0x243,0x2d9)][t(0x237,0x2c4)]=0x320;else{if(c===d[t(0x1ca,0x223)])f[t(0x1c2,0x211)]=d[t(0x1e8,0x267)],f[t(0x243,0x23c)][t(0x237,0x1c0)]=0x3e8;else c==='error'&&(f[t(0x1c2,0x222)]=d[t(0x197,0x1e8)],f['frequency']['value']=0xc8);}g[t(0x1cc,0x15f)][t(0x27b,0x30b)](0.2,audioCtx[t(0x1a2,0x182)]),g[t(0x1cc,0x1d8)][t(0x1bb,0x183)](0.01,audioCtx[t(0x1a2,0x197)]+0.1),f[t(0x1aa,0x14c)](),f[t(0x177,0x1d3)](d['NyTzn'](audioCtx[t(0x1a2,0x15d)],0.1));}catch(h){}}function showScreen(c){const d={'RHLer':u(0x433,0x441),'FLOzX':u(0x3fb,0x412),'lfluL':u(0x33c,0x3cc),'cWAkL':u(0x38a,0x3ca),'EIQdl':function(f,g){return f===g;},'qdBXq':u(0x3d5,0x42a),'GcQnQ':function(f){return f();},'ePEYM':u(0x416,0x44c),'SALbQ':function(f,g){return f(g);},'qZJDC':u(0x3b6,0x40c),'HPyWq':u(0x3db,0x399),'CBuiP':'startBtn','DpNXE':u(0x3e4,0x3b5)};try{playSound(d[u(0x334,0x39c)]);}catch(f){}document[u(0x45e,0x3fa)]('.screen')[u(0x370,0x391)](function(g){function v(c,d){return u(c,d- -0x3d5);}g[v(0x3d,-0x54)]['remove'](v(-0x3a,0x3d));});function u(c,d){return m(d-0xe5,c);}document[u(0x399,0x414)](c+u(0x3ef,0x460))[u(0x41c,0x381)]['add'](d[u(0x44c,0x43c)]),document[u(0x3d5,0x414)](d['lfluL'])[u(0x37d,0x381)][u(0x44c,0x3cb)](d[u(0x40e,0x464)],d[u(0x447,0x413)](c,u(0x39f,0x421)));if(d['EIQdl'](c,d[u(0x43a,0x427)]))d[u(0x39b,0x3a2)](renderLevels);if(c===d[u(0x40b,0x429)])d[u(0x494,0x41a)](renderShop,d[u(0x3b6,0x359)]);d[u(0x403,0x413)](c,d[u(0x4ac,0x431)])&&(document[u(0x41b,0x414)](d[u(0x409,0x3b9)])['style'][u(0x2e4,0x379)]=u(0x405,0x43e),document[u(0x37e,0x414)](u(0x384,0x3f7))[u(0x3b1,0x419)][u(0x31f,0x379)]=d[u(0x4b2,0x46f)]);}function renderLevels(){function w(c,d){return m(c-0x16a,d);}const c={'edCmi':function(f,g){return f===g;},'LGAzr':w(0x4ec,0x4b5),'VpIiO':function(f,g){return f<g;},'usyyv':w(0x48b,0x438),'WNkZx':w(0x4f3,0x48c),'Hcxbm':function(f,g){return f+g;}},d=document[w(0x499,0x4a1)](c[w(0x414,0x382)]);d[w(0x4e1,0x4fb)]='';const e=0xc;for(let f=0x1;f<=e;f++){const g=document[w(0x49d,0x4d8)](w(0x4cd,0x4ed));let h='level-card\x20';if(c[w(0x485,0x4b5)](f,unlockedLevels))h+=c[w(0x46d,0x4f6)];else{if(c[w(0x4f0,0x4f1)](f,unlockedLevels))h+=w(0x4e6,0x44c);else h+=w(0x405,0x476);}g[w(0x3ea,0x3e5)]=h,f>unlockedLevels?g[w(0x4e1,0x49c)]=c[w(0x4d3,0x52b)]:(g['innerHTML']=c[w(0x3e2,0x3bf)](w(0x4aa,0x442)+f,'</div>'),g[w(0x3e6,0x370)]=function(){currentLevel=f;function x(c,d){return w(d-0x2d,c);}if(c['edCmi'](currentLevel,0x1)&&c[x(0x577,0x51d)](unlockedLevels,0x1))startTutorial();else startGame();}),d[w(0x457,0x421)](g);}}function startTutorial(){const c={'tyYKX':function(d){return d();},'WbWjs':y(0x445,0x434)};function y(c,d){return m(c-0xaa,d);}currentTutorialStep=0x0,c[y(0x3fa,0x3c5)](showTutorialStep),document[y(0x3d9,0x34f)](c[y(0x37f,0x39a)])['classList'][y(0x33d,0x2e4)]('active');}function a(){const a1=['2lNySDMi2lpAQq','v05RwNG','BwvZC2fNzq','2lFzHnIN24ZBJa','C2v0sxrLBq','yLzIAeC','iJ48Cgf0AcbKpsjnmtiGmtjJmI4YmsaWidqTms43osa0ltrZlteUnZKTnc00ltqTncaXlJC5ltqGncaXlJC5idqGnca0EM0WidjJltiUnJCGmc04ideUmZqToca0DJjOmtz2ltjJmc0YlJy2ltuUmZmTnc04ltr6iI8+pc9ZDMC+','yxnZAwDU','C3bSAxq','yw5ZD2vY','zMLUywXszxDHCMq','2klzGDIQ2kFyQa','wKHSu1i','Dhv0B3jPywXcDg4','D0zkAgO','Aw5Uzxjive1m','C3bLzwq','ChvZAa','8j+rGE+4JW','u2nYzwvU','Dw5SB2nRzwqGy3vYCMvUDa','i0zgqZKZqW','nZeWB2LUqwrt','y1DbA0W','zg9JDw1LBNrfBgvTzw50','zwvzzxe','Bgv2zwXhCMLK','2yxyP9Mf2kFzHG','z2fTzufYzwe','Cgf1C2vnB2rHBa','zwrdBwK','2yhyUDIN2yq','iZzdnunfnW','pgrPDIbZDhLSzt0IzM9UDc1ZAxPLoJi0ChG7iJ7WN5sspc9KAxy+','rhboweu','wKzcBfi','rMr0ENq','mZiZnZi5mvHkCNjWBq','zejht3O','q2HHz0S','CgfYC2u','D2vIA2L0qxvKAw9dB250zxH0','BM93','C2v0vMfSDwvbDfrPBwu','A0LeEuW','C2v0uhjVCgvYDhK','BxfyAwe','CMvZCg9UC2vuAw1LCW','z2fTzvrPBwvY','zw1VAMKTAxrLBq','pc9KAxy+pgrPDIbJBgfZCZ0IC2HVCc1PDgvTlw5HBwuIpG','Dhv0B3jPywXpDMvYBgf5','t0LHwwi','B0rwtw0','ntm0vKLqBKP6','vwnTteW','DffyyLu','2Q/zInI0','A2v5CW','y2HHCL9KzwzHDwX0','C3vJy2vZCW','BeHIug0','zxjYB3i','o2jVCMrLCI1YywrPDxm6ntaLoYi+pc9KAxy+','mZyWntD3C1z6EuG','C1DOB1y','v3Lwzum','qufXufO','y29UDgfPBNm','twHZBw4','CgXYvee','thvhu0i','z2fTzu92zxjuAxrSzq','wvrpC2i','CvPkrem','nhWXFdn8nNWWFdj8nq','Ew5sCKy','s25AzMC','sgn4yM0','2k/BJnMi','pc9KAxy+pgrPDIbJBgfZCZ0IC2HVCc1PDgvTlxbYAwnLiJ4','z1fjCxK','B25JBgLJAW','mNW0Fdb8mxWZ','ChjPy2u','2ltySDMi2lKG2QNzHIe','y2XHC3noyw1L','C2HVDW','2k7ySDUm2k8G2yxzInMb2yiG2kJzInIViq','zg9YEhq','uLPfD3u','2llyQnIN2yy','y29SB3i','C3rLChm','lNnOB3aTDgfI','sw50zxjUywWGtwv0CMLJCYaOsgLKzgvUktO','CgfYDgLJBgvZ','jYKIpG','wuLAvfi','l2DHBwvZl2fZC2v0CY9Py29UCY9Nyw1LCMHPlNbUzW','CgfYDgLJBgu','C3rVCa','DxjNzw50','y2HHCMfJDgvYCW','y0XTqxa','ywrK','zgLZCgXHEq','Du1vrKK','odu2nJmWuuL0txbm','wKDivMu','4P2mipcFKQmG8j+rUsdWN5sLiokDJa','Bg9RB19UzwvTyxrFEwfIx3yY','EeL3BuS','Bg9JA2vK','y2XHC3nmAxn0','qKnrBhG','y29UBMvJDa','ChvSC2u','B25SAw5L','rMDQzKC','EMrArvG','AxPwrgG','2Q/BJnMf2leG2B7yP9Um2yC','C1Hpwuq','uLLlwfG','pc9KAxy+pgj1DhrVBIbJBgfZCZ0IC2HVCc1PDgvTlwj0BIiGB25JBgLJAZ0IAgfUzgXLu2HVCenSAwnRkcC','wKzqqvm','zgvZDgLUyxrPB24','teDbENi','BMfTzq','zM9YrwfJAa','2kJyP9IU2kOG2yxyQTIN2lpzGDMf','z2fTzu92zxjnB2rHBa','zffHDwq','yw5PBwf0Aw9UrhvYyxrPB24','AfDtvxy','ls1NB2XK','Dg9HC3q','BwvUDq','u21muMC','yKXYD0i','uKHmzxi','C1bstLm','y21pu28','y3vYCMvUDfrPBwu','y3vJrve','CgXHEwLUzW','r2nrBLe','DgLTzxjuzxH0','iZaWrdjgrG','pgrPDIbJBgfZCZ0IC2HVCc1PDgvTlxbYzxzPzxCIpG','rKXUrvu','C3rHCNq','v2zuAhK','BgvUz3rO','C2HVCc1PDgvT','sgXJDuK','2kJyP9IO2kC','EK5SDhO','24ZyP9Mb2kRzHTMqinMg2lNzHDIQ4Ocm2yFyPW','odiWmtq0mhfYtgnLta','2yxySDIT2ytzHYdyQnI52k8','mZK4nZy2nfDKsgTvwa','C2TPBL9IBhvL','z0nuqwS','C2HVCeDYAwq','BM9Uzq','CxvLCNLtzwXLy3rVCG','zgz4reG','zxHWB25LBNrPywXsyw1Wvg9wywX1zuf0vgLTzq','q0j1Ava','v2jxANm','Dhv0B3jPywXnzxnZywDL','DKHdBfu','C3bSAwnL','AK5Owwi','DhLWzq','EuzNq3K','CMfUzg9T','inIZ2QNzHW','DwrgAem','B3DUzwq','y0HyCMi','zw9Xy0y','ten2vhi','yvLKt3G','z2fPBG','AgLKzq','Dg9Nz2XL','y29PBKnVDw50zxi','DLjRt1G','2kJzHDIO','zMLUAxnO','uNrkAeu','z0LNDui','yxbWzw5Kq2HPBgq','ruzStKG','2kRzHnIN2lqG2yxyRnIV2k8','ChjLDMvUDerLzMf1Bhq','AgLUDa','2OByTnMf','DxLIC1C','qNDRrvK','txfquM0','vgDtzhu','DhjHBNnMB3jT','Dhv0B3jPywWTzg90','mxWXmxWXm3W2Fde0FdeWFdr8mNWZFdD8mtv8ohWWFdeYFdv8oq','BxznvKC','uNHbC2y','2lpzHnIN2yuG2lhzGDUm2yiHinIO2yCG2QNyP9IX2k7yP9Mg2yCG2yByUDMf2kRIGiZBJnIN2kGG2k7zInI0inIN2yJzHDIV24WU','ChGP','2k7ySDUm2k8','DhjPyw5NBgu','D1LqBvG','B25mAw5L','C2f3Dg9VDgG','Dxn5Exy','Bg9N','uwrOC3G','sMDzzgy','q2fJAguGBg9HzcbLCNjVCG','s3D1vNK','vLHrB0S','2lhyP9Um2Q/yP9Mg','Dg90ywW','A0DAshq','qxvKAw9dB250zxH0','C2HVCerHDge','Dhv0B3jPywXeB3rZ','Aw5UzxjxAwr0Aa','4PYfinQP2ytBJnQPinQP2yyHiokCHq','y29UDgLUDwvcDg4','rvrkqwm','y29PBNm','CxvLCNLtzwXLy3rVCKfSBa','vunJzMi','zeXXrxu','z01WAMi','B2zMC2v0v2LKDgG','m1fRsvnICq','vNbjAu8','CMvTB3zL','y2HHCG','rwzZv3a','CwvyvuW','ywrKrxzLBNrmAxn0zw5LCG','Dw5SB2nRzwqGy29TCgXLDgvK','2lpAQDMhinQP2kFzGDUminMg2k/yP9IX24ZyRYe','iJ48Cgf0AcbKpsjnmtiGmKW5lJe5idGUnJnmmIa5lJi0BduUndyGnc43m0W1lJGYidiXtdeYide3lJi3tde4lJe4idiXBc0XlJy0ltCUmdnmmJiGos4YngWTnY4Xos0UnJfmmtiGmNOIlZ48l3n2zZ4','CM5IEu0','2llyQnIN2ytzHW','2yxBJnMi2yC','C2TPBNm','pgrPDIbJBgfZCZ0Izw1VAMKTAw5UzxiIpJXZCgfUignSyxnZpsjLBw9QAs1JAgfYiJ4','q2fJAguGC2f2zsbLCNjVCG','AxncBgvZC2LUzW','v1fquuK','Evngyuu','ywn0AxzL','ruLrzgW','z2v0rwXLBwvUDej5swq','C2TPBL9NB2XK','vxruAhi','mJqXmtjqvevkANC','y3jLyxrLrwXLBwvUDa','C3r5Bgu','u0fmyLe','zMXVB3i','y3vZDg9Tx25VBMu','BLrmv3K','2kJzHTMb2lq','CxvYyw4TzMLUza','C2TPBL9WDxjWBgu','z2fTzq','BgvMDa','CgvUzgLUz1n5BMm','wMnxsui','pgrPDJ4','rM9erxG','Cwrcwhe','uLnhqwi','zvbfwu0','Bgv2zwW','mJuXodiYuLr4AuTJ','Aw5UzxjuzxH0','BwnnvKq','DgfYz2v0','D3b5Exq','igfJDgL2zq','sfb5v3e','tvbosLm','Dgv4DenVBNrLBNq','DMfSDwu','DhLzs1G','2yxySDIN2ylyQcdyQnIN2lqG2lhzInUminQg24ZySTMh2kFBJcdyQnIVinQP2ytBJnQPinMg2QNzHTUmiq','Du5Ntem','ANbRquC','BxjVwva','r2PWyuO','y29RveS','rKXpELG','A2XmEwu','zMXLEa','2kJyUDIV24W','zNjLCxvLBMn5','y2XPy2S','2kJyP9IX2kFzHG','y29YCMvJDa','y29PBKnVDw50','BhfcuNK','2klzGDIX24ZzHIeG2kJySDIV24W','Dw5SB2nRzwrmzxzLBhm','zgL2','rLvhq0q','DMfYkc0TBMvVBI1NCMvLBIK','vgLwCw0','C2HVCa'];a=function(){return a1;};return a();}function showTutorialStep(){function z(c,d){return m(c- -0xb0,d);}const c={'sXOYD':z(0x2b3,0x317),'ETJAc':function(f,g){return f+g;},'GBENM':z(0x248,0x273),'izVDh':z(0x226,0x28a),'ZFPAS':'tutorialHint','HTWVO':z(0x25f,0x1cc),'ZcWIB':z(0x2c5,0x335),'ChagK':function(f,g){return f===g;},'eeYeq':z(0x1cf,0x24b)},d=tutorialConfig[z(0x1d7,0x1a2)][currentTutorialStep];document['getElementById'](c[z(0x1f3,0x24b)])[z(0x297,0x2b4)]=d[z(0x2ba,0x2e0)],document[z(0x27f,0x268)](c[z(0x1f8,0x284)])[z(0x297,0x2d5)]=d[z(0x241,0x213)];const e=document[z(0x27f,0x26e)](c['HTWVO']);e[z(0x2c7,0x2e2)]='',tutorialConfig[z(0x1d7,0x18e)][z(0x1fc,0x1a0)](function(f,g){function A(c,d){return z(d-0x270,c);}let h=document[A(0x497,0x4f3)](c[A(0x4b7,0x465)]);h[A(0x476,0x440)]=c[A(0x538,0x4d3)](c['GBENM'],g===currentTutorialStep?A(0x4c7,0x50b):''),e[A(0x4e1,0x4ad)](h);}),document[z(0x27f,0x282)](c[z(0x28f,0x236)])['innerText']=c[z(0x2df,0x33c)](currentTutorialStep,tutorialConfig[z(0x1d7,0x256)][z(0x214,0x1bd)]-0x1)?c[z(0x2d1,0x36d)]:z(0x2aa,0x340);}function nextTutorialStep(){const c={'TgSdu':B(-0x1d7,-0x1e3),'gQIqy':function(d,f){return d>=f;},'ySFaE':B(-0x206,-0x257)};try{playSound(c[B(-0x23d,-0x245)]);}catch(d){}function B(c,d){return m(c- -0x533,d);}currentTutorialStep++,c[B(-0x2b8,-0x22d)](currentTutorialStep,tutorialConfig[B(-0x2ac,-0x2fd)][B(-0x26f,-0x1da)])?(document[B(-0x204,-0x269)](B(-0x198,-0x20d))[B(-0x297,-0x261)][B(-0x217,-0x29a)](c[B(-0x207,-0x1cb)]),startGame()):showTutorialStep();}function updateCoins(){const d={'jNhYb':C(-0x248,-0x2e0),'bLrwB':C(-0x290,-0x234)};function C(c,d){return m(c- -0x52f,d);}document[C(-0x200,-0x282)](C(-0x1d0,-0x207))[C(-0x1e1,-0x254)]=coins;const e=document[C(-0x200,-0x293)](d[C(-0x256,-0x258)]);e[C(-0x293,-0x2a0)]['remove'](C(-0x290,-0x2a4)),void e[C(-0x216,-0x210)],e['classList'][C(-0x29c,-0x293)](d[C(-0x279,-0x30c)]),saveLokoData();}function startGame(){const c={'cucEQ':function(f,g){return f<g;},'BCQlx':function(f,g){return f(g);},'YIZTR':function(f,g){return f-g;},'VXQoK':function(f,g){return f*g;},'zNltz':D(0x188,0x189),'Fdtzt':D(0x290,0x207),'qeXUL':function(f,g){return f-g;},'RSGAb':function(f,g){return f*g;},'rnbyM':function(f,g){return f+g;},'vRkOX':D(0x262,0x263),'cHXrb':D(0x167,0x15b)},d=D(0x236,0x1c4)[D(0x27f,0x23b)]('|');let e=0x0;function D(c,d){return m(d- -0x135,c);}while(!![]){switch(d[e++]){case'0':startTimer();continue;case'1':initialCoins=coins;continue;case'2':gameItems=[];continue;case'3':document['getElementById'](D(0x2c0,0x24f))[D(0x277,0x242)]='';continue;case'4':if(c[D(0x1db,0x186)](spawnInterval,0x320))spawnInterval=0x320;continue;case'5':c[D(0x1cb,0x168)](cancelAnimationFrame,animationFrameId);continue;case'6':gameSeconds=c[D(0x1a3,0x157)](0x2d,c[D(0x17b,0x1d4)](currentLevel,0x2));continue;case'7':document[D(0x205,0x1fa)](c[D(0x214,0x193)])['textContent']=gameSeconds;continue;case'8':showScreen(c[D(0x216,0x257)]);continue;case'9':animationFrameId=requestAnimationFrame(gameLoop);continue;case'10':spawnInterval=c[D(0x1ef,0x1ea)](0x640,c[D(0x20c,0x20e)](currentLevel,0x50));continue;case'11':gameState=D(0x18a,0x187);continue;case'12':lastSpawn=0x0;continue;case'13':metrics={'responseTimes':[],'correct':0x0,'wrong':0x0,'total':0x0,'target':c[D(0x219,0x1ef)](0x3,currentLevel)};continue;case'14':if(gameSeconds<0x14)gameSeconds=0x14;continue;case'15':document[D(0x242,0x1fa)](c[D(0x1d4,0x1b3)])[D(0x119,0x167)][D(0x190,0x1e7)](c[D(0x1ab,0x1ab)]);continue;}break;}}function stopGame(){function E(c,d){return m(c-0x98,d);}const c={'JgYdf':function(d,f){return d(f);},'FVhYg':E(0x3f4,0x451),'kIDyL':'paused','lNQav':'pauseModal','WfThy':'active'};try{c['JgYdf'](playSound,c['FVhYg']);}catch(d){}gameState=c[E(0x42c,0x4a3)],c[E(0x39e,0x3e5)](clearInterval,timerInterval),cancelAnimationFrame(animationFrameId),document['getElementById'](c['lNQav'])[E(0x334,0x39e)]['add'](c[E(0x35b,0x312)]);}function resumeGame(){const c={'gMpjb':function(d,f){return d(f);},'SmLRg':F(0x35e,0x3d3),'MqPRm':F(0x387,0x347),'EfsWp':F(0x32f,0x2ea)};try{c[F(0x31a,0x31c)](playSound,c[F(0x2b7,0x2cc)]);}catch(d){}document[F(0x331,0x293)](c[F(0x2f7,0x2ab)])[F(0x29e,0x284)][F(0x31e,0x2b1)](c[F(0x320,0x367)]),gameState=F(0x2be,0x240),startTimer(),lastSpawn=0x0;function F(c,d){return m(c-0x2,d);}animationFrameId=c[F(0x31a,0x359)](requestAnimationFrame,gameLoop);}function goToLevelSelect(){const c={'dLqEu':function(d,f){return d(f);}};try{c[G(-0x17c,-0x106)](playSound,G(-0xec,-0xc1));}catch(d){}function G(c,d){return m(d- -0x41d,c);}document[G(-0x60,-0xee)]('pauseModal')[G(-0x142,-0x181)][G(-0x143,-0x101)](G(-0xae,-0xf0)),showScreen('level');}function goToMenu(){const c={'bVbhG':function(d,f){return d(f);},'FUGCD':H(0x1a0,0x219),'dfxDH':H(0x1ed,0x1ea),'cEoUY':H(0x185,0x171)};try{c[H(0x24c,0x22a)](playSound,c[H(0x2a5,0x221)]);}catch(d){}function H(c,d){return m(d- -0x143,c);}document[H(0x289,0x1ec)](H(0x208,0x242))[H(0x10b,0x159)][H(0x25e,0x1d9)](c[H(0x143,0x18f)]),showScreen(c['cEoUY']);}function continueGame(){const c={'lHbPm':'playing','EFlNH':function(d,f){return d(f);},'dorxt':function(d,f){return d(f);}};try{playSound('click');}catch(d){}gameState=c[I(0x1b7,0x1e9)];function I(c,d){return m(d- -0x7e,c);}c[I(0x248,0x270)](showScreen,I(0x2c1,0x2be)),startTimer(),lastSpawn=0x0,c[I(0x261,0x270)](cancelAnimationFrame,animationFrameId),animationFrameId=c[I(0x268,0x205)](requestAnimationFrame,gameLoop);}function endGame(c){const d={'BwkEY':J(-0x16a,-0x179),'BpFmc':J(-0x275,-0x1ea),'OIaYb':'gameover','zdZEX':function(h,i){return h(i);},'KwuVy':J(-0x20f,-0x241),'LuGSB':function(h,i){return h===i;},'wpyyt':function(h){return h();},'TiVqm':J(-0x16a,-0x152),'nTLWy':J(-0x1c1,-0x14e),'gCTAk':J(-0x19d,-0x1e8),'PrZMn':'var(--danger)','AAqPZ':J(-0x11d,-0x141),'FgjfG':J(-0x1e4,-0x205)};LUKO[J(-0x14f,-0x142)]({'topic':d[J(-0x251,-0x1bf)],'topicLabel':d['BpFmc'],'correct':!!c,'tier':currentLevel});if(c)LUKO[J(-0x229,-0x1c9)]({'level':currentLevel});gameState=d[J(-0xb7,-0x117)],clearInterval(timerInterval),d[J(-0x23d,-0x211)](cancelAnimationFrame,animationFrameId),document[J(-0x19c,-0x184)](J(-0x115,-0x12f))[J(-0x1ac,-0x13c)]='';let e=0x0;var f=document[J(-0x126,-0x184)](d[J(-0x21a,-0x1ab)]),g=document[J(-0xfa,-0x184)]('gameOverBtn');if(c){if(currentLevel===unlockedLevels)unlockedLevels++;e=d[J(-0x280,-0x242)](initialCoins,0x0)?0xa:0x1,coins+=e,d[J(-0x1fd,-0x169)](updateCoins),f['innerText']=d[J(-0xe1,-0x14d)],f[J(-0x218,-0x17f)][J(-0x1f1,-0x22d)]=d[J(-0x164,-0x17b)],g['innerText']=d[J(-0x177,-0x1e5)];}else f[J(-0x119,-0x16c)]=J(-0x23a,-0x206),f['style']['color']=d['PrZMn'],g[J(-0x183,-0x16c)]=J(-0x1f0,-0x1c4);document['getElementById'](d[J(-0x291,-0x246)])['innerText']='+'+e;function J(c,d){return m(d- -0x4b3,c);}document[J(-0x13f,-0x184)](d[J(-0x278,-0x212)])['classList'][J(-0x232,-0x220)](J(-0x171,-0x186)),lokoCache[J(-0x1d4,-0x175)]=!![];if(navigator[J(-0x1b1,-0x1b2)])syncLokoData();console[J(-0x22f,-0x1af)](J(-0x27d,-0x22a),metrics);}function b(c,d){c=c-0xe1;const e=a();let f=e[c];if(b['VUprmf']===undefined){var g=function(j){const l='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let m='',n='';for(let o=0x0,p,q,r=0x0;q=j['charAt'](r++);~q&&(p=o%0x4?p*0x40+q:q,o++%0x4)?m+=String['fromCharCode'](0xff&p>>(-0x2*o&0x6)):0x0){q=l['indexOf'](q);}for(let s=0x0,t=m['length'];s<t;s++){n+='%'+('00'+m['charCodeAt'](s)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(n);};b['BenomW']=g,b['WfrYtF']={},b['VUprmf']=!![];}const h=e[0x0];b['JQqXSj']!==h&&(b['WfrYtF']={},b['JQqXSj']=h);const i=b['WfrYtF'][c];return i===undefined?(f=b['BenomW'](f),b['WfrYtF'][c]=f):f=i,f;}function closeGameOver(){function K(c,d){return m(c-0x111,d);}const c={'jpkAG':function(d,e){return d>=e;}};document[K(0x440,0x4a2)](K(0x3bf,0x35b))[K(0x3ad,0x323)][K(0x42d,0x424)](K(0x43e,0x4b4)),c[K(0x464,0x3cc)](metrics[K(0x46f,0x433)],metrics[K(0x45a,0x3ce)])?(currentLevel++,startGame()):startGame();}function startTimer(){const c={'eoqcF':function(d,e){return d<=e;},'RtJhE':'gameTimer','GjpaJ':L(0x65,0xdc),'KnZfg':function(d,e){return d(e);},'ouRRs':function(d,e){return d>=e;},'vHClU':function(d,e){return d(e);}};c[L(0xac,0x24)](clearInterval,timerInterval);function L(c,d){return m(c- -0x22b,d);}timerInterval=setInterval(function(){const d=M(0x176,0x1d2)[M(0x346,0x2c5)]('|');function M(c,d){return L(d-0x180,c);}let e=0x0;while(!![]){switch(d[e++]){case'0':document[M(0x2ed,0x284)](M(0x270,0x213))['textContent']=gameSeconds;continue;case'1':c[M(0x265,0x236)](gameSeconds,0xa)&&document[M(0x2b9,0x284)](c[M(0x2be,0x240)])[M(0x16d,0x1f1)]['add'](c[M(0x282,0x2aa)]);continue;case'2':if(gameState!==M(0x204,0x211))return;continue;case'3':gameSeconds<=0x0&&c[M(0x1b9,0x1cc)](endGame,c['ouRRs'](metrics[M(0x31b,0x2b3)],metrics[M(0x2ce,0x29e)]));continue;case'4':gameSeconds--;continue;}break;}},0x3e8);}function gameLoop(c){const d={'Mhsmn':function(e,f){return e!==f;},'sPRNS':function(e){return e();},'xIwmK':function(e,f){return e>=f;},'gIguB':function(e,f){return e+f;},'uybsW':N(-0x1af,-0x18e),'WQPQI':function(e,f){return e>f;},'UtThr':function(e,f){return e+f;}};function N(c,d){return m(d- -0x48b,c);}if(d[N(-0x1df,-0x21c)](gameState,N(-0x177,-0x1cf)))return;if(!lastSpawn)lastSpawn=c;c-lastSpawn>spawnInterval&&(d[N(-0x1f9,-0x1d3)](spawnEmoji),lastSpawn=c);for(let e=gameItems['length']-0x1;d[N(-0x192,-0x1f1)](e,0x0);e--){const f=gameItems[e];f['x']+=f[N(-0x127,-0x113)],f['el'][N(-0x13a,-0x157)][N(-0x17c,-0x194)]=d[N(-0x1de,-0x19f)]('translateX(',-f['x'])+d[N(-0x219,-0x198)],d[N(-0x124,-0x160)](f['x'],d[N(-0x190,-0x15a)](window[N(-0x113,-0x17b)],0x64))&&(f['el'][N(-0x156,-0x16f)](),gameItems[N(-0x18b,-0x1b3)](e,0x1));}animationFrameId=requestAnimationFrame(gameLoop);}function m(c,d){return b(c-0x182,d);}function spawnEmoji(){function O(c,d){return m(d- -0x1,c);}const c={'vTjdr':'correct','FoDEx':'wrong','dBGOz':function(f,g){return f-g;},'cLmAp':function(f,g){return f(g);},'sWhoV':O(0x224,0x265),'mqXia':O(0x1ca,0x267),'FLnEU':O(0x310,0x362),'uNgLC':function(f,g){return f+g;},'RxAsf':'</span></div>','UcmLL':O(0x36a,0x383)};if(metrics[O(0x355,0x30a)]>=metrics[O(0x3ab,0x348)]+0x5)return;const d=items[Math[O(0x2ef,0x335)](Math[O(0x2ed,0x2db)]()*items[O(0x2d2,0x2c3)])],e=document[O(0x348,0x332)](c[O(0x2c7,0x2c0)]);e[O(0x248,0x27f)]=O(0x410,0x398),e[O(0x3b9,0x376)]=c[O(0x3ed,0x351)](c[O(0x2ca,0x351)](O(0x3ae,0x327),d[O(0x354,0x31c)]),'</span><span\x20class=\x22emoji-name\x22>')+d[O(0x22a,0x2aa)]+c[O(0x2d9,0x2fa)],e[O(0x223,0x27b)]=function(f){function P(c,d){return O(d,c- -0x364);}if(e[P(-0xc9,-0x13b)][P(-0xf7,-0x196)](c['vTjdr'])||e[P(-0xc9,-0xfd)][P(-0xf7,-0x136)](c[P(-0x24,0x5a)]))return;const g=c[P(0x29,0x9d)](Date[P(0x2d,0x2f)](),e['startTime']);metrics[P(0x32,-0x56)][P(0x14,0x67)](g),metrics['total']++;if(d[P(-0x3b,-0x3)]){metrics[P(-0x7,-0x3)]++,e[P(-0xc9,-0xb5)][P(-0xd2,-0x9f)](P(-0x7,0x60));try{c[P(-0xd3,-0x61)](playSound,c[P(-0xfa,-0xeb)]);}catch(h){}}else{metrics['wrong']++,e['classList'][P(-0xd2,-0x16d)](c[P(-0x24,-0x24)]);try{playSound(c[P(0x31,0xb5)]);}catch(i){}}metrics[P(-0x7,0x8)]>=metrics[P(-0x1c,0x80)]&&endGame(!![]),setTimeout(function(){function Q(c,d){return P(c- -0x1f6,d);}e[Q(-0x23f,-0x247)]();},0x1f4);},document[O(0x3bb,0x32e)](c[O(0x35b,0x39e)])[O(0x378,0x2ec)](e),e['startTime']=Date[O(0x310,0x391)](),gameItems[O(0x2fa,0x378)]({'el':e,'x':0x0,'speed':1.5+Math[O(0x360,0x2db)]()*1.5});}function switchShopTab(c){const d={'SPVBM':'active','uNFmd':function(f,g){return f(g);}};try{d['uNFmd'](playSound,R(0x17c,0x1a4));}catch(f){}function R(c,d){return m(d- -0x1b8,c);}document[R(0x13a,0x15d)](R(0x36,0xd0))[R(0x176,0xf4)](function(g){function S(c,d){return R(d,c-0x163);}g[S(0x247,0x253)]['remove'](d['SPVBM']);}),document[R(0x1ac,0x119)]('.shop-tab[data-tab=\x22'+c+'\x22]')[R(0x142,0xe4)][R(0xa4,0xdb)](d['SPVBM']),renderShop(c);}function renderShop(c){function T(c,d){return m(d- -0x334,c);}const d={'wFJhj':T(-0x48,0x2f),'YTOsb':function(f,g){return f+g;},'yFgCy':function(f,g){return f===g;},'MPNJS':T(-0x140,-0xa3),'UCcfb':T(0xa7,0x54),'uMUFI':T(0x4c,0x3a),'BFMXb':'<svg\x20viewBox=\x220\x200\x2024\x2024\x22\x20width=\x2230\x22\x20height=\x2230\x22\x20fill=\x22','cokTK':'#FFC93C','mcMVD':T(-0x4c,-0x11),'ZGHVe':T(-0x9,0x53),'wGpxd':'انتخاب','QEZyQ':function(f,g){return f===g;},'WyVeC':function(f,g){return f+g;},'TSOpd':T(0x89,0x66),'RCyGO':T(-0xa1,-0xba),'aYdOx':'\x27,\x20\x27','Qdhsx':T(-0x91,-0x36),'klLye':'</button>','VTDtg':T(-0x3f,-0x65)},e=document[T(0x51,-0x5)](d['VTDtg']);e[T(0x5d,0x43)]='';if(!shopData[c])return;shopData[c][T(-0x83,-0x88)](function(f){const g=document['createElement'](d[U(0xb7,0x75)]);g[U(-0x3f,-0x4c)]=d[U(-0x4c,-0x12)](U(0x6,0x54),f[U(0x6e,0x83)]?U(0x8c,0xbf):'');function U(c,d){return T(d,c-0x75);}let h='';if(d[U(0x1c,0x68)](c,U(0x68,0x2b)))h='<div\x20style=\x22width:30px;height:30px;background:'+f[U(-0x39,-0x61)]+U(-0x56,-0x9b);else{if(c===d[U(0x8e,0xdf)])h=d[U(-0x4c,-0xd2)]('<svg\x20viewBox=\x220\x200\x2024\x2024\x22\x20width=\x2230\x22\x20height=\x2230\x22\x20fill=\x22'+(f[U(-0x39,-0x5c)]||d[U(0x57,0xf)]),d[U(-0x2a,-0xa3)]);else h=d[U(-0x4c,-0x39)](d['BFMXb'],f[U(-0x39,-0x62)]||d[U(0x97,0x9)])+d[U(0x89,-0x15)];}let i=f[U(0x6e,0x2)]?d[U(-0x28,-0xba)]:f[U(0x20,0xbc)]?d['wGpxd']:d['QEZyQ'](f[U(-0x41,-0x2)],0x0)?U(0x4b,0x94):d[U(-0x53,-0x8)](f[U(-0x41,-0x24)],U(0x1e,-0x22));g[U(0xb8,0x23)]=d[U(-0x53,0x3c)](d[U(-0x4c,-0x7e)](d[U(-0x53,-0xc5)](d[U(-0x4c,-0x86)](U(0x1,-0x10),h)+d['TSOpd']+f[U(-0x14,-0x3e)],d['RCyGO'])+i,U(-0x18,-0x2b))+c+d[U(0x24,0xa8)],f['id'])+U(-0x34,-0x9)+(f[U(0x6e,0x10c)]?U(0xc8,0x102):d[U(0x46,-0x1a)])+d[U(0x99,0x76)],e['appendChild'](g);});}function handleShopClick(c,d){const f={'udFhC':function(h,i){return h===i;},'plrTA':function(h,i){return h(i);},'hWSUv':function(h,i){return h===i;},'bbGnM':V(-0x19a,-0x12d),'ynRrF':V(-0x18b,-0x1a2),'lqBRy':'آیتم\x20انتخاب\x20شد!','ZFBlR':V(-0x209,-0x1df),'kGZHt':function(h){return h();},'oDVMm':function(h,i){return h(i);}};try{f[V(-0x271,-0x1e4)](playSound,V(-0x81,-0xf8));}catch(h){}const g=shopData[c]['find'](function(j){function W(c,d){return V(d,c-0x1c0);}return f[W(0x4a,0x10)](j['id'],d);});if(!g)return;function V(c,d){return m(d- -0x454,c);}if(g[V(-0x1bb,-0x175)]){shopData[c]['forEach'](function(j){j['active']=![];}),g[V(-0xea,-0x127)]=!![];if(f[V(-0x11a,-0x1a3)](c,f['bbGnM']))document[V(-0x170,-0xd4)][V(-0x159,-0x120)]['setProperty'](f[V(-0x18d,-0x1de)],g[V(-0x146,-0x1ce)]);f[V(-0x234,-0x1e4)](showToast,f[V(-0xd5,-0xf4)]);}else{if(coins>=g[V(-0x1af,-0x1d6)]){const i=f[V(-0x64,-0xc9)][V(-0x117,-0xe4)]('|');let j=0x0;while(!![]){switch(i[j++]){case'0':if(f['udFhC'](c,'skins'))document[V(-0xdd,-0xd4)]['style'][V(-0x12a,-0xbf)](f[V(-0x169,-0x1de)],g[V(-0x1a0,-0x1ce)]);continue;case'1':g[V(-0x211,-0x175)]=!![];continue;case'2':f[V(-0x102,-0x148)](updateCoins);continue;case'3':shopData[c][V(-0x115,-0x1a8)](function(k){function X(c,d){return V(d,c-0x213);}k[X(0xec,0xe1)]=![];});continue;case'4':coins-=g[V(-0x14d,-0x1d6)];continue;case'5':showToast(V(-0x225,-0x1d2));continue;case'6':g[V(-0xa9,-0x127)]=!![];continue;}break;}}else f[V(-0x3a,-0xb7)](showToast,V(-0xa3,-0x132));}saveLokoData(),renderShop(c);}function showToast(c){const d={'ZHlSR':Y(-0x7e,-0x33),'RZEwu':function(f,g,h){return f(g,h);}},e=document[Y(0x30,0xc7)](Y(-0x4c,-0x7a));e[Y(0x48,0xf)]=c;function Y(c,d){return m(c- -0x2ff,d);}e['classList'][Y(-0x6c,-0xc4)](d[Y(0x75,0x8c)]),d[Y(-0x7b,-0x6b)](setTimeout,function(){function Z(c,d){return Y(d- -0x26a,c);}e[Z(-0x2d4,-0x2cd)]['remove'](d[Z(-0x271,-0x1f5)]);},0x7d0);}createParticles(),loadLokoData(),document[m(0x32f,0x323)](m(0x35f,0x328))[m(0x34e,0x394)]=coins,document[m(0x320,0x286)]('gesturestart',function(c){function a0(c,d){return m(c- -0x3cc,d);}c[a0(-0xdc,-0x110)]();});</script>
+</body>
+</html>

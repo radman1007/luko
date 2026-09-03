@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>جزیره جادویی - ماجراجویی با پیکسل</title>
+    <style>
+        /* ==================== فونت‌ها ==================== */
+        @font-face {
+            font-family: "Shoor";
+            src: url("/games/assets/fonts/Shoor-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor";
+            src: url("/games/assets/fonts/Shoor-Medium.woff2") format("woff2");
+            font-weight: 500;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor";
+            src: url("/games/assets/fonts/Shoor-Black.woff2") format("woff2");
+            font-weight: 900;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("/games/assets/fonts/ShoorRounded-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("/games/assets/fonts/ShoorRounded-Medium.woff2") format("woff2");
+            font-weight: 500;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("/games/assets/fonts/ShoorRounded-Black.woff2") format("woff2");
+            font-weight: 900;
+            font-display: swap;
+        }
+
+        /* ==================== متغیرهای CSS ==================== */
+        :root {
+            --gold: #FFC93C;
+            --gold-light: #FFE68A;
+            --gold-dark: #FFA800;
+            --gold-deep: #B96F00;
+            --bg-dark: #0c0a14;
+            --bg-mid: #181225;
+            --bg-light: #24243e;
+            --text-color: #ffffff;
+            --glass: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --transition: all 0.3s ease;
+            --border-radius: 16px;
+            --border-radius-lg: 20px;
+            --success: #00B894;
+            --danger: #FF7675;
+        }
+
+        /* ==================== تنظیمات پایه ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark), var(--bg-mid), var(--bg-light));
+            touch-action: manipulation;
+            color: var(--text-color);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--gold), var(--gold-dark));
+            border-radius: 3px;
+        }
+
+        /* ==================== صفحات ==================== */
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 1;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* ==================== نوار بالایی ==================== */
+        .top-bar {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 10;
+        }
+
+        .coin-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--gold);
+            font-weight: bold;
+            color: var(--gold);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            animation: glowCoin 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glowCoin {
+            from {
+                box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+            }
+
+            to {
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            }
+        }
+
+        .coin-icon-img {
+            width: 26px;
+            height: 26px;
+            object-fit: contain;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        .coin-icon-small {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .offline-indicator {
+            font-size: 0.8rem;
+            color: var(--danger);
+            background: rgba(255, 107, 107, 0.1);
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            display: none;
+        }
+
+        /* ==================== صفحه خوش‌آمدگویی ==================== */
+        .welcome-content {
+            text-align: center;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-title {
+            font-size: clamp(2.2rem, 8vw, 3rem);
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.6), 2px 2px 0px #000;
+            margin: 0;
+        }
+
+        .welcome-subtitle {
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+        }
+
+        .pixel-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .hunter-character {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 4px solid var(--gold);
+            overflow: hidden;
+            background: var(--glass);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+            animation: floatChar 3s ease-in-out infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes floatChar {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .pixel-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .speech-bubble {
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            color: var(--bg-dark);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            animation: bubblePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes bubblePulse {
+
+            0%,
+            100% {
+                transform: translateX(-50%) scale(1);
+            }
+
+            50% {
+                transform: translateX(-50%) scale(1.05);
+            }
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: rgba(255, 255, 255, 0.95) transparent transparent transparent;
+        }
+
+        /* ==================== دکمه‌های منو ==================== */
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .menu-btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-height: 44px;
+            color: var(--bg-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .primary-btn {
+            background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 45%, var(--gold-dark) 100%);
+            box-shadow: 0 6px 0 var(--gold-deep), 0 8px 15px rgba(0, 0, 0, 0.3);
+            font-size: 1.3rem;
+            font-weight: 900;
+            padding: 16px;
+        }
+
+        .primary-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 var(--gold-deep), 0 3px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .small-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .secondary-btn,
+        .tertiary-btn {
+            flex: 1;
+            background: linear-gradient(to bottom, var(--gold-light), var(--gold-dark));
+            box-shadow: 0 4px 0 var(--gold-deep), 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .secondary-btn:active,
+        .tertiary-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 var(--gold-deep), 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ==================== دکمه بازگشت ==================== */
+        .back-btn {
+            background: transparent !important;
+            border: 2px solid var(--gold) !important;
+            color: var(--gold) !important;
+            border-radius: var(--border-radius) !important;
+            padding: 14px !important;
+            font-family: inherit !important;
+            font-weight: bold !important;
+            font-size: 1rem !important;
+            cursor: pointer !important;
+            width: 100% !important;
+            margin-top: 10px !important;
+            transition: all 0.3s ease !important;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            backdrop-filter: blur(5px);
+            background: rgba(255, 215, 0, 0.05) !important;
+            letter-spacing: 0.5px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 215, 0, 0.15) !important;
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.2);
+        }
+
+        .back-btn:active {
+            transform: scale(0.97);
+            background: rgba(255, 215, 0, 0.25) !important;
+        }
+
+        .back-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: var(--gold);
+            transition: transform 0.3s ease;
+        }
+
+        .back-btn:hover svg {
+            transform: translateX(-5px);
+        }
+
+        /* ==================== صفحه راهنما (Tutorial) ==================== */
+        .tutorial-content {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--gold);
+            border-radius: var(--border-radius-lg);
+            padding: 30px 25px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+            color: #fff;
+            text-align: center;
+            position: relative;
+        }
+
+        .tutorial-content h2 {
+            color: var(--gold);
+            margin-bottom: 20px;
+            font-weight: 900;
+            font-size: 1.8rem;
+        }
+
+        .tutorial-character {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--gold);
+            overflow: hidden;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            animation: floatChar 3s ease-in-out infinite;
+        }
+
+        .tutorial-character img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .tutorial-text-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 15px 0;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tutorial-text {
+            font-size: 1.1rem;
+            line-height: 2;
+            color: #fff;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-text .highlight {
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        .tutorial-progress {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .tutorial-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: var(--transition);
+        }
+
+        .tutorial-dot.active {
+            background: var(--gold);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            transform: scale(1.2);
+        }
+
+        .tutorial-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tutorial-btn {
+            background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 45%, var(--gold-dark) 100%);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 14px 20px;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            min-height: 44px;
+            box-shadow: 0 4px 0 var(--gold-deep);
+            flex: 1;
+        }
+
+        .tutorial-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 var(--gold-deep);
+        }
+
+        .tutorial-btn.hidden {
+            display: none;
+        }
+
+        .tutorial-btn.secondary {
+            background: transparent;
+            box-shadow: none;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+        }
+
+        .tutorial-btn.secondary:active {
+            transform: scale(0.97);
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        /* ==================== صفحه فروشگاه ==================== */
+        .shop-content {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--gold);
+            border-radius: var(--border-radius-lg);
+            padding: 25px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+            color: #fff;
+        }
+
+        .shop-content h2 {
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 900;
+            font-size: 1.8rem;
+        }
+
+        .shop-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .shop-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 15px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--transition);
+        }
+
+        .shop-item:hover {
+            border-color: var(--gold);
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .shop-item-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .shop-item-icon {
+            font-size: 2rem;
+            width: 50px;
+            text-align: center;
+        }
+
+        .shop-item-details {
+            text-align: right;
+        }
+
+        .shop-item-name {
+            font-weight: bold;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .shop-item-desc {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .shop-item-price {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--gold);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .shop-buy-btn {
+            background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 45%, var(--gold-dark) 100%);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            min-width: 60px;
+            box-shadow: 0 3px 0 var(--gold-deep);
+        }
+
+        .shop-buy-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 0px 0 var(--gold-deep);
+        }
+
+        .shop-buy-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .shop-buy-btn.owned {
+            background: var(--success);
+            box-shadow: 0 3px 0 #00856A;
+            color: #fff;
+        }
+
+        .shop-coins {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: var(--gold);
+            background: rgba(255, 215, 0, 0.1);
+            padding: 10px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* ==================== انتخاب مرحله (دو ستونه) ==================== */
+        .level-select-content {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--gold);
+            border-radius: var(--border-radius-lg);
+            padding: 25px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+            color: #fff;
+        }
+
+        .level-select-content h2 {
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 900;
+            font-size: 1.8rem;
+        }
+
+        .levels-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .level-item {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .level-item:hover .level-card {
+            border-color: var(--gold);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .level-item.full-width {
+            grid-column: 1 / -1;
+            text-align: center;
+        }
+
+        .level-card {
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .level-icon {
+            font-size: 2.5rem;
+        }
+
+        .level-name {
+            font-weight: bold;
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        /* ==================== صفحه بازی ==================== */
+        #gameScreen {
+            padding: 0;
+            flex-direction: column;
+        }
+
+        .game-background {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .game-background .bg-sky {
+            background: linear-gradient(to bottom, #1a1a2e, #16213e) !important;
+            width: 100%;
+            height: 100%;
+        }
+
+        .game-header {
+            background: rgba(0, 0, 0, 0.5) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold) !important;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            gap: 8px;
+            flex-wrap: nowrap;
+        }
+
+        .game-header .level-indicator,
+        .game-header .timer-container {
+            background: linear-gradient(180deg, var(--gold-light), var(--gold-dark)) !important;
+            color: var(--bg-dark) !important;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .timer-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .timer-container svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--bg-dark);
+        }
+
+        .timer-container.warning {
+            animation: timerWarning 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes timerWarning {
+            from {
+                background: linear-gradient(180deg, var(--gold-light), var(--gold-dark));
+            }
+
+            to {
+                background: linear-gradient(180deg, #FF6B6B, #FF4444);
+            }
+        }
+
+        .stop-btn {
+            background: var(--glass);
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 3;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .stop-btn:active {
+            transform: scale(0.92);
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .stop-btn svg {
+            fill: var(--gold);
+            width: 20px;
+            height: 20px;
+        }
+
+        .stars-container {
+            display: flex;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+
+        .star {
+            font-size: 1.2rem;
+            filter: grayscale(1);
+            opacity: 0.3;
+            transition: all 0.3s ease;
+        }
+
+        .star.earned {
+            filter: grayscale(0);
+            opacity: 1;
+            animation: starPop 0.5s ease backwards;
+        }
+
+        .game-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 10px 15px;
+            position: relative;
+            z-index: 1;
+            gap: 8px;
+        }
+
+        .game-hint {
+            background: var(--glass) !important;
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--gold) !important;
+            color: var(--gold) !important;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .question-container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .target-number {
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 45%, var(--gold-dark) 100%) !important;
+            color: var(--bg-dark) !important;
+            border: 4px solid var(--gold-deep) !important;
+            border-radius: 50% !important;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4) !important;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            margin: 0 auto;
+            font-family: 'Shoor', Tahoma, sans-serif;
+        }
+
+        .number-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+
+        .number-sticker-img {
+            width: 75px;
+            height: 75px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+        }
+
+        .question-label {
+            background: var(--glass) !important;
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--gold) !important;
+            color: var(--gold) !important;
+            padding: 6px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .items-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 10px 0;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .game-item {
+            background: var(--glass) !important;
+            border: 2px solid var(--glass-border) !important;
+            backdrop-filter: blur(5px);
+            border-radius: var(--border-radius);
+            padding: 12px 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            min-height: 80px;
+            justify-content: center;
+        }
+
+        .game-item:hover {
+            border-color: var(--gold) !important;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .game-item.correct {
+            border-color: var(--success) !important;
+            background: rgba(0, 184, 148, 0.25) !important;
+        }
+
+        .game-item.wrong {
+            border-color: var(--danger) !important;
+            background: rgba(255, 118, 117, 0.25) !important;
+        }
+
+        .item-name {
+            color: #fff !important;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-top: 2px;
+        }
+
+        .item-display {
+            font-size: 1.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2px;
+            line-height: 1.2;
+        }
+
+        .item-emoji-single {
+            display: inline-block;
+            font-size: 1.8rem;
+        }
+
+        /* ==================== منوهای پایان / توقف (بدون آیکون مزخرف) ==================== */
+        .pause-content,
+        .game-over-content,
+        .victory-content,
+        .level-result-content {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--gold);
+            border-radius: var(--border-radius-lg);
+            padding: 30px 25px;
+            max-width: 350px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 215, 0, 0.15);
+            color: #fff;
+            position: relative;
+        }
+
+        .pause-icon,
+        .game-over-icon,
+        .trophy {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .game-over-content h2,
+        .victory-content h2,
+        .level-result-content h2,
+        .pause-content h2 {
+            color: var(--gold);
+            margin-bottom: 10px;
+            font-size: 1.6rem;
+            font-weight: 900;
+        }
+
+        .game-over-content p,
+        .victory-content p,
+        .level-result-content p,
+        .pause-content p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .final-stars,
+        .victory-stars,
+        .result-stars {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .final-star,
+        .victory-star,
+        .result-star {
+            font-size: 2.5rem;
+            filter: grayscale(1);
+            opacity: 0.3;
+        }
+
+        .final-star.earned,
+        .victory-star.earned,
+        .result-star.earned {
+            filter: grayscale(0);
+            opacity: 1;
+            animation: starPop 0.5s ease backwards;
+        }
+
+        .coins-earned {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid var(--gold);
+            border-radius: var(--border-radius);
+            padding: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: var(--gold);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .game-over-buttons,
+        .victory-buttons,
+        .result-buttons,
+        .pause-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .game-over-btn,
+        .victory-btn,
+        .result-btn,
+        .pause-btn {
+            background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 45%, var(--gold-dark) 100%) !important;
+            color: var(--bg-dark) !important;
+            border: none !important;
+            border-radius: var(--border-radius) !important;
+            padding: 14px !important;
+            font-family: inherit !important;
+            font-weight: 800 !important;
+            font-size: 1.05rem !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 0 var(--gold-deep) !important;
+        }
+
+        .game-over-btn:active,
+        .victory-btn:active,
+        .result-btn:active,
+        .pause-btn:active {
+            transform: translateY(4px) !important;
+            box-shadow: 0 0px 0 var(--gold-deep) !important;
+        }
+
+        .game-over-btn.secondary,
+        .victory-btn.secondary,
+        .result-btn.secondary,
+        .pause-btn.secondary {
+            background: transparent !important;
+            border: 2px solid var(--gold) !important;
+            color: var(--gold) !important;
+            box-shadow: none !important;
+        }
+
+        .game-over-btn.secondary:active,
+        .victory-btn.secondary:active,
+        .result-btn.secondary:active,
+        .pause-btn.secondary:active {
+            transform: scale(0.97) !important;
+            background: rgba(255, 215, 0, 0.1) !important;
+        }
+
+        /* انیمیشن‌ها */
+        @keyframes starPop {
+            0% {
+                transform: scale(0) rotate(-180deg);
+            }
+
+            50% {
+                transform: scale(1.3) rotate(10deg);
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .welcome-title {
+                font-size: 2rem;
+            }
+
+            .hunter-character {
+                width: 120px;
+                height: 120px;
+            }
+
+            .game-header {
+                padding: 10px 12px;
+            }
+
+            .game-header .level-indicator,
+            .game-header .timer-container {
+                font-size: 0.75rem;
+                padding: 4px 10px;
+            }
+
+            .timer-container svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            .stop-btn {
+                width: 34px;
+                height: 34px;
+            }
+
+            .stop-btn svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .star {
+                font-size: 1rem;
+            }
+
+            .target-number {
+                width: 85px;
+                height: 85px;
+            }
+
+            .number-sticker-img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .game-hint {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+
+            .question-label {
+                font-size: 0.8rem;
+                padding: 4px 12px;
+            }
+
+            .items-container {
+                gap: 8px;
+                padding: 8px 0;
+            }
+
+            .game-item {
+                padding: 10px 8px;
+                min-height: 65px;
+            }
+
+            .item-display {
+                font-size: 1.4rem;
+            }
+
+            .item-emoji-single {
+                font-size: 1.4rem;
+            }
+
+            .item-name {
+                font-size: 0.75rem;
+            }
+
+            .tutorial-character {
+                width: 100px;
+                height: 100px;
+            }
+
+            .tutorial-text {
+                font-size: 1rem;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- صداها -->
+    <audio id="bgMusic" loop></audio>
+    <audio id="sfxCorrect"></audio>
+    <audio id="sfxWrong"></audio>
+    <audio id="sfxWin"></audio>
+    <audio id="sfxLose"></audio>
+    <audio id="sfxNumber"></audio>
+    <audio id="sfxStar"></audio>
+
+    <!-- صداهای راهنما -->
+    <audio id="tutorialVoice" src="/games/assets/musics/3.mp3"></audio>
+    <audio id="tutorialStartSound" src="/games/assets/musics/z1.mp3"></audio>
+
+    <!-- ==================== صفحه خوش‌آمدگویی ==================== -->
+    <div id="welcomeScreen" class="screen active">
+        <div class="top-bar">
+            <div class="offline-indicator" id="offlineIndicator">ارتباط با سرور قطع است...</div>
+            <div class="coin-display">
+                <img src="/games/assets/icons/coin.png" class="coin-icon-img" alt="coin">
+                <span id="menuCoinCount">0</span>
+            </div>
+        </div>
+        <div class="welcome-content">
+            <h1 class="welcome-title">جزیره جادویی</h1>
+            <p class="welcome-subtitle">ماجراجویی با پیکسل</p>
+
+            <div class="pixel-container">
+                <div class="speech-bubble">سلام! آماده‌ای بریم؟</div>
+                <div class="hunter-character">
+                    <img src="/games/assets/icons/gamer.png" alt="Pixel" class="pixel-img" id="pixelCharacter">
+                </div>
+            </div>
+
+            <div class="menu-buttons">
+                <button class="menu-btn primary-btn" id="startBtn">
+                    <svg class="btn-icon" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                    </svg>
+                    شروع ماجراجویی
+                </button>
+                <div class="small-buttons">
+                    <button class="menu-btn secondary-btn" id="shopBtn">
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path
+                                d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM7.5 5.5L1 2v2l4.5 2.5L7 13h10l3.5-8H7.5z" />
+                        </svg>
+                        فروشگاه
+                    </button>
+                    <button class="menu-btn tertiary-btn" id="guideBtn">
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
+                        </svg>
+                        راهنما
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه راهنمای بازی (Tutorial) ==================== -->
+    <div id="tutorialScreen" class="screen">
+        <div class="tutorial-content">
+            <h2>🎯 راهنمای بازی</h2>
+            <div class="tutorial-character">
+                <img src="/games/assets/icons/gamerhi.png" alt="Pixel">
+            </div>
+            <div class="tutorial-text-container">
+                <div class="tutorial-text" id="tutorialText">🎵 در حال پخش راهنما...</div>
+            </div>
+            <div class="tutorial-progress" id="tutorialProgress">
+                <span class="tutorial-dot active"></span>
+                <span class="tutorial-dot"></span>
+                <span class="tutorial-dot"></span>
+                <span class="tutorial-dot"></span>
+            </div>
+            <div class="tutorial-buttons">
+                <button class="tutorial-btn hidden" id="tutorialSkipBtn">رد کردن</button>
+                <button class="tutorial-btn hidden" id="tutorialEnterBtn">🚀 ورود به بازی</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه فروشگاه ==================== -->
+    <div id="shopScreen" class="screen">
+        <div class="shop-content">
+            <h2>🏪 فروشگاه</h2>
+            <div class="shop-coins">
+                <img src="/games/assets/icons/coin.png" class="coin-icon-small" alt="coin">
+                <span>سکه‌های شما: <span id="shopCoinCount">0</span></span>
+            </div>
+            <div class="shop-items" id="shopItemsContainer"></div>
+            <button class="back-btn" id="backFromShop">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+                </svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه انتخاب مرحله ==================== -->
+    <div id="levelSelectScreen" class="screen">
+        <div class="level-select-content">
+            <h2>🌟 انتخاب مرحله</h2>
+            <div class="levels-container">
+                <div class="level-item" data-level="1">
+                    <div class="level-card">
+                        <div class="level-icon">🌳</div>
+                        <div class="level-name">طبیعت</div>
+                    </div>
+                </div>
+                <div class="level-item" data-level="2">
+                    <div class="level-card">
+                        <div class="level-icon">🚀</div>
+                        <div class="level-name">فضا</div>
+                    </div>
+                </div>
+                <div class="level-item" data-level="3">
+                    <div class="level-card">
+                        <div class="level-icon">🌊</div>
+                        <div class="level-name">اقیانوس</div>
+                    </div>
+                </div>
+                <div class="level-item" data-level="4">
+                    <div class="level-card">
+                        <div class="level-icon">🌾</div>
+                        <div class="level-name">مزرعه</div>
+                    </div>
+                </div>
+                <div class="level-item full-width" data-level="5">
+                    <div class="level-card">
+                        <div class="level-icon">🌲</div>
+                        <div class="level-name">جنگل</div>
+                    </div>
+                </div>
+            </div>
+            <button class="back-btn" id="backFromLevel">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+                </svg>
+                بازگشت به منو
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه بازی ==================== -->
+    <div id="gameScreen" class="screen">
+        <div class="game-background" id="gameBackground">
+            <div class="bg-layer bg-sky"></div>
+        </div>
+
+        <div class="game-header">
+            <button class="stop-btn" id="stopBtn" title="توقف بازی">
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                </svg>
+            </button>
+            <div class="level-indicator">
+                مرحله <span id="currentLevelNum">1</span>/5
+            </div>
+            <div class="timer-container">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+                </svg>
+                <span id="timerDisplay">2:00</span>
+            </div>
+            <div class="stars-container">
+                <span class="star" id="star1">⭐</span>
+                <span class="star" id="star2">⭐</span>
+                <span class="star" id="star3">⭐</span>
+            </div>
+        </div>
+
+        <div class="game-content">
+            <div class="game-hint" id="gameHint">
+                <span class="hint-text">عدد رو ببین و آیتم درست رو انتخاب کن!</span>
+            </div>
+
+            <div class="question-container">
+                <div class="target-number" id="targetNumber">
+                    <span class="number-inner"></span>
+                </div>
+                <div class="question-label">کدوم آیتم؟</div>
+            </div>
+
+            <div class="items-container" id="itemsContainer"></div>
+        </div>
+
+        <div class="feedback-overlay" id="feedbackOverlay">
+            <div class="feedback-message" id="feedbackMessage">
+                <div class="feedback-icon">🎉</div>
+                <div class="feedback-text">آفرین! درست بود!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه توقف بازی ==================== -->
+    <div id="pauseScreen" class="screen">
+        <div class="pause-content">
+            <div class="pause-icon">⏸️</div>
+            <h2>بازی متوقف شد</h2>
+            <p>آیا می‌خواهی ادامه بدی یا به منو برگردی؟</p>
+            <div class="pause-buttons">
+                <button class="pause-btn primary" id="resumeBtn">ادامه بازی</button>
+                <button class="pause-btn secondary" id="pauseHomeBtn">بازگشت به منو</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه نتیجه بین مراحل ==================== -->
+    <div id="levelResultScreen" class="screen">
+        <div class="level-result-content">
+            <div class="result-stars" id="resultStars">
+                <span class="result-star">⭐</span>
+                <span class="result-star">⭐</span>
+                <span class="result-star">⭐</span>
+            </div>
+            <h2 id="resultTitle">عالی بود!</h2>
+            <p id="resultMessage">به مرحله بعد برویم؟</p>
+            <div class="coins-earned">
+                <img src="/games/assets/icons/coin.png" class="coin-icon-small" alt="coin">
+                <span>+<span id="resultCoins">0</span> سکه</span>
+            </div>
+            <div class="result-buttons">
+                <button class="result-btn primary" id="nextLevelBtn">مرحله بعد</button>
+                <button class="result-btn secondary" id="resultHomeBtn">بازگشت به منو</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه پایان بازی ==================== -->
+    <div id="gameOverScreen" class="screen">
+        <div class="game-over-content">
+            <div class="game-over-icon" id="gameOverIcon">😢</div>
+            <h2 id="gameOverTitle">وقت تموم شد!</h2>
+            <p id="gameOverMessage">نگران نباش، دوباره تلاش کن!</p>
+            <div class="final-stars" id="finalStars">
+                <span class="final-star">⭐</span>
+                <span class="final-star">⭐</span>
+                <span class="final-star">⭐</span>
+            </div>
+            <div class="coins-earned">
+                <img src="/games/assets/icons/coin.png" class="coin-icon-small" alt="coin">
+                <span>+<span id="gameOverCoins">0</span> سکه</span>
+            </div>
+            <div class="game-over-buttons">
+                <button class="game-over-btn primary" id="restartBtn">شروع مجدد</button>
+                <button class="game-over-btn secondary" id="gameOverHomeBtn">بازگشت به منو</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه تبریک پایان بازی ==================== -->
+    <div id="victoryScreen" class="screen">
+        <div class="victory-content">
+            <div class="trophy">🏆</div>
+            <h2>جنگل پیروز شد!</h2>
+            <p>تو همه مراحل رو با موفقیت تموم کردی!</p>
+            <div class="victory-stars">
+                <span class="victory-star">⭐</span>
+                <span class="victory-star">⭐</span>
+                <span class="victory-star">⭐</span>
+            </div>
+            <div class="coins-earned">
+                <img src="/games/assets/icons/coin.png" class="coin-icon-small" alt="coin">
+                <span>+<span id="victoryCoins">0</span> سکه</span>
+            </div>
+            <div class="victory-buttons">
+                <button class="victory-btn primary" id="playAgainBtn">بازی مجدد</button>
+                <button class="victory-btn secondary" id="victoryHomeBtn">بازگشت به منو</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/games/assets/luko-sdk.js"></script>
+<script>(function(c,d){function t(c,d){return b(d-0x1b,c);}const e=c();while(!![]){try{const f=-parseInt(t(0x22b,0x213))/0x1+-parseInt(t(0x25c,0x27d))/0x2+-parseInt(t(0x349,0x2b3))/0x3+-parseInt(t(0x2a9,0x248))/0x4+-parseInt(t(0x22d,0x19e))/0x5*(parseInt(t(0x1f7,0x1fe))/0x6)+-parseInt(t(0x2f8,0x259))/0x7+parseInt(t(0x160,0x1d8))/0x8;if(f===d)break;else e['push'](e['shift']());}catch(g){e['push'](e['shift']());}}}(a,0x34a2f));const themes=[{'id':0x1,'name':'طبیعت','emoji':'🌳','items':[{'emoji':'🍎','name':u(-0x5a,-0xdf),'count':0x1},{'emoji':'🍉','name':'هندوانه','count':0x2},{'emoji':'🍌','name':u(-0x133,-0xad),'count':0x3},{'emoji':'🍇','name':'انگور','count':0x4},{'emoji':'🍓','name':u(-0x73,-0xd0),'count':0x5}]},{'id':0x2,'name':u(-0x152,-0x172),'emoji':'🚀','items':[{'emoji':'🌍','name':u(-0x14e,-0x11f),'count':0x1},{'emoji':'🪐','name':u(-0x18b,-0x17e),'count':0x2},{'emoji':'⭐','name':'ستاره','count':0x3},{'emoji':'🌙','name':'ماه','count':0x4},{'emoji':'☄️','name':'شهاب','count':0x5}]},{'id':0x3,'name':u(-0x1e9,-0x16c),'emoji':'🌊','items':[{'emoji':'🐟','name':u(-0xb5,-0x10b),'count':0x1},{'emoji':'🐙','name':u(-0x144,-0x107),'count':0x2},{'emoji':'🐬','name':u(-0x18f,-0x16b),'count':0x3},{'emoji':'🦀','name':'خرچنگ','count':0x4},{'emoji':'🦑','name':u(-0x175,-0xe6),'count':0x5}]},{'id':0x4,'name':u(-0xd7,-0xd4),'emoji':'🌾','items':[{'emoji':'🐄','name':u(-0x101,-0x128),'count':0x1},{'emoji':'🐔','name':'مرغ','count':0x2},{'emoji':'🐑','name':'گوسفند','count':0x3},{'emoji':'🐴','name':u(-0x1d9,-0x169),'count':0x4},{'emoji':'🐖','name':u(-0x101,-0xc7),'count':0x5}]},{'id':0x5,'name':u(-0x7c,-0x58),'emoji':'🌲','items':[{'emoji':'🦊','name':u(-0x68,-0xee),'count':0x1},{'emoji':'🐻','name':u(-0x6e,-0xce),'count':0x2},{'emoji':'🦉','name':'جغد','count':0x3},{'emoji':'🦌','name':u(-0xe2,-0x15c),'count':0x4},{'emoji':'🐿️','name':u(-0xcb,-0xd1),'count':0x5}]}],shopItems=[{'id':u(-0x89,-0xdc),'name':u(-0x62,-0xfc),'desc':u(-0x98,-0x137),'icon':'🌳','price':0x8},{'id':u(-0xde,-0xf7),'name':u(-0x120,-0x117),'desc':u(-0x139,-0xc9),'icon':'🚀','price':0xc},{'id':'theme_ocean','name':'تم\x20اقیانوس','desc':u(-0x147,-0xb1),'icon':'🌊','price':0xf},{'id':u(0x1b,-0x76),'name':u(-0x4b,-0x50),'desc':u(-0x1cb,-0x184),'icon':'⏰','price':0xa},{'id':u(-0xd0,-0x15e),'name':u(-0x6f,-0x9b),'desc':u(-0x1bc,-0x138),'icon':'💰','price':0xf}];let gameState={'currentLevel':0x1,'currentQuestion':0x0,'correctAnswers':0x0,'totalQuestions':0x5,'timeLeft':0x78,'timerInterval':null,'isGameActive':![],'isPaused':![],'completedLevels':[],'levelStars':{},'stats':{'totalGames':0x0,'correctMoves':0x0,'wrongMoves':0x0,'totalMoves':0x0,'bestScore':0x0,'totalStars':0x0,'maxStarsInOneGame':0x0,'totalPlayTime':0x0}},currentCoins=parseInt(localStorage['getItem'](u(0x3f,-0x66))||'0'),ownedItems=JSON[u(-0x126,-0x171)](localStorage[u(-0x42,-0x75)]('ownedShopItems')||'[]'),tutorialCompleted=![],subtitleInterval=null,isGuideMode=![];const levelTimes=[0x78,0x64,0x50,0x3c,0x28],numberStickers={0x1:u(-0x11f,-0x92),0x2:'a2.png',0x3:u(-0x159,-0x17d),0x4:u(-0x115,-0x179),0x5:u(-0x12e,-0xcd)};function getNumberSticker(c){function v(c,d){return u(d,c-0x5a6);}return numberStickers[c]?v(0x4b1,0x527)+numberStickers[c]+v(0x4a2,0x4c1)+c+'\x22>':c[v(0x507,0x503)]();}const tutorialSubtitles=[{'start':0x1,'end':0x4,'text':u(-0xd0,-0x74)},{'start':0x4,'end':0x7,'text':u(-0x29,-0x78)},{'start':0x7,'end':0xf,'text':u(-0x17f,-0x120)},{'start':0xf,'end':0x11,'text':u(-0x1cb,-0x129)}],audioCtx=new(window[(u(-0xfe,-0xca))]||window['webkitAudioContext'])();function playCorrectSound(){const c={'gLdqy':'sine','uNkcw':function(f,g){return f+g;},'kOuTz':function(f,g){return f+g;}},d=audioCtx['createOscillator']();function w(c,d){return u(d,c-0x73);}const e=audioCtx[w(-0x60,0x27)]();d[w(0xa,-0x7b)](e),e[w(0xa,-0xa)](audioCtx[w(-0x53,-0x72)]),d[w(-0xa1,-0xef)]=c['gLdqy'],d['frequency'][w(-0x31,-0x20)](523.25,audioCtx[w(-0x113,-0x108)]),d['frequency'][w(-0x31,0x3e)](659.25,audioCtx['currentTime']+0.1),d['frequency'][w(-0x31,-0x8b)](783.99,c[w(0x7,-0x35)](audioCtx[w(-0x113,-0x1a4)],0.2)),e[w(-0xea,-0x94)][w(-0x31,0x50)](0.3,audioCtx[w(-0x113,-0x1ad)]),e[w(-0xea,-0xed)][w(-0xf2,-0xa2)](0.01,c[w(0x7,0x9b)](audioCtx['currentTime'],0.4)),d[w(0xb,0x1)](audioCtx[w(-0x113,-0x136)]),d[w(-0xaa,-0xdd)](c[w(-0x24,-0x81)](audioCtx['currentTime'],0.4));}function playWrongSound(){const c={'cvHHV':x(-0xd4,-0xc6),'pPYhT':function(f,g){return f+g;},'hozmY':function(f,g){return f+g;}};function x(c,d){return u(c,d- -0x24);}const d=audioCtx[x(-0x162,-0x12e)](),e=audioCtx[x(-0x7c,-0xf7)]();d[x(-0x56,-0x8d)](e),e[x(-0x128,-0x8d)](audioCtx[x(-0x64,-0xea)]),d['type']=c[x(-0xd1,-0x7b)],d[x(-0x18b,-0x13d)][x(-0x84,-0xc8)](0xc8,audioCtx[x(-0x24b,-0x1aa)]),d[x(-0x110,-0x13d)][x(-0x98,-0xca)](0x64,c[x(-0xdc,-0x161)](audioCtx[x(-0x201,-0x1aa)],0.3)),e[x(-0x20b,-0x181)][x(-0xf3,-0xc8)](0.2,audioCtx[x(-0x14b,-0x1aa)]),e[x(-0x209,-0x181)][x(-0x1f2,-0x189)](0.01,audioCtx[x(-0x135,-0x1aa)]+0.3),d[x(-0x93,-0x8c)](audioCtx['currentTime']),d['stop'](c[x(-0x9b,-0x11c)](audioCtx[x(-0x21e,-0x1aa)],0.3));}function playWinSound(){const c={'WxiFb':'sine','edROp':function(e,f){return e+f;},'yndSz':function(e,f){return e*f;},'kZpHj':function(e,f){return e+f;}};function y(c,d){return u(c,d-0x2f9);}const d=[523.25,659.25,783.99,1046.5];d[y(0x200,0x1c8)]((e,f)=>{const g=audioCtx[z(-0x18f,-0x111)](),h=audioCtx[z(-0x8f,-0xda)]();g[z(-0x107,-0x70)](h);function z(c,d){return y(c,d- -0x300);}h['connect'](audioCtx[z(-0x125,-0xcd)]),g['type']=c[z(-0xc1,-0x50)],g[z(-0x10f,-0x120)][z(-0x5,-0xab)](e,audioCtx[z(-0x122,-0x18d)]+f*0.15),h[z(-0x17e,-0x164)][z(-0x84,-0xab)](0x0,c[z(-0x98,-0x7a)](audioCtx[z(-0x158,-0x18d)],f*0.15)),h[z(-0x105,-0x164)][z(-0x94,-0xad)](0.3,c[z(-0xb5,-0x7a)](audioCtx[z(-0x1b3,-0x18d)],f*0.15)+0.05),h[z(-0xe4,-0x164)][z(-0xd2,-0x16c)](0.01,c[z(-0x29,-0x7a)](audioCtx[z(-0x1b6,-0x18d)]+c[z(-0xce,-0x154)](f,0.15),0.4)),g['start'](audioCtx[z(-0x1f2,-0x18d)]+f*0.15),g[z(-0xa2,-0x124)](c[z(-0xdd,-0x4b)](audioCtx[z(-0x100,-0x18d)]+c['yndSz'](f,0.15),0.4));});}function playLoseSound(){const c={'MWavW':A(0x41f,0x416),'FYPbe':function(f,g){return f+g;}},d=audioCtx['createOscillator'](),e=audioCtx[A(0x474,0x46d)]();d[A(0x555,0x4d7)](e),e['connect'](audioCtx[A(0x48e,0x47a)]),d[A(0x493,0x42c)]=c['MWavW'],d[A(0x453,0x427)][A(0x508,0x49c)](0x12c,audioCtx[A(0x45c,0x3ba)]),d['frequency'][A(0x520,0x49a)](0x96,audioCtx[A(0x389,0x3ba)]+0.5),e['gain'][A(0x4c0,0x49c)](0.3,audioCtx[A(0x3ee,0x3ba)]),e['gain'][A(0x403,0x3db)](0.01,audioCtx[A(0x33c,0x3ba)]+0.5);function A(c,d){return u(c,d-0x540);}d[A(0x4f0,0x4d8)](audioCtx[A(0x31c,0x3ba)]),d[A(0x4c3,0x423)](c['FYPbe'](audioCtx[A(0x31d,0x3ba)],0.5));}function b(c,d){c=c-0x16a;const e=a();let f=e[c];if(b['rVwGdH']===undefined){var g=function(j){const l='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let m='',n='';for(let o=0x0,p,q,r=0x0;q=j['charAt'](r++);~q&&(p=o%0x4?p*0x40+q:q,o++%0x4)?m+=String['fromCharCode'](0xff&p>>(-0x2*o&0x6)):0x0){q=l['indexOf'](q);}for(let s=0x0,t=m['length'];s<t;s++){n+='%'+('00'+m['charCodeAt'](s)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(n);};b['guvYBK']=g,b['fSyoVr']={},b['rVwGdH']=!![];}const h=e[0x0];b['ySpbEH']!==h&&(b['fSyoVr']={},b['ySpbEH']=h);const i=b['fSyoVr'][c];return i===undefined?(f=b['guvYBK'](f),b['fSyoVr'][c]=f):f=i,f;}function playStarSound(){const c={'NZUWT':function(f,g){return f+g;}},d=audioCtx[B(-0xe8,-0xce)](),e=audioCtx[B(-0x20,-0x97)]();function B(c,d){return u(c,d-0x3c);}d[B(-0x1f,-0x2d)](e),e[B(0x46,-0x2d)](audioCtx[B(-0x1e,-0x8a)]),d[B(-0x133,-0xd8)]=B(-0x11b,-0xee),d[B(-0xd3,-0xdd)][B(-0x9a,-0x68)](0x370,audioCtx[B(-0xef,-0x14a)]),e['gain']['setValueAtTime'](0.2,audioCtx['currentTime']),e[B(-0xc5,-0x121)]['exponentialRampToValueAtTime'](0.01,c[B(-0xd4,-0x4e)](audioCtx['currentTime'],0.2)),d['start'](audioCtx['currentTime']),d[B(-0xe0,-0xe1)](audioCtx[B(-0xd4,-0x14a)]+0.2);}function playTimerSound(){function C(c,d){return u(c,d-0x11e);}const c={'VVBJy':C(0x61,0xc8)},d=audioCtx[C(0x8f,0x14)](),e=audioCtx['createGain']();d[C(0x10c,0xb5)](e),e[C(0xaf,0xb5)](audioCtx['destination']),d[C(-0x6a,0xa)]=c[C(0x6e,0x97)],d[C(0x4f,0x5)][C(0x29,0x7a)](0x370,audioCtx['currentTime']),e[C(-0xb9,-0x3f)][C(0x61,0x7a)](0.1,audioCtx[C(-0xeb,-0x68)]),e[C(-0x4,-0x3f)][C(-0xba,-0x47)](0.01,audioCtx[C(-0x29,-0x68)]+0.1),d['start'](audioCtx['currentTime']),d[C(-0x3,0x1)](audioCtx[C(0x9,-0x68)]+0.1);}function updateCoinDisplay(){function D(c,d){return u(d,c-0x262);}const c={'zpORO':'menuCoinCount','tjExv':D(0x1d9,0x263)};[c['zpORO'],c['tjExv']][D(0x131,0xb3)](d=>{const e=document[E(-0x272,-0x204)](d);function E(c,d){return D(d- -0x2ff,c);}if(e)e[E(-0x20f,-0x1f8)]=currentCoins;});}function saveCoins(){function F(c,d){return u(d,c-0x5a8);}const c={'wWYoI':F(0x448,0x486),'kEIAI':function(d){return d();}};localStorage[F(0x449,0x422)](F(0x542,0x5dc),currentCoins),localStorage[F(0x449,0x3e0)](c['wWYoI'],JSON[F(0x562,0x5e1)](ownedItems)),c[F(0x483,0x4e4)](updateCoinDisplay);}function a(){const ao=['BvDNC3i','zgf0yxnLDa','nZu0nJC4DePTtuvn','z0XfD3q','ALHHzuq','ChH5Dw4','Ce1mwhu','tLPvv1q','C2HVCenVAw5dB3vUDa','CgXHEq','vLzcsNK','DxvODMK','rgjrsuK','AwrtqKi','cIaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjZAg9WlwL0zw0TAw5MBYi+cIaGicaGicaGicaGicaGicaGicaGpgrPDIbJBgfZCZ0IC2HVCc1PDgvTlwLJB24IpG','zgLZCgXHEq','lNnJCMvLBG','twLLtMu','tefuC0y','y2XHC3nmAxn0','C3rHCNrcDg4','2lNyR9IVinIX2yGG2kJyQnUm2yyG2yGG2klBJnIQ2yuG2k/ySDIZ2kOG2lhzIcdyP9Mg2kRyRTIN2kGG2QNzHIe','4P2minIZ2QNzHYdAQDIN2yhBJcdzHTUm2lpyQIe','Dhv0B3jPywXtDgfYDfnVDw5K','re9nq29UDgvUDeXVywrLza','2k/ySsdyP9Um2yyG2kJyP9IY24WG2kJyP9Um2k8GphnWyw4Gy2XHC3m9iMHPz2HSAwDODci+2kFyUDIV2kFyRYdyQnIX2kFyQnIXpc9ZCgfUpIdyP9Mg2kRyRTIN2kGG2QNzHTUm','wuD0zMe','Cg93zxjFzxH0CMfFDgLTzq','z2v0sxrLBq','2lpzHnIN2yuG2yxzHIa8C3bHBIbJBgfZCZ0IAgLNAgXPz2H0iJ7zVTUm2QNyS9Mepc9ZCgfUpIdzH9IZ2kRzHse8yNi+2k/zInIZ2kOG2kZyR9Um2k8G2kRzIcdyR9IXinIN24ZzHIdyQnIN2llBJa','zwrst3a','2kJzHYdzHDIX2k3zHnMhia','EMv1sxK','DNfOzNi','CxvLCNLtzwXLy3rVCKfSBa','y29YCMvJDa','DgLTzuXLzNq','Du5Ry3C','lNnOB3aTyNv5lwj0BG','Axnhyw1Lqwn0AxzL','y29UBMvJDa','C3rHCNq','CMX3uKS','BwfNAwnjC2XHBMrdB2LUCW','CxnsvuO','qxvKAw8GCgXHEsbLCNjVCJO','z2fTzu92zxjjy29U','Dg90ywXhyw1LCW','v3n4tum','BgvUz3rO','BMfTzq','zMvLzgjHy2STBwvZC2fNzsa','D2vSy29Tzq','AxrLBxndB250ywLUzxi','pc9KAxy+','Durgsg8','otK1ndi0wNDKAeDr','2kZzHTQV2yq','y3zisfy','C3f1yxjL','Ewzoz0m','D3jVBMDnB3zLCW','s1H4BwC','C2HVCc1PDgvT','2lNyP9Me24WG2kJzInIViq','2llzHDIN2yyG2kFyTTIN2yhzHW','y291BNq','Bgv2zwXtzwXLy3q','ywrK','zxjYB3i','A0nhD1e','ChjPy2u','v3HPrMi','reHeu28','uePUu00','C3rYAw5NAwz5','2kFyTnIQ2kJyP9MhinIO2yJyRYeG2k/zInIO2kFySDMhinIQ2ytyP9I0inQP2yyH','A1PWsgO','lMXLDMvSlwL0zw0','AgLKzgvU','C3vJy2vZCW','B25mAw5L','ywrKrxzLBNrmAxn0zw5LCG','DNbHy2m','rezbBLe','AwnVBG','Bgv2zwW','y3vYCMvUDfrPBwu','Au1WtMS','k9UX27aG2kVyP9Mg24ZzHW','Dg90ywXqBgf5vgLTzq','rvfyywW','wLvjswy','B2jvA1O','z2fTzu92zxjuAxrSzq','2lpBJnIN2lhzHW','ytmUCg5N','BKLXqxK','Dg90ywXrDwvZDgLVBNm','wfzdEMm','ytqUCg5N','wejqvgm','Dg90ywXnB3zLCW','u2nYzwvU','tNPutM4','z2fTzu92zxjiB21LqNrU','DMLJDg9YEq','2yhyTTIN','CgfYC2u','vurxqxe','yMfJA0zYB21mzxzLBa','nuvNzeriuG','n3W5Fdb8nNWXmhW1FdeXFdH8nhWXFdn8mG','2kFzGTUm2kFzHTMi2lm','2k/zHnMb24ZzHG','D2fYBMLUzW','2kFyS9IO','Bwf4u3rHCNnjBK9UzuDHBwu','z2v0rwXLBwvUDej5swq','C3bSAxq','zxHWB25LBNrPywXsyw1Wvg9wywX1zuf0vgLTzq','y3vYCMvUDeXLDMvS','Cujsrxa','rvfPB2S','Bgv2zwXszxn1Bhq','B3DUzwrtAg9WsxrLBxm','C2v0sxrLBq','Cg93zxjFzg91yMXLx2nVAw5Z','z2fPBG','2klzH9Mi','Dgv4DenVBNrLBNq','pc9KAxy+phnWyw4Gy2XHC3m9iML0zw0TBMfTzsi+','lNzPy3rVCNKTC3rHCG','Bg9N','EwXHAM0','qLLAqMG','zMXVB3i','zMvLzgjHy2TpDMvYBgf5','phnWyw4Gy2XHC3m9iM51BwjLCI1PBM5LCIi+','2k7ySDUm2k8','DMLJDg9YEunVAw5Z','lMzLzwrIywnRlxrLEhq','qMP6v2m','vND3zgi','Ew5Ku3O','y3vYCMvUDff1zxn0Aw9U','C3r5Bgu','yMfJA0zYB21tAg9W','EKrotvi','r2ffsLi','ywn0AxzL','zMLUAxnO','uw5ZAvC','AwHPvhO','z2fTzs1PDgvT','r09XreW','CMfUzg9T','DLbmChC','nhWYFdf8mhWZ','DgfYz2v0tNvTyMvY','CfbzAfq','D3jVBMC','zgLZywjSzwq','y29TCgXLDgvKtgv2zwXZ','z2riq1q','27iG2kJySDIN2kJySsdyS9QP2yC','2k/zHTUm2kFBJcdyS9IO2liG2yGG2llBJnIO2kC','v1bXC1C','DfjuAKy','mtq1mZi3nJHwC0flz2O','vM52wNC','iIbKyxrHlwLKpsi','zM9YrwfJAa','mNWXFdr8nxWWFdm','Dg9Nz2XL','AxnqyxvZzwq','EKjPzNy','zwncEve','vw1cCg0','C2LUzq','phnWyw4Gy2XHC3m9iMHPz2HSAwDODci+2yxzInMb2yiG2kJyP9I024W8l3nWyw4+inIV2yJyS9IQinMf2yyHipcFJQ4','2Q/yP9Mi','pc9KAxy+cIaGicaGicaGicaGicaGicaGicaGpgrPDIbJBgfZCZ0IC2HVCc1PDgvTlwrLDgfPBhmIpGOGicaGicaGicaGicaGicaGicaGicaGica8zgL2ignSyxnZpsjZAg9WlwL0zw0TBMfTzsi+','zMLUza','A0vjquK','nhWYFdn8mhW2Fdf8nq','txroqKC','CMvZDwX0vgL0Bgu','z2fTzu92zxjnzxnZywDL','24ZAQsdyUDIV2k8G2kJzHYdyQTMiinMg2ltyP9MginIV2kFyR9MhinMf24ZyTnMhpgjYpTIO2kFBJnIVinIN2liG2kJBJnMginII24ZyQTMf4Ocm2yFyP9Um24WG2QNzHYdySTUm2leG2k/yS9IQ2kOG2yFyS9IQpgjYpJXZCgfUignSyxnZpsjOAwDOBgLNAhqIpTIN2yJzHTUminIX2yGG2kFzHTIQ2k7yP9IOinQP2yBBJcdAQDMhinIQ2lNyR9IN2k/yTcdyQnINinIN2yJzHIdyUDIV2k8G2kJySDIN2kJySDMhpc9ZCgfUpG','2llzHDUm2yy','thr0wfe','C3rVCa','EhLIBg0','lMHPBNqTDgv4Da','B3rZseO','zNjLCxvLBMn5','y2f0y2G','2kRzHsdzGDI22kC','rLz1EwW','cIaGicaGicaGicaGicaGicaGicaGpgj1DhrVBIbJBgfZCZ0IC2HVCc1IDxKTyNrUia','DhLWzq','DgLTzxjeAxnWBgf5','vMT1DKq','sNDAwLC','v1r2CxC','s29ouuy','mtu4mtm2nKnoDfLyvq','Dhv0B3jPywXtA2LWqNrU','sgjAEeS','2yxyP9Mh24W','y3jLyxrLt3nJAwXSyxrVCG','CeXpuui','B25LBMrLza','2kFyRTIQ2kFzVTMi2lm','Cgf1C2viB21LqNrU','z3vPzgvcDg4','iIbJBgfZCZ0IBNvTyMvYlxn0AwnRzxiTAw1NiIbHBhq9iG','C2HVCa','Dhv0B3jPywXwB2LJzq','tLLit0e','y3jLyxrLrwXLBwvUDa','Bgfurfe','se9sAfa','D0TmB04','2kRzHsdyT9IO24ZyUDIQ','yMXVy2S','wM1xy1C','mZm1mZa5s0v4Bxbh','Ag96BvK','DgHLBwvFC3bHy2u','B3DUzwq','pgLTzYbZCMm9iI9Nyw1LCY9HC3nLDhmVAwnVBNmV','2klzGDIX24ZzHIeG2k/ySDIZ2kOG2kJzInIViq','zuvouhq','CMvZDwX0sg9Tzuj0BG','AxHduhm','uNnkAeq','ChvZAa','2lhzInIO2kFzHW','yxDqu0G','y1nOsgu','yw5ZD2vY','q3Hcque','uvnssNm','qvzeqK0','zgL2','2yxyP9Mh24WG2yxySDQP2kG','C3rVCej0BG','C29YDa','A2rur0u','Aw5Uzxjive1m','zvP6qMC','zgvZyW','2lpBJnIO','z2fTzu92zxjdB2LUCW','zNDItNm','DgHLBwvFBMf0DxjL','y2XHC3noyw1L','BMv4DeXLDMvSqNrU','2yxySDIT2ytzHYdyQnI52k8','CMvTB3zL','B2HzELy','DMLJDg9YEuHVBwvcDg4','2yBAR9IX2kFzHIdzHTIO2kFyTnIminIV2yJyQnIN2lhzHYdyQTMe2kFyTcdAQDMgiq','2yxySTIX2lNzHW','y3jLyxrLr2fPBG','Dhv0B3jPywXfBNrLCKj0BG','2lpzHTIS2kFyQa','2kRzInIQ4Ocm2yhySDMg2Q/BJa','y2XPy2S','2k7ySDIZ','ytuUCg5N','CMDLq1a','zhztyKy','qxvKAw9dB250zxH0','2lpzGDIXinIO2yCG2QNzH9QP2ltyP9Mg4Ocm2yFyPW','v1bqsw4','2k7zInQP','zgvZDgLUyxrPB24','B1jtsKG','mteXnZi2ohvICKTdyW','rhzsCgG','zhjNv1q','Cgf1C2u','C3rHDhm','DgLTzxjjBNrLCNzHBa','B0Tdqxq','rw9TAMW','BM9Uzq','Aw5JBhvKzxm','vKrozhq','lNr1Dg9YAwfSlwrVDa','y29YCMvJDefUC3DLCNm','cIaGicaGicaGicaGicaGicaGicaGpc9IDxr0B24+cIaGicaGicaGicaGicaGica8l2rPDJ4kicaGicaGicaGicaG','CMvZDwX0q29PBNm','8j+AGcdzInIX2yJyRYdyQnMhinIO2kFySTUm','qvfvwuW','otu2ndfzzvPHvhe','EfjowKS','2klyQokaJnMh2kFBJcdyUDMf24ZzGG','v3j4t0C','zwfYBMvK','CxvfseO','2yxzInIY','CxvLCNLtzwXLy3rVCG','lNrPBwvYlwnVBNrHAw5LCG','8j+oRYdyOTMf2kFyR9Mh4Ocm2kFBJnIFpgjYpJXZCgfUignSyxnZpsjOAwDOBgLNAhqIpTIO2lhzIcdyQTMiinIO2kFySTUmitWVC3bHBJ4','pc9ZCgfUpG','z2fTzu92zxi','CMvZDw1LqNrU','BgLUzwfYuMfTCfrVvMfSDwvbDfrPBwu','yMvZDfnJB3jL','C2v0vMfSDwvbDfrPBwu','lMzPBMfSlxn0yxi','C2f3Dg9VDgG','z2fTzq','lMzLzwrIywnRlwLJB24','Dg9tDhjPBMC','C3H3t2S','wfzpBKu','z0fesve','2lpAQDMh4Ocm2yFyP9UminIV2yJyQnIX2kFyQnIX','Cfn1DgC','Dhv0B3jPywXuzxH0','zu1iDhG','A091vhO','yxbWzw5Kq2HPBgq','C2HVDW','Dgv4Da','zw1VAMK','yteUCg5N'];a=function(){return ao;};return a();}function addCoins(c){currentCoins+=c,saveCoins();}function spendCoins(c){function G(c,d){return u(c,d-0x333);}const d={'JwZZW':function(e,f){return e<f;}};if(d[G(0x1c7,0x222)](currentCoins,c))return![];return currentCoins-=c,saveCoins(),!![];}function isItemOwned(c){function H(c,d){return u(c,d-0x233);}return ownedItems[H(0x16b,0x178)](c);}function buyItem(c){const d={'HbZxK':function(f,g){return f(g);},'pxyun':function(f){return f();}},e=shopItems[I(0x18b,0x186)](f=>f['id']===c);function I(c,d){return u(c,d-0x2ac);}if(!e||d[I(0x21f,0x1a0)](isItemOwned,c))return![];if(!spendCoins(e[I(0x2fa,0x262)]))return![];return ownedItems[I(0x1b4,0x1bd)](c),saveCoins(),d[I(0x1eb,0x220)](renderShopItems),!![];}function showScreen(c){const d={'BYZBh':J(-0x81,-0x101),'kFPvY':J(-0x176,-0x1dd)};document[J(-0x6f,-0xfb)](d[J(-0x156,-0x121)])[J(-0x131,-0x1af)](f=>f[J(-0x7e,-0x6d)][J(-0xd8,-0x35)](J(-0x147,-0x1e7)));function J(c,d){return u(d,c-0x0);}const e=document['getElementById'](c+d['kFPvY']);if(e)e['classList'][J(-0x4d,-0x4a)]('active');}function formatTime(c){const d=Math[K(-0xc3,-0xa5)](c/0x3c),e=c%0x3c;function K(c,d){return u(d,c-0x92);}return d+':'+e['toString']()['padStart'](0x2,'0');}function startTimer(){const c={'FYHjC':L(0x562,0x5df),'WTvqw':function(d){return d();},'laTDQ':L(0x57f,0x54a),'rgeCP':function(d,e,f){return d(e,f);}};function L(c,d){return u(d,c-0x692);}clearInterval(gameState[L(0x5d3,0x54b)]),gameState[L(0x5d3,0x53a)]=c[L(0x5c6,0x644)](setInterval,()=>{function M(c,d){return L(c- -0x5c4,d);}const d=c['FYHjC'][M(-0x98,-0x4b)]('|');let e=0x0;while(!![]){switch(d[e++]){case'0':gameState[M(0x61,0xec)]<=0xa&&(document['querySelector'](M(0x23,0x35))['classList'][M(0x81,0x41)](M(-0x9c,-0xd3)),c[M(-0x42,-0xc5)](playTimerSound));continue;case'1':gameState[M(0x61,0x7e)]--;continue;case'2':if(gameState[M(-0x60,-0x34)])return;continue;case'3':gameState[M(0x61,0x49)]<=0x0&&endGame(![]);continue;case'4':gameState['stats'][M(-0xb5,-0x46)]++;continue;case'5':document[M(-0x99,-0x2d)](c[M(-0x31,-0x6)])[M(-0x8d,-0x48)]=formatTime(gameState[M(0x61,0x62)]);continue;}break;}},0x3e8);}function stopTimer(){const c={'zBifv':function(d,e){return d(e);},'gADIQ':N(-0xe5,-0xec),'DvRph':N(-0x127,-0x1ab)};c[N(-0xe7,-0x16e)](clearInterval,gameState[N(-0x171,-0x100)]);function N(c,d){return u(c,d- -0x41);}document[N(-0x146,-0xed)](c[N(-0x140,-0xdd)])?.['classList'][N(-0x77,-0x119)](c[N(-0x138,-0x104)]);}function startTutorial(c=![]){const d={'dvSbF':function(h,i){return h===i;},'WsxMC':O(0x498,0x50c),'drgWT':function(h,i){return h<i;},'KoNQF':function(h,i){return h<i;},'NYHOA':function(h,i){return h!==i;},'pMLXu':O(0x587,0x5ba),'xyblm':O(0x596,0x59a),'XVCzc':function(h){return h();},'sxwOk':'🎵\x20در\x20حال\x20پخش\x20راهنما...','KXxmg':'tutorialSkipBtn','eZzBg':O(0x61e,0x611),'uDFHo':function(h,i){return h(i);}};isGuideMode=c,showScreen('tutorial'),document[O(0x44f,0x4ec)](O(0x653,0x5ba))['innerHTML']=d[O(0x51b,0x5b5)],document[O(0x456,0x4ec)](O(0x50f,0x581))['classList'][O(0x6a6,0x606)](O(0x587,0x611)),document[O(0x665,0x5e4)](d['xyblm'])['forEach']((h,j)=>{function P(c,d){return O(c,d- -0x5e9);}h[P(0x5b,-0x14)]['toggle']('active',d[P(-0x18,-0x61)](j,0x0));});const e=document[O(0x49e,0x4ec)](d[O(0x6a4,0x600)]);c?e[O(0x634,0x5d5)][O(0x568,0x57b)](d[O(0x59e,0x572)]):e[O(0x656,0x5d5)][O(0x57d,0x606)](d[O(0x57f,0x572)]);const f=document[O(0x4b1,0x4ec)](O(0x5d8,0x551));f[O(0x45b,0x4cd)]=0x0,f[O(0x671,0x5cb)]()[O(0x5bc,0x53b)](h=>console[O(0x52d,0x4fb)](O(0x5d6,0x5ef),h));function O(c,d){return u(c,d-0x653);}d[O(0x5a0,0x5f9)](clearInterval,subtitleInterval);let g=-0x1;subtitleInterval=setInterval(()=>{function Q(c,d){return O(d,c- -0xfe);}const h={'XBPTc':d[Q(0x4f4,0x456)]},j=f[Q(0x3cf,0x35e)];let k=-0x1;for(let l=0x0;d[Q(0x493,0x4f6)](l,tutorialSubtitles[Q(0x4f5,0x4b2)]);l++){if(j>=tutorialSubtitles[l][Q(0x4ed,0x52b)]&&d[Q(0x446,0x439)](j,tutorialSubtitles[l]['end'])){k=l;break;}}d[Q(0x454,0x4c1)](k,-0x1)&&d[Q(0x454,0x42a)](k,g)&&(g=k,document[Q(0x3ee,0x3aa)](d[Q(0x4ca,0x570)])[Q(0x473,0x43c)]=tutorialSubtitles[k][Q(0x4c1,0x4c9)],document[Q(0x4e6,0x4e0)](d[Q(0x439,0x396)])[Q(0x424,0x3d8)]((m,n)=>{function R(c,d){return Q(c-0xfc,d);}m[R(0x5d3,0x53e)][R(0x522,0x4c4)](h[R(0x4d9,0x4d1)],n===k);}));},0x64),f[O(0x589,0x54b)]=function(){clearInterval(subtitleInterval);function S(c,d){return O(d,c- -0x657);}d[S(-0x17e,-0xf2)](finishTutorial);};}function finishTutorial(){const c={'vPLpw':'tutorialText','tKeYe':T(0x3c8,0x3f3),'LATsF':T(0x403,0x35f),'PJnSM':'🏠\x20بازگشت\x20به\x20منو'};document[T(0x36e,0x328)](c[T(0x395,0x317)])[T(0x3f3,0x3b1)]=T(0x42b,0x3a8);function T(c,d){return u(d,c-0x4d5);}document[T(0x466,0x3c6)](T(0x41c,0x4af))[T(0x3a4,0x407)](f=>f[T(0x457,0x4b4)][T(0x488,0x4ee)](T(0x38e,0x3d8))),document[T(0x36e,0x322)](c['tKeYe'])[T(0x457,0x43f)][T(0x488,0x407)](T(0x493,0x451));const d=document[T(0x36e,0x3ff)](c[T(0x456,0x3df)]);d[T(0x457,0x3d4)][T(0x3fd,0x3ad)](T(0x493,0x4e5));isGuideMode?(d[T(0x37a,0x368)]=c[T(0x48e,0x421)],tutorialCompleted=!![]):(d[T(0x37a,0x34d)]=T(0x420,0x455),tutorialCompleted=!![]);const e=document[T(0x36e,0x324)](T(0x45b,0x3e4));e[T(0x44d,0x42e)]()[T(0x3bd,0x438)](f=>console['log'](T(0x471,0x411),f)),e['loop']=!![];}function skipTutorial(){const c={'LttXQ':'tutorialVoice'};clearInterval(subtitleInterval),document['getElementById']('tutorialVoice')[U(0x4f8,0x4f2)](),document[U(0x452,0x432)](c[U(0x49b,0x486)])['currentTime']=0x0;function U(c,d){return u(d,c-0x5b9);}finishTutorial();}function enterGame(){const c={'quEHJ':V(0x541,0x550),'mWgsr':function(d,e){return d(e);},'kCGwQ':V(0x4d1,0x56d)};function V(c,d){return u(c,d-0x5ca);}document['getElementById'](V(0x5cf,0x550))['pause'](),document[V(0x40a,0x463)](c[V(0x4c5,0x51c)])[V(0x403,0x444)]=0x0,isGuideMode?c[V(0x4ae,0x539)](showScreen,c[V(0x557,0x57f)]):showScreen('levelSelect');}function renderShopItems(){function W(c,d){return u(c,d-0x1b7);}const c={'Vwwdb':function(e,f){return e(f);},'ylajm':'✅\x20خریداری\x20شده','EfdQX':function(e,f,g){return e(f,g);},'jXaeD':W(0x5b,0xc1),'ixCPs':W(0x102,0x7c),'EQXal':W(0x11f,0x14c)},d=document[W(0x77,0x50)]('shopItemsContainer');d[W(0x158,0xd5)]='',shopItems[W(0xa0,0x86)](e=>{const f=isItemOwned(e['id']),g=document[X(0x2d8,0x253)]('div');function X(c,d){return W(d,c-0x221);}g['className']=X(0x386,0x35d),g[X(0x2f6,0x262)]=X(0x355,0x3e7)+e[X(0x39c,0x308)]+X(0x2b1,0x2b2)+e[X(0x379,0x356)]+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22shop-item-desc\x22>'+e[X(0x2f8,0x296)]+'</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;align-items:center;gap:10px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+(!f?'<div\x20class=\x22shop-item-price\x22><img\x20src=\x22/games/assets/icons/coin.png\x22\x20class=\x22coin-icon-small\x22\x20alt=\x22coin\x22>'+e[X(0x38e,0x40f)]+X(0x37d,0x376):'')+X(0x2c3,0x281)+(f?c[X(0x34b,0x2d3)]:'')+X(0x2a6,0x337)+e['id']+'\x22\x20'+(f?c[X(0x2e7,0x385)]:'')+'>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20'+(f?'✅\x20خریداری\x20شده':X(0x286,0x31d))+X(0x321,0x307),d[X(0x342,0x368)](g);const h=g['querySelector'](c[X(0x256,0x207)]);!f&&h[X(0x399,0x365)](X(0x309,0x2fa),()=>{function Y(c,d){return X(d- -0x1c1,c);}const i={'idSBB':Y(0x110,0xc5)};c[Y(0x75,0xc9)](buyItem,e['id'])?(h[Y(0x30,0xbc)]=c[Y(0x111,0xc0)],h['classList']['add']('owned'),h[Y(0x12c,0xdc)]=!![],updateCoinDisplay()):(h[Y(0xde,0xbc)]=Y(0x199,0x19c),c['EfdQX'](setTimeout,()=>{function Z(c,d){return Y(d,c-0x1c7);}h[Z(0x283,0x2c3)]=i[Z(0x35a,0x2f9)];},0x5dc));});});}function startGame(c){const d={'VKCas':function(g,h){return g(h);},'ZaqfE':'timerDisplay','QSRJs':'currentLevelNum'},e=a0(0x113,0xad)[a0(0x11b,0xb4)]('|');let f=0x0;function a0(c,d){return u(c,d-0x21a);}while(!![]){switch(e[f++]){case'0':gameState['correctAnswers']=0x0;continue;case'1':d['VKCas'](showScreen,'game');continue;case'2':startTimer();continue;case'3':generateQuestion();continue;case'4':document['querySelectorAll']('.star')[a0(0x170,0xe9)](g=>g[a0(0x127,0x19c)][a0(0xcd,0x142)](a0(0x10d,0x16b)));continue;case'5':gameState[a0(0xd9,0xec)]=![];continue;case'6':gameState['timeLeft']=levelTimes[c-0x1];continue;case'7':gameState[a0(0x71,0xb6)]=c;continue;case'8':document[a0(0xc1,0xb3)](d['ZaqfE'])[a0(0xab,0xbf)]=formatTime(gameState[a0(0x244,0x1ad)]);continue;case'9':gameState['currentQuestion']=0x0;continue;case'10':gameState[a0(0x199,0x1b0)]=!![];continue;case'11':document[a0(0x5c,0xb3)](d[a0(0x1b9,0x131)])[a0(0x30,0xbf)]=c;continue;}break;}}function generateQuestion(){const c={'Eomjl':function(n,o){return n-o;},'qBREp':function(n,o){return n+o;},'SJAUw':function(n,o){return n*o;},'VDNdt':function(n,o){return n(o);},'kdTGE':a1(-0x65,0x12),'XVOnE':function(n,o){return n<o;},'gdHCT':function(n,o){return n===o;},'iMpNk':function(n,o){return n>o;},'zeuIy':a1(-0x124,-0x1b1)},d=themes[c[a1(-0xc6,-0x71)](gameState['currentLevel'],0x1)],e=c[a1(-0x16c,-0xe8)](Math[a1(-0x15e,-0xc0)](c['SJAUw'](Math[a1(-0x14a,-0x15a)](),0x5)),0x1),f=c[a1(-0xc3,-0x33)](getNumberSticker,e);document[a1(-0x170,-0x187)](a1(-0x147,-0x1b0))[a1(-0xeb,-0x183)]=a1(-0x15c,-0xe2)+f+a1(-0xb2,-0xf7);function a1(c,d){return u(d,c- -0x9);}const g=[...d['items']][a1(-0xed,-0x64)](()=>Math[a1(-0x14a,-0x106)]()-0.5),h=g['find'](n=>n[a1(-0x58,-0x91)]===e)||d['items'][0x0],k=document[a1(-0x170,-0x17c)](c[a1(-0xec,-0x54)]);k[a1(-0xeb,-0x169)]='';const l=Math[a1(-0x15e,-0x196)](Math['random']()*0x4),m=[e];for(let n=0x0;c[a1(-0xa6,-0x12e)](n,0x4);n++){let o;if(c[a1(-0x142,-0x194)](n,l))o=h;else{const r=g['filter'](s=>!m[a1(-0xc4,-0xd4)](s[a1(-0x58,0x14)]));o=c[a1(-0x18e,-0xfc)](r[a1(-0x69,-0x10d)],0x0)?r[Math[a1(-0x15e,-0x12a)](Math[a1(-0x14a,-0xb4)]()*r[a1(-0x69,-0x81)])]:g[n%g[a1(-0x69,-0xef)]],m[a1(-0xf8,-0x67)](o[a1(-0x58,-0xac)]);}const p=document[a1(-0x109,-0xb0)](a1(-0xf0,-0x8c));p[a1(-0xe4,-0x84)]=a1(-0x14c,-0x14e),p[a1(-0x99,-0x4a)][a1(-0x58,0x2e)]=o[a1(-0x58,-0x1f)];let q='';for(let s=0x0;s<o[a1(-0x58,-0x21)];s++){q+='<span\x20class=\x22item-emoji-single\x22>'+o[a1(-0x9c,-0xc)]+'</span>';}p[a1(-0xeb,-0x151)]='<div\x20class=\x22item-display\x22>'+q+a1(-0x163,-0x19f)+o['name']+a1(-0xb2,-0x14),p['addEventListener'](a1(-0xd8,-0xd9),()=>handleItemClick(p,o[a1(-0x58,-0x9d)],e)),k[a1(-0x9f,-0x67)](p);}document[a1(-0xb5,-0x1f)](c[a1(-0x7a,-0xc6)])[a1(-0x164,-0x1dc)]=a1(-0x85,-0x12);}function handleItemClick(c,d,e){const f={'ZUIIf':function(g,h){return g+h;},'ciNZR':'star','DFAnQ':function(g){return g();},'QnsiW':'count','eMHtx':'شمارش','xRNZK':function(g,h){return g===h;},'YGtfa':function(g,h){return g===h;},'qsRUJ':a2(-0x1cc,-0x126),'AQUYL':a2(-0x116,-0x162),'DbQII':function(g){return g();},'rlwRK':function(g,h,i){return g(h,i);},'MieNe':a2(-0x1e7,-0x1dc),'UDWAq':function(g,h){return g(h);},'fwbNs':a2(-0x1e4,-0x20e)};if(!gameState[a2(-0x112,-0x1a2)]||gameState['isPaused'])return;gameState[a2(-0x168,-0xfa)][a2(-0x21f,-0x2a7)]++;function a2(c,d){return u(d,c- -0xa8);}LUKO[a2(-0x193,-0x19a)]({'topic':f[a2(-0x1ed,-0x171)],'topicLabel':f[a2(-0x140,-0x116)],'correct':f[a2(-0x15a,-0x128)](d,e),'given':d,'expected':e,'tier':gameState[a2(-0x22f,-0x1cc)]});if(f[a2(-0x11f,-0x15e)](d,e)){const g=f[a2(-0x10d,-0xd5)][a2(-0x20e,-0x1bd)]('|');let h=0x0;while(!![]){switch(g[h++]){case'0':gameState[a2(-0x168,-0x135)]['correctMoves']++;continue;case'1':showFeedback(!![]);continue;case'2':c[a2(-0x126,-0xb0)][a2(-0xf5,-0xdd)](f[a2(-0x15c,-0x1ec)]);continue;case'3':gameState[a2(-0x160,-0xbd)]++;continue;case'4':f['DbQII'](playCorrectSound);continue;case'5':f[a2(-0x10f,-0xdd)](setTimeout,()=>{function a3(c,d){return a2(c-0x58a,d);}hideFeedback(),gameState[a3(0x396,0x2f7)]++,document[a3(0x37b,0x3a8)](f[a3(0x361,0x3ea)](f['ciNZR'],gameState[a3(0x42a,0x404)]))?.[a3(0x464,0x48e)][a3(0x495,0x4ba)]('earned'),gameState[a3(0x396,0x332)]>=gameState[a3(0x367,0x3bd)]?f[a3(0x4a5,0x443)](levelComplete):generateQuestion();},0x5dc);continue;case'6':f[a2(-0x12d,-0xc4)](playStarSound);continue;}break;}}else{const i=f[a2(-0x128,-0xe1)][a2(-0x20e,-0x169)]('|');let j=0x0;while(!![]){switch(i[j++]){case'0':f[a2(-0x218,-0x260)](showFeedback,![]);continue;case'1':gameState[a2(-0x168,-0xd8)][a2(-0xfc,-0x111)]++;continue;case'2':c['classList'][a2(-0xf5,-0xa7)](f[a2(-0x185,-0x189)]);continue;case'3':setTimeout(hideFeedback,0x5dc);continue;case'4':playWrongSound();continue;}break;}}}function showFeedback(c){const d={'vshYa':'feedbackMessage','pLOQB':function(g,h){return g+h;},'UmBpm':a4(0x33b,0x2dc),'EQiok':a4(0x330,0x315),'ohYzV':a4(0x2dc,0x329),'oKCAt':a4(0x288,0x303)},e=document['getElementById'](a4(0x228,0x22a));function a4(c,d){return u(d,c-0x37c);}const f=document[a4(0x215,0x1e3)](d['vshYa']);f[a4(0x2a1,0x340)]=d[a4(0x273,0x23d)](a4(0x31e,0x2a5),c?d[a4(0x251,0x200)]:d[a4(0x21a,0x192)]),f['querySelector'](d[a4(0x2a5,0x268)])['textContent']=c?'🎉':'😢',f['querySelector'](a4(0x22c,0x19a))[a4(0x221,0x233)]=c?d[a4(0x2be,0x2d0)]:a4(0x337,0x39e),e[a4(0x2fe,0x267)][a4(0x32f,0x2c2)](a4(0x2e7,0x282));}function hideFeedback(){const c={'uuhvi':a5(-0x84,-0x8c)};function a5(c,d){return u(d,c-0x11);}document[a5(-0x156,-0x13a)]('feedbackOverlay')[a5(-0x6d,-0x109)][a5(-0xc7,-0x108)](c[a5(-0x75,-0xc5)]);}function levelComplete(){const c={'WPqsW':a6(0x417,0x395),'otsHJ':function(f){return f();},'MtNBG':'.result-star','msnJL':function(f,g){return f===g;},'ecByQ':function(f,g){return f>=g;},'WrxOG':a6(0x3cc,0x3f3),'yfNgC':function(f,g){return f+g;},'nIqAy':function(f,g){return f(g);}};function a6(c,d){return u(c,d-0x444);}c[a6(0x2ff,0x32a)](stopTimer),gameState['isGameActive']=![],LUKO[a6(0x334,0x2fe)]({'level':gameState[a6(0x2b9,0x2bd)],'correct':gameState[a6(0x395,0x38c)]}),gameState['levelStars'][gameState[a6(0x2cf,0x2e0)]]=gameState['correctAnswers'];!gameState[a6(0x314,0x30a)][a6(0x42b,0x389)](gameState[a6(0x314,0x2e0)])&&gameState[a6(0x39b,0x30a)][a6(0x3be,0x355)](gameState[a6(0x33e,0x2e0)]);playWinSound();const d=document[a6(0x3c3,0x3d5)](c[a6(0x2ec,0x321)]);d['forEach']((f,g)=>{function a7(c,d){return a6(d,c- -0x3b1);}f[a7(0x15,-0x29)][a7(-0x45,0x35)](c[a7(-0xa3,-0x140)]),g<gameState[a7(-0x25,0x7c)]&&setTimeout(()=>f[a7(0x15,0x73)][a7(0x46,0x49)](a7(-0x1c,-0x7b)),(g+0x1)*0xc8);});let e=c['msnJL'](currentCoins,0x0)?0xa:0x1;addCoins(e),document[a6(0x25b,0x2dd)](a6(0x38d,0x38e))[a6(0x274,0x2e9)]=e,c[a6(0x2e9,0x318)](gameState[a6(0x2ec,0x2e0)],0x5)?(finishGame(),setTimeout(showVictoryScreen,0x7d0)):(document[a6(0x374,0x2dd)](a6(0x398,0x322))[a6(0x320,0x2e9)]=c[a6(0x39b,0x394)],document[a6(0x242,0x2dd)]('resultMessage')[a6(0x2de,0x2e9)]=a6(0x3cf,0x3d2)+c[a6(0x3d6,0x3ef)](gameState[a6(0x386,0x2e0)],0x1)+'\x20برویم؟',document['getElementById'](a6(0x2cc,0x36a))['textContent']=a6(0x2ef,0x36b),c[a6(0x2d4,0x2c8)](showScreen,a6(0x256,0x2e3)));}function endGame(c){const d={'tRTjF':a8(-0x236,-0x1a0),'BjzWc':function(e,f){return e<f;},'eENPt':function(e,f){return e*f;},'GOqDL':function(e,f){return e+f;},'ZmWcW':function(e){return e();},'bCPEz':a8(-0x179,-0x154),'gLEwt':a8(-0x25e,-0x212),'VkuvD':function(e,f){return e===f;},'wKLoN':function(e,f){return e(f);},'zDNMR':a8(-0x20c,-0x199)};stopTimer(),gameState['isGameActive']=![];function a8(c,d){return u(c,d- -0xf1);}if(c)d['ZmWcW'](showVictoryScreen);else{d[a8(-0x26e,-0x1eb)](finishGame),d[a8(-0x178,-0x1eb)](playLoseSound),document[a8(-0x2a0,-0x258)](d['bCPEz'])[a8(-0x272,-0x24c)]='😢',document[a8(-0x21e,-0x258)](a8(-0x2d4,-0x270))[a8(-0x24d,-0x24c)]='وقت\x20تموم\x20شد!',document[a8(-0x280,-0x258)](d[a8(-0x108,-0x17f)])[a8(-0x2c6,-0x24c)]=a8(-0x162,-0x1c6);const e=document[a8(-0x118,-0x160)](a8(-0x188,-0x194));e['forEach']((g,h)=>{function a9(c,d){return a8(d,c-0x4b2);}g[a9(0x343,0x2cd)]['remove'](d[a9(0x28c,0x2fd)]),d[a9(0x272,0x2be)](h,gameState['correctAnswers'])&&setTimeout(()=>g[a9(0x343,0x37e)][a9(0x374,0x321)](a9(0x312,0x2db)),d[a9(0x2ce,0x232)](d[a9(0x27f,0x213)](h,0x1),0xc8));});let f=d[a8(-0x272,-0x203)](currentCoins,0x0)?0xa:0x1;d[a8(-0x1c1,-0x1ee)](addCoins,f),document['getElementById'](a8(-0x258,-0x1cf))[a8(-0x255,-0x24c)]=f,showScreen(d[a8(-0x28f,-0x23a)]);}}function finishGame(){const c={'RsJhD':function(d,e){return d>e;}};gameState['stats'][aa(0x1e1,0x163)]++;function aa(c,d){return u(c,d-0x1c5);}gameState[aa(0x82,0x105)]['totalStars']+=gameState['correctAnswers'],gameState[aa(0x18d,0x10d)]>gameState[aa(0x19f,0x105)][aa(0x5f,0x5d)]&&(gameState['stats'][aa(-0x17,0x5d)]=gameState['correctAnswers']),c[aa(0x14e,0xd5)](gameState[aa(0x15c,0x10d)],gameState['stats'][aa(0x15c,0x120)])&&(gameState[aa(0xc5,0x105)][aa(0x13d,0x120)]=gameState[aa(0x10f,0x10d)]);}function showVictoryScreen(){const c={'qVhHO':ab(0x4fe,0x4de),'HORhP':function(f,g,h){return f(g,h);},'VnvZw':function(f,g){return f*g;},'vpacc':function(f){return f();},'WPPIn':ab(0x454,0x3b0)};c[ab(0x56f,0x52d)](playWinSound);const d=document[ab(0x53e,0x5ca)](c[ab(0x4e5,0x47b)]);d[ab(0x47c,0x468)]((f,g)=>{f[ac(0xf9,0x76)][ac(0x9f,-0x7)](c['qVhHO']);function ac(c,d){return ab(c- -0x436,d);}c[ac(0x79,0xdd)](setTimeout,()=>f[ac(0xf9,0x10a)][ac(0x12a,0x149)](ac(0xc8,0xdd)),c[ac(0x44,-0x16)](g+0x1,0xc8));});let e=currentCoins===0x0?0xa:0x1;addCoins(e);function ab(c,d){return u(d,c-0x5ad);}document[ab(0x446,0x3ff)](ab(0x45c,0x414))[ab(0x452,0x477)]=e,showScreen(ab(0x43a,0x47d));}function pauseGame(){function ad(c,d){return u(d,c-0x5d0);}const c={'oRSJH':function(d,e){return d(e);},'CxBAA':ad(0x50f,0x52c)};gameState[ad(0x4a2,0x4bb)]=!![],stopTimer(),c[ad(0x50b,0x506)](showScreen,c[ad(0x4e6,0x45c)]);}function resumeGame(){const c={'FVuyl':function(d,e){return d(e);},'DHDSo':ae(0x67,0x5a)};function ae(c,d){return u(c,d-0xfb);}gameState[ae(-0x54,-0x33)]=![],startTimer(),c[ae(-0xb6,-0x1b)](showScreen,c[ae(0x52,0xb3)]);}document['addEventListener'](u(-0xf1,-0x79),()=>{const c={'vqhfr':function(d){return d();}};c[af(-0x118,-0x8f)](updateCoinDisplay);function af(c,d){return u(c,d- -0x1f);}showScreen(af(-0x11a,-0x7c));}),document['getElementById'](u(-0x105,-0x7d))[u(-0x30,-0x3f)](u(-0x2d,-0xcf),()=>{const c={'obUkZ':function(d,e){return d(e);}};function ag(c,d){return u(d,c- -0x21);}!tutorialCompleted?c[ag(-0x1a1,-0x115)](startTutorial,![]):showScreen(ag(-0x6f,-0xaf));}),document['getElementById']('shopBtn')[u(0x28,-0x3f)]('click',()=>{const c={'cShHe':function(d){return d();},'ihiTz':ah(0x288,0x213)};renderShopItems(),c[ah(0x212,0x22a)](updateCoinDisplay);function ah(c,d){return u(c,d-0x316);}showScreen(c[ah(0x24f,0x1d2)]);}),document['getElementById'](u(-0xa7,-0x105))['addEventListener'](u(-0xda,-0xcf),()=>startTutorial(!![])),document[u(-0x17f,-0x167)](u(-0xd2,-0x16f))[u(-0x1f,-0x3f)](u(-0x4c,-0xcf),()=>showScreen(u(-0x9e,-0x5d))),document[u(-0xfe,-0x167)](u(-0x143,-0x14a))[u(-0xa2,-0x3f)](u(-0xd0,-0xcf),()=>showScreen('welcome')),document[u(-0x164,-0x167)](u(-0x193,-0x10d))['addEventListener'](u(-0x13c,-0xcf),skipTutorial),document[u(-0x20d,-0x167)](u(-0xd7,-0xd2))[u(-0xab,-0x3f)](u(-0x13a,-0xcf),enterGame),document[u(-0x73,-0x6f)](u(-0x1d,-0x43))[u(-0xb4,-0x131)](c=>{const d={'awPSH':function(e,f){return e(f);}};function ai(c,d){return u(d,c-0x542);}c[ai(0x503,0x47e)](ai(0x473,0x43c),()=>{function aj(c,d){return ai(c- -0x1,d);}const e=d[aj(0x454,0x485)](parseInt,c[aj(0x4b1,0x52a)]['level']);startGame(e);});}),document[u(-0x11d,-0x167)](u(-0x64,-0xe5))[u(0x13,-0x3f)](u(-0xa0,-0xcf),pauseGame),document[u(-0xef,-0x167)](u(-0x94,-0xa7))[u(0x26,-0x3f)](u(-0x14f,-0xcf),resumeGame),document[u(-0x197,-0x167)](u(-0xad,-0x106))[u(-0x96,-0x3f)](u(-0x158,-0xcf),()=>{const c={'pSutg':function(d,e){return d(e);}};gameState[ak(0x260,0x2a7)]=![],gameState[ak(0x19c,0x202)]=![],stopTimer();function ak(c,d){return u(d,c-0x2ca);}c[ak(0x230,0x1df)](showScreen,ak(0x26d,0x29a));});function u(c,d){return b(d- -0x2f1,c);}document[u(-0x18f,-0x167)]('nextLevelBtn')[u(-0x63,-0x3f)]('click',()=>{const c={'flLSp':function(d,e){return d<e;},'NzTNn':function(d,e){return d(e);}};function al(c,d){return u(c,d-0x4d);}c['flLSp'](gameState[al(-0x145,-0x117)],0x5)&&(gameState[al(-0x87,-0x117)]++,c[al(-0x170,-0x128)](startGame,gameState[al(-0x130,-0x117)]));}),document[u(-0xe4,-0x167)](u(-0x114,-0xf2))[u(0x36,-0x3f)](u(-0x119,-0xcf),()=>showScreen(u(-0x77,-0x5d))),document[u(-0x1c7,-0x167)]('restartBtn')[u(0x3c,-0x3f)](u(-0x87,-0xcf),()=>startGame(gameState[u(-0x201,-0x164)])),document[u(-0x1ae,-0x167)](u(-0x1f6,-0x174))[u(-0xb8,-0x3f)]('click',()=>showScreen('welcome')),document[u(-0xce,-0x167)]('playAgainBtn')[u(0xc,-0x3f)]('click',()=>{function am(c,d){return u(d,c-0x4f1);}const c={'GaEJR':function(d,e){return d(e);}};gameState['currentLevel']=0x1,c[am(0x3a9,0x370)](startGame,0x1);}),document[u(-0x192,-0x167)](u(-0x58,-0xd6))[u(-0xc2,-0x3f)](u(-0x12a,-0xcf),()=>showScreen(u(-0xc0,-0x5d)));const offlineIndicator=document[u(-0x156,-0x167)]('offlineIndicator');window[u(0x2c,-0x3f)]('online',()=>offlineIndicator[u(-0xb0,-0x14b)][u(-0x39,-0x82)]=u(-0x110,-0xbc)),window[u(-0x91,-0x3f)]('offline',()=>offlineIndicator[u(-0x138,-0x14b)][u(-0x108,-0x82)]=u(-0xcf,-0xfb));if(!navigator[u(-0xba,-0x40)])offlineIndicator[u(-0x1ea,-0x14b)][u(-0x96,-0x82)]=u(-0xf5,-0xfb);document[u(-0xba,-0x3f)]('visibilitychange',()=>{function an(c,d){return u(d,c-0x14e);}const c={'AVDBM':function(d){return d();}};document[an(0x10c,0x12c)]&&gameState[an(0xe4,0xdb)]&&!gameState[an(0x20,0x32)]&&c[an(0x66,-0x5)](pauseGame);});</script>
+</body>
+
+</html>

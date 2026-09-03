@@ -5,12 +5,16 @@
 
 ## ساختار پوشه‌ها
 ```
-public/games/<پایه>/<درس>/<نام-بازی>.html
+public/games/
+  assets/
+    luko-sdk.js        ← پلِ تله‌متری؛ همه‌ی بازی‌ها بارگذاری‌اش می‌کنند
+    icons/  musics/  fonts/     ← دارایی‌های مشترکِ همه‌ی بازی‌ها
+  <پایه>/<درس>/NN-<نام>.html    ← خودِ بازی‌ها
 ```
-مثال: `public/games/grade-1/math/01-animals-island.html`
+مثال: `public/games/grade-1/math/01-riyazi_f1_g1.html`
 
-پایه‌ها: `grade-1`, `grade-2`, …
-درس‌ها: `math`, `science`, `quran`, `writing`, `reading`, …
+بازی‌ها به دارایی‌ها با **مسیرِ مطلق** ارجاع می‌دهند: `/games/assets/icons/coin.png`.
+پایه‌ها: `grade-1`, `grade-2`, …  ·  درس‌ها: `math`, `science`, `quran`, `writing`
 
 ## ترتیبِ مرحله‌ها = نامِ فایل
 تالارِ بازی‌ها دیگر کتاب‌محور نیست؛ یک **مسیرِ سیزنی** است و ترتیبِ مرحله‌ها را

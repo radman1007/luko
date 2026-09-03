@@ -1,0 +1,132 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(29 33 40 / 35%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 30;
+  animation: fade-in 0.25s ease-out;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  padding: 0 16px calc(12px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.character {
+  width: 148px;
+  height: auto;
+  margin-top: -6px;
+  margin-left: 8px;
+  filter: drop-shadow(0 8px 16px rgb(29 33 40 / 25%));
+  animation: pop-up 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: bottom center;
+}
+
+.bubble {
+  position: relative;
+  width: 100%;
+  background: var(--color-surface);
+  border: 3px solid var(--guide-color);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px 14px;
+  animation: pop-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tail {
+  position: absolute;
+  bottom: -13px;
+  left: 64px;
+  width: 22px;
+  height: 22px;
+  background: var(--color-surface);
+  border-left: 3px solid var(--guide-color);
+  border-bottom: 3px solid var(--guide-color);
+  transform: rotate(-45deg);
+  border-bottom-left-radius: 6px;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  color: var(--color-text-secondary);
+  font-size: 18px;
+}
+
+.speaker {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--guide-color);
+}
+
+.text {
+  margin-top: 6px;
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--color-text);
+}
+
+.actions {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dots {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.dot,
+.dotActive {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+}
+
+.dotActive {
+  background: var(--guide-color);
+}
+
+.next {
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  background: var(--guide-color);
+  color: var(--color-on-primary);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+@keyframes pop-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
