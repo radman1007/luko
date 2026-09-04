@@ -1,4 +1,5 @@
 import { apiClient, tokenStorage } from '@/lib/api';
+import { disableGuestMode, disableParentGuestMode } from './guest';
 import type { Audience } from '@/lib/api';
 import type { User } from '@/types/user';
 
@@ -48,6 +49,11 @@ export const authApi = {
     // توکن در فضای همان نقش می‌نشیند تا ورودِ والد نشستِ بچه را پاک نکند
     const audience: Audience = payload.role === 'parent' ? 'parent' : 'kid';
     tokenStorage.set(data.data.accessToken, audience);
+    // حالا حسابِ واقعی دارد. بدونِ این، پرچمِ مهمان می‌ماند و اپ همچنان
+    // مهمان حسابش می‌کرد: نه پیشرفت با سرور همگام می‌شد و نه تکمیلِ
+    // بازی‌ها به پنل والدین می‌رسید.
+    if (audience === 'parent') disableParentGuestMode();
+    else disableGuestMode();
     return { user: data.data.user, isNew: data.data.isNew };
   },
 

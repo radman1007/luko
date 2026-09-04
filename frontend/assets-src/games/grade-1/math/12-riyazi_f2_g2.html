@@ -1162,6 +1162,9 @@ if(bgAudio) bgAudio.volume = 0.4;
 var Music = {
   running: false,
   started: false,
+  /* فرکانسِ پایه‌ی موسیقیِ پس‌زمینه. تعریف نشده بود و `undefined` به
+     AudioParam داده می‌شد که خطا می‌داد و موسیقی هرگز پخش نمی‌شد. */
+  padFreq: 110,
   start: function(){
     if (!bgAudio || this.running) return;
     this.running = true;
@@ -1169,6 +1172,10 @@ var Music = {
     if(!state.musicMuted){
       bgAudio.play().catch(function(){});
     }
+    /* `c` اینجا تعریف نشده بود و هر بار که موسیقی می‌خواست شروع شود
+       (مثلاً با بازکردنِ راهنما) خطای ReferenceError می‌داد. */
+    var c = ctx();
+    if (!c) return;
     this.pad = c.createOscillator();
     this.padGain = c.createGain();
     var filter = c.createBiquadFilter();
@@ -1183,9 +1190,9 @@ var Music = {
     filter.connect(this.padGain);
     this.padGain.connect(c.destination);
     this.pad.start();
-
-    // ملودی آرپژ
-    this._scheduleNext();
+    /* فراخوانیِ `this._scheduleNext()` اینجا بود ولی چنین متدی روی Music
+       تعریف نشده و هر بار خطا می‌داد. صدای پایه بالا کار می‌کند؛ ملودیِ
+       آرپژ اصلاً پیاده نشده بود، پس فراخوانیِ مرده برداشته شد. */
   },
 
   stop: function(){

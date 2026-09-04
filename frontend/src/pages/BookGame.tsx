@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import type { AxiosError } from 'axios';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { HiOutlineChevronRight, HiOutlineWrenchScrewdriver } from 'react-icons/hi2';
 import { CoinIcon, DewIcon } from '@/components/ui/icons';
@@ -49,8 +50,26 @@ export default function BookGame() {
     // لینک کوتاه‌عمر است؛ با برگشتن به بازی باید تازه گرفته شود
     staleTime: 0,
     gcTime: 0,
-    retry: 1,
+    // خطای ۴xx (مثلاً «مهمانی و این مرحله رایگان نیست») با تکرار درست
+    // نمی‌شود؛ تکرارش فقط کاربر را پشتِ «در حال باز کردن» نگه می‌داشت.
+    retry: (count, error) => {
+      const code = (error as AxiosError).response?.status ?? 0;
+      return code >= 500 && count < 1;
+    },
   });
+
+  /**
+   * مهمان فقط مرحله‌ی اول را رایگان دارد؛ سرور برای بقیه ۴۰۱ می‌دهد.
+   * آن‌وقت به‌جای صفحه‌ی خطا، خودش به ورود می‌رود با پیامی که می‌گوید چرا.
+   */
+  const needsAccount = (play.error as AxiosError | undefined)?.response?.status === 401;
+  useEffect(() => {
+    if (!needsAccount) return;
+    navigate('/login', {
+      replace: true,
+      state: { reason: 'برای ادامه‌ی بازی‌ها وارد شو — بقیه‌ی مرحله‌ها منتظرتن!' },
+    });
+  }, [needsAccount, navigate]);
 
   const [justWon, setJustWon] = useState(false);
   const [serverCoins, setServerCoins] = useState<number | null>(null);

@@ -161,8 +161,77 @@
     summary: function () { return summary({}); },
   };
 
+  // ------- راهنمای خودکار -------
+  /**
+   * بارِ اولِ هر بازی، راهنمای خودِ همان بازی یک‌بار باز می‌شود.
+   *
+   * هر بازی راهنمای خودش را دارد ولی با شناسه و کلاسِ متفاوت؛ وجهِ مشترکشان
+   * این است که کنترلی با متنِ «راهنما» دارند. پس به‌جای نوشتنِ متنِ تازه —
+   * که با محتوای بازی جور درنمی‌آمد — همان راهنمای واقعیِ بازی صدا زده
+   * می‌شود. اگر پیدا نشد، بی‌سروصدا رد می‌شود و بازی عادی جلو می‌رود.
+   */
+  var GUIDE_KEY = 'luko_game_guide:' + slug;
+  /** مکث بینِ دیدنِ دکمه و زدنش، تا حالتِ داخلیِ بازی جا بیفتد */
+  var GUIDE_SETTLE_MS = 900;
+  var GUIDE_WORDS = /راهنما|آموزش|help/i;
+
+  function guideSeen() {
+    try { return localStorage.getItem(GUIDE_KEY) === '1'; } catch { return true; }
+  }
+
+  function markGuideSeen() {
+    try { localStorage.setItem(GUIDE_KEY, '1'); } catch { /* حافظه پر/غیرفعال */ }
+  }
+
+  function findGuideButton() {
+    var nodes = document.querySelectorAll('button, [role="button"], a, span, div');
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      var text = (el.textContent || '').trim();
+      if (!text || text.length > 30 || !GUIDE_WORDS.test(text)) continue;
+      // فقط چیزی که واقعاً روی صفحه دیده می‌شود و خودش دکمه است، نه ظرفِ آن
+      if (el.querySelector('button, a, [role="button"]')) continue;
+      var box = el.getBoundingClientRect();
+      if (box.width > 8 && box.height > 8) return el;
+    }
+    return null;
+  }
+
+  function openGuideOnce() {
+    if (guideSeen()) return;
+    var tries = 0;
+    var timer = setInterval(function () {
+      tries++;
+      var btn = findGuideButton();
+      if (btn) {
+        clearInterval(timer);
+        // دکمه که ظاهر شد یعنی منوی بازی رندر شده، ولی حالتِ داخلی‌اش
+        // ممکن است هنوز آماده نباشد و راهنمای بعضی بازی‌ها به آن تکیه دارد.
+        // این مکث جلوی خطای «هنوز آماده نیست» را می‌گیرد.
+        setTimeout(function () {
+          markGuideSeen();
+          try {
+            btn.click();
+            post('luko-game-event', { event: { type: 'guide_shown' } });
+          } catch { /* بازی نباید به‌خاطرِ راهنما بشکند */ }
+        }, GUIDE_SETTLE_MS);
+      } else if (tries > 20) {
+        // بعضی بازی‌ها دیر رندر می‌شوند؛ بعد از ۵ ثانیه بی‌خیال می‌شویم
+        clearInterval(timer);
+      }
+    }, 250);
+  }
+
   // ------- خودکار -------
   post('luko-game-event', { event: { type: 'game_start', at: new Date().toISOString() } });
+
+  // بعد از بارگذاریِ کاملِ صفحه شروع می‌کنیم، نه صرفاً DOM؛ بعضی بازی‌ها
+  // راه‌اندازی‌شان را به `load` گره زده‌اند.
+  if (document.readyState === 'complete') {
+    openGuideOnce();
+  } else {
+    window.addEventListener('load', openGuideOnce);
+  }
 
   ['pointerdown', 'keydown', 'touchstart'].forEach(function (evt) {
     window.addEventListener(evt, touch, { passive: true });

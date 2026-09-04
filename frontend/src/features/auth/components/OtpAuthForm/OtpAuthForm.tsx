@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { HiOutlineArrowLeft, HiOutlineDevicePhoneMobile } from 'react-icons/hi2';
 import { ROLE_HOME } from '@/types/user';
 import type { User } from '@/types/user';
@@ -44,6 +44,8 @@ function errorMessage(err: unknown, fallback: string): string {
  */
 export function OtpAuthForm() {
   const navigate = useNavigate();
+  // پیامی که صفحه‌ی بازی هنگامِ فرستادنِ مهمان به اینجا همراه می‌کند
+  const reason = (useLocation().state as { reason?: string } | null)?.reason;
   const { setUser } = useAuth();
 
   const [step, setStep] = useState<Step>('phone');
@@ -159,6 +161,7 @@ export function OtpAuthForm() {
 
       {step === 'phone' && (
         <>
+          {reason && <p className={styles.reason}>{reason}</p>}
           <h1 className={styles.title}>بزن بریم تو شهرِ لوکو</h1>
           <p className={styles.subtitle}>شماره‌ت رو بزن تا یه کد برات بفرستم</p>
 

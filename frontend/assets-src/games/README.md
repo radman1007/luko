@@ -13,7 +13,7 @@
 cd frontend/assets-src/games
 npm install javascript-obfuscator          # فقط بارِ اول
 cp -R grade-1/* ../../public/games/grade-1/
-node obfuscate.js ../../public/games/grade-1/*/*.html
+node obfuscate.cjs ../../public/games/grade-1/*/*.html
 ```
 
 > مستقیم داخلِ `public/games/` ویرایش نکنید؛ با انتشارِ بعدی بازنویسی می‌شود.

@@ -63,6 +63,13 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       const path = window.location.pathname;
       const audience = audienceForPath(path);
+
+      // درخواستِ لینکِ بازی استثناست: ۴۰۱ آنجا یعنی «مهمانی و این مرحله
+      // رایگان نیست»، نه «نشستت منقضی شد». صفحه‌ی بازی خودش با پیامِ درست
+      // به ورود می‌برد، پس اینجا نه توکن پاک می‌شود نه ریدایرکتِ خشک.
+      if (String(error.config?.url ?? '').includes('/play-link')) {
+        return Promise.reject(error);
+      }
       // فقط نشستِ همان فضا پاک می‌شود؛ منقضی‌شدنِ توکنِ والد نباید
       // بچه‌ای را که همان لحظه در حال بازی است بیرون بیندازد.
       tokenStorage.clear(audience);
