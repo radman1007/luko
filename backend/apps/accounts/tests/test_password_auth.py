@@ -194,3 +194,43 @@ class PasswordVaultTests(TestCase):
         set_password(user, "اولی۱۲۳")
         set_password(user, "دومی۴۵۶")
         self.assertEqual(PasswordVault.objects.get(user=user).reveal(), "دومی۴۵۶")
+
+@override_settings(SMS_BACKEND="console", PASSWORD_VAULT_KEY="test-vault-key")
+class RegisterNameTests(TestCase):
+    """نامِ ثبت‌نام باید واقعاً ذخیره شود — پارسر کلیدها را snake_case می‌کند."""
+
+    def setUp(self):
+        cache.clear()
+        self.client = APIClient()
+
+    def test_camel_case_name_is_stored(self):
+        res = self.client.post("/api/v1/auth/register",
+                               {"phone": "09121230001", "firstName": "سارا",
+                                "role": "student"}, format="json")
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(User.objects.get(phone="09121230001", role="student").first_name, "سارا")
+
+    def test_snake_case_name_also_works(self):
+        res = self.client.post("/api/v1/auth/register",
+                               {"phone": "09121230002", "first_name": "مهدی",
+                                "role": "parent"}, format="json")
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(User.objects.get(phone="09121230002", role="parent").first_name, "مهدی")
+
+    def test_name_comes_back_in_response(self):
+        res = self.client.post("/api/v1/auth/register",
+                               {"phone": "09121230003", "firstName": "نگار",
+                                "role": "student"}, format="json")
+        self.assertEqual(res.json()["data"]["user"]["firstName"], "نگار")
+
+    def test_registering_without_a_name_is_fine(self):
+        res = self.client.post("/api/v1/auth/register",
+                               {"phone": "09121230004", "role": "student"}, format="json")
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(User.objects.get(phone="09121230004").first_name, "")
+
+    def test_overlong_name_is_rejected(self):
+        res = self.client.post("/api/v1/auth/register",
+                               {"phone": "09121230005", "firstName": "ن" * 40,
+                                "role": "student"}, format="json")
+        self.assertEqual(res.status_code, 400)

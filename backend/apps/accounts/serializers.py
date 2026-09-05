@@ -54,6 +54,15 @@ class StartAuthSerializer(serializers.Serializer):
     )
 
 
+class RegisterSerializer(StartAuthSerializer):
+    """ثبت‌نام: شماره و نقش، به‌علاوه‌ی نامی که کاربر خودش نوشته."""
+
+    # پارسر ورودی را snake_case می‌کند، پس اینجا هم first_name است نه firstName.
+    first_name = serializers.CharField(
+        required=False, allow_blank=True, max_length=30, trim_whitespace=True,
+    )
+
+
 class PasswordLoginSerializer(StartAuthSerializer):
     password = serializers.CharField(min_length=1, max_length=128, trim_whitespace=False)
 

@@ -27,6 +27,7 @@ from .serializers import (
     LukorianSerializer,
     MeUpdateSerializer,
     PasswordLoginSerializer,
+    RegisterSerializer,
     RequestOTPSerializer,
     SetPasswordSerializer,
     StartAuthSerializer,
@@ -181,7 +182,7 @@ class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = StartAuthSerializer(data=request.data)
+        serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         phone = serializer.validated_data["phone"]
         role = serializer.validated_data["role"]
@@ -193,8 +194,8 @@ class RegisterView(APIView):
                 status=status.HTTP_409_CONFLICT,
             )
 
-        user, created = get_or_create_account(phone, role,
-                                              request.data.get("firstName", "") or "")
+        user, created = get_or_create_account(
+            phone, role, serializer.validated_data.get("first_name", ""))
         return Response(_auth_payload(user, created),
                         status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
