@@ -11,6 +11,7 @@ import { CoinIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
 import { completedLevelIds } from '@/features/books/booksData';
 import { SEASON, seasonState } from '@/features/games/seasonData';
+import { SEASON_MAP_PATH } from '@/lib/constants/nav';
 import styles from './GameZoneCard.module.css';
 
 /** لحن پیکسل: گیمری، کل‌کلی ولی رفیق */
@@ -92,19 +93,31 @@ export function GameZoneCard() {
         <ul className={styles.stages}>
           {cardStages.map((stage) => {
             const isDone = done.has(stage.id);
+            const isNext = stage.id === state.nextStage?.id;
 
             return (
               <li key={stage.id}>
                 <button
                   type="button"
                   className={
-                    stage.id === state.nextStage?.id
+                    isNext
                       ? styles.stageNext
                       : isDone
                         ? styles.stageDone
-                        : styles.stage
+                        : stage.locked
+                          ? styles.stageLocked
+                          : styles.stage
                   }
-                  onClick={() => navigate(`/game/${stage.id}`)}
+                  // مرحله‌ی قفل نباید به صفحه‌ی بازی برود؛ آن‌جا فقط
+                  // برمی‌گشت و بچه فکر می‌کرد بازی خراب است.
+                  onClick={() =>
+                    navigate(stage.locked ? SEASON_MAP_PATH : `/game/${stage.id}`, {
+                      state: stage.locked
+                        ? { reason: 'اول باید مرحله‌های قبلی رو تموم کنی!' }
+                        : undefined,
+                    })
+                  }
+                  aria-disabled={stage.locked}
                 >
                   <span className={styles.stageOrder} aria-hidden>
                     {stage.order.toLocaleString('fa-IR')}
@@ -113,13 +126,11 @@ export function GameZoneCard() {
                     <b className={styles.stageTitle}>{stage.title}</b>
                     <span className={styles.stageSubject}>
                       {stage.subject}
-                      {stage.id === state.nextStage?.id && (
-                        <> · <span className={styles.nowTag}>الان نوبتِ توئه</span></>
-                      )}
+                      {isNext && <> · <span className={styles.nowTag}>الان نوبتِ توئه</span></>}
                     </span>
                   </span>
                   <span className={styles.stageIcon} aria-hidden>
-                    {isDone ? <HiOutlineCheck /> : <HiOutlinePlay />}
+                    {isDone ? <HiOutlineCheck /> : stage.locked ? <HiOutlineLockClosed /> : <HiOutlinePlay />}
                   </span>
                 </button>
               </li>

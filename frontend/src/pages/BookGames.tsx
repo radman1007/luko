@@ -12,6 +12,7 @@ import { CoinIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
 import { bookById, bookProgress, completedLevelIds } from '@/features/books/booksData';
 import type { LevelWithStatus } from '@/features/books/booksData';
+import { SEASON_MAP_PATH } from '@/lib/constants/nav';
 import styles from './BookGames.module.css';
 
 const GUIDE_STEPS = [
@@ -60,7 +61,7 @@ export default function BookGames() {
           <button
             type="button"
             className={styles.back}
-            onClick={() => navigate('/games')}
+            onClick={() => navigate(SEASON_MAP_PATH)}
             aria-label="بازگشت"
           >
             <HiOutlineChevronRight />
@@ -95,7 +96,7 @@ export default function BookGames() {
         <button
           type="button"
           className={styles.back}
-          onClick={() => navigate('/games')}
+          onClick={() => navigate(SEASON_MAP_PATH)}
           aria-label="بازگشت به دنیاها"
         >
           <HiOutlineChevronRight />
@@ -229,7 +230,7 @@ export default function BookGames() {
           <p className={styles.soonDesc}>
             مرحله‌های «{book.worldTitle}» تو راهه؛ زود برمی‌گردیم سراغش!
           </p>
-          <button type="button" className={styles.soonBtn} onClick={() => navigate('/games')}>
+          <button type="button" className={styles.soonBtn} onClick={() => navigate(SEASON_MAP_PATH)}>
             بقیه‌ی دنیاها
           </button>
         </div>

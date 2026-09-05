@@ -11,6 +11,7 @@ import { DEW_REWARD } from '@/features/garden/gardenData';
 import { grantDew, grantFertilizer } from '@/features/garden/store';
 import { completeGame, flushEvents, trackEvent } from '@/features/games/telemetry';
 import { gamesApi } from '@/features/games/api';
+import { SEASON_MAP_PATH } from '@/lib/constants/nav';
 import { completeMission } from '@/features/club/store';
 import styles from './BookGame.module.css';
 
@@ -62,21 +63,33 @@ export default function BookGame() {
    * مهمان فقط مرحله‌ی اول را رایگان دارد؛ سرور برای بقیه ۴۰۱ می‌دهد.
    * آن‌وقت به‌جای صفحه‌ی خطا، خودش به ورود می‌رود با پیامی که می‌گوید چرا.
    */
-  const needsAccount = (play.error as AxiosError | undefined)?.response?.status === 401;
+  const playStatus = (play.error as AxiosError | undefined)?.response?.status;
+  const needsAccount = playStatus === 401;
+  // ۴۰۳ یعنی سرور این مرحله را هنوز قفل می‌داند. بدونِ این، بچه روی
+  // «بازی باز نشد» می‌ماند و نمی‌فهمد باید اول مرحله‌ی قبلی را برود.
+  const serverLocked = playStatus === 403;
   useEffect(() => {
-    if (!needsAccount) return;
-    navigate('/login', {
-      replace: true,
-      state: { reason: 'برای ادامه‌ی بازی‌ها وارد شو — بقیه‌ی مرحله‌ها منتظرتن!' },
-    });
-  }, [needsAccount, navigate]);
+    if (needsAccount) {
+      navigate('/login', {
+        replace: true,
+        state: { reason: 'برای ادامه‌ی بازی‌ها وارد شو — بقیه‌ی مرحله‌ها منتظرتن!' },
+      });
+      return;
+    }
+    if (serverLocked) {
+      navigate(SEASON_MAP_PATH, {
+        replace: true,
+        state: { reason: 'اول باید مرحله‌های قبلی رو تموم کنی!' },
+      });
+    }
+  }, [needsAccount, serverLocked, navigate]);
 
   const [justWon, setJustWon] = useState(false);
   const [serverCoins, setServerCoins] = useState<number | null>(null);
   const rewardedRef = useRef(false);
 
   // همیشه به مسیرِ سیزن برمی‌گردیم؛ نقشه‌ی کتابیِ قدیمی دیگر مقصدِ برگشت نیست
-  const backToMap = () => navigate('/games');
+  const backToMap = () => navigate(SEASON_MAP_PATH);
 
   const finish = () => {
     if (!found || rewardedRef.current) return;
@@ -145,13 +158,21 @@ export default function BookGame() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [found?.level.id]);
 
-  if (locked) return <Navigate to="/games" replace />;
+  if (locked) {
+    return (
+      <Navigate
+        to={SEASON_MAP_PATH}
+        replace
+        state={{ reason: 'اول باید مرحله‌های قبلی رو تموم کنی!' }}
+      />
+    );
+  }
 
   if (!found) {
     return (
       <main className={styles.page}>
         <header className={styles.topbar}>
-          <button type="button" className={styles.back} onClick={() => navigate('/games')} aria-label="بازگشت">
+          <button type="button" className={styles.back} onClick={backToMap} aria-label="بازگشت">
             <HiOutlineChevronRight />
           </button>
           <span className={styles.topTitle}>بازی پیدا نشد</span>

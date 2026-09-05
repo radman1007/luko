@@ -4,7 +4,8 @@ import { HiOutlineCheckCircle, HiOutlineHeart, HiOutlinePlay } from 'react-icons
 import { CoinIcon } from '@/components/ui/icons';
 import { apiClient } from '@/lib/api';
 import { isGuestMode } from '@/features/auth/guest';
-import { BOOKS, completedLevelIds, levelById } from '@/features/books/booksData';
+import { completedLevelIds, levelById } from '@/features/books/booksData';
+import { seasonState } from '@/features/games/seasonData';
 import type { BookWorld, GameLevel } from '@/features/books/booksData';
 import styles from './DailyGameCard.module.css';
 
@@ -30,15 +31,21 @@ interface DailyPick {
  * یک بازی داشته باشند و فردا عوض شود.
  */
 function gameOfTheDay(): DailyPick | null {
-  const playable = BOOKS.flatMap((book) =>
-    book.levels.filter((level) => level.gameFile).map((level) => ({ book, level })),
-  );
-  if (playable.length === 0) return null;
+  // فقط از بینِ مرحله‌هایی که بچه واقعاً می‌تواند بازی کند. قبلاً از کلِ
+  // فهرست انتخاب می‌شد و برای بچه‌ی تازه تقریباً همیشه یک مرحله‌ی قفل
+  // درمی‌آمد — کارت باز می‌شد و بی‌آنکه چیزی بگوید به خانه برمی‌گشت.
+  const state = seasonState();
+  const open = state.weeks
+    .flatMap((week) => week.stages)
+    .filter((stage) => !stage.locked)
+    .map((stage) => levelById(stage.id))
+    .filter((found): found is DailyPick => Boolean(found));
+  if (open.length === 0) return null;
 
   const now = new Date();
   const startOfYear = new Date(now.getFullYear(), 0, 0);
   const dayOfYear = Math.floor((now.getTime() - startOfYear.getTime()) / 86_400_000);
-  return playable[dayOfYear % playable.length];
+  return open[dayOfYear % open.length];
 }
 
 /**

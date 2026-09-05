@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { HiOutlineBolt } from 'react-icons/hi2';
 import { StudentLayout } from '@/components/layout/StudentLayout/StudentLayout';
 import { CharacterGuide } from '@/components/characters/CharacterGuide/CharacterGuide';
@@ -38,6 +38,8 @@ export default function GameHall() {
 
   const remaining = state.openStages - state.completedStages;
   const weekDone = remaining === 0 && state.openStages > 0;
+  // وقتی بچه از یک مرحله‌ی قفل به این‌جا برگردانده می‌شود، باید بفهمد چرا
+  const reason = (useLocation().state as { reason?: string } | null)?.reason;
 
   return (
     <StudentLayout className={styles.page}>
@@ -48,7 +50,9 @@ export default function GameHall() {
             <p className={styles.speaker}>
               {gamer.name}، {gamer.role}
             </p>
-            <p className={styles.text}>{tease(state.completedStages, remaining, weekDone)}</p>
+            <p className={styles.text}>
+              {reason ?? tease(state.completedStages, remaining, weekDone)}
+            </p>
             <span className={styles.tail} aria-hidden />
           </div>
         </div>

@@ -15,3 +15,10 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'سلامت', path: '/luko-health', icon: HiOutlineHeart },
   { label: 'پروفایل', path: '/profile', icon: HiOutlineUser },
 ];
+
+/**
+ * نقشه‌ی مسیرِ سیزن. مسیرِ واقعی `/books` است (مانده از روزهای «کتاب‌ها»)؛
+ * چند صفحه به `/games` می‌فرستادند که اصلاً route نیست و کاربر ته‌ی
+ * `*` روی خانه می‌افتاد. هرجا برگشت به نقشه لازم شد، همین را بردار.
+ */
+export const SEASON_MAP_PATH = '/books';
