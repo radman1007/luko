@@ -8,6 +8,8 @@ export interface User {
   phone?: string;
   /** حالت مهمان: بدون حساب، داده‌ی دمو و سکه در localStorage */
   isGuest?: boolean;
+  /** شماره‌اش را تأیید کرده؟ تأیید اختیاری است و از پنل انجام می‌شود */
+  phoneVerified?: boolean;
 }
 
 /** مسیر پیش‌فرض هر نقش بعد از ورود */

@@ -21,13 +21,18 @@ from .otp import (
     request_otp,
     verify_otp,
 )
+from .passwords import get_or_create_account, has_password, mark_phone_verified, set_password
 from .serializers import (
     KidSettingsSerializer,
     LukorianSerializer,
     MeUpdateSerializer,
+    PasswordLoginSerializer,
     RequestOTPSerializer,
+    SetPasswordSerializer,
+    StartAuthSerializer,
     UserSerializer,
     VerifyOTPSerializer,
+    VerifyPhoneSerializer,
 )
 from .services import build_profile_stats, get_profile_stats
 
@@ -142,6 +147,117 @@ class VerifyOTPView(APIView):
             user.save(update_fields=["password"])
         return Response(_auth_payload(user, is_new),
                         status=status.HTTP_201_CREATED if is_new else status.HTTP_200_OK)
+
+
+class StartAuthView(APIView):
+    """
+    POST /auth/start — «این شماره حساب دارد یا نه؟»
+
+    فرانت با همین می‌فهمد گامِ بعدی «رمزت را بزن» است یا «حساب می‌سازیم».
+    عمداً چیزی جز وجود/نبودِ رمز برنمی‌گرداند.
+    """
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = StartAuthSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        phone = serializer.validated_data["phone"]
+        role = serializer.validated_data["role"]
+
+        user = User.objects.filter(phone=phone, role=role).first()
+        # حسابی که رمز ندارد (با OTP ساخته شده) مثل حسابِ تازه رفتار می‌کند
+        return Response({"exists": bool(user and has_password(user))})
+
+
+class RegisterView(APIView):
+    """
+    POST /auth/register — ثبت‌نام بدونِ تأییدِ شماره.
+
+    شماره را می‌گیرد، حساب می‌سازد و همان‌جا وارد می‌کند؛ رمز را گامِ
+    بعدی می‌گذارد. تأییدِ شماره بعداً و اختیاری است.
+    """
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = StartAuthSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        phone = serializer.validated_data["phone"]
+        role = serializer.validated_data["role"]
+
+        user = User.objects.filter(phone=phone, role=role).first()
+        if user and has_password(user):
+            return Response(
+                {"error": {"code": 409, "message": "این شماره از قبل حساب دارد؛ با رمزت وارد شو."}},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        user, created = get_or_create_account(phone, role,
+                                              request.data.get("firstName", "") or "")
+        return Response(_auth_payload(user, created),
+                        status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+
+
+class PasswordLoginView(APIView):
+    """POST /auth/login — ورود با شماره و رمز."""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        phone = serializer.validated_data["phone"]
+        role = serializer.validated_data["role"]
+
+        user = User.objects.filter(phone=phone, role=role).first()
+        # پیامِ یکسان برای «شماره نیست» و «رمز غلط» تا شماره‌ها لو نروند
+        if user is None or not has_password(user) or not user.check_password(
+            serializer.validated_data["password"]
+        ):
+            return Response(
+                {"error": {"code": 400, "message": "شماره یا رمز درست نیست."}},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not user.is_active:
+            return Response({"error": {"code": 403, "message": "این حساب غیرفعال است."}},
+                            status=status.HTTP_403_FORBIDDEN)
+        return Response(_auth_payload(user, False))
+
+
+class SetPasswordView(APIView):
+    """
+    POST /auth/set-password — گذاشتن یا عوض‌کردنِ رمز.
+
+    هم گامِ آخرِ ثبت‌نام است و هم مقصدِ «رمزم را فراموش کردم» (که با
+    کدِ یکبارمصرف وارد شده و حالا رمزِ تازه می‌سازد).
+    """
+
+    def post(self, request):
+        serializer = SetPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        set_password(request.user, serializer.validated_data["password"])
+        return Response(UserSerializer(request.user).data)
+
+
+class VerifyPhoneView(APIView):
+    """POST /auth/verify-phone — تأییدِ اختیاریِ شماره با کدِ یکبارمصرف."""
+
+    def post(self, request):
+        serializer = VerifyPhoneSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            ok = verify_otp(request.user.phone, serializer.validated_data["code"])
+        except OTPTooManyAttempts:
+            return Response(
+                {"error": {"code": 400, "message": "چند بار اشتباه زدی؛ کدِ تازه بگیر."}},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not ok:
+            return Response({"error": {"code": 400, "message": "کد اشتباه یا منقضی شده."}},
+                            status=status.HTTP_400_BAD_REQUEST)
+        mark_phone_verified(request.user)
+        return Response(UserSerializer(request.user).data)
 
 
 class RefreshView(APIView):

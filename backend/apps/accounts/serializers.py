@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "role", "first_name", "last_name", "phone"]
+        fields = ["id", "role", "first_name", "last_name", "phone", "phone_verified"]
 
 
 class MeUpdateSerializer(serializers.ModelSerializer):
@@ -42,6 +42,37 @@ class PhoneField(serializers.CharField):
         if phone is None:
             raise serializers.ValidationError("شماره‌ی موبایل معتبر نیست.")
         return phone
+
+
+class StartAuthSerializer(serializers.Serializer):
+    """گامِ اول: فقط شماره — می‌پرسیم این حساب هست یا نه."""
+
+    phone = PhoneField()
+    role = serializers.ChoiceField(
+        choices=[("student", "student"), ("parent", "parent")],
+        required=False, default="student",
+    )
+
+
+class PasswordLoginSerializer(StartAuthSerializer):
+    password = serializers.CharField(min_length=1, max_length=128, trim_whitespace=False)
+
+
+class SetPasswordSerializer(serializers.Serializer):
+    """رمزِ تازه — هم برای گامِ آخرِ ثبت‌نام، هم برای «رمزم را فراموش کردم»."""
+
+    password = serializers.CharField(min_length=6, max_length=128, trim_whitespace=False)
+
+    def validate_password(self, value):
+        if value.strip() == "":
+            raise serializers.ValidationError("رمز نمی‌تواند خالی باشد.")
+        if value.isdigit() and len(set(value)) < 3:
+            raise serializers.ValidationError("رمزِ ساده‌ای انتخاب نکن؛ کمی سخت‌ترش کن.")
+        return value
+
+
+class VerifyPhoneSerializer(serializers.Serializer):
+    code = serializers.CharField(min_length=4, max_length=12)
 
 
 class RequestOTPSerializer(serializers.Serializer):

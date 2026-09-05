@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { HiOutlineArrowLeft, HiOutlineDevicePhoneMobile } from 'react-icons/hi2';
+import { HiOutlineArrowLeft, HiOutlineDevicePhoneMobile, HiOutlineLockClosed } from 'react-icons/hi2';
 import { ROLE_HOME } from '@/types/user';
 import type { User } from '@/types/user';
 import { useAuth } from '../../context';
+import { isValidPhone, normalizePhone } from '@/lib/phone';
 import { authApi } from '../../api';
 import { enableGuestMode } from '../../guest';
 import { OtpInput } from '../OtpInput/OtpInput';
@@ -13,22 +14,29 @@ import styles from './OtpAuthForm.module.css';
 /** تا وقتی سرور طولِ واقعی را نگفته، همین را نشان می‌دهیم */
 const DEFAULT_CODE_LENGTH = 5;
 
-/** گام‌های ورود. `name` فقط وقتی می‌آید که حساب همان لحظه ساخته شده باشد. */
-type Step = 'phone' | 'code' | 'name';
+/**
+ * گام‌های ورود.
+ *
+ * ثبت‌نام فعلاً تأییدِ شماره نمی‌خواهد: شماره → رمز، و تمام. کدِ یکبارمصرف
+ * فقط برای «رمزم را فراموش کردم» می‌ماند.
+ */
+type Step = 'phone' | 'password' | 'newPassword' | 'code' | 'name';
 
-const STEPS: { key: Step; label: string }[] = [
+/** نوارِ گام‌ها بسته به اینکه ورود است یا ثبت‌نام */
+const STEPS_LOGIN: { key: Step; label: string }[] = [
+  { key: 'phone', label: 'شماره' },
+  { key: 'password', label: 'رمز' },
+];
+const STEPS_SIGNUP: { key: Step; label: string }[] = [
+  { key: 'phone', label: 'شماره' },
+  { key: 'name', label: 'اسم' },
+  { key: 'newPassword', label: 'رمز' },
+];
+const STEPS_RESET: { key: Step; label: string }[] = [
   { key: 'phone', label: 'شماره' },
   { key: 'code', label: 'کد' },
-  { key: 'name', label: 'اسم' },
+  { key: 'newPassword', label: 'رمزِ تازه' },
 ];
-
-/** ارقام فارسی/عربی → انگلیسی و حذفِ غیررقم */
-function digits(value: string): string {
-  return value
-    .replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))
-    .replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
-    .replace(/\D/g, '');
-}
 
 function errorMessage(err: unknown, fallback: string): string {
   const e = err as { response?: { data?: { error?: { message?: string } } } };
@@ -38,9 +46,9 @@ function errorMessage(err: unknown, fallback: string): string {
 /**
  * ورود و ثبت‌نامِ یکپارچه.
  *
- * بچه نمی‌داند «حساب دارم یا نه» — و لازم هم نیست بداند. همیشه شماره را
- * می‌زند و کد را تأیید می‌کند؛ اگر حساب داشت همان‌جا وارد می‌شود و اگر
- * نداشت سرور می‌سازدش و فقط آن‌وقت اسمش پرسیده می‌شود.
+ * بچه نمی‌داند «حساب دارم یا نه» — و لازم هم نیست بداند. شماره را می‌زند و
+ * سرور می‌گوید گامِ بعدی «رمزت را بزن» است یا «بیا حسابت را بسازیم».
+ * ثبت‌نام تأییدِ شماره نمی‌خواهد؛ کدِ یکبارمصرف فقط برای فراموشیِ رمز است.
  */
 export function OtpAuthForm() {
   const navigate = useNavigate();
@@ -52,12 +60,16 @@ export function OtpAuthForm() {
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   const [firstName, setFirstName] = useState('');
+  const [password, setPassword] = useState('');
+  /** ثبت‌نام یا فراموشیِ رمز — تعیین می‌کند نوارِ گام‌ها و متن‌ها چه بگویند */
+  const [mode, setMode] = useState<'login' | 'signup' | 'reset'>('login');
   const [devCode, setDevCode] = useState<string | undefined>();
   const [codeLength, setCodeLength] = useState(DEFAULT_CODE_LENGTH);
   const [resendIn, setResendIn] = useState(0);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   // بعد از ساختِ حساب نگه داشته می‌شود تا گامِ اسم بداند کجا برود
   const newUser = useRef<User | null>(null);
 
@@ -69,9 +81,81 @@ export function OtpAuthForm() {
 
   useEffect(() => {
     if (step === 'name') nameRef.current?.focus();
+    if (step === 'password' || step === 'newPassword') passwordRef.current?.focus();
   }, [step]);
 
-  const phoneValid = /^09\d{9}$/.test(phone);
+  const phoneValid = isValidPhone(phone);
+
+  /** گامِ اول: این شماره حساب دارد یا باید ساخته شود؟ */
+  const startAuth = async () => {
+    if (!phoneValid || busy) return;
+    setError('');
+    setBusy(true);
+    try {
+      const { exists } = await authApi.start({ phone });
+      if (exists) {
+        setMode('login');
+        setPassword('');
+        setStep('password');
+      } else {
+        setMode('signup');
+        setStep('name');
+      }
+    } catch (err) {
+      setError(errorMessage(err, 'یک لحظه مشکل پیش آمد؛ دوباره امتحان کن.'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /** ورود با رمز */
+  const loginWithPassword = async () => {
+    if (!password || busy) return;
+    setError('');
+    setBusy(true);
+    try {
+      const { user } = await authApi.login({ phone, password });
+      setUser(user);
+      navigate(ROLE_HOME[user.role] ?? '/', { replace: true });
+    } catch (err) {
+      setError(errorMessage(err, 'شماره یا رمز درست نیست.'));
+      setBusy(false);
+    }
+  };
+
+  /** گامِ اسم در ثبت‌نام: حساب ساخته می‌شود و بعد رمز می‌گیریم */
+  const createAccount = async () => {
+    const name = firstName.trim();
+    if (!name || busy) return;
+    setError('');
+    setBusy(true);
+    try {
+      const { user } = await authApi.register({ phone, firstName: name });
+      setUser(user);
+      newUser.current = user;
+      setPassword('');
+      setStep('newPassword');
+    } catch (err) {
+      setError(errorMessage(err, 'ساختِ حساب ناموفق بود؛ دوباره امتحان کن.'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /** رمزِ تازه — هم گامِ آخرِ ثبت‌نام، هم پایانِ فراموشیِ رمز */
+  const saveNewPassword = async () => {
+    if (password.length < 6 || busy) return;
+    setError('');
+    setBusy(true);
+    try {
+      const user = await authApi.setPassword(password);
+      setUser(user);
+      navigate(ROLE_HOME[user.role] ?? '/', { replace: true });
+    } catch (err) {
+      setError(errorMessage(err, 'رمز ذخیره نشد؛ یک رمزِ دیگر امتحان کن.'));
+      setBusy(false);
+    }
+  };
 
   const sendOtp = async () => {
     if (!phoneValid || busy) return;
@@ -96,15 +180,12 @@ export function OtpAuthForm() {
     setError('');
     setBusy(true);
     try {
-      const { user, isNew } = await authApi.verifyOtp({ phone, code: value });
+      const { user } = await authApi.verifyOtp({ phone, code: value });
       setUser(user);
-      // حسابِ قدیمی مستقیم وارد می‌شود؛ حسابِ تازه یک گام دیگر دارد
-      if (isNew) {
-        newUser.current = user;
-        setStep('name');
-      } else {
-        navigate(ROLE_HOME[user.role] ?? '/', { replace: true });
-      }
+      // این مسیر فقط برای فراموشیِ رمز است: کد که درست بود، رمزِ تازه می‌سازد
+      newUser.current = user;
+      setPassword('');
+      setStep('newPassword');
     } catch (err) {
       setCode('');
       setError(errorMessage(err, 'کد اشتباه یا منقضی شده.'));
@@ -113,42 +194,38 @@ export function OtpAuthForm() {
     }
   };
 
-  const finishSignup = async () => {
-    const name = firstName.trim();
-    if (!name || busy) return;
-    setError('');
-    setBusy(true);
-    try {
-      const user = await authApi.updateMe({ firstName: name });
-      setUser(user);
-      navigate(ROLE_HOME[user.role] ?? '/', { replace: true });
-    } catch (err) {
-      setError(errorMessage(err, 'ذخیره نشد؛ یک‌بار دیگر امتحان کن.'));
-      setBusy(false);
-    }
-  };
-
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
-    if (step === 'phone') void sendOtp();
-    else if (step === 'code') void verify();
-    else void finishSignup();
+    if (step === 'phone') void startAuth();
+    else if (step === 'password') void loginWithPassword();
+    else if (step === 'name') void createAccount();
+    else if (step === 'newPassword') void saveNewPassword();
+    else void verify();
+  };
+
+  /** «رمزم را فراموش کردم» → کدِ یکبارمصرف */
+  const forgotPassword = () => {
+    setMode('reset');
+    void sendOtp();
   };
 
   const changeNumber = () => {
     setStep('phone');
     setCode('');
+    setPassword('');
+    setMode('login');
     setDevCode(undefined);
     setError('');
   };
 
-  const activeIndex = STEPS.findIndex((s) => s.key === step);
+  const steps = mode === 'signup' ? STEPS_SIGNUP : mode === 'reset' ? STEPS_RESET : STEPS_LOGIN;
+  const activeIndex = steps.findIndex((s) => s.key === step);
 
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
       {/* نوارِ گام‌ها — بچه ببیند کجای کار است */}
       <ol className={styles.steps} aria-label="مرحله‌های ورود">
-        {STEPS.map((s, i) => (
+        {steps.map((s, i) => (
           <li
             key={s.key}
             className={i < activeIndex ? styles.stepDone : i === activeIndex ? styles.stepNow : styles.step}
@@ -163,7 +240,7 @@ export function OtpAuthForm() {
         <>
           {reason && <p className={styles.reason}>{reason}</p>}
           <h1 className={styles.title}>بزن بریم تو شهرِ لوکو</h1>
-          <p className={styles.subtitle}>شماره‌ت رو بزن تا یه کد برات بفرستم</p>
+          <p className={styles.subtitle}>شماره‌ت رو بزن؛ بقیه‌ش با من</p>
 
           <div className={styles.field}>
             <span className={styles.fieldIcon} aria-hidden>
@@ -177,13 +254,13 @@ export function OtpAuthForm() {
               dir="ltr"
               placeholder="09xxxxxxxxx"
               value={phone}
-              onChange={(e) => setPhone(digits(e.target.value).slice(0, 11))}
+              onChange={(e) => setPhone(normalizePhone(e.target.value))}
               aria-label="شماره موبایل"
             />
           </div>
 
           <button type="submit" className={styles.submit} disabled={!phoneValid || busy}>
-            {busy ? 'در حال ارسال…' : 'ارسال کد'}
+            {busy ? 'یه لحظه…' : 'ادامه'}
           </button>
 
           <button
@@ -199,11 +276,83 @@ export function OtpAuthForm() {
         </>
       )}
 
+      {step === 'password' && (
+        <>
+          <h1 className={styles.title}>رمزت رو بزن</h1>
+          <p className={styles.subtitle}>
+            برای <b dir="ltr" className={styles.phone}>{phone}</b>
+          </p>
+
+          <div className={styles.field}>
+            <span className={styles.fieldIcon} aria-hidden>
+              <HiOutlineLockClosed />
+            </span>
+            <input
+              ref={passwordRef}
+              className={styles.input}
+              type="password"
+              autoComplete="current-password"
+              placeholder="رمزِ عبور"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); if (error) setError(''); }}
+              aria-label="رمز عبور"
+            />
+          </div>
+
+          <button type="submit" className={styles.submit} disabled={!password || busy}>
+            {busy ? 'در حال ورود…' : 'ورود'}
+          </button>
+
+          <div className={styles.links}>
+            <button type="button" className={styles.link} onClick={forgotPassword} disabled={busy}>
+              رمزت یادت رفته؟ با کدِ پیامکی بیا تو
+            </button>
+            <button type="button" className={styles.link} onClick={changeNumber}>
+              <HiOutlineArrowLeft aria-hidden />
+              تغییر شماره
+            </button>
+          </div>
+        </>
+      )}
+
+      {step === 'newPassword' && (
+        <>
+          <h1 className={styles.title}>
+            {mode === 'reset' ? 'یه رمزِ تازه بساز' : 'یه رمز برای خودت بذار'}
+          </h1>
+          <p className={styles.subtitle}>
+            {mode === 'reset'
+              ? 'از این به بعد با همین رمز وارد می‌شی'
+              : 'دفعه‌ی بعد با شماره و همین رمز وارد می‌شی'}
+          </p>
+
+          <div className={styles.field}>
+            <span className={styles.fieldIcon} aria-hidden>
+              <HiOutlineLockClosed />
+            </span>
+            <input
+              ref={passwordRef}
+              className={styles.input}
+              type="password"
+              autoComplete="new-password"
+              placeholder="دستِ‌کم ۶ نویسه"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); if (error) setError(''); }}
+              aria-label="رمز تازه"
+            />
+          </div>
+
+          <button type="submit" className={styles.submit} disabled={password.length < 6 || busy}>
+            {busy ? 'یه لحظه…' : 'ذخیره و بریم تو شهر!'}
+          </button>
+        </>
+      )}
+
       {step === 'code' && (
         <>
           <h1 className={styles.title}>کد رو بزن</h1>
           <p className={styles.subtitle}>
-            برای <b dir="ltr" className={styles.phone}>{phone}</b> فرستادم
+            برای <b dir="ltr" className={styles.phone}>{phone}</b> فرستادم؛ بعدش رمزِ تازه می‌سازیم
           </p>
 
           <OtpInput
@@ -246,7 +395,7 @@ export function OtpAuthForm() {
       {step === 'name' && (
         <>
           <h1 className={styles.title}>اسمت چیه؟</h1>
-          <p className={styles.subtitle}>حسابت ساخته شد! فقط بگو چی صدات کنیم</p>
+          <p className={styles.subtitle}>حسابِ تازه می‌سازیم؛ فقط بگو چی صدات کنیم</p>
 
           <div className={styles.field}>
             <input
@@ -263,7 +412,12 @@ export function OtpAuthForm() {
           </div>
 
           <button type="submit" className={styles.submit} disabled={!firstName.trim() || busy}>
-            {busy ? 'یه لحظه…' : 'بریم تو شهر!'}
+            {busy ? 'یه لحظه…' : 'ادامه'}
+          </button>
+
+          <button type="button" className={styles.link} onClick={changeNumber}>
+            <HiOutlineArrowLeft aria-hidden />
+            تغییر شماره
           </button>
         </>
       )}

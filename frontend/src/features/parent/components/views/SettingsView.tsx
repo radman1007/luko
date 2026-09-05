@@ -11,6 +11,7 @@ import {
 } from 'react-icons/hi2';
 import type { Child, ParentPreferences } from '../../types';
 import { Card, SectionTitle } from '../shell/Card';
+import { PhoneVerifyCard } from '../verify/PhoneVerifyCard';
 import styles from './SettingsView.module.css';
 
 interface Props {
@@ -55,6 +56,11 @@ export function SettingsView({
             <small dir="ltr">{parentPhone}</small>
           </div>
         </div>
+      </Card>
+
+      <SectionTitle>شمارهٔ موبایل</SectionTitle>
+      <Card>
+        <PhoneVerifyCard />
       </Card>
 
       <SectionTitle>فرزندان</SectionTitle>

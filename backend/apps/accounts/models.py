@@ -24,6 +24,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=60, blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.STUDENT)
 
+    # ثبت‌نام فعلاً بدونِ تأییدِ شماره است؛ تأیید کارِ اختیاریِ بعدی است
+    # که والد هر وقت خواست از پنل انجام می‌دهد.
+    phone_verified = models.BooleanField(default=False)
+    phone_verified_at = models.DateTimeField(null=True, blank=True)
+
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -46,6 +51,29 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         name = f"{self.first_name} {self.last_name}".strip()
         return name or self.phone
+
+
+class PasswordVault(TimeStampedModel):
+    """
+    نسخه‌ی رمزنگاری‌شده‌ی رمزِ کاربر، فقط برای پشتیبانیِ تلفنی.
+
+    رمزِ احراز هویت مثل همیشه در `User.password` هَش می‌شود؛ این جداست و
+    با کلیدِ سرور باز می‌شود. با هر تغییرِ رمز به‌روز می‌شود.
+    """
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="password_vault")
+    sealed = models.TextField(blank=True)
+
+    def set_password(self, raw: str) -> None:
+        from .vault import seal
+        self.sealed = seal(raw)
+
+    def reveal(self) -> str | None:
+        from .vault import open_sealed
+        return open_sealed(self.sealed)
+
+    def __str__(self):
+        return f"PasswordVault<{self.user}>"
 
 
 class Profile(TimeStampedModel):

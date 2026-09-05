@@ -39,6 +39,7 @@ import { ReportsView } from '@/features/parent/components/views/ReportsView';
 import { DailyView } from '@/features/parent/components/views/DailyView';
 import { HealthView } from '@/features/parent/components/views/HealthView';
 import { SettingsView } from '@/features/parent/components/views/SettingsView';
+import { isValidPhone, normalizePhone } from '@/lib/phone';
 import styles from './ParentPanel.module.css';
 
 type SheetKind = 'notifications' | 'support' | 'addChild' | 'removeChild' | 'logout' | 'privacy' | 'about';
@@ -145,13 +146,13 @@ function AuthenticatedParentPanel() {
   };
 
   const submitChild = () => {
-    if (!/^09\d{9}$/.test(form.phone.trim())) {
+    if (!isValidPhone(form.phone)) {
       setToast('شمارهٔ موبایل باید ۱۱ رقم و با ۰۹ شروع شود.');
       return;
     }
     addChild.mutate(
       {
-        phone: form.phone.trim(),
+        phone: normalizePhone(form.phone),
         firstName: form.firstName.trim() || undefined,
         grade: Number(form.grade),
         school: form.school.trim() || undefined,
@@ -394,7 +395,7 @@ function AuthenticatedParentPanel() {
             inputMode="numeric"
             placeholder="09xxxxxxxxx"
             value={form.phone}
-            onChange={(event) => setForm({ ...form, phone: event.target.value })}
+            onChange={(event) => setForm({ ...form, phone: normalizePhone(event.target.value) })}
           />
         </label>
         <label className={styles.field}>

@@ -9,6 +9,7 @@ import {
   HiOutlineShieldCheck,
 } from 'react-icons/hi2';
 import { BrandMark } from '@/components/ui/icons';
+import { isValidPhone, normalizePhone } from '@/lib/phone';
 import { authApi } from '@/features/auth/api';
 import { useAuth } from '@/features/auth/context';
 import { enableParentGuestMode, GUEST_PARENT_USER } from '@/features/auth/guest';
@@ -42,7 +43,7 @@ export default function ParentLogin() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
 
-  const [step, setStep] = useState<'phone' | 'code'>('phone');
+  const [step, setStep] = useState<'phone' | 'password' | 'newPassword' | 'name' | 'code'>('phone');
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   // طولِ کد را سرور می‌گوید؛ سخت‌کد کردنش با عوض‌شدنِ پنلِ پیامک می‌شکست
@@ -52,7 +53,11 @@ export default function ParentLogin() {
   const [resendIn, setResendIn] = useState(0);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [password, setPassword] = useState('');
+  /** ثبت‌نام یا بازیابیِ رمز — متن‌ها و مقصدِ گام‌ها را تعیین می‌کند */
+  const [mode, setMode] = useState<'login' | 'signup' | 'reset'>('login');
   const codeRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (resendIn <= 0) return undefined;
@@ -62,9 +67,78 @@ export default function ParentLogin() {
 
   useEffect(() => {
     if (step === 'code') codeRef.current?.focus();
+    if (step === 'password' || step === 'newPassword') passwordRef.current?.focus();
   }, [step]);
 
-  const phoneValid = /^09\d{9}$/.test(phone);
+  const phoneValid = isValidPhone(phone);
+
+  /** گامِ اول: این شماره حسابِ والد دارد یا باید ساخته شود؟ */
+  const startAuth = async () => {
+    if (!phoneValid) {
+      setError('شمارهٔ موبایل باید ۱۱ رقم و با ۰۹ شروع شود.');
+      return;
+    }
+    setError('');
+    setBusy(true);
+    try {
+      const { exists } = await authApi.start({ phone, role: 'parent' });
+      setMode(exists ? 'login' : 'signup');
+      setPassword('');
+      setStep(exists ? 'password' : 'name');
+    } catch (err) {
+      setError(errorMessage(err, 'یک لحظه مشکل پیش آمد؛ دوباره تلاش کنید.'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const loginWithPassword = async () => {
+    if (!password) return;
+    setError('');
+    setBusy(true);
+    try {
+      const { user } = await authApi.login({ phone, password, role: 'parent' });
+      setUser(user);
+      navigate('/parent-panel', { replace: true });
+    } catch (err) {
+      setError(errorMessage(err, 'شماره یا رمز درست نیست.'));
+      setBusy(false);
+    }
+  };
+
+  const createAccount = async () => {
+    setError('');
+    setBusy(true);
+    try {
+      const { user } = await authApi.register({
+        phone, role: 'parent', firstName: firstName.trim() || undefined,
+      });
+      setUser(user);
+      setPassword('');
+      setStep('newPassword');
+    } catch (err) {
+      setError(errorMessage(err, 'ساخت حساب انجام نشد؛ دوباره تلاش کنید.'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveNewPassword = async () => {
+    if (password.length < 6) {
+      setError('رمز باید دست‌کم ۶ نویسه باشد.');
+      return;
+    }
+    setError('');
+    setBusy(true);
+    try {
+      const user = await authApi.setPassword(password);
+      setUser(user);
+      navigate('/parent-panel', { replace: true });
+    } catch (err) {
+      setError(errorMessage(err, 'رمز ذخیره نشد؛ رمز دیگری امتحان کنید.'));
+      setBusy(false);
+    }
+  };
 
   const sendCode = async () => {
     if (!phoneValid) {
@@ -103,7 +177,9 @@ export default function ParentLogin() {
       // حسابِ والدِ همین شماره؛ حتی اگر بچه با همین شماره حساب داشته باشد و
       // همین حالا روی این گوشی لاگین باشد، نشستش دست‌نخورده می‌ماند.
       setUser(user);
-      navigate('/parent-panel', { replace: true });
+      // این مسیر فقط بازیابیِ رمز است: کد که درست بود، رمزِ تازه می‌سازد
+      setPassword('');
+      setStep('newPassword');
     } catch (err) {
       setError(errorMessage(err, 'کد اشتباه یا منقضی شده است.'));
     } finally {
@@ -123,7 +199,13 @@ export default function ParentLogin() {
             <p className={styles.subtitle}>
               {step === 'phone'
                 ? 'با شمارهٔ موبایلتان وارد شوید'
-                : `کد به ${phone} پیامک شد`}
+                : step === 'password'
+                  ? `رمز حساب ${phone}`
+                  : step === 'newPassword'
+                    ? (mode === 'reset' ? 'رمز تازه‌ای بسازید' : 'یک رمز برای حسابتان بگذارید')
+                    : step === 'name'
+                      ? 'حساب تازه می‌سازیم'
+                      : `کد به ${phone} پیامک شد`}
             </p>
           </div>
         </header>
@@ -133,7 +215,7 @@ export default function ParentLogin() {
             className={styles.form}
             onSubmit={(e) => {
               e.preventDefault();
-              void sendCode();
+              void startAuth();
             }}
           >
             <label className={styles.field}>
@@ -146,7 +228,7 @@ export default function ParentLogin() {
                   autoComplete="tel"
                   placeholder="09xxxxxxxxx"
                   value={phone}
-                  onChange={(e) => setPhone(digits(e.target.value).slice(0, 11))}
+                  onChange={(e) => setPhone(normalizePhone(e.target.value))}
                   aria-invalid={Boolean(error) && !phoneValid}
                 />
               </span>
@@ -155,7 +237,7 @@ export default function ParentLogin() {
             {error && <p className={styles.error}>{error}</p>}
 
             <button type="submit" className={styles.primary} disabled={busy || !phoneValid}>
-              {busy ? 'در حال ارسال…' : 'ارسال کد'}
+              {busy ? 'یک لحظه…' : 'ادامه'}
               <HiOutlineArrowRight aria-hidden />
             </button>
 
@@ -184,6 +266,105 @@ export default function ParentLogin() {
             </button>
             <p className={styles.guestHint}>بدون پیامک؛ با داده‌های نمونه و مناسبِ دمو</p>
           </form>
+        ) : step === 'password' ? (
+          <form
+            className={styles.form}
+            onSubmit={(e) => { e.preventDefault(); void loginWithPassword(); }}
+          >
+            <label className={styles.field}>
+              رمز عبور
+              <span className={styles.inputWrap}>
+                <HiOutlineLockClosed aria-hidden />
+                <input
+                  ref={passwordRef}
+                  type="password"
+                  autoComplete="current-password"
+                  placeholder="رمز حسابتان"
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); if (error) setError(''); }}
+                />
+              </span>
+            </label>
+
+            {error && <p className={styles.error}>{error}</p>}
+
+            <button type="submit" className={styles.primary} disabled={busy || !password}>
+              {busy ? 'در حال ورود…' : 'ورود به پنل'}
+            </button>
+
+            <div className={styles.actions}>
+              <button
+                type="button"
+                className={styles.link}
+                onClick={() => { setStep('phone'); setPassword(''); setError(''); }}
+              >
+                تغییر شماره
+              </button>
+              <button
+                type="button"
+                className={styles.link}
+                disabled={busy}
+                onClick={() => { setMode('reset'); void sendCode(); }}
+              >
+                رمزتان را فراموش کرده‌اید؟ با کد پیامکی وارد شوید
+              </button>
+            </div>
+          </form>
+        ) : step === 'name' ? (
+          <form
+            className={styles.form}
+            onSubmit={(e) => { e.preventDefault(); void createAccount(); }}
+          >
+            <label className={styles.field}>
+              نام شما
+              <span className={styles.inputWrap}>
+                <input
+                  placeholder="مثلاً رادمان"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+              </span>
+            </label>
+
+            {error && <p className={styles.error}>{error}</p>}
+
+            <button type="submit" className={styles.primary} disabled={busy}>
+              {busy ? 'یک لحظه…' : 'ادامه'}
+            </button>
+
+            <div className={styles.actions}>
+              <button type="button" className={styles.link}
+                onClick={() => { setStep('phone'); setError(''); }}>
+                تغییر شماره
+              </button>
+            </div>
+          </form>
+        ) : step === 'newPassword' ? (
+          <form
+            className={styles.form}
+            onSubmit={(e) => { e.preventDefault(); void saveNewPassword(); }}
+          >
+            <label className={styles.field}>
+              رمز عبور <small>(دست‌کم ۶ نویسه)</small>
+              <span className={styles.inputWrap}>
+                <HiOutlineLockClosed aria-hidden />
+                <input
+                  ref={passwordRef}
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="رمزی که یادتان می‌ماند"
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); if (error) setError(''); }}
+                />
+              </span>
+            </label>
+
+            {error && <p className={styles.error}>{error}</p>}
+
+            <button type="submit" className={styles.primary} disabled={busy || password.length < 6}>
+              {busy ? 'در حال ذخیره…' : 'ذخیره و ورود به پنل'}
+            </button>
+          </form>
         ) : (
           <form
             className={styles.form}
@@ -209,22 +390,11 @@ export default function ParentLogin() {
               </span>
             </label>
 
-            <label className={styles.field}>
-              نام شما <small>(اگر برای اولین بار وارد می‌شوید)</small>
-              <span className={styles.inputWrap}>
-                <input
-                  placeholder="مثلاً رادمان"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                />
-              </span>
-            </label>
-
             {devCode && <p className={styles.devCode}>کد توسعه: {devCode}</p>}
             {error && <p className={styles.error}>{error}</p>}
 
             <button type="submit" className={styles.primary} disabled={busy || code.length < codeLength}>
-              {busy ? 'در حال بررسی…' : 'ورود به پنل'}
+              {busy ? 'در حال بررسی…' : 'تأیید کد'}
             </button>
 
             <div className={styles.actions}>

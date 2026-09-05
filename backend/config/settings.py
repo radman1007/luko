@@ -159,6 +159,10 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 GAME_LINK_SECRET = env("GAME_LINK_SECRET", "dev-game-link-secret")
 
 # ملی‌پیامک — کلید در URLِ سرویس می‌نشیند، پس مثل هر رازِ دیگری فقط از env
+# کلیدِ گاوصندوقِ رمز — بدونِ آن، رمزِ خوانا اصلاً ذخیره نمی‌شود و پنل
+# ادمین «پیکربندی نشده» نشان می‌دهد. فقط در env سرور بماند.
+PASSWORD_VAULT_KEY = env("PASSWORD_VAULT_KEY", "")
+
 MELIPAYAMAK_API_KEY = env("MELIPAYAMAK_API_KEY", "")
 MELIPAYAMAK_BASE_URL = env("MELIPAYAMAK_BASE_URL", "https://console.melipayamak.com")
 MELIPAYAMAK_TIMEOUT = float(env("MELIPAYAMAK_TIMEOUT", "12"))
