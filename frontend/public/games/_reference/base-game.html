@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LUKO — معماری مرجعِ بازی</title>
+<style>
+  :root {
+    --bg: #0f1226;
+    --panel: #171a35;
+    --panel-2: #1e2244;
+    --line: #2c3160;
+    --ink: #e8eaff;
+    --muted: #939ac9;
+    --accent: #7c5cbf;
+    --accent-2: #4fd8c8;
+    --ok: #3ec98a;
+    --warn: #f0b429;
+    --bad: #f0685f;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 18px;
+    background: var(--bg);
+    color: var(--ink);
+    font: 14px/1.7 system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+  }
+  h1 { font-size: 19px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); align-items: start; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+  .card h2 { font-size: 13px; margin: 0 0 10px; color: var(--muted); font-weight: 700; letter-spacing: .3px; }
+  .rows { display: grid; gap: 7px; }
+  .row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .row span:first-child { color: var(--muted); font-size: 13px; }
+  .row b { font-variant-numeric: tabular-nums; font-weight: 700; }
+  .pill { display: inline-block; padding: 3px 11px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: .4px; }
+  .s-CREATED, .s-READY { background: #2c3160; color: #b9c0f0; }
+  .s-PLAYING { background: rgb(62 201 138 / 18%); color: var(--ok); }
+  .s-PAUSED { background: rgb(240 180 41 / 18%); color: var(--warn); }
+  .s-LEVEL_ENDED { background: rgb(124 92 191 / 30%); color: #c3b0f5; }
+  .s-COMPLETED { background: rgb(79 216 200 / 18%); color: var(--accent-2); }
+  .s-GAME_OVER, .s-ABANDONED { background: rgb(240 104 95 / 18%); color: var(--bad); }
+  .bar { height: 7px; border-radius: 99px; background: #2c3160; overflow: hidden; margin-top: 3px; }
+  .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .25s; }
+  .btns { display: flex; flex-wrap: wrap; gap: 7px; }
+  button {
+    font: inherit; font-size: 13px; font-weight: 600; color: var(--ink);
+    background: var(--panel-2); border: 1px solid var(--line);
+    padding: 7px 12px; border-radius: 9px; cursor: pointer; transition: .12s;
+  }
+  button:hover:not(:disabled) { border-color: var(--accent); background: #262b52; }
+  button:disabled { opacity: .32; cursor: not-allowed; }
+  button.go { background: var(--accent); border-color: var(--accent); }
+  button.ok { background: rgb(62 201 138 / 20%); border-color: var(--ok); color: var(--ok); }
+  button.bad { background: rgb(240 104 95 / 16%); border-color: var(--bad); color: var(--bad); }
+  .log, pre.json {
+    font-family: var(--mono); font-size: 11.5px; line-height: 1.75;
+    background: #0b0e20; border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px; margin: 0; max-height: 300px; overflow: auto;
+    direction: ltr; text-align: left; white-space: pre-wrap; word-break: break-word;
+  }
+  .log div { display: grid; grid-template-columns: 62px 130px 1fr; gap: 8px; align-items: baseline; }
+  .log time { color: #5c649c; }
+  .log b { font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
+  .log em { min-width: 0; overflow-wrap: anywhere; }
+  .log .e-level_start, .log .e-level_end { color: #c3b0f5; }
+  .log .e-answer { color: var(--ok); }
+  .log .e-answer.wrong, .log .e-mistake, .log .e-game_over { color: var(--bad); }
+  .log .e-hint { color: var(--warn); }
+  .log .e-state_change { color: var(--accent-2); }
+  .log .e-finish_deferred, .log .e-state_rejected { color: #ff9f43; }
+  .log em { color: var(--muted); font-style: normal; }
+  .log, pre.json { max-height: 340px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { padding: 5px 6px; text-align: right; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  th { color: var(--muted); font-weight: 600; font-size: 11.5px; }
+  td.st-passed { color: var(--ok); }
+  td.st-failed, td.st-abandoned, td.st-interrupted { color: var(--bad); }
+  td.st-playing { color: var(--warn); }
+  .note { color: var(--muted); font-size: 12px; margin-top: 9px; }
+  code { font-family: var(--mono); background: #0b0e20; padding: 1px 5px; border-radius: 5px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<h1>معماری مرجعِ بازی‌های لوکو</h1>
+<p class="sub">
+  این صفحه یک بازیِ واقعی نیست — پیاده‌سازیِ مرجعِ همان چرخهٔ عمری است که
+  <code>/games/assets/luko-sdk.js</code> فراهم می‌کند. دکمه‌ها همان چیزی را صدا می‌زنند
+  که یک بازیِ واقعی صدا می‌زند، و هر سه پنلِ پایین از حالتِ واقعیِ SDK خوانده می‌شوند.
+</p>
+
+<div class="grid">
+
+  <div class="card">
+    <h2>شناسنامه</h2>
+    <div class="rows">
+      <div class="row"><span>Game ID</span><b id="f-id">—</b></div>
+      <div class="row"><span>Game Type</span><b id="f-type">—</b></div>
+      <div class="row"><span>Session ID</span><b id="f-session" style="font-family:var(--mono);font-size:11px">—</b></div>
+      <div class="row"><span>Total Levels</span><b id="f-total">—</b></div>
+      <div class="row"><span>Schema</span><b id="f-schema">—</b></div>
+    </div>
+    <p class="note">
+      شناسهٔ بچه عمداً این‌جا نیست: سرور آن را از توکن می‌خواند. فرستادنش از سمتِ
+      بازی یعنی هر کسی می‌تواند به‌جای دیگری امتیاز بفرستد.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>وضعیتِ زنده</h2>
+    <div class="rows">
+      <div class="row"><span>Status</span><span id="f-status" class="pill s-CREATED">CREATED</span></div>
+      <div class="row"><span>Current Level</span><b id="f-level">۰ / ۰</b></div>
+      <div class="row"><span>Score</span><b id="f-score">۰</b></div>
+      <div class="row"><span>Game Timer</span><b id="f-gtime">۰۰:۰۰</b></div>
+      <div class="row"><span>Level Timer</span><b id="f-ltime">۰۰:۰۰</b></div>
+      <div class="row"><span>دقت</span><b id="f-acc">—</b></div>
+      <div>
+        <div class="row"><span>پیشرفت</span><b id="f-progress">۰٪</b></div>
+        <div class="bar"><i id="f-bar" style="width:0"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>کنترل‌ها</h2>
+    <div class="btns">
+      <button class="go" id="b-init">۱· init</button>
+      <button class="go" id="b-start">۲· startGame</button>
+      <button class="go" id="b-level">۳· startLevel</button>
+      <button class="ok" id="b-right">پاسخ درست</button>
+      <button class="bad" id="b-wrong">پاسخ غلط</button>
+      <button id="b-hint">hint</button>
+      <button id="b-mistake">mistake</button>
+      <button class="ok" id="b-lvlok">levelComplete</button>
+      <button class="bad" id="b-lvlfail">levelFailed</button>
+      <button id="b-pause">pause</button>
+      <button id="b-resume">resume</button>
+      <button class="bad" id="b-over">gameOver</button>
+      <button class="bad" id="b-abandon">abandon</button>
+      <button id="b-finish">finish (نگهبانی‌شده)</button>
+      <button id="b-reset">Reset</button>
+    </div>
+    <p class="note">
+      <code>finish</code> را وسطِ بازی بزنید: چون بازی خودش را با
+      <code>totalLevels</code> معرفی کرده، SDK آن را به <code>levelComplete</code>
+      تنزل می‌دهد و <code>finish_deferred</code> در لاگ می‌نشیند. همین نگهبان است که
+      جلوی «تمام‌شدنِ بازی بعد از مرحلهٔ اول» را می‌گیرد.
+    </p>
+  </div>
+
+  <div class="card" style="grid-column: 1 / -1">
+    <h2>مرحله‌ها</h2>
+    <table>
+      <thead><tr>
+        <th>#</th><th>شناسه</th><th>وضعیت</th><th>مدت</th>
+        <th>پرسش</th><th>درست</th><th>خطا</th><th>راهنما</th><th>امتیاز</th>
+      </tr></thead>
+      <tbody id="f-levels"><tr><td colspan="9" style="color:var(--muted)">هنوز مرحله‌ای شروع نشده</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Event Log</h2>
+    <div class="log" id="f-log"></div>
+  </div>
+
+  <div class="card">
+    <h2>Data Preview — همان چیزی که ارسال می‌شود</h2>
+    <pre class="json" id="f-json">{}</pre>
+  </div>
+
+</div>
+
+<script src="/games/assets/luko-sdk.js"></script>
+<script>
+/* ==========================================================================
+   این فایل عمداً دو تکه است:
+
+   ۱. «بازیِ نمونه» — تنها چیزی که یک بازیِ واقعی می‌نویسد. هیچ منطقِ
+      مرحله‌شماری، زمان‌گیری یا ارسالِ داده‌ای ندارد؛ فقط به SDK خبر می‌دهد.
+   ۲. «لایهٔ نمایش» — فقط می‌خواند و رسم می‌کند. هیچ تصمیمی نمی‌گیرد.
+
+   جداییِ همین دو، چیزی است که در بازی‌های فعلی وجود ندارد: آن‌جا منطقِ
+   مرحله داخلِ کدِ UI پخش شده و برای همین از بازی به بازی فرق می‌کند.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- ۱) بازی */
+const DEMO = {
+  gameId: 'reference-demo',
+  gameType: 'quiz',
+  totalLevels: 3,
+  topic: 'demo',
+};
+
+const game = {
+  started: false,
+
+  begin() {
+    LUKO.init({
+      gameId: DEMO.gameId,
+      gameType: DEMO.gameType,
+      totalLevels: DEMO.totalLevels,
+    });
+  },
+
+  play() {
+    LUKO.startGame();
+    this.started = true;
+  },
+
+  /**
+   * شروعِ مرحلهٔ بعدی. شمارهٔ مرحله را از خودِ SDK می‌گیریم تا دو منبعِ
+   * حقیقت نداشته باشیم — هر بازی که شمارندهٔ خودش را جدا نگه داشته،
+   * دیر یا زود با پلتفرم اختلاف پیدا می‌کند.
+   */
+  nextLevel() {
+    const s = LUKO.snapshot();
+    const next = s.currentLevel + 1;
+    if (next > s.totalLevels) return;
+    LUKO.startLevel(next, { id: 'lvl-' + next, title: 'مرحلهٔ ' + next });
+  },
+
+  answer(correct) {
+    LUKO.answer({
+      topic: DEMO.topic,
+      topicLabel: 'نمونه',
+      correct,
+      ms: 800 + Math.floor(Math.random() * 2500),
+      given: correct ? '۴' : '۵',
+      expected: '۴',
+    });
+    if (correct) LUKO.addScore(10);
+  },
+};
+
+/* -------------------------------------------------------- ۲) لایهٔ نمایش */
+const $ = (id) => document.getElementById(id);
+const fa = (n) => String(n).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const clock = (ms) => {
+  const t = Math.max(0, Math.round(ms / 1000));
+  return fa(String(Math.floor(t / 60)).padStart(2, '0')) + ':' + fa(String(t % 60).padStart(2, '0'));
+};
+
+function renderLevels(levels) {
+  const body = $('f-levels');
+  if (!levels.length) {
+    body.innerHTML = '<tr><td colspan="9" style="color:var(--muted)">هنوز مرحله‌ای شروع نشده</td></tr>';
+    return;
+  }
+  body.innerHTML = levels.map((l) => `
+    <tr>
+      <td>${fa(l.index)}</td>
+      <td style="font-family:var(--mono);font-size:11px">${l.id}</td>
+      <td class="st-${l.status}">${l.status}</td>
+      <td>${clock(l.durationMs)}</td>
+      <td>${fa(l.asked)}</td>
+      <td>${fa(l.correct)}</td>
+      <td>${fa(l.asked - l.correct + l.mistakes)}</td>
+      <td>${fa(l.hints)}</td>
+      <td>${fa(l.score)}</td>
+    </tr>`).join('');
+}
+
+function render() {
+  const s = LUKO.snapshot();
+
+  $('f-id').textContent = s.gameId;
+  $('f-type').textContent = s.gameType || '—';
+  $('f-session').textContent = s.sessionId;
+  $('f-total').textContent = fa(s.totalLevels);
+  $('f-schema').textContent = fa(s.schema);
+
+  const badge = $('f-status');
+  badge.textContent = s.status;
+  badge.className = 'pill s-' + s.status;
+
+  $('f-level').textContent = fa(s.currentLevel) + ' / ' + fa(s.totalLevels);
+  $('f-score').textContent = fa(s.score);
+  $('f-gtime').textContent = clock(s.activeMs);
+  const live = s.levels.find((l) => l.status === 'playing');
+  $('f-ltime').textContent = live ? clock(live.durationMs) : '۰۰:۰۰';
+  $('f-acc').textContent = s.asked ? fa(s.accuracy) + '٪ (' + fa(s.correct) + '/' + fa(s.asked) + ')' : '—';
+  $('f-progress').textContent = fa(s.progress) + '٪';
+  $('f-bar').style.width = s.progress + '%';
+
+  renderLevels(s.levels);
+  $('f-json').textContent = JSON.stringify(
+    {
+      sessionId: s.sessionId, gameId: s.gameId, gameType: s.gameType, status: s.status,
+      currentLevel: s.currentLevel, totalLevels: s.totalLevels, progress: s.progress,
+      startedAt: s.startedAt, endedAt: s.endedAt, durationMs: s.durationMs, activeMs: s.activeMs,
+      score: s.score, asked: s.asked, correct: s.correct, errors: s.errors,
+      mistakes: s.mistakes, hints: s.hints, accuracy: s.accuracy,
+      avgAnswerMs: s.avgAnswerMs, medianAnswerMs: s.medianAnswerMs,
+      levels: s.levels, topics: s.topics, device: s.device,
+    },
+    null, 2,
+  );
+
+  const T = ['COMPLETED', 'GAME_OVER', 'ABANDONED'].includes(s.status);
+  const on = (id, enabled) => { $(id).disabled = !enabled; };
+  // بازیِ واقعی init را همان اولِ اسکریپتش صدا می‌زند؛ این‌جا چون با دکمه
+  // است، تا وقتی هیچ مرحله و پاسخی نبوده باز می‌ماند.
+  const untouched = !s.levels.length && !s.asked && !T;
+  on('b-init', untouched);
+  on('b-start', s.status === 'READY' || (untouched && s.status === 'PLAYING'));
+  on('b-level', (s.status === 'PLAYING' || s.status === 'LEVEL_ENDED') && s.currentLevel < s.totalLevels);
+  const inLevel = s.status === 'PLAYING' && !!live;
+  ['b-right', 'b-wrong', 'b-hint', 'b-mistake', 'b-lvlok', 'b-lvlfail'].forEach((id) => on(id, inLevel));
+  on('b-pause', s.status === 'PLAYING');
+  on('b-resume', s.status === 'PAUSED');
+  on('b-over', !T && s.status !== 'CREATED' && s.status !== 'READY');
+  on('b-abandon', !T);
+  on('b-finish', !T && s.status !== 'CREATED');
+}
+
+/* رویدادها را از همان کانالی می‌خوانیم که به اپ می‌رود — نه از یک کپیِ محلی.
+   اگر لاگ از جای دیگری خوانده شود، دیگر شاهدِ چیزی که واقعاً ارسال می‌شود نیست. */
+window.addEventListener('message', (e) => {
+  if (e.source !== window || !e.data || typeof e.data !== 'object') return;
+  const { type, event, summary } = e.data;
+  if (type === 'luko-game-event' && event) logEvent(event);
+  if (type === 'luko-game-complete') logEvent({ type: '▲ luko-game-complete', score: summary.score, at: new Date().toISOString() });
+  if (type === 'luko-game-progress') logEvent({ type: '▽ luko-game-progress', at: new Date().toISOString() });
+  render();
+});
+
+function logEvent(ev) {
+  const box = $('f-log');
+  const time = new Date(ev.at || Date.now()).toLocaleTimeString('en-GB');
+  const detail = Object.entries(ev)
+    .filter(([k, v]) => !['type', 'at', 'status', 'score'].includes(k) && v !== undefined && v !== null && v !== '')
+    .map(([k, v]) => k + '=' + (typeof v === 'object' ? JSON.stringify(v) : v))
+    .join(' ');
+  const wrong = ev.type === 'answer' && !ev.correct ? ' wrong' : '';
+  const row = document.createElement('div');
+  row.className = 'e-' + ev.type + wrong;
+  row.innerHTML = `<time>${time}</time><b>${ev.type}</b><em>${detail}</em>`;
+  box.prepend(row);
+  while (box.childElementCount > 200) box.lastElementChild.remove();
+}
+
+/* -------------------------------------------------------------- سیم‌کشی */
+$('b-init').onclick = () => game.begin();
+$('b-start').onclick = () => game.play();
+$('b-level').onclick = () => game.nextLevel();
+$('b-right').onclick = () => game.answer(true);
+$('b-wrong').onclick = () => game.answer(false);
+$('b-hint').onclick = () => LUKO.hint(DEMO.topic);
+$('b-mistake').onclick = () => LUKO.mistake({ what: 'demo-slip' });
+$('b-lvlok').onclick = () => LUKO.levelComplete({ score: 25 });
+$('b-lvlfail').onclick = () => LUKO.levelFailed({ reason: 'timeout' });
+$('b-pause').onclick = () => LUKO.pause('manual');
+$('b-resume').onclick = () => LUKO.resume();
+$('b-over').onclick = () => LUKO.gameOver({ reason: 'no-lives' });
+$('b-abandon').onclick = () => LUKO.abandon('manual');
+$('b-finish').onclick = () => LUKO.finish({ via: 'button' });
+$('b-reset').onclick = () => location.reload();
+
+LUKO.on(render);
+setInterval(render, 500);   // ساعت‌ها بین رویدادها هم باید جلو بروند
+render();
+</script>
+</body>
+</html>
