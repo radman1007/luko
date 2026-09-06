@@ -11,6 +11,7 @@ import { DEW_REWARD } from '@/features/garden/gardenData';
 import { grantDew, grantFertilizer } from '@/features/garden/store';
 import { completeGame, flushEvents, trackEvent } from '@/features/games/telemetry';
 import { gamesApi } from '@/features/games/api';
+import { StarRating } from '@/features/games/components/StarRating/StarRating';
 import { SEASON_MAP_PATH } from '@/lib/constants/nav';
 import { completeMission } from '@/features/club/store';
 import styles from './BookGame.module.css';
@@ -86,12 +87,18 @@ export default function BookGame() {
 
   const [justWon, setJustWon] = useState(false);
   const [serverCoins, setServerCoins] = useState<number | null>(null);
+  const [wonStars, setWonStars] = useState<number>(0);
   const rewardedRef = useRef(false);
 
   // همیشه به مسیرِ سیزن برمی‌گردیم؛ نقشه‌ی کتابیِ قدیمی دیگر مقصدِ برگشت نیست
   const backToMap = () => navigate(SEASON_MAP_PATH);
 
-  const finish = () => {
+  /**
+   * ستاره‌ی همین اجرا، از خلاصه‌ای که خودِ بازی با `LUKO.finish({ stars })`
+   * فرستاده. عددِ خارج از بازه بی‌صدا رد می‌شود — سرور هم دوباره سقف
+   * می‌زند، ولی نباید اصلاً چیزِ بی‌معنی بفرستیم.
+   */
+  const finish = (stars?: number) => {
     if (!found || rewardedRef.current) return;
     rewardedRef.current = true;
     markLevelCompleted(found.level.id);
@@ -105,8 +112,9 @@ export default function BookGame() {
     void (async () => {
       await flushEvents();
       try {
-        const result = await completeGame(found.level.id);
+        const result = await completeGame(found.level.id, stars);
         if (result && !result.alreadyDone) setServerCoins(result.coins);
+        if (result) setWonStars(result.stars);
         // سرور مرجعِ قفلِ مسیر است؛ بدونِ این، نقشه با فهرستِ کهنه باز می‌شود
         // و مرحله‌ای که همین الان تمام شد «نرفته» نشان داده می‌شود.
         await queryClient.invalidateQueries({ queryKey: ['games', 'completed'] });
@@ -135,7 +143,11 @@ export default function BookGame() {
 
       if (data.type === 'luko-game-complete') {
         trackEvent({ gameSlug: slug, eventType: 'game_complete', payload: data.summary ?? {} });
-        finish();
+        const raw = (data.summary as { stars?: unknown } | undefined)?.stars;
+        const stars = typeof raw === 'number' && Number.isFinite(raw) && raw >= 0
+          ? Math.round(raw)
+          : undefined;
+        finish(stars);
         return;
       }
 
@@ -224,6 +236,13 @@ export default function BookGame() {
               <div className={styles.winCard}>
                 <img className={styles.winChar} src={gamer.image} alt={gamer.name} />
                 <p className={styles.winTitle}>ایول! این مرحله رو بردی!</p>
+                {/* ستاره را همین‌جا نشان می‌دهیم: اگر بچه تا نقشه صبر کند،
+                    ارتباطِ «چه کردم» با «چه گرفتم» را از دست می‌دهد. */}
+                {wonStars > 0 && (
+                  <span className={styles.winStars}>
+                    <StarRating earned={wonStars} max={3} size="md" />
+                  </span>
+                )}
                 <p className={styles.winCoins}>
                   <CoinIcon size={18} aria-hidden />+
                   {(serverCoins ?? level.coinReward).toLocaleString('fa-IR')} سکه

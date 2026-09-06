@@ -93,11 +93,22 @@ export interface CompleteResult {
   dew: number;
   fertilizer: number;
   treasures: number;
+  /** بهترین ستاره‌ای که تا حالا روی این مرحله گرفته */
+  stars: number;
+  /** همین اجرا رکوردِ قبلی را بهتر کرد؟ */
+  starsImproved: boolean;
 }
 
-/** تکمیلِ بازی روی سرور — منبعِ حقیقتِ سکه و جایزه */
-export async function completeGame(slug: string): Promise<CompleteResult | null> {
+/**
+ * تکمیلِ بازی روی سرور — منبعِ حقیقتِ سکه و جایزه.
+ *
+ * `stars` را خودِ بازی در `LUKO.finish({ stars })` می‌دهد و از راهِ
+ * خلاصه‌ی پایان به این‌جا می‌رسد. اختیاری است: بازی‌ای که هنوز ستاره
+ * حساب نمی‌کند چیزی نمی‌فرستد و تکمیلش مثلِ قبل ثبت می‌شود.
+ */
+export async function completeGame(slug: string, stars?: number): Promise<CompleteResult | null> {
   if (isGuestMode()) return null;
-  const { data } = await apiClient.post(`/games/${slug}/complete`);
+  const body = typeof stars === 'number' ? { stars } : undefined;
+  const { data } = await apiClient.post(`/games/${slug}/complete`, body);
   return data.data as CompleteResult;
 }

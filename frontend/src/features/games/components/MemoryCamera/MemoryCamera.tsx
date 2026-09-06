@@ -116,6 +116,9 @@ export function MemoryCamera({ spot, existing, saving, onClose, onSave, onDelete
 
   const pickFile = async (file?: File) => {
     if (!file) return;
+    // دوربین ممکن است هنوز روشن باشد؛ رهاکردنش یعنی چراغِ دوربین تا
+    // بسته‌شدنِ مودال روشن می‌ماند.
+    stop();
     setShot(await fileToPhotos(file));
     setPhase('preview');
   };

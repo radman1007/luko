@@ -80,7 +80,7 @@ export function StageNode({ node, onPlay }: Props) {
    * را «فتح» کرده و کدام هنوز جا برای بهتر شدن دارد — همین است که او را
    * برای بازیِ دوباره برمی‌گرداند.
    */
-  const mastered = done && stage.stars >= stage.maxStars;
+  const mastered = done && stage.stars > 0 && stage.stars >= stage.maxStars;
   const state = locked
     ? styles.locked
     : mastered
@@ -124,7 +124,9 @@ export function StageNode({ node, onPlay }: Props) {
           (locked
             ? '، هنوز باز نشده'
             : done
-              ? `، تمام‌شده با ${stage.stars.toLocaleString('fa-IR')} از ${stage.maxStars.toLocaleString('fa-IR')} ستاره`
+              ? stage.stars > 0
+                ? `، تمام‌شده با ${stage.stars.toLocaleString('fa-IR')} از ${stage.maxStars.toLocaleString('fa-IR')} ستاره`
+                : '، تمام‌شده'
               : '')
         }
       >
@@ -154,13 +156,17 @@ export function StageNode({ node, onPlay }: Props) {
 
       <span className={styles.caption}>
         <span className={styles.title}>{stage.title}</span>
-        {done ? (
+        {done && stage.stars > 0 ? (
           <span className={styles.stars}>
             <StarRating earned={stage.stars} max={stage.maxStars} />
             {stage.stars < stage.maxStars && (
               <span className={styles.again}>دوباره بزن!</span>
             )}
           </span>
+        ) : done ? (
+          /* مرحله‌ای که رفته شده ولی هنوز ستاره‌ای برایش ثبت نشده — تا وقتی
+             خودِ بازی ستاره ندهد، «۰ از ۳» دروغ است نه دستاوردِ کم. */
+          <span className={styles.doneTag}>تمام شد</span>
         ) : (
           <span className={styles.coin}>
             <CoinIcon size={12} aria-hidden />

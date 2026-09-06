@@ -12,6 +12,7 @@ import { SeasonBanner } from '@/features/games/components/SeasonBanner/SeasonBan
 import { SeasonMap } from '@/features/games/components/SeasonMap/SeasonMap';
 import { MemoryCamera } from '@/features/games/components/MemoryCamera/MemoryCamera';
 import { useDeleteMemory, useMemories, useSaveMemory } from '@/features/games/useMemories';
+import { isGuestMode } from '@/features/auth/guest';
 import styles from './GameHall.module.css';
 
 const GUIDE_STEPS = [
@@ -43,6 +44,7 @@ export default function GameHall() {
   );
 
   // یادگاری‌ها: نقشه فقط بندانگشتی می‌گیرد تا سبک بماند
+  const guest = isGuestMode();
   const { bySpot } = useMemories(SEASON.id);
   const saveMemory = useSaveMemory(SEASON.id);
   const deleteMemory = useDeleteMemory(SEASON.id);
@@ -99,7 +101,15 @@ export default function GameHall() {
         onPlay={(stage) => navigate(`/game/${stage.id}`)}
         photoSpots={state.photoSpots}
         memoryThumbs={memoryThumbs}
-        onOpenSpot={setOpenSpot}
+        onOpenSpot={(spot) =>
+          // مهمان حسابِ سروری ندارد و ذخیره‌ی عکسش ۴۰۱ می‌گیرد؛ به‌جای
+          // بازکردنِ دوربینی که آخرش شکست می‌خورد، همان‌جا دعوتش می‌کنیم.
+          guest
+            ? navigate('/login', {
+                state: { reason: 'برای نگه‌داشتنِ عکسِ یادگاری اول وارد شو!' },
+              })
+            : setOpenSpot(spot)
+        }
         theme={SEASON.theme}
       />
 
