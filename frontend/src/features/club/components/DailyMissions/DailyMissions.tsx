@@ -3,6 +3,7 @@ import { HiOutlineArrowLeft, HiOutlineCheck } from 'react-icons/hi2';
 import { CoinIcon } from '@/components/ui/icons';
 import { DAILY_MISSIONS } from '../../clubData';
 import styles from './DailyMissions.module.css';
+import { SEASON_MAP_PATH } from '@/lib/constants/nav';
 
 interface Props {
   doneIds: string[];
@@ -10,7 +11,7 @@ interface Props {
 
 /** هر مأموریت کجای اپ انجام می‌شود — تیک دستی نداریم، پس راه را نشان می‌دهیم */
 const MISSION_LINK: Record<string, { to: string; label: string }> = {
-  game: { to: '/books', label: 'برو به تالار بازی‌ها' },
+  game: { to: SEASON_MAP_PATH, label: 'برو به تالار بازی‌ها' },
   mood: { to: '/luko-health', label: 'برو پیشِ دکتر نیلا' },
   breath: { to: '/luko-health', label: 'برو سراغِ نفس جادویی' },
   garden: { to: '/garden', label: 'برو به باغچه' },

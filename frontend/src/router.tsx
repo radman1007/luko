@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/features/auth/ProtectedRoute';
+import { LEGACY_MAP_PATH, SEASON_MAP_PATH } from '@/lib/constants/nav';
 import { PageLoader } from '@/components/PageLoader/PageLoader';
 
 const Login = lazy(() => import('@/pages/Login'));
@@ -38,9 +39,11 @@ export function AppRouter() {
 
         {/* دانش‌آموز */}
         <Route path="/" element={student(<Home />)} />
-        <Route path="/books" element={student(<GameHall />)} />
+        <Route path={SEASON_MAP_PATH} element={student(<GameHall />)} />
+        {/* آدرسِ قدیمیِ نقشه — بوکمارک و تاریخچه‌ی بچه‌ها نباید بشکند */}
+        <Route path={LEGACY_MAP_PATH} element={<Navigate to={SEASON_MAP_PATH} replace />} />
         {/* نقشه‌ی کتابیِ قدیمی بازنشسته شد؛ هر لینکِ قدیمی به مسیرِ سیزن می‌رود */}
-        <Route path="/book/:id" element={<Navigate to="/books" replace />} />
+        <Route path="/book/:id" element={<Navigate to={SEASON_MAP_PATH} replace />} />
         <Route path="/game/:gameId" element={student(<BookGame />)} />
         <Route path="/luko-club" element={student(<LukoClub />)} />
         <Route path="/luko-podcast" element={student(<LukoPodcast />)} />

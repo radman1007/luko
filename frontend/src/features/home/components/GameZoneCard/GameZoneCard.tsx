@@ -154,7 +154,7 @@ export function GameZoneCard() {
         </div>
       )}
 
-      <button type="button" className={styles.allBtn} onClick={() => navigate('/books')}>
+      <button type="button" className={styles.allBtn} onClick={() => navigate(SEASON_MAP_PATH)}>
         رفتن به مسیرِ سیزن
         <HiOutlineChevronLeft aria-hidden />
       </button>
