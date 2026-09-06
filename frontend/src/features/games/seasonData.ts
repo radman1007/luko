@@ -14,6 +14,44 @@ import { BOOKS, completedLevelIds } from '@/features/books/booksData';
 
 export type SubjectKey = 'math' | 'science' | 'writing' | 'quran' | 'reading' | 'other';
 
+/** یک نقطه‌ی یادگاری روی مسیر — بینِ دو مرحله می‌نشیند، نه روی آن‌ها */
+export interface PhotoSpot {
+  id: string;
+  /** بعد از چندمین مرحله‌ی مسیر بنشیند */
+  afterStage: number;
+  title: string;
+  /** چیزی که لوکو از بچه می‌خواهد عکسش را بگیرد */
+  prompt: string;
+}
+
+/** عنصرِ تزئینیِ اطرافِ مسیر */
+export type DecorKind = 'star' | 'planet' | 'comet' | 'crystal' | 'sprout' | 'cloud';
+
+export interface SeasonDecor {
+  kind: DecorKind;
+  /** جای افقی نسبت به عرضِ نقشه (۰ چپ، ۱ راست) */
+  at: number;
+  /** اندازه نسبت به پایه */
+  scale: number;
+}
+
+/**
+ * تمِ یک سیزن. رنگ‌ها و تزئینات اینجا داده‌اند نه CSS، تا سیزنِ دوم فقط
+ * یک شیء تازه باشد و نه یک شاخه‌ی تازه در کد.
+ */
+export interface SeasonTheme {
+  /** رنگِ اصلی، نئون و آسمانِ پس‌زمینه */
+  primary: string;
+  neon: string;
+  accent: string;
+  skyTop: string;
+  skyBottom: string;
+  /** چه چیزهایی اطرافِ مسیر پخش شوند */
+  decor: DecorKind[];
+  /** طعمِ سیزنِ بعدی که از لای ابر پیداست — بدونِ لو دادنِ کامل */
+  nextHint: string;
+}
+
 export interface SeasonStage {
   /** همان شناسه‌ی مرحله در booksData */
   id: string;
@@ -31,6 +69,9 @@ export interface SeasonStage {
    * مرحله‌های تمام‌شده همیشه بازند تا بشود دوباره بازی‌شان کرد.
    */
   locked: boolean;
+  /** ستاره‌های گرفته‌شده (۰ تا maxStars). ۰ روی مرحله‌ی رفته یعنی «هنوز ستاره نگرفتی». */
+  stars: number;
+  maxStars: number;
 }
 
 export type WeekState = 'done' | 'current' | 'past' | 'locked';
@@ -64,6 +105,15 @@ export interface SeasonState {
   /** تعدادِ روز تا بازشدنِ هفته‌ی بعد؛ undefined یعنی سیزن تمام شده */
   daysToNextWeek?: number;
   seasonFinished: boolean;
+
+  /** ستاره‌های گرفته‌شده از کلِ مرحله‌های بازشده */
+  earnedStars: number;
+  /** سقفِ ستاره‌ی همان مرحله‌ها — مخرجِ «۱۴ از ۳۰» */
+  totalPossibleStars: number;
+  /** درصدِ ستاره‌ای؛ معیارِ واقعیِ «چقدر خوب رفتم»، نه فقط «چندتا رفتم» */
+  starPercent: number;
+  /** نقاطِ یادگاری که روی بخشِ بازشده‌ی مسیر می‌افتند */
+  photoSpots: PhotoSpot[];
 }
 
 /** پیکربندیِ سیزنِ جاری */
@@ -77,7 +127,31 @@ export const SEASON = {
   startsAt: new Date('2026-08-08T00:00:00'),
   /** چند مرحله در هر هفته باز می‌شود */
   stagesPerWeek: 3,
+
+  /** دنیای این سیزن — شبِ جزیره‌ی اعداد */
+  theme: {
+    primary: '#7c5cbf',
+    neon: '#4fd8c8',
+    accent: '#ffb347',
+    skyTop: '#2b2440',
+    skyBottom: '#241f31',
+    decor: ['star', 'planet', 'comet', 'crystal'],
+    nextHint: 'یک جنگلِ روشن پشتِ ابرهاست…',
+  } satisfies SeasonTheme,
+
+  /** ایستگاه‌های عکسِ یادگاری روی مسیر */
+  photoSpots: [
+    { id: 'spot-1', afterStage: 2, title: 'اولین قدم',
+      prompt: 'یه عکس از خودت بگیر تا یادت بمونه از کجا شروع کردی!' },
+    { id: 'spot-2', afterStage: 6, title: 'نصفه‌ی راه',
+      prompt: 'تا اینجا اومدی! یه عکسِ قهرمانانه بگیر.' },
+    { id: 'spot-3', afterStage: 11, title: 'قله‌ی سیزن',
+      prompt: 'نزدیکِ آخرشی — این عکس یادگاریِ سیزنِ اولته!' },
+  ] satisfies PhotoSpot[],
 } as const;
+
+/** سقفِ ستاره‌ی هر مرحله. روی سرور هم `Game.max_stars` هست؛ این پیش‌فرضِ فرانت است. */
+export const MAX_STARS = 3;
 
 const SUBJECT_KEYS: Record<string, SubjectKey> = {
   math: 'math',
@@ -141,8 +215,10 @@ export function seasonStages(): SeasonStage[] {
     ...stage,
     order: i + 1,
     week: Math.floor(i / SEASON.stagesPerWeek) + 1,
-    // قفلِ واقعی به پیشرفتِ بچه بستگی دارد و در `seasonState` تعیین می‌شود
+    // قفل و ستاره به پیشرفتِ بچه بستگی دارند و در `seasonState` تعیین می‌شوند
     locked: false,
+    stars: 0,
+    maxStars: MAX_STARS,
   }));
   return stagesCache;
 }
@@ -169,7 +245,17 @@ export function releasedWeeks(today: Date, totalWeeks: number): number {
 }
 
 /** وضعیتِ کاملِ سیزن برای امروز */
-export function seasonState(done: Set<string> = completedLevelIds(), today: Date = new Date()): SeasonState {
+export function seasonState(
+  done: Set<string> = completedLevelIds(),
+  today: Date = new Date(),
+  /**
+   * ستاره‌ی هر مرحله از سرور. اختیاری است تا صفحه‌هایی که فقط قفل و
+   * پیشرفت می‌خواهند (کارت‌های خانه) دست‌نخورده بمانند.
+   */
+  stars: Map<string, number> | Record<string, number> = {},
+): SeasonState {
+  const starOf = (id: string): number =>
+    (stars instanceof Map ? stars.get(id) : stars[id]) ?? 0;
   const stages = seasonStages();
   const totalWeeks = Math.max(1, Math.ceil(stages.length / SEASON.stagesPerWeek));
   const currentWeek = releasedWeeks(today, totalWeeks);
@@ -181,6 +267,7 @@ export function seasonState(done: Set<string> = completedLevelIds(), today: Date
   const withLock = (stage: SeasonStage): SeasonStage => ({
     ...stage,
     locked: !done.has(stage.id) && (current === undefined || stage.order > current.order),
+    stars: done.has(stage.id) ? starOf(stage.id) : 0,
   });
 
   const weeks: SeasonWeek[] = [];
@@ -238,5 +325,25 @@ export function seasonState(done: Set<string> = completedLevelIds(), today: Date
       .reduce((sum, stage) => sum + stage.coinReward, 0),
     daysToNextWeek,
     seasonFinished,
+    ...starTotals(openStageList),
+    photoSpots: SEASON.photoSpots.filter((spot) => spot.afterStage <= openStageList.length),
+  };
+}
+
+/**
+ * جمعِ ستاره‌ها. عمداً از UI جداست: نقشه فقط عددِ آماده را می‌گیرد و
+ * خودش چیزی حساب نمی‌کند.
+ */
+function starTotals(stages: SeasonStage[]): {
+  earnedStars: number;
+  totalPossibleStars: number;
+  starPercent: number;
+} {
+  const earnedStars = stages.reduce((sum, stage) => sum + stage.stars, 0);
+  const totalPossibleStars = stages.reduce((sum, stage) => sum + stage.maxStars, 0);
+  return {
+    earnedStars,
+    totalPossibleStars,
+    starPercent: totalPossibleStars ? Math.round((earnedStars / totalPossibleStars) * 100) : 0,
   };
 }

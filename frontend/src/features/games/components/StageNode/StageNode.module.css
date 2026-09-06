@@ -81,6 +81,40 @@
     inset 0 0 0 3px rgb(255 255 255 / 26%);
 }
 
+/* ── سه‌ستاره: مرحله‌ی فتح‌شده ─────────────────────────────
+   طلایی و درخشان، تا از دور از «فقط تمام‌شده» جدا باشد. حلقه‌ی نور
+   با transform می‌چرخد نه با box-shadow، تا روی گوشی هم ارزان بماند. */
+.mastered {
+  background:
+    radial-gradient(circle at 50% 22%, rgb(255 255 255 / 46%) 0%, transparent 58%),
+    linear-gradient(180deg, #ffd76a 0%, #e0921c 175%);
+  box-shadow:
+    0 5px 0 #a2640c,
+    0 10px 24px rgb(255 184 61 / 42%),
+    inset 0 0 0 3px rgb(255 255 255 / 52%);
+}
+
+.mastered .face {
+  color: #6b3f04;
+}
+
+/* هاله‌ی آرام — یک عنصرِ کاذب، بدونِ لایه‌ی اضافه در DOM */
+.mastered::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 2px solid rgb(255 216 106 / 55%);
+  animation: halo 2.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes halo {
+  0% { transform: scale(0.94); opacity: 0.85; }
+  70% { transform: scale(1.16); opacity: 0; }
+  100% { transform: scale(1.16); opacity: 0; }
+}
+
 /* ── حالتِ «نوبتِ توئه» ───────────────────────────────────── */
 .current {
   --node: 92px;
@@ -268,10 +302,36 @@
   opacity: 0.75;
 }
 
+/* مرحله‌ی فتح‌شده نباید کم‌رنگ باشد؛ دستاورد است، نه چیزی که رد شده */
+.mastered ~ .caption {
+  opacity: 1;
+}
+
+.stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* دعوت به بازیِ دوباره — فقط وقتی جا برای ستاره‌ی بیشتر هست */
+.again {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: rgb(255 255 255 / 62%);
+  background: rgb(255 255 255 / 10%);
+  border-radius: 99px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+
 /* ── انیمیشن‌ها ───────────────────────────────────────────── */
 @keyframes bob {
   0%, 100% { translate: 0 0; }
   50% { translate: 0 -5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mastered::after { animation: none; opacity: 0.5; }
 }
 
 @keyframes shake {

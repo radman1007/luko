@@ -7,12 +7,14 @@ from rest_framework.views import APIView
 
 from apps.parent.services import invalidate_child_report
 
-from .models import Book, Game
-from .serializers import BookSerializer, GameEventSerializer, GameSerializer
+from .models import Book, Game, SeasonMemory
+from .serializers import (BookSerializer, GameEventSerializer, GameSerializer,
+                          SeasonMemorySerializer)
 from apps.common import cache
 
 from .playlink import sign
-from .services import StageLocked, blocking_stage, complete_game, completed_slugs
+from .services import (StageLocked, blocking_stage, complete_game, completed_slugs,
+                       star_map)
 
 
 class GameListView(ListAPIView):
@@ -27,8 +29,15 @@ class GameCompleteView(APIView):
     """POST /games/<slug>/complete — پاداش سمت سرور محاسبه می‌شود."""
 
     def post(self, request, slug):
+        # ستاره اختیاری است: بازی‌هایی که هنوز مهاجرت نکرده‌اند چیزی
+        # نمی‌فرستند و تکمیل مثلِ قبل ثبت می‌شود.
+        raw = request.data.get("stars") if isinstance(request.data, dict) else None
         try:
-            result = complete_game(request.user, slug)
+            stars = int(raw) if raw is not None else None
+        except (TypeError, ValueError):
+            stars = None
+        try:
+            result = complete_game(request.user, slug, stars=stars)
         except StageLocked as exc:
             return Response(
                 {"error": {"code": 403,
@@ -101,7 +110,12 @@ class CompletedGamesView(APIView):
     """
 
     def get(self, request):
-        return Response({"completed": completed_slugs(request.user)})
+        # `completed` عمداً همان آرایه‌ی رشته می‌ماند — نقشه و کارت‌های خانه
+        # رویش بسته‌اند. ستاره‌ها کنارش می‌آیند تا چیزی نشکند.
+        return Response({
+            "completed": completed_slugs(request.user),
+            "stars": star_map(request.user),
+        })
 
 
 class BookListView(APIView):
@@ -123,3 +137,52 @@ class BookListView(APIView):
         # کاتالوگ برای همه یکی است و فقط با ویرایشِ ادمین عوض می‌شود
         data = cache.get_or_set(cache.book_catalog_key(grade), build, cache.TTL_LONG)
         return Response({"books": data, "completed": completed_slugs(request.user)})
+
+
+class SeasonMemoryListCreateView(APIView):
+    """
+    GET/POST /games/memories — یادگاری‌های نقشه‌ی سیزن.
+
+    فهرست فقط بندانگشتی می‌دهد تا نقشه سبک بماند؛ تصویرِ کامل مسیرِ
+    جداگانه دارد. هر نقطه یک یادگاری دارد و عکسِ تازه جای قبلی را می‌گیرد.
+    """
+
+    def get(self, request):
+        rows = SeasonMemory.objects.filter(user=request.user)
+        season = request.query_params.get("seasonId")
+        if season:
+            rows = rows.filter(season_id=season)
+        return Response({"memories": SeasonMemorySerializer(rows, many=True).data})
+
+    def post(self, request):
+        serializer = SeasonMemorySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        memory, _ = SeasonMemory.objects.update_or_create(
+            user=request.user,
+            season_id=data["season_id"],
+            spot_id=data["spot_id"],
+            defaults={"thumbnail": data.get("thumbnail", ""),
+                      "image": data.get("image", "")},
+        )
+        return Response(SeasonMemorySerializer(memory).data,
+                        status=status.HTTP_201_CREATED)
+
+
+class SeasonMemoryImageView(APIView):
+    """GET /games/memories/<pk>/image — تصویرِ کامل، فقط برای صاحبش."""
+
+    def get(self, request, pk):
+        memory = SeasonMemory.objects.filter(user=request.user, pk=pk).first()
+        if memory is None:
+            return Response({"error": {"code": 404, "message": "پیدا نشد."}},
+                            status=status.HTTP_404_NOT_FOUND)
+        return Response({"image": memory.image})
+
+
+class SeasonMemoryDestroyView(APIView):
+    """DELETE /games/memories/<pk> — پاک‌کردنِ یادگاری."""
+
+    def delete(self, request, pk):
+        SeasonMemory.objects.filter(user=request.user, pk=pk).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

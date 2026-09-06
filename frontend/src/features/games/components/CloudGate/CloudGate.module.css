@@ -5,6 +5,7 @@
   top: 0;
   /* باید تا بالای آخرین مرحله برسد وگرنه جاده از کنارِ ابر بیرون می‌زند */
   height: 205px;
+  /* خودِ پرده کلیک نمی‌گیرد، ولی دکمه‌ی «یه نگاه بنداز» باید بگیرد */
   pointer-events: none;
   /* هر دو لبه محو می‌شوند: بالا تا ابرها صاف بریده به‌نظر نرسند،
      پایین تا ابر روی مسیر «بنشیند» نه اینکه ناگهان تمام شود */
@@ -58,17 +59,88 @@
   animation: drift 23s ease-in-out infinite reverse;
 }
 
+/* ── آنچه پشتِ ابر است ───────────────────────────────────────
+   عمداً بی‌جزئیات: یک هاله و چند سایه‌ی مبهم. اگر شکلِ واقعیِ سیزنِ بعد
+   دیده شود، دیگر رازی نمی‌ماند که بچه را برگرداند. */
+.behind {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.peeking .behind { opacity: 1; }
+
+.glow {
+  position: absolute;
+  inset-inline: 18%;
+  top: 26px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 214 122 / 55%) 0%, transparent 68%);
+  filter: blur(6px);
+}
+
+.silhouette {
+  position: absolute;
+  bottom: 34px;
+  background: rgb(36 31 49 / 55%);
+  border-radius: 46% 46% 8% 8%;
+  filter: blur(1.5px);
+}
+
+.sil1 { inset-inline-start: 18%; width: 46px; height: 74px; }
+.sil2 { inset-inline-start: 42%; width: 62px; height: 96px; }
+.sil3 { inset-inline-end: 16%; width: 40px; height: 62px; }
+
+.spark {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ffe9a8;
+  box-shadow: 0 0 8px rgb(255 214 122 / 90%);
+  inset-inline-start: calc(12% + var(--i) * 12%);
+  top: calc(40px + (var(--i) * 13px));
+  animation: rise 2.6s ease-out infinite;
+  animation-delay: calc(var(--i) * 240ms);
+  opacity: 0;
+}
+
+.peeking .spark { animation-play-state: running; }
+
+@keyframes rise {
+  0% { transform: translateY(10px) scale(0.5); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: translateY(-34px) scale(1); opacity: 0; }
+}
+
+/* ابرها هنگامِ نگاه‌کردن کمی کنار می‌روند */
+.peeking .sky svg {
+  opacity: 0.55;
+  transition: opacity 0.5s ease;
+}
+
 /* ── نوشته‌ی روی ابر ──────────────────────────────────────── */
 .note {
   position: absolute;
   inset-inline: 0;
-  top: 58px;
+  top: 52px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
   text-align: center;
   padding-inline: 24px;
+  /* تنها چیزِ کلیک‌پذیر در این پرده */
+  pointer-events: auto;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  /* هدفِ لمسی راحت */
+  min-height: 44px;
 }
 
 .lock {
@@ -99,6 +171,41 @@
   font-size: 11.5px;
   font-weight: 600;
   color: rgb(36 31 49 / 72%);
+  transition: color 0.3s;
+}
+
+.peeking .text {
+  color: #6b3f04;
+  font-weight: 800;
+}
+
+.cta {
+  margin-top: 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #fff;
+  background: rgb(36 31 49 / 72%);
+  border-radius: 99px;
+  padding: 3px 11px;
+}
+
+.note:active .lock { rotate: -12deg; }
+.lock { transition: rotate 0.16s; }
+
+/* پیکسل کنارِ ابرها ایستاده و به بالا نگاه می‌کند */
+.pixel {
+  position: absolute;
+  inset-inline-end: 6px;
+  bottom: -4px;
+  width: 74px;
+  opacity: 0.85;
+  pointer-events: none;
+  animation: hover 4.5s ease-in-out infinite;
+}
+
+@keyframes hover {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 
 @keyframes drift {
@@ -107,5 +214,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sky svg { animation: none; }
+  .sky svg,
+  .spark,
+  .pixel { animation: none; }
 }

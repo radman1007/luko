@@ -19,9 +19,15 @@
   stroke-linejoin: round;
 }
 
+/* لبه‌ی جاده — یک قدم پهن‌تر از خودِ جاده، تا عمق پیدا کند */
+.trackEdge {
+  stroke: rgb(124 92 191 / 22%);
+  stroke-width: 40;
+}
+
 /* جاده‌ی پایه: نوارِ روشنِ نیم‌شفاف — روی زمینه‌ی شب باید دیده شود */
 .trackBase {
-  stroke: rgb(255 255 255 / 9%);
+  stroke: rgb(255 255 255 / 10%);
   stroke-width: 30;
 }
 
@@ -37,6 +43,24 @@
   stroke: url(#luko-lit);
   stroke-width: 9;
   filter: drop-shadow(0 0 9px rgb(79 216 200 / 55%));
+}
+
+/* ذره‌های نور که روی بخشِ طی‌شده جلو می‌روند — نشانِ «این راه زنده است».
+   یک `stroke-dashoffset` متحرک است، نه ده‌ها عنصرِ جدا: روی گوشی ارزان
+   می‌ماند چون مرورگر همان یک مسیر را دوباره رنگ می‌کند. */
+.trackSpark {
+  stroke: rgb(255 255 255 / 75%);
+  stroke-width: 5;
+  stroke-dasharray: 1 46;
+  animation: flow 3.4s linear infinite;
+}
+
+@keyframes flow {
+  to { stroke-dashoffset: -94; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trackSpark { animation: none; opacity: 0.4; }
 }
 
 /* ── ایست‌گاهِ هفته ────────────────────────────────────────── */

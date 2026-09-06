@@ -1,10 +1,14 @@
+import { useEffect, useRef, useState } from 'react';
 import { HiOutlineLockClosed } from 'react-icons/hi2';
+import { LUKORIANS } from '@/lib/characters';
 import type { SeasonWeek } from '../../seasonData';
 import styles from './CloudGate.module.css';
 
 interface Props {
   weeks: SeasonWeek[];
   daysToNextWeek?: number;
+  /** طعمی از سیزنِ بعد که از لای ابر پیداست — بدونِ لو دادنِ کامل */
+  hint?: string;
 }
 
 /** یک ابرِ نرم — فقط تزئینی */
@@ -26,14 +30,44 @@ function countdown(days?: number): string {
 }
 
 /**
- * سقفِ نقشه. مسیر از زیرش رد می‌شود و ادامه‌اش پیدا نیست — مرحله‌های
- * هفته‌های نرسیده نه شمرده می‌شوند نه دیده، فقط می‌دانی که هست.
+ * سقفِ نقشه.
+ *
+ * مسیر واقعاً از زیرِ ابرها رد می‌شود و ادامه‌اش پیدا نیست — مرحله‌های
+ * هفته‌های نرسیده نه شمرده می‌شوند نه دیده. زدنِ ابرها لحظه‌ای کنارشان
+ * می‌زند و سایه‌ی چیزی که آن پشت است پیدا می‌شود؛ نه آن‌قدر که لو برود،
+ * فقط آن‌قدر که بچه بخواهد برگردد.
  */
-export function CloudGate({ weeks, daysToNextWeek }: Props) {
+export function CloudGate({ weeks, daysToNextWeek, hint }: Props) {
+  const pixel = LUKORIANS.gamer;
+  const [peeking, setPeeking] = useState(false);
+  const timer = useRef<number>(0);
+
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
   if (weeks.length === 0) return null;
 
+  const peek = () => {
+    setPeeking(true);
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setPeeking(false), 2600);
+  };
+
   return (
-    <section className={styles.gate} aria-label="مرحله‌های هنوز باز نشده">
+    <section
+      className={`${styles.gate} ${peeking ? styles.peeking : ''}`}
+      aria-label="مرحله‌های هنوز باز نشده"
+    >
+      {/* آنچه پشتِ ابر است: فقط یک هاله و چند سایه، بی‌هیچ جزئیاتی */}
+      <div className={styles.behind} aria-hidden>
+        <span className={styles.glow} />
+        <span className={`${styles.silhouette} ${styles.sil1}`} />
+        <span className={`${styles.silhouette} ${styles.sil2}`} />
+        <span className={`${styles.silhouette} ${styles.sil3}`} />
+        {Array.from({ length: 7 }, (_, i) => (
+          <span key={i} className={styles.spark} style={{ '--i': i } as React.CSSProperties} />
+        ))}
+      </div>
+
       <div className={styles.sky} aria-hidden>
         <Cloud className={styles.back} />
         <Cloud className={styles.mid} />
@@ -41,13 +75,16 @@ export function CloudGate({ weeks, daysToNextWeek }: Props) {
         <Cloud className={styles.far} />
       </div>
 
-      <div className={styles.note}>
+      <button type="button" className={styles.note} onClick={peek} aria-label="یک نگاه به پشتِ ابرها">
         <span className={styles.lock} aria-hidden>
           <HiOutlineLockClosed />
         </span>
-        <p className={styles.title}>مسیر پشتِ ابرها ادامه دارد</p>
-        <p className={styles.text}>{countdown(daysToNextWeek)}</p>
-      </div>
+        <span className={styles.title}>مسیر پشتِ ابرها ادامه دارد</span>
+        <span className={styles.text}>{peeking && hint ? hint : countdown(daysToNextWeek)}</span>
+        <span className={styles.cta}>{peeking ? 'دیدی؟ فقط همین‌قدر!' : 'یه نگاه بنداز'}</span>
+      </button>
+
+      <img className={styles.pixel} src={pixel.image} alt="" aria-hidden />
     </section>
   );
 }

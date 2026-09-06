@@ -4,6 +4,13 @@ import { completedLevelIds, replaceCompletedLevelIds } from '@/features/books/bo
 import { isGuestMode } from '@/features/auth/guest';
 import { gamesApi } from './api';
 
+export interface SeasonProgress {
+  /** شناسه‌ی مرحله‌های تمام‌شده */
+  done: Set<string>;
+  /** بهترین ستاره‌ی هر مرحله */
+  stars: Record<string, number>;
+}
+
 /**
  * پیشرفتِ مسیرِ سیزن، هم‌راستا با سرور.
  *
@@ -12,17 +19,20 @@ import { gamesApi } from './api';
  * باشد — نقشه چیزی نشان می‌دهد که سرور قبول نمی‌کند. پس فهرستِ سرور جایگزینِ
  * محلی می‌شود، و فقط وقتی درخواست موفق بوده؛ در قطعیِ شبکه محلی سرِ جایش می‌ماند.
  *
+ * ستاره‌ها فقط سروری‌اند: نسخه‌ی محلی ندارند چون معیارِ دستاوردند و
+ * دست‌کاریِ localStorage نباید سه‌ستاره‌شان کند.
+ *
  * مهمان حسابِ سروری ندارد، پس همان پیشرفتِ محلی‌اش می‌ماند.
  */
-export function useSeasonProgress(): Set<string> {
+export function useSeasonProgress(): SeasonProgress {
   const guest = isGuestMode();
 
   const { data } = useQuery({
     queryKey: ['games', 'completed'],
     queryFn: async () => {
-      const slugs = await gamesApi.completedSlugs();
-      replaceCompletedLevelIds(slugs);
-      return slugs;
+      const progress = await gamesApi.progress();
+      replaceCompletedLevelIds(progress.completed);
+      return progress;
     },
     enabled: !guest,
     staleTime: 30_000,
@@ -30,5 +40,11 @@ export function useSeasonProgress(): Set<string> {
 
   // ارجاعِ Set باید پایدار بماند، وگرنه useMemoهای پایین‌دست (چیدمانِ نقشه)
   // در هر رندر دوباره حساب می‌شوند.
-  return useMemo(() => new Set(data ?? completedLevelIds()), [data]);
+  return useMemo(
+    () => ({
+      done: new Set(data?.completed ?? completedLevelIds()),
+      stars: data?.stars ?? {},
+    }),
+    [data],
+  );
 }

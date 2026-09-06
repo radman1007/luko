@@ -42,6 +42,9 @@ class Game(TimeStampedModel):
     # مسیرِ عمومیِ فایلِ بازی (`/games/grade-1/math/01-....html`). سرور برای
     # ساختنِ لینکِ امضاشده لازمش دارد؛ خالی یعنی بازی هنوز نرسیده است.
     game_file = models.CharField(max_length=200, blank=True)
+    # سقفِ ستاره‌ی این بازی. روی مدل است نه ثابتِ کد، چون بازیِ کوتاه
+    # ممکن است بعداً دو ستاره‌ای تعریف شود و مجموعِ سیزن باید درست بماند.
+    max_stars = models.PositiveSmallIntegerField(default=3)
     coin_reward = models.PositiveIntegerField(default=10)
     dew_reward = models.PositiveIntegerField(default=6)       # شبنمِ باغچه
     fertilizer_reward = models.PositiveIntegerField(default=1)
@@ -61,6 +64,10 @@ class GameCompletion(TimeStampedModel):
                              related_name="game_completions")
     game_slug = models.SlugField(max_length=80, db_index=True)
     coins_awarded = models.PositiveIntegerField(default=0)
+    # بهترین ستاره‌ای که تا حالا گرفته — نه آخرین. بچه برای بالا بردنش
+    # دوباره بازی می‌کند و یک اجرای بد نباید دستاوردش را پس بگیرد.
+    # ۰ یعنی بازی تمام شده ولی هنوز ستاره‌ای ثبت نشده.
+    stars = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         unique_together = ("user", "game_slug")
@@ -68,6 +75,35 @@ class GameCompletion(TimeStampedModel):
 
     def __str__(self):
         return f"{self.user} ✓ {self.game_slug}"
+
+
+class SeasonMemory(TimeStampedModel):
+    """
+    عکسِ یادگاریِ بچه از یک نقطه‌ی نقشه‌ی سیزن.
+
+    همان الگوی `health.Painting`: تصویر در دیتابیس می‌ماند و فقط از راهِ
+    APIِ احرازشده برمی‌گردد — عکسِ بچه شخصی است و نباید با یک URLِ
+    حدس‌زدنی از بیرون دیده شود. بندانگشتی جدا نگه داشته می‌شود تا نقشه
+    سبک بماند و تصویرِ کامل فقط وقتی بیاید که خودش بازش کند.
+    """
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             related_name="season_memories")
+    season_id = models.SlugField(max_length=40, db_index=True)
+    spot_id = models.SlugField(max_length=40)
+    thumbnail = models.TextField(blank=True)     # بندانگشتیِ JPEG (data URL)
+    image = models.TextField(blank=True)         # تصویرِ کامل (data URL)
+
+    class Meta:
+        ordering = ["-created_at"]
+        # هر نقطه یک یادگاری؛ عکسِ تازه جای قبلی را می‌گیرد
+        constraints = [
+            models.UniqueConstraint(fields=["user", "season_id", "spot_id"],
+                                    name="uniq_memory_per_spot"),
+        ]
+
+    def __str__(self):
+        return f"Memory<{self.user}:{self.season_id}/{self.spot_id}>"
 
 
 class GameEvent(TimeStampedModel):

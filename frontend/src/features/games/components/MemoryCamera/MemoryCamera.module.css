@@ -1,0 +1,177 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgb(12 10 20 / 74%);
+  backdrop-filter: blur(6px);
+  animation: fade 0.2s ease-out;
+  padding: 12px;
+}
+
+.sheet {
+  position: relative;
+  width: min(420px, 100%);
+  max-height: 92dvh;
+  overflow: auto;
+  border-radius: 26px 26px 20px 20px;
+  padding: 20px 18px calc(18px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, #322a4d 0%, #241f31 100%);
+  box-shadow: 0 -10px 40px rgb(0 0 0 / 55%);
+  animation: rise 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.close {
+  position: absolute;
+  inset-inline-end: 14px;
+  top: 14px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 12%);
+  color: #fff;
+  cursor: pointer;
+}
+
+.close svg { width: 19px; height: 19px; }
+
+.title {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.prompt {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgb(255 255 255 / 72%);
+  padding-inline-end: 40px;
+}
+
+/* ── قابِ تصویر ───────────────────────────────────────────── */
+.stage {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #171425;
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 0 3px rgb(255 255 255 / 10%);
+}
+
+.video,
+.shot {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* دوربینِ جلو آینه‌ای‌ست؛ پیش‌نمایش باید همان چیزی باشد که بچه انتظار دارد */
+.video { transform: scaleX(-1); }
+
+.denied {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 22px;
+  text-align: center;
+  color: rgb(255 255 255 / 66%);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.denied svg { width: 40px; height: 40px; opacity: 0.5; }
+
+/* ── دکمه‌ها ──────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.shutter {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 40%);
+  transition: scale 0.14s;
+}
+
+.shutter:active { scale: 0.92; }
+
+.shutterRing {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 3px solid #241f31;
+}
+
+.primary,
+.ghost,
+.danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  border: 0;
+  border-radius: 14px;
+  padding: 11px 18px;
+  cursor: pointer;
+  /* هدفِ لمسیِ راحت برای دستِ کوچک */
+  min-height: 44px;
+}
+
+.primary {
+  background: linear-gradient(160deg, #ffd76a, #ff9e20);
+  color: #5d3705;
+  box-shadow: 0 4px 0 #b96a09;
+}
+
+.primary:disabled { opacity: 0.6; cursor: wait; }
+
+.ghost {
+  position: relative;
+  background: rgb(255 255 255 / 12%);
+  color: #fff;
+}
+
+.danger {
+  background: rgb(229 72 77 / 18%);
+  color: #ff9d9d;
+}
+
+.primary svg, .ghost svg, .danger svg { width: 17px; height: 17px; }
+
+/* ورودیِ فایل روی خودِ برچسب می‌نشیند تا کلیک هرجای دکمه بگیرد */
+.file {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+@keyframes fade { from { opacity: 0; } }
+@keyframes rise { from { transform: translateY(28px); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop, .sheet { animation: none; }
+}

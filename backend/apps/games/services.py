@@ -55,11 +55,22 @@ def _book_just_completed(user, book_id: str) -> bool:
     return done >= total
 
 
+def star_map(user) -> dict[str, int]:
+    """بهترین ستاره‌ی هر بازی. نقشه‌ی سیزن پیشرفتِ ستاره‌ای را از این می‌سازد."""
+    return dict(
+        GameCompletion.objects.filter(user=user).values_list("game_slug", "stars")
+    )
+
+
 @transaction.atomic
-def complete_game(user, slug: str) -> dict:
+def complete_game(user, slug: str, stars: int | None = None) -> dict:
     """
     تکمیلِ idempotent: بار اول پاداش می‌دهد، بارهای بعد فقط وضعیت را برمی‌گرداند.
     سکه/امتیاز روی پروفایل، شبنم/کود روی باغچه، و گنجِ اتمامِ کتاب اعمال می‌شود.
+
+    `stars` اختیاری است و **بهترین** مقدار نگه داشته می‌شود، نه آخرین: بچه
+    برای سه‌ستاره‌کردن دوباره بازی می‌کند و یک اجرای بد نباید دستاوردش را
+    پس بگیرد. منطقِ اینکه چه چیزی چند ستاره می‌دهد در خودِ بازی است، نه اینجا.
     """
     game = Game.objects.filter(slug=slug).first()
 
@@ -76,11 +87,20 @@ def complete_game(user, slug: str) -> dict:
     fert = game.fertilizer_reward if game else 1
     book_id = game.book_id if game else ""
 
+    cap = game.max_stars if game else 3
+    earned = max(0, min(int(stars), cap)) if stars is not None else 0
+
     completion, created = GameCompletion.objects.get_or_create(
-        user=user, game_slug=slug, defaults={"coins_awarded": coin}
+        user=user, game_slug=slug, defaults={"coins_awarded": coin, "stars": earned}
     )
     if not created:
-        return {"alreadyDone": True, "coins": 0, "dew": 0, "fertilizer": 0, "treasures": 0}
+        improved = earned > completion.stars
+        if improved:
+            completion.stars = earned
+            completion.save(update_fields=["stars", "updated_at"])
+            cache.invalidate(cache.parent_report_key(user.id))
+        return {"alreadyDone": True, "coins": 0, "dew": 0, "fertilizer": 0,
+                "treasures": 0, "stars": completion.stars, "starsImproved": improved}
 
     profile = Profile.objects.select_for_update().get(user=user)
     profile.coins += coin
@@ -106,4 +126,5 @@ def complete_game(user, slug: str) -> dict:
     )
 
     return {"alreadyDone": False, "coins": coin, "dew": dew,
-            "fertilizer": fert, "treasures": treasures}
+            "fertilizer": fert, "treasures": treasures,
+            "stars": completion.stars, "starsImproved": completion.stars > 0}

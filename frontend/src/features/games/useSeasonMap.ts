@@ -6,7 +6,7 @@
  * از میانِ مرکزِ گره‌ها رد می‌شود، پس ریاضیش اینجاست و کامپوننت فقط رسم می‌کند.
  */
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import type { SeasonStage, SeasonWeek } from './seasonData';
+import type { DecorKind, PhotoSpot, SeasonStage, SeasonWeek } from './seasonData';
 
 /** قطرِ گره */
 export const NODE_SIZE = 78;
@@ -22,6 +22,18 @@ const GHOSTS = 2;
 const BOTTOM_LEAD = 104;
 /** دامنه‌ی مارپیچ نسبت به عرضِ نقشه */
 const AMPLITUDE = 0.3;
+/** چند عنصرِ تزئینی به‌ازای هر مرحله پخش شود */
+const DECOR_PER_STAGE = 1.4;
+/** تزئینات دستِ‌کم این‌قدر از مرکزِ مسیر فاصله بگیرند تا خوانایی نرود */
+const DECOR_CLEARANCE = 0.34;
+/** ایستگاهِ یادگاری این‌قدر از جاده کنار می‌رود تا روی گره‌ها نیفتد */
+const MEMORY_OFFSET = 0.33;
+/** ایستگاه کجای فاصله‌ی دو مرحله بنشیند (۰٫۵ = وسط، جایی که نشانِ هفته است) */
+const MEMORY_LERP = 0.34;
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
 
 /**
  * یک موجِ سینوسیِ هشت‌قدمی. نمونه‌برداریِ ریزتر از «چپ/راست»ِ ساده، مسیر را
@@ -54,8 +66,27 @@ export interface Point {
   y: number;
 }
 
+/** یک ایستگاهِ یادگاری روی مسیر، بینِ دو مرحله */
+export interface MemoryPoint extends Point {
+  spot: PhotoSpot;
+  /** سمتی که کارتِ متن باز می‌شود — مسیر آن طرف خالی است */
+  side: 'left' | 'right';
+  /** هنوز به این نقطه نرسیده؟ */
+  locked: boolean;
+}
+
+/** عنصرِ تزئینی، با جای ثابت تا هر رندر جابه‌جا نشود */
+export interface DecorPoint extends Point {
+  kind: DecorKind;
+  scale: number;
+  /** تأخیرِ انیمیشن، تا همه با هم نتپند */
+  delay: number;
+}
+
 export interface SeasonMapGeometry {
   nodes: MapNode[];
+  memories: MemoryPoint[];
+  decor: DecorPoint[];
   weekMarks: WeekMark[];
   /** سایه‌ی مرحله‌های نرسیده، پشتِ ابر */
   ghosts: Point[];
@@ -89,6 +120,15 @@ function smoothPath(points: Point[]): string {
   return d;
 }
 
+/**
+ * شبه‌تصادفیِ قطعی از یک عدد. برای چیدنِ تزئینات لازم است: `Math.random`
+ * هر رندر جای همه‌چیز را عوض می‌کرد و صفحه می‌لرزید.
+ */
+function pseudo(seed: number): number {
+  const x = Math.sin(seed * 127.1) * 43758.5453;
+  return x - Math.floor(x);
+}
+
 /** عرضِ زنده‌ی یک عنصر — مسیر باید با پهنای واقعیِ گوشی رسم شود */
 export function useElementWidth<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -119,6 +159,10 @@ export function useSeasonMap(
   width: number,
   /** هفته‌ی نرسیده‌ای هست؟ اگر نه، نه ابری هست نه سایه‌ای و مسیر همان‌جا تمام می‌شود */
   hasClouds: boolean,
+  /** ایستگاه‌های عکسِ یادگاری */
+  photoSpots: PhotoSpot[] = [],
+  /** چه عناصری اطرافِ مسیر پخش شوند */
+  decorKinds: DecorKind[] = [],
 ): SeasonMapGeometry {
   return useMemo(() => {
     const stages: SeasonStage[] = weeks.flatMap((week) => week.stages);
@@ -156,7 +200,8 @@ export function useSeasonMap(
     });
 
     if (width === 0 || nodes.length === 0) {
-      return { nodes, weekMarks, ghosts: [], trackPath: '', litPath: '', height };
+      return { nodes, memories: [], decor: [], weekMarks, ghosts: [],
+               trackPath: '', litPath: '', height };
     }
 
     const first = nodes[0];
@@ -181,8 +226,70 @@ export function useSeasonMap(
     const currentIndex = nodes.findIndex((n) => n.isCurrent);
     const litUpto = currentIndex >= 0 ? currentIndex + 1 : nodes.length + 1;
 
+    /**
+     * ایستگاهِ یادگاری بینِ دو مرحله می‌نشیند، نه رویشان: باید در نگاهِ
+     * اول از گره‌های بازی جدا دیده شود، وگرنه بچه فکر می‌کند بازیِ دیگری است.
+     */
+    const memories: MemoryPoint[] = photoSpots
+      .filter((spot) => spot.afterStage >= 1 && spot.afterStage <= nodes.length)
+      .map((spot) => {
+        const before = nodes[spot.afterStage - 1];
+        const after = nodes[spot.afterStage];
+        // نشانِ هفته هم دقیقاً وسطِ دو مرحله می‌نشیند؛ ایستگاه را کمی
+        // پایین‌تر می‌گذاریم تا وقتی هر دو یک‌جا می‌افتند روی هم نروند.
+        const y = after
+          ? before.y + (after.y - before.y) * MEMORY_LERP
+          : before.y - STEP * 0.6;
+        const mid = after ? (before.x + after.x) / 2 : before.x;
+        // نقطه‌ی وسطِ دو مرحله روی خودِ جاده می‌افتد و با گره و نامِ
+        // مرحله تداخل می‌کند. ایستگاه را به **سمتِ خالیِ** جاده می‌بریم —
+        // آن‌جا که هیچ‌کدام از دو مرحله‌ی همسایه نیست — تا مثل نشانه‌ای
+        // کنارِ جاده دیده شود، نه مثل یک مرحله‌ی دیگر.
+        const away = mid > centerX ? -1 : 1;
+        const x = clamp(
+          centerX + away * MEMORY_OFFSET * width,
+          NODE_SIZE * 0.65,
+          width - NODE_SIZE * 0.65,
+        );
+        return {
+          spot,
+          x,
+          y,
+          side: x > centerX ? 'left' : 'right',
+          // تا مرحله‌ی قبلش نرود، ایستگاه هم باز نمی‌شود
+          locked: !done.has(before.stage.id),
+        } satisfies MemoryPoint;
+      });
+
+    /**
+     * تزئینات با یک شبه‌تصادفیِ قطعی چیده می‌شوند (نه Math.random) تا با
+     * هر رندر جابه‌جا نشوند و صفحه ثابت بماند. از مرکزِ مسیر فاصله
+     * می‌گیرند تا روی گره‌ها و نام‌ها نیفتند.
+     */
+    const decor: DecorPoint[] = [];
+    if (decorKinds.length > 0) {
+      const count = Math.round(nodes.length * DECOR_PER_STAGE);
+      for (let i = 0; i < count; i += 1) {
+        const r1 = pseudo(i * 2 + 1);
+        const r2 = pseudo(i * 2 + 2);
+        const r3 = pseudo(i * 2 + 3);
+        // نصفِ چپ یا راست، بیرونِ محدوده‌ی مسیر
+        const leftSide = i % 2 === 0;
+        const edge = DECOR_CLEARANCE + r1 * (0.5 - DECOR_CLEARANCE);
+        decor.push({
+          kind: decorKinds[i % decorKinds.length],
+          x: leftSide ? centerX - edge * width : centerX + edge * width,
+          y: height - BOTTOM_LEAD - r2 * (height - BOTTOM_LEAD - 20),
+          scale: 0.65 + r3 * 0.7,
+          delay: Math.round(r3 * 2600),
+        });
+      }
+    }
+
     return {
       nodes,
+      memories,
+      decor,
       weekMarks,
       ghosts,
       trackPath: smoothPath(points),
@@ -190,5 +297,5 @@ export function useSeasonMap(
       height,
       currentY: currentIndex >= 0 ? nodes[currentIndex].y : last.y,
     };
-  }, [weeks, done, currentStageId, width, hasClouds]);
+  }, [weeks, done, currentStageId, width, hasClouds, photoSpots, decorKinds]);
 }

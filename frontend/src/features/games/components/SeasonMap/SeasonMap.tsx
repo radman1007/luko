@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { HiOutlineFlag } from 'react-icons/hi2';
-import type { SeasonStage, SeasonWeek } from '../../seasonData';
+import type { PhotoSpot, SeasonTheme, SeasonStage, SeasonWeek } from '../../seasonData';
 import { useElementWidth, useSeasonMap } from '../../useSeasonMap';
 import { StageNode } from '../StageNode/StageNode';
+import { MemorySpot } from '../MemorySpot/MemorySpot';
+import { MazeScenery } from '../MazeScenery/MazeScenery';
 import { CloudGate } from '../CloudGate/CloudGate';
 import styles from './SeasonMap.module.css';
 
@@ -13,10 +15,19 @@ interface Props {
   done: Set<string>;
   currentStage?: SeasonStage;
   onPlay: (stage: SeasonStage) => void;
+  /** ایستگاه‌های عکسِ یادگاری روی مسیر */
+  photoSpots?: PhotoSpot[];
+  /** بندانگشتیِ یادگاریِ ثبت‌شده‌ی هر ایستگاه */
+  memoryThumbs?: Map<string, string>;
+  onOpenSpot?: (spot: PhotoSpot) => void;
+  theme: SeasonTheme;
 }
 
 /** مرحله‌ی جاری کجای پنجره بنشیند — کمی پایین‌تر از وسط، تا مسیرِ پیشِ رو دیده شود */
 const FOCUS_RATIO = 0.58;
+
+/** ارجاعِ ثابت، وگرنه هندسه در هر رندر دوباره حساب می‌شود */
+const EMPTY_SPOTS: PhotoSpot[] = [];
 
 /**
  * نقشه‌ی سیزن: مسیری مارپیچ از پایین به بالا که مرحله‌ها دایره‌وار رویش
@@ -32,9 +43,21 @@ export function SeasonMap({
   done,
   currentStage,
   onPlay,
+  photoSpots = EMPTY_SPOTS,
+  memoryThumbs,
+  onOpenSpot,
+  theme,
 }: Props) {
   const { ref, width } = useElementWidth<HTMLDivElement>();
-  const map = useSeasonMap(openWeeks, done, currentStage?.id, width, cloudedWeeks.length > 0);
+  const map = useSeasonMap(
+    openWeeks,
+    done,
+    currentStage?.id,
+    width,
+    cloudedWeeks.length > 0,
+    photoSpots,
+    theme.decor,
+  );
   const focused = useRef(false);
 
   useEffect(() => {
@@ -51,20 +74,29 @@ export function SeasonMap({
   }, [ref, width, map.currentY]);
 
   return (
-    <div className={styles.map} ref={ref} style={{ height: map.height }}>
+    <div
+      className={styles.map}
+      ref={ref}
+      style={{ height: map.height } as React.CSSProperties}
+    >
+      {/* محیط زیرِ همه‌چیز می‌نشیند و کلیک نمی‌گیرد */}
+      <MazeScenery decor={map.decor} />
+
       {/* مسیر زیرِ گره‌ها می‌ماند؛ کلیک هم نمی‌گیرد */}
       <svg className={styles.path} width={width} height={map.height} aria-hidden focusable="false">
         <defs>
           <linearGradient id="luko-lit" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0%" stopColor="#9b7ce0" />
-            <stop offset="100%" stopColor="#4fd8c8" />
+            <stop offset="0%" stopColor={theme.primary} />
+            <stop offset="100%" stopColor={theme.neon} />
           </linearGradient>
         </defs>
         {map.trackPath && (
           <>
+            <path className={styles.trackEdge} d={map.trackPath} />
             <path className={styles.trackBase} d={map.trackPath} />
             <path className={styles.trackDash} d={map.trackPath} />
             <path className={styles.trackLit} d={map.litPath} />
+            <path className={styles.trackSpark} d={map.litPath} />
           </>
         )}
       </svg>
@@ -99,6 +131,17 @@ export function SeasonMap({
         <StageNode key={node.stage.id} node={node} onPlay={() => onPlay(node.stage)} />
       ))}
 
+      {/* ایستگاه‌های یادگاری بینِ مرحله‌ها می‌نشینند، نه رویشان */}
+      {onOpenSpot &&
+        map.memories.map((point) => (
+          <MemorySpot
+            key={point.spot.id}
+            point={point}
+            thumbnail={memoryThumbs?.get(point.spot.id)}
+            onOpen={() => !point.locked && onOpenSpot(point.spot)}
+          />
+        ))}
+
       {/* پرچمِ شروع، کفِ مسیر */}
       <div className={styles.start}>
         <span className={styles.startPill}>
@@ -108,7 +151,7 @@ export function SeasonMap({
       </div>
 
       {/* ابرها سقفِ نقشه‌اند: مسیر واقعاً زیرشان می‌رود و ادامه‌اش پیدا نیست */}
-      <CloudGate weeks={cloudedWeeks} daysToNextWeek={daysToNextWeek} />
+      <CloudGate weeks={cloudedWeeks} daysToNextWeek={daysToNextWeek} hint={theme.nextHint} />
     </div>
   );
 }

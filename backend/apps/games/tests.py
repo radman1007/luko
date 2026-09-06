@@ -166,8 +166,14 @@ class CatalogCacheTests(TestCase):
         self.assertIn("تازه", [b["title"] for b in second])
 
     def test_completed_endpoint_is_light(self):
-        """نقشه‌ی سیزن فقط همین را می‌خواهد، نه کلِ کاتالوگ."""
-        GameCompletion.objects.create(user=self.user, game_slug="x-1")
+        """
+        نقشه‌ی سیزن فقط همین را می‌خواهد، نه کلِ کاتالوگ.
+
+        `completed` عمداً همان آرایه‌ی رشته مانده — کارت‌های خانه و نقشه
+        رویش بسته‌اند. ستاره‌ها کنارش آمده‌اند، نه به‌جایش.
+        """
+        GameCompletion.objects.create(user=self.user, game_slug="x-1", stars=2)
         res = self.api.get("/api/v1/games/completed")
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.json()["data"], {"completed": ["x-1"]})
+        self.assertEqual(res.json()["data"],
+                         {"completed": ["x-1"], "stars": {"x-1": 2}})

@@ -1,14 +1,17 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { HiOutlineBolt } from 'react-icons/hi2';
 import { StudentLayout } from '@/components/layout/StudentLayout/StudentLayout';
 import { CharacterGuide } from '@/components/characters/CharacterGuide/CharacterGuide';
 import { LUKORIANS } from '@/lib/characters';
 import { GRADE_LABEL } from '@/features/books/booksData';
-import { seasonState } from '@/features/games/seasonData';
+import { SEASON, seasonState } from '@/features/games/seasonData';
+import type { PhotoSpot } from '@/features/games/seasonData';
 import { useSeasonProgress } from '@/features/games/useSeasonProgress';
 import { SeasonBanner } from '@/features/games/components/SeasonBanner/SeasonBanner';
 import { SeasonMap } from '@/features/games/components/SeasonMap/SeasonMap';
+import { MemoryCamera } from '@/features/games/components/MemoryCamera/MemoryCamera';
+import { useDeleteMemory, useMemories, useSaveMemory } from '@/features/games/useMemories';
 import styles from './GameHall.module.css';
 
 const GUIDE_STEPS = [
@@ -33,8 +36,21 @@ export default function GameHall() {
   const navigate = useNavigate();
   const gamer = LUKORIANS.gamer;
   // پیشرفت از سرور می‌آید تا قفلِ نقشه با قفلِ سرور یکی باشد
-  const done = useSeasonProgress();
-  const state = useMemo(() => seasonState(done), [done]);
+  const progress = useSeasonProgress();
+  const state = useMemo(
+    () => seasonState(progress.done, new Date(), progress.stars),
+    [progress],
+  );
+
+  // یادگاری‌ها: نقشه فقط بندانگشتی می‌گیرد تا سبک بماند
+  const { bySpot } = useMemories(SEASON.id);
+  const saveMemory = useSaveMemory(SEASON.id);
+  const deleteMemory = useDeleteMemory(SEASON.id);
+  const [openSpot, setOpenSpot] = useState<PhotoSpot | null>(null);
+  const memoryThumbs = useMemo(
+    () => new Map([...bySpot].map(([spotId, memory]) => [spotId, memory.thumbnail])),
+    [bySpot],
+  );
 
   const remaining = state.openStages - state.completedStages;
   const weekDone = remaining === 0 && state.openStages > 0;
@@ -78,15 +94,42 @@ export default function GameHall() {
         openWeeks={state.openWeeks}
         cloudedWeeks={state.cloudedWeeks}
         daysToNextWeek={state.daysToNextWeek}
-        done={done}
+        done={progress.done}
         currentStage={state.nextStage}
         onPlay={(stage) => navigate(`/game/${stage.id}`)}
+        photoSpots={state.photoSpots}
+        memoryThumbs={memoryThumbs}
+        onOpenSpot={setOpenSpot}
+        theme={SEASON.theme}
       />
 
       {state.seasonFinished && (
         <p className={styles.seasonEnd}>
           کلِ سیزن را تمام کردی! سیزنِ بعدی با مرحله‌های تازه در راه است.
         </p>
+      )}
+
+      {openSpot && (
+        <MemoryCamera
+          spot={openSpot}
+          existing={bySpot.get(openSpot.id)?.thumbnail}
+          saving={saveMemory.isPending}
+          onClose={() => setOpenSpot(null)}
+          onSave={(photo) =>
+            saveMemory.mutate(
+              { seasonId: SEASON.id, spotId: openSpot.id, ...photo },
+              { onSuccess: () => setOpenSpot(null) },
+            )
+          }
+          onDelete={
+            bySpot.has(openSpot.id)
+              ? () =>
+                  deleteMemory.mutate(bySpot.get(openSpot.id)!.id, {
+                    onSuccess: () => setOpenSpot(null),
+                  })
+              : undefined
+          }
+        />
       )}
 
       <CharacterGuide character={gamer} steps={GUIDE_STEPS} storageKey="game-hall-season" />
