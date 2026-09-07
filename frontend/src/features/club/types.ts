@@ -21,13 +21,11 @@ export interface SportTask extends Mission {
   cue: string;
 }
 
-export interface Medal {
-  id: string;
-  title: string;
-  description: string;
-  icon: IconType;
-  unlocked: boolean;
-}
+/**
+ * مدال از `./medals` می‌آید — همان‌جا که کاتالوگ و منطقِ پیشرفتش است.
+ * این‌جا فقط دوباره صادر می‌شود تا ایمپورت‌های قدیمی نشکنند.
+ */
+export type { Medal } from './medals';
 
 /**
  * اثرِ خریدِ یک کالا. عمداً صریح است: تا دیروز خرید فقط سکه کم می‌کرد و

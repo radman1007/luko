@@ -6,6 +6,7 @@ import { WeekStreak } from '@/features/club/components/WeekStreak/WeekStreak';
 import { DailyMissions } from '@/features/club/components/DailyMissions/DailyMissions';
 import { SportsSection } from '@/features/club/components/SportsSection/SportsSection';
 import { MedalsSection } from '@/features/club/components/MedalsSection/MedalsSection';
+import { useMedals } from '@/features/club/useMedals';
 import { ShopSection } from '@/features/club/components/ShopSection/ShopSection';
 import { useClub } from '@/features/club/useClub';
 import styles from './LukoClub.module.css';
@@ -18,6 +19,7 @@ const GUIDE_STEPS = [
 
 export default function LukoClub() {
   const club = useClub();
+  const medals = useMedals();
 
   return (
     <StudentLayout className={styles.page}>
@@ -25,7 +27,7 @@ export default function LukoClub() {
       <WeekStreak days={club.days} streak={club.streak} />
       <DailyMissions doneIds={club.doneToday} />
       <SportsSection doneIds={club.sportDoneToday} />
-      <MedalsSection medals={club.medals} />
+      <MedalsSection medals={medals} />
       <ShopSection coins={club.coins} ownedIds={club.owned} onBuy={club.buy} />
 
       <CharacterGuide character={LUKORIANS.club} steps={GUIDE_STEPS} storageKey="club-intro" />
