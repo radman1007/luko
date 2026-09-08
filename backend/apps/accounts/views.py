@@ -18,10 +18,14 @@ from .otp import (
     OTPRateLimited,
     OTPTooManyAttempts,
     check_ip_quota,
+    consume_pick_ticket,
+    issue_pick_ticket,
     request_otp,
     verify_otp,
 )
-from .passwords import get_or_create_account, has_password, mark_phone_verified, set_password
+from .passwords import (get_or_create_account, has_password, link_family,
+                        mark_phone_verified, set_password, student_by_password)
+from .sessions import SESSION_CLAIM, keep_session, new_session
 from .serializers import (
     KidSettingsSerializer,
     LukorianSerializer,
@@ -48,13 +52,18 @@ def _client_ip(request) -> str:
     return request.META.get("REMOTE_ADDR", "")
 
 
-def _tokens_for(user):
-    refresh = RefreshToken.for_user(user)
+def _tokens_for(user, fresh=True):
+    """
+    `fresh=True` یعنی این یک ورودِ تازه است و نشستِ دستگاه‌های قبلی را
+    می‌بندد. تمدیدِ توکن با `fresh=False` می‌آید تا خودش کاربر را بیرون
+    نیندازد.
+    """
+    refresh = new_session(user) if fresh else keep_session(user)
     return {"accessToken": str(refresh.access_token), "refreshToken": str(refresh)}
 
 
-def _auth_payload(user, is_new=False):
-    return {**_tokens_for(user), "user": UserSerializer(user).data, "isNew": is_new}
+def _auth_payload(user, is_new=False, fresh=True):
+    return {**_tokens_for(user, fresh), "user": UserSerializer(user).data, "isNew": is_new}
 
 
 class RequestOTPView(APIView):
@@ -135,19 +144,73 @@ class VerifyOTPView(APIView):
         # چون بیشترِ بچه‌ها با شماره‌ی پدر/مادرشان ثبت‌نام می‌کنند. هیچ‌کدام
         # نقشِ دیگری را عوض نمی‌کند و نقشِ کارکنان هم از اینجا ساخته نمی‌شود.
         requested_role = data.get("role") or User.Role.STUDENT
-        user, is_new = User.objects.get_or_create(
-            phone=phone,
-            role=requested_role,
-            defaults={
-                "first_name": data.get("first_name", "") or "",
-                "last_name": data.get("last_name", "") or "",
-            },
-        )
-        if is_new:
-            user.set_unusable_password()  # ورود فقط با OTP
-            user.save(update_fields=["password"])
+
+        # یک شماره می‌تواند چند بچه داشته باشد، پس کدِ درست به‌تنهایی
+        # نمی‌گوید «کدام بچه». اگر بیش از یکی بود، فهرست را می‌دهیم تا
+        # خودش انتخاب کند؛ بلیتِ کوتاه‌عمر ثابت می‌کند کد تأیید شده بوده.
+        if requested_role == User.Role.STUDENT:
+            siblings = list(User.objects.filter(phone=phone, role=User.Role.STUDENT))
+            if len(siblings) > 1:
+                return Response({
+                    "chooseFrom": [
+                        {"id": str(u.id), "firstName": u.first_name, "grade": u.grade}
+                        for u in siblings
+                    ],
+                    "ticket": issue_pick_ticket(phone),
+                })
+            user = siblings[0] if siblings else None
+            is_new = user is None
+            if is_new:
+                user, _ = get_or_create_account(
+                    phone, requested_role, data.get("first_name", "") or "")
+        else:
+            user, is_new = User.objects.get_or_create(
+                phone=phone,
+                role=requested_role,
+                defaults={
+                    "first_name": data.get("first_name", "") or "",
+                    "last_name": data.get("last_name", "") or "",
+                },
+            )
+            if is_new:
+                user.set_unusable_password()  # ورود فقط با OTP
+                user.save(update_fields=["password"])
+                link_family(user)
+
         return Response(_auth_payload(user, is_new),
                         status=status.HTTP_201_CREATED if is_new else status.HTTP_200_OK)
+
+
+class OTPChooseView(APIView):
+    """
+    POST /auth/otp-choose — بعد از تأییدِ کد، انتخابِ اینکه کدام بچه است.
+
+    فقط وقتی لازم می‌شود که چند بچه یک شماره داشته باشند. بلیت ثابت
+    می‌کند کدِ همان شماره تازه تأیید شده، وگرنه هر کسی می‌توانست با
+    دانستنِ یک شناسه وارد حسابِ دیگری شود.
+    """
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        ticket = request.data.get("ticket") or ""
+        phone = consume_pick_ticket(ticket)
+        if phone is None:
+            return Response(
+                {"error": {"code": 400, "message": "این مرحله منقضی شده؛ دوباره کد بگیر."}},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = User.objects.filter(
+            pk=request.data.get("user_id") or request.data.get("userId"),
+            phone=phone, role=User.Role.STUDENT,
+        ).first()
+        if user is None:
+            return Response(
+                {"error": {"code": 404, "message": "این حساب پیدا نشد."}},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return Response(_auth_payload(user, False))
 
 
 class StartAuthView(APIView):
@@ -187,15 +250,30 @@ class RegisterView(APIView):
         phone = serializer.validated_data["phone"]
         role = serializer.validated_data["role"]
 
-        user = User.objects.filter(phone=phone, role=role).first()
-        if user and has_password(user):
+        # برای والد یک شماره یک حساب دارد و بس. برای دانش‌آموز، شماره‌ای
+        # که قبلاً حسابِ رمزدار دارد باز هم می‌تواند بچه‌ی تازه بگیرد —
+        # ولی آن کار از پنلِ والدین انجام می‌شود، نه از ثبت‌نامِ عمومی،
+        # وگرنه هر کسی می‌توانست روی شماره‌ی دیگری حساب بسازد.
+        if role != User.Role.STUDENT:
+            found = User.objects.filter(phone=phone, role=role).first()
+            if found and has_password(found):
+                return Response(
+                    {"error": {"code": 409,
+                               "message": "این شماره از قبل حساب دارد؛ با رمزت وارد شو."}},
+                    status=status.HTTP_409_CONFLICT,
+                )
+        elif User.objects.filter(phone=phone, role=role).exists() and not any(
+            not u.has_usable_password() for u in User.objects.filter(phone=phone, role=role)
+        ):
             return Response(
-                {"error": {"code": 409, "message": "این شماره از قبل حساب دارد؛ با رمزت وارد شو."}},
+                {"error": {"code": 409,
+                           "message": "این شماره از قبل حساب دارد؛ با رمزت وارد شو."}},
                 status=status.HTTP_409_CONFLICT,
             )
 
         user, created = get_or_create_account(
-            phone, role, serializer.validated_data.get("first_name", ""))
+            phone, role, serializer.validated_data.get("first_name", ""),
+            grade=serializer.validated_data.get("grade"))
         return Response(_auth_payload(user, created),
                         status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
@@ -211,11 +289,18 @@ class PasswordLoginView(APIView):
         phone = serializer.validated_data["phone"]
         role = serializer.validated_data["role"]
 
-        user = User.objects.filter(phone=phone, role=role).first()
+        raw = serializer.validated_data["password"]
+
+        # دانش‌آموز: چند بچه می‌توانند یک شماره داشته باشند و رمز آن‌ها را
+        # از هم جدا می‌کند، پس حساب از روی رمز پیدا می‌شود نه فقط شماره.
+        if role == User.Role.STUDENT:
+            user = student_by_password(phone, raw)
+        else:
+            found = User.objects.filter(phone=phone, role=role).first()
+            user = found if found and has_password(found) and found.check_password(raw) else None
+
         # پیامِ یکسان برای «شماره نیست» و «رمز غلط» تا شماره‌ها لو نروند
-        if user is None or not has_password(user) or not user.check_password(
-            serializer.validated_data["password"]
-        ):
+        if user is None:
             return Response(
                 {"error": {"code": 400, "message": "شماره یا رمز درست نیست."}},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -265,7 +350,17 @@ class RefreshView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        token = request.data.get("refreshToken") or request.data.get("refresh")
+        # پارسر کلیدهای ورودی را snake_case می‌کند، پس `refreshToken` هرگز
+        # خوانده نمی‌شد. بدترش این بود که `RefreshToken(None)` خطا نمی‌دهد و
+        # یک توکنِ خالیِ تازه می‌سازد — یعنی این مسیر هیچ چیزی را تأیید
+        # نمی‌کرد. توکنِ نبود باید صریح رد شود.
+        token = (request.data.get("refresh_token") or request.data.get("refreshToken")
+                 or request.data.get("refresh"))
+        if not token:
+            return Response(
+                {"error": {"code": 401, "message": "توکن تمدید نامعتبر است."}},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
         try:
             refresh = RefreshToken(token)
         except TokenError:
@@ -273,6 +368,18 @@ class RefreshView(APIView):
                 {"error": {"code": 401, "message": "توکن تمدید نامعتبر است."}},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+
+        # نشست ممکن است جای دیگری تازه شده باشد. بدونِ این بررسی، توکنِ
+        # دستگاهِ قدیمی تا دو هفته می‌توانست توکنِ دسترسیِ تازه بگیرد.
+        version = refresh.get(SESSION_CLAIM)
+        if version is not None:
+            user = User.objects.filter(pk=refresh.get("user_id")).first()
+            if user is None or int(version) != user.session_version:
+                return Response(
+                    {"error": {"code": 401,
+                               "message": "از دستگاهِ دیگری وارد شده‌ای؛ دوباره وارد شو."}},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
         return Response({"accessToken": str(refresh.access_token)})
 
 

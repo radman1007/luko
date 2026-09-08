@@ -91,12 +91,26 @@ class OtpRoleTests(TestCase):
             self.assertEqual(res.status_code, 400, role)
         self.assertFalse(User.objects.filter(phone=phone).exists())
 
-    def test_same_phone_and_role_stays_unique(self):
-        """یکتایی از شماره به جفتِ (شماره، نقش) منتقل شده، نه اینکه برداشته شده باشد."""
+    def test_one_parent_account_per_phone(self):
+        """
+        یکتایی برای نقش‌های غیرِدانش‌آموز سرِ جایش است: یک شماره فقط یک
+        حسابِ والد دارد.
+        """
         phone = "09121110107"
-        User.objects.create(phone=phone, role=User.Role.STUDENT)
+        User.objects.create(phone=phone, role=User.Role.PARENT)
         with self.assertRaises(IntegrityError), transaction.atomic():
-            User.objects.create(phone=phone, role=User.Role.STUDENT)
+            User.objects.create(phone=phone, role=User.Role.PARENT)
+
+    def test_several_children_may_share_one_phone(self):
+        """
+        یک خانواده می‌تواند چند بچه با یک شماره داشته باشد و رمز آن‌ها را
+        از هم جدا می‌کند — این عمداً از قانونِ یکتایی بیرون است.
+        """
+        phone = "09121110109"
+        User.objects.create(phone=phone, role=User.Role.STUDENT, first_name="سارا")
+        User.objects.create(phone=phone, role=User.Role.STUDENT, first_name="نیما")
+        self.assertEqual(
+            User.objects.filter(phone=phone, role=User.Role.STUDENT).count(), 2)
 
     def test_admin_password_login_prefers_the_staff_account(self):
         """اگر شماره‌ی ادمین با یک بچه یکی باشد، ورودِ رمزدار باید ادمین را بیاورد."""

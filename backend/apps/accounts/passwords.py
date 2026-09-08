@@ -32,13 +32,35 @@ def has_password(user: User) -> bool:
 
 
 @transaction.atomic
-def get_or_create_account(phone: str, role: str, first_name: str = "") -> tuple[User, bool]:
+def get_or_create_account(phone: str, role: str, first_name: str = "",
+                          grade: int | None = None) -> tuple[User, bool]:
     """
     حسابِ همان شماره و نقش را برمی‌گرداند؛ نبود، می‌سازد.
 
     نقش جزوِ جستجوست چون یک شماره می‌تواند هم حسابِ دانش‌آموز داشته باشد
     هم والد (بچه‌هایی که با شماره‌ی پدر/مادر ثبت‌نام می‌کنند).
+
+    برای دانش‌آموز، «حسابِ بی‌رمزِ همان شماره» را برمی‌داریم نه هر حسابی:
+    یک شماره می‌تواند چند بچه داشته باشد و رمز آن‌ها را از هم جدا می‌کند،
+    پس حسابی که قبلاً رمز گذاشته مالِ بچه‌ی دیگری است و نباید دزدیده شود.
     """
+    if role == User.Role.STUDENT:
+        user = next(
+            (u for u in User.objects.filter(phone=phone, role=role) if not u.has_usable_password()),
+            None,
+        )
+        if user is not None:
+            if grade is not None and user.grade != grade:
+                user.grade = grade
+                user.save(update_fields=["grade"])
+            return user, False
+        user = User(phone=phone, role=role, first_name=first_name or "",
+                    grade=grade if grade is not None else 1)
+        user.set_unusable_password()
+        user.save()
+        link_family(user)
+        return user, True
+
     user, created = User.objects.get_or_create(
         phone=phone, role=role,
         defaults={"first_name": first_name or ""},
@@ -46,7 +68,43 @@ def get_or_create_account(phone: str, role: str, first_name: str = "") -> tuple[
     if created:
         user.set_unusable_password()
         user.save(update_fields=["password"])
+        link_family(user)
     return user, created
+
+
+def student_by_password(phone: str, raw: str) -> User | None:
+    """
+    حسابِ دانش‌آموزی که رمزش می‌خورد.
+
+    چون چند بچه می‌توانند یک شماره داشته باشند، رمز تنها چیزی است که
+    آن‌ها را از هم جدا می‌کند. تعدادشان در عمل انگشت‌شمار است، پس
+    پیمایش هزینه‌ای ندارد.
+    """
+    for user in User.objects.filter(phone=phone, role=User.Role.STUDENT):
+        if user.has_usable_password() and user.check_password(raw):
+            return user
+    return None
+
+
+def link_family(user: User) -> None:
+    """
+    والد و بچه‌ی هم‌شماره را به هم وصل می‌کند.
+
+    بیشترِ بچه‌ها با شماره‌ی پدر/مادرشان ثبت‌نام می‌کنند؛ بدونِ این،
+    والد باید همان بچه را دستی هم اضافه می‌کرد و دو تا می‌شد.
+    """
+    from apps.parent.models import ParentChild
+
+    if user.role == User.Role.STUDENT:
+        parents = User.objects.filter(phone=user.phone, role=User.Role.PARENT)
+        for parent in parents:
+            ParentChild.objects.get_or_create(
+                parent=parent, child=user, defaults={"grade": user.grade})
+    elif user.role == User.Role.PARENT:
+        children = User.objects.filter(phone=user.phone, role=User.Role.STUDENT)
+        for child in children:
+            ParentChild.objects.get_or_create(
+                parent=user, child=child, defaults={"grade": child.grade})
 
 
 def mark_phone_verified(user: User) -> None:

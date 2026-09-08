@@ -1,6 +1,7 @@
 from django.utils import timezone
 from rest_framework import serializers
 
+from apps.accounts.passwords import MIN_PASSWORD
 from apps.accounts.utils import normalize_phone
 from apps.common.fa import fa_when
 from apps.games.models import GameCompletion
@@ -55,11 +56,39 @@ class ChildSerializer(serializers.ModelSerializer):
 
 
 class AddChildSerializer(serializers.Serializer):
+    """
+    افزودنِ فرزند از پنلِ والدین.
+
+    رمز اجباری است چون همین رمز است که بچه‌های هم‌شماره را از هم جدا
+    می‌کند؛ بدونِ آن حسابِ بچه راهی برای ورود ندارد.
+    """
+
     phone = serializers.CharField()
+    password = serializers.CharField(min_length=MIN_PASSWORD, max_length=128,
+                                     trim_whitespace=False)
     first_name = serializers.CharField(required=False, allow_blank=True, default="")
     last_name = serializers.CharField(required=False, allow_blank=True, default="")
     grade = serializers.IntegerField(required=False, min_value=1, max_value=6, default=1)
     school = serializers.CharField(required=False, allow_blank=True, default="")
+
+    def validate_phone(self, value):
+        phone = normalize_phone(value)
+        if phone is None:
+            raise serializers.ValidationError("شماره‌ی موبایل معتبر نیست.")
+        return phone
+
+
+class ChildPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(min_length=MIN_PASSWORD, max_length=128,
+                                     trim_whitespace=False)
+
+
+class ChildPhoneSerializer(serializers.Serializer):
+    """گامِ دومِ تغییرِ شماره: شماره‌ی تازه به‌همراهِ کدِ هر دو طرف."""
+
+    phone = serializers.CharField()
+    current_code = serializers.CharField(max_length=12)
+    new_code = serializers.CharField(max_length=12)
 
     def validate_phone(self, value):
         phone = normalize_phone(value)

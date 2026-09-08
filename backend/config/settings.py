@@ -191,7 +191,9 @@ OTP_EXPOSE_DEV_CODE = env_bool("OTP_EXPOSE_DEV_CODE", DEBUG)
 # ---------------------------------------------------------------------------
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        # همان JWT، به‌علاوه‌ی بررسیِ نسخه‌ی نشست: ورود از دستگاهِ تازه
+        # نشستِ قبلی را می‌بندد. (apps/accounts/sessions.py)
+        "apps.accounts.sessions.SessionAwareJWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_RENDERER_CLASSES": ("apps.common.renderers.EnvelopeJSONRenderer",),

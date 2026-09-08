@@ -24,6 +24,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=60, blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.STUDENT)
 
+    # پایه‌ی تحصیلیِ دانش‌آموز. مسیرِ سیزن فقط بازی‌های همین پایه را
+    # نشان می‌دهد؛ پایه‌ای که هنوز محتوا ندارد «به‌زودی» می‌بیند، نه
+    # بازی‌های پایه‌ی دیگر.
+    grade = models.PositiveSmallIntegerField(default=1)
+
+    # هر ورودِ موفق این را یکی جلو می‌برد و توکنِ قدیمی باطل می‌شود.
+    # یعنی ورود از گوشیِ تازه، نشستِ گوشیِ قبلی را می‌بندد — خواسته‌ی
+    # صریحِ محصول: هر بچه هم‌زمان روی یک دستگاه.
+    session_version = models.PositiveIntegerField(default=0)
+
     # ثبت‌نام فعلاً بدونِ تأییدِ شماره است؛ تأیید کارِ اختیاریِ بعدی است
     # که والد هر وقت خواست از پنل انجام می‌دهد.
     phone_verified = models.BooleanField(default=False)
@@ -45,7 +55,16 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["phone", "role"], name="uniq_user_phone_role"),
+            # یک شماره فقط یک حسابِ والد/معلم/ادمین دارد.
+            #
+            # دانش‌آموز عمداً بیرونِ این قانون است: یک خانواده می‌تواند چند
+            # بچه با یک شماره داشته باشد و رمزشان آن‌ها را از هم جدا
+            # می‌کند. یکتاییِ (شماره، نقش) این را ناممکن می‌کرد.
+            models.UniqueConstraint(
+                fields=["phone", "role"],
+                condition=~models.Q(role="student"),
+                name="uniq_user_phone_role_staff",
+            ),
         ]
 
     def __str__(self):

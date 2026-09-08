@@ -124,3 +124,37 @@ def verify_otp(phone: str, code: str) -> bool:
 
     r.delete(_code_key(phone), _att_key(phone), _resend_key(phone))
     return True
+
+
+# ---------------------------------------------------------------------------
+# بلیتِ انتخابِ حساب
+#
+# یک شماره می‌تواند چند بچه داشته باشد، پس کدِ درست به‌تنهایی نمی‌گوید
+# «کدام بچه». بعد از تأییدِ کد یک بلیتِ کوتاه‌عمر می‌دهیم و انتخابِ حساب
+# با همان انجام می‌شود؛ بدونِ آن، دانستنِ یک شناسه برای ورود کافی بود.
+# ---------------------------------------------------------------------------
+
+#: عمرِ بلیت — به‌اندازه‌ی انتخاب کردن، نه بیشتر
+PICK_TTL = 300
+
+
+def _pick_key(ticket: str) -> str:
+    return f"otp:pick:{ticket}"
+
+
+def issue_pick_ticket(phone: str) -> str:
+    ticket = secrets.token_urlsafe(24)
+    _conn().setex(_pick_key(ticket), PICK_TTL, phone)
+    return ticket
+
+
+def consume_pick_ticket(ticket: str) -> str | None:
+    """شماره‌ی پشتِ بلیت را برمی‌گرداند و بلیت را می‌سوزاند (یک‌بارمصرف)."""
+    if not ticket:
+        return None
+    r = _conn()
+    key = _pick_key(ticket)
+    phone = _as_str(r.get(key))
+    if phone is not None:
+        r.delete(key)
+    return phone

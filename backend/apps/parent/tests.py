@@ -177,8 +177,9 @@ class AccessTests(TestCase):
         دیگری وصل نشود — وگرنه یک والد به پنلِ والدِ دیگر وصل می‌شد.
         """
         self.api.force_authenticate(self.parent)
-        response = self.api.post("/api/v1/parent/children",
-                                 {"phone": self.stranger.phone}, format="json")
+        response = self.api.post(
+            "/api/v1/parent/children",
+            {"phone": self.stranger.phone, "password": "raz12345"}, format="json")
         self.assertEqual(response.status_code, 201)
         linked = User.objects.get(id=response.json()["data"]["id"])
         self.assertNotEqual(linked.id, self.stranger.id)
@@ -188,9 +189,10 @@ class AccessTests(TestCase):
     def test_parent_adding_their_own_phone_links_the_child_account(self):
         """سناریوی رایج: بچه با گوشیِ مادر ثبت‌نام کرده، مادر همان شماره را می‌زند."""
         self.api.force_authenticate(self.parent)
-        response = self.api.post("/api/v1/parent/children",
-                                 {"phone": self.parent.phone, "firstName": "بچه"},
-                                 format="json")
+        response = self.api.post(
+            "/api/v1/parent/children",
+            {"phone": self.parent.phone, "firstName": "بچه", "password": "raz12345"},
+            format="json")
         self.assertEqual(response.status_code, 201)
         linked = User.objects.get(id=response.json()["data"]["id"])
         self.assertNotEqual(linked.id, self.parent.id)   # خودش نشد

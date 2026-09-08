@@ -9,14 +9,21 @@ from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts.models import User
+from django.conf import settings
+
+from apps.accounts.models import PasswordVault, User
+from apps.accounts.otp import OTPRateLimited, request_otp, verify_otp
+from apps.accounts.passwords import link_family, set_password
 from apps.accounts.utils import normalize_phone
+from apps.common.sms import SmsError
 
 from .models import DailyAssignment, Notification, ParentChild
 from .notifications import preferences, reset_sync_throttle, sync_notifications
 from .serializers import (
     AddChildSerializer,
     AssignmentSerializer,
+    ChildPasswordSerializer,
+    ChildPhoneSerializer,
     ChildSerializer,
     CreateAssignmentSerializer,
     NotificationSerializer,
@@ -61,27 +68,25 @@ class ChildrenView(APIView):
         data = serializer.validated_data
         phone = normalize_phone(data["phone"])
 
-        # نقش داخلِ جستجوست: اگر والد شماره‌ی خودش را بزند — که رایج است،
-        # چون بچه با گوشیِ پدر/مادر ثبت‌نام کرده — حسابِ دانش‌آموزِ همان
-        # شماره پیدا (یا ساخته) می‌شود، نه حسابِ والدِ خودش.
-        child, _ = User.objects.get_or_create(
+        # همیشه حسابِ تازه می‌سازیم، حتی اگر شماره تکراری باشد: یک خانواده
+        # می‌تواند چند بچه با یک شماره داشته باشد و رمز آن‌ها را از هم جدا
+        # می‌کند. بچه‌ای که خودش ثبت‌نام کرده از راهِ `link_family` خودکار
+        # به همین والد وصل شده و این‌جا دوباره ساخته نمی‌شود.
+        child = User(
             phone=phone,
             role=User.Role.STUDENT,
-            defaults={
-                "first_name": data.get("first_name", ""),
-                "last_name": data.get("last_name", ""),
-            },
+            first_name=data.get("first_name", ""),
+            last_name=data.get("last_name", ""),
+            grade=data.get("grade", 1),
         )
+        child.save()
+        set_password(child, data["password"])
 
-        link, created = ParentChild.objects.get_or_create(
+        link = ParentChild.objects.create(
             parent=request.user, child=child,
-            defaults={"grade": data.get("grade", 1), "school": data.get("school", "")},
+            grade=data.get("grade", 1), school=data.get("school", ""),
         )
-        if not created and not link.is_active:
-            link.is_active = True
-            link.save(update_fields=["is_active", "updated_at"])
-        return Response(ChildSerializer(link).data,
-                        status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+        return Response(ChildSerializer(link).data, status=status.HTTP_201_CREATED)
 
 
 class ChildDetailView(APIView):
@@ -251,3 +256,116 @@ class SuggestionsView(APIView):
             return Response({"error": {"code": 404, "message": "فرزند پیدا نشد."}},
                             status=status.HTTP_404_NOT_FOUND)
         return Response(suggestion_payload(link.child))
+
+
+class ChildPasswordView(APIView):
+    """
+    GET رمزِ فرزند · POST تغییرش.
+
+    والد باید بتواند رمزِ بچه را ببیند: بچه‌ی کلاس‌اولی رمزش را فراموش
+    می‌کند و کسی جز والد نمی‌تواند برایش بازیابی کند. رمز رمزنگاری‌شده
+    نگه داشته می‌شود و فقط از همین مسیرِ احرازشده برمی‌گردد.
+    """
+
+    permission_classes = [IsParent]
+
+    def get(self, request, child_id):
+        link = _link_or_404(request, child_id)
+        if link is None:
+            return Response({"error": {"code": 404, "message": "فرزند پیدا نشد."}},
+                            status=status.HTTP_404_NOT_FOUND)
+        vault = PasswordVault.objects.filter(user=link.child).first()
+        shown = vault.reveal() if vault and vault.sealed else None
+        return Response({"password": shown or "", "hasPassword": bool(shown)})
+
+    def post(self, request, child_id):
+        link = _link_or_404(request, child_id)
+        if link is None:
+            return Response({"error": {"code": 404, "message": "فرزند پیدا نشد."}},
+                            status=status.HTTP_404_NOT_FOUND)
+        serializer = ChildPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        set_password(link.child, serializer.validated_data["password"])
+        return Response({"ok": True})
+
+
+class ChildPhoneStartView(APIView):
+    """
+    POST — گامِ ۱ تغییرِ شماره: کد به **شماره‌ی فعلی** و به **شماره‌ی تازه**.
+
+    هر دو طرف باید تأیید شوند: کدِ شماره‌ی فعلی ثابت می‌کند این شماره واقعاً
+    دستِ خانواده است، و کدِ شماره‌ی تازه ثابت می‌کند شماره‌ی مقصد اشتباه
+    تایپ نشده — وگرنه حسابِ بچه روی شماره‌ای می‌رفت که کسی به آن دسترسی ندارد.
+    """
+
+    permission_classes = [IsParent]
+
+    def post(self, request, child_id):
+        link = _link_or_404(request, child_id)
+        if link is None:
+            return Response({"error": {"code": 404, "message": "فرزند پیدا نشد."}},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        new_phone = normalize_phone(request.data.get("phone"))
+        if new_phone is None:
+            return Response({"error": {"code": 400, "message": "شماره‌ی موبایل معتبر نیست."}},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if new_phone == link.child.phone:
+            return Response({"error": {"code": 400, "message": "این همان شماره‌ی فعلی است."}},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            current = request_otp(link.child.phone)
+            fresh = request_otp(new_phone)
+        except OTPRateLimited as exc:
+            return Response(
+                {"error": {"code": 429, "message": "کمی صبر کن و دوباره بزن.",
+                           "retryAfter": exc.args[0] if exc.args else 60}},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+        except SmsError as exc:
+            return Response({"error": {"code": 502, "message": exc.message}},
+                            status=status.HTTP_502_BAD_GATEWAY)
+
+        out = {"currentPhone": link.child.phone, "newPhone": new_phone,
+               "codeLength": fresh.get("length"), "resendIn": fresh.get("resend_in")}
+        if settings.DEBUG:
+            out["devCurrentCode"] = current.get("code")
+            out["devNewCode"] = fresh.get("code")
+        return Response(out)
+
+
+class ChildPhoneConfirmView(APIView):
+    """POST — گامِ ۲: هر دو کد درست باشند، شماره عوض می‌شود."""
+
+    permission_classes = [IsParent]
+
+    @transaction.atomic
+    def post(self, request, child_id):
+        link = _link_or_404(request, child_id)
+        if link is None:
+            return Response({"error": {"code": 404, "message": "فرزند پیدا نشد."}},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ChildPhoneSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        old_phone = link.child.phone
+        if not verify_otp(old_phone, data["current_code"]):
+            return Response({"error": {"code": 400, "message": "کدِ شماره‌ی فعلی درست نیست."}},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not verify_otp(data["phone"], data["new_code"]):
+            return Response({"error": {"code": 400, "message": "کدِ شماره‌ی تازه درست نیست."}},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        child = link.child
+        child.phone = data["phone"]
+        # شماره عوض شد، پس تأییدِ قبلی دیگر معنایی ندارد
+        child.phone_verified = True
+        child.phone_verified_at = timezone.now()
+        child.save(update_fields=["phone", "phone_verified", "phone_verified_at"])
+
+        # شماره‌ی تازه ممکن است والدِ دیگری داشته باشد؛ خانواده دوباره بسته شود
+        link_family(child)
+        return Response({"ok": True, "phone": child.phone})

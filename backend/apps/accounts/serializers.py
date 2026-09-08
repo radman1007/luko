@@ -10,7 +10,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "role", "first_name", "last_name", "phone", "phone_verified"]
+        fields = ["id", "role", "first_name", "last_name", "phone", "phone_verified",
+                  "grade"]
 
 
 class MeUpdateSerializer(serializers.ModelSerializer):
@@ -61,6 +62,8 @@ class RegisterSerializer(StartAuthSerializer):
     first_name = serializers.CharField(
         required=False, allow_blank=True, max_length=30, trim_whitespace=True,
     )
+    # پایه‌ی تحصیلی. فقط دانش‌آموز می‌فرستدش؛ برای والد بی‌معنی است.
+    grade = serializers.IntegerField(required=False, min_value=1, max_value=6)
 
 
 class PasswordLoginSerializer(StartAuthSerializer):
