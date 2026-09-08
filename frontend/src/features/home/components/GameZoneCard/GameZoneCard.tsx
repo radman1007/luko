@@ -1,42 +1,30 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HiCamera, HiLockClosed, HiOutlineChevronLeft, HiPlay } from 'react-icons/hi2';
+import { HiOutlineChevronLeft, HiPlay } from 'react-icons/hi2';
 import { CoinIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
 import { SEASON, seasonState } from '@/features/games/seasonData';
 import { useSeasonProgress } from '@/features/games/useSeasonProgress';
-import { StarRating } from '@/features/games/components/StarRating/StarRating';
 import { SEASON_MAP_PATH } from '@/lib/constants/nav';
 import styles from './GameZoneCard.module.css';
 
-/**
- * یک نقطه روی نوارِ کوچکِ مسیر.
- *
- * این نوار جای فهرستِ عمودیِ قبلی را گرفته که چهار ردیفِ تقریباً یک‌شکل بود
- * و سه‌تایش قفل: بچه باید می‌خواند تا بفهمد کدام را می‌تواند بزند. حالا کلِ
- * سفر در یک نگاه دیده می‌شود و ایستگاه‌های عکس هم رویش پیدایند.
- */
-interface TrackDot {
-  key: string;
-  kind: 'stage' | 'memory';
-  state: 'done' | 'current' | 'locked';
-  label: string;
-  stars?: number;
-}
-
-/** لحنِ پیکسل: کوتاه، چون بچه روی صفحه‌ی خانه متن نمی‌خواند */
-function tease(remaining: number, started: boolean): string {
-  if (!started) return 'مسیرت آماده‌ست — بپر تو!';
-  if (remaining === 0) return 'همه رو زدی! حالا ستاره‌هاتو کامل کن.';
-  return `${remaining.toLocaleString('fa-IR')} مرحله‌ی باز مونده`;
-}
+/** ۳ → «۳» */
+const fa = (n: number) => n.toLocaleString('fa-IR');
 
 /**
  * دروازه‌ی دنیای بازی‌ها روی صفحه‌ی خانه.
  *
- * یک هدف دارد و بس: بچه در کمتر از یک ثانیه بفهمد کجا باید بزند. پس
- * بزرگ‌ترین چیزِ کارت دکمه‌ی «ادامه» است و بقیه دورش می‌چینند — نه
- * برعکس، که قبلاً بود.
+ * یک هدف دارد و بس: بچه در کمتر از یک ثانیه بفهمد کجا باید بزند.
+ *
+ * دو چیز از نسخه‌ی قبل عوض شد:
+ *
+ *   - **پیکسل بریده می‌شد.** با `bottom: -12px` داخلِ دکمه‌ای که
+ *     `overflow: hidden` داشت گذاشته شده بود، پس سر و پایش می‌رفت زیرِ
+ *     لبه و مثل یک برچسبِ کج‌ووج دیده می‌شد. حالا صحنه‌ی خودش را دارد و
+ *     کامل می‌ایستد.
+ *   - **نوارِ نقطه‌ها خوانده نمی‌شد.** هجده نقطه‌ی ریز که اغلبشان خاکستری
+ *     بودند، برای بچه‌ی کلاس اول تزئین بود نه اطلاعات. حالا یک نوارِ
+ *     پیشرفت است با یک جمله‌ی ساده.
  */
 export function GameZoneCard() {
   const navigate = useNavigate();
@@ -50,43 +38,11 @@ export function GameZoneCard() {
     [progress],
   );
 
-  const remaining = state.openStages - state.completedStages;
-  const openStages = state.openWeeks.flatMap((week) => week.stages);
   const next = state.nextStage;
+  const percent =
+    state.openStages > 0 ? Math.round((state.completedStages / state.openStages) * 100) : 0;
 
-  /** نقطه‌های نوار، با «جاری»ِ یکتا */
-  const track: TrackDot[] = useMemo(() => {
-    const dots: TrackDot[] = [];
-    openStages.forEach((stage, i) => {
-      dots.push({
-        key: stage.id,
-        kind: 'stage',
-        state: progress.done.has(stage.id)
-          ? 'done'
-          : stage.id === next?.id
-            ? 'current'
-            : 'locked',
-        label: `مرحله‌ی ${stage.order.toLocaleString('fa-IR')}: ${stage.title}`,
-        stars: stage.stars,
-      });
-      const spot = state.photoSpots.find((s) => s.afterStage === i + 1);
-      if (spot) {
-        dots.push({
-          key: spot.id,
-          kind: 'memory',
-          // ایستگاه وقتی باز است که مرحله‌ی قبلش رفته باشد
-          state: progress.done.has(stage.id) ? 'done' : 'locked',
-          label: `ایستگاهِ یادگاری: ${spot.title}`,
-        });
-      }
-    });
-    return dots;
-  }, [openStages, progress.done, next?.id, state.photoSpots]);
-
-  const goPlay = () => {
-    if (next) navigate(`/game/${next.id}`);
-    else navigate(SEASON_MAP_PATH);
-  };
+  const goPlay = () => navigate(next ? `/game/${next.id}` : SEASON_MAP_PATH);
 
   return (
     <section className={styles.zone} aria-label="تالار بازی‌ها">
@@ -94,7 +50,7 @@ export function GameZoneCard() {
       <header className={styles.ribbon}>
         <span className={styles.season}>
           {SEASON.title}
-          <b className={styles.week}>هفته‌ی {state.currentWeek.toLocaleString('fa-IR')}</b>
+          <b className={styles.week}>هفته‌ی {fa(state.currentWeek)}</b>
         </span>
         <span className={styles.starTally}>
           <svg className={styles.starMark} viewBox="0 0 24 24" aria-hidden focusable="false">
@@ -103,44 +59,50 @@ export function GameZoneCard() {
               d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45-4.7-4.6 6.5-.95L12 2.6Z"
             />
           </svg>
-          {state.earnedStars.toLocaleString('fa-IR')}
-          <i className={styles.of}>از {state.totalPossibleStars.toLocaleString('fa-IR')}</i>
+          {fa(state.earnedStars)}
+          <i className={styles.of}>از {fa(state.totalPossibleStars)}</i>
         </span>
       </header>
 
-      {/* ── قلبِ کارت: دکمه‌ی ادامه ─────────────────────── */}
-      <button type="button" className={styles.hero} onClick={goPlay}>
+      {/* ── صحنه: بزرگ‌ترین و پررنگ‌ترین چیزِ کارت ──────── */}
+      <button
+        type="button"
+        className={styles.hero}
+        onClick={goPlay}
+        aria-label={
+          next
+            ? `${state.completedStages > 0 ? 'ادامه‌ی' : 'شروعِ'} مرحله‌ی ${fa(next.order)}: ${next.title}`
+            : 'رفتن به نقشه‌ی سیزن'
+        }
+      >
+        {/* برقِ آرامِ روی صحنه — لایه‌ی جدا دارد تا خودِ دکمه بتواند
+            بدونِ برش، کاراکتر را بیرون بدهد */}
         <span className={styles.shine} aria-hidden />
-
-        <span className={styles.playBtn} aria-hidden>
-          <HiPlay />
-        </span>
 
         <span className={styles.heroText}>
           <span className={styles.kicker}>
-            {next ? (state.completedStages > 0 ? 'ادامه بده' : 'شروع کن') : 'آفرین!'}
+            {next ? (state.completedStages > 0 ? 'ادامه بده' : 'بزن شروع کن') : 'آفرین!'}
           </span>
+
           <b className={styles.heroTitle}>{next ? next.title : 'همه رو تموم کردی'}</b>
-          <span className={styles.heroMeta}>
-            {next ? (
-              <>
-                <span className={styles.stageNo}>
-                  مرحله‌ی {next.order.toLocaleString('fa-IR')}
-                </span>
-                <span className={styles.reward}>
-                  <CoinIcon size={13} aria-hidden />
-                  {next.coinReward.toLocaleString('fa-IR')}
-                </span>
-              </>
-            ) : (
-              /* متنِ «ستاره‌هاتو کامل کن» زیرِ نوارِ مسیر می‌آید؛ این‌جا
-                 تکرارش می‌کرد. به‌جایش انگیزه‌ی بعدی را نشان می‌دهیم. */
-              <span className={styles.stageNo}>
-                {state.hiddenStages > 0
-                  ? `${state.hiddenStages.toLocaleString('fa-IR')} مرحله پشتِ ابر`
-                  : 'سیزن تموم شد!'}
+
+          {/* در حالتِ «همه تمام شد» چیزی این‌جا نمی‌آید: جمله‌ی زیرِ نوار
+              همان «پشتِ ابر» را می‌گوید و تکرارش کارت را شلوغ می‌کرد. */}
+          {next && (
+            <span className={styles.heroMeta}>
+              <span className={styles.stageNo}>مرحله‌ی {fa(next.order)}</span>
+              <span className={styles.reward}>
+                <CoinIcon size={13} aria-hidden />
+                {fa(next.coinReward)}
               </span>
-            )}
+            </span>
+          )}
+
+          {/* دکمه‌ی صریح: بچه به شکلِ دکمه واکنش می‌دهد، نه به کارتِ
+              کلیک‌پذیری که شبیهِ دکمه نیست */}
+          <span className={styles.goPill} aria-hidden>
+            <HiPlay />
+            {next ? 'بزن بریم!' : 'نقشه رو ببین'}
           </span>
         </span>
 
@@ -156,52 +118,36 @@ export function GameZoneCard() {
         )}
       </button>
 
-      {/* ── نوارِ کوچکِ مسیر ─────────────────────────────── */}
-      <div className={styles.trackWrap}>
-        <ol className={styles.track} aria-label="مسیرِ سیزن">
-          {track.map((dot) => (
-            <li
-              key={dot.key}
-              className={`${styles.dot} ${styles[dot.kind]} ${styles[dot.state]}`}
-              title={dot.label}
-            >
-              <span className={styles.srOnly}>{dot.label}</span>
-              {dot.kind === 'memory' ? (
-                <HiCamera aria-hidden />
-              ) : dot.state === 'locked' ? (
-                <HiLockClosed aria-hidden />
-              ) : dot.state === 'current' ? (
-                <HiPlay aria-hidden />
-              ) : null}
-            </li>
-          ))}
-        </ol>
-        <p className={styles.trackNote}>
-          {tease(remaining, state.completedStages > 0)}
+      {/* ── پیشرفت ──────────────────────────────────────── */}
+      <div className={styles.progress}>
+        <div
+          className={styles.bar}
+          role="progressbar"
+          aria-valuenow={state.completedStages}
+          aria-valuemin={0}
+          aria-valuemax={state.openStages}
+          aria-label="مرحله‌های رفته"
+        >
+          <span className={styles.fill} style={{ width: `${percent}%` }} />
+        </div>
+
+        <p className={styles.note}>
+          {state.completedStages === 0
+            ? `${fa(state.openStages)} مرحله بازه`
+            : `${fa(state.completedStages)} از ${fa(state.openStages)} مرحله رفتی`}
           {state.hiddenStages > 0 && (
             /* جداکننده عمداً «،» است نه «·»: نقطه‌ی وسط در فارسی عینِ صفر
                دیده می‌شود و «· ۱۲» را «۱۲۰» می‌خواند. */
-            <span className={styles.hidden}>
-              ، {state.hiddenStages.toLocaleString('fa-IR')} تا هم پشتِ ابره
-            </span>
+            <span className={styles.hidden}>، {fa(state.hiddenStages)} تا پشتِ ابر</span>
           )}
         </p>
-      </div>
 
-      {/* ── ستاره‌های آخرین مرحله‌ها + راهِ نقشه ────────── */}
-      <div className={styles.footer}>
-        {state.completedStages > 0 && state.earnedStars < state.totalPossibleStars && (
-          <span className={styles.replay}>
-            <StarRating earned={0} max={3} />
-            ستاره‌های بیشتری منتظرتن
-          </span>
-        )}
         <button
           type="button"
           className={styles.mapBtn}
           onClick={() => navigate(SEASON_MAP_PATH)}
         >
-          نقشه‌ی کامل
+          نقشه
           <HiOutlineChevronLeft aria-hidden />
         </button>
       </div>

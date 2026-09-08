@@ -1,9 +1,14 @@
 /*
  * تالار بازی‌ها روی صفحه‌ی خانه.
  *
- * چیدمان عمداً یک سلسله‌مراتبِ تند دارد: دکمه‌ی «ادامه» بزرگ‌ترین و
- * پررنگ‌ترین چیزِ کارت است و بقیه دورش کم‌رنگ می‌شوند. نسخه‌ی قبلی همه‌ی
- * عناصر را هم‌وزن نشان می‌داد و بچه باید متن می‌خواند تا بفهمد کجا بزند.
+ * چیدمان یک سلسله‌مراتبِ تند دارد: صحنه‌ی «ادامه» بزرگ‌ترین و پررنگ‌ترین
+ * چیزِ کارت است و بقیه دورش کم‌رنگ می‌شوند.
+ *
+ * دو نکته که نسخه‌ی قبل رویشان لغزید:
+ *   - کاراکتر با inset منفی داخلِ دکمه‌ای با `overflow: hidden` بود و
+ *     بریده می‌شد. حالا دکمه برش ندارد و برقِ روی صحنه لایه‌ی جدا دارد.
+ *   - نوارِ هجده‌نقطه‌ای برای بچه‌ی کلاس اول تزئین بود نه اطلاعات؛
+ *     جایش یک نوارِ پیشرفت و یک جمله نشست.
  */
 .zone {
   --zone-purple: #7c5cbf;
@@ -13,7 +18,7 @@
 
   position: relative;
   margin: 14px 16px 0;
-  padding: 12px 12px 14px;
+  padding: 12px;
   border-radius: 24px;
   overflow: hidden;
   color: #fff;
@@ -32,39 +37,39 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgb(255 255 255 / 3%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px);
+    linear-gradient(rgb(255 255 255 / 4%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 4%) 1px, transparent 1px);
   background-size: 22px 22px;
-  mask-image: radial-gradient(120% 90% at 50% 0%, #000 0%, transparent 78%);
   pointer-events: none;
 }
 
-/* ── نوارِ سیزن ────────────────────────────────────────── */
+/* ── نوارِ سیزن ───────────────────────────────────────────── */
 .ribbon {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 0 4px 10px;
+  margin-bottom: 10px;
+  padding: 0 4px;
 }
 
 .season {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  font-size: 12.5px;
-  font-weight: 800;
-  color: rgb(255 255 255 / 78%);
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: rgb(255 255 255 / 62%);
 }
 
 .week {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   padding: 2px 8px;
   border-radius: 99px;
   background: rgb(255 255 255 / 12%);
-  color: rgb(255 255 255 / 88%);
+  color: #fff;
 }
 
 .starTally {
@@ -80,37 +85,28 @@
 .starMark {
   width: 16px;
   height: 16px;
-  filter: drop-shadow(0 0 5px rgb(255 200 61 / 55%));
+  filter: drop-shadow(0 0 5px rgb(255 200 61 / 50%));
 }
 
-/**
- * جداسازیِ دوسویه لازم است: عددِ گرفته‌شده و عددِ کل با یک جداکننده‌ی
- * خنثی کنارِ هم می‌نشینند و مرورگر در RTL آن‌ها را یک عدد می‌خواند
- * («۶ از ۴۵» می‌شد «۴۵ ۶»).
- */
 .of {
-  unicode-bidi: isolate;
   font-style: normal;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  color: rgb(255 255 255 / 45%);
+  color: rgb(255 255 255 / 48%);
 }
 
-/* ── قلبِ کارت ─────────────────────────────────────────── */
+/* ── صحنه ─────────────────────────────────────────────────── */
 .hero {
   position: relative;
   width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  /* لبه‌ی مقابل برای پیکسل خالی می‌ماند تا متن زیرش نرود */
-  padding: 14px 16px;
-  padding-inline-end: 84px;
+  display: block;
+  /* جای کاراکتر در سمتِ پایانی خالی می‌ماند تا متن زیرش نرود */
+  padding: 14px 16px 14px;
+  padding-inline-end: 128px;
   border: 0;
   border-radius: 20px;
   cursor: pointer;
   text-align: start;
-  overflow: hidden;
   color: var(--zone-ink);
   background: linear-gradient(150deg, #5ee7d6 0%, var(--zone-neon) 42%, #35b8ad 100%);
   box-shadow:
@@ -118,8 +114,8 @@
     0 14px 28px rgb(79 216 200 / 32%),
     inset 0 1px 0 rgb(255 255 255 / 55%);
   transition: transform 0.14s, box-shadow 0.14s;
-  /* هدفِ لمسیِ راحت برای دستِ کوچک، و ارتفاعِ ثابت با هر طولِ اسم */
-  min-height: 104px;
+  /* ارتفاعی که کاراکتر کامل داخلش بایستد، با هر طولِ اسمِ مرحله */
+  min-height: 152px;
 }
 
 .hero:active {
@@ -130,309 +126,207 @@
     inset 0 1px 0 rgb(255 255 255 / 55%);
 }
 
-/* برقِ آرام روی دکمه — چشمِ بچه را می‌گیرد بدونِ اینکه آزار بدهد */
+/**
+ * برقِ آرام. لایه‌ی جداست چون خودِ دکمه دیگر `overflow: hidden` ندارد —
+ * کاراکتر باید بتواند تا لبه بایستد بدونِ اینکه بریده شود.
+ */
 .shine {
   position: absolute;
-  inset-block: -40%;
-  width: 46px;
-  inset-inline-start: -60px;
-  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 55%), transparent);
-  transform: skewX(-18deg);
-  animation: sweep 4.5s ease-in-out infinite;
+  inset: 0;
+  border-radius: 20px;
+  overflow: hidden;
   pointer-events: none;
+}
+
+.shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 40%, rgb(255 255 255 / 42%) 50%, transparent 60%);
+  animation: sweep 5s ease-in-out infinite;
 }
 
 @keyframes sweep {
-  0%, 62% { inset-inline-start: -60px; }
-  86%, 100% { inset-inline-start: 115%; }
-}
-
-/**
- * پیکسل لبه‌ی مقابلِ دکمه می‌ایستد و از کفِ کارت بیرون می‌زند.
- * دو بار جابه‌جا شد تا این‌جا نشست: کنارِ دکمه دو عنصر روی هم می‌افتادند و
- * پشتش، صورتش کاملاً زیرِ دایره‌ی سفید گم می‌شد.
- */
-.pixel {
-  position: absolute;
-  inset-inline-end: -12px;
-  bottom: -12px;
-  width: 106px;
-  z-index: 1;
-  filter: drop-shadow(0 6px 12px rgb(0 0 0 / 30%));
-  pointer-events: none;
-  animation: bob 3.6s ease-in-out infinite;
-}
-
-@keyframes bob {
-  0%, 100% { transform: translateY(0) rotate(0); }
-  50% { transform: translateY(-5px) rotate(-1.5deg); }
+  0%, 76% { transform: translateX(-110%); }
+  92%, 100% { transform: translateX(110%); }
 }
 
 .heroText {
   position: relative;
   z-index: 1;
-  flex: 1;
-  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: flex-start;
+  gap: 3px;
 }
 
 .kicker {
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.4px;
-  color: rgb(29 92 87 / 85%);
-  text-transform: none;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: rgb(29 43 42 / 62%);
 }
 
-/**
- * اسمِ مرحله‌ها تا ۱۷۲ پیکسل هم می‌رسد ولی جای موجود ۱۴۵ است، پس تک‌خطی
- * بریده می‌شد. دو خط اجازه دارد و بعدش کوتاه می‌شود — ارتفاعِ کارت هم با
- * `min-height` ثابت می‌ماند تا با هر اسمی بالا و پایین نپرد.
- */
 .heroTitle {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 900;
-  line-height: 1.3;
-  color: #0e3b38;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
+  line-height: 1.4;
+  color: #10312f;
 }
 
 .heroMeta {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 3px;
+  gap: 6px;
+  margin-top: 1px;
 }
 
 .stageNo,
 .reward {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 11.5px;
+  gap: 3px;
+  font-size: 11px;
   font-weight: 800;
-  padding: 3px 9px;
+  padding: 2px 8px;
   border-radius: 99px;
-  background: rgb(255 255 255 / 45%);
-  color: #14504b;
+  background: rgb(255 255 255 / 55%);
+  color: #10312f;
 }
 
-.reward {
-  background: rgb(255 200 61 / 92%);
-  color: #6b4405;
-}
+.reward { color: #8a5a05; }
 
-/* مثلثِ پخش — بزرگ و بی‌ابهام، روی پیکسل */
-.playBtn {
-  position: relative;
-  z-index: 2;
-  flex: none;
-  width: 56px;
-  height: 56px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #fff;
-  color: #0e3b38;
-  box-shadow:
-    0 5px 0 #cfeeea,
-    0 10px 20px rgb(0 0 0 / 22%),
-    inset 0 0 0 3px rgb(255 255 255 / 90%);
-}
-
-.playBtn svg {
-  width: 28px;
-  height: 28px;
-}
-
-/* ── نوارِ کوچکِ مسیر ──────────────────────────────────── */
-.trackWrap {
-  position: relative;
-  margin-top: 12px;
-  padding: 10px 10px 8px;
-  border-radius: 16px;
-  background: rgb(0 0 0 / 20%);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 7%);
-}
-
-.track {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
+/* دکمه‌ی صریحِ داخلِ صحنه — بچه به شکلِ دکمه واکنش می‌دهد */
+.goPill {
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  /* مسیرِ زیرِ نقطه‌ها */
-  position: relative;
-}
-
-.track::before {
-  content: '';
-  position: absolute;
-  inset-inline: 4px;
-  top: 50%;
-  height: 3px;
-  translate: 0 -50%;
+  gap: 5px;
+  margin-top: 9px;
+  padding: 8px 15px;
   border-radius: 99px;
-  background: rgb(255 255 255 / 10%);
+  font-size: 13.5px;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(160deg, #3b3358, var(--zone-ink));
+  box-shadow: 0 3px 0 rgb(0 0 0 / 28%);
 }
 
-.dot {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-  aspect-ratio: 1;
-  max-width: 22px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: rgb(255 255 255 / 12%);
+.goPill svg {
+  width: 15px;
+  height: 15px;
 }
 
-.dot svg {
-  width: 9px;
-  height: 9px;
+.hero:active .goPill {
+  box-shadow: 0 1px 0 rgb(0 0 0 / 28%);
 }
 
-.done {
-  background: linear-gradient(160deg, #6fe3d4, #2fa79c);
-  box-shadow: 0 0 8px rgb(79 216 200 / 45%);
-}
-
-.locked {
-  background: rgb(255 255 255 / 9%);
-  color: rgb(255 255 255 / 32%);
-}
-
-/* نقطه‌ی جاری بزرگ‌تر و درخشان — همان‌جا که بچه هست */
-.current {
-  max-width: none;
-  width: 30px;
-  height: 30px;
-  flex: none;
-  background: linear-gradient(160deg, #ffe08a, var(--zone-gold));
-  color: #6b4405;
-  box-shadow: 0 0 0 3px rgb(255 200 61 / 22%), 0 3px 10px rgb(255 200 61 / 45%);
-  animation: beat 2s ease-in-out infinite;
+/**
+ * کاراکتر روی کفِ صحنه می‌ایستد.
+ *
+ * هیچ inset منفی‌ای ندارد و دکمه هم برش نمی‌زند، پس کامل دیده می‌شود.
+ * نسبتِ تصویر ۰٫۷۹ است؛ عرضِ ۱۱۶ یعنی ارتفاعِ ~۱۴۷ که دقیقاً در صحنه‌ی
+ * ۱۵۲ جا می‌شود.
+ */
+.pixel {
+  position: absolute;
+  inset-inline-end: 6px;
+  bottom: 0;
+  width: 116px;
+  height: auto;
   z-index: 1;
+  filter: drop-shadow(0 6px 12px rgb(0 0 0 / 26%));
+  pointer-events: none;
+  animation: bob 3.6s ease-in-out infinite;
 }
 
-.current svg {
-  width: 13px;
-  height: 13px;
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
-@keyframes beat {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.09); }
+/* ── پیشرفت ───────────────────────────────────────────────── */
+.progress {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 4px 10px;
+  margin-top: 12px;
+  padding: 0 4px;
 }
 
-/* ایستگاهِ یادگاری — لوزی و طلایی‌رنگ، تا با مرحله‌ها اشتباه نشود.
-   حتی قفل هم کمی طلایی می‌ماند: بچه باید ببیند آن‌جا «چیزِ دیگری» هست. */
-.memory {
-  rotate: 45deg;
-  border-radius: 6px;
-  max-width: 19px;
-  background: rgb(255 200 61 / 16%);
-  color: rgb(255 200 61 / 60%);
-  box-shadow: inset 0 0 0 1.5px rgb(255 200 61 / 35%);
+.bar {
+  grid-column: 1 / -1;
+  height: 8px;
+  border-radius: 99px;
+  background: rgb(255 255 255 / 12%);
+  overflow: hidden;
 }
 
-.memory svg {
-  rotate: -45deg;
-  width: 10px;
-  height: 10px;
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--zone-purple), var(--zone-neon));
+  box-shadow: 0 0 10px rgb(79 216 200 / 45%);
+  transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.memory.done {
-  background: linear-gradient(160deg, #ffd76a, #ff9e20);
-  color: #6b3f04;
-}
-
-.trackNote {
-  margin: 8px 2px 0;
-  font-size: 11.5px;
+.note {
+  margin: 0;
+  font-size: 12px;
   font-weight: 700;
-  color: rgb(255 255 255 / 62%);
-  text-align: center;
+  color: rgb(255 255 255 / 78%);
 }
 
 .hidden {
-  /* بدونِ این، «۱۲ · ۱۲» به‌هم می‌چسبد و «۱۲۰» خوانده می‌شود */
-  unicode-bidi: isolate;
-  color: rgb(255 255 255 / 40%);
-}
-
-/* ── پایین ─────────────────────────────────────────────── */
-.footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 11px;
-  padding-inline: 2px;
-}
-
-.replay {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11.5px;
-  font-weight: 700;
-  color: rgb(255 255 255 / 62%);
+  color: rgb(255 255 255 / 48%);
+  font-weight: 600;
 }
 
 .mapBtn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-inline-start: auto;
+  gap: 3px;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 99px;
   font: inherit;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 800;
   color: #fff;
   background: rgb(255 255 255 / 12%);
-  border: 0;
-  border-radius: 99px;
-  padding: 9px 14px;
   cursor: pointer;
-  transition: background 0.14s;
-  /* هدفِ لمسی */
-  min-height: 40px;
+  /* هدفِ لمسیِ راحت برای دستِ کوچک */
+  min-height: 34px;
 }
 
-.mapBtn:active {
-  background: rgb(255 255 255 / 20%);
+.mapBtn svg { width: 14px; height: 14px; }
+
+.mapBtn:active { background: rgb(255 255 255 / 20%); }
+
+/* گوشیِ باریک: کاراکتر کمی جمع می‌شود تا اسمِ مرحله جا بگیرد */
+@media (max-width: 359px) {
+  .hero {
+    min-height: 138px;
+    padding-inline-end: 108px;
+  }
+
+  .pixel { width: 98px; }
+  .heroTitle { font-size: 17px; }
 }
 
-.mapBtn svg {
-  width: 15px;
-  height: 15px;
-}
+/* ── صفحه‌های پهن‌تر ──────────────────────────────────────── */
+@media (min-width: 420px) {
+  .hero {
+    min-height: 170px;
+    padding-inline-end: 150px;
+  }
 
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-/* ── صفحه‌های پهن‌تر ───────────────────────────────────── */
-@media (min-width: 480px) {
-  .heroTitle { font-size: 20px; }
-  .pixel { width: 126px; }
+  .pixel { width: 136px; }
+  .heroTitle { font-size: 21px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shine,
-  .pixel,
-  .current { animation: none; }
+  .shine::after,
+  .pixel { animation: none; }
 }
