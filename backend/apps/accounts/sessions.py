@@ -38,6 +38,19 @@ def new_session(user: User) -> RefreshToken:
     return token
 
 
+def end_session(user: User) -> None:
+    """
+    نشست را می‌بندد بی‌آنکه تازه‌ای باز کند — یعنی «خروج».
+
+    همان شمارنده جلو می‌رود، پس هم توکنِ access رد می‌شود هم refresh.
+    بدونِ این، «خروج» فقط توکن را از گوشی پاک می‌کرد و هر کسی که نسخه‌ای
+    از refresh داشت تا دو هفته می‌توانست دوباره وارد شود.
+    """
+    from django.db.models import F
+
+    User.objects.filter(pk=user.pk).update(session_version=F("session_version") + 1)
+
+
 def keep_session(user: User) -> RefreshToken:
     """
     توکنِ تازه روی همان نشست — بدونِ بستنِ دستگاه‌های دیگر.

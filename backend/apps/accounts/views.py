@@ -26,7 +26,7 @@ from .otp import (
 from .passwords import (account_with_password_exists, get_or_create_account,
                         has_password, link_family, mark_phone_verified,
                         set_password, student_by_password)
-from .sessions import SESSION_CLAIM, keep_session, new_session
+from .sessions import SESSION_CLAIM, end_session, keep_session, new_session
 from .serializers import (
     KidSettingsSerializer,
     LukorianSerializer,
@@ -383,9 +383,51 @@ class RefreshView(APIView):
 
 
 class LogoutView(APIView):
-    """خروج: توکنِ کوتاه‌عمرِ access سمت کلاینت پاک می‌شود؛ اینجا فقط تأیید می‌کنیم."""
+    """
+    خروج — نشست همین‌جا بسته می‌شود، نه فقط روی گوشی.
+
+    قرارِ محصول این است که بچه دو هفته وارد بماند مگر جای دیگری وارد شود
+    یا خودش خارج شود. پس خروج باید شمارنده‌ی نشست را جلو ببرد، وگرنه توکنِ
+    refreshِ باقی‌مانده تا آخرِ همان دو هفته حساب را باز می‌کرد.
+
+    ملاک، توکنِ **refresh** است نه access: عمرِ access نیم ساعت است و کسی
+    که بعد از مدتی برنامه را باز می‌کند و همان اول «خروج» می‌زند، توکنِ
+    منقضی دارد — آن‌وقت خروج در احراز هویت رد می‌شد و نشست تا دو هفته
+    زنده می‌ماند. refresh دقیقاً همان چیزی است که آن دو هفته را می‌دهد،
+    پس بستنِ نشست با نشان‌دادنش درست است.
+
+    احراز هویتِ هدر عمداً برداشته شده: اگر هدرِ `Authorization` منقضی باشد،
+    DRF پیش از رسیدن به این متد ۴۰۱ می‌دهد و خروج اصلاً اجرا نمی‌شود. پس
+    شناسه فقط از خودِ refresh خوانده می‌شود. پاسخ همیشه موفق است: کسی که
+    خارج شده نباید پیامِ خطا ببیند، و این‌طور معلوم هم نمی‌شود کدام توکن
+    معتبر بوده است.
+    """
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
     def post(self, request):
+        token = (request.data.get("refresh_token") or request.data.get("refreshToken")
+                 or request.data.get("refresh"))
+        user = None
+
+        if token:
+            try:
+                refresh = RefreshToken(token)
+            except TokenError:
+                refresh = None
+            if refresh is not None:
+                candidate = User.objects.filter(pk=refresh.get("user_id")).first()
+                version = refresh.get(SESSION_CLAIM)
+                # توکنِ عقب‌مانده نباید نشستِ تازه را ببندد، وگرنه هر کسی با
+                # یک توکنِ سوخته می‌توانست دستگاهِ فعلی را بیرون بیندازد.
+                if candidate is not None and (
+                    version is None or int(version) == candidate.session_version
+                ):
+                    user = candidate
+
+        if user is not None:
+            end_session(user)
         return Response({"success": True})
 
 

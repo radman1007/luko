@@ -276,6 +276,111 @@ class OtpSiblingPickerTests(TestCase):
         self.assertEqual(res.status_code, 404)
 
 
+class LogoutTests(TestCase):
+    """
+    خروجِ دستی باید واقعاً نشست را ببندد.
+
+    قرارِ محصول: بچه دو هفته وارد می‌ماند «مگر با گوشیِ دیگری وارد شود یا
+    خودش خروج بزند». اگر خروج فقط توکن را از گوشی پاک کند، نسخه‌ی
+    باقی‌مانده‌ی refresh تا دو هفته حساب را باز می‌کند.
+    """
+
+    def setUp(self):
+        self.api = APIClient()
+        self.phone = "09121504422"
+        self.child = User.objects.create(phone=self.phone, role=User.Role.STUDENT,
+                                         first_name="سارا")
+        set_password(self.child, "raz-sara")
+
+    def _login(self, password="raz-sara"):
+        res = self.api.post("/api/v1/auth/login",
+                            {"phone": self.phone, "password": password, "role": "student"},
+                            format="json")
+        return res.json()["data"]
+
+    def _logout(self, access, refresh):
+        # کلاینت عمداً هدرِ Authorization نمی‌فرستد؛ شناسه از خودِ refresh است
+        return self.api.post("/api/v1/auth/logout", {"refreshToken": refresh}, format="json")
+
+    def _me(self, access):
+        self.api.credentials(HTTP_AUTHORIZATION=f"Bearer {access}")
+        res = self.api.get("/api/v1/auth/me")
+        self.api.credentials()
+        return res
+
+    def _refresh(self, refresh):
+        return self.api.post("/api/v1/auth/refresh", {"refreshToken": refresh}, format="json")
+
+    def test_logging_out_answers_success(self):
+        tokens = self._login()
+        self.assertEqual(self._logout(tokens["accessToken"], tokens["refreshToken"]).status_code,
+                         200)
+
+    def test_the_refresh_token_dies_with_the_session(self):
+        tokens = self._login()
+        self.assertEqual(self._refresh(tokens["refreshToken"]).status_code, 200)
+        self._logout(tokens["accessToken"], tokens["refreshToken"])
+        self.assertEqual(self._refresh(tokens["refreshToken"]).status_code, 401)
+
+    def test_the_access_token_dies_with_the_session(self):
+        tokens = self._login()
+        self.assertEqual(self._me(tokens["accessToken"]).status_code, 200)
+        self._logout(tokens["accessToken"], tokens["refreshToken"])
+        self.assertEqual(self._me(tokens["accessToken"]).status_code, 401)
+
+    def test_logging_in_again_works_after_a_logout(self):
+        tokens = self._login()
+        self._logout(tokens["accessToken"], tokens["refreshToken"])
+        again = self._login()
+        self.assertEqual(self._me(again["accessToken"]).status_code, 200)
+
+    def test_a_sibling_is_not_logged_out_too(self):
+        nima = User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name="نیما")
+        set_password(nima, "raz-nima")
+        sara = self._login()
+        brother = self._login("raz-nima")
+        self._logout(sara["accessToken"], sara["refreshToken"])
+        self.assertEqual(self._me(brother["accessToken"]).status_code, 200)
+
+    def test_the_parent_on_the_same_phone_stays_in(self):
+        parent = User.objects.create(phone=self.phone, role=User.Role.PARENT, first_name="پدر")
+        set_password(parent, "raz-pedar")
+        res = self.api.post("/api/v1/auth/login",
+                            {"phone": self.phone, "password": "raz-pedar", "role": "parent"},
+                            format="json")
+        parent_tokens = res.json()["data"]
+        child = self._login()
+        self._logout(child["accessToken"], child["refreshToken"])
+        self.assertEqual(self._me(parent_tokens["accessToken"]).status_code, 200)
+
+    def test_logging_out_twice_is_harmless(self):
+        tokens = self._login()
+        self._logout(tokens["accessToken"], tokens["refreshToken"])
+        # خروج بی‌اثر هم موفق جواب می‌دهد؛ کسی که خارج شده نباید خطا ببیند
+        self.assertEqual(self._logout(tokens["accessToken"], tokens["refreshToken"]).status_code,
+                         200)
+
+    def test_logging_out_works_with_a_dead_access_token(self):
+        """عمرِ access نیم ساعت است؛ خروج نباید به تازگی‌اش بند باشد."""
+        tokens = self._login()
+        res = self.api.post("/api/v1/auth/logout",
+                            {"refreshToken": tokens["refreshToken"]}, format="json")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(self._refresh(tokens["refreshToken"]).status_code, 401)
+        self.assertEqual(self._me(tokens["accessToken"]).status_code, 401)
+
+    def test_a_stale_refresh_token_cannot_log_out_the_live_device(self):
+        old = self._login()
+        live = self._login()
+        self.api.post("/api/v1/auth/logout", {"refreshToken": old["refreshToken"]}, format="json")
+        self.assertEqual(self._me(live["accessToken"]).status_code, 200)
+
+    def test_rubbish_does_not_break_logout(self):
+        for body in ({}, {"refreshToken": ""}, {"refreshToken": "ashghal"}):
+            self.assertEqual(
+                self.api.post("/api/v1/auth/logout", body, format="json").status_code, 200)
+
+
 class StartOnAMixedPhoneTests(TestCase):
     """
     `/auth/start` روی شماره‌ای که هم بچه‌ی رمزدار دارد هم بی‌رمز.
