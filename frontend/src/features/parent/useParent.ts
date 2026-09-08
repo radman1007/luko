@@ -100,6 +100,27 @@ export function useAddChild() {
   });
 }
 
+/** رمزِ فرزند — فقط وقتی والد بازش می‌کند خوانده می‌شود، نه در فهرست */
+export function useChildPassword(childId: string | null) {
+  return useQuery({
+    queryKey: [...parentKeys.children, childId, 'password'],
+    queryFn: () => parentApi.childPassword(childId as string),
+    enabled: Boolean(childId),
+    staleTime: 0,
+    gcTime: 0,
+  });
+}
+
+export function useSetChildPassword(childId: string | null) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (password: string) =>
+      parentApi.setChildPassword(childId as string, password),
+    onSuccess: () =>
+      client.invalidateQueries({ queryKey: [...parentKeys.children, childId, 'password'] }),
+  });
+}
+
 export function useRemoveChild() {
   const client = useQueryClient();
   return useMutation({

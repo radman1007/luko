@@ -139,7 +139,8 @@ export default function ParentGuestPanel() {
               onSupport={() => setSheet('support')}
               onPrivacy={() => setSheet('privacy')}
               onAbout={() => setSheet('about')}
-              onLogout={() => setSheet('logout')}
+              onNotice={() => undefined}
+          onLogout={() => setSheet('logout')}
             />
           )}
         </div>

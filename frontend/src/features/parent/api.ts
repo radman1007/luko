@@ -43,12 +43,56 @@ export const parentApi = {
 
   async addChild(payload: {
     phone: string;
+    /** رمزِ ورودِ فرزند — همان چیزی که بچه‌های هم‌شماره را از هم جدا می‌کند */
+    password: string;
     firstName?: string;
     lastName?: string;
     grade?: number;
     school?: string;
   }): Promise<Child> {
     const { data } = await apiClient.post('/parent/children', payload);
+    return data.data;
+  },
+
+  /**
+   * رمزِ خوانای فرزند.
+   *
+   * بچه‌ی کلاس‌اولی رمزش را فراموش می‌کند و خودش راهی برای بازیابی ندارد
+   * (فراموشیِ رمز در پنلِ دانش‌آموز عمداً نیست)، پس والد باید ببیندش.
+   */
+  async childPassword(childId: string): Promise<{ password: string; hasPassword: boolean }> {
+    const { data } = await apiClient.get(`/parent/children/${childId}/password`);
+    return data.data;
+  },
+
+  async setChildPassword(childId: string, password: string): Promise<void> {
+    await apiClient.post(`/parent/children/${childId}/password`, { password });
+  },
+
+  /**
+   * گامِ ۱ تغییرِ شماره: کد هم به شماره‌ی فعلی می‌رود هم به شماره‌ی تازه.
+   *
+   * هر دو لازم‌اند: اولی ثابت می‌کند شماره‌ی فعلی دستِ خانواده است،
+   * دومی جلوی تایپِ اشتباهِ شماره‌ی مقصد را می‌گیرد.
+   */
+  async startChildPhoneChange(childId: string, phone: string): Promise<{
+    currentPhone: string;
+    newPhone: string;
+    codeLength?: number;
+    resendIn?: number;
+    devCurrentCode?: string;
+    devNewCode?: string;
+  }> {
+    const { data } = await apiClient.post(`/parent/children/${childId}/phone/start`, { phone });
+    return data.data;
+  },
+
+  async confirmChildPhoneChange(
+    childId: string,
+    payload: { phone: string; currentCode: string; newCode: string },
+  ): Promise<{ phone: string }> {
+    const { data } = await apiClient.post(
+      `/parent/children/${childId}/phone/confirm`, payload);
     return data.data;
   },
 

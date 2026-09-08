@@ -12,6 +12,7 @@ import {
 import type { Child, ParentPreferences } from '../../types';
 import { Card, SectionTitle } from '../shell/Card';
 import { PhoneVerifyCard } from '../verify/PhoneVerifyCard';
+import { ChildAccountCard } from '../children/ChildAccountCard';
 import styles from './SettingsView.module.css';
 
 interface Props {
@@ -26,6 +27,8 @@ interface Props {
   onPrivacy: () => void;
   onAbout: () => void;
   onLogout: () => void;
+  /** پیامِ کوتاه بعد از تغییرِ رمز یا شماره‌ی فرزند */
+  onNotice: (message: string) => void;
 }
 
 const GRADES = ['', 'پایه اول', 'پایه دوم', 'پایه سوم', 'پایه چهارم', 'پایه پنجم', 'پایه ششم'];
@@ -43,6 +46,7 @@ export function SettingsView({
   onPrivacy,
   onAbout,
   onLogout,
+  onNotice,
 }: Props) {
   return (
     <>
@@ -99,6 +103,20 @@ export function SettingsView({
           <HiOutlineChevronLeft className={styles.arrow} aria-hidden />
         </button>
       </Card>
+
+      {/* رمز و شماره‌ی هر فرزند.
+          پنلِ دانش‌آموز عمداً «فراموشیِ رمز» ندارد — رمزِ تازه ساختن کارِ
+          بچه‌ی کلاس‌اولی نیست — پس تنها راهِ بازیابی همین‌جاست. */}
+      {childList.length > 0 && (
+        <>
+          <SectionTitle>حسابِ فرزندان</SectionTitle>
+          <Card>
+            {childList.map((child) => (
+              <ChildAccountCard key={child.id} child={child} onDone={onNotice} />
+            ))}
+          </Card>
+        </>
+      )}
 
       <SectionTitle>اعلان‌ها</SectionTitle>
       <Card flush>

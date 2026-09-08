@@ -457,7 +457,8 @@ export function OtpAuthForm() {
         <>
           <h1 className={styles.title}>کد رو بزن</h1>
           <p className={styles.subtitle}>
-            برای <b dir="ltr" className={styles.phone}>{phone}</b> فرستادم؛ بعدش رمزِ تازه می‌سازیم
+            {/* کد این‌جا فقط راهِ ورود است؛ رمزِ بچه دست‌نخورده می‌ماند */}
+            برای <b dir="ltr" className={styles.phone}>{phone}</b> فرستادم؛ بزنش تا بریم تو
           </p>
 
           <OtpInput

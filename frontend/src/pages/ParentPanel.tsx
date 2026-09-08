@@ -40,6 +40,7 @@ import { DailyView } from '@/features/parent/components/views/DailyView';
 import { HealthView } from '@/features/parent/components/views/HealthView';
 import { SettingsView } from '@/features/parent/components/views/SettingsView';
 import { isValidPhone, normalizePhone } from '@/lib/phone';
+import { ALL_GRADES, OPEN_GRADES, gradeName } from '@/features/books/booksData';
 import styles from './ParentPanel.module.css';
 
 type SheetKind = 'notifications' | 'support' | 'addChild' | 'removeChild' | 'logout' | 'privacy' | 'about';
@@ -75,7 +76,7 @@ function AuthenticatedParentPanel() {
   const [sheet, setSheet] = useState<SheetKind | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [pendingChild, setPendingChild] = useState<Child | null>(null);
-  const [form, setForm] = useState({ phone: '', firstName: '', grade: '1', school: '' });
+  const [form, setForm] = useState({ phone: '', firstName: '', grade: '1', school: '', password: '' });
   const [message, setMessage] = useState('');
 
   const children = useChildren();
@@ -150,9 +151,16 @@ function AuthenticatedParentPanel() {
       setToast('شمارهٔ موبایل باید ۱۱ رقم و با ۰۹ شروع شود.');
       return;
     }
+    // رمز همان چیزی است که بچه‌های هم‌شماره را از هم جدا می‌کند؛
+    // بدونِ آن حسابِ فرزند راهی برای ورود ندارد.
+    if (form.password.trim().length < 6) {
+      setToast('رمز باید دست‌کم ۶ نویسه باشد.');
+      return;
+    }
     addChild.mutate(
       {
         phone: normalizePhone(form.phone),
+        password: form.password.trim(),
         firstName: form.firstName.trim() || undefined,
         grade: Number(form.grade),
         school: form.school.trim() || undefined,
@@ -160,7 +168,7 @@ function AuthenticatedParentPanel() {
       {
         onSuccess: (child) => {
           setSheet(null);
-          setForm({ phone: '', firstName: '', grade: '1', school: '' });
+          setForm({ phone: '', firstName: '', grade: '1', school: '', password: '' });
           setChildId(child.id);
           setToast('فرزند به حساب شما اضافه شد');
         },
@@ -283,6 +291,7 @@ function AuthenticatedParentPanel() {
               onPrivacy={() => setSheet('privacy')}
               onAbout={() => setSheet('about')}
               onLogout={() => setSheet('logout')}
+          onNotice={setToast}
             />
           )}
 
@@ -411,12 +420,26 @@ function AuthenticatedParentPanel() {
             value={form.grade}
             onChange={(event) => setForm({ ...form, grade: event.target.value })}
           >
-            {[1, 2, 3, 4, 5, 6].map((grade) => (
-              <option key={grade} value={grade}>
-                پایه {grade.toLocaleString('fa-IR')}
+            {ALL_GRADES.map((grade) => (
+              <option key={grade} value={grade} disabled={!OPEN_GRADES.includes(grade)}>
+                {gradeName(grade)}
+                {!OPEN_GRADES.includes(grade) ? ' — به‌زودی' : ''}
               </option>
             ))}
           </select>
+        </label>
+        <label className={styles.field}>
+          رمز ورود فرزند
+          <input
+            type="text"
+            autoComplete="off"
+            placeholder="دست‌کم ۶ نویسه"
+            value={form.password}
+            onChange={(event) => setForm({ ...form, password: event.target.value })}
+          />
+          <small className={styles.hint}>
+            با همین رمز وارد حسابش می‌شود. هر وقت خواستید از همین‌جا می‌بینید یا عوضش می‌کنید.
+          </small>
         </label>
         <label className={styles.field}>
           مدرسه (اختیاری)
