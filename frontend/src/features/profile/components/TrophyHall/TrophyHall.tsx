@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { HiOutlineLockClosed, HiOutlineXMark } from 'react-icons/hi2';
+import { HiOutlineLockClosed, HiOutlineTrophy, HiOutlineXMark } from 'react-icons/hi2';
 import { CATEGORY_LABEL, nextMedal } from '@/features/club/medals';
 import type { Medal, MedalCategory } from '@/features/club/medals';
 import styles from './TrophyHall.module.css';
@@ -54,6 +54,12 @@ export function TrophyHall({ medals }: Props) {
     <section className={styles.hall} aria-label="تالار افتخارات">
       {/* ── سردر ─────────────────────────────────────────── */}
       <header className={styles.head}>
+        {/* همان قابِ آیکونِ بقیه‌ی کارت‌های پروفایل، تا این بخش هم
+            عضوِ همان خانواده دیده شود */}
+        <span className={styles.headIcon} aria-hidden>
+          <HiOutlineTrophy />
+        </span>
+
         <div className={styles.headText}>
           <h2 className={styles.title}>تالارِ افتخارات</h2>
           <p className={styles.sub}>
