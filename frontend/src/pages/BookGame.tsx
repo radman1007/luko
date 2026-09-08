@@ -7,6 +7,7 @@ import { CoinIcon, DewIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
 import { levelById, markLevelCompleted } from '@/features/books/booksData';
 import { seasonState } from '@/features/games/seasonData';
+import { useGrade } from '@/features/auth/useGrade';
 import { DEW_REWARD } from '@/features/garden/gardenData';
 import { grantDew, grantFertilizer } from '@/features/garden/store';
 import { completeGame, flushEvents, trackEvent } from '@/features/games/telemetry';
@@ -33,12 +34,13 @@ export default function BookGame() {
 
   // مسیرِ سیزن پشتِ‌سرهم است؛ تایپ کردنِ آدرسِ یک مرحله‌ی قفل هم نباید بازش
   // کند. مرحله‌های خارج از مسیر (بازیِ بخش‌های دیگر) شرطی ندارند.
+  const grade = useGrade();
   const locked = useMemo(
     () =>
-      seasonState()
+      seasonState(undefined, undefined, undefined, grade)
         .weeks.flatMap((week) => week.stages)
         .find((stage) => stage.id === gameId)?.locked ?? false,
-    [gameId],
+    [gameId, grade],
   );
 
   /**

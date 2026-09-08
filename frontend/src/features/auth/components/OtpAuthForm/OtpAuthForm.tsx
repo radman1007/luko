@@ -7,6 +7,8 @@ import type { User } from '@/types/user';
 import { useAuth } from '../../context';
 import { isValidPhone, normalizePhone } from '@/lib/phone';
 import { authApi } from '../../api';
+import type { OtpSibling } from '../../api';
+import { ALL_GRADES, OPEN_GRADES, gradeName } from '@/features/books/booksData';
 import { enableGuestMode } from '../../guest';
 import { OtpInput } from '../OtpInput/OtpInput';
 import styles from './OtpAuthForm.module.css';
@@ -20,7 +22,7 @@ const DEFAULT_CODE_LENGTH = 5;
  * ثبت‌نام فعلاً تأییدِ شماره نمی‌خواهد: شماره → رمز، و تمام. کدِ یکبارمصرف
  * فقط برای «رمزم را فراموش کردم» می‌ماند.
  */
-type Step = 'phone' | 'password' | 'newPassword' | 'code' | 'name';
+type Step = 'phone' | 'password' | 'newPassword' | 'code' | 'name' | 'grade' | 'pick';
 
 /** نوارِ گام‌ها بسته به اینکه ورود است یا ثبت‌نام */
 const STEPS_LOGIN: { key: Step; label: string }[] = [
@@ -30,12 +32,19 @@ const STEPS_LOGIN: { key: Step; label: string }[] = [
 const STEPS_SIGNUP: { key: Step; label: string }[] = [
   { key: 'phone', label: 'شماره' },
   { key: 'name', label: 'اسم' },
+  { key: 'grade', label: 'پایه' },
   { key: 'newPassword', label: 'رمز' },
 ];
-const STEPS_RESET: { key: Step; label: string }[] = [
+/**
+ * ورود با کدِ پیامکی.
+ *
+ * جای «رمزم را فراموش کردم» را گرفته: بچه‌ی کلاس‌اولی رمزِ تازه ساختن را
+ * بلد نیست و اگر رمزش را گم کند، والدش از پنلِ خودش می‌بیندش. این‌جا فقط
+ * راهِ ورود است، نه تغییرِ رمز.
+ */
+const STEPS_CODE: { key: Step; label: string }[] = [
   { key: 'phone', label: 'شماره' },
   { key: 'code', label: 'کد' },
-  { key: 'newPassword', label: 'رمزِ تازه' },
 ];
 
 function errorMessage(err: unknown, fallback: string): string {
@@ -61,8 +70,11 @@ export function OtpAuthForm() {
   const [code, setCode] = useState('');
   const [firstName, setFirstName] = useState('');
   const [password, setPassword] = useState('');
+  const [grade, setGrade] = useState(1);
+  const [siblings, setSiblings] = useState<OtpSibling[]>([]);
+  const [ticket, setTicket] = useState('');
   /** ثبت‌نام یا فراموشیِ رمز — تعیین می‌کند نوارِ گام‌ها و متن‌ها چه بگویند */
-  const [mode, setMode] = useState<'login' | 'signup' | 'reset'>('login');
+  const [mode, setMode] = useState<'login' | 'signup' | 'code'>('login');
   const [devCode, setDevCode] = useState<string | undefined>();
   const [codeLength, setCodeLength] = useState(DEFAULT_CODE_LENGTH);
   const [resendIn, setResendIn] = useState(0);
@@ -123,14 +135,21 @@ export function OtpAuthForm() {
     }
   };
 
-  /** گامِ اسم در ثبت‌نام: حساب ساخته می‌شود و بعد رمز می‌گیریم */
+  /** گامِ اسم: فقط جلو می‌رویم؛ حساب بعد از انتخابِ پایه ساخته می‌شود */
+  const goToGrade = () => {
+    if (!firstName.trim()) return;
+    setError('');
+    setStep('grade');
+  };
+
+  /** پایه که مشخص شد، حساب ساخته می‌شود و بعد رمز می‌گیریم */
   const createAccount = async () => {
     const name = firstName.trim();
     if (!name || busy) return;
     setError('');
     setBusy(true);
     try {
-      const { user } = await authApi.register({ phone, firstName: name });
+      const { user } = await authApi.register({ phone, firstName: name, grade });
       setUser(user);
       newUser.current = user;
       setPassword('');
@@ -180,12 +199,20 @@ export function OtpAuthForm() {
     setError('');
     setBusy(true);
     try {
-      const { user } = await authApi.verifyOtp({ phone, code: value });
+      const result = await authApi.verifyOtp({ phone, code: value });
+
+      // چند بچه با یک شماره: کد نمی‌گوید کدام‌یک، پس خودش انتخاب می‌کند
+      if (result.chooseFrom) {
+        setSiblings(result.chooseFrom);
+        setTicket(result.ticket ?? '');
+        setStep('pick');
+        return;
+      }
+
+      const user = result.user!;
       setUser(user);
-      // این مسیر فقط برای فراموشیِ رمز است: کد که درست بود، رمزِ تازه می‌سازد
-      newUser.current = user;
-      setPassword('');
-      setStep('newPassword');
+      // ورود با کد یعنی همان ورود؛ رمزِ قبلی‌اش دست‌نخورده می‌ماند
+      navigate(ROLE_HOME[user.role] ?? '/', { replace: true });
     } catch (err) {
       setCode('');
       setError(errorMessage(err, 'کد اشتباه یا منقضی شده.'));
@@ -198,15 +225,31 @@ export function OtpAuthForm() {
     event.preventDefault();
     if (step === 'phone') void startAuth();
     else if (step === 'password') void loginWithPassword();
-    else if (step === 'name') void createAccount();
+    else if (step === 'name') goToGrade();
+    else if (step === 'grade') void createAccount();
     else if (step === 'newPassword') void saveNewPassword();
     else void verify();
   };
 
-  /** «رمزم را فراموش کردم» → کدِ یکبارمصرف */
-  const forgotPassword = () => {
-    setMode('reset');
+  /** «با کدِ پیامکی وارد شو» — جایگزینِ فراموشیِ رمز برای بچه‌ها */
+  const loginWithCode = () => {
+    setMode('code');
     void sendOtp();
+  };
+
+  /** یکی از خواهر‌برادرهای هم‌شماره را انتخاب کرد */
+  const pickSibling = async (userId: string) => {
+    if (busy) return;
+    setError('');
+    setBusy(true);
+    try {
+      const user = await authApi.chooseOtpAccount({ ticket, userId });
+      setUser(user);
+      navigate(ROLE_HOME[user.role] ?? '/', { replace: true });
+    } catch (err) {
+      setError(errorMessage(err, 'انتخاب نشد؛ دوباره کد بگیر.'));
+      setBusy(false);
+    }
   };
 
   const changeNumber = () => {
@@ -218,7 +261,7 @@ export function OtpAuthForm() {
     setError('');
   };
 
-  const steps = mode === 'signup' ? STEPS_SIGNUP : mode === 'reset' ? STEPS_RESET : STEPS_LOGIN;
+  const steps = mode === 'signup' ? STEPS_SIGNUP : mode === 'code' ? STEPS_CODE : STEPS_LOGIN;
   const activeIndex = steps.findIndex((s) => s.key === step);
 
   return (
@@ -304,7 +347,10 @@ export function OtpAuthForm() {
           </button>
 
           <div className={styles.links}>
-            <button type="button" className={styles.link} onClick={forgotPassword} disabled={busy}>
+            {/* بچه‌ها «فراموشیِ رمز» ندارند: رمزِ تازه ساختن کارِ آن‌ها
+                نیست. با کدِ پیامکی می‌آیند تو، و اگر رمزشان گم شده والد
+                از پنلِ خودش می‌بیندش. */}
+            <button type="button" className={styles.link} onClick={loginWithCode} disabled={busy}>
               رمزت یادت رفته؟ با کدِ پیامکی بیا تو
             </button>
             <button type="button" className={styles.link} onClick={changeNumber}>
@@ -315,16 +361,75 @@ export function OtpAuthForm() {
         </>
       )}
 
+      {step === 'grade' && (
+        <>
+          <h1 className={styles.title}>کلاس چندمی؟</h1>
+          <p className={styles.subtitle}>بازی‌هایی که می‌بینی مالِ همین پایه‌ست</p>
+
+          <div className={styles.grades}>
+            {ALL_GRADES.map((g) => {
+              const open = OPEN_GRADES.includes(g);
+              return (
+                <button
+                  key={g}
+                  type="button"
+                  className={
+                    !open ? styles.gradeSoon : g === grade ? styles.gradeOn : styles.grade
+                  }
+                  onClick={() => open && setGrade(g)}
+                  aria-pressed={open ? g === grade : undefined}
+                  aria-disabled={!open}
+                  aria-label={open ? gradeName(g) : `${gradeName(g)}، به‌زودی`}
+                >
+                  <b>{gradeName(g)}</b>
+                  {!open && <small>به‌زودی</small>}
+                </button>
+              );
+            })}
+          </div>
+
+          <button type="submit" className={styles.submit} disabled={busy}>
+            {busy ? 'یه لحظه…' : 'ادامه'}
+          </button>
+
+          <button type="button" className={styles.link} onClick={() => setStep('name')}>
+            <HiOutlineArrowLeft aria-hidden />
+            برگرد
+          </button>
+        </>
+      )}
+
+      {step === 'pick' && (
+        <>
+          <h1 className={styles.title}>کدومشون تویی؟</h1>
+          <p className={styles.subtitle}>روی این شماره چند حساب هست</p>
+
+          <div className={styles.picks}>
+            {siblings.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                className={styles.pick}
+                onClick={() => void pickSibling(s.id)}
+                disabled={busy}
+              >
+                <b>{s.firstName || 'بی‌اسم'}</b>
+                <small>{gradeName(s.grade)}</small>
+              </button>
+            ))}
+          </div>
+
+          <button type="button" className={styles.link} onClick={changeNumber}>
+            <HiOutlineArrowLeft aria-hidden />
+            تغییر شماره
+          </button>
+        </>
+      )}
+
       {step === 'newPassword' && (
         <>
-          <h1 className={styles.title}>
-            {mode === 'reset' ? 'یه رمزِ تازه بساز' : 'یه رمز برای خودت بذار'}
-          </h1>
-          <p className={styles.subtitle}>
-            {mode === 'reset'
-              ? 'از این به بعد با همین رمز وارد می‌شی'
-              : 'دفعه‌ی بعد با شماره و همین رمز وارد می‌شی'}
-          </p>
+          <h1 className={styles.title}>یه رمز برای خودت بذار</h1>
+          <p className={styles.subtitle}>دفعه‌ی بعد با شماره و همین رمز وارد می‌شی</p>
 
           <div className={styles.field}>
             <span className={styles.fieldIcon} aria-hidden>

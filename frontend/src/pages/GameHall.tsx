@@ -4,10 +4,11 @@ import { HiOutlineBolt } from 'react-icons/hi2';
 import { StudentLayout } from '@/components/layout/StudentLayout/StudentLayout';
 import { CharacterGuide } from '@/components/characters/CharacterGuide/CharacterGuide';
 import { LUKORIANS } from '@/lib/characters';
-import { GRADE_LABEL } from '@/features/books/booksData';
+import { gradeName } from '@/features/books/booksData';
 import { SEASON, seasonState } from '@/features/games/seasonData';
 import type { PhotoSpot } from '@/features/games/seasonData';
 import { useSeasonProgress } from '@/features/games/useSeasonProgress';
+import { useGrade } from '@/features/auth/useGrade';
 import { SeasonBanner } from '@/features/games/components/SeasonBanner/SeasonBanner';
 import { SeasonMap } from '@/features/games/components/SeasonMap/SeasonMap';
 import { MemoryCamera } from '@/features/games/components/MemoryCamera/MemoryCamera';
@@ -38,9 +39,10 @@ export default function GameHall() {
   const gamer = LUKORIANS.gamer;
   // پیشرفت از سرور می‌آید تا قفلِ نقشه با قفلِ سرور یکی باشد
   const progress = useSeasonProgress();
+  const grade = useGrade();
   const state = useMemo(
-    () => seasonState(progress.done, new Date(), progress.stars),
-    [progress],
+    () => seasonState(progress.done, new Date(), progress.stars, grade),
+    [progress, grade],
   );
 
   // یادگاری‌ها: نقشه فقط بندانگشتی می‌گیرد تا سبک بماند
@@ -80,10 +82,23 @@ export default function GameHall() {
             <HiOutlineBolt aria-hidden />
             تالار بازی‌ها
           </h1>
-          <span className={styles.gradeBadge}>{GRADE_LABEL}</span>
+          <span className={styles.gradeBadge}>{gradeName(grade)}</span>
         </div>
       </header>
 
+      {/* پایه‌ای که هنوز بازی ندارد نباید نقشه‌ی خالی ببیند — و قطعاً
+          نباید بازی‌های پایه‌ی دیگر را ببیند. */}
+      {state.totalStages === 0 ? (
+        <section className={styles.soon} aria-label="بازی‌های این پایه">
+          <img className={styles.soonChar} src={gamer.image} alt="" aria-hidden />
+          <h2 className={styles.soonTitle}>بازی‌های {gradeName(grade)} تو راهن!</h2>
+          <p className={styles.soonText}>
+            داریم برات می‌سازیمشون. تا اون موقع می‌تونی سراغِ باغچه، کلاب و
+            پادکست بری — اون‌ها همین حالا آماده‌ن.
+          </p>
+        </section>
+      ) : (
+        <>
       <SeasonBanner state={state} />
 
       {weekDone && (
@@ -117,6 +132,8 @@ export default function GameHall() {
         <p className={styles.seasonEnd}>
           کلِ سیزن را تمام کردی! سیزنِ بعدی با مرحله‌های تازه در راه است.
         </p>
+      )}
+        </>
       )}
 
       {openSpot && (

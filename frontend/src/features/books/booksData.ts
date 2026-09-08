@@ -24,6 +24,8 @@ export interface BookWorld {
   id: string;
   title: string;
   subject: string;
+  /** پایه‌ی تحصیلی — هر بچه فقط کتاب‌های پایه‌ی خودش را می‌بیند */
+  grade: number;
   /** نام دنیای بازی */
   worldTitle: string;
   icon: IconType;
@@ -49,6 +51,35 @@ function makeLevels(bookId: string, gradeDir: string, subjectDir: string, seeds:
 }
 
 // TODO: پایه‌ی تحصیلی از پروفایل کاربر می‌آید؛ فعلاً کلاس اول
+/** نامِ فارسیِ هر پایه */
+export const GRADE_NAMES: Record<number, string> = {
+  1: 'کلاس اول',
+  2: 'کلاس دوم',
+  3: 'کلاس سوم',
+  4: 'کلاس چهارم',
+  5: 'کلاس پنجم',
+  6: 'کلاس ششم',
+};
+
+/**
+ * پایه‌هایی که همین حالا می‌شود انتخاب کرد.
+ *
+ * بقیه در فرمِ ثبت‌نام با برچسبِ «به‌زودی» غیرفعالند: بچه‌ای که پایه‌ی
+ * بی‌محتوا را بزند، به یک مسیرِ خالی می‌رسد.
+ */
+export const OPEN_GRADES = [1, 2, 3];
+export const ALL_GRADES = [1, 2, 3, 4, 5, 6];
+
+export function gradeName(grade: number): string {
+  return GRADE_NAMES[grade] ?? `کلاس ${grade.toLocaleString('fa-IR')}`;
+}
+
+/** کتاب‌های یک پایه. پایه‌ی بی‌محتوا آرایه‌ی خالی می‌دهد، نه کتابِ پایه‌ی دیگر. */
+export function booksForGrade(grade: number): BookWorld[] {
+  return BOOKS.filter((book) => book.grade === grade);
+}
+
+/** @deprecated از `gradeName(user.grade)` استفاده کن */
 export const GRADE_LABEL = 'کلاس اول';
 
 export const BOOKS: BookWorld[] = [
@@ -56,6 +87,7 @@ export const BOOKS: BookWorld[] = [
     id: 'math-1',
     title: 'ریاضی اول',
     subject: 'ریاضی',
+    grade: 1,
     worldTitle: 'جزیره‌ی اعداد',
     icon: HiOutlineCalculator,
     levels: makeLevels('math-1', 'grade-1', 'math', [
@@ -82,6 +114,7 @@ export const BOOKS: BookWorld[] = [
     id: 'writing-1',
     title: 'نگارش اول',
     subject: 'نگارش',
+    grade: 1,
     worldTitle: 'قصر کلمه‌ها',
     icon: HiOutlinePencil,
     levels: makeLevels('writing-1', 'grade-1', 'writing', [
@@ -96,6 +129,7 @@ export const BOOKS: BookWorld[] = [
     id: 'science-1',
     title: 'علوم اول',
     subject: 'علوم',
+    grade: 1,
     worldTitle: 'آزمایشگاه مخفی',
     icon: HiOutlineBeaker,
     levels: makeLevels('science-1', 'grade-1', 'science', [
@@ -106,6 +140,7 @@ export const BOOKS: BookWorld[] = [
     id: 'quran-1',
     title: 'قرآن اول',
     subject: 'قرآن',
+    grade: 1,
     worldTitle: 'باغ نور',
     icon: HiOutlineBookOpen,
     levels: makeLevels('quran-1', 'grade-1', 'quran', [

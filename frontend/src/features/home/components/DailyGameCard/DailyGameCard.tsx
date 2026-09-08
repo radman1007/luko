@@ -6,6 +6,7 @@ import { apiClient } from '@/lib/api';
 import { isGuestMode } from '@/features/auth/guest';
 import { completedLevelIds, levelById } from '@/features/books/booksData';
 import { seasonState } from '@/features/games/seasonData';
+import { useGrade } from '@/features/auth/useGrade';
 import type { BookWorld, GameLevel } from '@/features/books/booksData';
 import styles from './DailyGameCard.module.css';
 
@@ -30,11 +31,11 @@ interface DailyPick {
  * بازیِ امروز — تاریخ‌محور انتخاب می‌شود (نه تصادفی) تا همه‌ی بچه‌ها در یک روز
  * یک بازی داشته باشند و فردا عوض شود.
  */
-function gameOfTheDay(): DailyPick | null {
+function gameOfTheDay(grade: number): DailyPick | null {
   // فقط از بینِ مرحله‌هایی که بچه واقعاً می‌تواند بازی کند. قبلاً از کلِ
   // فهرست انتخاب می‌شد و برای بچه‌ی تازه تقریباً همیشه یک مرحله‌ی قفل
   // درمی‌آمد — کارت باز می‌شد و بی‌آنکه چیزی بگوید به خانه برمی‌گشت.
-  const state = seasonState();
+  const state = seasonState(undefined, undefined, undefined, grade);
   const open = state.weeks
     .flatMap((week) => week.stages)
     .filter((stage) => !stage.locked)
@@ -57,6 +58,7 @@ function gameOfTheDay(): DailyPick | null {
 export function DailyGameCard() {
   const navigate = useNavigate();
   const guest = isGuestMode();
+  const grade = useGrade();
 
   const assignment = useQuery({
     queryKey: ['my-assignment'],
@@ -67,7 +69,7 @@ export function DailyGameCard() {
   });
 
   const assigned = assignment.data ? levelById(assignment.data.gameSlug) : undefined;
-  const pick = assigned ?? gameOfTheDay();
+  const pick = assigned ?? gameOfTheDay(grade);
   if (!pick) return null;
 
   const { book, level } = pick;

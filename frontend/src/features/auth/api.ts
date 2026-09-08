@@ -36,6 +36,26 @@ export interface VerifyOtpResult {
   isNew: boolean;
 }
 
+/** یکی از چند بچه‌ی هم‌شماره، در گامِ انتخاب */
+export interface OtpSibling {
+  id: string;
+  firstName: string;
+  grade: number;
+}
+
+/**
+ * پاسخِ تأییدِ کد.
+ *
+ * روی شماره‌ای که چند بچه دارد، کد نمی‌گوید کدام‌یک؛ به‌جای توکن یک
+ * فهرست و یک بلیتِ کوتاه‌عمر می‌آید تا خودش انتخاب کند.
+ */
+export interface VerifyOtpOutcome {
+  user?: User;
+  isNew?: boolean;
+  chooseFrom?: OtpSibling[];
+  ticket?: string;
+}
+
 export interface StartResult {
   /** این شماره حسابِ رمزدار دارد؟ */
   exists: boolean;
@@ -46,6 +66,20 @@ export interface AuthPayload {
   role?: 'parent' | 'student';
 }
 
+/**
+ * نشست را می‌نشاند: توکنِ دسترسی، توکنِ تمدید، و پایان دادن به حالتِ مهمان.
+ *
+ * بدونِ توکنِ تمدید نشست بعدِ نیم ساعت تمام می‌شد؛ و بدونِ برداشتنِ پرچمِ
+ * مهمان، اپ همچنان مهمان حسابش می‌کرد و نه پیشرفت با سرور همگام می‌شد
+ * نه تکمیلِ بازی‌ها به پنلِ والدین می‌رسید.
+ */
+function storeSession(data: { accessToken: string; refreshToken?: string }, audience: Audience) {
+  tokenStorage.set(data.accessToken, audience);
+  if (data.refreshToken) tokenStorage.setRefresh(data.refreshToken, audience);
+  if (audience === 'parent') disableParentGuestMode();
+  else disableGuestMode();
+}
+
 export const authApi = {
   /** گامِ اول: این شماره حساب دارد یا باید ساخته شود؟ */
   async start(payload: AuthPayload): Promise<StartResult> {
@@ -54,10 +88,14 @@ export const authApi = {
   },
 
   /** ثبت‌نام بدونِ تأییدِ شماره — حساب ساخته و همان‌جا وارد می‌شود */
-  async register(payload: AuthPayload & { firstName?: string }): Promise<VerifyOtpResult> {
+  async register(
+    payload: AuthPayload & { firstName?: string; grade?: number },
+  ): Promise<VerifyOtpResult> {
     const { data } = await apiClient.post('/auth/register', payload);
     const audience: Audience = payload.role === 'parent' ? 'parent' : 'kid';
     tokenStorage.set(data.data.accessToken, audience);
+    // بدونِ این، نشست بعدِ نیم ساعت تمام می‌شد به‌جای دو هفته
+    if (data.data.refreshToken) tokenStorage.setRefresh(data.data.refreshToken, audience);
     if (audience === 'parent') disableParentGuestMode();
     else disableGuestMode();
     return { user: data.data.user, isNew: data.data.isNew };
@@ -68,6 +106,8 @@ export const authApi = {
     const { data } = await apiClient.post('/auth/login', payload);
     const audience: Audience = payload.role === 'parent' ? 'parent' : 'kid';
     tokenStorage.set(data.data.accessToken, audience);
+    // بدونِ این، نشست بعدِ نیم ساعت تمام می‌شد به‌جای دو هفته
+    if (data.data.refreshToken) tokenStorage.setRefresh(data.data.refreshToken, audience);
     if (audience === 'parent') disableParentGuestMode();
     else disableGuestMode();
     return { user: data.data.user, isNew: false };
@@ -91,17 +131,22 @@ export const authApi = {
   },
 
   /** گام ۲: بررسیِ کد؛ اگر حساب نبود ساخته می‌شود */
-  async verifyOtp(payload: VerifyOtpPayload): Promise<VerifyOtpResult> {
+  async verifyOtp(payload: VerifyOtpPayload): Promise<VerifyOtpOutcome> {
     const { data } = await apiClient.post('/auth/verify-otp', payload);
-    // توکن در فضای همان نقش می‌نشیند تا ورودِ والد نشستِ بچه را پاک نکند
+    // چند بچه با یک شماره: هنوز واردِ هیچ حسابی نشده‌ایم
+    if (data.data.chooseFrom) {
+      return { chooseFrom: data.data.chooseFrom, ticket: data.data.ticket };
+    }
     const audience: Audience = payload.role === 'parent' ? 'parent' : 'kid';
-    tokenStorage.set(data.data.accessToken, audience);
-    // حالا حسابِ واقعی دارد. بدونِ این، پرچمِ مهمان می‌ماند و اپ همچنان
-    // مهمان حسابش می‌کرد: نه پیشرفت با سرور همگام می‌شد و نه تکمیلِ
-    // بازی‌ها به پنل والدین می‌رسید.
-    if (audience === 'parent') disableParentGuestMode();
-    else disableGuestMode();
+    storeSession(data.data, audience);
     return { user: data.data.user, isNew: data.data.isNew };
+  },
+
+  /** گامِ بعدِ انتخابگر: با بلیت، واردِ حسابِ انتخاب‌شده می‌شویم */
+  async chooseOtpAccount(payload: { ticket: string; userId: string }): Promise<User> {
+    const { data } = await apiClient.post('/auth/otp-choose', payload);
+    storeSession(data.data, 'kid');
+    return data.data.user;
   },
 
   /** توکن صریح فرستاده می‌شود تا بازیابیِ نشست به مسیرِ لحظه‌ی درخواست وابسته نباشد */

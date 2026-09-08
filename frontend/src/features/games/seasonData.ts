@@ -10,7 +10,7 @@
  *
  * TODO: بعد از بک‌اند، سیزن و تاریخِ شروعش از API می‌آید (فعلاً همین‌جا ثابت است).
  */
-import { BOOKS, completedLevelIds } from '@/features/books/booksData';
+import { booksForGrade, completedLevelIds } from '@/features/books/booksData';
 
 export type SubjectKey = 'math' | 'science' | 'writing' | 'quran' | 'reading' | 'other';
 
@@ -187,16 +187,22 @@ function byFileName(a: string, b: string): number {
   return diff !== 0 ? diff : a.localeCompare(b, 'en');
 }
 
-let stagesCache: SeasonStage[] | null = null;
+const stagesCache = new Map<number, SeasonStage[]>();
 
 /**
- * همه‌ی مرحله‌های سیزن، مرتب‌شده بر اساسِ نامِ فایل.
- * ورودی‌اش ثابت است (BOOKS)، پس یک‌بار ساخته و نگه داشته می‌شود؛ وگرنه
- * هر رندرِ نقشه یک flatMap و sort روی کلِ بازی‌ها می‌زد.
+ * مرحله‌های سیزنِ یک پایه، مرتب‌شده بر اساسِ نامِ فایل.
+ *
+ * هر پایه فقط بازی‌های خودش را می‌بیند؛ پایه‌ای که هنوز محتوا ندارد
+ * آرایه‌ی خالی می‌گیرد و صفحه «به‌زودی» نشان می‌دهد — نه بازی‌های پایه‌ی
+ * دیگر، که هم بی‌ربط است هم پیشرفتِ بچه را به‌هم می‌ریزد.
+ *
+ * ورودی‌اش ثابت است، پس نتیجه به‌ازای هر پایه یک‌بار ساخته و نگه داشته
+ * می‌شود؛ وگرنه هر رندرِ نقشه یک flatMap و sort می‌زد.
  */
-export function seasonStages(): SeasonStage[] {
-  if (stagesCache) return stagesCache;
-  const flat = BOOKS.flatMap((book) =>
+export function seasonStages(grade = 1): SeasonStage[] {
+  const cached = stagesCache.get(grade);
+  if (cached) return cached;
+  const flat = booksForGrade(grade).flatMap((book) =>
     book.levels
       .filter((level) => Boolean(level.gameFile))
       .map((level) => ({
@@ -211,7 +217,7 @@ export function seasonStages(): SeasonStage[] {
 
   flat.sort((a, b) => byFileName(a.file, b.file));
 
-  stagesCache = flat.map((stage, i) => ({
+  const built: SeasonStage[] = flat.map((stage, i) => ({
     ...stage,
     order: i + 1,
     week: Math.floor(i / SEASON.stagesPerWeek) + 1,
@@ -220,7 +226,8 @@ export function seasonStages(): SeasonStage[] {
     stars: 0,
     maxStars: MAX_STARS,
   }));
-  return stagesCache;
+  stagesCache.set(grade, built);
+  return built;
 }
 
 function startOfDay(value: Date): Date {
@@ -253,10 +260,12 @@ export function seasonState(
    * پیشرفت می‌خواهند (کارت‌های خانه) دست‌نخورده بمانند.
    */
   stars: Map<string, number> | Record<string, number> = {},
+  /** پایه‌ی بچه. مسیر فقط بازی‌های همین پایه را دارد. */
+  grade = 1,
 ): SeasonState {
   const starOf = (id: string): number =>
     (stars instanceof Map ? stars.get(id) : stars[id]) ?? 0;
-  const stages = seasonStages();
+  const stages = seasonStages(grade);
   const totalWeeks = Math.max(1, Math.ceil(stages.length / SEASON.stagesPerWeek));
   const currentWeek = releasedWeeks(today, totalWeeks);
 

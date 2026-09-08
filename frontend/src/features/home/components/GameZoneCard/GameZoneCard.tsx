@@ -5,6 +5,7 @@ import { CoinIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
 import { SEASON, seasonState } from '@/features/games/seasonData';
 import { useSeasonProgress } from '@/features/games/useSeasonProgress';
+import { useGrade } from '@/features/auth/useGrade';
 import { SEASON_MAP_PATH } from '@/lib/constants/nav';
 import styles from './GameZoneCard.module.css';
 
@@ -33,9 +34,10 @@ export function GameZoneCard() {
 
   // از سرور می‌آید تا کارتِ خانه و نقشه یک چیز بگویند؛ ستاره‌ها هم همین‌جاست
   const progress = useSeasonProgress();
+  const grade = useGrade();
   const state = useMemo(
-    () => seasonState(progress.done, new Date(), progress.stars),
-    [progress],
+    () => seasonState(progress.done, new Date(), progress.stars, grade),
+    [progress, grade],
   );
 
   const next = state.nextStage;
