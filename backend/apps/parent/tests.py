@@ -509,3 +509,127 @@ class SuggestionCacheTests(TestCase):
         DailyAssignment.objects.create(assigned_by=self.parent, child=self.child,
                                        game_slug="sg-2", date=timezone.localdate())
         self.assertEqual(self._get().json()["data"]["currentSlug"], "sg-2")
+
+
+class ChildPhoneChangeTests(TestCase):
+    """
+    تغییرِ شماره‌ی فرزند از پنلِ والدین — دو سر تأیید.
+
+    این مسیر روی سرورِ واقعی آزمودنی نیست (پیامک به شماره‌ی غریبه می‌رود)،
+    پس همه‌ی حالت‌هایش این‌جا با بک‌اندِ کنسول بسته می‌شود.
+    """
+
+    seq = 0
+
+    def setUp(self):
+        from apps.accounts.otp import _conn
+        from apps.accounts.passwords import set_password
+
+        ChildPhoneChangeTests.seq += 1
+        n = ChildPhoneChangeTests.seq
+        self.old_phone = f"091216000{n:02d}"
+        self.new_phone = f"091217000{n:02d}"
+
+        conn = _conn()
+        for p in (self.old_phone, self.new_phone):
+            conn.delete(f"otp:code:{p}", f"otp:resend:{p}", f"otp:att:{p}")
+        conn.delete("otp:ip:127.0.0.1")
+
+        self.parent = User.objects.create(phone=self.old_phone, role=User.Role.PARENT,
+                                          first_name="والد")
+        set_password(self.parent, "raz-valed")
+        self.child = User.objects.create(phone=self.old_phone, role=User.Role.STUDENT,
+                                         first_name="کودک")
+        set_password(self.child, "raz-koodak")
+        ParentChild.objects.create(parent=self.parent, child=self.child)
+
+        self.api = APIClient()
+        self.api.force_authenticate(self.parent)
+
+    def _codes(self):
+        """کدهای واقعیِ ارسال‌شده را از ردیس برمی‌دارد."""
+        from apps.accounts.otp import _as_str, _conn
+
+        conn = _conn()
+        return (_as_str(conn.get(f"otp:code:{self.old_phone}")),
+                _as_str(conn.get(f"otp:code:{self.new_phone}")))
+
+    def _start(self, phone=None):
+        return self.api.post(f"/api/v1/parent/children/{self.child.id}/phone/start",
+                             {"phone": phone or self.new_phone}, format="json")
+
+    def _confirm(self, current, fresh, phone=None):
+        return self.api.post(f"/api/v1/parent/children/{self.child.id}/phone/confirm",
+                             {"phone": phone or self.new_phone,
+                              "currentCode": current, "newCode": fresh}, format="json")
+
+    def test_both_codes_change_the_phone(self):
+        self.assertEqual(self._start().status_code, 200)
+        current, fresh = self._codes()
+        self.assertEqual(self._confirm(current, fresh).status_code, 200)
+        self.child.refresh_from_db()
+        self.assertEqual(self.child.phone, self.new_phone)
+        self.assertTrue(self.child.phone_verified)
+
+    def test_a_code_goes_to_each_number(self):
+        self._start()
+        current, fresh = self._codes()
+        self.assertIsNotNone(current)
+        self.assertIsNotNone(fresh)
+        self.assertNotEqual(current, fresh)
+
+    def test_the_current_code_alone_is_not_enough(self):
+        self._start()
+        current, _ = self._codes()
+        self.assertEqual(self._confirm(current, "00000").status_code, 400)
+        self.child.refresh_from_db()
+        self.assertEqual(self.child.phone, self.old_phone)
+
+    def test_the_new_code_alone_is_not_enough(self):
+        self._start()
+        _, fresh = self._codes()
+        self.assertEqual(self._confirm("00000", fresh).status_code, 400)
+        self.child.refresh_from_db()
+        self.assertEqual(self.child.phone, self.old_phone)
+
+    def test_the_codes_cannot_be_swapped(self):
+        self._start()
+        current, fresh = self._codes()
+        if current == fresh:                            # نظری، ولی تست نباید شانسی باشد
+            self.skipTest("دو کد تصادفاً یکی شدند")
+        self.assertEqual(self._confirm(fresh, current).status_code, 400)
+        self.child.refresh_from_db()
+        self.assertEqual(self.child.phone, self.old_phone)
+
+    def test_moving_to_the_same_number_is_refused(self):
+        self.assertEqual(self._start(self.old_phone).status_code, 400)
+
+    def test_a_broken_number_is_refused(self):
+        self.assertEqual(self._start("0912").status_code, 400)
+
+    def test_another_parents_child_cannot_be_touched(self):
+        stranger = User.objects.create(phone="09121890001", role=User.Role.STUDENT)
+        res = self.api.post(f"/api/v1/parent/children/{stranger.id}/phone/start",
+                            {"phone": self.new_phone}, format="json")
+        self.assertEqual(res.status_code, 404)
+
+    def test_the_child_joins_the_family_at_the_new_number(self):
+        from apps.accounts.passwords import set_password
+
+        other = User.objects.create(phone=self.new_phone, role=User.Role.PARENT,
+                                    first_name="والدِ مقصد")
+        set_password(other, "raz-digar")
+        self._start()
+        current, fresh = self._codes()
+        self.assertEqual(self._confirm(current, fresh).status_code, 200)
+        self.assertTrue(ParentChild.objects.filter(parent=other, child=self.child).exists())
+
+    def test_a_used_code_does_not_work_twice(self):
+        self._start()
+        current, fresh = self._codes()
+        self.assertEqual(self._confirm(current, fresh).status_code, 200)
+        # برگرداندنِ شماره با همان کدها نباید بگیرد
+        res = self.api.post(f"/api/v1/parent/children/{self.child.id}/phone/confirm",
+                            {"phone": self.old_phone, "currentCode": fresh,
+                             "newCode": current}, format="json")
+        self.assertEqual(res.status_code, 400)

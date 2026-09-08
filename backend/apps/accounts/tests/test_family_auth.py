@@ -208,8 +208,11 @@ class OtpSiblingPickerTests(TestCase):
         OtpSiblingPickerTests.seq += 1
         self.phone = f"091215000{OtpSiblingPickerTests.seq:02d}"
         conn = _conn()
+        # سقفِ هر IP هم پاک می‌شود، وگرنه بعد از چند بار اجرای تست، شمارنده‌ی
+        # 127.0.0.1 پر می‌ماند و درخواستِ کد ۴۲۹ می‌گیرد — پنجره‌اش یک ساعت
+        # است، پس خودش هم زود باز نمی‌شود.
         conn.delete(f"otp:code:{self.phone}", f"otp:resend:{self.phone}",
-                    f"otp:att:{self.phone}")
+                    f"otp:att:{self.phone}", "otp:ip:127.0.0.1")
         self.api = APIClient()
 
     def _code(self):
@@ -271,3 +274,67 @@ class OtpSiblingPickerTests(TestCase):
         res = self.api.post("/api/v1/auth/otp-choose",
                             {"ticket": ticket, "userId": stranger.id}, format="json")
         self.assertEqual(res.status_code, 404)
+
+
+class StartOnAMixedPhoneTests(TestCase):
+    """
+    `/auth/start` روی شماره‌ای که هم بچه‌ی رمزدار دارد هم بی‌رمز.
+
+    این حالت واقعی است: بچه‌ای ثبت‌نام را نیمه‌کاره رها می‌کند و رمز
+    نمی‌گذارد، بعد والد از پنل بچه‌ی دیگری روی همان شماره می‌سازد. اگر
+    `start` فقط به «اولین حساب» نگاه کند، جوابش به ترتیبِ ردیف‌های
+    دیتابیس بند است و می‌تواند بگوید «حساب ندارد» — آن‌وقت فرانت بچه‌ی
+    رمزدار را به ثبت‌نام می‌فرستد و صفحه‌ی رمز را اصلاً نمی‌بیند.
+    """
+
+    def setUp(self):
+        self.api = APIClient()
+        self.phone = "09121507788"
+
+    def _start(self, role="student"):
+        res = self.api.post("/api/v1/auth/start", {"phone": self.phone, "role": role},
+                            format="json")
+        return res.json()["data"]["exists"]
+
+    def test_a_password_less_account_alone_looks_new(self):
+        User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name="بی‌رمز")
+        self.assertFalse(self._start())
+
+    def test_the_password_less_one_does_not_hide_a_finished_account(self):
+        # ترتیبِ ساخت عمداً همان ترتیبِ باگ است: بی‌رمز اول
+        User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name="بی‌رمز")
+        ramzdar = User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name="رمزدار")
+        set_password(ramzdar, "raz-bache")
+        self.assertTrue(self._start())
+
+    def test_the_same_holds_when_the_finished_account_came_first(self):
+        ramzdar = User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name="رمزدار")
+        set_password(ramzdar, "raz-bache")
+        User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name="بی‌رمز")
+        self.assertTrue(self._start())
+
+    def test_a_parent_on_the_phone_does_not_answer_for_the_child(self):
+        parent = User.objects.create(phone=self.phone, role=User.Role.PARENT, first_name="پدر")
+        set_password(parent, "raz-pedar")
+        self.assertFalse(self._start("student"))
+        self.assertTrue(self._start("parent"))
+
+    def test_signup_still_resumes_the_half_finished_child(self):
+        # `start` می‌گوید حساب هست، ولی راهِ ادامه‌ی حسابِ نیمه‌کاره باز می‌ماند
+        bi_ramz = User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name="بی‌رمز")
+        ramzdar = User.objects.create(phone=self.phone, role=User.Role.STUDENT)
+        set_password(ramzdar, "raz-bache")
+        res = self.api.post("/api/v1/auth/register",
+                            {"phone": self.phone, "role": "student", "firstName": "بی‌رمز",
+                             "grade": 2}, format="json")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(int(res.json()["data"]["user"]["id"]), bi_ramz.id)
+
+    def test_signup_is_refused_once_every_child_has_a_password(self):
+        for name in ("سارا", "نیما"):
+            child = User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name=name)
+            set_password(child, f"raz-{name}")
+        res = self.api.post("/api/v1/auth/register",
+                            {"phone": self.phone, "role": "student", "firstName": "نفوذی",
+                             "grade": 1}, format="json")
+        self.assertEqual(res.status_code, 409)

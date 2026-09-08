@@ -172,6 +172,11 @@ SMS_BACKEND = env("SMS_BACKEND", "console" if DEBUG else "melipayamak")
 # اجرای تست هرگز نباید پیامکِ واقعی بفرستد (و اعتبار بسوزاند یا کند شود).
 if "test" in sys.argv or os.environ.get("PYTEST_CURRENT_TEST"):
     SMS_BACKEND = "console"
+    # کلیدِ ثابتِ آزمایشی برای گاوصندوقِ رمز. بدونِ این، هر توسعه‌دهنده‌ای که
+    # PASSWORD_VAULT_KEY در .env ندارد تست‌های گاوصندوق را سبز می‌بیند در حالی
+    # که `seal` چیزی ذخیره نکرده — یعنی قابلیت بی‌صدا آزموده نمی‌شود. ثابت
+    # بودنش هم یعنی کلیدِ واقعیِ کسی وارد مسیرِ تست نمی‌شود.
+    PASSWORD_VAULT_KEY = "kelid-e-azmayeshi-faqat-baraye-test"
     # کش نمی‌تواند LocMem شود: OTP عمداً از اتصالِ خامِ Redis استفاده می‌کند
     # (setex/incr اتمیک). به‌جایش دیتابیسِ جدا تا با داده‌ی توسعه قاطی نشود.
     REDIS_CACHE_URL = env("REDIS_TEST_URL", "redis://localhost:6379/15")

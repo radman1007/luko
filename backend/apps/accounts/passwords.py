@@ -27,8 +27,16 @@ def set_password(user: User, raw: str) -> None:
 
 
 def has_password(user: User) -> bool:
-    """حسابی که هنوز رمز نگذاشته (یا با OTP ساخته شده) رمزِ قابل‌استفاده ندارد."""
-    return user.has_usable_password()
+    """
+    حسابی که هنوز رمز نگذاشته (یا با OTP ساخته شده) رمزِ قابل‌استفاده ندارد.
+
+    خالی‌بودن جدا سنجیده می‌شود چون `has_usable_password` جنگو برای رشته‌ی
+    خالی `True` می‌دهد — فقط رمزهای «!»دار را ناموجود می‌شمارد. مسیرِ خودِ
+    برنامه همیشه `set_unusable_password` می‌زند، ولی حسابی که از ادمین یا
+    شل ساخته شود رمزِ خالی می‌گیرد؛ بدونِ این بررسی چنین حسابی «رمزدار»
+    به حساب می‌آمد، حال آنکه هیچ رمزی بازش نمی‌کند.
+    """
+    return bool(user.password) and user.has_usable_password()
 
 
 @transaction.atomic
@@ -46,7 +54,7 @@ def get_or_create_account(phone: str, role: str, first_name: str = "",
     """
     if role == User.Role.STUDENT:
         user = next(
-            (u for u in User.objects.filter(phone=phone, role=role) if not u.has_usable_password()),
+            (u for u in User.objects.filter(phone=phone, role=role) if not has_password(u)),
             None,
         )
         if user is not None:
@@ -81,7 +89,7 @@ def student_by_password(phone: str, raw: str) -> User | None:
     پیمایش هزینه‌ای ندارد.
     """
     for user in User.objects.filter(phone=phone, role=User.Role.STUDENT):
-        if user.has_usable_password() and user.check_password(raw):
+        if has_password(user) and user.check_password(raw):
             return user
     return None
 
@@ -111,3 +119,19 @@ def mark_phone_verified(user: User) -> None:
     user.phone_verified = True
     user.phone_verified_at = timezone.now()
     user.save(update_fields=["phone_verified", "phone_verified_at"])
+
+
+def account_with_password_exists(phone: str, role: str) -> bool:
+    """
+    آیا روی این شماره و نقش، حسابی هست که رمز داشته باشد؟
+
+    برای والد یک حساب بیشتر نیست، ولی چند بچه می‌توانند یک شماره داشته
+    باشند و بعضی‌شان هنوز رمز نگذاشته باشند. اگر فقط به «اولین حساب»
+    نگاه کنیم، بچه‌ای که رمز دارد ممکن است پشتِ حسابِ نیمه‌کاره‌ی دیگری
+    پنهان بماند و فرانت او را به ثبت‌نام بفرستد — یعنی راهِ ورود با رمز
+    را اصلاً نبیند. پس ملاک «دستِ‌کم یکی» است.
+
+    کسی که هنوز رمز ندارد از همین شماره با کدِ یک‌بارمصرف وارد می‌شود،
+    پس چیزی از دست نمی‌رود.
+    """
+    return any(has_password(u) for u in User.objects.filter(phone=phone, role=role))

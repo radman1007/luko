@@ -23,8 +23,9 @@ from .otp import (
     request_otp,
     verify_otp,
 )
-from .passwords import (get_or_create_account, has_password, link_family,
-                        mark_phone_verified, set_password, student_by_password)
+from .passwords import (account_with_password_exists, get_or_create_account,
+                        has_password, link_family, mark_phone_verified,
+                        set_password, student_by_password)
 from .sessions import SESSION_CLAIM, keep_session, new_session
 from .serializers import (
     KidSettingsSerializer,
@@ -229,9 +230,10 @@ class StartAuthView(APIView):
         phone = serializer.validated_data["phone"]
         role = serializer.validated_data["role"]
 
-        user = User.objects.filter(phone=phone, role=role).first()
-        # حسابی که رمز ندارد (با OTP ساخته شده) مثل حسابِ تازه رفتار می‌کند
-        return Response({"exists": bool(user and has_password(user))})
+        # حسابی که رمز ندارد (با OTP ساخته شده) مثل حسابِ تازه رفتار می‌کند.
+        # «دستِ‌کم یکی» می‌سنجیم نه «اولی»، چون یک شماره می‌تواند چند بچه
+        # داشته باشد و آنکه رمز دارد نباید پشتِ حسابِ نیمه‌کاره گم شود.
+        return Response({"exists": account_with_password_exists(phone, role)})
 
 
 class RegisterView(APIView):
@@ -250,21 +252,18 @@ class RegisterView(APIView):
         phone = serializer.validated_data["phone"]
         role = serializer.validated_data["role"]
 
-        # برای والد یک شماره یک حساب دارد و بس. برای دانش‌آموز، شماره‌ای
-        # که قبلاً حسابِ رمزدار دارد باز هم می‌تواند بچه‌ی تازه بگیرد —
-        # ولی آن کار از پنلِ والدین انجام می‌شود، نه از ثبت‌نامِ عمومی،
-        # وگرنه هر کسی می‌توانست روی شماره‌ی دیگری حساب بسازد.
         if role != User.Role.STUDENT:
-            found = User.objects.filter(phone=phone, role=role).first()
-            if found and has_password(found):
-                return Response(
-                    {"error": {"code": 409,
-                               "message": "این شماره از قبل حساب دارد؛ با رمزت وارد شو."}},
-                    status=status.HTTP_409_CONFLICT,
-                )
-        elif User.objects.filter(phone=phone, role=role).exists() and not any(
-            not u.has_usable_password() for u in User.objects.filter(phone=phone, role=role)
-        ):
+            # یک شماره یک والد دارد و بس
+            taken = account_with_password_exists(phone, role)
+        else:
+            # ثبت‌نامِ عمومی فقط حسابِ نیمه‌کاره را ادامه می‌دهد. اگر همه‌ی
+            # بچه‌های این شماره رمز دارند یعنی کارشان تمام است و بچه‌ی
+            # تازه باید از پنلِ والدین اضافه شود، وگرنه هر کسی می‌توانست
+            # روی شماره‌ی دیگری حساب بسازد.
+            students = list(User.objects.filter(phone=phone, role=role))
+            taken = bool(students) and all(has_password(u) for u in students)
+
+        if taken:
             return Response(
                 {"error": {"code": 409,
                            "message": "این شماره از قبل حساب دارد؛ با رمزت وارد شو."}},
