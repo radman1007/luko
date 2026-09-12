@@ -179,7 +179,10 @@ if "test" in sys.argv or os.environ.get("PYTEST_CURRENT_TEST"):
     PASSWORD_VAULT_KEY = "kelid-e-azmayeshi-faqat-baraye-test"
     # کش نمی‌تواند LocMem شود: OTP عمداً از اتصالِ خامِ Redis استفاده می‌کند
     # (setex/incr اتمیک). به‌جایش دیتابیسِ جدا تا با داده‌ی توسعه قاطی نشود.
-    REDIS_CACHE_URL = env("REDIS_TEST_URL", "redis://localhost:6379/15")
+    # پایگاهِ ۱۵ روی همان ردیسی که خودِ برنامه دارد. آدرس از REDIS_CACHE_URL
+    # مشتق می‌شود نه ثابتِ localhost، وگرنه تست داخلِ کانتینر — که ردیس آن‌جا
+    # `redis` نام دارد — به هیچ‌جا وصل نمی‌شود و ده‌ها تستِ OTP می‌افتند.
+    REDIS_CACHE_URL = env("REDIS_TEST_URL", REDIS_CACHE_URL.rsplit("/", 1)[0] + "/15")
     CACHES["default"]["LOCATION"] = REDIS_CACHE_URL
 SMS_IR_API_KEY = env("SMS_IR_API_KEY", "")
 SMS_IR_TEMPLATE_ID = env("SMS_IR_TEMPLATE_ID", "")

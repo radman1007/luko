@@ -10,6 +10,7 @@
 IP می‌آید. شمارنده با ورودِ موفق پاک می‌شود تا خطای واقعیِ خودِ تیم دردسر
 نشود.
 """
+import hashlib
 import logging
 
 from django.contrib import admin
@@ -18,8 +19,17 @@ from django.shortcuts import render
 
 log = logging.getLogger("luko.admin")
 
-#: چند شکستِ پیاپی تا بسته شدن، و چند ثانیه بسته بماند
-MAX_FAILURES = 8
+#: سقفِ شکست برای یک IP، و سقفِ جداگانه برای یک حساب. هر دو ۱۵ دقیقه‌ای‌اند.
+#:
+#: چرا دو تا: `X-Forwarded-For` را کلاینت می‌فرستد و nginx با
+#: `set_real_ip_from 0.0.0.0/0` همه را باور می‌کند، پس مهاجم می‌تواند با
+#: عوض کردنِ هدر، شمارنده‌ی IP را دور بزند. شمارنده‌ی حساب دورزدنی نیست —
+#: هر تلاش بالاخره روی یک نامِ کاربری می‌نشیند.
+#:
+#: سقفِ حساب عمداً بالاتر است: پایین بودنش یعنی هر کسی می‌تواند با چند
+#: تلاشِ الکی، خودِ تیم را بیرونِ در نگه دارد.
+MAX_FAILURES_PER_IP = 8
+MAX_FAILURES_PER_ACCOUNT = 20
 BLOCK_SECONDS = 15 * 60
 
 
@@ -55,8 +65,33 @@ def client_ip(request) -> str:
     return request.META.get("REMOTE_ADDR", "")
 
 
-def _key(ip: str) -> str:
-    return f"admin:login-fail:{ip}"
+def _ip_key(ip: str) -> str:
+    return f"admin:login-fail:ip:{ip}"
+
+
+def _account_key(username: str) -> str:
+    # نامِ کاربری از کاربر می‌آید؛ هش می‌شود تا شماره‌ی تلفن داخلِ کلیدِ
+    # ردیس (و لاگِ احتمالی‌اش) ننشیند.
+    digest = hashlib.sha256(username.strip().encode()).hexdigest()[:32]
+    return f"admin:login-fail:user:{digest}"
+
+
+def _count(key: str) -> int:
+    try:
+        return cache.get(key, 0)
+    except Exception:                                       # noqa: BLE001
+        # کشِ خراب نباید ورودِ خودِ تیم را ببندد؛ رمز همچنان سرِ جایش است
+        return 0
+
+
+def _bump(key: str) -> int:
+    try:
+        value = cache.get(key, 0) + 1
+        cache.set(key, value, BLOCK_SECONDS)
+        return value
+    except Exception:                                       # noqa: BLE001
+        log.exception("شمارنده‌ی ورودِ ادمین کار نکرد")
+        return 0
 
 
 class LukoAdminSite(admin.AdminSite):
@@ -67,29 +102,31 @@ class LukoAdminSite(admin.AdminSite):
 
     def login(self, request, extra_context=None):
         ip = client_ip(request)
+        username = (request.POST.get("username") or "") if request.method == "POST" else ""
 
         if request.method == "POST":
-            try:
-                failures = cache.get(_key(ip), 0)
-            except Exception:                                   # noqa: BLE001
-                # کشِ خراب نباید ورودِ خودِ تیم را ببندد؛ رمز همچنان سرِ جایش است
-                failures = 0
-            if failures >= MAX_FAILURES:
-                log.warning("ورودِ ادمین برای %s بسته است (%s تلاشِ ناموفق)", ip, failures)
+            ip_fails = _count(_ip_key(ip))
+            account_fails = _count(_account_key(username)) if username else 0
+            if ip_fails >= MAX_FAILURES_PER_IP or account_fails >= MAX_FAILURES_PER_ACCOUNT:
+                log.warning("ورودِ ادمین بسته است — ip=%s (%s شکست)، حساب (%s شکست)",
+                            ip, ip_fails, account_fails)
                 return render(request, "admin/login_blocked.html", status=429)
 
         response = super().login(request, extra_context)
 
         if request.method == "POST":
-            try:
-                if request.user.is_authenticated:
-                    cache.delete(_key(ip))
-                else:
-                    count = cache.get(_key(ip), 0) + 1
-                    cache.set(_key(ip), count, BLOCK_SECONDS)
-                    log.warning("ورودِ ناموفقِ ادمین از %s (%s)", ip, count)
-            except Exception:                                   # noqa: BLE001
-                log.exception("شمارنده‌ی ورودِ ادمین کار نکرد")
+            if request.user.is_authenticated:
+                try:
+                    cache.delete(_ip_key(ip))
+                    if username:
+                        cache.delete(_account_key(username))
+                except Exception:                           # noqa: BLE001
+                    log.exception("پاک کردنِ شمارنده‌ی ورود کار نکرد")
+            else:
+                count = _bump(_ip_key(ip))
+                if username:
+                    _bump(_account_key(username))
+                log.warning("ورودِ ناموفقِ ادمین از %s (%s)", ip, count)
 
         return response
 
