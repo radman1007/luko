@@ -1,4 +1,5 @@
 """مسیرهای ریشه. همه‌ی APIها زیر /api/v1 (منطبق با VITE_API_URL فرانت)."""
+from django.conf import settings
 from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import include, path
@@ -24,7 +25,7 @@ api_v1 = [
 ]
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path(f"{settings.ADMIN_URL}/", admin.site.urls),
     path("healthz", health_check),
     path("api/v1/", include((api_v1, "api"), namespace="v1")),
 ]

@@ -12,11 +12,14 @@ class Ticket(TimeStampedModel):
         CLOSED = "closed", "بسته"
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                             related_name="tickets")
-    subject = models.CharField(max_length=140)
-    status = models.CharField(max_length=10, choices=Status.choices, default=Status.OPEN)
+                             related_name="tickets", verbose_name="فرستنده")
+    subject = models.CharField(max_length=140, verbose_name="موضوع")
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.OPEN,
+                              verbose_name="وضعیت")
 
     class Meta:
+        verbose_name = "تیکت پشتیبانی"
+        verbose_name_plural = "تیکت‌های پشتیبانی"
         ordering = ["-created_at"]
         indexes = [models.Index(fields=["user", "status"])]
 
@@ -25,13 +28,16 @@ class Ticket(TimeStampedModel):
 
 
 class TicketMessage(TimeStampedModel):
-    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="messages")
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="messages",
+                               verbose_name="تیکت")
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                               related_name="ticket_messages")
-    body = models.TextField()
-    is_staff_reply = models.BooleanField(default=False)
+                               related_name="ticket_messages", verbose_name="فرستنده")
+    body = models.TextField( verbose_name="متن پیام")
+    is_staff_reply = models.BooleanField(default=False, verbose_name="پاسخ تیم پشتیبانی")
 
     class Meta:
+        verbose_name = "پیام تیکت"
+        verbose_name_plural = "پیام‌های تیکت"
         ordering = ["created_at"]
 
     def __str__(self):

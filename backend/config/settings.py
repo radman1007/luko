@@ -47,7 +47,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    "apps.common.admin_config.LukoAdminConfig",   # به‌جای django.contrib.admin
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -85,7 +85,7 @@ MIDDLEWARE = [
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -251,10 +251,23 @@ if not DEBUG:
     SECURE_REFERRER_POLICY = "same-origin"
     X_FRAME_OPTIONS = "SAMEORIGIN"        # بازی‌ها داخلِ iframe هم‌ریشه اجرا می‌شوند
 
+    # نشستِ پنلِ ادمین. پیش‌فرضِ جنگو دو هفته است؛ برای پنلی که دادهٔ بچه‌ها و
+    # رمزِ خوانای پشتیبانی را نشان می‌دهد، کوکیِ دو هفته‌ای روی لپ‌تاپِ گم‌شده
+    # زیادی سخاوتمند است. فقط ادمین را تحت تأثیر می‌گذارد: خودِ اپ با JWT کار
+    # می‌کند و نشستِ جنگو ندارد.
+    SESSION_COOKIE_AGE = int(env("DJANGO_SESSION_HOURS", "8")) * 3600
+    SESSION_SAVE_EVERY_REQUEST = True          # کار کردن، نشست را زنده نگه می‌دارد
+
     if SECRET_KEY == "dev-insecure-key-change-me":
         raise RuntimeError(
             "DJANGO_SECRET_KEY تنظیم نشده است. با DEBUG=0 نباید کلیدِ توسعه استفاده شود."
         )
+
+# نشانیِ پنلِ ادمین. «admin/» شناخته‌شده است و هر اسکنری اول همان را می‌زند؛
+# مسیرِ غیرِحدس‌زدنی جلوی سر و صدای خودکار را می‌گیرد. لایه‌ی اصلیِ امنیت
+# نیست (رمز و سقفِ تلاش هستند) ولی هزینه‌ای هم ندارد. از env عوض می‌شود تا
+# بی‌نیاز به دیپلوی قابلِ تغییر باشد.
+ADMIN_URL = env("DJANGO_ADMIN_URL", "v1a2n3r4").strip("/")
 
 # دامنه‌هایی که مجازند فرمِ POST بفرستند (پشتِ https)
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")

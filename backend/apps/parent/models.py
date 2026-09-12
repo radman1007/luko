@@ -2,6 +2,7 @@
 from django.conf import settings
 from django.db import models
 
+from apps.common.constants import GRADE_CHOICES
 from apps.common.models import TimeStampedModel
 
 
@@ -16,16 +17,19 @@ class ParentChild(TimeStampedModel):
         GUARDIAN = "guardian", "سرپرست"
 
     parent = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                               related_name="children_links")
+                               related_name="children_links", verbose_name="والد")
     child = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                              related_name="parent_links")
+                              related_name="parent_links", verbose_name="فرزند")
     relation = models.CharField(max_length=12, choices=Relation.choices,
-                                default=Relation.PARENT)
-    grade = models.PositiveSmallIntegerField(default=1)      # پایه‌ی تحصیلی
-    school = models.CharField(max_length=120, blank=True)
-    is_active = models.BooleanField(default=True)
+                                default=Relation.PARENT, verbose_name="نسبت")
+    grade = models.PositiveSmallIntegerField(default=1, choices=GRADE_CHOICES,
+                                             verbose_name="پایه تحصیلی")
+    school = models.CharField(max_length=120, blank=True, verbose_name="مدرسه")
+    is_active = models.BooleanField(default=True, verbose_name="فعال")
 
     class Meta:
+        verbose_name = "پیوند والد و فرزند"
+        verbose_name_plural = "پیوندهای والد و فرزند"
         unique_together = ("parent", "child")
         indexes = [models.Index(fields=["parent", "is_active"])]
 
@@ -40,14 +44,18 @@ class DailyAssignment(TimeStampedModel):
     """
 
     child = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                              related_name="daily_assignments")
+                              related_name="daily_assignments", verbose_name="فرزند")
     assigned_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
-                                    null=True, blank=True, related_name="assignments_made")
-    game_slug = models.SlugField(max_length=80)
-    date = models.DateField(db_index=True)
-    note = models.CharField(max_length=160, blank=True)      # پیام کوتاه والد به بچه
+                                    null=True, blank=True, related_name="assignments_made",
+                                    verbose_name="انتخاب‌کننده")
+    game_slug = models.SlugField(max_length=80, verbose_name="شناسه بازی")
+    date = models.DateField(db_index=True, verbose_name="تاریخ")
+    # پیام کوتاه والد به بچه
+    note = models.CharField(max_length=160, blank=True, verbose_name="پیام والد")
 
     class Meta:
+        verbose_name = "بازی روز"
+        verbose_name_plural = "بازی‌های روز"
         unique_together = ("child", "date")
         ordering = ["-date"]
         indexes = [models.Index(fields=["child", "date"])]
@@ -60,9 +68,13 @@ class ParentPreference(TimeStampedModel):
     """تنظیم‌های حسابِ والد — چیزهایی که در تبِ «تنظیمات» سوییچ دارند."""
 
     parent = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                                  related_name="parent_preference")
-    weekly_report = models.BooleanField(default=True)      # اعلانِ گزارشِ هفتگی
-    activity_alerts = models.BooleanField(default=True)    # اعلانِ فعالیت/بی‌فعالیتی
+                                  related_name="parent_preference", verbose_name="والد")
+    weekly_report = models.BooleanField(default=True, verbose_name="اعلان گزارش هفتگی")
+    activity_alerts = models.BooleanField(default=True, verbose_name="اعلان فعالیت")
+
+    class Meta:
+        verbose_name = "تنظیمات والد"
+        verbose_name_plural = "تنظیمات والدین"
 
     def __str__(self):
         return f"تنظیمات {self.parent}"
@@ -82,16 +94,19 @@ class Notification(TimeStampedModel):
         ASSIGNMENT = "assignment", "بازی روز"
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                             related_name="parent_notifications")
+                             related_name="parent_notifications", verbose_name="گیرنده")
     child = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                              null=True, blank=True, related_name="about_notifications")
-    kind = models.CharField(max_length=12, choices=Kind.choices)
-    title = models.CharField(max_length=160)
-    body = models.CharField(max_length=240, blank=True)
-    dedup_key = models.CharField(max_length=120)
-    is_read = models.BooleanField(default=False)
+                              null=True, blank=True, related_name="about_notifications",
+                              verbose_name="درباره فرزند")
+    kind = models.CharField(max_length=12, choices=Kind.choices, verbose_name="نوع")
+    title = models.CharField(max_length=160, verbose_name="عنوان")
+    body = models.CharField(max_length=240, blank=True, verbose_name="متن")
+    dedup_key = models.CharField(max_length=120, verbose_name="کلید یکتا")
+    is_read = models.BooleanField(default=False, verbose_name="خوانده شده")
 
     class Meta:
+        verbose_name = "اعلان والد"
+        verbose_name_plural = "اعلان‌های والد"
         ordering = ["-created_at"]
         unique_together = ("user", "dedup_key")
         indexes = [models.Index(fields=["user", "is_read"])]
