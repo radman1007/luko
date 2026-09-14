@@ -9,7 +9,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.common import cache
-from apps.common.sms import SmsError
+from apps.common.sms import SmsError, _mask
 
 from .constants import BUILDER_PRICES, CUSTOM_CHARACTER
 from .models import User
@@ -97,7 +97,7 @@ class RequestOTPView(APIView):
             )
         except SmsError as exc:
             # جزئیاتِ فنی فقط در لاگ می‌ماند؛ کاربر پیامِ ساده می‌بیند
-            log.error("ارسال OTP ناموفق برای %s — %s", phone, exc.detail)
+            log.error("ارسال OTP ناموفق برای %s — %s", _mask(phone), exc.detail)
             return Response(
                 {"error": {"code": 502, "message": exc.message}},
                 status=status.HTTP_502_BAD_GATEWAY,
