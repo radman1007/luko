@@ -32,16 +32,16 @@ class Command(BaseCommand):
         if backend_name == "console":
             self.stdout.write(warn(
                 "  ⚠️  حالتِ console: هیچ پیامکی ارسال نمی‌شود و کد فقط در لاگ می‌آید.\n"
-                "      برای ارسالِ واقعی SMS_BACKEND=melipayamak بگذارید."
+                "      برای ارسالِ واقعی SMS_BACKEND=smsir بگذارید."
             ))
 
         mp_key = settings.MELIPAYAMAK_API_KEY or ""
         key = settings.SMS_IR_API_KEY or ""
         tid = settings.SMS_IR_TEMPLATE_ID or 0
         shown = lambda v: f"تنظیم شده ({len(v)} کاراکتر)" if v else "خالی"   # noqa: E731
-        self.stdout.write(f"  MELIPAYAMAK_API_KEY : {shown(mp_key)}")
+        self.stdout.write(f"  MELIPAYAMAK_API_KEY : {shown(mp_key)} (ارائه‌دهنده‌ی قبلی)")
         self.stdout.write(f"  MELIPAYAMAK_BASE_URL: {settings.MELIPAYAMAK_BASE_URL}")
-        self.stdout.write(f"  SMS_IR_API_KEY      : {shown(key)} (ارائه‌دهنده‌ی قبلی)")
+        self.stdout.write(f"  SMS_IR_API_KEY      : {shown(key)}")
         self.stdout.write(f"  SMS_IR_TEMPLATE_ID  : {tid or 'خالی'}")
         self.stdout.write(f"  OTP_EXPOSE_DEV_CODE : {settings.OTP_EXPOSE_DEV_CODE} (در production باید 0 باشد)")
 

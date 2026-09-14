@@ -16,7 +16,7 @@ def sms_configuration(app_configs, **kwargs):
     if backend not in {"console", "smsir", "melipayamak"}:
         problems.append(Error(
             f"SMS_BACKEND نامعتبر است: {backend!r}",
-            hint="در .env یکی از console، melipayamak یا smsir را بگذارید.",
+            hint="در .env یکی از console، smsir یا melipayamak را بگذارید.",
             id="luko.sms.E001",
         ))
         return problems
@@ -25,11 +25,12 @@ def sms_configuration(app_configs, **kwargs):
         if not settings.DEBUG:
             problems.append(Warning(
                 "SMS_BACKEND روی console است ولی DEBUG خاموش است — هیچ پیامکی ارسال نمی‌شود.",
-                hint="برای ارسالِ واقعی SMS_BACKEND=melipayamak بگذارید.",
+                hint="برای ارسالِ واقعی SMS_BACKEND=smsir بگذارید.",
                 id="luko.sms.W002",
             ))
         return problems
 
+    # ملی‌پیامک: ارائه‌دهنده‌ی قبلی، برای برگشتِ اضطراری نگه داشته شده
     if backend == "melipayamak":
         if not settings.MELIPAYAMAK_API_KEY:
             problems.append(Warning(
@@ -45,7 +46,7 @@ def sms_configuration(app_configs, **kwargs):
             ))
         return problems
 
-    # backend = smsir (ارائه‌دهنده‌ی قبلی؛ برای برگشتِ اضطراری نگه داشته شده)
+    # backend = smsir (ارائه‌دهنده‌ی فعلی)
     if not settings.SMS_IR_API_KEY:
         problems.append(Warning(
             "SMS_IR_API_KEY خالی است؛ ارسال پیامک ممکن نیست.",

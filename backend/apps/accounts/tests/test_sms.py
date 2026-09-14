@@ -6,8 +6,10 @@
 from unittest.mock import patch
 
 import requests
-from django.test import SimpleTestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
+from rest_framework.test import APIClient
 
+from apps.accounts.otp import request_otp, verify_otp
 from apps.accounts.utils import normalize_phone
 from apps.common.sms import ConsoleSmsBackend, SmsError, SmsIrBackend, get_sms_backend
 
@@ -106,3 +108,76 @@ class PhoneNormalizationTests(SimpleTestCase):
     def test_invalid_numbers_rejected(self):
         for raw in ["", None, "0812345678", "0912123456", "091212345678", "hello"]:
             self.assertIsNone(normalize_phone(raw), raw)
+
+
+@override_settings(**SMSIR)
+class OtpWithSmsIrTests(TestCase):
+    """
+    جریانِ کامل با sms.ir.
+
+    برعکسِ ملی‌پیامک، این‌جا کد را **ما** می‌سازیم و sms.ir فقط می‌فرستد و
+    در پاسخ کدی برنمی‌گرداند. پس چیزی که ذخیره و بعد تأیید می‌شود باید دقیقاً
+    همان کدی باشد که در بدنه‌ی درخواست رفته — اگر لایه‌ی OTP به‌اشتباه منتظرِ
+    «کدِ ارائه‌دهنده» بماند، هیچ کدی تأیید نمی‌شود.
+    """
+
+    def setUp(self):
+        from apps.accounts.otp import _conn
+        self.phone = "09121114001"
+        _conn().delete(f"otp:code:{self.phone}", f"otp:resend:{self.phone}",
+                       f"otp:att:{self.phone}", "otp:ip:127.0.0.1")
+        self.api = APIClient()
+
+    @staticmethod
+    def _ok():
+        return FakeResponse(200, {"status": 1, "message": "موفق",
+                                  "data": {"messageId": 555, "cost": 1.0}})
+
+    def test_the_code_in_the_sms_is_the_code_that_verifies(self):
+        with patch("apps.common.sms.requests.post", return_value=self._ok()) as post:
+            info = request_otp(self.phone)
+        sent = post.call_args.kwargs["json"]["parameters"][0]["value"]
+        self.assertEqual(info["code"], sent)
+        self.assertEqual(info["length"], 5)
+        self.assertTrue(verify_otp(self.phone, sent))
+
+    def test_the_provider_reply_carries_no_code_and_that_is_fine(self):
+        """پاسخِ sms.ir کلیدِ `code` ندارد؛ نبودنش نباید ارسالِ موفق را خطا کند."""
+        with patch("apps.common.sms.requests.post", return_value=self._ok()):
+            info = request_otp(self.phone)
+        self.assertEqual(info["delivery"]["provider"], "sms.ir")
+        self.assertEqual(info["delivery"]["messageId"], 555)
+
+    def test_out_of_credit_stores_nothing_and_frees_the_resend_lock(self):
+        broke = FakeResponse(200, {"status": 12, "message": "اعتبار کافی نیست", "data": None})
+        with patch("apps.common.sms.requests.post", return_value=broke):
+            with self.assertRaises(SmsError):
+                request_otp(self.phone)
+        self.assertFalse(verify_otp(self.phone, "00000"))
+        with patch("apps.common.sms.requests.post", return_value=self._ok()):
+            self.assertEqual(len(request_otp(self.phone)["code"]), 5)
+
+    def test_api_tells_the_client_to_draw_five_boxes(self):
+        with patch("apps.common.sms.requests.post", return_value=self._ok()):
+            res = self.api.post("/api/v1/auth/request-otp", {"phone": self.phone},
+                                format="json")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()["data"]["codeLength"], 5)
+
+    def test_a_provider_failure_reaches_the_client_as_502_in_persian(self):
+        missing = FakeResponse(400, {"status": 113, "message": "قالب یافت نشد", "data": None})
+        with patch("apps.common.sms.requests.post", return_value=missing):
+            res = self.api.post("/api/v1/auth/request-otp", {"phone": self.phone},
+                                format="json")
+        self.assertEqual(res.status_code, 502)
+        self.assertIn("قالب", res.json()["error"]["message"])
+
+    def test_the_whole_login_goes_through(self):
+        with patch("apps.common.sms.requests.post", return_value=self._ok()) as post:
+            self.api.post("/api/v1/auth/request-otp", {"phone": self.phone}, format="json")
+        code = post.call_args.kwargs["json"]["parameters"][0]["value"]
+        res = self.api.post("/api/v1/auth/verify-otp",
+                            {"phone": self.phone, "code": code, "role": "student"},
+                            format="json")
+        self.assertIn(res.status_code, (200, 201))
+        self.assertIn("accessToken", res.json()["data"])

@@ -158,7 +158,7 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # پس هر دو باید یکی باشند. در production حتماً از env بیاید.
 GAME_LINK_SECRET = env("GAME_LINK_SECRET", "dev-game-link-secret")
 
-# ملی‌پیامک — کلید در URLِ سرویس می‌نشیند، پس مثل هر رازِ دیگری فقط از env
+# ملی‌پیامک (ارائه‌دهنده‌ی قبلی) — کلید در URLِ سرویس می‌نشیند، پس فقط از env
 # کلیدِ گاوصندوقِ رمز — بدونِ آن، رمزِ خوانا اصلاً ذخیره نمی‌شود و پنل
 # ادمین «پیکربندی نشده» نشان می‌دهد. فقط در env سرور بماند.
 PASSWORD_VAULT_KEY = env("PASSWORD_VAULT_KEY", "")
@@ -167,7 +167,9 @@ MELIPAYAMAK_API_KEY = env("MELIPAYAMAK_API_KEY", "")
 MELIPAYAMAK_BASE_URL = env("MELIPAYAMAK_BASE_URL", "https://console.melipayamak.com")
 MELIPAYAMAK_TIMEOUT = float(env("MELIPAYAMAK_TIMEOUT", "12"))
 
-SMS_BACKEND = env("SMS_BACKEND", "console" if DEBUG else "melipayamak")
+# ارائه‌دهنده‌ی فعلی sms.ir است. ملی‌پیامک در کد مانده ولی ارسالش رد می‌شد
+# («متن حاوی لینک می‌باشد» — الگوی پیامکش در پنلشان لینک داشت).
+SMS_BACKEND = env("SMS_BACKEND", "console" if DEBUG else "smsir")
 
 # اجرای تست هرگز نباید پیامکِ واقعی بفرستد (و اعتبار بسوزاند یا کند شود).
 if "test" in sys.argv or os.environ.get("PYTEST_CURRENT_TEST"):
