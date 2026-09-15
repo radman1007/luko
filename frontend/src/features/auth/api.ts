@@ -34,6 +34,12 @@ export interface VerifyOtpResult {
   user: User;
   /** حسابِ تازه ساخته شد؟ */
   isNew: boolean;
+  /**
+   * ثبت‌نام کجا مانده. بارِ اول، بعد از تأییدِ شماره، هنوز رمز و مشخصات
+   * ندارد؛ حسابی که نیمه‌کاره رها شده هم با همین‌ها از همان‌جا ادامه می‌دهد.
+   */
+  needsPassword: boolean;
+  needsProfile: boolean;
 }
 
 /** یکی از چند بچه‌ی هم‌شماره، در گامِ انتخاب */
@@ -49,17 +55,9 @@ export interface OtpSibling {
  * روی شماره‌ای که چند بچه دارد، کد نمی‌گوید کدام‌یک؛ به‌جای توکن یک
  * فهرست و یک بلیتِ کوتاه‌عمر می‌آید تا خودش انتخاب کند.
  */
-export interface VerifyOtpOutcome {
-  user?: User;
-  isNew?: boolean;
-  chooseFrom?: OtpSibling[];
-  ticket?: string;
-}
-
-export interface StartResult {
-  /** این شماره حسابِ رمزدار دارد؟ */
-  exists: boolean;
-}
+export type VerifyOtpOutcome =
+  | (VerifyOtpResult & { chooseFrom?: undefined; ticket?: undefined })
+  | { chooseFrom: OtpSibling[]; ticket: string };
 
 export interface AuthPayload {
   phone: string;
@@ -80,40 +78,30 @@ function storeSession(data: { accessToken: string; refreshToken?: string }, audi
   else disableGuestMode();
 }
 
+/** پاسخِ هر ورودِ موفق — با کد، با رمز یا از انتخابگر — به یک شکل */
+function toResult(data: {
+  user: User;
+  isNew?: boolean;
+  needsPassword?: boolean;
+  needsProfile?: boolean;
+}): VerifyOtpResult {
+  return {
+    user: data.user,
+    isNew: Boolean(data.isNew),
+    needsPassword: Boolean(data.needsPassword),
+    needsProfile: Boolean(data.needsProfile),
+  };
+}
+
 export const authApi = {
-  /** گامِ اول: این شماره حساب دارد یا باید ساخته شود؟ */
-  async start(payload: AuthPayload): Promise<StartResult> {
-    const { data } = await apiClient.post('/auth/start', payload);
-    return data.data;
-  },
-
-  /** ثبت‌نام بدونِ تأییدِ شماره — حساب ساخته و همان‌جا وارد می‌شود */
-  async register(
-    payload: AuthPayload & { firstName?: string; grade?: number },
-  ): Promise<VerifyOtpResult> {
-    const { data } = await apiClient.post('/auth/register', payload);
-    const audience: Audience = payload.role === 'parent' ? 'parent' : 'kid';
-    tokenStorage.set(data.data.accessToken, audience);
-    // بدونِ این، نشست بعدِ نیم ساعت تمام می‌شد به‌جای دو هفته
-    if (data.data.refreshToken) tokenStorage.setRefresh(data.data.refreshToken, audience);
-    if (audience === 'parent') disableParentGuestMode();
-    else disableGuestMode();
-    return { user: data.data.user, isNew: data.data.isNew };
-  },
-
-  /** ورود با شماره و رمز */
+  /** ورود با رمز — راهِ جایگزین وقتی کدِ پیامکی نمی‌رسد */
   async login(payload: AuthPayload & { password: string }): Promise<VerifyOtpResult> {
     const { data } = await apiClient.post('/auth/login', payload);
-    const audience: Audience = payload.role === 'parent' ? 'parent' : 'kid';
-    tokenStorage.set(data.data.accessToken, audience);
-    // بدونِ این، نشست بعدِ نیم ساعت تمام می‌شد به‌جای دو هفته
-    if (data.data.refreshToken) tokenStorage.setRefresh(data.data.refreshToken, audience);
-    if (audience === 'parent') disableParentGuestMode();
-    else disableGuestMode();
-    return { user: data.data.user, isNew: false };
+    storeSession(data.data, payload.role === 'parent' ? 'parent' : 'kid');
+    return toResult(data.data);
   },
 
-  /** گذاشتن یا عوض‌کردنِ رمز (نیازمندِ ورود) */
+  /** گذاشتنِ رمز — گامِ دومِ ثبت‌نام، یا رمزِ تازه بعد از فراموشی */
   async setPassword(password: string): Promise<User> {
     const { data } = await apiClient.post('/auth/set-password', { password });
     return data.data;
@@ -130,7 +118,7 @@ export const authApi = {
     return data.data;
   },
 
-  /** گام ۲: بررسیِ کد؛ اگر حساب نبود ساخته می‌شود */
+  /** گام ۲: بررسیِ کد — هم ورود است هم شروعِ ثبت‌نامِ حسابِ تازه */
   async verifyOtp(payload: VerifyOtpPayload): Promise<VerifyOtpOutcome> {
     const { data } = await apiClient.post('/auth/verify-otp', payload);
     // چند بچه با یک شماره: هنوز واردِ هیچ حسابی نشده‌ایم
@@ -139,23 +127,23 @@ export const authApi = {
     }
     const audience: Audience = payload.role === 'parent' ? 'parent' : 'kid';
     storeSession(data.data, audience);
-    return { user: data.data.user, isNew: data.data.isNew };
+    return toResult(data.data);
   },
 
   /** گامِ بعدِ انتخابگر: با بلیت، واردِ حسابِ انتخاب‌شده می‌شویم */
-  async chooseOtpAccount(payload: { ticket: string; userId: string }): Promise<User> {
+  async chooseOtpAccount(payload: { ticket: string; userId: string }): Promise<VerifyOtpResult> {
     const { data } = await apiClient.post('/auth/otp-choose', payload);
     storeSession(data.data, 'kid');
-    return data.data.user;
+    return toResult(data.data);
   },
 
-  /** توکن صریح فرستاده می‌شود تا بازیابیِ نشست به مسیرِ لحظه‌ی درخواست وابسته نباشد */
-  /** تکمیلِ نام بعد از ثبت‌نام — گامِ آخرِ ورود با پیامک */
-  async updateMe(payload: { firstName: string; lastName?: string }): Promise<User> {
+  /** مشخصات — گامِ آخرِ ثبت‌نام. پایه فقط برای دانش‌آموز معنا دارد. */
+  async updateMe(payload: { firstName: string; lastName?: string; grade?: number }): Promise<User> {
     const { data } = await apiClient.patch('/auth/me', payload);
     return data.data;
   },
 
+  /** توکن صریح فرستاده می‌شود تا بازیابیِ نشست به مسیرِ لحظه‌ی درخواست وابسته نباشد */
   async getCurrentUser(audience?: Audience): Promise<User> {
     const token = audience ? tokenStorage.get(audience) : null;
     const { data } = await apiClient.get('/auth/me',

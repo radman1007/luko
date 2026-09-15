@@ -16,16 +16,22 @@ class UserSerializer(serializers.ModelSerializer):
 
 class MeUpdateSerializer(serializers.ModelSerializer):
     """
-    تکمیلِ حساب بعد از ورود با پیامک.
+    مشخصات — گامِ آخرِ ثبت‌نام، بعد از تأییدِ شماره و رمز.
 
-    نام هنگامِ ساختِ حساب گرفته نمی‌شود — اول شماره تأیید می‌شود و بعد،
-    فقط اگر حساب تازه باشد، اسم پرسیده می‌شود. نقش و شماره عمداً اینجا
-    نیستند تا از این راه عوض نشوند.
+    پایه فقط برای دانش‌آموز معنا دارد و برای بقیه نادیده گرفته می‌شود.
+    نقش و شماره عمداً اینجا نیستند تا از این راه عوض نشوند.
     """
+
+    grade = serializers.IntegerField(required=False, min_value=1, max_value=6)
 
     class Meta:
         model = User
-        fields = ["first_name", "last_name"]
+        fields = ["first_name", "last_name", "grade"]
+
+    def validate(self, attrs):
+        if self.instance is not None and self.instance.role != User.Role.STUDENT:
+            attrs.pop("grade", None)
+        return attrs
 
     def validate_first_name(self, value):
         value = value.strip()
@@ -46,24 +52,13 @@ class PhoneField(serializers.CharField):
 
 
 class StartAuthSerializer(serializers.Serializer):
-    """گامِ اول: فقط شماره — می‌پرسیم این حساب هست یا نه."""
+    """شماره و نقش — پایه‌ی ورود با رمز."""
 
     phone = PhoneField()
     role = serializers.ChoiceField(
         choices=[("student", "student"), ("parent", "parent")],
         required=False, default="student",
     )
-
-
-class RegisterSerializer(StartAuthSerializer):
-    """ثبت‌نام: شماره و نقش، به‌علاوه‌ی نامی که کاربر خودش نوشته."""
-
-    # پارسر ورودی را snake_case می‌کند، پس اینجا هم first_name است نه firstName.
-    first_name = serializers.CharField(
-        required=False, allow_blank=True, max_length=30, trim_whitespace=True,
-    )
-    # پایه‌ی تحصیلی. فقط دانش‌آموز می‌فرستدش؛ برای والد بی‌معنی است.
-    grade = serializers.IntegerField(required=False, min_value=1, max_value=6)
 
 
 class PasswordLoginSerializer(StartAuthSerializer):

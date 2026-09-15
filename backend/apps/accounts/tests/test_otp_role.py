@@ -122,7 +122,7 @@ class OtpRoleTests(TestCase):
 
 @override_settings(SMS_BACKEND="console")
 class CompleteProfileTests(TestCase):
-    """گامِ آخرِ ثبت‌نام: اسم بعد از تأییدِ شماره پرسیده می‌شود."""
+    """گامِ آخرِ ثبت‌نام: مشخصات، بعد از تأییدِ شماره و رمز."""
 
     def setUp(self):
         cache.clear()

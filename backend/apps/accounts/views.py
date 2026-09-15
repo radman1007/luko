@@ -23,19 +23,16 @@ from .otp import (
     request_otp,
     verify_otp,
 )
-from .passwords import (account_with_password_exists, get_or_create_account,
-                        has_password, link_family, mark_phone_verified,
-                        set_password, student_by_password)
+from .passwords import (get_or_create_account, has_password, link_family,
+                        mark_phone_verified, set_password, student_by_password)
 from .sessions import SESSION_CLAIM, end_session, keep_session, new_session
 from .serializers import (
     KidSettingsSerializer,
     LukorianSerializer,
     MeUpdateSerializer,
     PasswordLoginSerializer,
-    RegisterSerializer,
     RequestOTPSerializer,
     SetPasswordSerializer,
-    StartAuthSerializer,
     UserSerializer,
     VerifyOTPSerializer,
     VerifyPhoneSerializer,
@@ -64,7 +61,21 @@ def _tokens_for(user, fresh=True):
 
 
 def _auth_payload(user, is_new=False, fresh=True):
-    return {**_tokens_for(user, fresh), "user": UserSerializer(user).data, "isNew": is_new}
+    """
+    توکن‌ها و کاربر، به‌علاوه‌ی اینکه ثبت‌نامش کجا مانده.
+
+    ثبت‌نام با کدِ پیامکی شروع می‌شود و بعد از تأییدِ شماره دو گام دارد:
+    رمز، بعد مشخصات. حسابی که یکی را ندارد — تازه ساخته شده یا از قبل
+    نیمه‌کاره مانده — با همین دو پرچم به گامِ درست فرستاده می‌شود؛ فرانت
+    خودش حدس نمی‌زند.
+    """
+    return {
+        **_tokens_for(user, fresh),
+        "user": UserSerializer(user).data,
+        "isNew": is_new,
+        "needsPassword": not has_password(user),
+        "needsProfile": not (user.first_name or "").strip(),
+    }
 
 
 class RequestOTPView(APIView):
@@ -116,7 +127,13 @@ class RequestOTPView(APIView):
 
 
 class VerifyOTPView(APIView):
-    """گامِ ۲: بررسیِ کد. اگر حساب نبود ساخته می‌شود (ورود و ثبت‌نام یکپارچه)."""
+    """
+    گامِ ۲: بررسیِ کد — هم ورود است هم شروعِ ثبت‌نام.
+
+    حساب نبود، همین‌جا ساخته می‌شود؛ رمز و مشخصات گام‌های بعدند و پرچم‌های
+    پاسخ می‌گویند کدام مانده. کدِ درست یعنی شماره واقعاً دستِ خودش است، پس
+    شماره تأییدشده ثبت می‌شود.
+    """
 
     permission_classes = [AllowAny]
 
@@ -178,6 +195,8 @@ class VerifyOTPView(APIView):
                 user.save(update_fields=["password"])
                 link_family(user)
 
+        if not user.phone_verified:
+            mark_phone_verified(user)
         return Response(_auth_payload(user, is_new),
                         status=status.HTTP_201_CREATED if is_new else status.HTTP_200_OK)
 
@@ -211,74 +230,37 @@ class OTPChooseView(APIView):
                 {"error": {"code": 404, "message": "این حساب پیدا نشد."}},
                 status=status.HTTP_404_NOT_FOUND,
             )
+        # بلیت ثابت می‌کند کدِ همین شماره تازه تأیید شده
+        if not user.phone_verified:
+            mark_phone_verified(user)
         return Response(_auth_payload(user, False))
 
 
-class StartAuthView(APIView):
+class RetiredAuthView(APIView):
     """
-    POST /auth/start — «این شماره حساب دارد یا نه؟»
+    `/auth/start` و `/auth/register` — بازنشسته.
 
-    فرانت با همین می‌فهمد گامِ بعدی «رمزت را بزن» است یا «حساب می‌سازیم».
-    عمداً چیزی جز وجود/نبودِ رمز برنمی‌گرداند.
+    ثبت‌نام حالا اول شماره را با کدِ پیامکی تأیید می‌کند. `register` حساب را
+    بدونِ هیچ تأییدی می‌ساخت — هر کسی روی هر شماره‌ای — و `start` بی‌دلیل
+    می‌گفت کدام شماره حساب دارد. ۴۱۰ با پیامِ روشن برای نسخه‌ی قدیمیِ اپ که
+    هنوز در کشِ گوشی مانده.
     """
 
+    authentication_classes = []
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = StartAuthSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        phone = serializer.validated_data["phone"]
-        role = serializer.validated_data["role"]
-
-        # حسابی که رمز ندارد (با OTP ساخته شده) مثل حسابِ تازه رفتار می‌کند.
-        # «دستِ‌کم یکی» می‌سنجیم نه «اولی»، چون یک شماره می‌تواند چند بچه
-        # داشته باشد و آنکه رمز دارد نباید پشتِ حسابِ نیمه‌کاره گم شود.
-        return Response({"exists": account_with_password_exists(phone, role)})
-
-
-class RegisterView(APIView):
-    """
-    POST /auth/register — ثبت‌نام بدونِ تأییدِ شماره.
-
-    شماره را می‌گیرد، حساب می‌سازد و همان‌جا وارد می‌کند؛ رمز را گامِ
-    بعدی می‌گذارد. تأییدِ شماره بعداً و اختیاری است.
-    """
-
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        phone = serializer.validated_data["phone"]
-        role = serializer.validated_data["role"]
-
-        if role != User.Role.STUDENT:
-            # یک شماره یک والد دارد و بس
-            taken = account_with_password_exists(phone, role)
-        else:
-            # ثبت‌نامِ عمومی فقط حسابِ نیمه‌کاره را ادامه می‌دهد. اگر همه‌ی
-            # بچه‌های این شماره رمز دارند یعنی کارشان تمام است و بچه‌ی
-            # تازه باید از پنلِ والدین اضافه شود، وگرنه هر کسی می‌توانست
-            # روی شماره‌ی دیگری حساب بسازد.
-            students = list(User.objects.filter(phone=phone, role=role))
-            taken = bool(students) and all(has_password(u) for u in students)
-
-        if taken:
-            return Response(
-                {"error": {"code": 409,
-                           "message": "این شماره از قبل حساب دارد؛ با رمزت وارد شو."}},
-                status=status.HTTP_409_CONFLICT,
-            )
-
-        user, created = get_or_create_account(
-            phone, role, serializer.validated_data.get("first_name", ""),
-            grade=serializer.validated_data.get("grade"))
-        return Response(_auth_payload(user, created),
-                        status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+        return Response(
+            {"error": {
+                "code": 410,
+                "message": "ورود و ثبت‌نام حالا با کدِ پیامکی است؛ صفحه را یک‌بار تازه کن.",
+            }},
+            status=status.HTTP_410_GONE,
+        )
 
 
 class PasswordLoginView(APIView):
-    """POST /auth/login — ورود با شماره و رمز."""
+    """POST /auth/login — ورود با رمز؛ راهِ جایگزین وقتی کدِ پیامکی نمی‌رسد."""
 
     permission_classes = [AllowAny]
 
@@ -314,8 +296,8 @@ class SetPasswordView(APIView):
     """
     POST /auth/set-password — گذاشتن یا عوض‌کردنِ رمز.
 
-    هم گامِ آخرِ ثبت‌نام است و هم مقصدِ «رمزم را فراموش کردم» (که با
-    کدِ یکبارمصرف وارد شده و حالا رمزِ تازه می‌سازد).
+    گامِ دومِ ثبت‌نام است (بعد از تأییدِ شماره با کد، پیش از مشخصات) و
+    مقصدِ «رمزم را فراموش کردم» در پنلِ والدین.
     """
 
     def post(self, request):
@@ -326,7 +308,11 @@ class SetPasswordView(APIView):
 
 
 class VerifyPhoneView(APIView):
-    """POST /auth/verify-phone — تأییدِ اختیاریِ شماره با کدِ یکبارمصرف."""
+    """
+    POST /auth/verify-phone — تأییدِ شماره برای حسابی که فقط با رمز وارد شده.
+
+    ورود با کد خودش شماره را تأیید می‌کند؛ این برای بقیه است.
+    """
 
     def post(self, request):
         serializer = VerifyPhoneSerializer(data=request.data)
@@ -436,11 +422,22 @@ class MeView(APIView):
         return Response(UserSerializer(request.user).data)
 
     def patch(self, request):
-        """تکمیلِ نام بعد از ثبت‌نام (گامِ آخرِ ورود با پیامک)."""
-        serializer = MeUpdateSerializer(request.user, data=request.data, partial=True)
+        """
+        مشخصات — گامِ آخرِ ثبت‌نام، بعد از تأییدِ شماره و رمز.
+
+        پایه این‌جا انتخاب می‌شود نه هنگامِ ساختِ حساب (حساب با کد و پیش از
+        هر سؤالی ساخته می‌شود). والدِ هم‌شماره همان لحظه وصل شده و پیوندش
+        پایه‌ی پیش‌فرض را دارد، پس همراهش به‌روز می‌شود.
+        """
+        user = request.user
+        before = user.grade
+        serializer = MeUpdateSerializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(UserSerializer(request.user).data)
+        if user.role == User.Role.STUDENT and user.grade != before:
+            from apps.parent.models import ParentChild
+            ParentChild.objects.filter(child=user).update(grade=user.grade)
+        return Response(UserSerializer(user).data)
 
 
 class ProfileStatsView(APIView):

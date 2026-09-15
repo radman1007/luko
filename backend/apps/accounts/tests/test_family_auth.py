@@ -6,11 +6,12 @@
   ۲. والد و بچه‌ی هم‌شماره خودکار به هم وصل می‌شوند.
   ۳. ورودِ تازه نشستِ دستگاهِ قبلی را می‌بندد.
 """
+from django.core.cache import cache
 from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 
 from apps.accounts.models import User
-from apps.accounts.otp import _as_str, _conn
+from apps.accounts.otp import _as_str, _conn, request_otp
 from apps.accounts.passwords import (get_or_create_account, link_family, set_password,
                                      student_by_password)
 from apps.parent.models import ParentChild
@@ -134,32 +135,57 @@ class SingleDeviceTests(TestCase):
 
 @override_settings(SMS_BACKEND="console", PASSWORD_VAULT_KEY="test-vault-key")
 class GradeTests(TestCase):
+    """
+    پایه در گامِ مشخصات انتخاب می‌شود، نه هنگامِ ساختِ حساب.
+
+    حساب با کدِ پیامکی و پیش از هر سؤالی ساخته می‌شود، پس پایه‌ی اولیه
+    پیش‌فرض است و بعد با PATCH /auth/me درست می‌شود.
+    """
+
     def setUp(self):
+        cache.clear()
         self.api = APIClient()
 
-    def test_grade_is_stored_at_signup(self):
-        res = self.api.post("/api/v1/auth/register",
-                            {"phone": "09121300011", "firstName": "سارا",
-                             "role": "student", "grade": 3}, format="json")
-        self.assertEqual(res.status_code, 201)
-        self.assertEqual(User.objects.get(phone="09121300011").grade, 3)
-
-    def test_grade_comes_back_in_the_user_payload(self):
-        res = self.api.post("/api/v1/auth/register",
-                            {"phone": "09121300012", "role": "student", "grade": 2},
+    def _signup(self, phone, role="student"):
+        res = self.api.post("/api/v1/auth/verify-otp",
+                            {"phone": phone, "code": request_otp(phone)["code"], "role": role},
                             format="json")
-        self.assertEqual(res.json()["data"]["user"]["grade"], 2)
+        token = res.json()["data"]["accessToken"]
+        self.api.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+        return res
 
-    def test_missing_grade_defaults_to_one(self):
-        self.api.post("/api/v1/auth/register",
-                      {"phone": "09121300013", "role": "student"}, format="json")
-        self.assertEqual(User.objects.get(phone="09121300013").grade, 1)
+    def test_a_new_account_starts_at_the_default_grade(self):
+        self._signup("09121300011")
+        self.assertEqual(User.objects.get(phone="09121300011").grade, 1)
+
+    def test_grade_is_stored_at_the_profile_step(self):
+        self._signup("09121300012")
+        res = self.api.patch("/api/v1/auth/me", {"firstName": "سارا", "grade": 3}, format="json")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json()["data"]["grade"], 3)
+        self.assertEqual(User.objects.get(phone="09121300012").grade, 3)
 
     def test_an_impossible_grade_is_refused(self):
-        res = self.api.post("/api/v1/auth/register",
-                            {"phone": "09121300014", "role": "student", "grade": 9},
-                            format="json")
-        self.assertEqual(res.status_code, 400)
+        self._signup("09121300013")
+        for bad in (0, 7, 9):
+            res = self.api.patch("/api/v1/auth/me", {"firstName": "x", "grade": bad},
+                                 format="json")
+            self.assertEqual(res.status_code, 400, bad)
+
+    def test_a_parent_cannot_set_a_grade(self):
+        self._signup("09121300014", role="parent")
+        self.api.patch("/api/v1/auth/me", {"firstName": "مادر", "grade": 5}, format="json")
+        self.assertEqual(User.objects.get(phone="09121300014", role="parent").grade, 1)
+
+    def test_the_parent_link_follows_the_chosen_grade(self):
+        """والدِ هم‌شماره همان لحظه‌ی ساختِ حساب وصل می‌شود، با پایه‌ی پیش‌فرض."""
+        phone = "09121300015"
+        parent = User.objects.create(phone=phone, role=User.Role.PARENT, first_name="پدر")
+        self._signup(phone)
+        child = User.objects.get(phone=phone, role=User.Role.STUDENT)
+        self.assertEqual(ParentChild.objects.get(parent=parent, child=child).grade, 1)
+        self.api.patch("/api/v1/auth/me", {"firstName": "نیما", "grade": 2}, format="json")
+        self.assertEqual(ParentChild.objects.get(parent=parent, child=child).grade, 2)
 
 
 @override_settings(SMS_BACKEND="console", PASSWORD_VAULT_KEY="test-vault-key")
@@ -381,65 +407,53 @@ class LogoutTests(TestCase):
                 self.api.post("/api/v1/auth/logout", body, format="json").status_code, 200)
 
 
-class StartOnAMixedPhoneTests(TestCase):
+@override_settings(SMS_BACKEND="console", PASSWORD_VAULT_KEY="test-vault-key")
+class OtpOnAFamilyPhoneTests(TestCase):
     """
-    `/auth/start` روی شماره‌ای که هم بچه‌ی رمزدار دارد هم بی‌رمز.
+    ورود با کد روی شماره‌ای که چند بچه دارد و یکی ثبت‌نامش نیمه‌کاره مانده.
 
-    این حالت واقعی است: بچه‌ای ثبت‌نام را نیمه‌کاره رها می‌کند و رمز
-    نمی‌گذارد، بعد والد از پنل بچه‌ی دیگری روی همان شماره می‌سازد. اگر
-    `start` فقط به «اولین حساب» نگاه کند، جوابش به ترتیبِ ردیف‌های
-    دیتابیس بند است و می‌تواند بگوید «حساب ندارد» — آن‌وقت فرانت بچه‌ی
-    رمزدار را به ثبت‌نام می‌فرستد و صفحه‌ی رمز را اصلاً نمی‌بیند.
+    انتخابگر همه را نشان می‌دهد؛ بعد از انتخاب، سرور برای همان حساب می‌گوید
+    رمز یا مشخصات کم دارد — نه برای «اولین حسابِ شماره».
     """
 
     def setUp(self):
+        cache.clear()
         self.api = APIClient()
         self.phone = "09121507788"
+        self.done = User.objects.create(phone=self.phone, role=User.Role.STUDENT,
+                                        first_name="سارا")
+        set_password(self.done, "raz-sara")
+        self.half = User.objects.create(phone=self.phone, role=User.Role.STUDENT)
 
-    def _start(self, role="student"):
-        res = self.api.post("/api/v1/auth/start", {"phone": self.phone, "role": role},
+    def _pick(self, user):
+        res = self.api.post("/api/v1/auth/verify-otp",
+                            {"phone": self.phone, "code": request_otp(self.phone)["code"],
+                             "role": "student"}, format="json")
+        data = res.json()["data"]
+        self.assertEqual(len(data["chooseFrom"]), 2)
+        chosen = self.api.post("/api/v1/auth/otp-choose",
+                               {"ticket": data["ticket"], "userId": user.id}, format="json")
+        self.assertEqual(chosen.status_code, 200)
+        return chosen.json()["data"]
+
+    def test_the_finished_sibling_goes_straight_in(self):
+        data = self._pick(self.done)
+        self.assertFalse(data["needsPassword"])
+        self.assertFalse(data["needsProfile"])
+
+    def test_the_half_finished_sibling_resumes_its_signup(self):
+        data = self._pick(self.half)
+        self.assertEqual(data["user"]["id"], str(self.half.id))
+        self.assertTrue(data["needsPassword"])
+        self.assertTrue(data["needsProfile"])
+
+    def test_picking_verifies_the_phone(self):
+        self._pick(self.half)
+        self.half.refresh_from_db()
+        self.assertTrue(self.half.phone_verified)
+
+    def test_the_password_fallback_still_tells_the_siblings_apart(self):
+        res = self.api.post("/api/v1/auth/login",
+                            {"phone": self.phone, "password": "raz-sara", "role": "student"},
                             format="json")
-        return res.json()["data"]["exists"]
-
-    def test_a_password_less_account_alone_looks_new(self):
-        User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name="بی‌رمز")
-        self.assertFalse(self._start())
-
-    def test_the_password_less_one_does_not_hide_a_finished_account(self):
-        # ترتیبِ ساخت عمداً همان ترتیبِ باگ است: بی‌رمز اول
-        User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name="بی‌رمز")
-        ramzdar = User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name="رمزدار")
-        set_password(ramzdar, "raz-bache")
-        self.assertTrue(self._start())
-
-    def test_the_same_holds_when_the_finished_account_came_first(self):
-        ramzdar = User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name="رمزدار")
-        set_password(ramzdar, "raz-bache")
-        User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name="بی‌رمز")
-        self.assertTrue(self._start())
-
-    def test_a_parent_on_the_phone_does_not_answer_for_the_child(self):
-        parent = User.objects.create(phone=self.phone, role=User.Role.PARENT, first_name="پدر")
-        set_password(parent, "raz-pedar")
-        self.assertFalse(self._start("student"))
-        self.assertTrue(self._start("parent"))
-
-    def test_signup_still_resumes_the_half_finished_child(self):
-        # `start` می‌گوید حساب هست، ولی راهِ ادامه‌ی حسابِ نیمه‌کاره باز می‌ماند
-        bi_ramz = User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name="بی‌رمز")
-        ramzdar = User.objects.create(phone=self.phone, role=User.Role.STUDENT)
-        set_password(ramzdar, "raz-bache")
-        res = self.api.post("/api/v1/auth/register",
-                            {"phone": self.phone, "role": "student", "firstName": "بی‌رمز",
-                             "grade": 2}, format="json")
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(int(res.json()["data"]["user"]["id"]), bi_ramz.id)
-
-    def test_signup_is_refused_once_every_child_has_a_password(self):
-        for name in ("سارا", "نیما"):
-            child = User.objects.create(phone=self.phone, role=User.Role.STUDENT, first_name=name)
-            set_password(child, f"raz-{name}")
-        res = self.api.post("/api/v1/auth/register",
-                            {"phone": self.phone, "role": "student", "firstName": "نفوذی",
-                             "grade": 1}, format="json")
-        self.assertEqual(res.status_code, 409)
+        self.assertEqual(res.json()["data"]["user"]["id"], str(self.done.id))
