@@ -1,6 +1,6 @@
 ---
 name: luko-game
-description: Build and wire an HTML5 mini-game for LUKO — standalone file under public/games, the iframe/postMessage completion contract, and registering it in booksData / trafficRules / recipes. Use when asked to create, fix, or hook up a game or interactive lesson.
+description: Build and wire an HTML5 mini-game for LUKO — standalone file under public/games, the iframe/postMessage completion contract, and registering it (filename C1-Kr-F1-S1-G1.html for the season path, trafficRules, recipes). Use when asked to create, fix, or hook up a game or interactive lesson.
 ---
 
 # Making a LUKO game
@@ -41,7 +41,7 @@ A manual "این مرحله رو تموم کردم" button is the fallback for g
 The product goal is per-child analytics in the parent panel, so a game that only reports
 "done" is half-built. Follow the contract in
 [public/games/README.md](../../../frontend/public/games/README.md) and the reference
-implementation in `grade-1/math/04-number-train.html`:
+implementation in `_reference/base-game.html`:
 
 - `luko-game-event` on each interaction, `luko-game-complete` once on win,
   `luko-game-progress` on `pagehide` when the child quits mid-way.
@@ -55,15 +55,22 @@ implementation in `grade-1/math/04-number-train.html`:
 ## Registering the game
 Three families of games, three registries:
 
-| Kind | Registry | Route | Field to set |
+| Kind | Registry | Route | What to do |
 |---|---|---|---|
-| Book level | `features/books/booksData.ts` | `/game/:gameId` | `gameFile` on the level |
+| Season path game | the **filename** in `public/games/` | `/game/:gameId` | name it `C1-Kr-F1-S2-G2.html`, then `manage.py sync_games` |
 | Traffic rule | `features/home/trafficRules.ts` | `/traffic-game/:ruleId` | `hasGame: true` |
 | Cooking recipe | `features/home/recipes.ts` | `/cooking-game/:recipeId` | `hasGame: true` |
 
-Missing `gameFile` / `hasGame: false` renders the "به‌زودی" placeholder — that is the
+Season-path games need **no code change**: C=class, K=book (internal only — never shown to
+the child), F=chapter/month, S=week, G=game number in that week; ordered numerically
+C→F→S→G. Run `python manage.py sync_games --check` to see where the file lands and why a
+name is rejected. Rules and the book-code table: [public/games/README.md](../../../frontend/public/games/README.md).
+Game ids are opaque (`g-1a2b3c4d`) and survive renames; completion is stored server-side
+and mirrored in `luko_completed_games`. Keep the `<title>` free of subject words
+("ریاضی", "نگارش", …) — it becomes the title the child sees.
+
+For traffic/cooking, `hasGame: false` renders the "به‌زودی" placeholder — that is the
 correct state for a not-yet-built game, so leave it rather than shipping a stub.
-Level ids are `${bookId}-${order}`; completion is stored in `luko_completed_games`.
 
 ## After building
 1. `preview_start` the frontend and open the game route — play it through to the win state

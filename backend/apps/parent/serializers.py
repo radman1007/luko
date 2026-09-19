@@ -127,8 +127,13 @@ class CreateAssignmentSerializer(serializers.Serializer):
 
     def validate_game_slug(self, value):
         from apps.games.models import Game
-        if not Game.objects.filter(slug=value, is_active=True).exists():
+        game = Game.objects.playable().filter(slug=value).first()
+        if game is None:
             raise serializers.ValidationError("این بازی وجود ندارد یا فعال نیست.")
+        child = self.context.get("child")
+        # بچه فقط مسیرِ کلاسِ خودش را می‌بیند؛ بازیِ کلاسِ دیگر برایش باز نمی‌شد
+        if child is not None and game.grade != child.grade:
+            raise serializers.ValidationError("این بازی برای کلاسِ این فرزند نیست.")
         return value
 
     def validate_date(self, value):

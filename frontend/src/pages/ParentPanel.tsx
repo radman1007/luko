@@ -40,7 +40,7 @@ import { DailyView } from '@/features/parent/components/views/DailyView';
 import { HealthView } from '@/features/parent/components/views/HealthView';
 import { SettingsView } from '@/features/parent/components/views/SettingsView';
 import { isValidPhone, normalizePhone } from '@/lib/phone';
-import { ALL_GRADES, OPEN_GRADES, gradeName } from '@/features/books/booksData';
+import { ALL_GRADES, OPEN_GRADES, gradeName } from '@/lib/grades';
 import styles from './ParentPanel.module.css';
 
 type SheetKind = 'notifications' | 'support' | 'addChild' | 'removeChild' | 'logout' | 'privacy' | 'about';

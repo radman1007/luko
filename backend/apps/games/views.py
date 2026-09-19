@@ -11,18 +11,51 @@ from .models import Book, Game, SeasonMemory
 from .serializers import (BookSerializer, GameEventSerializer, GameSerializer,
                           SeasonMemorySerializer)
 from apps.common import cache
+from apps.common.constants import GRADE_CHOICES
 
 from .playlink import sign
-from .services import (StageLocked, blocking_stage, complete_game, completed_slugs,
-                       star_map)
+from .services import (GameUnavailable, StageLocked, blocking_stage, complete_game,
+                       completed_slugs, game_path, is_first_stage, star_map)
+
+_GRADES = {value for value, _ in GRADE_CHOICES}
+_NOT_FOUND = {"error": {"code": 404, "message": "این بازی وجود ندارد."}}
 
 
 class GameListView(ListAPIView):
     """کاتالوگِ بازی‌ها (فیلترِ کتاب اختیاری)."""
     serializer_class = GameSerializer
-    queryset = Game.objects.filter(is_active=True)
+    queryset = Game.objects.playable()
     filterset_fields = ["book_id"]
     pagination_class = None
+
+
+class GamePathView(APIView):
+    """
+    GET /games/path?grade=1 — مسیرِ بازی‌های یک کلاس برای صفحه‌ی بچه.
+
+    فقط عنوان، ترتیب، هفته و پاداش؛ هیچ اسمی از کتاب یا درس در آن نیست.
+    بدونِ `grade`، کلاسِ خودِ کاربر (و برای مهمان کلاسِ اول).
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        raw = request.query_params.get("grade")
+        if raw is None:
+            grade = getattr(request.user, "grade", None) or 1
+        else:
+            try:
+                grade = int(raw)
+            except ValueError:
+                grade = 0
+        if grade not in _GRADES:
+            return Response(
+                {"error": {"code": 400, "message": "کلاس معتبر نیست."}},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        stages = cache.get_or_set(cache.game_path_key(str(grade)),
+                                  lambda: game_path(grade), cache.TTL_LONG)
+        return Response({"grade": grade, "stages": stages})
 
 
 class GameCompleteView(APIView):
@@ -38,6 +71,8 @@ class GameCompleteView(APIView):
             stars = None
         try:
             result = complete_game(request.user, slug, stars=stars)
+        except GameUnavailable:
+            return Response(_NOT_FOUND, status=status.HTTP_404_NOT_FOUND)
         except StageLocked as exc:
             return Response(
                 {"error": {"code": 403,
@@ -61,16 +96,13 @@ class GamePlayLinkView(APIView):
     throttle_scope = "play_link"
 
     def get(self, request, slug):
-        game = Game.objects.filter(slug=slug, is_active=True).first()
+        game = Game.objects.playable().filter(slug=slug).first()
         if game is None or not game.game_file:
-            return Response(
-                {"error": {"code": 404, "message": "این بازی وجود ندارد."}},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            return Response(_NOT_FOUND, status=status.HTTP_404_NOT_FOUND)
 
         if not request.user.is_authenticated:
-            # بدونِ حساب فقط مرحله‌ی اولِ مسیر باز است (حالتِ مهمان/نمایش)
-            if game.season_order != 1:
+            # بدونِ حساب فقط مرحله‌ی اولِ مسیرِ هر کلاس باز است (حالتِ مهمان/نمایش)
+            if not is_first_stage(game):
                 return Response(
                     {"error": {"code": 401, "message": "برای بازیِ این مرحله باید وارد شوی."}},
                     status=status.HTTP_401_UNAUTHORIZED,
@@ -129,7 +161,7 @@ class BookListView(APIView):
             if grade:
                 books = books.filter(grade=grade)
             games_by_book: dict = {}
-            for game in Game.objects.filter(is_active=True):
+            for game in Game.objects.playable():
                 games_by_book.setdefault(game.book_id, []).append(game)
             return BookSerializer(books, many=True,
                                   context={"games_by_book": games_by_book}).data

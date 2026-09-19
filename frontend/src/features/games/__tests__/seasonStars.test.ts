@@ -5,7 +5,16 @@
  * اگر کسی منطق را داخلِ کامپوننت ببرد، این‌جا دیگر قابلِ تست نیست.
  */
 import { describe, expect, it } from 'vitest';
-import { seasonState } from '../seasonData';
+import { seasonState as fullState } from '../seasonData';
+import { FIXTURE_PATH, dayOfWeek } from './fixturePath';
+
+/** وضعیتِ مسیرِ نمونه در هفته‌ی چهارم (چند هفته باز، یکی پشتِ ابر) */
+const TODAY = dayOfWeek(4);
+const seasonState = (
+  done: Set<string>,
+  today: Date = TODAY,
+  stars: Map<string, number> | Record<string, number> = {},
+) => fullState(FIXTURE_PATH, done, today, stars);
 
 /** همه‌ی مرحله‌های بازشده‌ی امروز */
 const openIds = () => seasonState(new Set()).openWeeks.flatMap((w) => w.stages).map((s) => s.id);
@@ -25,26 +34,26 @@ describe('ستاره‌های سیزن', () => {
 
   it('ستاره‌ها جمع می‌شوند', () => {
     const [a, b, c] = openIds();
-    const state = seasonState(new Set([a, b, c]), new Date(), { [a]: 3, [b]: 1, [c]: 2 });
+    const state = seasonState(new Set([a, b, c]), TODAY, { [a]: 3, [b]: 1, [c]: 2 });
     expect(state.earnedStars).toBe(6);
   });
 
   it('ستاره‌ی مرحله‌ی نرفته شمرده نمی‌شود', () => {
     const [a, b] = openIds();
-    const state = seasonState(new Set([a]), new Date(), { [a]: 2, [b]: 3 });
+    const state = seasonState(new Set([a]), TODAY, { [a]: 2, [b]: 3 });
     expect(state.earnedStars).toBe(2);
   });
 
   it('Map هم مثلِ آبجکت قبول است', () => {
     const [a] = openIds();
-    const state = seasonState(new Set([a]), new Date(), new Map([[a, 3]]));
+    const state = seasonState(new Set([a]), TODAY, new Map([[a, 3]]));
     expect(state.earnedStars).toBe(3);
   });
 
   it('درصد از ستاره حساب می‌شود نه از تعدادِ مرحله', () => {
     const ids = openIds();
     const stars = Object.fromEntries(ids.map((id) => [id, 3]));
-    const state = seasonState(new Set(ids), new Date(), stars);
+    const state = seasonState(new Set(ids), TODAY, stars);
     expect(state.starPercent).toBe(100);
   });
 
@@ -56,7 +65,7 @@ describe('ستاره‌های سیزن', () => {
 
   it('هر مرحله ستاره و سقفش را با خودش دارد', () => {
     const [a] = openIds();
-    const stage = seasonState(new Set([a]), new Date(), { [a]: 2 })
+    const stage = seasonState(new Set([a]), TODAY, { [a]: 2 })
       .openWeeks.flatMap((w) => w.stages)
       .find((s) => s.id === a);
     expect(stage?.stars).toBe(2);

@@ -56,7 +56,8 @@ docker compose up -d --build
 
 ### ۵. دادهٔ اولیه
 ```bash
-docker compose exec web python manage.py seed_content      # کتاب‌ها، بازی‌ها، محتوا
+docker compose exec web python manage.py seed_content      # کتاب‌ها و محتوا
+docker compose exec web python manage.py sync_games        # بازی‌ها از نامِ فایل‌ها
 docker compose exec web python manage.py createsuperuser   # دسترسی به /admin
 ```
 
@@ -100,7 +101,7 @@ gunzip -c backup-2026-01-01.sql.gz | docker compose exec -T db psql -U luko luko
   API برمی‌گردد.
 - **Redis پاک شود مشکلی نیست**: فقط کش است (گزارشِ پنل والدین) و دوباره ساخته
   می‌شود؛ ولی روی همان سرور بماند تا رفت‌وبرگشتِ شبکه نخورد.
-- **مهاجرتِ داده از SQLite توسعه** لازم نیست؛ سرور از صفر با `seed_content` پر می‌شود.
+- **مهاجرتِ داده از SQLite توسعه** لازم نیست؛ سرور از صفر با `seed_content` و `sync_games` پر می‌شود.
 
 ## پایش
 

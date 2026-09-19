@@ -14,24 +14,60 @@ class StageLocked(Exception):
     """مرحله‌ی قبلی تمام نشده. arg[0] = عنوانِ مرحله‌ای که باید اول برود."""
 
 
+class GameUnavailable(Exception):
+    """این بازی روی مسیر نیست (وجود ندارد، نامِ فایلش نامعتبر است، یا غیرفعال است)."""
+
+
 def blocking_stage(user, game: Game) -> Game | None:
     """
-    اولین مرحله‌ی مسیرِ سیزن که پیش از این بازی است و هنوز تمام نشده.
-    None یعنی راه باز است. بازی‌های خارج از مسیر (`season_order == 0`)
-    شرطی ندارند.
+    اولین مرحله‌ی مسیرِ **همان کلاس** که پیش از این بازی است و هنوز تمام
+    نشده. None یعنی راه باز است. هر کلاس مسیرِ خودش را دارد؛ مرحله‌ی ۵ِ
+    کلاسِ اول نباید پشتِ مرحله‌های کلاسِ دوم بماند.
     """
     if not game.season_order:
         return None
     return (
-        Game.objects.filter(
-            is_active=True,
-            season_order__gt=0,
-            season_order__lt=game.season_order,
-        )
+        Game.objects.playable()
+        .filter(grade=game.grade, season_order__gt=0, season_order__lt=game.season_order)
         .exclude(slug__in=GameCompletion.objects.filter(user=user).values("game_slug"))
         .order_by("season_order")
         .first()
     )
+
+
+def is_first_stage(game: Game) -> bool:
+    """اولین مرحله‌ی قابلِ بازیِ مسیرِ کلاسش — تنها مرحله‌ای که مهمان هم دارد."""
+    first = (Game.objects.playable().filter(grade=game.grade, season_order__gt=0)
+             .order_by("season_order").values_list("pk", flat=True).first())
+    return first == game.pk
+
+
+def game_path(grade: int) -> list[dict]:
+    """
+    مسیرِ یک کلاس برای صفحه‌ی بچه — فقط آنچه برای نمایش لازم است.
+
+    عمداً هیچ نشانی از کتاب، درس یا کدِ فایل ندارد (UX بازی‌محور است، نه
+    درس‌محور). هفته شماره‌ی پشتِ‌سرهمِ هر (فصل، سیزن) است؛ پس فصلِ خالی
+    هفته‌ی خالی نمی‌سازد.
+    """
+    games = (Game.objects.playable().filter(grade=grade, season_order__gt=0)
+             .order_by("season_order", "chapter", "week", "number"))
+    stages = []
+    week = 0
+    last = None
+    for order, game in enumerate(games, start=1):
+        if (game.chapter, game.week) != last:
+            last = (game.chapter, game.week)
+            week += 1
+        stages.append({
+            "id": game.slug,
+            "title": game.title,
+            "order": order,
+            "week": week,
+            "coinReward": game.coin_reward,
+            "maxStars": game.max_stars,
+        })
+    return stages
 
 
 def completed_count(user) -> int:
@@ -46,7 +82,7 @@ def _book_just_completed(user, book_id: str) -> bool:
     """آیا با همین تکمیل، کلِ بازی‌های این کتاب کامل شد؟"""
     if not book_id:
         return False
-    total = Game.objects.filter(book_id=book_id, is_active=True).count()
+    total = Game.objects.playable().filter(book_id=book_id).count()
     if total == 0:
         return False
     done = GameCompletion.objects.filter(
@@ -72,22 +108,26 @@ def complete_game(user, slug: str, stars: int | None = None) -> dict:
     برای سه‌ستاره‌کردن دوباره بازی می‌کند و یک اجرای بد نباید دستاوردش را
     پس بگیرد. منطقِ اینکه چه چیزی چند ستاره می‌دهد در خودِ بازی است، نه اینجا.
     """
-    game = Game.objects.filter(slug=slug).first()
+    # فقط بازیِ روی مسیر پاداش می‌گیرد. قبلاً هر slugِ ساختگی ۱۰ سکه می‌داد،
+    # یعنی با چند درخواستِ مستقیم می‌شد سکه‌ی بی‌نهایت ساخت.
+    game = Game.objects.playable().filter(slug=slug).first()
+    if game is None:
+        raise GameUnavailable(slug)
 
     # مسیرِ سیزن پشتِ‌سرهم است: تا مرحله‌ی قبلی تمام نشود این یکی پاداش
     # نمی‌گیرد. چون سکه اینجا صادر می‌شود، بررسی باید همین‌جا باشد نه فقط
     # در UI — وگرنه با یک درخواستِ مستقیم دور می‌خورد.
-    if game is not None and not GameCompletion.objects.filter(user=user, game_slug=slug).exists():
+    if not GameCompletion.objects.filter(user=user, game_slug=slug).exists():
         blocker = blocking_stage(user, game)
         if blocker is not None:
             raise StageLocked(blocker.title)
 
-    coin = game.coin_reward if game else 10
-    dew = game.dew_reward if game else 6
-    fert = game.fertilizer_reward if game else 1
-    book_id = game.book_id if game else ""
+    coin = game.coin_reward
+    dew = game.dew_reward
+    fert = game.fertilizer_reward
+    book_id = game.book_id
 
-    cap = game.max_stars if game else 3
+    cap = game.max_stars
     earned = max(0, min(int(stars), cap)) if stars is not None else 0
 
     completion, created = GameCompletion.objects.get_or_create(

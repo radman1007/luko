@@ -2,11 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { HiOutlineChevronRight, HiOutlineWrenchScrewdriver } from 'react-icons/hi2';
+import { HiOutlineChevronRight, HiOutlineMapPin } from 'react-icons/hi2';
 import { CoinIcon, DewIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
-import { levelById, markLevelCompleted } from '@/features/books/booksData';
-import { seasonState } from '@/features/games/seasonData';
+import { markLevelCompleted } from '@/features/games/localProgress';
+import { SEASON, seasonState } from '@/features/games/seasonData';
+import { useGamePath } from '@/features/games/useGamePath';
 import { useGrade } from '@/features/auth/useGrade';
 import { DEW_REWARD } from '@/features/garden/gardenData';
 import { grantDew, grantFertilizer } from '@/features/garden/store';
@@ -19,7 +20,7 @@ import styles from './BookGame.module.css';
 
 /**
  * اجرای بازیِ یک مرحله. بازی یک فایل HTML مستقل در public است که داخل iframe
- * (sandbox) بارگذاری می‌شود. اگر مرحله بازی نداشته باشد، «به‌زودی» نمایش داده می‌شود.
+ * (sandbox) بارگذاری می‌شود. مرحله از مسیرِ کلاسِ بچه (سرور) پیدا می‌شود.
  *
  * تمام‌شدن **خودکار** است: خودِ بازی با `LUKO.finish()` پیام می‌دهد و همین‌جا
  * ثبت می‌شود. دکمه‌ی دستیِ «تموم کردم» عمداً برداشته شده — بچه نباید بتواند
@@ -30,18 +31,18 @@ export default function BookGame() {
   const queryClient = useQueryClient();
   const { gameId = '' } = useParams();
   const gamer = LUKORIANS.gamer;
-  const found = levelById(gameId);
 
-  // مسیرِ سیزن پشتِ‌سرهم است؛ تایپ کردنِ آدرسِ یک مرحله‌ی قفل هم نباید بازش
-  // کند. مرحله‌های خارج از مسیر (بازیِ بخش‌های دیگر) شرطی ندارند.
+  // مسیرِ سیزن پشتِ‌سرهم است؛ تایپ کردنِ آدرسِ یک مرحله‌ی قفل هم نباید بازش کند
   const grade = useGrade();
-  const locked = useMemo(
+  const path = useGamePath(grade);
+  const stage = useMemo(
     () =>
-      seasonState(undefined, undefined, undefined, grade)
+      seasonState(path.stages)
         .weeks.flatMap((week) => week.stages)
-        .find((stage) => stage.id === gameId)?.locked ?? false,
-    [gameId, grade],
+        .find((item) => item.id === gameId),
+    [path.stages, gameId],
   );
+  const locked = stage?.locked ?? false;
 
   /**
    * آدرسِ فایلِ بازی از سرور می‌آید و امضا دارد. مسیرِ ثابتِ فایل دیگر
@@ -50,7 +51,7 @@ export default function BookGame() {
   const play = useQuery({
     queryKey: ['games', 'play-link', gameId],
     queryFn: () => gamesApi.playLink(gameId),
-    enabled: Boolean(found?.level.gameFile) && !locked,
+    enabled: Boolean(stage) && !locked,
     // لینک کوتاه‌عمر است؛ با برگشتن به بازی باید تازه گرفته شود
     staleTime: 0,
     gcTime: 0,
@@ -101,9 +102,9 @@ export default function BookGame() {
    * می‌زند، ولی نباید اصلاً چیزِ بی‌معنی بفرستیم.
    */
   const finish = (stars?: number) => {
-    if (!found || rewardedRef.current) return;
+    if (!stage || rewardedRef.current) return;
     rewardedRef.current = true;
-    markLevelCompleted(found.level.id);
+    markLevelCompleted(stage.id);
     completeMission('game');   // مأموریتِ روزانه‌ی «یه بازی رو کامل کن»
     // پاداشِ محلی بلافاصله نشان داده می‌شود تا بچه منتظرِ شبکه نماند
     grantDew(DEW_REWARD.game, 'game');
@@ -114,7 +115,7 @@ export default function BookGame() {
     void (async () => {
       await flushEvents();
       try {
-        const result = await completeGame(found.level.id, stars);
+        const result = await completeGame(stage.id, stars);
         if (result && !result.alreadyDone) setServerCoins(result.coins);
         if (result) setWonStars(result.stars);
         // سرور مرجعِ قفلِ مسیر است؛ بدونِ این، نقشه با فهرستِ کهنه باز می‌شود
@@ -128,8 +129,8 @@ export default function BookGame() {
 
   // پلِ بازی ← اپ: پایانِ بازی، و تله‌متری‌ای که گزارشِ والدین از رویش ساخته می‌شود
   useEffect(() => {
-    if (!found?.level.gameFile) return undefined;
-    const slug = found.level.id;
+    if (!stage) return undefined;
+    const slug = stage.id;
 
     const onMessage = (e: MessageEvent) => {
       // فقط پیام‌های هم‌ریشه (بازیِ داخل iframe) پذیرفته می‌شوند
@@ -170,7 +171,7 @@ export default function BookGame() {
       void flushEvents();          // خروج از صفحه‌ی بازی هم بافر را خالی می‌کند
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [found?.level.id]);
+  }, [stage?.id]);
 
   if (locked) {
     return (
@@ -182,21 +183,37 @@ export default function BookGame() {
     );
   }
 
-  if (!found) {
+  if (!stage) {
+    const waiting = path.isLoading;
     return (
       <main className={styles.page}>
         <header className={styles.topbar}>
           <button type="button" className={styles.back} onClick={backToMap} aria-label="بازگشت">
             <HiOutlineChevronRight />
           </button>
-          <span className={styles.topTitle}>بازی پیدا نشد</span>
+          <span className={styles.topTitle}>{waiting ? 'در حال باز کردن…' : 'بازی پیدا نشد'}</span>
         </header>
+        {!waiting && (
+          <div className={styles.soon}>
+            <span className={styles.soonIcon} aria-hidden>
+              <HiOutlineMapPin />
+            </span>
+            <p className={styles.soonTitle}>
+              {path.isError ? 'مسیر باز نشد!' : 'این مرحله توی مسیرِ تو نیست.'}
+            </p>
+            <p className={styles.soonDesc}>
+              {path.isError
+                ? 'اینترنت رو چک کن و یه‌بار دیگه امتحان کن.'
+                : `${gamer.name} می‌گه از روی نقشه برو سراغِ مرحله‌ی بعدیت.`}
+            </p>
+            <button type="button" className={styles.soonBtn} onClick={backToMap}>
+              برگرد به مسیرِ سیزن
+            </button>
+          </div>
+        )}
       </main>
     );
   }
-
-  const { book, level } = found;
-  const hasGame = Boolean(level.gameFile);
 
   return (
     <main className={styles.page}>
@@ -206,73 +223,58 @@ export default function BookGame() {
         </button>
         <div className={styles.topTexts}>
           <span className={styles.topLevel}>
-            مرحله {level.order.toLocaleString('fa-IR')}: {level.title}
+            مرحله {stage.order.toLocaleString('fa-IR')}: {stage.title}
           </span>
-          <span className={styles.topWorld}>{book.worldTitle}</span>
+          <span className={styles.topWorld}>
+            {SEASON.title} · هفته‌ی {stage.week.toLocaleString('fa-IR')}
+          </span>
         </div>
-        {hasGame && (
-          <span className={styles.reward}>
-            <CoinIcon size={14} aria-hidden />
-            {level.coinReward.toLocaleString('fa-IR')}
-          </span>
-        )}
+        <span className={styles.reward}>
+          <CoinIcon size={14} aria-hidden />
+          {stage.coinReward.toLocaleString('fa-IR')}
+        </span>
       </header>
 
-      {hasGame ? (
-        <div className={styles.stage}>
-          {play.data ? (
-            <iframe
-              className={styles.frame}
-              src={play.data}
-              title={level.title}
-              sandbox="allow-scripts allow-same-origin"
-              allow="autoplay; fullscreen"
-            />
-          ) : (
-            <div className={styles.loading}>
-              {play.isError ? 'بازی باز نشد. یک‌بار دیگر امتحان کن.' : 'در حال باز کردنِ بازی…'}
+      <div className={styles.stage}>
+        {play.data ? (
+          <iframe
+            className={styles.frame}
+            src={play.data}
+            title={stage.title}
+            sandbox="allow-scripts allow-same-origin"
+            allow="autoplay; fullscreen"
+          />
+        ) : (
+          <div className={styles.loading}>
+            {play.isError ? 'بازی باز نشد. یک‌بار دیگر امتحان کن.' : 'در حال باز کردنِ بازی…'}
+          </div>
+        )}
+        {justWon && (
+          <div className={styles.winOverlay} role="dialog" aria-label="مرحله کامل شد">
+            <div className={styles.winCard}>
+              <img className={styles.winChar} src={gamer.image} alt={gamer.name} />
+              <p className={styles.winTitle}>ایول! این مرحله رو بردی!</p>
+              {/* ستاره را همین‌جا نشان می‌دهیم: اگر بچه تا نقشه صبر کند،
+                  ارتباطِ «چه کردم» با «چه گرفتم» را از دست می‌دهد. */}
+              {wonStars > 0 && (
+                <span className={styles.winStars}>
+                  <StarRating earned={wonStars} max={stage.maxStars} size="md" />
+                </span>
+              )}
+              <p className={styles.winCoins}>
+                <CoinIcon size={18} aria-hidden />+
+                {(serverCoins ?? stage.coinReward).toLocaleString('fa-IR')} سکه
+              </p>
+              <p className={styles.winDew}>
+                <DewIcon size={16} aria-hidden />+{DEW_REWARD.game.toLocaleString('fa-IR')} شبنم و یک کود برای باغچه
+              </p>
+              <button type="button" className={styles.winBtn} onClick={backToMap}>
+                برگرد به مسیرِ سیزن
+              </button>
             </div>
-          )}
-          {justWon && (
-            <div className={styles.winOverlay} role="dialog" aria-label="مرحله کامل شد">
-              <div className={styles.winCard}>
-                <img className={styles.winChar} src={gamer.image} alt={gamer.name} />
-                <p className={styles.winTitle}>ایول! این مرحله رو بردی!</p>
-                {/* ستاره را همین‌جا نشان می‌دهیم: اگر بچه تا نقشه صبر کند،
-                    ارتباطِ «چه کردم» با «چه گرفتم» را از دست می‌دهد. */}
-                {wonStars > 0 && (
-                  <span className={styles.winStars}>
-                    <StarRating earned={wonStars} max={3} size="md" />
-                  </span>
-                )}
-                <p className={styles.winCoins}>
-                  <CoinIcon size={18} aria-hidden />+
-                  {(serverCoins ?? level.coinReward).toLocaleString('fa-IR')} سکه
-                </p>
-                <p className={styles.winDew}>
-                  <DewIcon size={16} aria-hidden />+{DEW_REWARD.game.toLocaleString('fa-IR')} شبنم و یک کود برای باغچه
-                </p>
-                <button type="button" className={styles.winBtn} onClick={backToMap}>
-                  برگرد به مسیرِ سیزن
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className={styles.soon}>
-          <span className={styles.soonIcon} aria-hidden>
-            <HiOutlineWrenchScrewdriver />
-          </span>
-          <p className={styles.soonTitle}>بازیِ این مرحله به‌زودی می‌رسه!</p>
-          <p className={styles.soonDesc}>
-            {gamer.name} داره این بازی رو می‌سازه؛ زود برمی‌گردیم که بترکونیش!
-          </p>
-          <button type="button" className={styles.soonBtn} onClick={backToMap}>
-            برگرد به مسیرِ سیزن
-          </button>
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </main>
   );
 }

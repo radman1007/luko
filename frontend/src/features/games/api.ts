@@ -1,7 +1,32 @@
 import { apiClient } from '@/lib/api';
 
+/**
+ * یک مرحله‌ی مسیر، همان‌طور که سرور می‌دهد.
+ *
+ * عمداً هیچ نشانی از کتاب یا درس ندارد: جایگاهِ بازی از نامِ فایلش
+ * (`C1-Kr-F1-S2-G2`) روی سرور ساخته می‌شود و به این‌جا فقط آنچه برای
+ * نمایش لازم است می‌رسد.
+ */
+export interface PathStage {
+  /** شناسه‌ی پایدار و بی‌معنا (`g-1a2b3c4d`) */
+  id: string;
+  title: string;
+  /** جایگاه در مسیرِ کلاس — از ۱ */
+  order: number;
+  /** شماره‌ی هفته روی نقشه — از ۱، پشتِ‌سرهم */
+  week: number;
+  coinReward: number;
+  maxStars: number;
+}
+
 /** درخواست‌های بازی‌ها. پاکتِ {data} همین‌جا باز می‌شود. */
 export const gamesApi = {
+  /** مسیرِ بازی‌های یک کلاس، مرتب. */
+  async path(grade: number): Promise<PathStage[]> {
+    const { data } = await apiClient.get('/games/path', { params: { grade } });
+    return data.data.stages ?? [];
+  },
+
   /**
    * شناسه‌ی مرحله‌هایی که سرور تمام‌شده می‌داند.
    * نقطه‌ی سبکِ اختصاصی، نه `/books` — آن یکی کلِ کاتالوگ را سریالایز

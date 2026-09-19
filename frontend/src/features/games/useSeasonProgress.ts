@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { completedLevelIds, replaceCompletedLevelIds } from '@/features/books/booksData';
+import { completedLevelIds, replaceCompletedLevelIds } from './localProgress';
 import { isGuestMode } from '@/features/auth/guest';
 import { gamesApi } from './api';
 

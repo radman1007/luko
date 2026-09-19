@@ -1,0 +1,29 @@
+{% extends "admin/base_site.html" %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">خانه</a> ›
+  <a href="{% url 'admin:games_game_changelist' %}">{{ opts.verbose_name_plural }}</a> ›
+  همگام‌سازی
+</div>
+{% endblock %}
+{% block content %}
+<div id="content-main">
+  <p>
+    بازی‌ها از نامِ فایل‌های پوشه‌ی <code dir="ltr">{{ folder }}</code> ساخته می‌شوند
+    (<code dir="ltr">C1-Kr-F1-S1-G1.html</code>). این صفحه اول فقط پیش‌نمایش است؛
+    تا دکمه را نزنی چیزی عوض نمی‌شود.
+  </p>
+  {% if error %}<p class="errornote">{{ error }}</p>{% endif %}
+  {% if blocked %}<p class="errornote">{{ blocked }}</p>{% endif %}
+  {% if applied %}<p><b>اعمال شد.</b></p>{% endif %}
+  {% if report %}
+    <pre dir="rtl" style="white-space:pre-wrap;background:#f8f8f8;padding:12px;border-radius:6px;line-height:1.9;font-size:13px">{{ report }}</pre>
+  {% endif %}
+  {% if not applied and not error and not blocked %}
+  <form method="post">{% csrf_token %}
+    <input type="submit" class="default" value="همگام‌سازی کن">
+  </form>
+  {% endif %}
+  <p><a href="{% url 'admin:games_game_changelist' %}">بازگشت به فهرستِ بازی‌ها</a></p>
+</div>
+{% endblock %}

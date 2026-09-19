@@ -1,13 +1,15 @@
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { HiOutlineCheckCircle, HiOutlineHeart, HiOutlinePlay } from 'react-icons/hi2';
 import { CoinIcon } from '@/components/ui/icons';
 import { apiClient } from '@/lib/api';
 import { isGuestMode } from '@/features/auth/guest';
-import { completedLevelIds, levelById } from '@/features/books/booksData';
-import { seasonState } from '@/features/games/seasonData';
+import { completedLevelIds } from '@/features/games/localProgress';
+import { SEASON, seasonState } from '@/features/games/seasonData';
+import type { SeasonStage } from '@/features/games/seasonData';
+import { useGamePath } from '@/features/games/useGamePath';
 import { useGrade } from '@/features/auth/useGrade';
-import type { BookWorld, GameLevel } from '@/features/books/booksData';
 import styles from './DailyGameCard.module.css';
 
 /** بازی‌ای که والد برای امروزِ این بچه گذاشته (اگر گذاشته باشد) */
@@ -22,25 +24,15 @@ async function fetchAssignment(): Promise<AssignedGame | null> {
   return data.data.assignment ?? null;
 }
 
-interface DailyPick {
-  book: BookWorld;
-  level: GameLevel;
-}
-
 /**
  * بازیِ امروز — تاریخ‌محور انتخاب می‌شود (نه تصادفی) تا همه‌ی بچه‌ها در یک روز
  * یک بازی داشته باشند و فردا عوض شود.
  */
-function gameOfTheDay(grade: number): DailyPick | null {
+function gameOfTheDay(stages: SeasonStage[]): SeasonStage | null {
   // فقط از بینِ مرحله‌هایی که بچه واقعاً می‌تواند بازی کند. قبلاً از کلِ
   // فهرست انتخاب می‌شد و برای بچه‌ی تازه تقریباً همیشه یک مرحله‌ی قفل
   // درمی‌آمد — کارت باز می‌شد و بی‌آنکه چیزی بگوید به خانه برمی‌گشت.
-  const state = seasonState(undefined, undefined, undefined, grade);
-  const open = state.weeks
-    .flatMap((week) => week.stages)
-    .filter((stage) => !stage.locked)
-    .map((stage) => levelById(stage.id))
-    .filter((found): found is DailyPick => Boolean(found));
+  const open = stages.filter((stage) => !stage.locked);
   if (open.length === 0) return null;
 
   const now = new Date();
@@ -59,6 +51,11 @@ export function DailyGameCard() {
   const navigate = useNavigate();
   const guest = isGuestMode();
   const grade = useGrade();
+  const path = useGamePath(grade);
+  const stages = useMemo(
+    () => seasonState(path.stages).weeks.flatMap((week) => week.stages),
+    [path.stages],
+  );
 
   const assignment = useQuery({
     queryKey: ['my-assignment'],
@@ -68,11 +65,12 @@ export function DailyGameCard() {
     retry: false,
   });
 
-  const assigned = assignment.data ? levelById(assignment.data.gameSlug) : undefined;
-  const pick = assigned ?? gameOfTheDay(grade);
-  if (!pick) return null;
+  const assigned = assignment.data
+    ? stages.find((stage) => stage.id === assignment.data?.gameSlug)
+    : undefined;
+  const level = assigned ?? gameOfTheDay(stages);
+  if (!level) return null;
 
-  const { book, level } = pick;
   const fromParent = Boolean(assigned);
   const note = assignment.data?.note?.trim();
   const played = completedLevelIds().has(level.id);
@@ -102,7 +100,7 @@ export function DailyGameCard() {
         </span>
         <span className={styles.title}>{level.title}</span>
         <span className={styles.world}>
-          {book.worldTitle} · {book.subject}
+          {SEASON.title} · هفته‌ی {level.week.toLocaleString('fa-IR')}
         </span>
         {note && <span className={styles.note}>«{note}»</span>}
         <span className={styles.reward}>

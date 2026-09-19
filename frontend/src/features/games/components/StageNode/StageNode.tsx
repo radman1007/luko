@@ -1,17 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import type { IconType } from 'react-icons';
 import {
-  HiOutlineBeaker,
-  HiOutlineBookOpen,
-  HiOutlineCalculator,
+  HiOutlineBolt,
+  HiOutlineGift,
   HiOutlineLockClosed,
-  HiOutlinePencil,
   HiOutlinePlay,
   HiOutlinePuzzlePiece,
+  HiOutlineRocketLaunch,
+  HiOutlineSparkles,
+  HiOutlineStar,
 } from 'react-icons/hi2';
 import { CoinIcon } from '@/components/ui/icons';
 import { StarRating } from '../StarRating/StarRating';
-import type { SubjectKey } from '../../seasonData';
 import type { MapNode } from '../../useSeasonMap';
 import styles from './StageNode.module.css';
 
@@ -20,23 +20,29 @@ interface Props {
   onPlay: () => void;
 }
 
-const SUBJECT_ICON: Record<SubjectKey, IconType> = {
-  math: HiOutlineCalculator,
-  science: HiOutlineBeaker,
-  writing: HiOutlinePencil,
-  quran: HiOutlineBookOpen,
-  reading: HiOutlineBookOpen,
-  other: HiOutlinePuzzlePiece,
-};
+/**
+ * ظاهرِ گره‌ها فقط برای تنوع است و از جایگاهِ مرحله می‌آید (`stage.look`).
+ * قبلاً ماشین‌حساب یعنی ریاضی و مداد یعنی نگارش بود — یعنی نقشه درس را به
+ * بچه لو می‌داد؛ تالار بازی‌محور است، نه درس‌محور.
+ * تعدادشان باید با `STAGE_LOOKS` یکی بماند.
+ */
+const LOOK_ICON: IconType[] = [
+  HiOutlinePuzzlePiece,
+  HiOutlineRocketLaunch,
+  HiOutlineSparkles,
+  HiOutlineStar,
+  HiOutlineBolt,
+  HiOutlineGift,
+];
 
-const SUBJECT_CLASS: Record<SubjectKey, string> = {
-  math: styles.subjMath,
-  science: styles.subjScience,
-  writing: styles.subjWriting,
-  quran: styles.subjQuran,
-  reading: styles.subjReading,
-  other: styles.subjOther,
-};
+const LOOK_CLASS = [
+  styles.look0,
+  styles.look1,
+  styles.look2,
+  styles.look3,
+  styles.look4,
+  styles.look5,
+];
 
 /** تیکِ ضخیم و گِرد — از تیکِ نازکِ کتابخانه روی دایره بهتر می‌نشیند */
 function DoneMark() {
@@ -74,7 +80,7 @@ function CrownMark() {
  */
 export function StageNode({ node, onPlay }: Props) {
   const { stage, done, isCurrent, locked } = node;
-  const Icon = SUBJECT_ICON[stage.subjectKey];
+  const Icon = LOOK_ICON[stage.look % LOOK_ICON.length];
   /**
    * سه‌ستاره حالتِ ویژه‌ی خودش را دارد: بچه باید از دور ببیند کدام مرحله
    * را «فتح» کرده و کدام هنوز جا برای بهتر شدن دارد — همین است که او را
@@ -108,7 +114,7 @@ export function StageNode({ node, onPlay }: Props) {
 
   return (
     <div
-      className={`${styles.slot} ${SUBJECT_CLASS[stage.subjectKey]}`}
+      className={`${styles.slot} ${LOOK_CLASS[stage.look % LOOK_CLASS.length]}`}
       style={{ '--node-x': `${node.x}px`, '--node-y': `${node.y}px` } as React.CSSProperties}
     >
       {isCurrent && <span className={styles.flag}>الان نوبتِ توئه</span>}
@@ -120,7 +126,7 @@ export function StageNode({ node, onPlay }: Props) {
         onClick={handleClick}
         aria-disabled={locked}
         aria-label={
-          `مرحله‌ی ${stage.order.toLocaleString('fa-IR')}، ${stage.title}، ${stage.subject}` +
+          `مرحله‌ی ${stage.order.toLocaleString('fa-IR')}، ${stage.title}` +
           (locked
             ? '، هنوز باز نشده'
             : done

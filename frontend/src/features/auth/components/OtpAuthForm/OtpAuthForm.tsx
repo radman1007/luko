@@ -8,7 +8,7 @@ import { useAuth } from '../../context';
 import { isValidPhone, normalizePhone } from '@/lib/phone';
 import { authApi } from '../../api';
 import type { OtpSibling, VerifyOtpResult } from '../../api';
-import { ALL_GRADES, OPEN_GRADES, gradeName } from '@/features/books/booksData';
+import { ALL_GRADES, OPEN_GRADES, gradeName } from '@/lib/grades';
 import { enableGuestMode } from '../../guest';
 import { OtpInput } from '../OtpInput/OtpInput';
 import styles from './OtpAuthForm.module.css';

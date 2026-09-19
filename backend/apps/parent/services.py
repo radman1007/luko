@@ -96,7 +96,10 @@ def _build_child_report(child) -> dict:
     sessions = [e for e in events if e.event_type in {"game_end", "game_complete"}]
 
     completions = list(GameCompletion.objects.filter(user=child))
+    # همه‌ی ردیف‌ها برای پیدا کردنِ عنوانِ تاریخچه (حتی بازیِ حذف‌شده)؛
+    # ولی «از چند بازی» و «بازی‌های هنوز باز نشده» فقط از مسیرِ کلاسِ خودِ بچه
     games_meta = {g.slug: g for g in Game.objects.all()}
+    catalog = {g.slug: g for g in Game.objects.playable().filter(grade=child.grade)}
     books = {b.book_id: b for b in Book.objects.all()}
 
     week_answers = [e for e in answers if e.created_at.date() >= week_start]
@@ -108,8 +111,8 @@ def _build_child_report(child) -> dict:
         "kpis": _kpis(child, events, answers, sessions, completions, week_start, today),
         "week": _week(events, sessions, completions, week_start, today),
         "accuracyTrend": _accuracy_trend(answers, today),
-        "subjects": _subjects(answers, completions, games_meta, books),
-        "games": _games(events, answers, completions, games_meta, books),
+        "subjects": _subjects(answers, completions, games_meta, catalog, books),
+        "games": _games(events, answers, completions, games_meta, catalog, books),
         "moods": _moods(child),
         "insights": _insights(answers, events, games_meta),
         "wellbeing": _wellbeing(child),
@@ -241,7 +244,7 @@ def _subject_of(slug: str, games_meta: dict, books: dict) -> str:
     return book.subject if book else "عمومی"
 
 
-def _subjects(answers, completions, games_meta, books) -> list[dict]:
+def _subjects(answers, completions, games_meta, catalog, books) -> list[dict]:
     """
     تسلط بر حسبِ درسِ کتاب (ریاضی، علوم، …) — همان چیزی که والد می‌فهمد.
     اگر بازی برای هر پاسخ `topic` بفرستد، همان topicها هم به‌عنوان ریزنمره
@@ -266,10 +269,9 @@ def _subjects(answers, completions, games_meta, books) -> list[dict]:
             completion.game_slug
         )
     total_by_subject: dict = defaultdict(int)
-    for game in games_meta.values():
-        if game.is_active:
-            book = books.get(game.book_id)
-            total_by_subject[book.subject if book else "عمومی"] += 1
+    for game in catalog.values():
+        book = books.get(game.book_id)
+        total_by_subject[book.subject if book else "عمومی"] += 1
 
     out = []
     for subject in set(stats) | set(done_by_subject) | set(total_by_subject):
@@ -297,7 +299,7 @@ def _subjects(answers, completions, games_meta, books) -> list[dict]:
     return sorted(out, key=lambda item: -item["mastery"])
 
 
-def _games(events, answers, completions, games_meta, books) -> list[dict]:
+def _games(events, answers, completions, games_meta, catalog, books) -> list[dict]:
     by_slug: dict = defaultdict(lambda: {
         "starts": 0, "answers": 0, "correct": 0, "hints": 0,
         "ms": 0, "sessions": 0, "best": 0, "last": None,
@@ -353,7 +355,7 @@ def _games(events, answers, completions, games_meta, books) -> list[dict]:
         })
 
     # بازی‌هایی که اصلاً باز نشده‌اند هم دیده شوند
-    for slug, game in games_meta.items():
+    for slug, game in catalog.items():
         if slug in by_slug:
             continue
         book = books.get(game.book_id)

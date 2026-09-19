@@ -1,11 +1,12 @@
 """
-دادهٔ محتوا (idempotent): ویدیو، پادکست، قانون جاده، خوراکی، کتاب‌ها و مراحل.
+دادهٔ محتوا (idempotent): ویدیو، پادکست، قانون جاده، خوراکی و کتاب‌ها.
 مقادیر برابرِ همان چیزی است که فرانت تا امروز ثابت داشت؛ از اینجا به بعد
 ویرایش از پنل ادمین انجام می‌شود.
+
+بازی‌ها این‌جا نیستند: کاتالوگشان از نامِ فایل‌ها ساخته می‌شود
+(`python manage.py sync_games`).
 اجرا:  python manage.py seed_content
 """
-import re
-
 from django.core.management.base import BaseCommand
 
 from apps.content.models import Podcast, Recipe, TrafficRule, Video
@@ -53,44 +54,14 @@ RECIPES = [
     ('yogurt-parfait', 'ماستِ خوشگلِ لایه\u200cلایه', 'ماست و میوه و مغزها رو لایه\u200cلایه بچین؛ هم خوشمزه هم خوشگل!', ['ماست', 'توت\u200cفرنگی', 'گردو', 'عسل'], False),
 ]
 
-# (book_id, عنوان، درس، پایه، عنوانِ دنیا، آیکون، [(عنوانِ مرحله، سکه، فایل)])
+# (book_id, عنوان، درس، پایه، عنوانِ دنیا، آیکون) — فقط برای گزارشِ والد؛
+# کتابی که این‌جا نیست را همگام‌سازیِ بازی‌ها خودش می‌سازد.
 BOOKS = [
-    ('math-1', 'ریاضی اول', 'ریاضی', 1, 'جزیره\u200cی اعداد', 'HiOutlineCalculator',
-     [('جزیره\u200cی حیوانات', 10, '01-riyazi_f1_g1.html'), ('قطار اعداد فضایی', 10, '02-riyazi_f1_g2.html'), ('شمارش در جزیره', 10, '03-riyazi_f1_g3.html'), ('هیولاهای گرسنه', 10, '04-riyazi_f1_g4.html'), ('آزمایشگاه غذا', 10, '05-riyazi_f1_g5.html'), ('سفر ریتم', 10, '06-riyazi_f1_g6.html'), ('خرگوش مهربان', 12, '07-riyazi_f1_g7.html'), ('نوشتنِ اعداد فارسی', 12, '08-riyazi_f1_g8.html'), ('اعداد لوکو', 12, '09-riyazi_f1_g9.html'), ('سفر ریاضی', 12, '10-riyazi_f1_g10.html'), ('جدول شگفت\u200cانگیز', 12, '11-riyazi_f2_g1.html'), ('چوب\u200cکبریت\u200cهای آشپزخانه', 12, '12-riyazi_f2_g2.html'), ('جدول شگفت\u200cانگیز ۲', 12, '13-riyazi_f2_g3.html'), ('مزرعه\u200cی ریاضی', 15, '14-riyazi_f3_g1.html'), ('ماجراجویی تفریق', 15, '15-riyazi_f6_g1.html'), ('بالون\u200cهای پروازی', 15, '16-riyazi_f6_g2.html'), ('ماهی کوچک', 15, '17-riyazi_f11_g1.html')]),
-    ('science-1', 'علوم اول', 'علوم', 1, 'آزمایشگاه مخفی', 'HiOutlineBeaker',
-     [('کارخانه\u200cی خوراکی\u200cها', 18, '23-olom_f3_g1.html')]),
-    ('writing-1', 'نگارش اول', 'نگارش', 1, 'قصر کلمه\u200cها', 'HiOutlinePencil',
-     [('کارخانه\u200cی خط\u200cهای صاف', 15, '18-negaresh_f1_g1.html'), ('نقاش کوچولو', 15, '19-negaresh_f1_g2.html'), ('خط خمیده', 15, '20-negaresh_f1_g3.html'), ('قطار نگارش', 18, '21-negaresh_f1_g4.html'), ('ماجراهای حروف', 18, '22-negaresh_f2_g2.html')]),
-    ('quran-1', 'قرآن اول', 'قرآن', 1, 'باغ نور', 'HiOutlineBookOpen',
-     [('نعمت\u200cیاب', 18, '24-ghoran_f1_g1.html'), ('بسم\u200cالله الرحمن الرحیم', 18, '25-ghoran_f1_g2.html'), ('سلام و علیکم', 18, '26-ghoran_f1_g3.html'), ('نقاشیِ بسم\u200cالله', 18, '27-ghoran_f1_g4.html')]),
+    ('math-1', 'ریاضی اول', 'ریاضی', 1, 'جزیره\u200cی اعداد', 'HiOutlineCalculator'),
+    ('science-1', 'علوم اول', 'علوم', 1, 'آزمایشگاه مخفی', 'HiOutlineBeaker'),
+    ('writing-1', 'نگارش اول', 'نگارش', 1, 'قصر کلمه\u200cها', 'HiOutlinePencil'),
+    ('quran-1', 'قرآن اول', 'قرآن', 1, 'باغ نور', 'HiOutlineBookOpen'),
 ]
-
-
-def _game_path(book_id: str, grade: int, file_name: str | None) -> str:
-    """
-    مسیرِ عمومیِ فایلِ بازی. پوشه‌ی درس از پیشوندِ `book_id` می‌آید
-    (`math-1` → `math`) — همان چیدمانی که فرانت هم می‌سازد.
-    """
-    if not file_name:
-        return ""
-    subject_dir = book_id.split("-")[0]
-    return f"/games/grade-{grade}/{subject_dir}/{file_name}"
-
-
-def _file_order(name: str) -> tuple[int, str]:
-    """`07-little-hunter.html` → ۷. فایلِ بدونِ پیشوند ته‌ی صف می‌رود."""
-    match = re.match(r"(\d+)", name)
-    return (int(match.group(1)) if match else 10**9, name)
-
-
-def _apply_season_order(files: list[tuple[str, str]]) -> None:
-    """
-    ترتیبِ مسیرِ سیزن را از نامِ فایل‌ها می‌سازد — همان قاعده‌ای که فرانت
-    دارد. سرور بدونِ این نمی‌داند مرحله‌ی قبلیِ هر بازی کدام است و
-    نمی‌تواند جلوی گرفتنِ پاداشِ مرحله‌های جلوتر را بگیرد.
-    """
-    for index, (_, slug) in enumerate(sorted(files, key=lambda item: _file_order(item[0])), start=1):
-        Game.objects.filter(slug=slug).update(season_order=index)
 
 
 class Command(BaseCommand):
@@ -130,26 +101,12 @@ class Command(BaseCommand):
             )
             made["recipe"] = made.get("recipe", 0) + int(created)
 
-        season_files: list[tuple[str, str]] = []
-        for sort, (book_id, title, subject, grade, world, icon, levels) in enumerate(BOOKS):
+        for sort, (book_id, title, subject, grade, world, icon) in enumerate(BOOKS):
             Book.objects.update_or_create(
                 book_id=book_id,
                 defaults={"title": title, "subject": subject, "grade": grade,
                           "world_title": world, "icon": icon, "sort": sort, "is_active": True},
             )
-            for order, (level_title, coins, game_file) in enumerate(levels, start=1):
-                # slug همان levelId فرانت است: `${bookId}-${order}`
-                _, created = Game.objects.update_or_create(
-                    slug=f"{book_id}-{order}",
-                    defaults={"title": level_title, "book_id": book_id, "order": order,
-                              "coin_reward": coins, "is_active": bool(game_file),
-                              "game_file": _game_path(book_id, grade, game_file)},
-                )
-                made["game"] = made.get("game", 0) + int(created)
-                if game_file:
-                    season_files.append((game_file, f"{book_id}-{order}"))
-
-        _apply_season_order(season_files)
 
         self.stdout.write(self.style.SUCCESS(
             "محتوا آماده شد — "

@@ -104,7 +104,8 @@ def _minutes(game: Game) -> int:
 
 
 def suggest_games(child, limit: int = SUGGESTION_COUNT) -> list[dict]:
-    games = list(Game.objects.all().order_by("order", "id"))
+    # فقط بازی‌هایی که همین بچه واقعاً می‌تواند باز کند
+    games = list(Game.objects.playable().filter(grade=child.grade).order_by("season_order", "id"))
     if not games:
         return []
 

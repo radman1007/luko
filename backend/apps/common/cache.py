@@ -37,6 +37,7 @@ def parent_suggestions_key(child_id: int) -> str: return user_key(child_id, "par
 def game_topics_key() -> str: return catalog_key("game-topics")
 def book_catalog_key(grade: str | None = None) -> str:
     return catalog_key(f"books:{grade or 'all'}")
+def game_path_key(grade: str) -> str: return catalog_key(f"game-path:{grade}")
 
 
 # ---------- helperها ----------

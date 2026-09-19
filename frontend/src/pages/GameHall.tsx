@@ -4,9 +4,10 @@ import { HiOutlineBolt } from 'react-icons/hi2';
 import { StudentLayout } from '@/components/layout/StudentLayout/StudentLayout';
 import { CharacterGuide } from '@/components/characters/CharacterGuide/CharacterGuide';
 import { LUKORIANS } from '@/lib/characters';
-import { gradeName } from '@/features/books/booksData';
+import { gradeName } from '@/lib/grades';
 import { SEASON, seasonState } from '@/features/games/seasonData';
 import type { PhotoSpot } from '@/features/games/seasonData';
+import { useGamePath } from '@/features/games/useGamePath';
 import { useSeasonProgress } from '@/features/games/useSeasonProgress';
 import { useGrade } from '@/features/auth/useGrade';
 import { SeasonBanner } from '@/features/games/components/SeasonBanner/SeasonBanner';
@@ -40,9 +41,10 @@ export default function GameHall() {
   // پیشرفت از سرور می‌آید تا قفلِ نقشه با قفلِ سرور یکی باشد
   const progress = useSeasonProgress();
   const grade = useGrade();
+  const path = useGamePath(grade);
   const state = useMemo(
-    () => seasonState(progress.done, new Date(), progress.stars, grade),
-    [progress, grade],
+    () => seasonState(path.stages, progress.done, new Date(), progress.stars),
+    [path.stages, progress],
   );
 
   // یادگاری‌ها: نقشه فقط بندانگشتی می‌گیرد تا سبک بماند
@@ -88,7 +90,19 @@ export default function GameHall() {
 
       {/* پایه‌ای که هنوز بازی ندارد نباید نقشه‌ی خالی ببیند — و قطعاً
           نباید بازی‌های پایه‌ی دیگر را ببیند. */}
-      {state.totalStages === 0 ? (
+      {path.isLoading ? (
+        <section className={styles.soon} aria-busy="true" aria-label="در حال آماده‌کردنِ مسیر">
+          <p className={styles.soonText}>{gamer.name} داره مسیرت رو آماده می‌کنه…</p>
+        </section>
+      ) : path.isError ? (
+        <section className={styles.soon} aria-label="مسیر باز نشد">
+          <h2 className={styles.soonTitle}>مسیر باز نشد!</h2>
+          <p className={styles.soonText}>اینترنت رو چک کن و یه‌بار دیگه امتحان کن.</p>
+          <button type="button" className={styles.retry} onClick={path.retry}>
+            دوباره امتحان کن
+          </button>
+        </section>
+      ) : state.totalStages === 0 ? (
         <section className={styles.soon} aria-label="بازی‌های این پایه">
           <img className={styles.soonChar} src={gamer.image} alt="" aria-hidden />
           <h2 className={styles.soonTitle}>بازی‌های {gradeName(grade)} تو راهن!</h2>

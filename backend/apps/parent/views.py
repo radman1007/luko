@@ -154,7 +154,8 @@ class AssignmentsView(APIView):
         if link is None:
             return Response({"error": {"code": 404, "message": "فرزند پیدا نشد."}},
                             status=status.HTTP_404_NOT_FOUND)
-        serializer = CreateAssignmentSerializer(data=request.data)
+        serializer = CreateAssignmentSerializer(data=request.data,
+                                                context={"child": link.child})
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 

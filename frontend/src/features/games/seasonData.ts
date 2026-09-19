@@ -1,18 +1,17 @@
 /**
  * سیزنِ تالار بازی‌ها.
  *
- * جای «کتاب» را یک مسیرِ فصلی گرفته است: همه‌ی بازی‌ها یک صفِ واحدند و
- * **ترتیبشان از نامِ فایل** می‌آید (پیشوندِ عددیِ سراسری مثل `07-little-hunter.html`).
- * هر هفته یک دسته‌ی تازه از این صف باز می‌شود؛ هفته‌های جلوتر پشتِ ابر پنهان‌اند.
+ * همه‌ی بازی‌های یک کلاس یک مسیرِ واحدند. **مسیر از سرور می‌آید** و سرور آن
+ * را از نامِ فایل‌ها می‌سازد (`C1-Kr-F1-S2-G2.html` → فصل ۱، هفته‌ی ۲، بازیِ ۲؛
+ * `backend/apps/games/naming.py`). این‌جا فقط منطقِ نمایش است: کدام هفته باز
+ * شده، کدام مرحله قفل است، چند ستاره گرفته شده. هیچ نشانی از کتاب یا درس به
+ * این لایه نمی‌رسد — تالار بازی‌محور است، نه درس‌محور.
  *
- * شناسه‌ی مرحله‌ها همان شناسه‌ی booksData است تا پیشرفتِ ثبت‌شده‌ی بچه‌ها از دست نرود
- * و صفحه‌ی اجرای بازی (`/game/:id`) بدونِ تغییر کار کند.
- *
- * TODO: بعد از بک‌اند، سیزن و تاریخِ شروعش از API می‌آید (فعلاً همین‌جا ثابت است).
+ * هر هفته‌ی مسیر یک هفته‌ی تقویم بعد از شروعِ سیزن باز می‌شود؛ هفته‌های جلوتر
+ * پشتِ ابر پنهان‌اند.
  */
-import { booksForGrade, completedLevelIds } from '@/features/books/booksData';
-
-export type SubjectKey = 'math' | 'science' | 'writing' | 'quran' | 'reading' | 'other';
+import type { PathStage } from './api';
+import { completedLevelIds } from './localProgress';
 
 /** یک نقطه‌ی یادگاری روی مسیر — بینِ دو مرحله می‌نشیند، نه روی آن‌ها */
 export interface PhotoSpot {
@@ -53,17 +52,18 @@ export interface SeasonTheme {
 }
 
 export interface SeasonStage {
-  /** همان شناسه‌ی مرحله در booksData */
+  /** شناسه‌ی پایدارِ مرحله (از سرور) */
   id: string;
-  /** جایگاه در مسیرِ سیزن — از پیشوندِ عددیِ نامِ فایل */
+  /** جایگاه در مسیرِ کلاس — از ۱ */
   order: number;
   title: string;
-  subject: string;
-  subjectKey: SubjectKey;
   coinReward: number;
-  /** نامِ فایل؛ همان چیزی که ترتیب را تعیین می‌کند */
-  file: string;
   week: number;
+  /**
+   * ظاهرِ گره روی نقشه (۰ تا `STAGE_LOOKS - 1`). فقط برای تنوعِ بصری است و
+   * عمداً از جایگاه می‌آید، نه از درس — رنگ و آیکون نباید درس را لو بدهند.
+   */
+  look: number;
   /**
    * مسیر پشتِ‌سرهم است: تا مرحله‌ی قبلی تمام نشود این یکی باز نمی‌شود.
    * مرحله‌های تمام‌شده همیشه بازند تا بشود دوباره بازی‌شان کرد.
@@ -122,13 +122,12 @@ export const SEASON = {
   /** شماره‌ی سیزن برای نمایش */
   number: 1,
   title: 'سیزنِ اول',
-  subtitle: 'نقشه‌ی جزیره‌ی اعداد',
+  // نامِ دنیا بی‌ربط به درس است: «جزیره‌ی اعداد» قبلی نامِ دنیای کتابِ ریاضی بود
+  subtitle: 'نقشه‌ی جزیره‌ی ستاره‌ها',
   /** شنبه‌ی شروعِ سیزن */
   startsAt: new Date('2026-08-08T00:00:00'),
-  /** چند مرحله در هر هفته باز می‌شود */
-  stagesPerWeek: 3,
 
-  /** دنیای این سیزن — شبِ جزیره‌ی اعداد */
+  /** دنیای این سیزن — شبِ جزیره‌ی ستاره‌ها */
   theme: {
     primary: '#7c5cbf',
     neon: '#4fd8c8',
@@ -153,81 +152,22 @@ export const SEASON = {
 /** سقفِ ستاره‌ی هر مرحله. روی سرور هم `Game.max_stars` هست؛ این پیش‌فرضِ فرانت است. */
 export const MAX_STARS = 3;
 
-const SUBJECT_KEYS: Record<string, SubjectKey> = {
-  math: 'math',
-  science: 'science',
-  writing: 'writing',
-  quran: 'quran',
-  reading: 'reading',
-};
+/** چند ظاهرِ مختلف برای گره‌های نقشه */
+export const STAGE_LOOKS = 6;
 
-/** `/games/grade-1/math/07-little-hunter.html` → `math` */
-function subjectKeyOf(gameFile: string): SubjectKey {
-  const parts = gameFile.split('/').filter(Boolean);
-  const dir = parts[parts.length - 2] ?? '';
-  return SUBJECT_KEYS[dir] ?? 'other';
-}
-
-/** نامِ فایل بدونِ مسیر */
-function baseName(gameFile: string): string {
-  return gameFile.split('/').pop() ?? gameFile;
-}
-
-/**
- * ترتیبِ مرحله از نامِ فایل: پیشوندِ عددی (`07-...`) اول می‌آید؛
- * فایلِ بدونِ پیشوند ته‌ی صف و بینِ خودشان الفبایی مرتب می‌شود.
- */
-function fileOrder(file: string): number {
-  const match = /^(\d+)/.exec(file);
-  return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
-}
-
-function byFileName(a: string, b: string): number {
-  const diff = fileOrder(a) - fileOrder(b);
-  return diff !== 0 ? diff : a.localeCompare(b, 'en');
-}
-
-const stagesCache = new Map<number, SeasonStage[]>();
-
-/**
- * مرحله‌های سیزنِ یک پایه، مرتب‌شده بر اساسِ نامِ فایل.
- *
- * هر پایه فقط بازی‌های خودش را می‌بیند؛ پایه‌ای که هنوز محتوا ندارد
- * آرایه‌ی خالی می‌گیرد و صفحه «به‌زودی» نشان می‌دهد — نه بازی‌های پایه‌ی
- * دیگر، که هم بی‌ربط است هم پیشرفتِ بچه را به‌هم می‌ریزد.
- *
- * ورودی‌اش ثابت است، پس نتیجه به‌ازای هر پایه یک‌بار ساخته و نگه داشته
- * می‌شود؛ وگرنه هر رندرِ نقشه یک flatMap و sort می‌زد.
- */
-export function seasonStages(grade = 1): SeasonStage[] {
-  const cached = stagesCache.get(grade);
-  if (cached) return cached;
-  const flat = booksForGrade(grade).flatMap((book) =>
-    book.levels
-      .filter((level) => Boolean(level.gameFile))
-      .map((level) => ({
-        id: level.id,
-        title: level.title,
-        subject: book.subject,
-        subjectKey: subjectKeyOf(level.gameFile as string),
-        coinReward: level.coinReward,
-        file: baseName(level.gameFile as string),
-      })),
-  );
-
-  flat.sort((a, b) => byFileName(a.file, b.file));
-
-  const built: SeasonStage[] = flat.map((stage, i) => ({
-    ...stage,
-    order: i + 1,
-    week: Math.floor(i / SEASON.stagesPerWeek) + 1,
-    // قفل و ستاره به پیشرفتِ بچه بستگی دارند و در `seasonState` تعیین می‌شوند
+/** مسیرِ سرور → مرحله‌های نقشه (قفل و ستاره را `seasonState` می‌گذارد) */
+export function toSeasonStages(path: PathStage[]): SeasonStage[] {
+  return path.map((stage) => ({
+    id: stage.id,
+    order: stage.order,
+    title: stage.title,
+    coinReward: stage.coinReward,
+    week: stage.week,
+    look: (stage.order - 1) % STAGE_LOOKS,
     locked: false,
     stars: 0,
-    maxStars: MAX_STARS,
+    maxStars: stage.maxStars || MAX_STARS,
   }));
-  stagesCache.set(grade, built);
-  return built;
 }
 
 function startOfDay(value: Date): Date {
@@ -253,6 +193,8 @@ export function releasedWeeks(today: Date, totalWeeks: number): number {
 
 /** وضعیتِ کاملِ سیزن برای امروز */
 export function seasonState(
+  /** مسیرِ کلاسِ بچه، همان‌طور که سرور داده (مرتب) */
+  path: PathStage[],
   done: Set<string> = completedLevelIds(),
   today: Date = new Date(),
   /**
@@ -260,13 +202,11 @@ export function seasonState(
    * پیشرفت می‌خواهند (کارت‌های خانه) دست‌نخورده بمانند.
    */
   stars: Map<string, number> | Record<string, number> = {},
-  /** پایه‌ی بچه. مسیر فقط بازی‌های همین پایه را دارد. */
-  grade = 1,
 ): SeasonState {
   const starOf = (id: string): number =>
     (stars instanceof Map ? stars.get(id) : stars[id]) ?? 0;
-  const stages = seasonStages(grade);
-  const totalWeeks = Math.max(1, Math.ceil(stages.length / SEASON.stagesPerWeek));
+  const stages = toSeasonStages(path);
+  const totalWeeks = Math.max(1, ...stages.map((stage) => stage.week));
   const currentWeek = releasedWeeks(today, totalWeeks);
 
   // مرحله‌ی جاری = اولین نرفته‌ی هفته‌های بازشده. هرچه بعد از آن است قفل

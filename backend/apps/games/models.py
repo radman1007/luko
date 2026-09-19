@@ -31,24 +31,63 @@ class Book(TimeStampedModel):
         return f"{self.title} ({self.book_id})"
 
 
+class GameQuerySet(models.QuerySet):
+    def playable(self):
+        """بازی‌هایی که روی مسیرند و بچه می‌تواند بازی‌شان کند."""
+        return self.filter(status=Game.Status.READY, is_active=True)
+
+
 class Game(TimeStampedModel):
     """
-    کاتالوگِ بازی‌های آموزشی (مراحلِ کتاب‌ها). slug همان levelId فرانت است
-    (مثل `grade-1-3`). پاداش‌ها اینجا تعریف می‌شوند تا سمت سرور معتبر باشند.
+    کاتالوگِ بازی‌ها.
+
+    ردیف‌ها دستی ساخته نمی‌شوند: `python manage.py sync_games` آن‌ها را از
+    نامِ فایل‌ها (`C1-Kr-F1-S2-G2.html`) می‌سازد و جایگاهشان را حساب می‌کند
+    (`apps/games/registry.py`). جایگاه و فایل مالِ همگام‌سازی است؛ عنوان،
+    پاداش‌ها و «فعال» مالِ ادمین و همگام‌سازی به آن‌ها دست نمی‌زند.
+
+    `slug` هویتِ پایدارِ بازی است و پیشرفتِ بچه‌ها به آن بسته است؛ با
+    تغییرِ نامِ فایل عوض نمی‌شود و معنایی ندارد تا چیزی از درس لو ندهد.
     """
+
+    class Status(models.TextChoices):
+        READY = "ready", "روی مسیر"
+        INVALID = "invalid", "نام فایل نامعتبر"
+        CONFLICT = "conflict", "جایگاه تکراری"
+        MISSING = "missing", "فایل حذف شده"
 
     slug = models.SlugField(max_length=80, unique=True, verbose_name="شناسه بازی")
     title = models.CharField(max_length=120, verbose_name="عنوان")
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.READY,
+                              db_index=True, verbose_name="وضعیت")
+    # یادداشتِ همگام‌سازی: چرا روی مسیر نیامد (نامِ غلط، جایگاهِ تکراری، …)
+    review_note = models.TextField(blank=True, verbose_name="یادداشت بررسی")
+
+    # ---- جایگاه، از نامِ فایل (C-K-F-S-G) ----
+    grade = models.PositiveSmallIntegerField(default=1, choices=GRADE_CHOICES,
+                                             db_index=True, verbose_name="کلاس (C)")
+    # فقط داخلی: هیچ‌وقت به بچه فرستاده نمی‌شود
+    book_code = models.CharField(max_length=4, blank=True, verbose_name="کد کتاب (K)")
+    chapter = models.PositiveSmallIntegerField(default=0, verbose_name="فصل یا ماه (F)")
+    week = models.PositiveSmallIntegerField(default=0, verbose_name="سیزن یا هفته (S)")
+    number = models.PositiveSmallIntegerField(default=0, verbose_name="شماره بازی (G)")
     book_id = models.CharField(max_length=60, blank=True, db_index=True,
                                verbose_name="شناسه کتاب")
     order = models.PositiveIntegerField(default=0, verbose_name="ترتیب در کتاب")
-    # جایگاه در مسیرِ سیزن — یک صفِ واحد روی همه‌ی کتاب‌ها، از پیشوندِ عددیِ
-    # نامِ فایل. ۰ یعنی این بازی روی مسیر نیست و ترتیبی برایش شرط نمی‌شود.
+    # جایگاه در مسیرِ همان کلاس (۱، ۲، …) — از (F, S, G) حساب می‌شود.
+    # ۰ یعنی روی مسیر نیست.
     season_order = models.PositiveIntegerField(default=0, db_index=True,
                                                verbose_name="ترتیب در مسیر سیزن")
-    # مسیرِ عمومیِ فایلِ بازی (`/games/grade-1/math/01-....html`). سرور برای
-    # ساختنِ لینکِ امضاشده لازمش دارد؛ خالی یعنی بازی هنوز نرسیده است.
+
+    # ---- فایل ----
+    # مسیرِ عمومیِ فایل (`/games/C1-Kr-F1-S1-G1.html`). سرور برای ساختنِ
+    # لینکِ امضاشده لازمش دارد.
     game_file = models.CharField(max_length=200, blank=True, verbose_name="مسیر فایل بازی")
+    # sha256ِ محتوا: فایلی که فقط تغییرِ نام داده با همین شناخته می‌شود
+    content_hash = models.CharField(max_length=64, blank=True, db_index=True,
+                                    verbose_name="اثر انگشت فایل")
+
+    # ---- مالِ ادمین ----
     # سقفِ ستاره‌ی این بازی. روی مدل است نه ثابتِ کد، چون بازیِ کوتاه
     # ممکن است بعداً دو ستاره‌ای تعریف شود و مجموعِ سیزن باید درست بماند.
     max_stars = models.PositiveSmallIntegerField(default=3, verbose_name="بیشترین ستاره")
@@ -57,13 +96,23 @@ class Game(TimeStampedModel):
     fertilizer_reward = models.PositiveIntegerField(default=1, verbose_name="پاداش کود")
     is_active = models.BooleanField(default=True, verbose_name="فعال")
 
+    objects = GameQuerySet.as_manager()
+
     class Meta:
         verbose_name = "بازی"
         verbose_name_plural = "بازی‌ها"
-        ordering = ["book_id", "order"]
+        ordering = ["grade", "season_order", "id"]
 
     def __str__(self):
-        return self.slug
+        return self.title or self.slug
+
+    @property
+    def code(self) -> str:
+        """کدِ فایل (`C1-Kr-F1-S2-G2`) — فقط برای ادمین."""
+        if not (self.chapter and self.week and self.number):
+            return ""
+        return (f"C{self.grade}-K{self.book_code}-F{self.chapter}"
+                f"-S{self.week}-G{self.number}")
 
 
 class GameCompletion(TimeStampedModel):
@@ -142,12 +191,10 @@ class GameEvent(TimeStampedModel):
         return f"{self.game_slug}:{self.event_type}"
 
 
-# باطل‌سازیِ کشِ کاتالوگ. بدونِ این، ویرایشِ ادمین تا یک ساعت دیده نمی‌شد.
+# باطل‌سازیِ کشِ کاتالوگ و مسیر. بدونِ این، ویرایشِ ادمین تا یک ساعت دیده نمی‌شد.
 def _drop_catalog_cache(*args, **kwargs) -> None:
-    from apps.common import cache
-    keys = [cache.book_catalog_key(None)]
-    keys += [cache.book_catalog_key(str(g)) for g in range(1, 7)]
-    cache.invalidate(*keys)
+    from .registry import drop_caches
+    drop_caches()
 
 
 models.signals.post_save.connect(_drop_catalog_cache, sender=Book)

@@ -4,6 +4,7 @@ import { HiOutlineChevronLeft, HiPlay } from 'react-icons/hi2';
 import { CoinIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
 import { SEASON, seasonState } from '@/features/games/seasonData';
+import { useGamePath } from '@/features/games/useGamePath';
 import { useSeasonProgress } from '@/features/games/useSeasonProgress';
 import { useGrade } from '@/features/auth/useGrade';
 import { SEASON_MAP_PATH } from '@/lib/constants/nav';
@@ -35,9 +36,10 @@ export function GameZoneCard() {
   // از سرور می‌آید تا کارتِ خانه و نقشه یک چیز بگویند؛ ستاره‌ها هم همین‌جاست
   const progress = useSeasonProgress();
   const grade = useGrade();
+  const path = useGamePath(grade);
   const state = useMemo(
-    () => seasonState(progress.done, new Date(), progress.stars, grade),
-    [progress, grade],
+    () => seasonState(path.stages, progress.done, new Date(), progress.stars),
+    [path.stages, progress],
   );
 
   const next = state.nextStage;

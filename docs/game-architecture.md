@@ -171,7 +171,7 @@ if (S.declared && hasMoreLevels() && S.currentLevel > 0) {
   "schema": 2,
   "sessionId": "s1abc2def",     // یکتا برای هر بار بازکردنِ بازی
   "gameId": "math-1-1",
-  "gameSlug": "01-riyazi_f1_g1",
+  "gameSlug": "C1-Kr-F1-S1-G1",
   "gameType": "sorting",
   "status": "COMPLETED",
 

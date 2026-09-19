@@ -42,6 +42,6 @@
 | `features/podcast/podcastData.ts` | `GET /podcasts` (+ `today`) · `POST /podcasts/{id}/listen` |
 | ~~قانون روز جاده~~ | `GET /traffic-rules` — بخشِ فرانت حذف شد (مرداد ۱۴۰۵)؛ مدل و API در بک‌اند نگه داشته شد تا اگر برگشت، دوباره کار کند |
 | ~~آشپزی روز~~ | `GET /recipes` — همان وضعیت |
-| `features/books/booksData.ts` | `GET /books` (کتاب + مراحل + فهرستِ کامل‌شده‌ها) |
+| `features/games/useGamePath.ts` | `GET /games/path?grade=N` (مسیرِ کلاس — فقط عنوان/ترتیب/هفته/پاداش) |
 | تبِ «پشتیبانی» پنل والدین | `GET,POST /tickets` · `POST /tickets/{id}/reply` |
 | رویدادهای بازی‌ها (تله‌متری) | `POST /games/events` — تک‌رویداد یا آرایه |

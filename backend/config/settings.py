@@ -158,6 +158,11 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # پس هر دو باید یکی باشند. در production حتماً از env بیاید.
 GAME_LINK_SECRET = env("GAME_LINK_SECRET", "dev-game-link-secret")
 
+# پوشه‌ی فایل‌های بازی — `sync_games` کاتالوگ را از نامِ همین فایل‌ها می‌سازد.
+# محلی: `frontend/public/games`؛ روی سرور همان `frontend/dist/games` که nginx
+# سرو می‌کند، فقط‌خواندنی داخلِ کانتینر (docker-compose.arvan.yml).
+GAME_FILES_DIR = Path(env("GAME_FILES_DIR", str(BASE_DIR.parent / "frontend" / "public" / "games")))
+
 # ملی‌پیامک (ارائه‌دهنده‌ی قبلی) — کلید در URLِ سرویس می‌نشیند، پس فقط از env
 # کلیدِ گاوصندوقِ رمز — بدونِ آن، رمزِ خوانا اصلاً ذخیره نمی‌شود و پنل
 # ادمین «پیکربندی نشده» نشان می‌دهد. فقط در env سرور بماند.
