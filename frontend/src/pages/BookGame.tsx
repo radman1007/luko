@@ -26,6 +26,9 @@ import styles from './BookGame.module.css';
  * ثبت می‌شود. دکمه‌ی دستیِ «تموم کردم» عمداً برداشته شده — بچه نباید بتواند
  * بدونِ بردنِ بازی مرحله را ببندد و سکه بگیرد.
  */
+/** بعد از این مدت بازی، دکمه‌ی «تموم کردم» ظاهر می‌شود (میلی‌ثانیه) */
+const CLAIM_AFTER_MS = 3 * 60 * 1000;
+
 export default function BookGame() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -88,6 +91,13 @@ export default function BookGame() {
     }
   }, [needsAccount, serverLocked, navigate]);
 
+  /**
+   * تورِ ایمنی: بعضی بازی‌های استودیو پایانشان را خبر نمی‌دهند و پل هم
+   * همیشه نمی‌تواند صفحه‌ی بُردشان را تشخیص دهد. بدونِ این دکمه، بچه‌ای که
+   * بازی را برده پشتِ همان مرحله می‌ماند و کلِ مسیرش قفل می‌شود. فقط بعد از
+   * چند دقیقه بازیِ واقعی ظاهر می‌شود، نه از همان اول.
+   */
+  const [canClaim, setCanClaim] = useState(false);
   const [justWon, setJustWon] = useState(false);
   const [serverCoins, setServerCoins] = useState<number | null>(null);
   const [wonStars, setWonStars] = useState<number>(0);
@@ -126,6 +136,12 @@ export default function BookGame() {
       }
     })();
   };
+
+  useEffect(() => {
+    if (!play.data || justWon) return undefined;
+    const timer = window.setTimeout(() => setCanClaim(true), CLAIM_AFTER_MS);
+    return () => window.clearTimeout(timer);
+  }, [play.data, justWon]);
 
   // پلِ بازی ← اپ: پایانِ بازی، و تله‌متری‌ای که گزارشِ والدین از رویش ساخته می‌شود
   useEffect(() => {
@@ -248,6 +264,11 @@ export default function BookGame() {
           <div className={styles.loading}>
             {play.isError ? 'بازی باز نشد. یک‌بار دیگر امتحان کن.' : 'در حال باز کردنِ بازی…'}
           </div>
+        )}
+        {canClaim && !justWon && (
+          <button type="button" className={styles.claim} onClick={() => finish()}>
+            این مرحله رو تموم کردم
+          </button>
         )}
         {justWon && (
           <div className={styles.winOverlay} role="dialog" aria-label="مرحله کامل شد">

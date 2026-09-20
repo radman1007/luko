@@ -8,8 +8,11 @@
  *
  * ترتیبِ تشخیص:
  *   ۱. اگر خودِ بازی `LUKO.finish()` را صدا بزند، پل کنار می‌کشد.
- *   ۲. `window.LUKO_WIN` (نشانیِ عنصرِ پایان، توسطِ ابزارِ واردکردن ساخته می‌شود).
- *   ۳. حدسِ عمومی: عنصری که شناسه/کلاسش «برد/نتیجه/پایان» است و دیده می‌شود.
+ *   ۲. `window.LUKO_WIN` — نشانیِ قطعیِ صفحه‌ی پایان (شناسه‌اش خودش می‌گوید).
+ *   ۳. `window.LUKO_WIN_MAYBE` — رویه‌ی عمومی؛ فقط اگر متنش هم بُرد باشد.
+ *   ۴. حدسِ عمومی: عنصری که شناسه/کلاسش «برد/نتیجه/پایان» است و دیده می‌شود.
+ *
+ * هر دو فهرست را `manage.py import_games` هنگامِ آوردنِ بازی می‌سازد.
  *
  * محافظ‌ها: فقط یک‌بار خبر می‌دهد؛ تا چند ثانیه‌ی اولِ بازی چیزی نمی‌فرستد
  * (بعضی بازی‌ها مودالِ نتیجه را از قبل در DOM دارند و لحظه‌ی اول پنهانش
@@ -80,20 +83,23 @@
     return WORDS.test(text) || WIN.test(name);
   }
 
-  function hinted() {
-    var hints = window.LUKO_WIN;
-    if (!hints || !hints.length) return null;
-    for (var i = 0; i < hints.length; i += 1) {
+  function match(list, needText) {
+    if (!list || !list.length) return null;
+    for (var i = 0; i < list.length; i += 1) {
       try {
-        var el = document.querySelector(hints[i]);
-        // نشانیِ عمومی (مثلِ «action-overlay» که هم برای بُرد است هم برای
-        // باخت) فقط وقتی پایان است که متنش هم بگوید؛ نشانیِ صریح خودش بس است.
-        if (el && visible(el) && (WIN.test(hints[i]) || WORDS.test((el.innerText || '').slice(0, 400)))) {
-          return hints[i];
-        }
+        var el = document.querySelector(list[i]);
+        if (!el || !visible(el)) continue;
+        // رویه‌ی عمومی (مثلِ «action-overlay» که هم برای بُرد است هم برای
+        // باخت) فقط وقتی پایان است که متنش هم بگوید.
+        if (needText && !WORDS.test((el.innerText || '').slice(0, 400))) continue;
+        return list[i];
       } catch (e) { /* نشانیِ نامعتبر */ }
     }
     return null;
+  }
+
+  function hinted() {
+    return match(window.LUKO_WIN, false) || match(window.LUKO_WIN_MAYBE, true);
   }
 
   function scan() {
