@@ -60,13 +60,17 @@ PATCHES = [
 GOOGLE_FONTS = re.compile(r"<link[^>]+fonts\.googleapis\.com[^>]*>", re.I)
 
 MARK = "<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->"
-BLOCK = re.compile(re.escape(MARK) + r".*?luko-bridge\.js\"></script>\s*", re.S)
+BLOCK = re.compile(re.escape(MARK) + r".*?luko-bridge\.js\"\s*></script>\s*", re.S)
 
+# `async` عمدی است: اسکریپتِ معمولی پارسِ صفحه را نگه می‌دارد و چون
+# بیشترِ بازی‌ها `init` را روی DOMContentLoaded صدا می‌زنند، شروعِ خودِ بازی
+# تا دانلودِ این دو فایل معطل می‌ماند. پل هم `LUKO` را دیرهنگام می‌بیند و
+# اگر نبود مستقیم پیام می‌فرستد، پس ترتیبشان مهم نیست.
 INJECT = """
 {mark}
 <script>window.LUKO_WIN = {sure}; window.LUKO_WIN_MAYBE = {maybe};</script>
-<script src="/games/assets/luko-sdk.js"></script>
-<script src="/games/assets/luko-bridge.js"></script>
+<script async src="/games/assets/luko-sdk.js"></script>
+<script async src="/games/assets/luko-bridge.js"></script>
 """
 
 
