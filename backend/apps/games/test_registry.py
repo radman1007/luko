@@ -11,7 +11,6 @@ import tempfile
 from pathlib import Path
 
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.core.cache import cache as django_cache
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -831,13 +830,21 @@ class LegacyMigrationTests(TestCase):
         self.migrate()
         self.assertFalse(Game.objects.exists())
 
-    def test_migration_and_sync_agree_on_the_real_files(self):
-        root = Path(settings.GAME_FILES_DIR)
-        if not (root / "C1-Kr-F1-S1-G1.html").exists():
-            self.skipTest("فایل‌های بازی در این محیط نیستند")
+    def test_migration_and_sync_agree(self):
+        """
+        مهاجرت و همگام‌سازی باید یک چیز بگویند: ردیف‌هایی که مهاجرت جابه‌جا
+        کرده، با اسکنِ همان فایل‌ها دقیقاً همان‌جا بنشینند.
+
+        پوشه این‌جا ساختگی است تا تست به محتوای واقعیِ پروژه وابسته نباشد؛
+        با هر بازیِ تازه‌ای که تیمِ محتوا اضافه کند، ترتیبِ واقعی عوض می‌شود.
+        """
         self.migrate()
         before = dict(Game.objects.values_list("slug", "season_order"))
-        result = registry.sync(root)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for _, _, name in LEGACY_MIGRATION.LEGACY:
+                (root / name).write_text(f"<title>{name}</title>", encoding="utf-8")
+            result = registry.sync(root)
         legacy = [e for e in result.entries if e.slug in before]
         self.assertEqual(len(legacy), 27)
         self.assertEqual({e.match for e in legacy}, {"same"})
