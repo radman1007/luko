@@ -1,0 +1,2076 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شهر زنده: معماری الگوها</title>
+    <!-- ============================================================
+    🧠 بازی «شهر زنده: معماری الگوها» × LOKO Unified Design System
+    منطق و Gameplay کاملاً حفظ شده است.
+    Asset های لوکو: ./icons/coin.png | ./icons/gamer.png | ./icons/gamerhi.png
+    ============================================================ -->
+    <style>
+        /* ---------- 🔤 فونت‌های LOKO (Shoor / Shoor Rounded) ---------- */
+        @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Regular.ttf") format("truetype"); font-weight: 400; }
+        @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Medium.ttf") format("truetype"); font-weight: 500; }
+        @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Black.ttf") format("truetype"); font-weight: 900; }
+        @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-ExtraBold.ttf") format("truetype"); font-weight: 800; }
+        @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Regular.ttf") format("truetype"); font-weight: 400; }
+        @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Medium.ttf") format("truetype"); font-weight: 500; }
+        @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Black.ttf") format("truetype"); font-weight: 900; }
+        @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype"); font-weight: 800; }
+
+        :root {
+            /* 🌈 پالت LOKO */
+            --primary: #6C5CE7;
+            --neon-blue: #00D2FF;
+            --neon-pink: #FF00A0;
+            --neon-green: #00FF9D;
+            --accent: #FFEAA7;
+            --success: #00B894;
+            --danger: #FF7675;
+            --dark: #1E1E2F;
+            --gold: #FFC93C;
+            --gold-dark: #B96F00;
+
+            --brick-color: #e8a87c;
+            --brick-dark: #c77d5a;
+
+            --glass-bg: rgba(255, 255, 255, 0.07);
+            --glass-bg-strong: rgba(255, 255, 255, 0.13);
+            --glass-border: rgba(255, 255, 255, 0.16);
+
+            --text: #f5f6fa;
+            --text-light: rgba(245, 246, 250, 0.62);
+
+            --radius: 24px;
+            --radius-sm: 16px;
+            --radius-xs: 12px;
+
+            --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+            --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font);
+            background:
+                radial-gradient(ellipse at 15% 0%, rgba(108, 92, 231, 0.30), transparent 55%),
+                radial-gradient(ellipse at 85% 100%, rgba(0, 210, 255, 0.14), transparent 55%),
+                linear-gradient(135deg, #0c0a14, #181225);
+            background-attachment: fixed;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+        }
+
+        button { font-family: var(--font); }
+        button:focus-visible { outline: 2px solid var(--neon-blue); outline-offset: 2px; }
+
+        /* ☁️ ابرهای بازی */
+        .cloud {
+            position: fixed;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: 0;
+            filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.15));
+            animation: floatCloud 20s ease-in-out infinite;
+        }
+        .cloud::before,
+        .cloud::after { content: ''; position: absolute; background: #fff; border-radius: 50%; }
+        .cloud-1 { width: 120px; height: 50px; top: 8%; left: 10%; animation-delay: 0s; }
+        .cloud-1::before { width: 60px; height: 60px; top: -30px; left: 20px; }
+        .cloud-1::after { width: 80px; height: 55px; top: -20px; left: 50px; }
+        .cloud-2 { width: 100px; height: 40px; top: 15%; right: 8%; animation-delay: -8s; }
+        .cloud-2::before { width: 50px; height: 50px; top: -25px; left: 15px; }
+        .cloud-2::after { width: 65px; height: 45px; top: -18px; left: 40px; }
+        .cloud-3 { width: 90px; height: 35px; top: 25%; left: 55%; animation-delay: -14s; }
+        .cloud-3::before { width: 45px; height: 45px; top: -22px; left: 10px; }
+        .cloud-3::after { width: 55px; height: 40px; top: -16px; left: 35px; }
+
+        @keyframes floatCloud {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(30px); }
+            50% { transform: translateX(-15px); }
+            75% { transform: translateX(20px); }
+        }
+
+        /* 🧊 کانتینر اصلی – Glassmorphism LOKO */
+        .main-container {
+            width: 100%;
+            max-width: 480px;
+            min-height: 520px;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg), 0 0 60px rgba(108, 92, 231, 0.18);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* ---------- سربرگ ---------- */
+        .game-header {
+            background: linear-gradient(135deg, rgba(108, 92, 231, 0.35), rgba(0, 210, 255, 0.12));
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            color: var(--text);
+            padding: 13px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .game-header .title-area { display: flex; align-items: center; gap: 10px; }
+        .game-header h1 {
+            font-size: 1.25em;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 10px rgba(108, 92, 231, 0.5);
+        }
+        .game-header .subtitle { font-size: 0.72em; color: var(--accent); font-weight: 500; letter-spacing: 0.5px; }
+
+        /* ---------- 🪙 Coin Display – کوین لوکو (./icons/coin.png) ---------- */
+        .coin-display {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 50px;
+            padding: 5px 12px;
+            box-shadow: 0 0 18px rgba(255, 201, 60, 0.25), inset 0 0 12px rgba(255, 201, 60, 0.06);
+            flex-shrink: 0;
+            transition: box-shadow 0.3s ease;
+        }
+        .coin-icon-img,
+        .coin-icon-svg {
+            width: 26px;
+            height: 26px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 6px rgba(255, 201, 60, 0.6));
+            flex-shrink: 0;
+        }
+        .coin-amount {
+            font-weight: 900;
+            font-size: 1.05em;
+            color: var(--gold);
+            min-width: 22px;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 201, 60, 0.45);
+        }
+        .coin-display.coin-burst { animation: coinBurst 0.6s ease; }
+        @keyframes coinBurst {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.18); box-shadow: 0 0 32px rgba(255, 201, 60, 0.7); }
+            100% { transform: scale(1); }
+        }
+
+        .mute-btn {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.25em;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .mute-btn:hover { background: rgba(255, 255, 255, 0.24); transform: scale(1.08); }
+        .mute-btn:active { transform: scale(0.94); }
+
+        /* ---------- نوار پیشرفت ---------- */
+        .progress-bar-wrap {
+            width: 100%;
+            flex-basis: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 4px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), #FFE68A);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(255, 201, 60, 0.7);
+        }
+
+        /* ---------- محتوای بازی ---------- */
+        .game-content {
+            padding: 18px 16px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+        }
+
+        /* ---------- صفحه لندینگ ---------- */
+        .landing-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 13px;
+            text-align: center;
+            padding: 6px;
+            width: 100%;
+        }
+
+        /* 💬 حباب گفتگو */
+        .speech-bubble {
+            position: relative;
+            background: rgba(255, 255, 255, 0.10);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 16px;
+            padding: 10px 20px;
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.95em;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), 0 0 24px rgba(108, 92, 231, 0.22);
+            animation: bubbleFloat 3s ease-in-out infinite;
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            right: 50%;
+            margin-right: -8px;
+            width: 15px;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.10);
+            border-right: 1px solid rgba(255, 255, 255, 0.28);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+            border-bottom-right-radius: 4px;
+            transform: rotate(45deg);
+        }
+        @keyframes bubbleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        /* 👤 جایگاه شخصیت لوکو (./icons/gamer.png) + fallback ایموجی */
+        .character-slot {
+            position: relative;
+            width: 130px;
+            height: 135px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .character-fallback {
+            position: absolute;
+            font-size: 60px;
+            line-height: 1;
+            filter: drop-shadow(0 0 18px rgba(108, 92, 231, 0.55));
+            animation: floatChar 3.5s ease-in-out infinite;
+        }
+        .character-img {
+            position: relative;
+            z-index: 1;
+            width: 130px;
+            height: 135px;
+            object-fit: contain;
+            image-rendering: pixelated;
+            filter: drop-shadow(0 0 26px rgba(108, 92, 231, 0.6)) drop-shadow(0 12px 20px rgba(0, 0, 0, 0.5));
+            animation: bounceIn 0.6s ease, floatChar 3.5s ease-in-out 0.6s infinite;
+        }
+        @keyframes floatChar {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .hero-title {
+            font-size: 2.1em;
+            font-weight: 900;
+            line-height: 1.2;
+            background: linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 3px 12px rgba(255, 201, 60, 0.35));
+        }
+        .hero-subtitle {
+            font-size: 1em;
+            color: var(--accent);
+            font-weight: 500;
+            margin-top: -6px;
+            text-shadow: 0 0 14px rgba(255, 234, 167, 0.25);
+        }
+        .landing-desc {
+            color: var(--text-light);
+            font-size: 0.9em;
+            max-width: 340px;
+            line-height: 1.7;
+        }
+        .landing-score-chip {
+            margin-top: 4px;
+            padding: 8px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            font-size: 0.85em;
+            color: var(--text-light);
+        }
+        .landing-score-chip strong { color: var(--gold); }
+
+        /* ---------- سیستم دکمه‌های LOKO ---------- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 1.05em;
+            font-weight: 800;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease, background 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 56px;
+            min-width: 180px;
+            letter-spacing: 0.3px;
+        }
+        .btn:active { transform: translateY(3px) scale(0.98); transition: transform 0.08s; }
+
+        .btn-primary {
+            background: linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%);
+            color: #5b3a00;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+            box-shadow: 0 6px 0 var(--gold-dark), 0 12px 28px rgba(255, 169, 0, 0.35), 0 0 34px rgba(255, 201, 60, 0.25);
+        }
+        .btn-primary:hover {
+            filter: brightness(1.06);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 var(--gold-dark), 0 16px 32px rgba(255, 169, 0, 0.4), 0 0 40px rgba(255, 201, 60, 0.35);
+        }
+        .btn-primary:active {
+            transform: translateY(4px) scale(0.98);
+            box-shadow: 0 2px 0 var(--gold-dark), 0 6px 14px rgba(255, 169, 0, 0.35);
+        }
+        #btnStart { min-width: 250px; }
+        #btnGuide { min-width: 160px; }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: var(--neon-blue);
+            transform: translateY(-2px);
+        }
+        .btn-secondary:active { transform: translateY(2px) scale(0.98); }
+
+        .btn-success {
+            background: linear-gradient(180deg, #55EFC4, #00B894);
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 5px 0 #00916F, 0 12px 26px rgba(0, 184, 148, 0.35);
+        }
+        .btn-success:hover { filter: brightness(1.07); transform: translateY(-2px); }
+        .btn-success:active { transform: translateY(3px) scale(0.98); box-shadow: 0 2px 0 #00916F, 0 6px 14px rgba(0, 184, 148, 0.3); }
+
+        .btn-warning {
+            background: linear-gradient(180deg, #FF9A99, #FF7675);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 5px 0 #C75655, 0 10px 22px rgba(255, 118, 117, 0.3);
+        }
+        .btn-warning:active { transform: translateY(3px) scale(0.98); box-shadow: 0 2px 0 #C75655, 0 6px 14px rgba(255, 118, 117, 0.3); }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.45);
+            transform: scale(0);
+            animation: rippleAnim 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
+        .shake { animation: shakeAnim 0.5s ease; }
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            15% { transform: translateX(-8px); }
+            30% { transform: translateX(8px); }
+            45% { transform: translateX(-6px); }
+            60% { transform: translateX(6px); }
+            75% { transform: translateX(-3px); }
+            90% { transform: translateX(3px); }
+        }
+        .bounce-in { animation: bounceIn 0.6s ease; }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.08); }
+            70% { transform: scale(0.94); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .glow-green {
+            box-shadow: 0 0 30px rgba(0, 255, 157, 0.6), 0 0 60px rgba(0, 255, 157, 0.3) !important;
+            transition: box-shadow 0.4s ease;
+        }
+        .glow-red {
+            box-shadow: 0 0 30px rgba(255, 118, 117, 0.65), 0 0 60px rgba(255, 118, 117, 0.35) !important;
+            transition: box-shadow 0.4s ease;
+        }
+
+        /* ---------- منطقه بازی ---------- */
+        .game-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        #phaseMessage {
+            font-size: 1.02em;
+            font-weight: 800;
+            color: #fff;
+            text-align: center;
+            background: rgba(108, 92, 231, 0.18);
+            border: 1px solid rgba(108, 92, 231, 0.5);
+            border-radius: 50px;
+            padding: 10px 18px;
+            width: 100%;
+            animation: softPulse 2.5s ease-in-out infinite;
+        }
+        @keyframes softPulse {
+            0%, 100% { box-shadow: 0 0 14px rgba(108, 92, 231, 0.15); }
+            50% { box-shadow: 0 0 26px rgba(108, 92, 231, 0.4); }
+        }
+
+        .building-container {
+            position: relative;
+            width: 200px;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            justify-content: flex-start;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            transition: all 0.3s ease;
+        }
+        .building-container::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 14px;
+            border-radius: 50%;
+            background: radial-gradient(ellipse, rgba(0, 210, 255, 0.25), transparent 70%);
+            z-index: 0;
+        }
+        #buildingFloors { position: relative; z-index: 1; }
+
+        .floor-unit {
+            width: 100px;
+            height: 18px;
+            background: linear-gradient(180deg, #f0b98a, var(--brick-color));
+            border: 2px solid var(--brick-dark);
+            border-radius: 4px;
+            margin: 1px 0;
+            transition: all 0.4s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        .floor-unit.newly-added {
+            animation: popIn 0.5s ease;
+            background: #f0c78e;
+            border-color: #d4956b;
+        }
+        @keyframes popIn {
+            0% { transform: scaleY(0); opacity: 0; }
+            60% { transform: scaleY(1.2); }
+            100% { transform: scaleY(1); opacity: 1; }
+        }
+        @keyframes collapseFloor {
+            0% { transform: translateY(0); opacity: 1; }
+            30% { transform: translateY(-10px); opacity: 0.8; }
+            100% { transform: translateY(60px); opacity: 0; }
+        }
+        .floor-unit.collapsing { animation: collapseFloor 0.6s ease forwards; }
+
+        /* ---------- سبد قطعات ---------- */
+        .basket-area {
+            width: 100%;
+            background: var(--glass-bg);
+            border: 2px dashed rgba(255, 201, 60, 0.4);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            min-height: 64px;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .basket-label {
+            font-size: 0.85em;
+            color: var(--accent);
+            font-weight: 600;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 2px;
+        }
+        .brick-piece {
+            width: 38px;
+            height: 25px;
+            background: linear-gradient(180deg, #f2b183, var(--brick-color));
+            border: 2px solid var(--brick-dark);
+            border-radius: 5px;
+            cursor: grab;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            position: relative;
+        }
+        .brick-piece:hover {
+            transform: scale(1.18) rotate(-2deg);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 0 0 14px rgba(255, 201, 60, 0.4);
+            z-index: 5;
+        }
+        .brick-piece:active { cursor: grabbing; transform: scale(1.05); }
+        .brick-piece.dragging { opacity: 0.5; transform: scale(0.9); }
+
+        .drop-zone {
+            width: 150px;
+            min-height: 56px;
+            border: 3px dashed rgba(255, 255, 255, 0.25);
+            border-radius: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .drop-zone.highlight {
+            border-color: var(--neon-green);
+            background: rgba(0, 255, 157, 0.08);
+            box-shadow: 0 0 22px rgba(0, 255, 157, 0.35), inset 0 0 16px rgba(0, 255, 157, 0.1);
+        }
+        .drop-zone .brick-in-zone { cursor: pointer; animation: popIn 0.4s ease; }
+
+        .construction-controls {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .counter-btn {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-size: 1.6em;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(108, 92, 231, 0.3);
+        }
+        .counter-btn:hover { background: rgba(108, 92, 231, 0.35); border-color: var(--neon-blue); transform: scale(1.08); }
+        .counter-btn:active { transform: scale(0.9); background: var(--primary); }
+        .counter-display {
+            font-size: 1.8em;
+            font-weight: 900;
+            color: var(--gold);
+            min-width: 56px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.07);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            padding: 4px 14px;
+            text-shadow: 0 0 12px rgba(255, 201, 60, 0.4);
+        }
+
+        /* ---------- دکمه‌های گزینه قانون ---------- */
+        .rule-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            width: 100%;
+        }
+        .rule-btn {
+            padding: 13px 20px;
+            border-radius: 18px;
+            font-size: 0.95em;
+            font-weight: 700;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.18);
+            color: #fff;
+            transition: all 0.2s;
+            min-width: 140px;
+            min-height: 50px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .rule-btn:hover {
+            border-color: var(--neon-blue);
+            background: rgba(0, 210, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 210, 255, 0.22);
+        }
+        .rule-btn:disabled { opacity: 0.45; cursor: default; transform: none; }
+        .rule-btn.selected-correct {
+            border-color: var(--neon-green) !important;
+            background: rgba(0, 255, 157, 0.14) !important;
+            box-shadow: 0 0 22px rgba(0, 255, 157, 0.35);
+            animation: pulseGreen 0.6s ease;
+        }
+        .rule-btn.selected-wrong {
+            border-color: var(--danger) !important;
+            background: rgba(255, 118, 117, 0.15) !important;
+            animation: shakeAnim 0.5s ease;
+        }
+        @keyframes pulseGreen {
+            0%, 100% { box-shadow: 0 0 0 rgba(0, 255, 157, 0); }
+            50% { box-shadow: 0 0 25px rgba(0, 255, 157, 0.6); }
+        }
+
+        #constructionArea { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
+        #predictionArea { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+        .prediction-title { font-weight: 800; color: #fff; text-align: center; }
+
+        /* ---------- Toast ---------- */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+            width: 90%;
+            max-width: 480px;
+        }
+        .toast {
+            padding: 13px 20px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 0.95em;
+            text-align: center;
+            background: rgba(30, 30, 47, 0.94);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+            pointer-events: auto;
+            animation: toastIn 0.4s ease, toastOut 0.4s ease 2.5s forwards;
+        }
+        .toast-success { border-color: var(--neon-green); color: var(--neon-green); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 24px rgba(0, 255, 157, 0.2); }
+        .toast-error { border-color: var(--danger); color: #ffc9c8; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 24px rgba(255, 118, 117, 0.2); }
+        .toast-warning { border-color: var(--gold); color: var(--accent); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 24px rgba(255, 201, 60, 0.2); }
+        .toast-info { border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 24px rgba(0, 210, 255, 0.2); }
+        @keyframes toastIn { from { transform: translateY(-40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes toastOut { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-30px); opacity: 0; } }
+
+        /* ---------- مودال‌ها ---------- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 8, 18, 0.7);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+            padding: 14px;
+        }
+        .modal {
+            background: rgba(30, 30, 47, 0.94);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 440px;
+            max-height: 82vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg), 0 0 60px rgba(108, 92, 231, 0.22);
+            animation: modalPop 0.4s ease;
+        }
+        .modal h2 {
+            font-size: 1.35em;
+            font-weight: 900;
+            margin-bottom: 12px;
+            background: linear-gradient(180deg, #FFE68A, #FFC93C 50%, #FFA800);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+        .modal p { line-height: 1.9; color: rgba(245, 246, 250, 0.88); margin: 8px 0; }
+        .modal .close-btn {
+            float: left;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.2s;
+            z-index: 2;
+            position: relative;
+        }
+        .modal .close-btn:hover { background: rgba(255, 255, 255, 0.22); transform: rotate(90deg); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* ---------- 📖 راهنمای حرفه‌ای (شخصیت: ./icons/gamerhi.png) ---------- */
+        .guide-modal { max-width: 480px; }
+        .guide-hero {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: linear-gradient(135deg, rgba(108, 92, 231, 0.3), rgba(0, 210, 255, 0.12));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .guide-hero::before {
+            content: '';
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            right: -40px;
+            top: -40px;
+            background: radial-gradient(circle, rgba(0, 210, 255, 0.22), transparent 70%);
+            pointer-events: none;
+        }
+        .guide-character {
+            width: 82px;
+            height: 82px;
+            object-fit: contain;
+            flex-shrink: 0;
+            position: relative;
+            image-rendering: pixelated;
+            filter: drop-shadow(0 0 16px rgba(0, 210, 255, 0.5)) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.4));
+            animation: floatChar 3.5s ease-in-out infinite;
+        }
+        .guide-hero-text { position: relative; min-width: 0; }
+        .guide-hero-text h2 { font-size: 1.25em; margin-bottom: 4px; }
+        .guide-tagline { font-size: 0.85em; color: var(--text-light); line-height: 1.8; }
+
+        .guide-mission {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            background: rgba(255, 201, 60, 0.1);
+            border: 1px dashed rgba(255, 201, 60, 0.55);
+            border-radius: 14px;
+            padding: 10px 14px;
+            font-size: 0.88em;
+            color: var(--accent);
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+        .guide-mission strong { color: var(--gold); }
+
+        .guide-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            margin-bottom: 12px;
+        }
+        .guide-step {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 11px 13px;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+        .guide-step:hover {
+            border-color: rgba(255, 255, 255, 0.35);
+            transform: translateX(-4px);
+        }
+        .step-badge {
+            width: 38px;
+            height: 38px;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.05em;
+            flex-shrink: 0;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .b-blue   { background: linear-gradient(180deg, #5FE0FF, #00A8D2); box-shadow: 0 4px 12px rgba(0, 210, 255, 0.4); }
+        .b-purple { background: linear-gradient(180deg, #9B8CFF, #6C5CE7); box-shadow: 0 4px 12px rgba(108, 92, 231, 0.45); }
+        .b-gold   { background: linear-gradient(180deg, #FFE68A, #FFC93C); color: #5b3a00; text-shadow: none; box-shadow: 0 4px 12px rgba(255, 201, 60, 0.45); }
+        .b-green  { background: linear-gradient(180deg, #55EFC4, #00B894); box-shadow: 0 4px 12px rgba(0, 184, 148, 0.4); }
+        .b-red    { background: linear-gradient(180deg, #FFA9A8, #FF7675); box-shadow: 0 4px 12px rgba(255, 118, 117, 0.4); }
+        .b-pink   { background: linear-gradient(180deg, #FF5FC4, #FF00A0); box-shadow: 0 4px 12px rgba(255, 0, 160, 0.4); }
+        .step-body { min-width: 0; }
+        .step-title { font-weight: 800; font-size: 0.95em; margin-bottom: 3px; color: #fff; }
+        .step-text { font-size: 0.85em; color: var(--text-light); line-height: 1.8; }
+
+        .guide-tip {
+            text-align: center;
+            background: linear-gradient(180deg, rgba(255, 230, 138, 0.16), rgba(255, 201, 60, 0.08));
+            border: 1px solid rgba(255, 201, 60, 0.55);
+            color: var(--gold);
+            border-radius: 14px;
+            padding: 11px 12px;
+            font-weight: 800;
+            font-size: 0.9em;
+            margin-bottom: 14px;
+            animation: rewardGlow 2.4s ease-in-out infinite;
+        }
+        .guide-cta {
+            min-width: 210px;
+            display: flex;
+            margin: 0 auto;
+        }
+
+        /* ---------- 🏆 صفحه پایان بازی ---------- */
+        .mini-character {
+            width: 88px;
+            height: 94px;
+            object-fit: contain;
+            image-rendering: pixelated;
+            margin: 0 auto 4px;
+            display: block;
+            filter: drop-shadow(0 0 20px rgba(108, 92, 231, 0.55));
+            animation: floatChar 3s ease-in-out infinite;
+        }
+        .stars-row { display: flex; gap: 10px; justify-content: center; margin: 8px 0 12px; }
+        .star-svg {
+            width: 46px;
+            height: 46px;
+            filter: drop-shadow(0 0 12px rgba(255, 201, 60, 0.6));
+            animation: starPop 0.6s ease backwards;
+        }
+        .star-svg:nth-child(2) { animation-delay: 0.15s; }
+        .star-svg:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes starPop {
+            0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+            60% { transform: scale(1.25) rotate(8deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+        #endGameSummary { white-space: pre-line; }
+        .end-score-line { font-size: 1.15em; font-weight: 900; color: var(--gold); margin-top: 6px; }
+        #endGameScore { font-size: 1.2em; }
+
+        /* 🪙 چیپ پاداش سکه لوکو */
+        .coin-reward-chip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 12px auto;
+            padding: 10px 24px;
+            border-radius: 50px;
+            width: fit-content;
+            background: linear-gradient(180deg, rgba(255, 230, 138, 0.18), rgba(255, 201, 60, 0.12));
+            border: 1.5px solid rgba(255, 201, 60, 0.55);
+            color: var(--gold);
+            font-weight: 900;
+            font-size: 1.05em;
+            animation: rewardGlow 2s ease-in-out infinite;
+        }
+        @keyframes rewardGlow {
+            0%, 100% { box-shadow: 0 0 16px rgba(255, 201, 60, 0.25); }
+            50% { box-shadow: 0 0 32px rgba(255, 201, 60, 0.5); }
+        }
+        #btnPlayAgain, #btnEndToLanding { margin-top: 8px; min-width: 210px; }
+
+        /* ---------- کنفتی و پاداش نامنظم ---------- */
+        .confetti-piece {
+            position: fixed;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            animation: confettiFall 2.5s ease forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-60px) rotate(0deg) scale(1); opacity: 1; }
+            70% { opacity: 1; }
+            100% { transform: translateY(105vh) rotate(720deg) scale(0.3); opacity: 0; }
+        }
+        .irregular-reward {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 9997;
+            pointer-events: none;
+            animation: rewardPop 2s ease forwards;
+        }
+        @keyframes rewardPop {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(-30deg); opacity: 0; }
+            30% { transform: translate(-50%, -50%) scale(1.6) rotate(10deg); opacity: 1; }
+            60% { transform: translate(-50%, -50%) scale(1.2) rotate(-5deg); opacity: 1; }
+            100% { transform: translate(-50%, -60%) scale(0.5) rotate(20deg); opacity: 0; }
+        }
+
+        .hidden { display: none !important; }
+
+        /* ---------- واکنش‌گرایی ---------- */
+        @media (max-width: 480px) {
+            .game-header h1 { font-size: 1.05em; }
+            .game-header .subtitle { font-size: 0.65em; }
+            .coin-display { padding: 4px 10px; }
+            .coin-icon-img, .coin-icon-svg { width: 22px; height: 22px; }
+            .btn { padding: 12px 20px; font-size: 0.95em; min-width: 140px; min-height: 50px; }
+            #btnStart { min-width: 200px; }
+            .floor-unit { width: 72px; height: 15px; }
+            .brick-piece { width: 30px; height: 20px; }
+            .building-container { min-height: 210px; width: 165px; }
+            .counter-btn { width: 46px; height: 46px; font-size: 1.25em; }
+            .rule-btn { padding: 11px 14px; font-size: 0.85em; min-width: 112px; }
+            .drop-zone { width: 122px; min-height: 46px; }
+            .hero-title { font-size: 1.7em; }
+            .character-slot { width: 102px; height: 108px; }
+            .character-img { width: 102px; height: 108px; }
+            .character-fallback { font-size: 48px; }
+            .guide-character { width: 64px; height: 64px; }
+            .guide-modal { padding: 18px 14px; }
+            .step-badge { width: 32px; height: 32px; font-size: 0.95em; border-radius: 11px; }
+            .speech-bubble { font-size: 0.85em; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ابرهای پس‌زمینه -->
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div>
+
+    <!-- کانتینر Toast -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- کانتینر اصلی -->
+    <div class="main-container" id="mainContainer">
+        <!-- سربرگ بازی -->
+        <div class="game-header" id="gameHeader">
+            <!-- 🪙 کوین لوکو: ./icons/coin.png -->
+            <div class="coin-display" id="coinDisplay" title="سکه‌های لوکو">
+                <img src="./icons/coin.png" class="coin-icon-img" alt="سکه لوکو"
+                     onerror="this.style.display='none';document.getElementById('coinIconFallback').style.display='block';">
+                <svg id="coinIconFallback" class="coin-icon-svg" viewBox="0 0 32 32" style="display:none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" fill="#FFC93C" stroke="#B96F00" stroke-width="2.5"/>
+                    <circle cx="16" cy="16" r="9" fill="#FFE68A" stroke="#E6A800" stroke-width="1.5"/>
+                    <path d="M16 10 l1.8 3.6 4 .6 -2.9 2.8 .7 4 -3.6 -1.9 -3.6 1.9 .7 -4 -2.9 -2.8 4 -.6z" fill="#FFC93C"/>
+                </svg>
+                <div class="coin-amount" id="coinAmount">۰</div>
+            </div>
+            <div class="title-area">
+                <svg width="34" height="34" viewBox="0 0 36 36" style="flex-shrink:0;">
+                    <rect x="8" y="10" width="20" height="22" rx="2" fill="#FFC93C" stroke="#B96F00" stroke-width="1.5"/>
+                    <rect x="11" y="13" width="14" height="4" rx="1" fill="#FFE68A" opacity="0.85"/>
+                    <rect x="11" y="19" width="14" height="4" rx="1" fill="#FFE68A" opacity="0.85"/>
+                    <rect x="11" y="25" width="14" height="4" rx="1" fill="#FFE68A" opacity="0.85"/>
+                    <polygon points="6,10 18,2 30,10" fill="#FFA800" stroke="#B96F00" stroke-width="1.5"/>
+                </svg>
+                <div>
+                    <h1>شهر زنده</h1>
+                    <div class="subtitle">معماری الگوها</div>
+                </div>
+            </div>
+            <button class="mute-btn" id="muteBtn" title="صدا" aria-label="قطع/وصل صدا">🔊</button>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="progressBar" style="width:0%;"></div>
+            </div>
+        </div>
+
+        <!-- محتوای بازی -->
+        <div class="game-content" id="gameContent">
+            <!-- صفحه فرود (Main Menu) -->
+            <div class="landing-screen" id="landingScreen">
+                <div class="speech-bubble">سلام! آماده‌ای شهر رو بسازی؟ 🏗️</div>
+                <!-- 👤 شخصیت لوکو: ./icons/gamer.png -->
+                <div class="character-slot">
+                    <div class="character-fallback">👷</div>
+                    <img src="./icons/gamer.png" class="character-img" alt="شخصیت لوکو"
+                         onerror="this.style.display='none'"
+                         onload="if(this.previousElementSibling)this.previousElementSibling.style.display='none';">
+                </div>
+                <div class="hero-title">شهر زنده</div>
+                <div class="hero-subtitle">قانون رشد رو کشف کن، شهر رو نجات بده!</div>
+                <p class="landing-desc">ساختمون‌ها دارن رشد می‌کنن...<br>الگوی افزایشی رو پیدا کن و شهر رو بساز!</p>
+                <button class="btn btn-primary" id="btnStart">🚀 شروع ماجرا</button>
+                <button class="btn btn-secondary" id="btnGuide">📖 راهنما</button>
+                <!-- 📊 آمار: مخفی برای کاربر – جمع‌آوری داده فعال می‌ماند -->
+                <button class="btn btn-secondary hidden" id="btnStats">📊 آمار</button>
+                <div class="landing-score-chip">
+                    ⭐ امتیاز کل: <strong id="landingScore">0</strong>
+                    <span class="hidden">🎮 جلسات: <strong id="landingGames">0</strong></span>
+                </div>
+            </div>
+
+            <!-- صفحه بازی -->
+            <div class="game-area hidden" id="gameScreen">
+                <div id="phaseMessage"></div>
+                <div class="building-container" id="buildingContainer">
+                    <div id="buildingFloors" style="display:flex;flex-direction:column-reverse;align-items:center;gap:2px;"></div>
+                </div>
+                <div class="rule-options hidden" id="ruleOptions"></div>
+                <div class="hidden" id="constructionArea">
+                    <div class="basket-label">🧱 سبد آجرها (بکش به ناحیه ساخت یا از دکمه‌ها استفاده کن)</div>
+                    <div class="basket-area" id="basketArea"></div>
+                    <div class="drop-zone" id="dropZone">
+                        <span style="color:rgba(255,255,255,0.45);font-size:0.8em;">آجرها رو اینجا بذار</span>
+                    </div>
+                    <div class="construction-controls">
+                        <button class="counter-btn" id="btnMinus">−</button>
+                        <span class="counter-display" id="counterDisplay">0</span>
+                        <button class="counter-btn" id="btnPlus">+</button>
+                    </div>
+                    <button class="btn btn-success" id="btnConfirmBuild">✅ تأیید ساخت</button>
+                </div>
+                <div class="hidden" id="predictionArea">
+                    <p class="prediction-title">پیش‌بینی کن: طبقه دهم چند واحد داره؟</p>
+                    <div class="rule-options" id="predictionOptions"></div>
+                </div>
+                <button class="btn btn-primary hidden" id="btnNextRound">▶️ مرحله بعد</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ 📖 مودال راهنما (بازطراحی حرفه‌ای با شخصیت لوکو) ═══════════ -->
+    <div class="modal-overlay hidden" id="guideModal">
+        <div class="modal guide-modal">
+            <button class="close-btn" id="closeGuide">✕</button>
+
+            <!-- 🧑‍🚀 قهرمان راهنما: ./icons/gamerhi.png -->
+            <div class="guide-hero">
+                <img src="./icons/gamerhi.png" class="guide-character" alt="لوکو راهنما"
+                     onerror="this.style.display='none'">
+                <div class="guide-hero-text">
+                    <h2>راهنمای شهر زنده</h2>
+                    <p class="guide-tagline">سلام! من لوکوم 🎮<br>قدم‌به‌قدم همراهت می‌شم تا یه معمار حرفه‌ای بشی!</p>
+                </div>
+            </div>
+
+            <!-- 🎯 مأموریت -->
+            <div class="guide-mission">
+                <span>🎯</span>
+                <span>مأموریت: <strong>قانون رشد ساختمون‌ها رو کشف کن و شهر رو نجات بده!</strong></span>
+            </div>
+
+            <!-- 🪜 ۶ گام بازی -->
+            <div class="guide-steps">
+                <div class="guide-step">
+                    <div class="step-badge b-blue">۱</div>
+                    <div class="step-body">
+                        <div class="step-title">👀 اول تماشا کن</div>
+                        <div class="step-text">سه مرحله اول رو با دقت نگاه کن؛ ساختمون‌ها خودبه‌خود رشد می‌کنن.</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-badge b-purple">۲</div>
+                    <div class="step-body">
+                        <div class="step-title">🤔 قانون رو کشف کن</div>
+                        <div class="step-text">حدس بزن هر بار چند واحد به ساختمون اضافه می‌شه و گزینه درست رو انتخاب کن.</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-badge b-gold">۳</div>
+                    <div class="step-body">
+                        <div class="step-title">🧱 نوبت ساخت توئه!</div>
+                        <div class="step-text">آجرها رو از سبد بکش و تو ناحیه ساخت بذار (یا از دکمه‌های + و − کمک بگیر) تا مرحله بعد رو بسازی.</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-badge b-green">۴</div>
+                    <div class="step-body">
+                        <div class="step-title">🎉 جشن بگیر</div>
+                        <div class="step-text">اگه درست بسازی، ساختمان سبز می‌شه و امتیاز می‌گیری؛ گاهی هم سورپرایز ستاره‌ای! ⭐</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-badge b-red">۵</div>
+                    <div class="step-body">
+                        <div class="step-title">😱 اگه فرو ریخت، نترس!</div>
+                        <div class="step-text">اشتباه کردن بخشی از یادگیریه! ساختمون دوباره برمی‌گرده و می‌تونی دوباره تلاش کنی (خوداصلاحی).</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-badge b-pink">۶</div>
+                    <div class="step-body">
+                        <div class="step-title">🔮 پیش‌بینی کن</div>
+                        <div class="step-text">توی مراحل آخر باید بگی طبقه دهم چند واحد داره — مثل یه ریاضی‌دون واقعی!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ⭐ نکته طلایی -->
+            <div class="guide-tip">⭐ هرچی سریع‌تر قانون رو یاد بگیری، امتیاز بیشتری می‌گیری!</div>
+
+            <button class="btn btn-primary guide-cta" id="guideOkBtn">👍 فهمیدم، بریم!</button>
+        </div>
+    </div>
+
+    <!-- مودال آمار (بدون دسترسی در UI – داده‌ها فعال جمع‌آوری می‌شوند) -->
+    <div class="modal-overlay hidden" id="statsModal">
+        <div class="modal" id="statsContent">
+            <button class="close-btn" id="closeStats">✕</button>
+            <h2>📊 آمار بازی</h2>
+            <div id="statsDisplay"></div>
+            <button class="btn btn-warning" id="btnResetStats" style="margin-top:12px;">🗑️ پاک کردن آمار</button>
+        </div>
+    </div>
+
+    <!-- 🏆 مودال پایان بازی -->
+    <div class="modal-overlay hidden" id="endGameModal">
+        <div class="modal" style="text-align:center;">
+            <!-- 👤 شخصیت لوکو: ./icons/gamer.png -->
+            <img src="./icons/gamer.png" class="mini-character" alt="شخصیت لوکو"
+                 onerror="this.style.display='none'">
+            <h2>🎉 آفرین! ماجرا تموم شد!</h2>
+            <div class="stars-row">
+                <svg class="star-svg" viewBox="0 0 40 40"><polygon points="20,3 25,14 37,15 28,23 31,35 20,28.5 9,35 12,23 3,15 15,14" fill="#FFC93C" stroke="#B96F00" stroke-width="1.5"/></svg>
+                <svg class="star-svg" viewBox="0 0 40 40"><polygon points="20,3 25,14 37,15 28,23 31,35 20,28.5 9,35 12,23 3,15 15,14" fill="#FFC93C" stroke="#B96F00" stroke-width="1.5"/></svg>
+                <svg class="star-svg" viewBox="0 0 40 40"><polygon points="20,3 25,14 37,15 28,23 31,35 20,28.5 9,35 12,23 3,15 15,14" fill="#FFC93C" stroke="#B96F00" stroke-width="1.5"/></svg>
+            </div>
+            <p id="endGameSummary"></p>
+            <p class="end-score-line">⭐ امتیاز این جلسه: <span id="endGameScore">0</span></p>
+            <!-- 🪙 پاداش سکه لوکو: ./icons/coin.png -->
+            <div class="coin-reward-chip" id="coinRewardChip">
+                <img src="./icons/coin.png" class="coin-icon-img" alt="سکه لوکو"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                <svg class="coin-icon-svg" viewBox="0 0 32 32" style="display:none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" fill="#FFC93C" stroke="#B96F00" stroke-width="2.5"/>
+                    <circle cx="16" cy="16" r="9" fill="#FFE68A" stroke="#E6A800" stroke-width="1.5"/>
+                    <path d="M16 10 l1.8 3.6 4 .6 -2.9 2.8 .7 4 -3.6 -1.9 -3.6 1.9 .7 -4 -2.9 -2.8 4 -.6z" fill="#FFC93C"/>
+                </svg>
+                <span id="coinRewardText">+۱۰ سکه لوکو</span>
+            </div>
+            <button class="btn btn-primary" id="btnPlayAgain">🔄 بازی دوباره</button>
+            <br>
+            <button class="btn btn-secondary" id="btnEndToLanding">🏠 بازگشت به خانه</button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 🎮 موتور بازی «شهر زنده» + سیستم مشترک LOKO
+        // ⚠️ منطق Gameplay بدون تغییر
+        // ============================================================
+
+        // ---------- سیستم صدا (Web Audio API) – دست‌نخورده ----------
+        class AudioEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+                this._initOnInteraction = () => this._ensureContext();
+                document.addEventListener('click', this._initOnInteraction, { once: true });
+                document.addEventListener('touchstart', this._initOnInteraction, { once: true });
+            }
+            _ensureContext() {
+                if (!this.ctx) {
+                    try {
+                        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    } catch (e) {
+                        this.ctx = null;
+                    }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+            _playTone(freq, duration, type = 'sine', vol = 0.15, delay = 0) {
+                if (this.muted || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + delay);
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime + delay);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + delay);
+                    osc.stop(this.ctx.currentTime + delay + duration);
+                } catch (e) {}
+            }
+            clickSound() { this._playTone(784, 0.08, 'sine', 0.12); }
+            successSound() {
+                this._playTone(523, 0.15, 'sine', 0.15, 0);
+                this._playTone(659, 0.15, 'sine', 0.15, 0.12);
+                this._playTone(784, 0.2, 'sine', 0.18, 0.24);
+            }
+            errorSound() {
+                this._playTone(330, 0.18, 'square', 0.1, 0);
+                this._playTone(262, 0.22, 'square', 0.1, 0.15);
+            }
+            collapseSound() {
+                this._playTone(150, 0.3, 'sawtooth', 0.08, 0);
+                this._playTone(100, 0.35, 'triangle', 0.06, 0.1);
+                this._playTone(60, 0.4, 'sawtooth', 0.05, 0.2);
+            }
+            endGameSound() {
+                this._playTone(523, 0.15, 'sine', 0.15, 0);
+                this._playTone(659, 0.15, 'sine', 0.15, 0.15);
+                this._playTone(784, 0.15, 'sine', 0.15, 0.3);
+                this._playTone(1047, 0.25, 'sine', 0.2, 0.45);
+            }
+            rewardSound() {
+                this._playTone(880, 0.1, 'sine', 0.1, 0);
+                this._playTone(1100, 0.15, 'sine', 0.12, 0.08);
+            }
+            toggleMute() {
+                this.muted = !this.muted;
+                return this.muted;
+            }
+        }
+        const audio = new AudioEngine();
+
+        // ============================================================
+        // 🪙 سیستم سکه لوکو – کش آفلاین localStorage (ایمن)
+        // ============================================================
+        const LOKO_COINS_KEY = 'lokoCoins';
+
+        function lokoSafeGet(key) {
+            try { return localStorage.getItem(key); } catch (e) { return null; }
+        }
+        function lokoSafeSet(key, value) {
+            try { localStorage.setItem(key, value); return true; } catch (e) { return false; }
+        }
+        function lokoGetCoins() {
+            const n = parseInt(lokoSafeGet(LOKO_COINS_KEY), 10);
+            return isNaN(n) ? 0 : n;
+        }
+        function lokoSetCoins(value) {
+            return lokoSafeSet(LOKO_COINS_KEY, String(value));
+        }
+        function lokoAddCoins(amount) {
+            const newTotal = lokoGetCoins() + amount;
+            lokoSetCoins(newTotal);
+            updateCoinDisplay(true);
+            return newTotal;
+        }
+        function faDigits(n) {
+            return String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+        }
+        function updateCoinDisplay(animate = false) {
+            const amountEl = document.getElementById('coinAmount');
+            if (!amountEl) return;
+            amountEl.textContent = faDigits(lokoGetCoins());
+            if (animate) {
+                const disp = document.getElementById('coinDisplay');
+                if (disp) {
+                    disp.classList.remove('coin-burst');
+                    void disp.offsetWidth;
+                    disp.classList.add('coin-burst');
+                }
+            }
+        }
+        // 🔄 قلاب همگام‌سازی آینده
+        window.addEventListener('online', () => {
+            // همه داده‌ها محلی هستند – داده‌ای برای sync وجود ندارد.
+        });
+
+        // ---------- سیستم Toast – دست‌نخورده ----------
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentNode) toast.parentNode.removeChild(toast);
+            }, 3000);
+        }
+
+        // ---------- افکت ریپل – دست‌نخورده ----------
+        function addRippleEffect(btn) {
+            btn.addEventListener('click', function (e) {
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                const rect = btn.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                btn.appendChild(ripple);
+                ripple.addEventListener('animationend', () => ripple.remove());
+            });
+        }
+        document.querySelectorAll('.btn, .counter-btn, .rule-btn, .mute-btn').forEach(addRippleEffect);
+
+        // ---------- کنفتی ----------
+        function spawnConfetti(count = 40) {
+            const colors = ['#FFC93C', '#FF00A0', '#00D2FF', '#00FF9D', '#6C5CE7', '#FFEAA7', '#FF7675', '#FF922B'];
+            for (let i = 0; i < count; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + '%';
+                piece.style.top = -(Math.random() * 30 + 10) + 'px';
+                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.width = (Math.random() * 12 + 8) + 'px';
+                piece.style.height = (Math.random() * 12 + 8) + 'px';
+                piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                piece.style.animationDelay = Math.random() * 0.8 + 's';
+                piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+                document.body.appendChild(piece);
+                piece.addEventListener('animationend', () => piece.remove());
+            }
+        }
+
+        // ---------- پاداش نامنظم (ستاره) ----------
+        function showIrregularReward() {
+            const reward = document.createElement('div');
+            reward.className = 'irregular-reward';
+            reward.innerHTML = `<svg width="80" height="80" viewBox="0 0 80 80">
+            <polygon points="40,5 50,30 78,30 55,47 62,75 40,58 18,75 25,47 2,30 30,30"
+            fill="#FFC93C" stroke="#B96F00" stroke-width="2"/>
+          </svg>`;
+            document.body.appendChild(reward);
+            audio.rewardSound();
+            reward.addEventListener('animationend', () => reward.remove());
+        }
+
+        // ---------- وضعیت‌های بازی – دست‌نخورده ----------
+        const GAME_STATE = {
+            LANDING: 'landing',
+            OBSERVATION: 'observation',
+            RULE_DISCOVERY: 'rule_discovery',
+            CONSTRUCTION: 'construction',
+            PREDICTION: 'prediction',
+            ROUND_COMPLETE: 'round_complete',
+            END_GAME: 'end_game',
+        };
+
+        // ---------- کلاس اصلی بازی (منطق بدون تغییر) ----------
+        class LivingCityGame {
+            constructor() {
+                this.state = GAME_STATE.LANDING;
+                this.currentRound = 0;
+                this.totalRounds = 5;
+                this.roundScore = 0;
+                this.totalSessionScore = 0;
+
+                this.patternIncrement = 4;
+                this.baseUnits = 4;
+                this.observedSteps = [];
+                this.correctNextUnits = 0;
+                this.correctTenthUnits = 0;
+
+                this.sessionCorrectRules = 0;
+                this.sessionConstructionErrors = 0;
+                this.sessionSelfCorrections = 0;
+                this.sessionRuleAttempts = 0;
+                this.sessionPredictionGap = 0;
+
+                this.bricksInZone = 0;
+                this.maxBricksInBasket = 20;
+
+                this.initialCoinsAtGameStart = lokoGetCoins();
+
+                this.landingScreen = document.getElementById('landingScreen');
+                this.gameScreen = document.getElementById('gameScreen');
+                this.phaseMessage = document.getElementById('phaseMessage');
+                this.buildingFloors = document.getElementById('buildingFloors');
+                this.buildingContainer = document.getElementById('buildingContainer');
+                this.ruleOptions = document.getElementById('ruleOptions');
+                this.constructionArea = document.getElementById('constructionArea');
+                this.predictionArea = document.getElementById('predictionArea');
+                this.predictionOptions = document.getElementById('predictionOptions');
+                this.basketArea = document.getElementById('basketArea');
+                this.dropZone = document.getElementById('dropZone');
+                this.counterDisplay = document.getElementById('counterDisplay');
+                this.btnNextRound = document.getElementById('btnNextRound');
+                this.btnConfirmBuild = document.getElementById('btnConfirmBuild');
+                this.progressBar = document.getElementById('progressBar');
+                this.muteBtn = document.getElementById('muteBtn');
+
+                this._bindEvents();
+                this._updateLandingStats();
+                updateCoinDisplay(false);
+            }
+
+            _bindEvents() {
+                document.getElementById('btnStart').addEventListener('click', () => this.startGame());
+                document.getElementById('btnGuide').addEventListener('click', () => this.showGuide());
+                document.getElementById('btnStats').addEventListener('click', () => this.showStats());
+                document.getElementById('closeGuide').addEventListener('click', () => this.hideGuide());
+                // دکمه «فهمیدم» راهنما
+                document.getElementById('guideOkBtn').addEventListener('click', () => this.hideGuide());
+                document.getElementById('closeStats').addEventListener('click', () => this.hideStats());
+                document.getElementById('btnResetStats').addEventListener('click', () => this.resetStats());
+                document.getElementById('btnPlayAgain').addEventListener('click', () => this.startGame());
+                document.getElementById('btnEndToLanding').addEventListener('click', () => this.goToLanding());
+
+                this.muteBtn.addEventListener('click', () => {
+                    const muted = audio.toggleMute();
+                    this.muteBtn.textContent = muted ? '🔇' : '🔊';
+                });
+
+                document.getElementById('btnPlus').addEventListener('click', () => this._addBrick());
+                document.getElementById('btnMinus').addEventListener('click', () => this._removeBrick());
+                this.btnConfirmBuild.addEventListener('click', () => this._confirmConstruction());
+                this.btnNextRound.addEventListener('click', () => this._advanceRound());
+
+                document.getElementById('guideModal').addEventListener('click', function (e) {
+                    if (e.target === this) document.getElementById('guideModal').classList.add('hidden');
+                });
+                document.getElementById('statsModal').addEventListener('click', function (e) {
+                    if (e.target === this) document.getElementById('statsModal').classList.add('hidden');
+                });
+                document.getElementById('endGameModal').addEventListener('click', function (e) {
+                    if (e.target === this) document.getElementById('endGameModal').classList.add('hidden');
+                });
+
+                this._setupDragDrop();
+            }
+
+            _setupDragDrop() {
+                const dropZone = this.dropZone;
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('highlight');
+                });
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.classList.remove('highlight');
+                });
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('highlight');
+                    const brickId = e.dataTransfer.getData('text/plain');
+                    if (brickId && brickId.startsWith('brick-')) {
+                        this._moveBrickToZone(brickId);
+                    }
+                });
+                dropZone.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                }, { passive: false });
+            }
+
+            _makeBrickDraggable(brickEl, brickId) {
+                brickEl.draggable = true;
+                brickEl.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', brickId);
+                    brickEl.classList.add('dragging');
+                    audio.clickSound();
+                });
+                brickEl.addEventListener('dragend', () => {
+                    brickEl.classList.remove('dragging');
+                });
+                brickEl.addEventListener('click', () => {
+                    if (brickEl.parentElement === this.basketArea) {
+                        this._moveBrickToZone(brickId);
+                    }
+                });
+                brickEl.addEventListener('touchstart', (e) => {
+                    brickEl._touchStartTime = Date.now();
+                    brickEl._touchMoved = false;
+                }, { passive: true });
+                brickEl.addEventListener('touchmove', (e) => {
+                    brickEl._touchMoved = true;
+                }, { passive: true });
+                brickEl.addEventListener('touchend', () => {
+                    if (!brickEl._touchMoved && brickEl.parentElement === this.basketArea) {
+                        this._moveBrickToZone(brickId);
+                    }
+                });
+            }
+
+            _moveBrickToZone(brickId) {
+                const brick = document.getElementById(brickId);
+                if (!brick) return;
+                if (brick.parentElement === this.dropZone) {
+                    this.basketArea.appendChild(brick);
+                    this.bricksInZone = Math.max(0, this.bricksInZone - 1);
+                } else if (brick.parentElement === this.basketArea) {
+                    if (this.bricksInZone < this.maxBricksInBasket) {
+                        this.dropZone.appendChild(brick);
+                        this.bricksInZone++;
+                    }
+                }
+                this._updateCounterDisplay();
+                const placeholder = this.dropZone.querySelector('span');
+                if (placeholder && this.bricksInZone > 0) placeholder.style.display = 'none';
+                if (this.bricksInZone === 0 && placeholder) placeholder.style.display = '';
+            }
+
+            _addBrick() {
+                const bricksInBasket = this.basketArea.querySelectorAll('.brick-piece');
+                if (bricksInBasket.length > 0 && this.bricksInZone < this.maxBricksInBasket) {
+                    const brick = bricksInBasket[0];
+                    this._moveBrickToZone(brick.id);
+                }
+                audio.clickSound();
+            }
+
+            _removeBrick() {
+                const bricksInZone = this.dropZone.querySelectorAll('.brick-piece');
+                if (bricksInZone.length > 0) {
+                    const brick = bricksInZone[bricksInZone.length - 1];
+                    this._moveBrickToZone(brick.id);
+                }
+                audio.clickSound();
+            }
+
+            _updateCounterDisplay() {
+                this.counterDisplay.textContent = this.bricksInZone;
+            }
+
+            _clearDropZone() {
+                const bricks = this.dropZone.querySelectorAll('.brick-piece');
+                bricks.forEach(b => this.basketArea.appendChild(b));
+                this.bricksInZone = 0;
+                this._updateCounterDisplay();
+                const placeholder = this.dropZone.querySelector('span');
+                if (placeholder) placeholder.style.display = '';
+            }
+
+            startGame() {
+                document.getElementById('endGameModal').classList.add('hidden');
+                document.getElementById('guideModal').classList.add('hidden');
+                document.getElementById('statsModal').classList.add('hidden');
+
+                this.currentRound = 0;
+                this.totalSessionScore = 0;
+                this.sessionCorrectRules = 0;
+                this.sessionConstructionErrors = 0;
+                this.sessionSelfCorrections = 0;
+                this.sessionPredictionGap = 0;
+                this.sessionRuleAttempts = 0;
+                this.roundScore = 0;
+                this.bricksInZone = 0;
+
+                // 🪙 ثبت سکه اولیه در لحظه شروع – ملاک قانون پاداش LOKO
+                this.initialCoinsAtGameStart = lokoGetCoins();
+
+                this.landingScreen.classList.add('hidden');
+                this.gameScreen.classList.remove('hidden');
+                this.constructionArea.classList.add('hidden');
+                this.predictionArea.classList.add('hidden');
+                this.ruleOptions.classList.add('hidden');
+                this.btnNextRound.classList.add('hidden');
+                this.buildingFloors.innerHTML = '';
+                this._clearDropZone();
+                this._updateProgressBar();
+
+                this._startRound();
+            }
+
+            _startRound() {
+                const roundBases = [4, 5, 3, 6, 7];
+                this.baseUnits = roundBases[this.currentRound] || 4;
+                this.patternIncrement = 4;
+                this.observedSteps = [
+                    this.baseUnits,
+                    this.baseUnits + this.patternIncrement,
+                    this.baseUnits + this.patternIncrement * 2,
+                ];
+                this.correctNextUnits = this.baseUnits + this.patternIncrement * 3;
+                this.correctTenthUnits = this.baseUnits + this.patternIncrement * 9;
+
+                this.roundScore = 0;
+                this.sessionRuleAttempts = 0;
+                this.bricksInZone = 0;
+                this._clearDropZone();
+                this.buildingFloors.innerHTML = '';
+                this.constructionArea.classList.add('hidden');
+                this.predictionArea.classList.add('hidden');
+                this.ruleOptions.classList.add('hidden');
+                this.btnNextRound.classList.add('hidden');
+                this.phaseMessage.textContent = '👀 با دقت نگاه کن... ساختمان داره رشد می‌کنه!';
+
+                this.state = GAME_STATE.OBSERVATION;
+                this._runObservationPhase();
+            }
+
+            _runObservationPhase() {
+                let stepIndex = 0;
+                const totalObservationSteps = 3;
+                const showStep = () => {
+                    if (stepIndex >= totalObservationSteps) {
+                        setTimeout(() => this._enterRuleDiscovery(), 600);
+                        return;
+                    }
+                    const units = this.observedSteps[stepIndex];
+                    this._renderBuilding(units, true);
+                    this.phaseMessage.textContent =
+                        `مرحله ${stepIndex + 1}: ${units} واحد (طبقه)`;
+                    stepIndex++;
+                    setTimeout(showStep, 1800);
+                };
+                setTimeout(showStep, 400);
+            }
+
+            _renderBuilding(totalUnits, animate = false) {
+                this.buildingFloors.innerHTML = '';
+                for (let i = 0; i < totalUnits; i++) {
+                    const floor = document.createElement('div');
+                    floor.className = 'floor-unit';
+                    if (animate) {
+                        floor.classList.add('newly-added');
+                        floor.style.animationDelay = (i * 0.04) + 's';
+                    }
+                    this.buildingFloors.appendChild(floor);
+                }
+                this.buildingFloors.dataset.currentUnits = totalUnits;
+            }
+
+            _getCurrentBuildingUnits() {
+                return parseInt(this.buildingFloors.dataset.currentUnits || '0');
+            }
+
+            _enterRuleDiscovery() {
+                this.state = GAME_STATE.RULE_DISCOVERY;
+                this.phaseMessage.textContent = '🤔 قانون رشد این شهر چی بود؟';
+                this.ruleOptions.classList.remove('hidden');
+                this.constructionArea.classList.add('hidden');
+                this.predictionArea.classList.add('hidden');
+                this.btnNextRound.classList.add('hidden');
+
+                const correctIncrement = this.patternIncrement;
+                const distractors = this._generateRuleDistractors(correctIncrement);
+                const options = [
+                    { text: `هر بار ${correctIncrement} واحد اضافه می‌شه`, value: correctIncrement, isCorrect: true },
+                    { text: `هر بار ${distractors[0]} واحد اضافه می‌شه`, value: distractors[0], isCorrect: false },
+                    { text: `هر بار ${distractors[1]} واحد اضافه می‌شه`, value: distractors[1], isCorrect: false },
+                    { text: `هر بار ضرب در ۲ می‌شه`, value: 'mult2', isCorrect: false },
+                ];
+                this._shuffleArray(options);
+
+                this.ruleOptions.innerHTML = '';
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'rule-btn';
+                    btn.textContent = opt.text;
+                    btn.dataset.value = opt.value;
+                    btn.dataset.isCorrect = opt.isCorrect ? '1' : '0';
+                    btn.addEventListener('click', () => this._handleRuleChoice(btn, opt));
+                    addRippleEffect(btn);
+                    this.ruleOptions.appendChild(btn);
+                });
+            }
+
+            _generateRuleDistractors(correct) {
+                const pool = [2, 3, 5, 6, 7, 8];
+                const filtered = pool.filter(n => n !== correct);
+                this._shuffleArray(filtered);
+                return [filtered[0] || 2, filtered[1] || 3];
+            }
+
+            _handleRuleChoice(btn, option) {
+                audio.clickSound();
+                this.sessionRuleAttempts++;
+
+                if (option.isCorrect) {
+                    btn.classList.add('selected-correct');
+                    audio.successSound();
+                    showToast('🎉 آفرین! قانون رو کشف کردی! +۱۰ امتیاز', 'success');
+                    this.roundScore += 10;
+                    this.totalSessionScore += 10;
+                    if (this.sessionRuleAttempts === 1) {
+                        this.sessionCorrectRules++;
+                    }
+
+                    setTimeout(() => {
+                        this.ruleOptions.querySelectorAll('.rule-btn').forEach(b => b.disabled = true);
+                        this.ruleOptions.classList.add('hidden');
+                        if (this.currentRound >= 3) {
+                            this._enterPredictionPhase();
+                        } else {
+                            this._enterConstructionPhase();
+                        }
+                    }, 800);
+
+                } else {
+                    btn.classList.add('selected-wrong');
+                    audio.errorSound();
+                    showToast('🤔 نه، قانون این نیست. دوباره تلاش کن!', 'warning');
+                    setTimeout(() => {
+                        btn.classList.remove('selected-wrong');
+                    }, 600);
+                }
+            }
+
+            _enterConstructionPhase() {
+                this.state = GAME_STATE.CONSTRUCTION;
+                this.phaseMessage.textContent =
+                    `🏗️ حالا مرحله بعد رو بساز! (الان ${this._getCurrentBuildingUnits()} واحد داریم، چندتا باید اضافه بشه؟)`;
+                this.constructionArea.classList.remove('hidden');
+                this.predictionArea.classList.add('hidden');
+                this.ruleOptions.classList.add('hidden');
+                this.btnNextRound.classList.add('hidden');
+                this.bricksInZone = 0;
+                this._clearDropZone();
+                this._updateCounterDisplay();
+
+                this._populateBasket();
+                const placeholder = this.dropZone.querySelector('span');
+                if (placeholder) placeholder.style.display = '';
+                this.dropZone.classList.remove('highlight');
+            }
+
+            _populateBasket() {
+                this.basketArea.innerHTML = '';
+                for (let i = 0; i < this.maxBricksInBasket; i++) {
+                    const brick = document.createElement('div');
+                    brick.className = 'brick-piece';
+                    brick.id = 'brick-' + i + '-r' + this.currentRound;
+                    brick.title = 'آجر - بکش به ناحیه ساخت';
+                    this._makeBrickDraggable(brick, brick.id);
+                    this.basketArea.appendChild(brick);
+                }
+            }
+
+            _confirmConstruction() {
+                audio.clickSound();
+                const requiredIncrement = this.patternIncrement;
+                const placed = this.bricksInZone;
+
+                if (placed === requiredIncrement) {
+                    audio.successSound();
+                    showToast('🏗️ ساختمان ساخته شد! عالی!', 'success');
+                    const newTotal = this._getCurrentBuildingUnits() + requiredIncrement;
+                    this._renderBuilding(newTotal, true);
+                    this.buildingContainer.classList.add('glow-green');
+                    setTimeout(() => this.buildingContainer.classList.remove('glow-green'), 1200);
+                    this.roundScore += 15;
+                    this.totalSessionScore += 15;
+                    this._clearDropZone();
+
+                    if (Math.random() < 0.3) {
+                        setTimeout(() => showIrregularReward(), 400);
+                    }
+
+                    this.state = GAME_STATE.ROUND_COMPLETE;
+                    this.constructionArea.classList.add('hidden');
+                    this.btnNextRound.classList.remove('hidden');
+                    this.btnNextRound.textContent =
+                        this.currentRound < this.totalRounds - 1 ? '▶️ مرحله بعد' : '🎉 پایان ماجرا';
+                    this.phaseMessage.textContent = '✅ عالی ساختی! آماده مرحله بعدی هستی؟';
+
+                } else {
+                    audio.errorSound();
+                    audio.collapseSound();
+                    this.sessionConstructionErrors++;
+                    showToast('🤔 تعداد آجرها درست نیست! ساختمان فرو می‌ریزه... دوباره تلاش کن!', 'warning');
+                    this.buildingContainer.classList.add('shake', 'glow-red');
+                    const floors = this.buildingFloors.querySelectorAll('.floor-unit');
+                    const collapseCount = Math.min(floors.length, Math.abs(placed - requiredIncrement) + 2);
+                    const startIdx = Math.max(0, floors.length - collapseCount);
+                    for (let i = startIdx; i < floors.length; i++) {
+                        floors[i].classList.add('collapsing');
+                    }
+                    setTimeout(() => {
+                        this.buildingContainer.classList.remove('shake', 'glow-red');
+                        this._renderBuilding(this._getCurrentBuildingUnits(), false);
+                        this._clearDropZone();
+                    }, 700);
+
+                    this.sessionSelfCorrections++;
+                }
+            }
+
+            _enterPredictionPhase() {
+                this.state = GAME_STATE.PREDICTION;
+                this.phaseMessage.textContent = '🔮 پیش‌بینی کن: طبقه دهم چند واحد داره؟';
+                this.predictionArea.classList.remove('hidden');
+                this.constructionArea.classList.add('hidden');
+                this.ruleOptions.classList.add('hidden');
+                this.btnNextRound.classList.add('hidden');
+
+                const correct = this.correctTenthUnits;
+                const distractors = [
+                    correct - this.patternIncrement,
+                    correct + this.patternIncrement,
+                    correct + this.patternIncrement * 2,
+                ];
+                const options = [
+                    { text: `${correct} واحد`, value: correct, isCorrect: true },
+                    { text: `${distractors[0]} واحد`, value: distractors[0], isCorrect: false },
+                    { text: `${distractors[1]} واحد`, value: distractors[1], isCorrect: false },
+                    { text: `${distractors[2]} واحد`, value: distractors[2], isCorrect: false },
+                ];
+                this._shuffleArray(options);
+
+                this.predictionOptions.innerHTML = '';
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'rule-btn';
+                    btn.textContent = opt.text;
+                    btn.dataset.value = opt.value;
+                    btn.dataset.isCorrect = opt.isCorrect ? '1' : '0';
+                    btn.addEventListener('click', () => this._handlePredictionChoice(btn, opt));
+                    addRippleEffect(btn);
+                    this.predictionOptions.appendChild(btn);
+                });
+            }
+
+            _handlePredictionChoice(btn, option) {
+                audio.clickSound();
+                if (option.isCorrect) {
+                    btn.classList.add('selected-correct');
+                    audio.successSound();
+                    showToast('🎉 پیش‌بینی درست! ریاضی‌دون کوچولو! +۱۵ امتیاز', 'success');
+                    this.roundScore += 15;
+                    this.totalSessionScore += 15;
+                    this.sessionPredictionGap += 0;
+                    this.state = GAME_STATE.ROUND_COMPLETE;
+                    setTimeout(() => {
+                        this.predictionArea.classList.add('hidden');
+                        this.btnNextRound.classList.remove('hidden');
+                        this.btnNextRound.textContent =
+                            this.currentRound < this.totalRounds - 1 ? '▶️ مرحله بعد' : '🎉 پایان ماجرا';
+                        this.phaseMessage.textContent = '✅ پیش‌بینی عالی!';
+                    }, 800);
+                } else {
+                    btn.classList.add('selected-wrong');
+                    audio.errorSound();
+                    const gap = Math.abs(parseInt(option.value) - this.correctTenthUnits);
+                    this.sessionPredictionGap += gap;
+                    this.sessionSelfCorrections++;
+                    showToast('🤔 پیش‌بینی درست نبود. دوباره فکر کن!', 'warning');
+                    setTimeout(() => btn.classList.remove('selected-wrong'), 600);
+                }
+            }
+
+            _advanceRound() {
+                audio.clickSound();
+                this.btnNextRound.classList.add('hidden');
+                this.currentRound++;
+                if (this.currentRound >= this.totalRounds) {
+                    this._endGame();
+                } else {
+                    this._startRound();
+                }
+                this._updateProgressBar();
+            }
+
+            _updateProgressBar() {
+                const progress = Math.round((this.currentRound / this.totalRounds) * 100);
+                this.progressBar.style.width = progress + '%';
+            }
+
+            _endGame() {
+                this.state = GAME_STATE.END_GAME;
+                this.progressBar.style.width = '100%';
+                audio.endGameSound();
+                spawnConfetti(50);
+
+                this._saveStats();
+
+                // 🪙 پاداش فقط پس از اتمام «تمام مراحل»:
+                // سکه اولیه === 0 → +۱۰ | وگرنه → +۱
+                const initialCoins = (typeof this.initialCoinsAtGameStart === 'number')
+                    ? this.initialCoinsAtGameStart
+                    : lokoGetCoins();
+                const coinReward = (initialCoins === 0) ? 10 : 1;
+                lokoAddCoins(coinReward);
+                const rewardTextEl = document.getElementById('coinRewardText');
+                if (rewardTextEl) {
+                    rewardTextEl.textContent = `+${faDigits(coinReward)} سکه لوکو`;
+                }
+
+                document.getElementById('endGameSummary').textContent =
+                    `شما ${this.totalRounds} مرحله رو با موفقیت پشت سر گذاشتی! 🏆\n` +
+                    `قانون‌های کشف‌شده در اولین تلاش: ${this.sessionCorrectRules}\n` +
+                    `خطاهای چیدمان: ${this.sessionConstructionErrors}\n` +
+                    `خوداصلاحی‌ها: ${this.sessionSelfCorrections}`;
+                document.getElementById('endGameScore').textContent = this.totalSessionScore;
+                document.getElementById('endGameModal').classList.remove('hidden');
+
+                this.gameScreen.classList.add('hidden');
+                this.landingScreen.classList.remove('hidden');
+                this._updateLandingStats();
+            }
+
+            _saveStats() {
+                const key = 'livingCityStats';
+                let stats = {};
+                try {
+                    const existing = localStorage.getItem(key);
+                    if (existing) stats = JSON.parse(existing);
+                } catch (e) {
+                    stats = {};
+                }
+
+                stats.totalGames = (stats.totalGames || 0) + 1;
+                stats.totalCorrectRules = (stats.totalCorrectRules || 0) + this.sessionCorrectRules;
+                stats.totalConstructionErrors = (stats.totalConstructionErrors || 0) + this.sessionConstructionErrors;
+                stats.totalSelfCorrections = (stats.totalSelfCorrections || 0) + this.sessionSelfCorrections;
+                stats.totalScore = (stats.totalScore || 0) + this.totalSessionScore;
+                stats.bestScore = Math.max(stats.bestScore || 0, this.totalSessionScore);
+                stats.lastPlayDate = new Date().toISOString();
+                stats.totalPredictionGap = (stats.totalPredictionGap || 0) + this.sessionPredictionGap;
+
+                try {
+                    localStorage.setItem(key, JSON.stringify(stats));
+                } catch (e) {}
+            }
+
+            _loadStats() {
+                const key = 'livingCityStats';
+                try {
+                    const raw = localStorage.getItem(key);
+                    if (raw) return JSON.parse(raw);
+                } catch (e) {}
+                return {
+                    totalGames: 0,
+                    totalCorrectRules: 0,
+                    totalConstructionErrors: 0,
+                    totalSelfCorrections: 0,
+                    totalScore: 0,
+                    bestScore: 0,
+                    lastPlayDate: null,
+                    totalPredictionGap: 0,
+                };
+            }
+
+            resetStats() {
+                try {
+                    localStorage.removeItem('livingCityStats');
+                } catch (e) {}
+                this._updateLandingStats();
+                this.showStats();
+                showToast('🗑️ آمار پاک شد.', 'info');
+            }
+
+            _updateLandingStats() {
+                const stats = this._loadStats();
+                document.getElementById('landingScore').textContent = stats.totalScore || 0;
+                document.getElementById('landingGames').textContent = stats.totalGames || 0;
+            }
+
+            showGuide() {
+                document.getElementById('guideModal').classList.remove('hidden');
+            }
+            hideGuide() {
+                document.getElementById('guideModal').classList.add('hidden');
+            }
+
+            showStats() {
+                const stats = this._loadStats();
+                const display = document.getElementById('statsDisplay');
+                const revisionRate = stats.totalConstructionErrors > 0 ?
+                    Math.round((stats.totalSelfCorrections / stats.totalConstructionErrors) * 100) :
+                    0;
+                display.innerHTML = `
+            <p>🎮 <strong>تعداد جلسات:</strong> ${stats.totalGames}</p>
+            <p>✅ <strong>کشف قانون در اولین تلاش:</strong> ${stats.totalCorrectRules}</p>
+            <p>❌ <strong>خطاهای چیدمان:</strong> ${stats.totalConstructionErrors}</p>
+            <p>🔄 <strong>خوداصلاحی‌ها:</strong> ${stats.totalSelfCorrections}</p>
+            <p>⭐ <strong>امتیاز کل:</strong> ${stats.totalScore}</p>
+            <p>🏆 <strong>بهترین امتیاز:</strong> ${stats.bestScore}</p>
+            <p>📐 <strong>نرخ بازبینی (Revision Rate):</strong> ${revisionRate}٪</p>
+            <p>🎯 <strong>شکاف پیش‌بینی کل:</strong> ${stats.totalPredictionGap || 0}</p>
+            <p>📅 <strong>آخرین بازی:</strong> ${stats.lastPlayDate ? new Date(stats.lastPlayDate).toLocaleDateString('fa-IR') : '—'}</p>
+          `;
+                document.getElementById('statsModal').classList.remove('hidden');
+            }
+            hideStats() {
+                document.getElementById('statsModal').classList.add('hidden');
+            }
+
+            goToLanding() {
+                document.getElementById('endGameModal').classList.add('hidden');
+                this.gameScreen.classList.add('hidden');
+                this.landingScreen.classList.remove('hidden');
+                this._updateLandingStats();
+                updateCoinDisplay(false);
+                this.state = GAME_STATE.LANDING;
+                this.progressBar.style.width = '0%';
+            }
+
+            _shuffleArray(arr) {
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+            }
+        }
+
+        // ---------- راه‌اندازی بازی ----------
+        const game = new LivingCityGame();
+
+        // ---------- رفع مشکل AudioContext ----------
+        document.addEventListener('click', function initAudio() {
+            if (audio.ctx && audio.ctx.state === 'suspended') {
+                audio.ctx.resume();
+            }
+        }, { once: true });
+        document.addEventListener('touchstart', function initAudioTouch() {
+            if (audio.ctx && audio.ctx.state === 'suspended') {
+                audio.ctx.resume();
+            }
+        }, { once: true });
+
+        console.log('🏙️ شهر زنده × LOKO Design System – آماده!');
+        console.log('🪙 کوین: ./icons/coin.png | 👤 کاراکتر: ./icons/gamer.png | 📖 راهنما: ./icons/gamerhi.png');
+    </script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#endGameModal"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

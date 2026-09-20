@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سودوکوی قبیله‌ای</title>
+    <style>
+        /* ==================== LOKO Font System ==================== */
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Regular.ttf") format("truetype");
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Medium.ttf") format("truetype");
+            font-weight: 500;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Black.ttf") format("truetype");
+            font-weight: 900;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-ExtraBold.ttf") format("truetype");
+            font-weight: 800;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Regular.ttf") format("truetype");
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Medium.ttf") format("truetype");
+            font-weight: 500;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Black.ttf") format("truetype");
+            font-weight: 900;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype");
+            font-weight: 800;
+        }
+
+        /* ==================== LOKO Design Tokens ==================== */
+        :root {
+            --primary: #6C5CE7;
+            --neon-blue: #00D2FF;
+            --neon-pink: #FF00A0;
+            --neon-green: #00FF9D;
+            --accent: #FFEAA7;
+            --success: #00B894;
+            --danger: #FF7675;
+            --dark: #1E1E2F;
+            --gold: #FFC93C;
+            --gold-dark: #B96F00;
+
+            --bg: #0c0a14;
+            --bg2: #181225;
+            --text: #efeaff;
+            --cell-bg: #f7f5ff;
+            --cell-fixed: #ffe9b8;
+            --cell-selected: #efeaff;
+            --cell-correct: #d8f9ec;
+            --cell-wrong: #ffe4e3;
+            --modal-bg: rgba(5, 4, 12, 0.75);
+            --border-radius: 20px;
+            --cell-size: 60px;
+            --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+            --shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+            --glow-correct: 0 0 20px rgba(0, 255, 157, 0.55);
+            --glow-wrong: 0 0 20px rgba(255, 118, 117, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font);
+            background: linear-gradient(135deg, #0c0a14, #181225);
+            background-attachment: fixed;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            cursor: default;
+        }
+
+        /* هاله‌های نئون LOKO روی پس‌زمینه */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(108, 92, 231, 0.20) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 60%, rgba(0, 210, 255, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 85%, rgba(255, 0, 160, 0.10) 0%, transparent 45%);
+        }
+
+        /* ذرات پس‌زمینه متحرک */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: floatUp linear infinite;
+            opacity: 0;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(105vh) scale(0); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.2; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        /* کانتینر اصلی — Mobile First */
+        .main-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* === صفحه‌ها === */
+        .screen {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            animation: fadeSlideIn 0.5s ease-out;
+        }
+        .screen.active { display: flex; }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* کارت شیشه‌ای (Glassmorphism) */
+        .card {
+            background: rgba(255, 255, 255, 0.10);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: var(--border-radius);
+            padding: 24px 20px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 15%;
+            right: 15%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), var(--neon-pink), var(--neon-blue), transparent);
+            border-radius: 0 0 50% 50%;
+            opacity: 0.8;
+        }
+
+        /* نوار بالای منو — Coin Display */
+        .menu-topbar {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        /* ==================== LOKO Coin Display ==================== */
+        .coin-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 201, 60, 0.5);
+            border-radius: 30px;
+            padding: 7px 16px;
+            box-shadow: 0 4px 18px rgba(255, 201, 60, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            flex: 0 0 auto;
+        }
+        .coin-icon-img {
+            width: 26px;
+            height: 26px;
+            object-fit: contain;
+            animation: coinPulse 2.8s ease-in-out infinite;
+        }
+        @keyframes coinPulse {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 201, 60, 0.55)); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 12px rgba(255, 201, 60, 0.85)); transform: scale(1.06); }
+        }
+        .coin-amount {
+            font-weight: 900;
+            color: var(--gold);
+            font-size: 1.05em;
+            text-shadow: 0 0 10px rgba(255, 201, 60, 0.5);
+            line-height: 1;
+        }
+        .coin-display-sm { padding: 5px 12px; gap: 6px; }
+        .coin-display-sm .coin-icon-img { width: 20px; height: 20px; }
+        .coin-display-sm .coin-amount { font-size: 0.92em; }
+        .coin-display.bump { animation: coinBump 0.55s ease; }
+        @keyframes coinBump {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* افکت پاداش سکه */
+        .coin-reward-fx {
+            position: fixed;
+            top: 22%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 960;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(30, 30, 47, 0.88);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 2px solid var(--gold);
+            border-radius: 40px;
+            padding: 12px 26px;
+            font-weight: 900;
+            font-size: 1.2em;
+            color: var(--gold);
+            box-shadow: 0 0 30px rgba(255, 201, 60, 0.5);
+            pointer-events: none;
+            white-space: nowrap;
+            animation: coinRewardPop 2.1s ease forwards;
+        }
+        .coin-reward-fx .coin-icon-img { width: 34px; height: 34px; animation: none; }
+        @keyframes coinRewardPop {
+            0% { opacity: 0; transform: translateX(-50%) translateY(30px) scale(0.5); }
+            15% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.15); }
+            30% { transform: translateX(-50%) scale(1); }
+            75% { opacity: 1; transform: translateX(-50%) translateY(-8px); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-45px) scale(0.85); }
+        }
+
+        /* عنوان طلایی */
+        .title {
+            font-size: 2.2em;
+            font-weight: 900;
+            text-align: center;
+            background: linear-gradient(135deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 3px 10px rgba(255, 169, 0, 0.45));
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+        .subtitle {
+            font-size: 1em;
+            color: #cfc8ee;
+            text-align: center;
+            font-weight: 500;
+            margin-top: -8px;
+        }
+
+        /* کاراکتر — تصویر gamer.png با Glow و Float نرم */
+        .character-wrapper {
+            position: relative;
+            width: 140px;
+            height: 160px;
+            transition: transform 0.4s ease;
+        }
+        .character-wrapper.bounce-char { animation: charBounce 0.6s ease; }
+        @keyframes charBounce {
+            0%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-25px); }
+            50% { transform: translateY(0); }
+            70% { transform: translateY(-10px); }
+            85% { transform: translateY(0); }
+        }
+        .character-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            /* برای Pixel Art واضح می‌ماند؛ اگر تصویر شما Smooth است این خط را حذف کنید */
+            image-rendering: pixelated;
+            filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 18px rgba(108, 92, 231, 0.5));
+            animation: charFloat 3.5s ease-in-out infinite;
+        }
+        .character-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 18px rgba(108, 92, 231, 0.45));
+            animation: charFloat 3.5s ease-in-out infinite;
+        }
+        @keyframes charFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-9px); }
+        }
+
+        /* حباب گفتگو — Glass */
+        .speech-bubble {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #2b2440;
+            padding: 10px 16px;
+            border: 1.5px solid rgba(255, 255, 255, 0.7);
+            border-radius: 18px 18px 18px 4px;
+            font-size: 0.9em;
+            font-weight: 700;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 18px rgba(0, 210, 255, 0.12);
+            position: relative;
+            max-width: 250px;
+            text-align: center;
+            animation: bubblePop 0.4s ease-out;
+        }
+        @keyframes bubblePop {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* ==================== دکمه‌ها ==================== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+            font-family: var(--font);
+            outline: none;
+            letter-spacing: 0.3px;
+            min-width: 180px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+            color: #fff;
+            text-decoration: none;
+        }
+        /* دکمه اصلی Start — طلایی سه‌بعدی */
+        .btn-primary {
+            background: linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%);
+            color: #5f3d00;
+            font-size: 1.25em;
+            padding: 16px 44px;
+            min-width: 220px;
+            border: 2px solid rgba(255, 255, 255, 0.55);
+            box-shadow: 0 8px 26px rgba(255, 169, 0, 0.45), 0 4px 0 var(--gold-dark), inset 0 2px 0 rgba(255, 255, 255, 0.65);
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+            animation: btnGlow 2.6s ease-in-out infinite;
+        }
+        @keyframes btnGlow {
+            0%, 100% { filter: drop-shadow(0 0 6px rgba(255, 201, 60, 0.35)); }
+            50% { filter: drop-shadow(0 0 16px rgba(255, 201, 60, 0.65)); }
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 34px rgba(255, 169, 0, 0.6), 0 6px 0 var(--gold-dark), inset 0 2px 0 rgba(255, 255, 255, 0.65);
+        }
+        .btn-primary:active {
+            transform: translateY(3px) scale(0.98);
+            box-shadow: 0 3px 12px rgba(255, 169, 0, 0.4), 0 1px 0 var(--gold-dark), inset 0 2px 0 rgba(255, 255, 255, 0.5);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+        .btn-secondary:active { transform: scale(0.96); }
+        .btn-gold-glass {
+            background: rgba(255, 201, 60, 0.14);
+            border: 2px solid rgba(255, 201, 60, 0.55);
+            color: var(--gold);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .btn-gold-glass:hover {
+            background: rgba(255, 201, 60, 0.24);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(255, 201, 60, 0.25);
+        }
+        .btn-gold-glass:active { transform: scale(0.96); }
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 0.9em;
+            min-width: auto;
+            border-radius: 30px;
+        }
+        .btn-icon {
+            width: 42px;
+            height: 42px;
+            min-width: auto;
+            padding: 0;
+            border-radius: 50%;
+            font-size: 1.2em;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .btn-icon:hover { background: rgba(255, 255, 255, 0.22); }
+        /* ردیف دکمه‌های ثانویه — نصف عرض Start */
+        .secondary-actions {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            gap: 10px;
+        }
+        .secondary-actions .btn { flex: 0 1 55%; min-width: 0; padding: 13px 18px; }
+
+        /* افکت ریپل */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(0);
+            animation: rippleEffect 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes rippleEffect {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        /* === صفحه بازی === */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .stat-pill {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 30px;
+            padding: 8px 14px;
+            font-weight: 700;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+        }
+        .stat-pill.timer { color: var(--gold); }
+        .stat-pill.errors { color: var(--danger); }
+        .stat-pill.score { color: var(--neon-green); }
+        /* آمار و ارقام: پشت‌صحنه محاسبه می‌شوند، به کاربر نمایش داده نمی‌شوند */
+        .stat-hidden { display: none !important; }
+
+        /* نوار پیشرفت */
+        .progress-bar-wrapper {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            height: 18px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--neon-green));
+            border-radius: 20px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0%;
+            position: relative;
+            box-shadow: 0 0 14px rgba(0, 255, 157, 0.5);
+        }
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            right: 4px;
+            top: 3px;
+            bottom: 3px;
+            width: 30px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            animation: progressShine 1.5s ease-in-out infinite;
+        }
+        @keyframes progressShine {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* جدول سودوکو */
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(4, var(--cell-size));
+            grid-template-rows: repeat(4, var(--cell-size));
+            gap: 4px;
+            background: rgba(12, 10, 20, 0.55);
+            padding: 6px;
+            border-radius: 12px;
+            box-shadow: 0 10px 34px rgba(0, 0, 0, 0.5), 0 0 26px rgba(108, 92, 231, 0.28);
+            border: 3px solid rgba(255, 255, 255, 0.22);
+        }
+        .cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            background: var(--cell-bg);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6em;
+            font-weight: 800;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            border: 2px solid transparent;
+            font-family: var(--font);
+        }
+        .cell:hover {
+            background: #ffffff;
+            transform: scale(1.04);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            z-index: 2;
+        }
+        .cell:active {
+            transform: scale(0.94);
+            transition: transform 0.1s ease;
+        }
+        .cell.fixed {
+            background: var(--cell-fixed);
+            color: #7a5200;
+            cursor: default;
+            font-weight: 900;
+            border-color: rgba(185, 111, 0, 0.35);
+        }
+        .cell.fixed:hover {
+            transform: none;
+            box-shadow: none;
+            background: var(--cell-fixed);
+        }
+        .cell.selected {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 5px rgba(108, 92, 231, 0.3), 0 0 22px rgba(108, 92, 231, 0.45);
+            z-index: 3;
+            background: var(--cell-selected);
+            transform: scale(1.06);
+        }
+        .cell.correct-flash {
+            animation: correctPop 0.5s ease;
+            background: var(--cell-correct) !important;
+            border-color: var(--success) !important;
+            box-shadow: var(--glow-correct) !important;
+        }
+        .cell.wrong-shake {
+            animation: shakeCell 0.5s ease;
+            background: var(--cell-wrong) !important;
+            border-color: var(--danger) !important;
+            box-shadow: var(--glow-wrong) !important;
+        }
+        @keyframes correctPop {
+            0% { transform: scale(1); }
+            35% { transform: scale(1.12); }
+            100% { transform: scale(1); }
+        }
+        @keyframes shakeCell {
+            0%, 100% { transform: translateX(0); }
+            15% { transform: translateX(-6px); }
+            30% { transform: translateX(6px); }
+            45% { transform: translateX(-4px); }
+            60% { transform: translateX(4px); }
+            75% { transform: translateX(-2px); }
+            90% { transform: translateX(2px); }
+        }
+
+        /* صفحه کلید عددی */
+        .numpad {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .numpad-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            font-size: 1.4em;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(180deg, #8577ee 0%, #6C5CE7 55%, #5a48d6 100%);
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(108, 92, 231, 0.45), inset 0 -3px 0 rgba(30, 20, 80, 0.55), inset 0 2px 0 rgba(255, 255, 255, 0.28);
+            transition: all 0.2s ease;
+            font-family: var(--font);
+            position: relative;
+            overflow: hidden;
+            outline: none;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .numpad-btn:hover {
+            transform: translateY(-4px) scale(1.06);
+            box-shadow: 0 10px 24px rgba(108, 92, 231, 0.6), inset 0 -3px 0 rgba(30, 20, 80, 0.55), inset 0 2px 0 rgba(255, 255, 255, 0.28);
+            background: linear-gradient(180deg, #948af2 0%, #6C5CE7 60%);
+        }
+        .numpad-btn:active {
+            transform: scale(0.9);
+            transition: transform 0.08s ease;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+        }
+        .numpad-btn.erase {
+            background: linear-gradient(180deg, #ff9a99 0%, #e85554 100%);
+            font-size: 1.2em;
+            box-shadow: 0 6px 16px rgba(232, 85, 84, 0.45), inset 0 -3px 0 rgba(120, 20, 20, 0.5), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+        }
+        .numpad-btn.erase:hover {
+            background: linear-gradient(180deg, #ffabaa 0%, #e85554 100%);
+            box-shadow: 0 10px 24px rgba(232, 85, 84, 0.6), inset 0 -3px 0 rgba(120, 20, 20, 0.5), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* اعلان Toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+            align-items: center;
+        }
+        .toast {
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 800;
+            font-size: 0.95em;
+            animation: toastIn 0.35s ease-out, toastOut 0.35s ease-in forwards;
+            animation-delay: 0s, 1.8s;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            pointer-events: auto;
+            white-space: nowrap;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .toast.success { background: linear-gradient(135deg, #00B894, #00a383); color: #fff; }
+        .toast.error { background: linear-gradient(135deg, #FF7675, #e85554); color: #fff; }
+        .toast.info { background: linear-gradient(135deg, #6C5CE7, #5a48d6); color: #fff; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-40px) scale(0.8); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to { opacity: 0; transform: translateY(-30px) scale(0.85); }
+        }
+
+        /* مودال شیشه‌ای */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--modal-bg);
+            z-index: 900;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.active { display: flex; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal {
+            background: rgba(24, 18, 40, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: var(--border-radius);
+            padding: 28px 22px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.8) translateY(30px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.22);
+            transform: rotate(90deg);
+        }
+        .modal h2 {
+            font-size: 1.5em;
+            margin-bottom: 12px;
+            color: var(--gold);
+        }
+        .modal p {
+            color: #d8d2f0;
+            line-height: 1.7;
+            margin: 8px 0;
+        }
+
+        /* عناصر صفحه پایان بازی */
+        .complete-character-wrap { display: flex; justify-content: center; margin-bottom: 2px; }
+        .complete-character-img {
+            width: 96px;
+            height: 110px;
+            object-fit: contain;
+            image-rendering: pixelated;
+            filter: drop-shadow(0 0 14px rgba(108, 92, 231, 0.55));
+            animation: charFloat 3.5s ease-in-out infinite;
+        }
+        .complete-character-svg {
+            width: 96px;
+            height: 110px;
+            filter: drop-shadow(0 0 14px rgba(108, 92, 231, 0.55));
+            animation: charFloat 3.5s ease-in-out infinite;
+        }
+        .stars-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            font-size: 2em;
+            margin: 4px 0 8px;
+            line-height: 1;
+        }
+        .star { color: rgba(255, 255, 255, 0.18); }
+        .star.lit {
+            color: var(--gold);
+            text-shadow: 0 0 14px rgba(255, 201, 60, 0.85);
+            animation: starPop 0.5s ease backwards;
+        }
+        .star.lit:nth-child(2) { animation-delay: 0.15s; }
+        .star.lit:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes starPop {
+            from { transform: scale(0) rotate(-30deg); }
+            to { transform: scale(1) rotate(0deg); }
+        }
+        .coin-reward-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px 18px;
+            background: rgba(255, 201, 60, 0.12);
+            border: 1px solid rgba(255, 201, 60, 0.5);
+            border-radius: 30px;
+            color: var(--gold);
+            font-weight: 900;
+            font-size: 1.1em;
+            box-shadow: 0 0 18px rgba(255, 201, 60, 0.2);
+        }
+        .coin-reward-row .coin-icon-img { width: 28px; height: 28px; animation: none; }
+
+        /* کانفتی */
+        .confetti-piece {
+            position: fixed;
+            z-index: 950;
+            pointer-events: none;
+            animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-120px) rotate(0deg) scale(1); opacity: 1; }
+            70% { opacity: 0.9; }
+            100% { transform: translateY(105vh) rotate(720deg) scale(0.3); opacity: 0; }
+        }
+
+        /* جایزه تصادفی */
+        .random-reward {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 800;
+            pointer-events: none;
+            animation: rewardPop 2.5s ease-out forwards;
+        }
+        @keyframes rewardPop {
+            0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+            20% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+            40% { transform: scale(1) rotate(0deg); opacity: 1; }
+            80% { opacity: 0.6; transform: scale(1.1) translateY(-10px); }
+            100% { opacity: 0; transform: scale(0.3) translateY(-60px) rotate(20deg); }
+        }
+
+        /* آیکون SVG کوچک */
+        .svg-icon { display: inline-block; width: 24px; height: 24px; vertical-align: middle; flex-shrink: 0; }
+        .svg-icon-sm { width: 18px; height: 18px; }
+        .svg-icon-lg { width: 36px; height: 36px; }
+
+        /* ریسپانسیو */
+        @media (max-width: 480px) {
+            :root { --cell-size: 52px; }
+            .title { font-size: 1.6em; }
+            .btn { padding: 12px 24px; font-size: 0.95em; min-width: 140px; }
+            .btn-primary { padding: 14px 30px; font-size: 1.05em; min-width: 190px; }
+            .numpad-btn { width: 46px; height: 46px; font-size: 1.2em; }
+            .sudoku-grid { gap: 3px; padding: 4px; }
+            .cell { font-size: 1.3em; }
+            .card { padding: 18px 12px; }
+            .character-wrapper { width: 100px; height: 120px; }
+            .speech-bubble { font-size: 0.78em; max-width: 190px; padding: 8px 12px; }
+            .coin-display { padding: 6px 12px; }
+            .coin-icon-img { width: 22px; height: 22px; }
+        }
+        @media (max-width: 360px) {
+            :root { --cell-size: 42px; }
+            .numpad-btn { width: 38px; height: 38px; font-size: 1em; }
+            .numpad { gap: 6px; }
+            .cell { font-size: 1.1em; border-radius: 5px; }
+            .sudoku-grid { gap: 2px; padding: 3px; border-radius: 8px; }
+            .coin-icon-img { width: 18px; height: 18px; }
+            .coin-amount { font-size: 0.85em; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ذرات پس‌زمینه -->
+    <div class="bg-particles" id="bgParticles" aria-hidden="true"></div>
+
+    <!-- کانتینر اعلان‌ها -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <!-- جایزه تصادفی -->
+    <div id="randomRewardContainer" aria-hidden="true"></div>
+
+    <!-- کانتینر اصلی -->
+    <div class="main-container" id="mainContainer">
+
+        <!-- ===== صفحه لندینگ ===== -->
+        <div class="screen active" id="landingScreen">
+            <div class="card">
+
+                <!-- LOKO Coin Display — آیکون: ./icons/coin.png -->
+                <div class="menu-topbar">
+                    <div class="coin-display" id="coinDisplay" title="سکه‌های لوکو">
+                        <img src="./icons/coin.png" class="coin-icon-img" alt="سکه لوکو" onerror="window.coinIconFallback && window.coinIconFallback(this)">
+                        <div class="coin-amount" id="coinAmount">0</div>
+                    </div>
+                </div>
+
+                <h1 class="title">سودوکوی قبیله‌ای</h1>
+                <p class="subtitle">جدول رو پر کن، قبیله رو نجات بده!</p>
+
+                <!-- حباب گفتگو (بالای کاراکتر) -->
+                <div class="speech-bubble" id="welcomeBubble">
+                    بیا به ما کمک کن جدول اعداد رو درست بچینیم!
+                </div>
+
+                <!-- کاراکتر صفحه اصلی: ./icons/gamer.png (فالبک: SVG مرحله ۱) -->
+                <div class="character-wrapper" id="landingCharacter">
+                    <img class="character-img" id="gamerCharacterImg" src="./icons/gamer.png" alt="کاراکتر گیمر">
+                    <svg class="character-svg" id="characterSvgLanding" style="display:none" viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">
+                        <!-- فالبک در صورت نبود gamer.png -->
+                        <g id="charStage1">
+                            <circle cx="70" cy="32" r="22" fill="#d4a574" stroke="#8b5e3c" stroke-width="2.5"/>
+                            <circle cx="62" cy="28" r="3" fill="#3d2b1f"/>
+                            <circle cx="78" cy="28" r="3" fill="#3d2b1f"/>
+                            <path d="M64 38 Q70 44 76 38" fill="none" stroke="#8b5e3c" stroke-width="2" stroke-linecap="round"/>
+                            <rect x="60" y="54" width="20" height="40" rx="10" fill="#c4956a" stroke="#8b5e3c" stroke-width="2"/>
+                            <line x1="50" y1="62" x2="40" y2="82" stroke="#d4a574" stroke-width="7" stroke-linecap="round"/>
+                            <line x1="90" y1="62" x2="100" y2="82" stroke="#d4a574" stroke-width="7" stroke-linecap="round"/>
+                            <line x1="62" y1="94" x2="55" y2="120" stroke="#b8956e" stroke-width="7" stroke-linecap="round"/>
+                            <line x1="78" y1="94" x2="85" y2="120" stroke="#b8956e" stroke-width="7" stroke-linecap="round"/>
+                            <line x1="38" y1="40" x2="28" y2="105" stroke="#8b6914" stroke-width="5" stroke-linecap="round"/>
+                            <circle cx="28" cy="105" r="5" fill="#a07818"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- دکمه اصلی شروع -->
+                <button class="btn btn-primary" id="btnStart" aria-label="شروع بازی">
+                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none"><polygon points="5,3 20,12 5,21" fill="#5f3d00"/></svg>
+                    شروع بازی
+                </button>
+
+                <!-- دکمه ثانویه -->
+                <div class="secondary-actions">
+                    <button class="btn btn-gold-glass" id="btnHelp" aria-label="راهنما">
+                        <svg class="svg-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#FFC93C" stroke-width="2.5" fill="none"/><text x="12" y="17" text-anchor="middle" fill="#FFC93C" font-size="14" font-weight="bold">؟</text></svg>
+                        راهنما
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== صفحه بازی ===== -->
+        <div class="screen" id="gameScreen">
+            <div class="card">
+                <!-- هدر بازی: تایمر/خطا/امتیاز پشت‌صحنه محاسبه می‌شوند و نمایش داده نمی‌شوند -->
+                <div class="game-header">
+                    <div class="stat-pill timer stat-hidden" id="timerDisplay">⏱ ۰۰:۰۰</div>
+                    <div class="stat-pill errors stat-hidden" id="errorsDisplay">⚠️ خطا: ۰</div>
+                    <div class="stat-pill score stat-hidden" id="scoreDisplay">⭐ امتیاز: ۱۰۰</div>
+                    <div class="coin-display coin-display-sm" id="gameCoinDisplay" title="سکه‌های لوکو">
+                        <img src="./icons/coin.png" class="coin-icon-img" alt="سکه لوکو" onerror="window.coinIconFallback && window.coinIconFallback(this)">
+                        <div class="coin-amount" id="gameCoinAmount">0</div>
+                    </div>
+                    <button class="btn-icon" id="btnMute" aria-label="قطع/وصل صدا" title="صدا">
+                        <svg class="svg-icon-sm" id="muteIcon" viewBox="0 0 24 24" fill="none"><polygon points="2,8 7,8 13,3 13,21 7,16 2,16" fill="white"/><rect x="17" y="7" width="3" height="10" rx="1.5" fill="white"/></svg>
+                    </button>
+                </div>
+
+                <!-- نوار پیشرفت -->
+                <div class="progress-bar-wrapper">
+                    <div class="progress-bar-fill" id="progressBar" style="width:0%" title="پیشرفت جدول"></div>
+                </div>
+
+                <!-- جدول سودوکو -->
+                <div class="sudoku-grid" id="sudokuGrid" role="grid" aria-label="جدول سودوکو ۴ در ۴"></div>
+
+                <!-- صفحه کلید عددی -->
+                <div class="numpad" id="numpad">
+                    <button class="numpad-btn" data-num="1">۱</button>
+                    <button class="numpad-btn" data-num="2">۲</button>
+                    <button class="numpad-btn" data-num="3">۳</button>
+                    <button class="numpad-btn" data-num="4">۴</button>
+                    <button class="numpad-btn erase" id="btnErase" aria-label="پاک کردن">
+                        <svg class="svg-icon-sm" viewBox="0 0 24 24" fill="none"><line x1="6" y1="6" x2="18" y2="18" stroke="white" stroke-width="3" stroke-linecap="round"/><line x1="18" y1="6" x2="6" y2="18" stroke="white" stroke-width="3" stroke-linecap="round"/></svg>
+                    </button>
+                </div>
+
+                <!-- دکمه بازگشت -->
+                <button class="btn btn-secondary btn-small" id="btnBackToLanding">بازگشت به خانه</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== مودال راهنما ===== -->
+    <div class="modal-overlay" id="modalHelp">
+        <div class="modal" role="dialog" aria-labelledby="helpTitle">
+            <button class="modal-close" data-close="modalHelp" aria-label="بستن">✕</button>
+            <h2 id="helpTitle">📖 راهنما</h2>
+            <p>در هر <strong>سطر</strong> و هر <strong>ستون</strong>، اعداد <strong>۱ تا ۴</strong> را بدون تکرار بچین.</p>
+            <p>👆 روی خانه‌ی خالی کلیک کن، بعد عدد مورد نظرت رو از صفحه کلید پایین انتخاب کن.</p>
+            <p>🎯 سعی کن <strong>کمترین خطا</strong> و <strong>کمترین زمان</strong> رو داشته باشی!</p>
+            <p>🏆 بعد از پایان بازی، تیپ شخصیتی تو مشخص می‌شه و کاراکتر قبیله رشد می‌کنه!</p>
+        </div>
+    </div>
+
+    <!-- مودال پایان بازی -->
+    <div class="modal-overlay" id="modalComplete">
+        <div class="modal" role="dialog" aria-labelledby="completeTitle">
+            <h2 id="completeTitle">🎉 تبریک! جدول کامل شد!</h2>
+            <div id="completeContent"></div>
+            <button class="btn btn-primary" id="btnPlayAgain" style="margin-top:16px;">بازی دوباره</button>
+            <button class="btn btn-secondary btn-small" id="btnGoHome" style="margin-top:8px;">بازگشت به خانه</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ==================== ثابت‌ها و متغیرهای سراسری ====================
+            const GRID_SIZE = 4;
+            const TOTAL_CELLS = GRID_SIZE * GRID_SIZE; // ۱۶
+            const BASE_SCORE = 100;
+            const ERROR_PENALTY = 2;
+            const TIME_PENALTY_PER_SEC = 0.5;
+            const PRE_FILLED_COUNT = 5;
+            const REWARD_PROBABILITY = 0.3;
+
+            // ==================== LOKO Shared Systems ====================
+            const COINS_KEY = 'lokoCoins';
+            const SNAPSHOT_KEY = 'lokoLastSnapshot';
+            // این بازی سرور/API ندارد؛ در صورت اتصال به بک‌اند، آدرس Endpoint اینجا تنظیم می‌شود.
+            const LOKO_SYNC_ENDPOINT = null;
+
+            // سکه‌ی اولیه‌ی کاربر در لحظه‌ی شروع هر بازی (قانون پاداش ۱۰/۱)
+            let initialCoinsAtGameStart = 0;
+
+            // فالبک داخلی آیکون سکه (فقط اگر ./icons/coin.png در دسترس نباشد)
+            const COIN_SVG = '<svg class="coin-icon-img" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="#FFC93C" stroke="#B96F00" stroke-width="3"/><circle cx="20" cy="20" r="11" fill="none" stroke="#B96F00" stroke-width="2" opacity="0.5"/><polygon points="20,11.5 22.6,17.1 28.6,17.7 24.1,21.7 25.5,27.6 20,24.4 14.5,27.6 15.9,21.7 11.4,17.7 17.4,17.1" fill="#B96F00"/></svg>';
+
+            // وضعیت بازی
+            let solution = [];
+            let playerGrid = [];
+            let fixedCells = new Set();
+            let selectedCell = null;
+            let errorCount = 0;
+            let timerSeconds = 0;
+            let timerInterval = null;
+            let gameActive = false;
+            let soundMuted = false;
+            let currentScore = BASE_SCORE;
+
+            let audioCtx = null;
+
+            // ==================== ارجاعات DOM ====================
+            const $landingScreen = document.getElementById('landingScreen');
+            const $gameScreen = document.getElementById('gameScreen');
+            const $sudokuGrid = document.getElementById('sudokuGrid');
+            const $timerDisplay = document.getElementById('timerDisplay');
+            const $errorsDisplay = document.getElementById('errorsDisplay');
+            const $scoreDisplay = document.getElementById('scoreDisplay');
+            const $progressBar = document.getElementById('progressBar');
+            const $toastContainer = document.getElementById('toastContainer');
+            const $randomRewardContainer = document.getElementById('randomRewardContainer');
+            const $characterSvgLanding = document.getElementById('characterSvgLanding');
+            const $landingCharacter = document.getElementById('landingCharacter');
+            const $welcomeBubble = document.getElementById('welcomeBubble');
+            const $muteIcon = document.getElementById('muteIcon');
+            const $completeContent = document.getElementById('completeContent');
+
+            // ==================== LOKO Coin System ====================
+            function toFa(n) {
+                return String(n).replace(/\d/g, function(d) { return '۰۱۲۳۴۵۶۷۸۹'[+d]; });
+            }
+
+            function getCoins() {
+                try {
+                    const v = parseInt(localStorage.getItem(COINS_KEY), 10);
+                    return (isNaN(v) || v < 0) ? 0 : v;
+                } catch (e) { return 0; }
+            }
+
+            function setCoins(value) {
+                try {
+                    localStorage.setItem(COINS_KEY, String(Math.max(0, Math.floor(value))));
+                } catch (e) {}
+                updateCoinDisplays();
+            }
+
+            function updateCoinDisplays() {
+                const amount = toFa(getCoins());
+                document.querySelectorAll('.coin-amount').forEach(el => { el.textContent = amount; });
+            }
+
+            // پاداش فقط بعد از تکمیل کامل بازی (endGame)
+            function grantCoinReward() {
+                const reward = (initialCoinsAtGameStart === 0) ? 10 : 1;
+                setCoins(getCoins() + reward);
+                showCoinRewardFx(reward);
+                return reward;
+            }
+
+            function coinImgTag() {
+                return '<img src="./icons/coin.png" class="coin-icon-img" alt="سکه لوکو" onerror="window.coinIconFallback && window.coinIconFallback(this)">';
+            }
+
+            function showCoinRewardFx(reward) {
+                try {
+                    const fx = document.createElement('div');
+                    fx.className = 'coin-reward-fx';
+                    fx.innerHTML = coinImgTag() + '<span>+' + toFa(reward) + ' سکه لوکو</span>';
+                    document.body.appendChild(fx);
+                    setTimeout(() => { if (fx.parentNode) fx.remove(); }, 2300);
+                    document.querySelectorAll('.coin-display').forEach(d => {
+                        d.classList.remove('bump');
+                        void d.offsetWidth;
+                        d.classList.add('bump');
+                        setTimeout(() => d.classList.remove('bump'), 700);
+                    });
+                } catch (e) {}
+            }
+
+            // فالبک آیکون سکه در صورت نبود فایل PNG
+            function coinIconFallback(img) {
+                if (!img || img.getAttribute('data-coin-fb')) return;
+                img.setAttribute('data-coin-fb', '1');
+                img.outerHTML = COIN_SVG;
+            }
+            window.coinIconFallback = coinIconFallback;
+
+            function initCoinIcons() {
+                document.querySelectorAll('img.coin-icon-img').forEach(img => {
+                    if (img.complete && img.naturalWidth === 0) {
+                        coinIconFallback(img);
+                    } else if (!img.complete) {
+                        img.addEventListener('error', function() { coinIconFallback(img); }, { once: true });
+                    }
+                });
+            }
+
+            // ==================== کاراکتر صفحه اصلی (gamer.png) ====================
+            function initCharacterImage() {
+                const img = document.getElementById('gamerCharacterImg');
+                if (!img) return;
+                const showSvgFallback = function() {
+                    img.style.display = 'none';
+                    if ($characterSvgLanding) $characterSvgLanding.style.display = '';
+                };
+                img.addEventListener('error', showSvgFallback, { once: true });
+                if (img.complete && img.naturalWidth === 0) {
+                    showSvgFallback();
+                }
+            }
+
+            // ==================== LOKO Offline / Sync Layer ====================
+            function fetchWithTimeout(url, options, timeoutMs) {
+                options = options || {};
+                timeoutMs = timeoutMs || 5000;
+                if (typeof fetch !== 'function') return Promise.reject(new Error('fetch unavailable'));
+                if (typeof AbortController === 'undefined') return fetch(url, options);
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), timeoutMs);
+                return fetch(url, Object.assign({}, options, { signal: controller.signal }))
+                    .finally(() => clearTimeout(timer));
+            }
+
+            function getLocalSnapshot() {
+                return {
+                    coins: getCoins(),
+                    stats: getStats(),
+                    muted: soundMuted,
+                    updatedAt: new Date().toISOString()
+                };
+            }
+
+            function syncData() {
+                // Snapshot محلی همیشه به‌روز نگه داشته می‌شود (Offline Cache)
+                try {
+                    localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(getLocalSnapshot()));
+                } catch (e) {}
+                if (!LOKO_SYNC_ENDPOINT) return;
+                if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+                // Merge محافظه‌کارانه: داده‌ی محلی منبع اصلی است و توسط Sync نابود نمی‌شود
+                fetchWithTimeout(LOKO_SYNC_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(getLocalSnapshot())
+                }).catch(() => { /* Offline Fallback */ });
+            }
+
+            function startAutoSync() {
+                window.addEventListener('online', syncData);
+                setInterval(syncData, 30000);
+                syncData();
+            }
+
+            // ==================== ذرات پس‌زمینه ====================
+            function createBgParticles() {
+                const container = document.getElementById('bgParticles');
+                container.innerHTML = '';
+                const colors = ['#FFC93C', '#6C5CE7', '#00D2FF', '#FF00A0', '#00FF9D', '#FFEAA7', '#FFE68A'];
+                for (let i = 0; i < 35; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'bg-particle';
+                    const size = Math.random() * 5 + 2;
+                    particle.style.width = size + 'px';
+                    particle.style.height = size + 'px';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
+                    particle.style.animationDelay = Math.random() * 12 + 's';
+                    particle.style.boxShadow = '0 0 ' + (size * 2) + 'px ' + particle.style.backgroundColor;
+                    container.appendChild(particle);
+                }
+            }
+
+            // ==================== سیستم صدا (Web Audio API) ====================
+            function getAudioContext() {
+                if (!audioCtx) {
+                    try {
+                        audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+                    } catch (e) {
+                        console.warn('Web Audio API در دسترس نیست:', e);
+                        return null;
+                    }
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().catch(() => {});
+                }
+                return audioCtx;
+            }
+
+            function playTone(frequency, duration, type = 'sine', volume = 0.25) {
+                if (soundMuted) return;
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                try {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    oscillator.type = type;
+                    oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
+                    gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + duration);
+                } catch (e) {}
+            }
+
+            function playSound(type) {
+                if (soundMuted) return;
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                try {
+                    switch (type) {
+                        case 'click':
+                            playTone(784, 0.12, 'sine', 0.2);
+                            break;
+                        case 'correct':
+                            playTone(523, 0.15, 'sine', 0.22);
+                            setTimeout(() => playTone(659, 0.15, 'sine', 0.22), 120);
+                            setTimeout(() => playTone(784, 0.2, 'sine', 0.25), 240);
+                            break;
+                        case 'wrong':
+                            playTone(330, 0.18, 'square', 0.18);
+                            setTimeout(() => playTone(262, 0.22, 'square', 0.18), 150);
+                            break;
+                        case 'complete':
+                            playTone(523, 0.18, 'sine', 0.25);
+                            setTimeout(() => playTone(659, 0.18, 'sine', 0.25), 150);
+                            setTimeout(() => playTone(784, 0.18, 'sine', 0.25), 300);
+                            setTimeout(() => playTone(1047, 0.35, 'triangle', 0.3), 450);
+                            break;
+                        case 'reward':
+                            playTone(1200, 0.1, 'sine', 0.15);
+                            setTimeout(() => playTone(1500, 0.08, 'sine', 0.12), 80);
+                            break;
+                        default:
+                            break;
+                    }
+                } catch (e) {}
+            }
+
+            // ==================== اعلان Toast ====================
+            function showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = 'toast ' + type;
+                toast.textContent = message;
+                $toastContainer.appendChild(toast);
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 2200);
+            }
+
+            // ==================== جایزه تصادفی ====================
+            function showRandomReward() {
+                if (Math.random() > REWARD_PROBABILITY) return;
+                const container = $randomRewardContainer;
+                container.innerHTML = '';
+
+                const reward = document.createElement('div');
+                reward.className = 'random-reward';
+
+                const isBone = Math.random() > 0.5;
+                reward.innerHTML = isBone ?
+                    `<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="12" cy="15" rx="10" ry="8" fill="#f5e6d3" stroke="#c9a87c" stroke-width="2"/>
+                <ellipse cx="12" cy="35" rx="10" ry="8" fill="#f5e6d3" stroke="#c9a87c" stroke-width="2"/>
+                <ellipse cx="38" cy="15" rx="10" ry="8" fill="#f5e6d3" stroke="#c9a87c" stroke-width="2"/>
+                <ellipse cx="38" cy="35" rx="10" ry="8" fill="#f5e6d3" stroke="#c9a87c" stroke-width="2"/>
+                <rect x="10" y="19" width="30" height="12" rx="4" fill="#f5e6d3" stroke="#c9a87c" stroke-width="2"/>
+              </svg>` :
+                    `<svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 2 L36 18 Q38 30 30 42 L20 48 L10 42 Q2 30 4 18 Z" fill="#fffef5" stroke="#d4c5a0" stroke-width="2.5"/>
+                <path d="M20 8 L30 20 Q32 30 26 38 L20 42 L14 38 Q8 30 10 20 Z" fill="#fefdf8" stroke="#d4c5a0" stroke-width="1"/>
+              </svg>`;
+
+                reward.style.bottom = (20 + Math.random() * 40) + 'px';
+                reward.style.right = (15 + Math.random() * 40) + 'px';
+                container.appendChild(reward);
+
+                playSound('reward');
+
+                setTimeout(() => {
+                    if (reward.parentNode) reward.remove();
+                }, 2600);
+            }
+
+
+            function spawnConfetti(count = 50) {
+                const colors = ['#FFC93C', '#6C5CE7', '#00D2FF', '#FF00A0', '#00FF9D', '#FFE68A', '#FF7675', '#FFEAA7'];
+                for (let i = 0; i < count; i++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'confetti-piece';
+                    piece.style.left = Math.random() * 100 + '%';
+                    piece.style.top = -(Math.random() * 60 + 10) + 'px';
+                    piece.style.width = (Math.random() * 10 + 6) + 'px';
+                    piece.style.height = (Math.random() * 10 + 6) + 'px';
+                    piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+                    piece.style.animationDuration = (Math.random() * 2 + 2.5) + 's';
+                    piece.style.animationDelay = Math.random() * 0.6 + 's';
+                    document.body.appendChild(piece);
+                    const delay = parseFloat(piece.style.animationDelay);
+                    const duration = parseFloat(piece.style.animationDuration);
+                    setTimeout(() => {
+                        if (piece.parentNode) piece.remove();
+                    }, (delay + duration) * 1000 + 200);
+                }
+            }
+
+            // ==================== افکت ریپل روی دکمه‌ها ====================
+            function addRippleEffect(e) {
+                const btn = e.currentTarget;
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                const rect = btn.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = size + 'px';
+                ripple.style.height = size + 'px';
+                ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                btn.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 700);
+            }
+
+            function attachRipples() {
+                document.querySelectorAll('.btn, .numpad-btn, .btn-icon').forEach(btn => {
+                    btn.removeEventListener('click', addRippleEffect);
+                    btn.addEventListener('click', addRippleEffect);
+                });
+            }
+
+            // ==================== تولید جدول سودوکو (منطق اصلی — دست‌نخورده) ====================
+            function generateValidSolution() {
+                const base = [
+                    [1, 2, 3, 4],
+                    [3, 4, 1, 2],
+                    [2, 1, 4, 3],
+                    [4, 3, 2, 1]
+                ];
+
+                let grid = base.map(row => [...row]);
+
+                if (Math.random() > 0.5) {
+                    [grid[0], grid[1]] = [grid[1], grid[0]];
+                }
+                if (Math.random() > 0.5) {
+                    [grid[2], grid[3]] = [grid[3], grid[2]];
+                }
+                if (Math.random() > 0.5) {
+                    for (let r = 0; r < 4; r++) {
+                        [grid[r][0], grid[r][1]] = [grid[r][1], grid[r][0]];
+                    }
+                }
+                if (Math.random() > 0.5) {
+                    for (let r = 0; r < 4; r++) {
+                        [grid[r][2], grid[r][3]] = [grid[r][3], grid[r][2]];
+                    }
+                }
+
+                const numbers = [1, 2, 3, 4];
+                const shuffled = [...numbers].sort(() => Math.random() - 0.5);
+                const mapping = {};
+                numbers.forEach((n, i) => { mapping[n] = shuffled[i]; });
+
+                for (let r = 0; r < 4; r++) {
+                    for (let c = 0; c < 4; c++) {
+                        grid[r][c] = mapping[grid[r][c]];
+                    }
+                }
+
+                return grid;
+            }
+
+            function selectPreFilledCells() {
+                const allPositions = [];
+                for (let r = 0; r < GRID_SIZE; r++) {
+                    for (let c = 0; c < GRID_SIZE; c++) {
+                        allPositions.push({ row: r, col: c });
+                    }
+                }
+                for (let i = allPositions.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [allPositions[i], allPositions[j]] = [allPositions[j], allPositions[i]];
+                }
+                const selected = allPositions.slice(0, PRE_FILLED_COUNT);
+                const fixed = new Set();
+                selected.forEach(pos => fixed.add(pos.row + ',' + pos.col));
+                return fixed;
+            }
+
+            function initPuzzle() {
+                // LOKO Coin: ثبت سکه‌های اولیه در لحظه‌ی شروع بازی (قانون پاداش +۱۰ / +۱)
+                initialCoinsAtGameStart = getCoins();
+
+                solution = generateValidSolution();
+                fixedCells = selectPreFilledCells();
+                playerGrid = [];
+                for (let r = 0; r < GRID_SIZE; r++) {
+                    playerGrid[r] = [];
+                    for (let c = 0; c < GRID_SIZE; c++) {
+                        if (fixedCells.has(r + ',' + c)) {
+                            playerGrid[r][c] = solution[r][c];
+                        } else {
+                            playerGrid[r][c] = null;
+                        }
+                    }
+                }
+                selectedCell = null;
+                errorCount = 0;
+                timerSeconds = 0;
+                currentScore = BASE_SCORE;
+                gameActive = true;
+                updateAllDisplays();
+                renderGrid();
+                startTimer();
+            }
+
+            // ==================== رندر جدول ====================
+            function renderGrid() {
+                $sudokuGrid.innerHTML = '';
+                for (let r = 0; r < GRID_SIZE; r++) {
+                    for (let c = 0; c < GRID_SIZE; c++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        cell.setAttribute('data-row', r);
+                        cell.setAttribute('data-col', c);
+                        cell.setAttribute('role', 'gridcell');
+                        cell.setAttribute('tabindex', '0');
+                        cell.setAttribute('aria-label', 'خانه سطر ' + (r + 1) + ' ستون ' + (c + 1));
+
+                        const key = r + ',' + c;
+                        if (fixedCells.has(key)) {
+                            cell.classList.add('fixed');
+                            cell.textContent = playerGrid[r][c];
+                            cell.setAttribute('aria-readonly', 'true');
+                        } else if (playerGrid[r][c] !== null) {
+                            cell.textContent = playerGrid[r][c];
+                        } else {
+                            cell.textContent = '';
+                        }
+
+                        if (selectedCell && selectedCell.row === r && selectedCell.col === c) {
+                            cell.classList.add('selected');
+                        }
+
+                        cell.addEventListener('click', () => onCellClick(r, c, cell));
+                        cell.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                onCellClick(r, c, cell);
+                            }
+                        });
+
+                        $sudokuGrid.appendChild(cell);
+                    }
+                }
+            }
+
+            function updateCellVisual(r, c) {
+                const cell = $sudokuGrid.querySelector('[data-row="' + r + '"][data-col="' + c + '"]');
+                if (!cell) return;
+                const key = r + ',' + c;
+                if (selectedCell && selectedCell.row === r && selectedCell.col === c) {
+                    cell.classList.add('selected');
+                } else {
+                    cell.classList.remove('selected');
+                }
+                if (!fixedCells.has(key)) {
+                    cell.textContent = playerGrid[r][c] !== null ? playerGrid[r][c] : '';
+                }
+            }
+
+            function onCellClick(r, c, cellElement) {
+                if (!gameActive) return;
+                const key = r + ',' + c;
+                if (fixedCells.has(key)) {
+                    playSound('click');
+                    return;
+                }
+                playSound('click');
+                if (selectedCell) {
+                    const prevCell = $sudokuGrid.querySelector(
+                        '[data-row="' + selectedCell.row + '"][data-col="' + selectedCell.col + '"]');
+                    if (prevCell) prevCell.classList.remove('selected');
+                }
+                if (selectedCell && selectedCell.row === r && selectedCell.col === c) {
+                    selectedCell = null;
+                } else {
+                    selectedCell = { row: r, col: c };
+                }
+                updateCellVisual(r, c);
+                if (selectedCell && (selectedCell.row !== r || selectedCell.col !== c)) {
+                    updateCellVisual(selectedCell.row, selectedCell.col);
+                }
+                if (!selectedCell) {
+                    renderGrid();
+                }
+            }
+
+            // ==================== صفحه کلید عددی (منطق اصلی — دست‌نخورده) ====================
+            function placeNumber(num) {
+                if (!gameActive || !selectedCell) return;
+                const { row, col } = selectedCell;
+                const key = row + ',' + col;
+                if (fixedCells.has(key)) return;
+
+                let conflict = false;
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    if (c !== col && playerGrid[row][c] === num) {
+                        conflict = true;
+                        break;
+                    }
+                }
+                if (!conflict) {
+                    for (let r = 0; r < GRID_SIZE; r++) {
+                        if (r !== row && playerGrid[r][col] === num) {
+                            conflict = true;
+                            break;
+                        }
+                    }
+                }
+
+                const cellElement = $sudokuGrid.querySelector('[data-row="' + row + '"][data-col="' + col + '"]');
+
+                if (conflict) {
+                    errorCount++;
+                    currentScore = Math.max(0, currentScore - ERROR_PENALTY);
+                    playSound('wrong');
+                    showToast('تکرار ممنوع! این خونه جای ' + num + ' نیست. دوباره تلاش کن.', 'error');
+                    if (cellElement) {
+                        cellElement.classList.add('wrong-shake');
+                        setTimeout(() => cellElement.classList.remove('wrong-shake'), 550);
+                    }
+                } else {
+                    const wasEmpty = playerGrid[row][col] === null;
+                    playerGrid[row][col] = num;
+                    if (wasEmpty) {
+                        // ثبت پیشرفت
+                    }
+                    playSound('correct');
+                    showToast('آفرین!', 'success');
+                    if (cellElement) {
+                        cellElement.classList.add('correct-flash');
+                        cellElement.textContent = num;
+                        setTimeout(() => {
+                            cellElement.classList.remove('correct-flash');
+                            updateCellVisual(row, col);
+                        }, 550);
+                    }
+                    showRandomReward();
+                    selectedCell = null;
+                }
+
+                updateAllDisplays();
+                renderGrid();
+                checkCompletion();
+            }
+
+            function eraseCell() {
+                if (!gameActive || !selectedCell) return;
+                const { row, col } = selectedCell;
+                const key = row + ',' + col;
+                if (fixedCells.has(key)) return;
+                playSound('click');
+                playerGrid[row][col] = null;
+                selectedCell = null;
+                updateAllDisplays();
+                renderGrid();
+            }
+
+            // ==================== بررسی پایان بازی (منطق اصلی — دست‌نخورده) ====================
+            function checkCompletion() {
+                if (!gameActive) return;
+                let allFilled = true;
+                for (let r = 0; r < GRID_SIZE; r++) {
+                    for (let c = 0; c < GRID_SIZE; c++) {
+                        if (playerGrid[r][c] === null) {
+                            allFilled = false;
+                            break;
+                        }
+                    }
+                    if (!allFilled) break;
+                }
+                if (!allFilled) return;
+
+                let isValid = true;
+                for (let r = 0; r < GRID_SIZE; r++) {
+                    const rowSet = new Set();
+                    for (let c = 0; c < GRID_SIZE; c++) {
+                        if (rowSet.has(playerGrid[r][c])) { isValid = false; break; }
+                        rowSet.add(playerGrid[r][c]);
+                    }
+                    if (!isValid) break;
+                }
+                if (isValid) {
+                    for (let c = 0; c < GRID_SIZE; c++) {
+                        const colSet = new Set();
+                        for (let r = 0; r < GRID_SIZE; r++) {
+                            if (colSet.has(playerGrid[r][c])) { isValid = false; break; }
+                            colSet.add(playerGrid[r][c]);
+                        }
+                        if (!isValid) break;
+                    }
+                }
+
+                if (isValid) {
+                    endGame();
+                }
+            }
+
+            function endGame() {
+                gameActive = false;
+                stopTimer();
+                playSound('complete');
+                spawnConfetti(60);
+
+                // محاسبه امتیاز نهایی — فرمول اصلی بازی (دست‌نخورده)
+                const timePenalty = Math.floor(timerSeconds * TIME_PENALTY_PER_SEC);
+                const finalScore = Math.max(5, BASE_SCORE - errorCount * ERROR_PENALTY - timePenalty);
+
+                // تعیین تیپ شخصیتی — دست‌نخورده
+                let personality;
+                if (timerSeconds < 30 && errorCount < 3) {
+                    personality = 'تیپ سریع و دقیق (قهرمان قبیله)';
+                } else if (timerSeconds > 90 && errorCount < 3) {
+                    personality = 'تیپ متفکر و دقیق (حکیم قبیله)';
+                } else if (timerSeconds < 60 && errorCount > 5) {
+                    personality = 'تیپ آزمون و خطا (کاوشگر شجاع)';
+                } else {
+                    personality = 'تیپ متعادل (عضو خردمند قبیله)';
+                }
+
+                // آمار: پشت‌صحنه ذخیره می‌شود (بدون نمایش به کاربر)
+                saveStats(finalScore, errorCount, timerSeconds, personality);
+
+                // LOKO Coin: پاداش فقط پس از تکمیل کامل بازی
+                const coinReward = grantCoinReward();
+
+                updateCharacterStage();
+                showCompletionModal(finalScore, personality, coinReward);
+
+                $landingCharacter.classList.add('bounce-char');
+                setTimeout(() => $landingCharacter.classList.remove('bounce-char'), 700);
+
+                updateAllDisplays();
+                renderGrid();
+            }
+
+            // ستاره‌های نمایشی صفحه پایان — صرفاً UI و بدون اثر در امتیاز/منطق
+            function getStarRating() {
+                if (errorCount === 0 && timerSeconds <= 60) return 3;
+                if (errorCount <= 2) return 2;
+                return 1;
+            }
+
+            function showCompletionModal(finalScore, personality, coinReward) {
+                const mins = Math.floor(timerSeconds / 60);
+                const secs = timerSeconds % 60;
+                const timeStr = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+
+                const stars = getStarRating();
+                let starsHtml = '<div class="stars-row">';
+                for (let i = 1; i <= 3; i++) {
+                    starsHtml += '<span class="star' + (i <= stars ? ' lit' : '') + '">★</span>';
+                }
+                starsHtml += '</div>';
+
+                // کاراکتر: gamer.png (یا فالبک SVG مرحله‌ی فعلی)
+                let charHtml = '';
+                const gamerImg = document.getElementById('gamerCharacterImg');
+                if (gamerImg && gamerImg.style.display !== 'none') {
+                    charHtml = '<div class="complete-character-wrap">' +
+                        '<img class="complete-character-img" src="./icons/gamer.png" alt="کاراکتر گیمر">' +
+                        '</div>';
+                } else if ($characterSvgLanding) {
+                    const clone = $characterSvgLanding.cloneNode(true);
+                    clone.removeAttribute('id');
+                    clone.removeAttribute('style');
+                    clone.classList.remove('character-svg');
+                    clone.classList.add('complete-character-svg');
+                    charHtml = '<div class="complete-character-wrap">' + clone.outerHTML + '</div>';
+                }
+
+                $completeContent.innerHTML =
+                    charHtml +
+                    starsHtml +
+                    `<p style="font-size:1.1em;">⏱ زمان: <strong>${timeStr}</strong></p>` +
+                    `<p style="font-size:1.1em;">⚠️ خطاها: <strong>${errorCount}</strong></p>` +
+                    `<p style="font-size:1.3em;color:#FFC93C;">⭐ امتیاز نهایی: <strong>${finalScore}</strong></p>` +
+                    `<div class="coin-reward-row">${coinImgTag()}<span>+${toFa(coinReward)} سکه لوکو</span></div>` +
+                    `<p style="font-size:1.1em;color:#00D2FF;margin-top:12px;">🧠 ${personality}</p>` +
+                    `<p style="color:#bdb6d8;font-size:0.85em;margin-top:8px;">کاراکتر قبیله‌ات رشد کرد! به صفحه اصلی برو تا ببینی.</p>`;
+
+                openModal('modalComplete');
+            }
+
+            // ==================== تایمر ====================
+            function startTimer() {
+                stopTimer();
+                timerSeconds = 0;
+                updateTimerDisplay();
+                timerInterval = setInterval(() => {
+                    timerSeconds++;
+                    updateTimerDisplay();
+                    updateAllDisplays();
+                }, 1000);
+            }
+
+            function stopTimer() {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+            }
+
+            function updateTimerDisplay() {
+                const mins = Math.floor(timerSeconds / 60);
+                const secs = timerSeconds % 60;
+                const timeStr = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+                // عنصر مخفی است ولی مقدار پشت‌صحنه به‌روز می‌ماند (منطق امتیاز/تیپ شخصیتی سالم است)
+                if ($timerDisplay) {
+                    $timerDisplay.innerHTML =
+                        '<svg class="svg-icon-sm" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;"><circle cx="12" cy="13" r="9" stroke="#FFC93C" stroke-width="2.5" fill="none"/><line x1="12" y1="13" x2="12" y2="7" stroke="#FFC93C" stroke-width="2.5" stroke-linecap="round"/><line x1="12" y1="13" x2="16" y2="15" stroke="#FFC93C" stroke-width="2.5" stroke-linecap="round"/></svg> ' +
+                        timeStr;
+                }
+            }
+
+            function updateAllDisplays() {
+                updateTimerDisplay();
+                if ($errorsDisplay) {
+                    $errorsDisplay.innerHTML =
+                        '<svg class="svg-icon-sm" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;"><polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9" fill="#FF7675"/></svg> خطا: ' +
+                        errorCount;
+                }
+
+                // امتیاز زنده — فرمول اصلی دست‌نخورده (پشت‌صحنه)
+                const timePenalty = Math.floor(timerSeconds * TIME_PENALTY_PER_SEC);
+                const liveScore = Math.max(5, BASE_SCORE - errorCount * ERROR_PENALTY - timePenalty);
+                currentScore = liveScore;
+                if ($scoreDisplay) {
+                    $scoreDisplay.innerHTML =
+                        '<svg class="svg-icon-sm" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;"><circle cx="12" cy="12" r="10" stroke="#00FF9D" stroke-width="2.5" fill="none"/><text x="12" y="17" text-anchor="middle" fill="#00FF9D" font-size="12" font-weight="bold">⭐</text></svg> امتیاز: ' +
+                        liveScore;
+                }
+
+                // نوار پیشرفت (فیدبک گیم‌پلی — قابل مشاهده)
+                let filledCount = 0;
+                for (let r = 0; r < GRID_SIZE; r++) {
+                    for (let c = 0; c < GRID_SIZE; c++) {
+                        if (playerGrid[r] && playerGrid[r][c] !== null) filledCount++;
+                    }
+                }
+                const progressPercent = Math.round((filledCount / TOTAL_CELLS) * 100);
+                $progressBar.style.width = progressPercent + '%';
+            }
+
+            // ==================== مدیریت localStorage (Data Pipeline — فعال در پشت صحنه) ====================
+            function getStats() {
+                const defaultStats = {
+                    totalScore: 0,
+                    totalGames: 0,
+                    totalErrors: 0,
+                    totalTime: 0,
+                    lastPlayDate: null,
+                    bestTime: null,
+                    personalityCounts: {
+                        'تیپ سریع و دقیق (قهرمان قبیله)': 0,
+                        'تیپ متفکر و دقیق (حکیم قبیله)': 0,
+                        'تیپ آزمون و خطا (کاوشگر شجاع)': 0,
+                        'تیپ متعادل (عضو خردمند قبیله)': 0,
+                    },
+                    completedGames: 0,
+                };
+                try {
+                    const raw = localStorage.getItem('tribalSudokuStats');
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        const merged = { ...defaultStats, ...parsed };
+                        if (!merged.personalityCounts) merged.personalityCounts = defaultStats.personalityCounts;
+                        for (const key of Object.keys(defaultStats.personalityCounts)) {
+                            if (!(key in merged.personalityCounts)) merged.personalityCounts[key] = 0;
+                        }
+                        return merged;
+                    }
+                } catch (e) {
+                    console.warn('خطا در خواندن localStorage:', e);
+                }
+                return { ...defaultStats, personalityCounts: { ...defaultStats.personalityCounts } };
+            }
+
+            function saveStats(finalScore, errors, time, personality) {
+                const stats = getStats();
+                stats.totalScore += finalScore;
+                stats.totalGames += 1;
+                stats.totalErrors += errors;
+                stats.totalTime += time;
+                stats.lastPlayDate = new Date().toLocaleDateString('fa-IR');
+                if (stats.bestTime === null || time < stats.bestTime) {
+                    stats.bestTime = time;
+                }
+                if (personality in stats.personalityCounts) {
+                    stats.personalityCounts[personality]++;
+                } else {
+                    stats.personalityCounts[personality] = 1;
+                }
+                stats.completedGames += 1;
+                try {
+                    localStorage.setItem('tribalSudokuStats', JSON.stringify(stats));
+                } catch (e) {
+                    console.warn('خطا در ذخیره‌سازی localStorage:', e);
+                }
+            }
+
+            function resetStats() {
+                try {
+                    localStorage.removeItem('tribalSudokuStats');
+                } catch (e) {
+                    console.warn('خطا در پاک کردن localStorage:', e);
+                }
+                updateCharacterStage();
+            }
+
+            // UI آمار کاملاً از رابط کاربری حذف شده است؛ داده‌ها فقط پشت‌صحنه جمع می‌شوند
+            function updateStatsModal() {
+                /* Statistics UI = Hidden | Data Pipeline = Active */
+                return;
+            }
+
+            // ==================== رشد کاراکتر قبیله (منطق اصلی — دست‌نخورده) ====================
+            function getCharacterStage() {
+                const stats = getStats();
+                const games = stats.completedGames;
+                if (games >= 4) return 3; // رئیس قبیله با کلاه پر
+                if (games >= 2) return 2; // با نیزه
+                return 1; // انسان اولیه با چوب
+            }
+
+            function updateCharacterStage() {
+                const stage = getCharacterStage();
+                // فالبک SVG مراحل (فقط در صورت نبود gamer.png دیده می‌شود)
+                let svgContent = '';
+
+                if (stage === 1) {
+                    svgContent = `
+                <circle cx="70" cy="32" r="22" fill="#d4a574" stroke="#8b5e3c" stroke-width="2.5"/>
+                <circle cx="62" cy="28" r="3" fill="#3d2b1f"/>
+                <circle cx="78" cy="28" r="3" fill="#3d2b1f"/>
+                <path d="M64 38 Q70 44 76 38" fill="none" stroke="#8b5e3c" stroke-width="2" stroke-linecap="round"/>
+                <rect x="60" y="54" width="20" height="40" rx="10" fill="#c4956a" stroke="#8b5e3c" stroke-width="2"/>
+                <line x1="50" y1="62" x2="40" y2="82" stroke="#d4a574" stroke-width="7" stroke-linecap="round"/>
+                <line x1="90" y1="62" x2="100" y2="82" stroke="#d4a574" stroke-width="7" stroke-linecap="round"/>
+                <line x1="62" y1="94" x2="55" y2="120" stroke="#b8956e" stroke-width="7" stroke-linecap="round"/>
+                <line x1="78" y1="94" x2="85" y2="120" stroke="#b8956e" stroke-width="7" stroke-linecap="round"/>
+                <line x1="38" y1="40" x2="28" y2="105" stroke="#8b6914" stroke-width="5" stroke-linecap="round"/>
+                <circle cx="28" cy="105" r="5" fill="#a07818"/>
+              `;
+                } else if (stage === 2) {
+                    svgContent = `
+                <circle cx="70" cy="32" r="22" fill="#d4a574" stroke="#8b5e3c" stroke-width="2.5"/>
+                <circle cx="62" cy="28" r="3" fill="#3d2b1f"/>
+                <circle cx="78" cy="28" r="3" fill="#3d2b1f"/>
+                <path d="M64 38 Q70 44 76 38" fill="none" stroke="#8b5e3c" stroke-width="2" stroke-linecap="round"/>
+                <rect x="58" y="54" width="24" height="42" rx="10" fill="#c4956a" stroke="#8b5e3c" stroke-width="2"/>
+                <line x1="50" y1="62" x2="38" y2="84" stroke="#d4a574" stroke-width="7" stroke-linecap="round"/>
+                <line x1="90" y1="62" x2="102" y2="84" stroke="#d4a574" stroke-width="7" stroke-linecap="round"/>
+                <line x1="62" y1="96" x2="55" y2="122" stroke="#b8956e" stroke-width="7" stroke-linecap="round"/>
+                <line x1="78" y1="96" x2="85" y2="122" stroke="#b8956e" stroke-width="7" stroke-linecap="round"/>
+                <line x1="40" y1="35" x2="22" y2="115" stroke="#6b4f1a" stroke-width="5" stroke-linecap="round"/>
+                <polygon points="22,115 16,108 28,108" fill="#999" stroke="#666" stroke-width="1.5"/>
+                <rect x="50" y="56" width="16" height="4" rx="2" fill="#b8956e" opacity="0.6"/>
+              `;
+                } else {
+                    svgContent = `
+                <polygon points="50,18 70,-5 90,18" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+                <polygon points="42,22 58,-2 74,22" fill="#ff6b35" stroke="#e85d2c" stroke-width="2"/>
+                <polygon points="66,20 82,0 98,20" fill="#ffc233" stroke="#e0a800" stroke-width="2"/>
+                <circle cx="70" cy="34" r="22" fill="#d4a574" stroke="#8b5e3c" stroke-width="2.5"/>
+                <circle cx="62" cy="30" r="3" fill="#3d2b1f"/>
+                <circle cx="78" cy="30" r="3" fill="#3d2b1f"/>
+                <path d="M64 40 Q70 46 76 40" fill="none" stroke="#8b5e3c" stroke-width="2" stroke-linecap="round"/>
+                <rect x="58" y="56" width="24" height="42" rx="10" fill="#c4956a" stroke="#8b5e3c" stroke-width="2"/>
+                <ellipse cx="70" cy="58" rx="16" ry="6" fill="none" stroke="#ffc233" stroke-width="3" stroke-dasharray="4,3"/>
+                <circle cx="70" cy="58" r="4" fill="#ff6b35"/>
+                <line x1="50" y1="64" x2="36" y2="86" stroke="#d4a574" stroke-width="7" stroke-linecap="round"/>
+                <line x1="90" y1="64" x2="104" y2="86" stroke="#d4a574" stroke-width="7" stroke-linecap="round"/>
+                <line x1="62" y1="98" x2="55" y2="124" stroke="#b8956e" stroke-width="7" stroke-linecap="round"/>
+                <line x1="78" y1="98" x2="85" y2="124" stroke="#b8956e" stroke-width="7" stroke-linecap="round"/>
+                <line x1="40" y1="40" x2="20" y2="118" stroke="#6b4f1a" stroke-width="5" stroke-linecap="round"/>
+                <polygon points="20,118 13,110 27,110" fill="#ffc233" stroke="#e0a800" stroke-width="1.5"/>
+                <circle cx="20" cy="112" r="6" fill="#ff6b35" opacity="0.7"/>
+              `;
+                }
+
+                if ($characterSvgLanding) {
+                    $characterSvgLanding.innerHTML = svgContent;
+                }
+                // بازخورد رشد از طریق متن حباب حفظ می‌شود (تصویر = gamer.png طبق درخواست)
+                const stageNames = ['', 'انسان اولیه با چوب', 'شکارچی با نیزه', 'رئیس بزرگ قبیله'];
+                const stageName = stageNames[stage];
+                $welcomeBubble.textContent = stage >= 3 ?
+                    'تو رئیس بزرگ قبیله شدی! آفرین!' :
+                    'بیا به ما کمک کن جدول اعداد رو درست بچینیم! (مرحله: ' + stageName + ')';
+            }
+
+            // ==================== مدیریت مودال‌ها ====================
+            function openModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('active');
+                    const closeBtn = modal.querySelector('.modal-close');
+                    if (closeBtn) setTimeout(() => closeBtn.focus(), 100);
+                }
+            }
+
+            function closeModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+            }
+
+            function closeAllModals() {
+                document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+            }
+
+            // ==================== تغییر صفحات ====================
+            function showScreen(screen) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                if (screen === 'landing') {
+                    $landingScreen.classList.add('active');
+                    stopTimer();
+                    gameActive = false;
+                    updateCharacterStage();
+                } else if (screen === 'game') {
+                    $gameScreen.classList.add('active');
+                    initPuzzle();
+                }
+            }
+
+            // ==================== تنظیم صدا ====================
+            function toggleMute() {
+                soundMuted = !soundMuted;
+                updateMuteIcon();
+                try {
+                    localStorage.setItem('tribalSudokuMuted', soundMuted ? '1' : '0');
+                } catch (e) {}
+                if (!soundMuted) {
+                    getAudioContext();
+                }
+            }
+
+            function updateMuteIcon() {
+                if (soundMuted) {
+                    $muteIcon.innerHTML =
+                        '<polygon points="2,8 7,8 13,3 13,21 7,16 2,16" fill="white"/><line x1="17" y1="9" x2="22" y2="15" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="22" y1="9" x2="17" y2="15" stroke="white" stroke-width="2.5" stroke-linecap="round"/>';
+                } else {
+                    $muteIcon.innerHTML =
+                        '<polygon points="2,8 7,8 13,3 13,21 7,16 2,16" fill="white"/><rect x="17" y="7" width="3" height="10" rx="1.5" fill="white"/>';
+                }
+            }
+
+            function loadMuteSetting() {
+                try {
+                    const muted = localStorage.getItem('tribalSudokuMuted');
+                    soundMuted = muted === '1';
+                } catch (e) {
+                    soundMuted = false;
+                }
+                updateMuteIcon();
+            }
+
+            // ==================== رویدادها ====================
+            function bindEvents() {
+                // دکمه شروع
+                document.getElementById('btnStart').addEventListener('click', () => {
+                    playSound('click');
+                    showScreen('game');
+                });
+
+                // دکمه راهنما
+                document.getElementById('btnHelp').addEventListener('click', () => {
+                    playSound('click');
+                    openModal('modalHelp');
+                });
+
+                // دکمه قطع/وصل صدا
+                document.getElementById('btnMute').addEventListener('click', () => {
+                    toggleMute();
+                    if (!soundMuted) playSound('click');
+                });
+
+                // دکمه بازگشت به لندینگ از صفحه بازی
+                document.getElementById('btnBackToLanding').addEventListener('click', () => {
+                    playSound('click');
+                    stopTimer();
+                    gameActive = false;
+                    showScreen('landing');
+                });
+
+                // دکمه‌های صفحه کلید عددی
+                document.querySelectorAll('.numpad-btn[data-num]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const num = parseInt(btn.getAttribute('data-num'), 10);
+                        if (!selectedCell) {
+                            showToast('اول یک خانه خالی رو انتخاب کن!', 'info');
+                            playSound('click');
+                            return;
+                        }
+                        placeNumber(num);
+                    });
+                });
+
+                // دکمه پاک کردن
+                document.getElementById('btnErase').addEventListener('click', () => {
+                    if (!selectedCell) {
+                        showToast('اول یک خانه رو انتخاب کن!', 'info');
+                        playSound('click');
+                        return;
+                    }
+                    eraseCell();
+                });
+
+                // بستن مودال‌ها
+                document.querySelectorAll('.modal-close').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const modalId = btn.getAttribute('data-close');
+                        if (modalId) closeModal(modalId);
+                    });
+                });
+
+                // کلیک روی پس‌زمینه مودال برای بستن
+                document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                    overlay.addEventListener('click', (e) => {
+                        if (e.target === overlay) {
+                            overlay.classList.remove('active');
+                        }
+                    });
+                });
+
+                // دکمه بازی دوباره
+                document.getElementById('btnPlayAgain').addEventListener('click', () => {
+                    closeModal('modalComplete');
+                    showScreen('game');
+                });
+
+                // دکمه بازگشت به خانه از مودال پایان
+                document.getElementById('btnGoHome').addEventListener('click', () => {
+                    closeModal('modalComplete');
+                    showScreen('landing');
+                });
+
+                // کیبورد فیزیکی برای اعداد ۱-۴ و پاک کردن
+                document.addEventListener('keydown', (e) => {
+                    if (!gameActive) return;
+                    if (document.querySelector('.modal-overlay.active')) return;
+
+                    if (e.key >= '1' && e.key <= '4') {
+                        e.preventDefault();
+                        const num = parseInt(e.key, 10);
+                        if (!selectedCell) {
+                            showToast('اول یک خانه خالی رو انتخاب کن!', 'info');
+                            playSound('click');
+                            return;
+                        }
+                        placeNumber(num);
+                    } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+                        e.preventDefault();
+                        if (!selectedCell) {
+                            showToast('اول یک خانه رو انتخاب کن!', 'info');
+                            playSound('click');
+                            return;
+                        }
+                        eraseCell();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        selectedCell = null;
+                        renderGrid();
+                        showToast('انتخاب لغو شد.', 'info');
+                    } else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                        e.preventDefault();
+                        if (!selectedCell) {
+                            selectedCell = { row: 0, col: 0 };
+                        } else {
+                            let { row, col } = selectedCell;
+                            if (e.key === 'ArrowUp') row = Math.max(0, row - 1);
+                            if (e.key === 'ArrowDown') row = Math.min(GRID_SIZE - 1, row + 1);
+                            if (e.key === 'ArrowLeft') col = Math.max(0, col - 1);
+                            if (e.key === 'ArrowRight') col = Math.min(GRID_SIZE - 1, col + 1);
+                            selectedCell = { row, col };
+                            if (fixedCells.has(row + ',' + col)) {
+                                // انتخاب خانه ثابت مجاز نیست
+                            }
+                        }
+                        renderGrid();
+                        playSound('click');
+                    }
+                });
+
+                // بستن مودال با کلید Escape
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        const activeModal = document.querySelector('.modal-overlay.active');
+                        if (activeModal) {
+                            activeModal.classList.remove('active');
+                        }
+                    }
+                });
+            }
+
+            // ==================== راه‌اندازی اولیه ====================
+            function init() {
+                createBgParticles();
+                loadMuteSetting();
+                updateCharacterStage();
+                updateCoinDisplays();   // LOKO Coin Display
+                initCoinIcons();        // فالبک ./icons/coin.png
+                initCharacterImage();   // فالبک ./icons/gamer.png
+                bindEvents();
+                attachRipples();
+                showScreen('landing');
+                startAutoSync();        // LOKO Offline / Auto-Sync
+
+                document.addEventListener('click', function initAudio() {
+                    getAudioContext();
+                }, { once: true });
+                document.addEventListener('touchstart', function initAudioTouch() {
+                    getAudioContext();
+                }, { once: true });
+
+                console.log('🧠 سودوکوی قبیله‌ای آماده است! (LOKO Design System)');
+                console.log('🪙 سکه لوکو: ./icons/coin.png | کاراکتر: ./icons/gamer.png');
+                console.log('📊 آمار پشت‌صحنه ذخیره می‌شود — بدون نمایش به کاربر');
+                console.log('🪙 پاداش سکه: +۱۰ اگر سکه اولیه صفر باشد، وگرنه +۱ (فقط پس از تکمیل کامل)');
+                console.log('📴 حالت Offline: تمام داده‌ها در Cache محلی امن هستند');
+            }
+
+            // اجرا
+            init();
+        })();
+    </script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#modalComplete"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

@@ -1,0 +1,2046 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ماشین آینده</title>
+    <!-- ============================================================
+    🧠 بازی «ماشین آینده» — نسخه ۳ (LOKO Design System)
+    🛠️ تغییرات نسخه ۳ (رفع باگ سوال/گزینه):
+       • چالش پیشرفته: سوال قبلاً «چند مکعب اضافه میشه؟» بود ولی گزینه‌ها
+         «جمع کل گام ۱۰» بودند (۳۰/۲۷/۳۳/۳۶) → سوال اصلاح شد +
+         نوار الگوی تصویری اضافه شد (۳ → ۶ → ۹ → ⋯ → گام ۱۰ = ؟)
+       • برچسب تماشا: «مرحله» → «نمایش/گام» تا با شماره مراحل بازی قاطی نشه
+       • نشانگر «مرحله X از ۵» در صفحه بازی + اعداد فارسی
+       • سوال عادی: یادآوری «فقط تعداد اضافه‌شده»
+       • گارد کلیک حین انیمیشن برگشت + رفع انباشت Listener
+    ✅ منطق اصلی بازی (roundDefs، امتیاز، مراحل، Drag&Drop) دست‌نخورده
+    ============================================================ -->
+    <style>
+        /* ============ 🔤 LOKO Typography System ============ */
+        @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Regular.ttf") format("truetype"); font-weight: 400; }
+        @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Medium.ttf") format("truetype"); font-weight: 500; }
+        @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Black.ttf") format("truetype"); font-weight: 900; }
+        @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-ExtraBold.ttf") format("truetype"); font-weight: 800; }
+        @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Regular.ttf") format("truetype"); font-weight: 400; }
+        @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Medium.ttf") format("truetype"); font-weight: 500; }
+        @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Black.ttf") format("truetype"); font-weight: 900; }
+        @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype"); font-weight: 800; }
+
+        /* ============ 🌈 LOKO Color Palette ============ */
+        :root {
+            --primary: #6C5CE7;
+            --neon-blue: #00D2FF;
+            --neon-pink: #FF00A0;
+            --neon-green: #00FF9D;
+            --accent: #FFEAA7;
+            --success: #00B894;
+            --danger: #FF7675;
+            --dark: #1E1E2F;
+            --gold: #FFC93C;
+            --gold-dark: #B96F00;
+
+            --bg-card: rgba(30, 30, 47, 0.72);
+            --glass-bg: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.14);
+            --text: #F4F6FF;
+            --text-light: #B9C0E0;
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+            --radius: 20px;
+            --radius-sm: 16px;
+            --radius-xs: 10px;
+            --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+            --cube-size: 44px;
+            --bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font);
+            background: linear-gradient(135deg, #0c0a14, #181225);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+        }
+
+        .bg-particle {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.3;
+            filter: blur(50px);
+            animation: floatParticle 14s ease-in-out infinite;
+        }
+        .bg-particle:nth-child(1) { width: 150px; height: 150px; background: var(--primary); top: 5%; left: 5%; }
+        .bg-particle:nth-child(2) { width: 190px; height: 190px; background: var(--neon-pink); bottom: 10%; right: 3%; animation-delay: -6s; opacity: 0.18; }
+        .bg-particle:nth-child(3) { width: 110px; height: 110px; background: var(--neon-blue); top: 60%; left: 15%; animation-delay: -11s; opacity: 0.16; }
+        @keyframes floatParticle {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(25px, -20px) scale(1.15); }
+            66% { transform: translate(-15px, 15px) scale(0.9); }
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 480px;
+            min-height: 500px;
+            background: var(--bg-card);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg), 0 0 50px rgba(108, 92, 231, 0.14);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .game-header {
+            background: rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .game-header .title-area { display: flex; align-items: center; gap: 8px; }
+        .game-header h1 { font-size: 1.3em; font-weight: 900; color: #fff; text-shadow: 0 0 16px rgba(108, 92, 231, 0.7); }
+        .subtitle { font-size: 0.68em; color: var(--accent); font-weight: 500; }
+        .header-controls { display: flex; align-items: center; gap: 8px; }
+        .mute-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.15em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+        .mute-btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.08); }
+        .stop-btn { color: #FFB4B3; border-color: rgba(255, 118, 117, 0.45); }
+        .stop-btn:hover { background: rgba(255, 118, 117, 0.25); box-shadow: 0 0 14px rgba(255, 118, 117, 0.45); }
+
+        .progress-bar-wrap {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 4px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), #FFE68A);
+            border-radius: 4px;
+            transition: width 0.5s;
+            box-shadow: 0 0 12px rgba(255, 201, 60, 0.7);
+        }
+
+        /* ============ 🪙 LOKO Coin Display ============ */
+        .coin-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 201, 60, 0.5);
+            border-radius: 50px;
+            padding: 6px 16px 6px 12px;
+            box-shadow: 0 0 18px rgba(255, 201, 60, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        .coin-icon-img { width: 24px; height: 24px; object-fit: contain; display: block; animation: coinPulse 2.6s ease-in-out infinite; }
+        @keyframes coinPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(255, 201, 60, 0.5)); }
+            50% { transform: scale(1.08); filter: drop-shadow(0 0 10px rgba(255, 201, 60, 0.8)); }
+        }
+        .coin-amount { font-weight: 900; color: var(--gold); font-size: 1em; min-width: 2ch; text-align: center; }
+        .coin-display-lg { padding: 10px 22px 10px 16px; }
+        .coin-display-lg .coin-icon-img { width: 30px; height: 30px; }
+        .coin-display-lg .coin-amount { font-size: 1.35em; }
+        .coin-bump { animation: coinBump 0.5s var(--bounce); }
+        @keyframes coinBump { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+        .game-content {
+            padding: 20px;
+            min-height: 420px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+        }
+
+        /* ============ 🏠 LOKO Main Menu ============ */
+        .landing-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 13px;
+            text-align: center;
+        }
+        .hero-title {
+            font-size: 2em;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 18px rgba(108, 92, 231, 0.8), 0 0 40px rgba(0, 210, 255, 0.35);
+            line-height: 1.2;
+        }
+        .hero-subtitle { font-size: 0.95em; color: var(--accent); font-weight: 700; }
+
+        .speech-bubble {
+            position: relative;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 10px 22px;
+            font-size: 0.95em;
+            font-weight: 700;
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            animation: bubblePop 0.6s var(--bounce);
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            right: 50%;
+            width: 15px;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.12);
+            border-right: 1px solid rgba(255, 255, 255, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transform: translateX(50%) rotate(45deg);
+            border-bottom-right-radius: 3px;
+        }
+        @keyframes bubblePop {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.06); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .pixel-character {
+            animation: lokoFloat 3.2s ease-in-out infinite;
+            filter: drop-shadow(0 0 16px rgba(108, 92, 231, 0.65)) drop-shadow(0 0 34px rgba(0, 210, 255, 0.25));
+        }
+        @keyframes lokoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .character-img { width: 110px; height: 110px; object-fit: contain; display: block; }
+        .end-character .character-img { width: 86px; height: 86px; }
+
+        .menu-row { display: flex; gap: 10px; width: 100%; max-width: 320px; }
+        .menu-row .btn { flex: 1; min-width: 0; }
+
+        /* ============ 🎯 صفحه انتخاب مرحله ============ */
+        .stage-select-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            width: 100%;
+        }
+        .stage-select-title {
+            font-size: 1.5em;
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 16px rgba(255, 201, 60, 0.5);
+        }
+        .stage-progress-text { font-size: 0.85em; color: var(--text-light); margin-top: -10px; }
+        .stage-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 380px;
+        }
+        .stage-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1.5px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 14px 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            transition: all 0.2s;
+            font-family: var(--font);
+            color: var(--text);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+        .stage-card:hover { border-color: var(--neon-blue); transform: translateY(-3px); box-shadow: 0 0 20px rgba(0, 210, 255, 0.3); }
+        .stage-card:active { transform: translateY(0) scale(0.97); }
+        .stage-card:nth-child(odd):last-child { grid-column: span 2; }
+        .stage-card.locked { opacity: 0.45; filter: grayscale(0.6); cursor: not-allowed; }
+        .stage-card.locked:hover { transform: none; border-color: var(--glass-border); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3); }
+        .stage-card.done { border-color: rgba(0, 255, 157, 0.55); box-shadow: 0 0 18px rgba(0, 255, 157, 0.18); }
+        .stage-num {
+            font-size: 1.7em;
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 12px rgba(255, 201, 60, 0.5);
+            line-height: 1;
+        }
+        .stage-name { font-size: 0.9em; font-weight: 800; }
+        .stage-tag { font-size: 0.7em; color: var(--neon-blue); }
+        .stage-best { font-size: 0.72em; color: var(--accent); }
+        .stage-status { font-size: 0.75em; color: var(--text-light); margin-top: 2px; }
+        .stage-card.done .stage-status { color: var(--neon-green); }
+
+        /* 🏷️ نشانگر مرحله فعلی در صفحه بازی */
+        .stage-badge {
+            background: rgba(255, 201, 60, 0.12);
+            border: 1px solid rgba(255, 201, 60, 0.45);
+            color: var(--gold);
+            font-weight: 800;
+            font-size: 0.8em;
+            padding: 5px 16px;
+            border-radius: 50px;
+            box-shadow: 0 0 12px rgba(255, 201, 60, 0.15);
+        }
+
+        /* ============ 🎮 LOKO Button System ============ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 26px;
+            border-radius: 50px;
+            font-size: 1.02em;
+            font-weight: 800;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.15s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+            min-height: 54px;
+            min-width: 170px;
+            font-family: var(--font);
+        }
+        .btn:active { transform: translateY(3px) scale(0.98); }
+        .btn-primary {
+            background: linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%);
+            color: #5B3A00;
+            border: 2px solid rgba(185, 111, 0, 0.55);
+            box-shadow: 0 8px 22px rgba(255, 169, 0, 0.35), inset 0 -4px 0 rgba(150, 80, 0, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.55);
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+        }
+        .btn-primary:active { box-shadow: 0 3px 10px rgba(255, 169, 0, 0.3), inset 0 -2px 0 rgba(150, 80, 0, 0.35); }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: var(--gold);
+            border: 2px solid rgba(255, 201, 60, 0.5);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+        }
+        .btn-secondary:active { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
+        .btn-success {
+            background: linear-gradient(180deg, #55F0C0 0%, #00B894 60%, #00997C 100%);
+            color: #03302A;
+            border: 2px solid rgba(0, 135, 110, 0.6);
+            box-shadow: 0 8px 22px rgba(0, 184, 148, 0.35), inset 0 -4px 0 rgba(0, 90, 72, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.35);
+        }
+        .btn-success:active { box-shadow: 0 3px 10px rgba(0, 184, 148, 0.3), inset 0 -2px 0 rgba(0, 90, 72, 0.4); }
+        .btn-danger {
+            background: linear-gradient(180deg, #FF9A99 0%, #FF7675 55%, #E84C4B 100%);
+            color: #fff;
+            border: 2px solid rgba(160, 50, 50, 0.6);
+            box-shadow: 0 8px 22px rgba(255, 118, 117, 0.35), inset 0 -4px 0 rgba(140, 40, 40, 0.45), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+        }
+        .btn-danger:active { box-shadow: 0 3px 10px rgba(255, 118, 117, 0.3), inset 0 -2px 0 rgba(140, 40, 40, 0.45); }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.45);
+            transform: scale(0);
+            animation: rippleAnim 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
+        .bounce-in { animation: bounceIn 0.6s var(--bounce); }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            60% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .glow-green { box-shadow: 0 0 34px rgba(0, 255, 157, 0.55) !important; border-radius: 12px; }
+
+        .game-screen { display: none; flex-direction: column; align-items: center; gap: 18px; width: 100%; }
+        .game-screen.active { display: flex; }
+
+        /* ============ 👾 مکعب‌های بازی ============ */
+        .character-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.4s;
+            padding: 6px;
+            border-radius: 12px;
+        }
+        .cube-row { display: flex; gap: 6px; justify-content: center; }
+        .cube {
+            width: var(--cube-size);
+            height: var(--cube-size);
+            border-radius: 9px;
+            transition: all 0.3s;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35), inset 0 -4px 0 rgba(0, 0, 0, 0.25), inset 0 2px 0 rgba(255, 255, 255, 0.18);
+        }
+        .cube.character {
+            background: linear-gradient(160deg, #A29BFE, #6C5CE7);
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.5), inset 0 -4px 0 rgba(76, 60, 180, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+        }
+        .cube.basket { background: linear-gradient(160deg, #6B7597, #48516E); cursor: grab; }
+        .cube.basket:active { cursor: grabbing; }
+        .cube.zone { background: linear-gradient(160deg, #7C88B0, #55608C); border: 1px solid rgba(0, 210, 255, 0.4); cursor: pointer; }
+        .cube.correct {
+            background: linear-gradient(160deg, #7CFFC4, #00B894);
+            box-shadow: 0 0 18px rgba(0, 255, 157, 0.55), inset 0 -4px 0 rgba(0, 110, 88, 0.5), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+        }
+        .cube.extra {
+            background: linear-gradient(160deg, #FF9A99, #FF7675);
+            box-shadow: 0 0 14px rgba(255, 118, 117, 0.5), inset 0 -4px 0 rgba(160, 50, 50, 0.5);
+        }
+        .cube.dragging { opacity: 0.6; transform: scale(0.92) rotate(4deg); box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45); }
+        .cube.fall-back { animation: fallBack 0.6s ease forwards; }
+        @keyframes fallBack {
+            0% { transform: translateY(0); opacity: 1; }
+            60% { transform: translateY(80px); opacity: 0.3; }
+            100% { transform: translateY(120px); opacity: 0; }
+        }
+        .cube.new-cube { animation: popIn 0.5s var(--bounce); }
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            70% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .basket-area, .drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.18);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            min-height: 80px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .drop-zone { border-color: rgba(108, 92, 231, 0.65); background: rgba(108, 92, 231, 0.08); }
+        .drop-zone > span { color: var(--text-light); font-size: 0.9em; }
+        .drop-zone.drag-over {
+            background: rgba(108, 92, 231, 0.22);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 24px rgba(0, 210, 255, 0.35), inset 0 0 20px rgba(108, 92, 231, 0.3);
+        }
+        .basket-label { font-size: 0.85em; color: var(--accent); font-weight: 700; }
+        .construction-controls { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; justify-content: center; }
+        .counter-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            background: rgba(108, 92, 231, 0.18);
+            color: #fff;
+            font-size: 1.7em;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font);
+            transition: 0.2s;
+        }
+        .counter-btn:hover { box-shadow: 0 0 16px rgba(108, 92, 231, 0.6); background: rgba(108, 92, 231, 0.35); }
+        .counter-btn:active { transform: scale(0.92); }
+
+        .keypad { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 260px; }
+        .key-btn {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-size: 1.35em;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: var(--font);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+        .key-btn:hover { border-color: var(--neon-blue); background: rgba(0, 210, 255, 0.12); box-shadow: 0 0 16px rgba(0, 210, 255, 0.35); }
+        .key-btn:active { transform: translateY(2px) scale(0.95); }
+        .display {
+            font-size: 1.9em;
+            font-weight: 900;
+            color: var(--neon-green);
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(0, 255, 157, 0.4);
+            border-radius: var(--radius-xs);
+            padding: 6px 22px;
+            min-width: 96px;
+            text-align: center;
+            text-shadow: 0 0 12px rgba(0, 255, 157, 0.6);
+        }
+        /* 💡 یادآوری «فقط تعداد اضافه‌شده» */
+        .keypad-hint {
+            font-size: 0.78em;
+            color: var(--accent);
+            font-weight: 700;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        /* 🔮 نوار الگو — چالش پیشرفته */
+        .pattern-strip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 14px;
+            padding: 10px 12px;
+            box-shadow: inset 0 0 18px rgba(0, 210, 255, 0.06);
+        }
+        .pattern-chip {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 5px 13px;
+            min-width: 56px;
+        }
+        .pattern-chip small { font-size: 0.62em; color: var(--text-light); font-weight: 700; }
+        .pattern-chip .pc-num { font-size: 1.25em; font-weight: 900; color: #fff; line-height: 1.2; }
+        .pattern-chip.target {
+            border-color: rgba(0, 210, 255, 0.65);
+            background: rgba(0, 210, 255, 0.12);
+            box-shadow: 0 0 16px rgba(0, 210, 255, 0.3);
+            animation: targetPulse 1.6s ease-in-out infinite;
+        }
+        .pattern-chip.target .pc-num { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0, 210, 255, 0.7); }
+        @keyframes targetPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.07); }
+        }
+        .pattern-arrow { color: var(--text-light); font-size: 1.05em; font-weight: 900; }
+        .pattern-dots { color: var(--neon-blue); font-size: 1.3em; font-weight: 900; letter-spacing: 2px; }
+
+        .rule-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; }
+        .rule-btn {
+            padding: 12px 18px;
+            border-radius: 50px;
+            font-size: 0.95em;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1.5px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
+            transition: 0.2s;
+            min-width: 120px;
+            font-family: var(--font);
+            backdrop-filter: blur(6px);
+        }
+        .rule-btn:hover { border-color: var(--neon-blue); background: rgba(0, 210, 255, 0.1); }
+        .rule-btn.selected-correct {
+            border-color: var(--neon-green) !important;
+            background: rgba(0, 184, 148, 0.28) !important;
+            color: #fff;
+            animation: pulseGreen 0.6s;
+        }
+        .rule-btn.selected-wrong {
+            border-color: var(--danger) !important;
+            background: rgba(255, 118, 117, 0.22) !important;
+            animation: shakeAnim 0.5s;
+        }
+        @keyframes pulseGreen {
+            0%, 100% { box-shadow: 0 0 0 rgba(0, 255, 157, 0); }
+            50% { box-shadow: 0 0 25px rgba(0, 255, 157, 0.6); }
+        }
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+            width: 90%;
+            max-width: 480px;
+        }
+        .toast {
+            padding: 13px 20px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 0.95em;
+            text-align: center;
+            animation: toastIn 0.4s ease, toastOut 0.4s ease 2.8s forwards;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+            pointer-events: auto;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .toast-success { background: rgba(0, 184, 148, 0.92); color: #fff; }
+        .toast-warning { background: rgba(255, 201, 60, 0.95); color: #4A3000; }
+        .toast-info { background: rgba(0, 210, 255, 0.9); color: #04222B; }
+        @keyframes toastIn {
+            from { transform: translateY(-40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes toastOut {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(-30px); opacity: 0; }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 4, 12, 0.7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+        .modal {
+            background: rgba(30, 30, 47, 0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 24px;
+            width: 90%;
+            max-width: 480px;
+            max-height: 82vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg), 0 0 60px rgba(108, 92, 231, 0.22);
+            animation: modalPop 0.4s var(--bounce);
+            color: var(--text);
+        }
+        .modal h2 { color: var(--gold); margin-bottom: 12px; text-shadow: 0 0 14px rgba(255, 201, 60, 0.4); }
+        .modal .close-btn {
+            float: left;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .hidden { display: none !important; }
+
+        /* ============ 📖 راهنمای حرفه‌ای ============ */
+        .guide-modal { position: relative; }
+        .guide-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .guide-character {
+            width: 76px;
+            height: 76px;
+            object-fit: contain;
+            flex-shrink: 0;
+            animation: lokoFloat 3.2s ease-in-out infinite;
+            filter: drop-shadow(0 0 12px rgba(255, 201, 60, 0.5)) drop-shadow(0 0 26px rgba(108, 92, 231, 0.4));
+        }
+        .guide-head h2 { margin-bottom: 4px; font-size: 1.3em; }
+        .guide-sub { font-size: 0.85em; color: var(--text-light); line-height: 1.6; }
+        .guide-steps { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+        .guide-step {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 11px 13px;
+            transition: 0.2s;
+        }
+        .guide-step:hover { border-color: rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.06); }
+        .step-num {
+            min-width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(180deg, #FFE68A, #FFA800);
+            color: #5B3A00;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95em;
+            box-shadow: 0 0 12px rgba(255, 201, 60, 0.45);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .step-title { font-weight: 800; font-size: 0.95em; margin-bottom: 2px; }
+        .step-text { font-size: 0.84em; color: var(--text-light); line-height: 1.6; }
+        /* 🔮 گام ویژه چالش پیشرفته */
+        .guide-step.advanced {
+            background: rgba(0, 210, 255, 0.07);
+            border-color: rgba(0, 210, 255, 0.45);
+        }
+        .guide-step.advanced:hover { background: rgba(0, 210, 255, 0.12); }
+        .guide-step.advanced .step-num {
+            background: linear-gradient(180deg, #7CEBFF, #00B8E0);
+            color: #03242C;
+            box-shadow: 0 0 12px rgba(0, 210, 255, 0.55);
+        }
+        .guide-score-title { text-align: center; font-weight: 900; color: var(--accent); font-size: 0.95em; margin-bottom: 8px; }
+        .guide-score-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; justify-content: center; }
+        .score-chip {
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid rgba(0, 255, 157, 0.4);
+            color: #fff;
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-size: 0.82em;
+            font-weight: 800;
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.12);
+        }
+        .score-chip.alt { background: rgba(255, 0, 160, 0.1); border-color: rgba(255, 0, 160, 0.45); box-shadow: 0 0 10px rgba(255, 0, 160, 0.12); }
+        .score-chip.blue { background: rgba(0, 210, 255, 0.1); border-color: rgba(0, 210, 255, 0.5); box-shadow: 0 0 10px rgba(0, 210, 255, 0.12); }
+        .guide-tip {
+            background: rgba(255, 201, 60, 0.12);
+            border: 1px solid rgba(255, 201, 60, 0.5);
+            border-radius: 14px;
+            padding: 11px 14px;
+            font-size: 0.86em;
+            color: var(--accent);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+            box-shadow: 0 0 16px rgba(255, 201, 60, 0.12);
+        }
+        .guide-tip.stage-tip { background: rgba(108, 92, 231, 0.14); border-color: rgba(108, 92, 231, 0.55); color: #CFC9FF; margin-bottom: 0; }
+
+        /* ============ 🏆 صفحه پایان ============ */
+        #endGameModal .modal { text-align: center; }
+        #endGameModal .modal .btn, #stopModal .modal .btn { width: 100%; margin-top: 10px; }
+        .end-stars { font-size: 2em; letter-spacing: 8px; margin: 6px 0; min-height: 1.2em; }
+        .end-star { display: inline-block; color: #3A3F5C; }
+        .end-star.lit {
+            color: var(--gold);
+            text-shadow: 0 0 16px rgba(255, 201, 60, 0.8);
+            animation: starPop 0.5s var(--bounce) both;
+        }
+        @keyframes starPop {
+            from { transform: scale(0) rotate(-45deg); }
+            to { transform: scale(1) rotate(0deg); }
+        }
+        .coin-reward {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 12px auto 4px;
+            padding: 10px 24px;
+            border-radius: 50px;
+            background: rgba(255, 201, 60, 0.14);
+            border: 1px solid rgba(255, 201, 60, 0.55);
+            box-shadow: 0 0 26px rgba(255, 201, 60, 0.35);
+            font-weight: 900;
+            color: var(--gold);
+            font-size: 1.2em;
+            animation: rewardPop2 0.7s var(--bounce);
+        }
+        .coin-reward .coin-icon-img { width: 28px; height: 28px; }
+        @keyframes rewardPop2 {
+            from { transform: scale(0); }
+            70% { transform: scale(1.15); }
+            to { transform: scale(1); }
+        }
+
+        .confetti-piece {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            animation: confettiFall 2.5s ease forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-60px) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(105vh) rotate(720deg) scale(0.2); opacity: 0; }
+        }
+        .irregular-reward {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 9997;
+            pointer-events: none;
+            animation: rewardPop 2s ease forwards;
+        }
+        @keyframes rewardPop {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(-30deg); opacity: 0; }
+            30% { transform: translate(-50%, -50%) scale(1.8) rotate(10deg); opacity: 1; }
+            100% { transform: translate(-50%, -60%) scale(0.4) rotate(20deg); opacity: 0; }
+        }
+
+        @media (max-width: 480px) {
+            .cube { width: 36px; height: 36px; }
+            .btn { padding: 12px 16px; font-size: 0.9em; min-width: 140px; }
+            .key-btn { width: 48px; height: 48px; font-size: 1.1em; }
+            .counter-btn { width: 44px; height: 44px; font-size: 1.4em; }
+            .coin-display-lg .coin-icon-img { width: 26px; height: 26px; }
+            .hero-title { font-size: 1.7em; }
+            .character-img { width: 92px; height: 92px; }
+            .guide-character { width: 62px; height: 62px; }
+            .pattern-chip { padding: 4px 9px; min-width: 46px; }
+            .pattern-chip .pc-num { font-size: 1.05em; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ============ 📖 راهنمای حرفه‌ای ============ -->
+    <div class="modal-overlay hidden" id="guideModal">
+        <div class="modal guide-modal">
+            <button class="close-btn" id="closeGuide">✕</button>
+            <div class="guide-head">
+                <img src="./icons/gamerhi.png" class="guide-character" alt="لوکو" onerror="this.style.display='none'">
+                <div>
+                    <h2>راهنمای بازی</h2>
+                    <p class="guide-sub">سلام! من لوکو هستم 🤖<br>بیا با هم ماشین آینده رو بسازیم!</p>
+                </div>
+            </div>
+            <div class="guide-steps">
+                <div class="guide-step">
+                    <div class="step-num">۱</div>
+                    <div class="step-body">
+                        <div class="step-title">👀 تماشا کن</div>
+                        <div class="step-text">رشد کاراکتر رو با دقت ببین و کشف کن هر بار چند مکعب بهش اضافه می‌شه.</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-num">۲</div>
+                    <div class="step-body">
+                        <div class="step-title">🤔 پیش‌بینی کن</div>
+                        <div class="step-text">در مرحله بعد چند مکعب «اضافه» می‌شه؟ فقط تعداد اضافه‌شده رو با کی‌پد وارد کن — نه کل مکعب‌ها!</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-num">۳</div>
+                    <div class="step-body">
+                        <div class="step-title">🏗️ بساز</div>
+                        <div class="step-text">همون تعدادی که پیش‌بینی کردی رو از سبد به جایگاه بکش یا با دکمه‌های + و − بچین.</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-num">۴</div>
+                    <div class="step-body">
+                        <div class="step-title">✅ تأیید کن</div>
+                        <div class="step-text">اگه درست باشه، مکعب‌ها سبز میشن و کاراکتر رشد می‌کنه!</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-num">۵</div>
+                    <div class="step-body">
+                        <div class="step-title">🔁 اصلاح کن</div>
+                        <div class="step-text">اگه اضافه بذاری، مکعب اضافی قرمز میشه و برمی‌گرده — نگران نباش، دوباره تلاش کن!</div>
+                    </div>
+                </div>
+                <!-- 🆕 گام ویژه چالش پیشرفته -->
+                <div class="guide-step advanced">
+                    <div class="step-num">۶</div>
+                    <div class="step-body">
+                        <div class="step-title">🔮 چالش پیشرفته</div>
+                        <div class="step-text">اینجا سوال فرق داره! اگه همین الگو ادامه پیدا کنه، در <strong>گام ۱۰</strong> کاراکتر چند مکعب داره؟ از بین گزینه‌ها انتخاب کن. به نوار الگوی بالای گزینه‌ها دقت کن!</div>
+                    </div>
+                </div>
+            </div>
+            <div class="guide-score-title">🏆 امتیازها</div>
+            <div class="guide-score-chips">
+                <span class="score-chip">پیش‌بینی درست +۱۰</span>
+                <span class="score-chip blue">چالش گام ۱۰ +۱۵</span>
+                <span class="score-chip">ساخت درست +۱۰</span>
+            </div>
+            <div class="guide-tip">💡 هرچه سریع‌تر الگو رو کشف کنی، امتیاز بیشتری می‌گیری!</div>
+            <div class="guide-tip stage-tip">🎯 از بخش «مراحل» می‌تونی مرحله‌های باز‌شده رو هر وقت بخوای دوباره بازی کنی.</div>
+        </div>
+    </div>
+
+    <!-- 📊 آمار: UI مخفی، Pipeline فعال -->
+    <div class="modal-overlay hidden" id="statsModal">
+        <div class="modal">
+            <button class="close-btn" id="closeStats">✕</button>
+            <h2>📊 آمار</h2>
+            <div id="statsDisplay"></div>
+            <button class="btn btn-secondary" id="btnResetStats" style="margin-top:12px;">🗑️ پاک کردن آمار</button>
+        </div>
+    </div>
+
+    <!-- ⏹ مودال توقف -->
+    <div class="modal-overlay hidden" id="stopModal">
+        <div class="modal" style="text-align:center;">
+            <h2>⏹ توقف بازی</h2>
+            <p>می‌خوای بازی متوقف بشه و بری به انتخاب مرحله؟</p>
+            <p style="font-size:0.85em;color:var(--text-light);">پاداش سکه فقط با تموم کردن هر ۵ مرحله داده می‌شه!</p>
+            <button class="btn btn-danger" id="btnConfirmStop">⏹ بله، متوقف کن</button>
+            <button class="btn btn-primary" id="btnCancelStop">▶️ نه، ادامه می‌دم</button>
+        </div>
+    </div>
+
+    <!-- 🏆 صفحه پایان -->
+    <div class="modal-overlay hidden" id="endGameModal">
+        <div class="modal">
+            <div class="pixel-character end-character">
+                <img src="./icons/gamer.png" class="character-img" alt="کاراکتر لوکو" onerror="this.style.display='none'">
+            </div>
+            <h2 id="endGameTitle">🎉 جلسه تموم شد!</h2>
+            <div class="end-stars" id="endGameStars"></div>
+            <p id="endGameSummary" style="white-space:pre-line;"></p>
+            <p style="font-size:1.2em;font-weight:800;color:var(--gold);">⭐ امتیاز این جلسه: <span id="endGameScore">0</span></p>
+            <div class="coin-reward hidden" id="endCoinReward">
+                <img src="./icons/coin.png" class="coin-icon-img" alt="سکه لوکو" onerror="this.style.display='none'">
+                <span id="endCoinRewardAmount">+10</span>
+                <span>سکه لوکو</span>
+            </div>
+            <button class="btn btn-primary" id="btnPlayAgain">🔄 بازی دوباره</button>
+            <button class="btn btn-secondary" id="btnEndToStages">🎯 انتخاب مرحله</button>
+            <button class="btn btn-secondary" id="btnEndToLanding">🏠 منوی اصلی</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="game-header">
+            <div class="title-area">
+                <svg width="32" height="32" viewBox="0 0 32 32">
+                    <rect x="6" y="10" width="20" height="14" rx="3" fill="#A29BFE" stroke="#6C5CE7" stroke-width="2"/>
+                    <circle cx="16" cy="7" r="5" fill="#8B7CF7" stroke="#6C5CE7" stroke-width="2"/>
+                    <rect x="10" y="25" width="4" height="5" rx="1" fill="#6C5CE7"/>
+                    <rect x="18" y="25" width="4" height="5" rx="1" fill="#6C5CE7"/>
+                    <circle cx="22" cy="16" r="2" fill="#fff"/>
+                </svg>
+                <div>
+                    <h1>ماشین آینده</h1>
+                    <div class="subtitle">پیش‌بینی کن، بساز، رشد بده!</div>
+                </div>
+            </div>
+            <div class="header-controls">
+                <div class="coin-display" data-loko-coin>
+                    <img src="./icons/coin.png" class="coin-icon-img" alt="سکه لوکو" onerror="this.style.display='none'">
+                    <div class="coin-amount">0</div>
+                </div>
+                <button class="mute-btn stop-btn hidden" id="btnStopGame" title="توقف بازی">⏹</button>
+                <button class="mute-btn" id="muteBtn">🔊</button>
+            </div>
+            <div class="progress-bar-wrap">
+                <div class="progress-fill" id="progressBar" style="width:0%;"></div>
+            </div>
+        </div>
+        <div class="game-content">
+            <!-- 🏠 منوی اصلی -->
+            <div class="landing-screen" id="landingScreen">
+                <div class="coin-display coin-display-lg" data-loko-coin>
+                    <img src="./icons/coin.png" class="coin-icon-img" alt="سکه لوکو" onerror="this.style.display='none'">
+                    <div class="coin-amount">0</div>
+                </div>
+                <div class="hero-title">ماشین آینده</div>
+                <div class="speech-bubble">سلام! آماده‌ای بریم؟ 🤖</div>
+                <div class="pixel-character bounce-in">
+                    <img src="./icons/gamer.png" class="character-img" alt="کاراکتر لوکو" onerror="this.style.display='none'">
+                </div>
+                <div class="hero-subtitle">پیش‌بینی کن، قطعه‌ها رو بچین، ماشین رو روشن کن!</div>
+                <button class="btn btn-primary" id="btnStart">🚀 شروع بازی (۵ مرحله)</button>
+                <div class="menu-row">
+                    <button class="btn btn-secondary" id="btnStages">🎯 مراحل</button>
+                    <button class="btn btn-secondary" id="btnGuide">📖 راهنما</button>
+                    <button class="btn btn-secondary hidden" id="btnStats">📊 آمار</button>
+                </div>
+                <div class="hidden" id="landingStatsWrap" style="margin-top:6px;padding:10px 16px;background:rgba(255,255,255,0.06);border-radius:12px;font-size:0.85em;">
+                    ⭐ امتیاز کل: <strong id="landingScore">0</strong> | 🎮 جلسات: <strong id="landingGames">0</strong>
+                </div>
+            </div>
+            <!-- 🎯 انتخاب مرحله -->
+            <div class="stage-select-screen hidden" id="stageSelectScreen">
+                <div class="stage-select-title">🎯 انتخاب مرحله</div>
+                <div class="stage-progress-text" id="stageProgressText"></div>
+                <div class="stage-grid" id="stageGrid"></div>
+                <button class="btn btn-secondary" id="btnStageBack">🏠 منوی اصلی</button>
+            </div>
+            <!-- 🎮 صفحه بازی -->
+            <div class="game-screen" id="gameScreen">
+                <!-- 🏷️ نشانگر مرحله فعلی (بازی) — جدا از گام‌های مشاهده -->
+                <div class="stage-badge hidden" id="stageBadge"></div>
+                <div id="phaseMessage" style="font-weight:800;color:#00D2FF;text-align:center;text-shadow:0 0 12px rgba(0,210,255,0.45);min-height:1.6em;"></div>
+                <div class="character-container" id="characterContainer"></div>
+                <div class="keypad hidden" id="keypadArea"></div>
+                <div class="rule-options hidden" id="predictionOptionsArea"></div>
+                <div class="hidden" id="constructionArea" style="display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;">
+                    <div class="basket-label">🧱 سبد مکعب‌ها (بکش یا دکمه +/-)</div>
+                    <div class="basket-area" id="basketArea"></div>
+                    <div class="drop-zone" id="dropZone"><span>مکعب‌ها رو اینجا بذار</span></div>
+                    <div class="construction-controls">
+                        <button class="counter-btn" id="btnMinus">−</button>
+                        <span class="display" id="zoneCountDisplay">0</span>
+                        <button class="counter-btn" id="btnPlus">+</button>
+                    </div>
+                    <button class="btn btn-success" id="btnConfirmBuild">✅ تأیید ساخت</button>
+                </div>
+                <button class="btn btn-primary hidden" id="btnNextRound">▶️ مرحله بعد</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 🎮 موتور بازی «ماشین آینده» — LOKO Edition v3
+        // ============================================================
+
+        class AudioEngine {
+            constructor() { this.ctx = null; this.muted = false; }
+            _ensureContext() {
+                if (!this.ctx) {
+                    try { this.ctx = new(window.AudioContext || window.webkitAudioContext)(); } catch (e) { this.ctx = null; }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+            }
+            _playTone(freq, dur, type = 'sine', vol = 0.15, delay = 0) {
+                if (this.muted || !this.ctx) return;
+                try {
+                    const o = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    o.type = type;
+                    o.frequency.setValueAtTime(freq, this.ctx.currentTime + delay);
+                    g.gain.setValueAtTime(vol, this.ctx.currentTime + delay);
+                    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + dur);
+                    o.connect(g);
+                    g.connect(this.ctx.destination);
+                    o.start(this.ctx.currentTime + delay);
+                    o.stop(this.ctx.currentTime + delay + dur);
+                } catch (e) {}
+            }
+            clickSound() { this._playTone(784, 0.07, 'sine', 0.12); }
+            successSound() {
+                this._playTone(523, 0.12, 'sine', 0.15, 0);
+                this._playTone(659, 0.12, 'sine', 0.15, 0.1);
+                this._playTone(784, 0.18, 'sine', 0.18, 0.2);
+            }
+            errorSound() {
+                this._playTone(330, 0.18, 'square', 0.1, 0);
+                this._playTone(262, 0.22, 'square', 0.1, 0.15);
+            }
+            fallBackSound() {
+                this._playTone(140, 0.25, 'sawtooth', 0.06, 0);
+                this._playTone(100, 0.3, 'triangle', 0.04, 0.1);
+            }
+            endGameSound() {
+                this._playTone(523, 0.12, 'sine', 0.15, 0);
+                this._playTone(659, 0.12, 'sine', 0.15, 0.15);
+                this._playTone(784, 0.12, 'sine', 0.15, 0.3);
+                this._playTone(1047, 0.2, 'sine', 0.2, 0.45);
+            }
+            rewardSound() { this._playTone(880, 0.08, 'sine', 0.12, 0);
+                this._playTone(1100, 0.12, 'sine', 0.1, 0.08); }
+            toggleMute() { this.muted = !this.muted; return this.muted; }
+        }
+        const audio = new AudioEngine();
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.textContent = msg;
+            container.appendChild(t);
+            setTimeout(() => { if (t.parentNode) t.remove(); }, 3200);
+        }
+
+        function addRipple(btn) {
+            btn.addEventListener('click', function(e) {
+                const r = document.createElement('span');
+                r.className = 'ripple';
+                const rect = btn.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                r.style.width = r.style.height = size + 'px';
+                r.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                r.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                btn.appendChild(r);
+                r.addEventListener('animationend', () => r.remove());
+            });
+        }
+        document.querySelectorAll('.btn, .key-btn, .counter-btn, .mute-btn').forEach(addRipple);
+
+        function spawnConfetti(count = 35) {
+            const colors = ['#FFC93C', '#00D2FF', '#FF00A0', '#00FF9D', '#6C5CE7', '#FFEAA7'];
+            for (let i = 0; i < count; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti-piece';
+                el.style.left = Math.random() * 100 + '%';
+                el.style.top = -(Math.random() * 30 + 10) + 'px';
+                el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                el.style.width = (Math.random() * 10 + 6) + 'px';
+                el.style.height = (Math.random() * 10 + 6) + 'px';
+                el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                document.body.appendChild(el);
+                el.addEventListener('animationend', () => el.remove());
+            }
+        }
+
+        function showIrregularReward() {
+            const reward = document.createElement('div');
+            reward.className = 'irregular-reward';
+            reward.innerHTML = `<svg width="70" height="70" viewBox="0 0 70 70">
+            <polygon points="35,5 42,28 68,28 46,42 52,65 35,50 18,65 24,42 2,28 28,28"
+            fill="#FFC93C" stroke="#B96F00" stroke-width="2"/>
+          </svg>`;
+            document.body.appendChild(reward);
+            audio.rewardSound();
+            reward.addEventListener('animationend', () => reward.remove());
+        }
+
+        // ============================================================
+        // 🪙🛡️ LOKO Shared Systems
+        // ============================================================
+        const LOKO_CONFIG = {
+            API_ENDPOINT: null,
+            SYNC_INTERVAL_MS: 30000,
+            REQUEST_TIMEOUT_MS: 5000
+        };
+
+        function fetchWithTimeout(url, options = {}, timeout = LOKO_CONFIG.REQUEST_TIMEOUT_MS) {
+            return new Promise((resolve, reject) => {
+                if (typeof fetch !== 'function') { reject(new Error('fetch unavailable')); return; }
+                if (!navigator.onLine) { reject(new Error('offline')); return; }
+                let settled = false;
+                const timer = setTimeout(() => {
+                    if (!settled) { settled = true; reject(new Error('timeout')); }
+                }, timeout);
+                fetch(url, options).then(res => {
+                    if (!settled) { settled = true; clearTimeout(timer); resolve(res); }
+                }).catch(err => {
+                    if (!settled) { settled = true; clearTimeout(timer); reject(err); }
+                });
+            });
+        }
+
+        class LokoCoinSystem {
+            constructor() {
+                this.storageKey = 'lokoCoins';
+                this.coins = this._load();
+                this.initialCoinsAtSessionStart = null;
+            }
+            _load() {
+                try { const v = parseInt(localStorage.getItem(this.storageKey)); return isNaN(v) ? 0 : v; }
+                catch (e) { return 0; }
+            }
+            _save() { try { localStorage.setItem(this.storageKey, String(this.coins)); } catch (e) {} }
+            setCoins(v) { this.coins = v; this._save(); }
+            add(n) { this.coins += n; this._save(); }
+            beginSession() { this.initialCoinsAtSessionStart = this.coins; }
+            completeSession() {
+                if (this.initialCoinsAtSessionStart === null) this.initialCoinsAtSessionStart = this.coins;
+                const reward = this.initialCoinsAtSessionStart === 0 ? 10 : 1;
+                this.add(reward);
+                this.initialCoinsAtSessionStart = null;
+                return reward;
+            }
+        }
+
+        class LokoSyncManager {
+            constructor() {
+                this.queueKey = 'lokoPendingSync';
+                this.queue = this._loadQueue();
+            }
+            _loadQueue() {
+                try { return JSON.parse(localStorage.getItem(this.queueKey)) || []; } catch (e) { return []; }
+            }
+            _saveQueue() {
+                try { localStorage.setItem(this.queueKey, JSON.stringify(this.queue)); } catch (e) {}
+            }
+            enqueue(entry) {
+                this.queue.push(Object.assign({ ts: Date.now() }, entry));
+                if (this.queue.length > 200) this.queue = this.queue.slice(-200);
+                this._saveQueue();
+                this.trySync();
+            }
+            async trySync() {
+                if (!LOKO_CONFIG.API_ENDPOINT) return;
+                if (!navigator.onLine || !this.queue.length) return;
+                const batch = this.queue.slice();
+                try {
+                    const res = await fetchWithTimeout(LOKO_CONFIG.API_ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ events: batch })
+                    });
+                    if (res && res.ok) {
+                        this.queue = this.queue.slice(batch.length);
+                        this._saveQueue();
+                    }
+                } catch (e) { /* آفلاین → داده‌ها در صف می‌مانند */ }
+            }
+            mergeServerUser(serverUser) {
+                try {
+                    if (!serverUser) return;
+                    const serverCoins = parseInt(serverUser.coins) || 0;
+                    if (serverCoins > lokoCoins.coins) {
+                        lokoCoins.setCoins(serverCoins);
+                        updateCoinUI(true);
+                    }
+                    const key = 'futureMachineStats';
+                    let local = {};
+                    try { local = JSON.parse(localStorage.getItem(key)) || {}; } catch (e) {}
+                    const merged = {
+                        totalGames: Math.max(local.totalGames || 0, serverUser.totalGames || 0),
+                        totalPredictionGap: Math.max(local.totalPredictionGap || 0, serverUser.totalPredictionGap || 0),
+                        totalSelfCorrections: Math.max(local.totalSelfCorrections || 0, serverUser.totalSelfCorrections || 0),
+                        totalScore: Math.max(local.totalScore || 0, serverUser.totalScore || 0),
+                        bestScore: Math.max(local.bestScore || 0, serverUser.bestScore || 0),
+                        lastPlayDate: local.lastPlayDate || serverUser.lastPlayDate || null
+                    };
+                    localStorage.setItem(key, JSON.stringify(merged));
+                } catch (e) {}
+            }
+        }
+
+        const lokoCoins = new LokoCoinSystem();
+        const lokoSync = new LokoSyncManager();
+
+        function updateCoinUI(bump = false) {
+            document.querySelectorAll('.coin-amount').forEach(el => {
+                el.textContent = lokoCoins.coins;
+                if (bump) {
+                    el.classList.remove('coin-bump');
+                    void el.offsetWidth;
+                    el.classList.add('coin-bump');
+                }
+            });
+        }
+
+        window.addEventListener('online', () => lokoSync.trySync());
+        window.addEventListener('offline', () => showToast('📴 حالت آفلاین — داده‌ها ذخیره می‌شود', 'info'));
+        setInterval(() => lokoSync.trySync(), LOKO_CONFIG.SYNC_INTERVAL_MS);
+
+        // ---------- کلاس بازی ----------
+        class FutureMachineGame {
+            constructor() {
+                this.state = 'landing';
+                this.currentRound = 0;
+                this.totalRounds = 5;
+                this.sessionScore = 0;
+                this.sessionPredictionGap = 0;
+                this.sessionSelfCorrections = 0;
+                this.sessionConstructionErrors = 0;
+                this.roundData = [];
+                this.observedStages = [];
+                this.increment = 0;
+                this.baseCubes = 0;
+                this.correctStage10 = 0;
+                this.advanced = false;
+                this.predictedIncrement = null;
+                this.currentZoneCubes = 0;
+                this.maxBasketCubes = 15;
+                this.basketCubes = [];
+                this.zoneCubes = [];
+                this.roundPredictionError = false;
+                this.roundConstructionError = false;
+                this.roundPredictionCorrected = false;
+                this.roundConstructionCorrected = false;
+                this.campaignMode = true;
+                this.selectedStage = null;
+                this.roundStartScore = 0;
+                this.sessionToken = 0;
+
+                this.landingScreen = document.getElementById('landingScreen');
+                this.gameScreen = document.getElementById('gameScreen');
+                this.characterContainer = document.getElementById('characterContainer');
+                this.phaseMessage = document.getElementById('phaseMessage');
+                this.keypadArea = document.getElementById('keypadArea');
+                this.predictionOptionsArea = document.getElementById('predictionOptionsArea');
+                this.constructionArea = document.getElementById('constructionArea');
+                this.basketArea = document.getElementById('basketArea');
+                this.dropZone = document.getElementById('dropZone');
+                this.zoneCountDisplay = document.getElementById('zoneCountDisplay');
+                this.btnNextRound = document.getElementById('btnNextRound');
+                this.progressBar = document.getElementById('progressBar');
+                this.muteBtn = document.getElementById('muteBtn');
+
+                this._bindEvents();
+                this._updateLandingStats();
+                updateCoinUI();
+            }
+
+            // 🔢 تبدیل اعداد به فارسی (فقط برای نمایش — منطق با عدد انگلیسی کار می‌کند)
+            _faDigits(n) { return String(n).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]); }
+
+            _bindEvents() {
+                document.getElementById('btnStart').addEventListener('click', () => this.startGame('campaign'));
+                document.getElementById('btnStages').addEventListener('click', () => { audio.clickSound(); this.goToStageSelect(); });
+                document.getElementById('btnStageBack').addEventListener('click', () => { audio.clickSound(); this.goToLanding(); });
+                document.getElementById('btnGuide').addEventListener('click', () => this.showModal('guideModal'));
+                document.getElementById('btnStats').addEventListener('click', () => this.showStats());
+                document.getElementById('closeGuide').addEventListener('click', () => this.hideModal('guideModal'));
+                document.getElementById('closeStats').addEventListener('click', () => this.hideModal('statsModal'));
+                document.getElementById('btnResetStats').addEventListener('click', () => this.resetStats());
+                document.getElementById('btnPlayAgain').addEventListener('click', () => {
+                    if (this.campaignMode) this.startGame('campaign');
+                    else this.startGame('single', this.selectedStage);
+                });
+                document.getElementById('btnEndToStages').addEventListener('click', () => this.goToStageSelect());
+                document.getElementById('btnEndToLanding').addEventListener('click', () => this.goToLanding());
+                document.getElementById('btnStopGame').addEventListener('click', () => {
+                    audio.clickSound();
+                    this.showModal('stopModal');
+                });
+                document.getElementById('btnConfirmStop').addEventListener('click', () => this._stopGame());
+                document.getElementById('btnCancelStop').addEventListener('click', () => this.hideModal('stopModal'));
+                this.muteBtn.addEventListener('click', () => {
+                    this.muteBtn.textContent = audio.toggleMute() ? '🔇' : '🔊';
+                });
+                document.getElementById('btnPlus').addEventListener('click', () => this._addCubeToZone());
+                document.getElementById('btnMinus').addEventListener('click', () => this._removeCubeFromZone());
+                document.getElementById('btnConfirmBuild').addEventListener('click', () => this._confirmBuild());
+                this.btnNextRound.addEventListener('click', () => this._advanceRound());
+                this._setupDragDrop();
+                document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => {
+                    if (e.target === o) o.classList.add('hidden');
+                }));
+                document.addEventListener('click', () => audio._ensureContext(), { once: true });
+            }
+
+            _setStopVisible(v) { document.getElementById('btnStopGame').classList.toggle('hidden', !v); }
+
+            goToStageSelect() {
+                document.getElementById('endGameModal').classList.add('hidden');
+                document.getElementById('stopModal').classList.add('hidden');
+                this.gameScreen.classList.remove('active');
+                this.landingScreen.classList.add('hidden');
+                document.getElementById('stageSelectScreen').classList.remove('hidden');
+                this._renderStageGrid();
+                this._setStopVisible(false);
+                this.progressBar.style.width = '0%';
+                updateCoinUI();
+            }
+
+            goToLanding() {
+                document.getElementById('endGameModal').classList.add('hidden');
+                document.getElementById('stopModal').classList.add('hidden');
+                document.getElementById('stageSelectScreen').classList.add('hidden');
+                this.gameScreen.classList.remove('active');
+                this.landingScreen.classList.remove('hidden');
+                this._setStopVisible(false);
+                this._updateLandingStats();
+                this.progressBar.style.width = '0%';
+            }
+
+            startGame(mode = 'campaign', stageIndex = null) {
+                document.getElementById('endGameModal').classList.add('hidden');
+                document.getElementById('stageSelectScreen').classList.add('hidden');
+                document.getElementById('stopModal').classList.add('hidden');
+                this.landingScreen.classList.add('hidden');
+                this.gameScreen.classList.add('active');
+                this._setStopVisible(true);
+                this.campaignMode = (mode !== 'single');
+                this.selectedStage = stageIndex;
+                this.sessionToken++;
+                this.currentRound = this.campaignMode ? 0 : stageIndex;
+                this.sessionScore = 0;
+                this.sessionPredictionGap = 0;
+                this.sessionSelfCorrections = 0;
+                this.sessionConstructionErrors = 0;
+                this.progressBar.style.width = '0%';
+                document.getElementById('endCoinReward').classList.add('hidden');
+                document.getElementById('endGameStars').innerHTML = '';
+                lokoCoins.beginSession();
+                updateCoinUI();
+                this._startRound();
+            }
+
+            // ============ 🎯 سیستم انتخاب مرحله ============
+            _stageMeta() {
+                return [
+                    { name: 'جرقه‌ی شروع', tag: 'پیش‌بینی عدد' },
+                    { name: 'گام‌های کوچک', tag: 'پیش‌بینی عدد' },
+                    { name: 'پرش بزرگ', tag: 'پیش‌بینی عدد' },
+                    { name: 'چالش پیشرفته ۱', tag: '🔮 پیش‌بینی گام ۱۰' },
+                    { name: 'چالش پیشرفته ۲', tag: '🔮 پیش‌بینی گام ۱۰' }
+                ];
+            }
+            _loadProgress() {
+                try {
+                    const raw = JSON.parse(localStorage.getItem('futureMachineProgress'));
+                    if (raw && typeof raw.unlocked === 'number') {
+                        return { unlocked: raw.unlocked, completed: raw.completed || {}, best: raw.best || {} };
+                    }
+                } catch (e) {}
+                return { unlocked: 1, completed: {}, best: {} };
+            }
+            _saveProgress(p) { try { localStorage.setItem('futureMachineProgress', JSON.stringify(p)); } catch (e) {} }
+            _markStageComplete(idx) {
+                const p = this._loadProgress();
+                p.completed[idx] = true;
+                p.unlocked = Math.max(p.unlocked, Math.min(idx + 2, this.totalRounds));
+                const stageScore = Math.max(0, this.sessionScore - (this.roundStartScore || 0));
+                p.best[idx] = Math.max(p.best[idx] || 0, stageScore);
+                this._saveProgress(p);
+            }
+            _renderStageGrid() {
+                const grid = document.getElementById('stageGrid');
+                const prog = this._loadProgress();
+                const meta = this._stageMeta();
+                grid.innerHTML = '';
+                let doneCount = 0;
+                for (let i = 0; i < this.totalRounds; i++) {
+                    if (prog.completed[i]) doneCount++;
+                    const locked = i >= prog.unlocked;
+                    const done = !!prog.completed[i];
+                    const card = document.createElement('button');
+                    card.className = 'stage-card' + (locked ? ' locked' : '') + (done ? ' done' : '');
+                    const status = locked ? '🔒 قفله' : (done ? '✅ کامل شد' : '▶️ بازی کن');
+                    const best = prog.best[i] ? `<div class="stage-best">🏆 بهترین: ${this._faDigits(prog.best[i])}</div>` : '';
+                    card.innerHTML = `
+                        <div class="stage-num">${this._faDigits(i + 1)}</div>
+                        <div class="stage-name">${meta[i].name}</div>
+                        <div class="stage-tag">${meta[i].tag}</div>
+                        ${best}
+                        <div class="stage-status">${status}</div>`;
+                    card.addEventListener('click', () => {
+                        if (locked) {
+                            audio.errorSound();
+                            showToast('🔒 اول مرحله‌های قبلی رو کامل کن!', 'warning');
+                            return;
+                        }
+                        audio.clickSound();
+                        this.startGame('single', i);
+                    });
+                    grid.appendChild(card);
+                }
+                document.getElementById('stageProgressText').textContent =
+                    `${this._faDigits(doneCount)} از ${this._faDigits(this.totalRounds)} مرحله کامل شده`;
+            }
+
+            _stopGame() {
+                this.sessionToken++;
+                audio.clickSound();
+                document.getElementById('stopModal').classList.add('hidden');
+                showToast('⏹ بازی متوقف شد', 'info');
+                lokoSync.enqueue({
+                    type: 'session_stopped',
+                    round: this.currentRound,
+                    score: this.sessionScore,
+                    coins: lokoCoins.coins
+                });
+                this.goToStageSelect();
+            }
+
+            _setupDragDrop() {
+                const dropZone = this.dropZone;
+                dropZone.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    dropZone.classList.add('drag-over');
+                });
+                dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+                dropZone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    dropZone.classList.remove('drag-over');
+                    const id = e.dataTransfer.getData('text/plain');
+                    if (id && id.startsWith('basketCube-')) this._moveCubeToZoneById(id);
+                });
+            }
+
+            _createCubeElement(id, parentType) {
+                const cube = document.createElement('div');
+                cube.className = 'cube';
+                cube.id = id;
+                if (parentType === 'basket') {
+                    cube.classList.add('basket');
+                    cube.draggable = true;
+                    // 🛠️ با ondragstart/onclick (نه addEventListener) → listener تکراری انباشته نمی‌شود
+                    cube.ondragstart = e => {
+                        e.dataTransfer.setData('text/plain', cube.id);
+                        setTimeout(() => cube.classList.add('dragging'), 0);
+                    };
+                    cube.ondragend = () => cube.classList.remove('dragging');
+                    cube.onclick = () => this._moveCubeToZoneById(id);
+                } else if (parentType === 'zone') {
+                    cube.classList.add('zone');
+                    cube.onclick = () => {
+                        // 🛡️ مکعب در حالِ برگشتِ انیمیشنی قابل کلیک نیست
+                        if (cube.classList.contains('fall-back')) return;
+                        this._moveCubeBackToBasketById(id);
+                    };
+                }
+                return cube;
+            }
+
+            _moveCubeToZoneById(id) {
+                const cube = document.getElementById(id);
+                if (!cube || cube.parentElement === this.dropZone) return;
+                if (this.currentZoneCubes >= this.maxBasketCubes) return;
+                if (cube.classList.contains('fall-back')) return; // 🛡️
+                cube.parentElement.removeChild(cube);
+                cube.className = 'cube zone';
+                cube.draggable = false;
+                cube.ondragstart = null;
+                cube.onclick = () => {
+                    if (cube.classList.contains('fall-back')) return;
+                    this._moveCubeBackToBasketById(id);
+                };
+                this.dropZone.appendChild(cube);
+                this.currentZoneCubes++;
+                this._updateZoneDisplay();
+                this._updateBasketPlaceholder();
+            }
+
+            // 🛠️ skipCounter: برگشت انیمیشنیِ مکعب اضافی → شمارنده نباید دوباره کم شود
+            _moveCubeBackToBasketById(id, skipCounter = false) {
+                const cube = document.getElementById(id);
+                if (!cube || cube.parentElement !== this.dropZone) return;
+                if (cube.classList.contains('fall-back') && !skipCounter) return; // 🛡️ فقط مسیر دستی مسدود است
+                cube.parentElement.removeChild(cube);
+                cube.className = 'cube basket';
+                cube.draggable = true;
+                cube.ondragstart = e => {
+                    e.dataTransfer.setData('text/plain', cube.id);
+                };
+                cube.onclick = () => this._moveCubeToZoneById(id);
+                this.basketArea.appendChild(cube);
+                if (!skipCounter) this.currentZoneCubes--;
+                this._updateZoneDisplay();
+                this._updateBasketPlaceholder();
+            }
+
+            _addCubeToZone() {
+                const basketCubes = Array.from(this.basketArea.querySelectorAll('.cube.basket'));
+                if (basketCubes.length > 0) this._moveCubeToZoneById(basketCubes[0].id);
+            }
+
+            _removeCubeFromZone() {
+                const zoneCubes = Array.from(this.dropZone.querySelectorAll('.cube.zone:not(.fall-back)'));
+                if (zoneCubes.length > 0) this._moveCubeBackToBasketById(zoneCubes[zoneCubes.length - 1].id);
+            }
+
+            _updateZoneDisplay() {
+                this.zoneCountDisplay.textContent = this.currentZoneCubes;
+            }
+
+            _updateBasketPlaceholder() {
+                const placeholder = this.dropZone.querySelector('span');
+                if (placeholder) placeholder.style.display = this.currentZoneCubes === 0 ? '' : 'none';
+            }
+
+            _clearDropZone() {
+                const cubes = Array.from(this.dropZone.querySelectorAll('.cube'));
+                cubes.forEach(c => c.remove());
+                this.currentZoneCubes = 0;
+                this._updateZoneDisplay();
+                this._updateBasketPlaceholder();
+            }
+
+            _populateBasket(count) {
+                this.basketArea.innerHTML = '';
+                this.basketCubes = [];
+                for (let i = 0; i < count; i++) {
+                    const id = `basketCube-${Date.now()}-${i}`;
+                    const cube = this._createCubeElement(id, 'basket');
+                    this.basketArea.appendChild(cube);
+                    this.basketCubes.push(cube);
+                }
+            }
+
+            _renderCharacter(totalCubes) {
+                this.characterContainer.innerHTML = '';
+                const cols = 3;
+                const rows = Math.ceil(totalCubes / cols);
+                for (let r = 0; r < rows; r++) {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'cube-row';
+                    for (let c = 0; c < cols; c++) {
+                        if (r * cols + c < totalCubes) {
+                            const cube = document.createElement('div');
+                            cube.className = 'cube character new-cube';
+                            rowDiv.appendChild(cube);
+                        }
+                    }
+                    this.characterContainer.appendChild(rowDiv);
+                }
+            }
+
+            _startRound() {
+                // ⚠️ تعریف مراحل — بدون هیچ تغییری (قانون شماره ۱)
+                const roundDefs = [
+                    { base: 3, inc: 3, advanced: false },
+                    { base: 2, inc: 2, advanced: false },
+                    { base: 4, inc: 4, advanced: false },
+                    { base: 3, inc: 3, advanced: true },
+                    { base: 2, inc: 2, advanced: true }
+                ];
+                const def = roundDefs[this.currentRound];
+                this.baseCubes = def.base;
+                this.increment = def.inc;
+                this.advanced = def.advanced;
+                this.observedStages = [this.baseCubes, this.baseCubes + this.increment, this.baseCubes + this.increment * 2];
+                this.correctStage10 = this.baseCubes + this.increment * 9;
+                this.predictedIncrement = null;
+                this.currentZoneCubes = 0;
+                this.roundPredictionError = false;
+                this.roundConstructionError = false;
+                this.roundPredictionCorrected = false;
+                this.roundConstructionCorrected = false;
+                this.roundStartScore = this.sessionScore;
+
+                // 🏷️ نشانگر مرحله بازی — جدا از گام‌های مشاهده
+                const badge = document.getElementById('stageBadge');
+                badge.classList.remove('hidden');
+                badge.textContent = this.campaignMode
+                    ? `🎯 مرحله ${this._faDigits(this.currentRound + 1)} از ${this._faDigits(this.totalRounds)}`
+                    : `🎯 مرحله ${this._faDigits(this.currentRound + 1)}`;
+
+                this.constructionArea.classList.add('hidden');
+                this.keypadArea.classList.add('hidden');
+                this.predictionOptionsArea.classList.add('hidden');
+                this.btnNextRound.classList.add('hidden');
+                this.phaseMessage.textContent = this.advanced
+                    ? '👀 الگوی رشد رو ببین... ۳ گام اول از ۱۰!'
+                    : '👀 رشد کاراکتر رو ببین...';
+                this._renderCharacter(this.observedStages[0]);
+                this.state = 'observation';
+                this._runObservation();
+            }
+
+            _runObservation() {
+                const token = this.sessionToken;
+                let step = 0;
+                const show = () => {
+                    if (token !== this.sessionToken) return;
+                    if (step >= 3) {
+                        setTimeout(() => { if (token === this.sessionToken) this._startPrediction(); }, 500);
+                        return;
+                    }
+                    this._renderCharacter(this.observedStages[step]);
+                    const cubes = this._faDigits(this.observedStages[step]);
+                    // 🛠️ برچسب جدید: در چالش پیشرفته «گام X از ۱۰» — در حالت عادی «نمایش X»
+                    // تا با شماره «مرحله»های بازی قاطی نشه
+                    this.phaseMessage.textContent = this.advanced
+                        ? `گام ${this._faDigits(step + 1)} از ۱۰: ${cubes} مکعب`
+                        : `نمایش ${this._faDigits(step + 1)}: ${cubes} مکعب`;
+                    step++;
+                    setTimeout(show, 1500);
+                };
+                setTimeout(show, 300);
+            }
+
+            // 🛠️ FIX اصلی نسخه ۳: سوال حالا با گزینه‌ها می‌خونه!
+            _startPrediction() {
+                this.state = 'prediction';
+                if (this.advanced) {
+                    // گزینه‌ها «جمع کل گام ۱۰» هستند → سوال هم باید همون رو بپرسه
+                    this.phaseMessage.textContent = '🔮 اگه همین روند ادامه پیدا کنه، در گام ۱۰ کاراکتر چند مکعب داره؟';
+                    this.predictionOptionsArea.classList.remove('hidden');
+                    this._generateAdvancedOptions();
+                } else {
+                    this.phaseMessage.textContent = '🤔 در مرحله بعد چند مکعب به کاراکتر اضافه می‌شه؟';
+                    this.keypadArea.classList.remove('hidden');
+                    this._buildKeypad();
+                }
+            }
+
+            _buildKeypad() {
+                this.keypadArea.innerHTML = '';
+                const display = document.createElement('div');
+                display.className = 'display';
+                display.id = 'predictionDisplay';
+                display.textContent = '';
+                this.keypadArea.appendChild(display);
+                const grid = document.createElement('div');
+                grid.className = 'keypad';
+                for (let i = 1; i <= 9; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = 'key-btn';
+                    btn.textContent = i;
+                    btn.addEventListener('click', () => this._keypadInput(i));
+                    grid.appendChild(btn);
+                }
+                const btn0 = document.createElement('button');
+                btn0.className = 'key-btn';
+                btn0.textContent = '0';
+                btn0.addEventListener('click', () => this._keypadInput(0));
+                grid.appendChild(btn0);
+                const delBtn = document.createElement('button');
+                delBtn.className = 'key-btn';
+                delBtn.textContent = '⌫';
+                delBtn.addEventListener('click', () => {
+                    const d = document.getElementById('predictionDisplay');
+                    if (d) d.textContent = d.textContent.slice(0, -1);
+                });
+                grid.appendChild(delBtn);
+                this.keypadArea.appendChild(grid);
+                // 💡 یادآوری — ریشه سوءتفاهم رایج
+                const hint = document.createElement('div');
+                hint.className = 'keypad-hint';
+                hint.textContent = '💡 فقط تعداد اضافه‌شده — نه کل مکعب‌ها!';
+                this.keypadArea.appendChild(hint);
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = 'btn btn-primary';
+                confirmBtn.textContent = 'تأیید پیش‌بینی';
+                confirmBtn.addEventListener('click', () => this._confirmPrediction());
+                this.keypadArea.appendChild(confirmBtn);
+            }
+
+            _keypadInput(num) {
+                const d = document.getElementById('predictionDisplay');
+                if (d && d.textContent.length < 2) d.textContent += num;
+            }
+
+            _confirmPrediction() {
+                const display = document.getElementById('predictionDisplay');
+                const val = parseInt(display.textContent);
+                if (isNaN(val) || val < 1) return;
+                audio.clickSound();
+                const actualInc = this.increment;
+                this.predictedIncrement = val;
+                if (val === actualInc) {
+                    audio.successSound();
+                    showToast('🎉 آفرین! پیش‌بینی درست بود! +۱۰ امتیاز', 'success');
+                    this.sessionScore += 10;
+                    if (this.roundPredictionError) this.roundPredictionCorrected = true;
+                } else {
+                    audio.errorSound();
+                    // 🛠️ پیام راهنما: اگه «کل» رو گفته، متوجه تفاوت بشه
+                    const extraHint = val > actualInc ? ' فقط تعداد «اضافه‌شده» رو بگو، نه کل مکعب‌ها!' : ' دوباره تلاش کن!';
+                    showToast('🤔 عدد درست نیست.' + extraHint, 'warning');
+                    this.sessionPredictionGap += Math.abs(val - actualInc);
+                    this.roundPredictionError = true;
+                    return;
+                }
+                this.keypadArea.classList.add('hidden');
+                this._startConstruction();
+            }
+
+            _generateAdvancedOptions() {
+                this.predictionOptionsArea.innerHTML = '';
+                // 🔮 نوار الگوی تصویری: گام‌ها رو نشون میده و مقصد «گام ۱۰» رو شفاف می‌کنه
+                const strip = document.createElement('div');
+                strip.className = 'pattern-strip';
+                let stripHTML = '';
+                for (let s = 0; s < this.observedStages.length; s++) {
+                    stripHTML += `<div class="pattern-chip"><small>گام ${this._faDigits(s + 1)}</small><span class="pc-num">${this._faDigits(this.observedStages[s])}</span></div>`;
+                    stripHTML += `<span class="pattern-arrow">←</span>`;
+                }
+                stripHTML += `<span class="pattern-dots">⋯</span><span class="pattern-arrow">←</span>`;
+                stripHTML += `<div class="pattern-chip target"><small>گام ${this._faDigits(10)}</small><span class="pc-num">؟</span></div>`;
+                strip.innerHTML = stripHTML;
+                this.predictionOptionsArea.appendChild(strip);
+
+                const correct = this.correctStage10;
+                const opts = [
+                    { text: `${this._faDigits(correct)} مکعب`, value: correct, correct: true },
+                    { text: `${this._faDigits(correct - this.increment)} مکعب`, value: correct - this.increment, correct: false },
+                    { text: `${this._faDigits(correct + this.increment)} مکعب`, value: correct + this.increment, correct: false },
+                    { text: `${this._faDigits(correct + this.increment * 2)} مکعب`, value: correct + this.increment * 2, correct: false },
+                ];
+                this._shuffle(opts);
+                opts.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'rule-btn';
+                    btn.textContent = opt.text;
+                    btn.addEventListener('click', () => this._handleAdvancedChoice(btn, opt));
+                    this.predictionOptionsArea.appendChild(btn);
+                });
+            }
+
+            _nextLabel() {
+                if (!this.campaignMode) return '🎉 پایان مرحله';
+                return this.currentRound < this.totalRounds - 1 ? '▶️ مرحله بعد' : '🎉 پایان ماجرا';
+            }
+
+            _handleAdvancedChoice(btn, opt) {
+                audio.clickSound();
+                if (opt.correct) {
+                    btn.classList.add('selected-correct');
+                    audio.successSound();
+                    showToast('🎉 پیش‌بینی درست! +۱۵ امتیاز', 'success');
+                    this.sessionScore += 15;
+                    if (this.roundPredictionError) this.roundPredictionCorrected = true;
+                    this.state = 'round_complete';
+                    const token = this.sessionToken;
+                    setTimeout(() => {
+                        if (token !== this.sessionToken) return;
+                        this.predictionOptionsArea.classList.add('hidden');
+                        this.btnNextRound.classList.remove('hidden');
+                        this.btnNextRound.textContent = this._nextLabel();
+                    }, 800);
+                } else {
+                    btn.classList.add('selected-wrong');
+                    audio.errorSound();
+                    this.sessionPredictionGap += Math.abs(opt.value - this.correctStage10);
+                    this.roundPredictionError = true;
+                    showToast('🤔 عدد درست نیست. به نوار الگو نگاه کن و دوباره فکر کن!', 'warning');
+                    setTimeout(() => btn.classList.remove('selected-wrong'), 600);
+                }
+            }
+
+            _startConstruction() {
+                this.state = 'construction';
+                this.phaseMessage.textContent = `🏗️ حالا ${this._faDigits(this.predictedIncrement)} مکعب به کاراکتر اضافه کن!`;
+                this.constructionArea.classList.remove('hidden');
+                this._populateBasket(15);
+                this.currentZoneCubes = 0;
+                this._updateZoneDisplay();
+                this._clearDropZone();
+                this._updateBasketPlaceholder();
+                this._renderCharacter(this.observedStages[2]);
+            }
+
+            _confirmBuild() {
+                if (this.state !== 'construction') return;
+                const required = this.predictedIncrement;
+                const placed = this.currentZoneCubes;
+                audio.clickSound();
+                if (placed === required) {
+                    audio.successSound();
+                    showToast('🤖 ماشین کاراکتر را ساخت! عالی!', 'success');
+                    const zoneCubes = Array.from(this.dropZone.querySelectorAll('.cube.zone:not(.fall-back)'));
+                    zoneCubes.forEach(c => c.classList.add('correct'));
+                    this.sessionScore += 10;
+                    if (this.roundConstructionError) this.roundConstructionCorrected = true;
+                    const newTotal = this.observedStages[2] + required;
+                    const token = this.sessionToken;
+                    setTimeout(() => {
+                        if (token !== this.sessionToken) return;
+                        this._renderCharacter(newTotal);
+                        this.characterContainer.classList.add('glow-green');
+                        setTimeout(() => this.characterContainer.classList.remove('glow-green'), 1000);
+                    }, 400);
+                    if (Math.random() < 0.3) setTimeout(showIrregularReward, 600);
+                    this.state = 'round_complete';
+                    this.constructionArea.classList.add('hidden');
+                    this.btnNextRound.classList.remove('hidden');
+                    this.btnNextRound.textContent = this._nextLabel();
+                } else if (placed > required) {
+                    audio.errorSound();
+                    audio.fallBackSound();
+                    showToast('🤔 مکعب اضافه چیدی! قرمز شد و برگشت. دوباره تلاش کن!', 'warning');
+                    this.sessionConstructionErrors++;
+                    if (!this.roundConstructionError) this.roundConstructionError = true;
+                    // 🛡️ فقط مکعب‌های ثابت — نه اون‌هایی که الان دارن برمی‌گردن
+                    const zoneCubes = Array.from(this.dropZone.querySelectorAll('.cube.zone:not(.fall-back)'));
+                    const extraCubes = zoneCubes.slice(required);
+                    extraCubes.forEach(c => {
+                        c.classList.add('extra');
+                        c.classList.add('fall-back');
+                        c.addEventListener('animationend', () => {
+                            if (c.parentElement === this.dropZone) {
+                                // 🛠️ skipCounter=true — شمارنده از قبل روی required تنظیم شده
+                                this._moveCubeBackToBasketById(c.id, true);
+                            }
+                        }, { once: true });
+                    });
+                    this.currentZoneCubes = required;
+                    this._updateZoneDisplay();
+                    setTimeout(() => {
+                        extraCubes.forEach(c => c.classList.remove('extra', 'fall-back'));
+                    }, 700);
+                } else {
+                    audio.errorSound();
+                    showToast('🤔 تعداد مکعب‌ها کمه. بیشتر بچین!', 'warning');
+                    this.sessionConstructionErrors++;
+                    if (!this.roundConstructionError) this.roundConstructionError = true;
+                }
+            }
+
+            _advanceRound() {
+                audio.clickSound();
+                this.btnNextRound.classList.add('hidden');
+                if (this.roundPredictionError && this.roundPredictionCorrected) this.sessionSelfCorrections++;
+                if (this.roundConstructionError && this.roundConstructionCorrected) this.sessionSelfCorrections++;
+                this._markStageComplete(this.currentRound);
+                this.currentRound++;
+                lokoSync.enqueue({
+                    type: 'round_complete',
+                    round: this.currentRound,
+                    score: this.sessionScore,
+                    coins: lokoCoins.coins
+                });
+                if (!this.campaignMode || this.currentRound >= this.totalRounds) this._endGame();
+                else this._startRound();
+                this._updateProgress();
+            }
+
+            _updateProgress() {
+                if (!this.campaignMode) return;
+                this.progressBar.style.width = Math.round((this.currentRound / this.totalRounds) * 100) + '%';
+            }
+
+            _endGame() {
+                this.progressBar.style.width = '100%';
+                audio.endGameSound();
+                spawnConfetti(40);
+                this._saveStats();
+                lokoSync.enqueue({
+                    type: 'session_complete',
+                    mode: this.campaignMode ? 'campaign' : 'single',
+                    stage: this.selectedStage,
+                    score: this.sessionScore,
+                    predictionGap: this.sessionPredictionGap,
+                    selfCorrections: this.sessionSelfCorrections,
+                    constructionErrors: this.sessionConstructionErrors,
+                    coins: lokoCoins.coins
+                });
+                if (this.campaignMode) {
+                    const reward = lokoCoins.completeSession();
+                    updateCoinUI(true);
+                    document.getElementById('endCoinRewardAmount').textContent = '+' + reward;
+                    document.getElementById('endCoinReward').classList.remove('hidden');
+                    setTimeout(() => audio.rewardSound(), 350);
+                } else {
+                    document.getElementById('endCoinReward').classList.add('hidden');
+                }
+                const modeLabel = this.campaignMode ? 'جلسه کامل' : `مرحله ${(this.selectedStage ?? 0) + 1}`;
+                document.getElementById('endGameTitle').textContent =
+                    this.campaignMode ? '🎉 جلسه تموم شد!' : '🎉 مرحله تموم شد!';
+                document.getElementById('endGameSummary').textContent =
+                    `${modeLabel}\nشکاف پیش‌بینی: ${this.sessionPredictionGap}\nخوداصلاحی‌ها: ${this.sessionSelfCorrections}`;
+                document.getElementById('endGameScore').textContent = this.sessionScore;
+                this._renderEndStars();
+                document.getElementById('endGameModal').classList.remove('hidden');
+                this.gameScreen.classList.remove('active');
+                this._renderStageGrid();
+                document.getElementById('stageSelectScreen').classList.remove('hidden');
+                this._setStopVisible(false);
+            }
+
+            _renderEndStars() {
+                const maxPossible = this.campaignMode ? 110 : (this.advanced ? 25 : 20);
+                const ratio = this.sessionScore / maxPossible;
+                const count = ratio >= 0.8 ? 3 : (ratio >= 0.5 ? 2 : 1);
+                const wrap = document.getElementById('endGameStars');
+                wrap.innerHTML = '';
+                for (let i = 0; i < 3; i++) {
+                    const st = document.createElement('span');
+                    st.className = 'end-star' + (i < count ? ' lit' : '');
+                    st.textContent = '★';
+                    st.style.animationDelay = (i * 0.18) + 's';
+                    wrap.appendChild(st);
+                }
+            }
+
+            _loadStats() {
+                const key = 'futureMachineStats';
+                try {
+                    const raw = localStorage.getItem(key);
+                    return raw ? JSON.parse(raw) : { totalGames: 0, totalPredictionGap: 0, totalSelfCorrections: 0,
+                        totalScore: 0, bestScore: 0, lastPlayDate: null };
+                } catch (e) { return { totalGames: 0, totalPredictionGap: 0, totalSelfCorrections: 0, totalScore: 0,
+                        bestScore: 0, lastPlayDate: null }; }
+            }
+            _saveStats() {
+                const key = 'futureMachineStats';
+                const s = this._loadStats();
+                s.totalGames += 1;
+                s.totalPredictionGap += this.sessionPredictionGap;
+                s.totalSelfCorrections += this.sessionSelfCorrections;
+                s.totalScore += this.sessionScore;
+                s.bestScore = Math.max(s.bestScore, this.sessionScore);
+                s.lastPlayDate = new Date().toISOString();
+                try { localStorage.setItem(key, JSON.stringify(s)); } catch (e) {}
+            }
+            resetStats() {
+                try { localStorage.removeItem('futureMachineStats'); } catch (e) {}
+                this._updateLandingStats();
+                this.showStats();
+                showToast('🗑️ آمار پاک شد.', 'info');
+            }
+            _updateLandingStats() {
+                const s = this._loadStats();
+                document.getElementById('landingScore').textContent = s.totalScore || 0;
+                document.getElementById('landingGames').textContent = s.totalGames || 0;
+            }
+            showStats() {
+                const s = this._loadStats();
+                document.getElementById('statsDisplay').innerHTML = `
+            <p>🎮 جلسات: ${s.totalGames}</p>
+            <p>🎯 شکاف پیش‌بینی کل: ${s.totalPredictionGap}</p>
+            <p>🔄 خوداصلاحی‌ها: ${s.totalSelfCorrections}</p>
+            <p>⭐ امتیاز کل: ${s.totalScore}</p>
+            <p>🏆 بهترین امتیاز: ${s.bestScore}</p>
+            <p>📅 آخرین بازی: ${s.lastPlayDate ? new Date(s.lastPlayDate).toLocaleDateString('fa-IR') : '—'}</p>
+          `;
+                document.getElementById('statsModal').classList.remove('hidden');
+            }
+            showModal(id) { document.getElementById(id).classList.remove('hidden'); }
+            hideModal(id) { document.getElementById(id).classList.add('hidden'); }
+            _shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]]; } }
+        }
+
+        new FutureMachineGame();
+        console.log('🤖 ماشین آینده v3 – آماده! (رفع سوال/گزینه چالش پیشرفته)');
+    </script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#endGameModal"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

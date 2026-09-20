@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>لوکو و ماشین جادویی</title>
+<style>
+/* ================= پایه ================= */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Vazirmatn','Vazir','IRANSansX','IRANSans','Shabnam','Segoe UI',Tahoma,'Noto Naskh Arabic',sans-serif;
+  background:var(--bg);color:var(--text);font-size:15px;
+  user-select:none;-webkit-user-select:none;
+}
+.hidden{display:none!important}
+button{font:inherit;cursor:pointer}
+
+/* ============ متغیرهای تم (پوسته پیش‌فرض: شب فیروزه‌ای) ============ */
+:root{
+  --bg:#12161d;--panel:#1b2230;--panel2:#243040;
+  --text:#f4efe6;--muted:#93a0b4;
+  --accent:#ffc93c;--accent-ink:#3d2f00;--accent2:#3ecfbb;
+  --ok:#43d17c;--bad:#ff6b6b;
+  --shadow:0 14px 34px rgba(0,0,0,.38);
+  --sky1:#1d2a3e;--sky2:#0c1016;
+  --floor:#263149;--wall:#1b2536;--grid:rgba(255,255,255,.055);
+  --dim:rgba(8,12,18,.5);
+  --loko-c:#3ecfbb;--loko-h:0deg;--yaw:0deg;
+}
+body[data-skin="forest"]{--bg:#0e170f;--panel:#182417;--panel2:#22331f;--text:#f1f7e8;--muted:#93a88f;--accent:#9edb58;--accent-ink:#1d3306;--accent2:#5ad1a0;--sky1:#1c3324;--sky2:#0b140d;--floor:#2c4430;--wall:#1a2c1e;--grid:rgba(255,255,255,.05);--dim:rgba(6,12,8,.5)}
+body[data-skin="desert"]{--bg:#170f0b;--panel:#241812;--panel2:#2f2018;--text:#f9efe2;--muted:#a8917f;--accent:#ff9d4d;--accent-ink:#3d1f04;--accent2:#ffd166;--sky1:#43281c;--sky2:#160d09;--floor:#54371f;--wall:#332015;--grid:rgba(255,255,255,.05);--dim:rgba(14,8,4,.5)}
+body[data-skin="ocean"]{--bg:#0a141b;--panel:#0f1e28;--panel2:#152936;--text:#eaf6fd;--muted:#8aa8bb;--accent:#43b7ff;--accent-ink:#04263f;--accent2:#3fe0c8;--sky1:#12303f;--sky2:#081218;--floor:#173b4a;--wall:#102833;--grid:rgba(255,255,255,.05);--dim:rgba(4,10,16,.5)}
+body[data-skin="berry"]{--bg:#150c1a;--panel:#221430;--panel2:#2d1c40;--text:#fbeef7;--muted:#a98fb8;--accent:#ff7ab0;--accent-ink:#43102a;--accent2:#c39bff;--sky1:#37203f;--sky2:#120a16;--floor:#452a4e;--wall:#2a1832;--grid:rgba(255,255,255,.05);--dim:rgba(10,4,14,.5)}
+body[data-skin="snow"]{--bg:#e9eff5;--panel:#ffffff;--panel2:#f0f4f8;--text:#22303f;--muted:#5f7083;--accent:#ff8f2d;--accent-ink:#4a2400;--accent2:#1fb6a6;--sky1:#dbe7f2;--sky2:#f6f9fc;--floor:#c3d2de;--wall:#d4e0ea;--grid:rgba(0,0,0,.07);--shadow:0 14px 30px rgba(30,55,80,.18);--dim:rgba(240,246,252,.55)}
+
+/* ================= صحنهٔ سه‌بعدی ================= */
+#viewport{position:fixed;inset:0;z-index:1;perspective:950px;perspective-origin:50% 38%;
+  background:radial-gradient(130% 95% at 50% 6%,var(--sky1),var(--sky2));
+  touch-action:none;cursor:grab}
+#viewport:active{cursor:grabbing}
+#world{position:absolute;left:50%;top:50%;transform-style:preserve-3d;will-change:transform}
+#dim{position:fixed;inset:0;z-index:2;background:var(--dim);pointer-events:none;transition:background .4s}
+#dim.soft{background:transparent}
+
+.floor{position:absolute;width:1150px;height:920px;left:-575px;top:-460px;transform:rotateX(90deg);
+  border-radius:26px;
+  background:
+   repeating-linear-gradient(0deg,var(--grid) 0 1.5px,transparent 1.5px 58px),
+   repeating-linear-gradient(90deg,var(--grid) 0 1.5px,transparent 1.5px 58px),
+   radial-gradient(closest-side at 50% 42%,rgba(255,255,255,.06),rgba(0,0,0,.24)),
+   var(--floor);
+  box-shadow:0 0 0 2px rgba(255,255,255,.05) inset}
+.wall{position:absolute;background:var(--wall);
+  -webkit-mask-image:linear-gradient(180deg,transparent,#000 34%);mask-image:linear-gradient(180deg,transparent,#000 34%)}
+.wb{width:1150px;height:440px;left:-575px;top:-440px;transform:translateZ(-458px)}
+.wr{width:920px;height:440px;left:-460px;top:-440px;transform:rotateY(90deg) translateZ(573px);opacity:.55}
+.wl{width:920px;height:440px;left:-460px;top:-440px;transform:rotateY(-90deg) translateZ(573px);opacity:.55}
+
+.obj,.spin,.jumper,.pos{position:absolute;width:0;height:0;transform-style:preserve-3d}
+.box3d{position:absolute;transform-style:preserve-3d}
+.face{position:absolute;backface-visibility:hidden;overflow:hidden;outline:1px solid transparent}
+.face .shade{position:absolute;inset:0;pointer-events:none}
+.sh3d{position:absolute;background:radial-gradient(closest-side,rgba(0,0,0,.42),transparent 70%)}
+.ring3{position:absolute;border:3px solid var(--accent);border-radius:50%;animation:ringp 1.6s infinite}
+@keyframes ringp{50%{transform:rotateX(90deg) scale(.92);opacity:.55}}
+.jumpy{animation:jumpy .55s}
+@keyframes jumpy{35%{transform:translateY(-26px)}70%{transform:translateY(4px)}}
+
+/* جزئیات اشیاء */
+.fx-book-front::before{content:'';position:absolute;left:14%;right:14%;top:16px;height:8px;border-radius:4px;background:rgba(255,255,255,.5)}
+.fx-book-front::after{content:'';position:absolute;inset:8px;border:2px solid rgba(255,255,255,.3);border-radius:4px}
+.fx-book-side{background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.13) 0 1.5px,transparent 1.5px 5px)!important}
+.fx-crate-front::before,.fx-crate-top::before{content:'';position:absolute;top:0;bottom:0;left:50%;width:15%;transform:translateX(-50%);background:rgba(60,35,12,.28)}
+.fx-crate-front::after{content:'';position:absolute;right:9%;bottom:9%;width:26%;height:17%;background:#f4efe6;border-radius:3px}
+.fx-crate-top::after{content:'';position:absolute;top:0;bottom:0;left:50%;width:15%;transform:translateX(-50%);background:rgba(60,35,12,.28)}
+.fx-tissue-top::before{content:'';position:absolute;left:50%;top:50%;width:46px;height:26px;transform:translate(-50%,-58%);background:#f7f3ea;border-radius:50%}
+.fx-tissue-top::after{content:'';position:absolute;left:50%;top:53%;width:40px;height:4px;transform:translate(-50%,-50%);background:rgba(0,0,0,.3);border-radius:2px}
+.fx-radio-front::before{content:'';position:absolute;left:10px;top:15px;width:38%;height:46px;border-radius:6px;
+  background:repeating-linear-gradient(90deg,rgba(0,0,0,.4) 0 3px,transparent 3px 7px)}
+.fx-radio-front::after{content:'';position:absolute;right:13px;top:18px;width:15px;height:15px;border-radius:50%;background:#f2e6d8;
+  box-shadow:0 27px 0 #f2e6d8,inset -3px -3px 5px rgba(0,0,0,.3)}
+.tvscr{position:absolute;inset:13px 13px 30px;background:linear-gradient(160deg,#243240,#0d151c 62%);border-radius:9px;border:3px solid rgba(0,0,0,.4)}
+.tvscr::after{content:'';position:absolute;inset:0;border-radius:6px;background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.1) 46% 54%,transparent 58%)}
+.ant{position:absolute;width:4px;height:62px;background:#b9c2cc;border-radius:2px;transform-origin:50% 100%}
+.fx-plug-front::before{content:'';position:absolute;inset:7px;border:2.5px solid #b9b2a2;border-radius:9px}
+.fx-plug-front::after{content:'';position:absolute;left:calc(50% + 5px);top:57%;width:7px;height:7px;border-radius:50%;background:#4a463c;box-shadow:-10px 0 0 #4a463c}
+.fx-frame-front::before{content:'';position:absolute;inset:9px;border-radius:2px;background:linear-gradient(#8fd0e8 55%,#d9e8b8 55%)}
+.fx-frame-front::after{content:'';position:absolute;right:17px;top:15px;width:15px;height:15px;border-radius:50%;background:#ffc93c}
+.fx-fridge-front::before{content:'';position:absolute;left:0;right:0;top:31%;height:3px;background:rgba(0,0,0,.16)}
+.fx-fridge-front::after{content:'';position:absolute;right:11px;top:9%;width:5px;height:15%;background:#9aa7b5;border-radius:3px;box-shadow:0 58px 0 #9aa7b5}
+.fx-block-front::after{content:'ل';position:absolute;inset:0;display:grid;place-items:center;font-size:26px;font-weight:900;color:rgba(255,255,255,.9)}
+.fx-mach-front::after{content:'';position:absolute;left:16px;right:16px;bottom:9px;height:7px;border-radius:4px;
+  background:radial-gradient(circle 3px at 8px 3.5px,#43d17c 55%,transparent 60%),radial-gradient(circle 3px at 22px 3.5px,#ffc93c 55%,transparent 60%),rgba(0,0,0,.25)}
+.mdisp{position:absolute;left:22px;right:22px;top:24px;height:64px;background:#0d1117;border:3px solid var(--accent);border-radius:12px;display:grid;place-items:center}
+.mdisp span{color:var(--accent);font-weight:900;font-size:24px;letter-spacing:0}
+.bill{transform:rotateY(calc(var(--yaw) * -1))}
+.ball{position:absolute;width:68px;height:68px;left:-34px;top:-34px;border-radius:50%;
+  background:radial-gradient(circle at 33% 30%,#ff9d8a,#e0523c 55%,#93261a)}
+.ball::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#f6f1e6;top:14px;right:15px;opacity:.85}
+.cup{position:absolute;width:54px;height:62px;left:-27px;top:-31px;border-radius:6px 6px 16px 16px / 5px 5px 22px 22px;
+  background:linear-gradient(90deg,#1f7c8c,#79dcea 38%,#c8f4f8 50%,#79dcea 62%,#1f7c8c)}
+.cup::before{content:'';position:absolute;top:-3px;left:-2px;right:-2px;height:11px;border-radius:50%;background:#c8f4f8;border:2px solid #1f7c8c}
+
+/* ================= لایه‌ها و صفحات ================= */
+#screens{position:fixed;inset:0;z-index:5}
+.screen{position:absolute;inset:0;display:none;flex-direction:column}
+.screen.on{display:flex}
+#fx{position:fixed;inset:0;z-index:9;pointer-events:none}
+.flycoin{position:fixed;z-index:9;width:26px;height:26px;transform:translate(-50%,-50%);animation:flyc .8s cubic-bezier(.35,.7,.3,1) both}
+.flycoin .ic{width:26px;height:26px}
+@keyframes flyc{0%{transform:translate(-50%,-50%) scale(1.1)}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.45);opacity:.9}}
+.cf{position:fixed;width:9px;height:9px;border-radius:50%;z-index:9;animation:cf .75s ease-out both}
+@keyframes cf{to{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}}
+
+/* ================= اجزای مشترک ================= */
+.ic{width:22px;height:22px;display:block;flex:none}
+.ic.sm{width:16px;height:16px}
+.ic.lg{width:30px;height:30px}
+.btn{appearance:none;border:1px solid rgba(255,255,255,.08);background:var(--panel2);color:var(--text);
+  border-radius:16px;padding:13px 16px;font-weight:800;font-size:15.5px;display:flex;align-items:center;justify-content:center;gap:9px;
+  box-shadow:0 6px 0 rgba(0,0,0,.28),var(--shadow);transition:transform .12s,box-shadow .12s,filter .15s}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.28)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:rgba(0,0,0,.1)}
+.btn.warn{background:var(--panel2);color:var(--accent)}
+.btn.ghost{background:transparent;box-shadow:none;border:1.5px dashed rgba(150,160,180,.4);color:var(--muted)}
+.btn.ghost:active{transform:none}
+.btn.xl{padding:16px;font-size:18px}
+.btn.small{padding:9px 14px;font-size:13.5px;border-radius:12px}
+.btn:disabled{opacity:.5;pointer-events:none}
+.iconbtn{width:46px;height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:var(--panel);
+  color:var(--text);display:grid;place-items:center;box-shadow:0 4px 0 rgba(0,0,0,.25),var(--shadow)}
+.iconbtn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.iconbtn.danger{color:var(--bad)}
+.coinbox{display:flex;align-items:center;gap:7px;background:var(--panel);border:1px solid rgba(255,255,255,.09);
+  border-radius:999px;padding:7px 13px;box-shadow:0 4px 14px rgba(0,0,0,.22);font-weight:900;font-size:15px}
+.coin{position:relative;width:24px;height:24px;display:grid;place-items:center}
+.coin .cico{width:24px;height:24px}
+.coin img{display:none;width:24px;height:24px;border-radius:50%;object-fit:cover}
+.coin.has-img img{display:block}
+.coin.has-img .cico{display:none}
+.coinbox.bump{animation:bump .4s}
+@keyframes bump{40%{transform:scale(1.16)}}
+.shake{animation:shake .4s}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.bar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 8px;position:relative;z-index:6}
+.bar-mid{flex:1;text-align:center;min-width:0}
+.bar-mid b{display:block;font-size:15px}
+.bar-mid span{font-size:11.5px;color:var(--muted);font-weight:700}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid rgba(255,255,255,.08);
+  border-radius:999px;padding:6px 11px;font-size:12.5px;font-weight:800}
+.chip .ic{width:17px;height:17px;color:var(--accent2)}
+.chip span{color:var(--muted);font-weight:700}
+.kind{font-size:12px;font-weight:800;color:var(--muted)}
+.kind.k-ok{color:var(--ok)}
+.kind.k-no{color:var(--bad)}
+
+/* ================= منوی اصلی ================= */
+#scr-menu,#scr-play,#scr-explore{pointer-events:none}
+#scr-menu .menu-top,#scr-menu .btn,#scr-menu .iconbtn,#scr-menu #gameTitle{pointer-events:auto}
+.menu-top{display:flex;justify-content:space-between;align-items:center;padding:calc(12px + env(safe-area-inset-top)) 14px 0}
+.menu-mid{flex:1;display:flex;flex-direction:column;align-items:center;gap:9px;padding:2px 18px calc(18px + env(safe-area-inset-bottom))}
+#gameTitle{text-align:center;line-height:1.3;cursor:default}
+#gameTitle .t1{display:block;font-size:16px;font-weight:800;color:var(--text);opacity:.85}
+#gameTitle .t2{display:block;font-size:33px;font-weight:900;color:var(--accent)}
+.tagline{background:var(--panel);border:1px solid rgba(255,255,255,.07);color:var(--muted);font-size:12px;
+  padding:6px 14px;border-radius:999px;font-weight:700}
+#charBox{width:190px;height:196px;position:relative;margin:-4px 0 2px}
+#charBox .char-img{display:none;width:100%;height:100%;object-fit:contain;filter:hue-rotate(var(--loko-h))}
+#charBox.has-img .char-img{display:block}
+#charBox.has-img .loko-wrap{display:none}
+
+/* کاراکتر لوکو (سه‌بعدی) */
+.loko-wrap{width:150px;height:170px;position:relative;display:grid;place-items:center}
+.lk-sc{perspective:520px;transform-style:preserve-3d;animation:lkbob 3.4s ease-in-out infinite}
+@keyframes lkbob{50%{transform:translateY(-9px)}}
+.lk-bob{position:relative;width:0;height:0;transform-style:preserve-3d;animation:lkturn 8s ease-in-out infinite}
+@keyframes lkturn{0%,100%{transform:rotateY(-20deg)}50%{transform:rotateY(20deg)}}
+.lk-face .eye{position:absolute;width:19px;height:19px;background:#fff;border-radius:50%;top:21px;animation:blink 3.8s infinite}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}96.5%{transform:scaleY(.08)}}
+.eye.e1{left:15px}.eye.e2{right:15px}
+.eye i{position:absolute;width:8px;height:8px;background:#2c2620;border-radius:50%;left:5px;top:8px}
+.mouth{position:absolute;left:50%;top:46px;width:26px;height:13px;margin-left:-13px;border-bottom:4px solid #3a332b;border-radius:0 0 24px 24px}
+.cheek{position:absolute;width:11px;height:7px;border-radius:50%;background:rgba(255,110,110,.45);top:42px}
+.cheek.c1{left:8px}.cheek.c2{right:8px}
+.lk-ant{position:absolute;left:-2px;top:-72px;width:4px;height:28px;background:#9aa7b5;border-radius:2px}
+.lk-ant i{position:absolute;left:-5px;top:-11px;width:14px;height:14px;border-radius:50%;background:var(--accent);animation:pulse 1.8s infinite}
+@keyframes pulse{50%{transform:scale(.72);opacity:.65}}
+.lk-arm{position:absolute;width:20px;height:20px;border-radius:7px;background:var(--loko-c);filter:brightness(.8);top:-8px;animation:armf 2.6s ease-in-out infinite}
+@keyframes armf{50%{transform:translateY(-7px)}}
+.lk-arm.a1{left:-44px}.lk-arm.a2{right:-44px;animation-delay:.4s}
+.loko-wrap.hi .a2{animation:none;transform:translate(8px,-44px) rotate(22deg)}
+.lk-foot{position:absolute;width:24px;height:12px;border-radius:6px;background:var(--loko-c);filter:brightness(.6);top:42px}
+.lk-foot.f1{left:-27px}.lk-foot.f2{left:3px}
+.hat-layer{position:absolute;left:50%;top:-104px;transform:translateX(-50%);z-index:3;pointer-events:none}
+.hat{width:112px;height:70px;display:block}
+#menuActions{width:100%;max-width:330px;display:grid;gap:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#resumeLv{font-size:12px;opacity:.75;font-weight:700}
+
+/* ================= راهنما و فروشگاه (شیت) ================= */
+.sheet{background:var(--bg)}
+.sheet h2{font-size:17px;font-weight:900}
+.sheet-body{flex:1;overflow-y:auto;padding:4px 14px 24px;overscroll-behavior:contain}
+.hero{display:flex;gap:13px;align-items:center;background:var(--panel);border:1px solid rgba(255,255,255,.07);
+  border-radius:20px;padding:14px;box-shadow:var(--shadow);margin-top:4px}
+.hchar{width:96px;height:116px;flex:none;position:relative}
+.hchar .himg{display:none;width:100%;height:100%;object-fit:contain}
+.hchar.has-img .himg{display:block}
+.hchar.has-img .loko-wrap{display:none}
+.htxt b{font-size:16px}
+.htxt p{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.95}
+.ht{display:flex;align-items:center;gap:8px;margin:18px 2px 10px;font-size:15.5px;font-weight:900}
+.ht .ic{color:var(--accent)}
+.steps{list-style:none;counter-reset:s}
+.steps li{position:relative;padding:11px 46px 11px 12px;background:var(--panel);border-radius:14px;margin-bottom:8px;
+  font-size:12.5px;color:var(--muted);line-height:1.95;border:1px solid rgba(255,255,255,.05)}
+.steps li b{color:var(--text)}
+.steps li::before{counter-increment:s;content:counter(s,persian);position:absolute;right:11px;top:11px;
+  width:25px;height:25px;border-radius:9px;background:var(--accent);color:var(--accent-ink);font-weight:900;display:grid;place-items:center;font-size:13px}
+.tips{list-style:none}
+.tips li{display:flex;gap:9px;align-items:flex-start;background:var(--panel);border-radius:14px;margin-bottom:8px;
+  padding:11px 13px;font-size:12.5px;color:var(--muted);line-height:1.95;border:1px solid rgba(255,255,255,.05)}
+.tips .ic{width:19px;height:19px;color:var(--accent2);margin-top:3px}
+.tips b{color:var(--text)}
+.minis{display:flex;gap:10px}
+.mini{flex:1;background:var(--panel);border-radius:18px;padding:10px;text-align:center;border:1px solid rgba(255,255,255,.06)}
+.mini b{display:block;font-size:14px;margin-top:2px}
+.mini small{color:var(--muted);font-size:11px;line-height:1.85;display:block;margin-top:2px}
+.mscene{perspective:420px;height:100px;display:grid;place-items:center}
+.mini-rot{position:relative;width:0;height:0;transform-style:preserve-3d;animation:mspin 9s linear infinite}
+@keyframes mspin{from{transform:rotateX(-16deg) rotateY(0deg)}to{transform:rotateX(-16deg) rotateY(360deg)}}
+.hnote{display:flex;gap:8px;align-items:center;background:rgba(62,207,187,.1);border:1px solid rgba(62,207,187,.3);
+  color:var(--accent2);padding:11px 13px;border-radius:14px;font-size:12.5px;font-weight:700;margin-top:10px;line-height:1.9}
+
+.tabs{display:flex;gap:8px;padding:2px 14px 10px}
+.tabs button{flex:1;padding:11px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:var(--panel);
+  color:var(--muted);font-weight:800;font-size:14px;display:flex;gap:8px;align-items:center;justify-content:center}
+.tabs button.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.sgroup{font-size:13px;font-weight:900;color:var(--muted);margin:14px 2px 9px}
+.sitem{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid rgba(255,255,255,.06);
+  border-radius:18px;padding:12px;margin-bottom:10px;box-shadow:0 6px 16px rgba(0,0,0,.15)}
+.sw{width:52px;height:52px;border-radius:16px;flex:none;display:grid;place-items:center;position:relative;overflow:hidden}
+.sw-dot{width:22px;height:22px;border-radius:50%;box-shadow:0 0 0 3px rgba(255,255,255,.35)}
+.hat-ic{width:44px;height:34px}
+.smeta{flex:1;min-width:0}
+.smeta b{font-size:14px;display:block}
+.smeta p{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.7}
+.badge{display:inline-flex;align-items:center;gap:5px;color:var(--ok);font-weight:800;font-size:12px;white-space:nowrap}
+.badge .ic{width:16px;height:16px}
+
+/* ================= صفحهٔ بازی ================= */
+.play-space{flex:1;min-height:110px;position:relative}
+#qpanel{margin:6px 10px calc(10px + env(safe-area-inset-bottom));background:var(--panel);
+  border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:11px 13px;box-shadow:var(--shadow);
+  position:relative;z-index:6;pointer-events:auto;max-height:64vh;overflow-y:auto}
+.q-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.mrow{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 0 3px;overflow-x:auto}
+.mrow>*{flex:none}
+.mrow .arr{width:21px;height:21px;color:var(--muted)}
+.machine{display:flex;flex-direction:column;align-items:center;width:126px}
+.machine svg{width:100%;height:auto;display:block}
+.mb{fill:var(--panel2);stroke:rgba(255,255,255,.16);stroke-width:2}
+.mp{fill:var(--accent2);opacity:.9}
+.md{fill:#0d1117;stroke:var(--accent);stroke-width:2}
+.mt{fill:var(--accent);font-weight:900;font-size:19px;text-anchor:middle}
+.gc{fill:none;stroke:var(--muted);stroke-width:2}
+.gl{stroke:var(--muted);stroke-width:2;stroke-linecap:round}
+.mbolt{fill:rgba(255,255,255,.28)}
+.gear{transform-box:fill-box;transform-origin:center;animation:gspin 2.8s linear infinite}
+@keyframes gspin{to{transform:rotate(360deg)}}
+.mlabel{font-size:10.5px;color:var(--muted);font-weight:800;margin-top:1px}
+.mrow.two .machine{width:104px}
+.mrow.two .token{width:46px;height:46px;font-size:18px}
+.token{width:54px;height:54px;border-radius:16px;background:var(--panel2);border:2px solid var(--accent2);
+  display:grid;place-items:center;font-weight:900;font-size:21px;box-shadow:0 5px 0 rgba(0,0,0,.25);animation:tIn .45s backwards}
+@keyframes tIn{from{transform:translateX(28px);opacity:0}}
+.mrow .machine{animation:mIn .5s .1s backwards}
+@keyframes mIn{from{transform:scale(.85);opacity:0}}
+.token.tq{border-style:dashed;border-color:var(--accent);color:var(--accent);animation:blinkq 1.7s infinite}
+@keyframes blinkq{50%{opacity:.55}}
+.token.ok{border-color:var(--ok);color:var(--ok)}
+.token.pop{animation:tpop .5s}
+@keyframes tpop{40%{transform:scale(1.28)}}
+.machine.happy svg{animation:mach .55s}
+@keyframes mach{35%{transform:translateY(-7px) rotate(2deg)}70%{transform:translateY(2px)}}
+#qtext{font-size:13.5px;line-height:2;color:var(--text);opacity:.88;margin:7px 2px 10px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{height:54px;border-radius:14px;font-size:21px;font-weight:900;background:var(--panel2);
+  border:2px solid rgba(255,255,255,.1);color:var(--text);transition:.15s;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.opt.good{border-color:var(--ok);color:var(--ok);background:rgba(67,209,124,.12)}
+.opt.bad{border-color:var(--bad);color:var(--bad);opacity:.5;text-decoration:line-through}
+.kdisp{height:58px;display:grid;place-items:center;background:var(--panel2);border:2px dashed var(--accent2);
+  border-radius:14px;font-size:29px;font-weight:900;margin-bottom:9px}
+.kdisp.good{border-color:var(--ok);color:var(--ok)}
+.kpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.key{height:46px;border-radius:13px;background:var(--panel2);border:1px solid rgba(255,255,255,.09);
+  color:var(--text);font-size:19px;font-weight:900;display:grid;place-items:center;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.key:active{transform:translateY(2px);box-shadow:none}
+.key.fn{color:var(--muted)}
+.key.okk{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+#clearOv{position:absolute;inset:0;z-index:8;display:grid;place-items:center;background:rgba(6,9,14,.45);padding:20px}
+.ccard{background:var(--panel);border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:22px 24px;text-align:center;
+  box-shadow:var(--shadow);max-width:340px;width:100%;animation:cpop .4s}
+@keyframes cpop{from{transform:scale(.8);opacity:0}}
+.ccard .big{width:64px;height:64px;color:var(--accent);margin:0 auto}
+#cTitle{margin:9px 0 4px;font-size:19px}
+#cSub{color:var(--muted);font-size:13px;line-height:1.9;margin-bottom:15px}
+.cbtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+/* ================= کاوش ================= */
+.ex-hint{margin:2px 14px 8px;color:var(--muted);font-size:12px;font-weight:700;display:flex;gap:7px;align-items:center;z-index:6;line-height:1.8}
+.ex-hint .ic{width:18px;height:18px;color:var(--accent2)}
+.objcard{margin:0 12px calc(12px + env(safe-area-inset-bottom));background:var(--panel);border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;padding:13px;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow);z-index:6;animation:mIn .25s}
+.icchip{width:52px;height:52px;border-radius:14px;background:var(--panel2);display:grid;place-items:center;flex:none}
+.icchip .ic{width:30px;height:30px;color:var(--accent)}
+.oct b{font-size:15.5px}
+.oct .kind{display:block;margin:2px 0 3px}
+.oct p{font-size:12px;color:var(--muted);line-height:1.8}
+
+/* ================= توست و مودال ================= */
+#toasts{position:fixed;top:calc(14px + env(safe-area-inset-top));left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:11;pointer-events:none}
+.toast{background:var(--panel);color:var(--text);border:1px solid rgba(255,255,255,.1);padding:10px 17px;border-radius:999px;
+  font-size:12.5px;font-weight:700;box-shadow:var(--shadow);animation:tin .3s;transition:opacity .35s,transform .35s}
+.toast.out{opacity:0;transform:translateY(-8px)}
+@keyframes tin{from{opacity:0;transform:translateY(-10px)}}
+#modal{position:fixed;inset:0;z-index:12;display:none;place-items:center;padding:22px}
+#modal.on{display:grid}
+.mback{position:absolute;inset:0;background:rgba(5,8,12,.55)}
+.mcard{position:relative;background:var(--panel);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:20px;
+  width:min(430px,100%);box-shadow:var(--shadow);animation:cpop .3s}
+#mtitle{font-size:17px;margin-bottom:8px}
+#mbody{font-size:13px;color:var(--muted);line-height:1.9;max-height:52vh;overflow:auto}
+#mact{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+#mact .btn{flex:1;min-width:110px}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.rgrid div{background:var(--panel2);border-radius:12px;padding:9px 4px;text-align:center}
+.rgrid b{display:block;font-size:17px;color:var(--accent)}
+.rgrid span{font-size:10.5px}
+.rtab{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:6px}
+.rtab th,.rtab td{padding:5px 3px;border-bottom:1px solid rgba(255,255,255,.07);text-align:center}
+.rtab .g{color:var(--ok)}.rtab .b{color:var(--bad)}
+.rhint{font-size:10.5px;margin-top:10px;opacity:.7}
+
+/* دسکتاپ */
+@media (min-width:720px){
+  #gameTitle .t2{font-size:40px}
+  #charBox{width:230px;height:230px}
+  #menuActions{max-width:380px}
+  #qpanel{max-width:620px;margin-left:auto;margin-right:auto;width:100%}
+  .machine{width:150px}
+  .mrow.two .machine{width:122px}
+}
+</style>
+</head>
+<body data-skin="night">
+
+<!-- آیکون‌های SVG داخلی -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.4" fill="#ffc93c" stroke="#a8741a" stroke-width="1.7"/><circle cx="12" cy="12" r="6.3" fill="none" stroke="#e2a51e" stroke-width="1.6"/><path d="M12 8.4l1.15 2.3 2.55.37-1.85 1.8.44 2.53L12 14.2l-2.29 1.2.44-2.53-1.85-1.8 2.55-.37z" fill="#a8741a"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-arrl" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.3v13.4L19 12z" fill="currentColor"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><path d="M7.5 5h3.4v14H7.5zM13.1 5h3.4v14h-3.4z" fill="currentColor"/></symbol>
+<symbol id="i-re" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 3.8V8h-4.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-cart" viewBox="0 0 24 24"><path d="M3.5 5h2.2l2.3 10.2a1.8 1.8 0 0 0 1.8 1.4h7.4a1.8 1.8 0 0 0 1.75-1.35L20.5 9H6.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.5" fill="currentColor"/><circle cx="16.5" cy="20" r="1.5" fill="currentColor"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.7 2.3c-.85.5-1.3 1-1.3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16.6" r="1.2" fill="currentColor"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.6 12 5.6 21.5 12 21.5 12 18 18.4 12 18.4 2.5 12 2.5 12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-snd" viewBox="0 0 24 24"><path d="M4 9.5v5h3.6L13 19V5L7.6 9.5H4z" fill="currentColor"/><path d="M16 8.6a4.8 4.8 0 0 1 0 6.8M18.6 6.2a8.2 8.2 0 0 1 0 11.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5v5h3.6L13 19V5L7.6 9.5H4z" fill="currentColor"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.6l4.4 4.4L19 7.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.6l2.7 5.7 6.2.75-4.6 4.3 1.2 6.15L12 16.4l-5.5 3.1 1.2-6.15-4.6-4.3 6.2-.75z" fill="currentColor"/></symbol>
+<symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0zM7 5.5H4a3 3 0 0 0 3.2 4M17 5.5h3A3 3 0 0 1 16.8 9.5M12 14v3.5M8.5 20.5h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 2.8l8 4.4v9.6l-8 4.4-8-4.4V7.2zM12 2.8v9.4M4 7.2l8 5 8-5M12 12.2v9.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+<symbol id="i-del" viewBox="0 0 24 24"><path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7zM12.5 9.5l5 5M17.5 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-machine" viewBox="0 0 24 24"><path d="M3.5 7h13.5v10H3.5zM17 10.2h3.5v4.6H17M6.5 10.4h7.5M6.5 13.6h5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M5.5 4h13v16h-13zM9.5 4v16M12 9h3.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 7.4V12l3.1 2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+<symbol id="i-tissue" viewBox="0 0 24 24"><path d="M5 10.5h14V19H5zM9 10.5c.6-2.6 5.4-2.6 6 0" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+<symbol id="i-crate" viewBox="0 0 24 24"><path d="M4.5 6.5h15v11h-15zM12 6.5v11M4.5 11h15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+<symbol id="i-tv" viewBox="0 0 24 24"><path d="M4 8.5h16v10H4zM9.5 21.5h5M12 18.5v3M9 3.5l3 4 3-4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-radio" viewBox="0 0 24 24"><path d="M4.5 8.5h15v11h-15zM7.5 4l8 4.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"/><circle cx="9.3" cy="14" r="2.4" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M14.5 12.4h2.5M14.5 15.6h2.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+<symbol id="i-plug" viewBox="0 0 24 24"><path d="M7 3.5h10v17H7z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="10" cy="10" r="1.1" fill="currentColor"/><circle cx="14" cy="10" r="1.1" fill="currentColor"/><path d="M12 14v2.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+<symbol id="i-frame" viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8.5 8h7v8h-7z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+<symbol id="i-block" viewBox="0 0 24 24"><path d="M5.5 7.2L12 4l6.5 3.2v9.6L12 20l-6.5-3.2zM5.5 7.2L12 10.4l6.5-3.2M12 10.4V20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+<symbol id="i-fridge" viewBox="0 0 24 24"><path d="M6.5 3.5h11v17h-11zM6.5 9.5h11" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M15 6v1.8M15 12.5v3" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+<symbol id="i-ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M4.2 9.6c5-2.4 10.6-2.4 15.6 0M4.2 14.4c5 2.4 10.6 2.4 15.6 0" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+<symbol id="i-cup" viewBox="0 0 24 24"><path d="M7.5 4.5h9l-1.1 15h-6.8zM8 9h8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+<symbol id="i-table" viewBox="0 0 24 24"><path d="M3.5 7.5h17v3h-17zM6 10.5v9M18 10.5v9" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-hat-none" viewBox="0 0 64 44"><circle cx="32" cy="22" r="5" fill="none" stroke="#93a0b4" stroke-width="3" stroke-dasharray="4 5"/></symbol>
+<symbol id="i-hat-cap" viewBox="0 0 64 44"><path d="M10 34a22 17 0 0 1 44 0z" fill="#3ecfbb"/><path d="M4 34h56v6H4z" fill="#2b8f82"/><circle cx="32" cy="18" r="3.4" fill="#f4efe6"/></symbol>
+<symbol id="i-hat-crown" viewBox="0 0 64 44"><path d="M11 36L8 14l12 9 12-15 12 15 12-9-3 22z" fill="#ffc93c"/><circle cx="32" cy="27" r="3" fill="#e2574c"/><circle cx="16" cy="30" r="2.4" fill="#3ecfbb"/><circle cx="48" cy="30" r="2.4" fill="#3ecfbb"/></symbol>
+<symbol id="i-hat-prop" viewBox="0 0 64 44"><ellipse cx="32" cy="8" rx="17" ry="3.6" fill="#f4efe6"/><path d="M30 8h4v8h-4z" fill="#93a0b4"/><path d="M14 40a18 15 0 0 1 36 0z" fill="#ff8fb3"/></symbol>
+</defs></svg>
+
+<!-- صحنهٔ سه‌بعدی (همیشه پشت صفحات زندگی می‌کند) -->
+<div id="viewport"><div id="world"></div></div>
+<div id="dim"></div>
+
+<main id="screens">
+
+  <!-- ================= منوی اصلی ================= -->
+  <section id="scr-menu" class="screen on">
+    <div class="menu-top">
+      <button id="btnSound" class="iconbtn" aria-label="صدا"><svg class="ic"><use href="#i-snd"/></svg></button>
+      <div class="coinbox" id="menuCoin"><span class="coin"><img class="coin-img" src="./icons/coin.png" alt=""><svg class="ic cico"><use href="#i-coin"/></svg></span><b class="coin-val">۰</b></div>
+    </div>
+    <div class="menu-mid">
+      <h1 id="gameTitle"><span class="t1">لوکو و</span><span class="t2">ماشین جادویی</span></h1>
+      <p class="tagline">مکعب‌ها را پیدا کن و به ماشین جادویی کار بده!</p>
+      <div id="charBox">
+        <div id="charCss"></div>
+        <img class="char-img" src="./icons/gamer.png" alt="لوکو">
+      </div>
+      <div id="menuActions">
+        <button id="btnPlay" class="btn primary xl"><svg class="ic"><use href="#i-play"/></svg> شروع بازی</button>
+        <div id="resumeRow" class="hidden" style="display:grid;gap:10px">
+          <button id="btnResume" class="btn primary"><svg class="ic"><use href="#i-play"/></svg> ادامه بازی <span id="resumeLv"></span></button>
+          <button id="btnRestart" class="btn warn"><svg class="ic"><use href="#i-re"/></svg> شروع مجدد بازی</button>
+        </div>
+        <div class="row2">
+          <button id="btnShop" class="btn"><svg class="ic"><use href="#i-cart"/></svg> فروشگاه</button>
+          <button id="btnHelp" class="btn"><svg class="ic"><use href="#i-help"/></svg> راهنما</button>
+        </div>
+        <button id="btnExplore" class="btn ghost"><svg class="ic"><use href="#i-eye"/></svg> کاوش اتاق اشکال</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= راهنما ================= -->
+  <section id="scr-help" class="screen sheet">
+    <header class="bar">
+      <button class="iconbtn" data-back><svg class="ic"><use href="#i-back"/></svg></button>
+      <div class="bar-mid"><b>راهنمای بازی</b><span>با لوکو آشنا شو</span></div>
+      <div class="coinbox" id="helpCoin"><span class="coin"><img class="coin-img" src="./icons/coin.png" alt=""><svg class="ic cico"><use href="#i-coin"/></svg></span><b class="coin-val">۰</b></div>
+    </header>
+    <div class="sheet-body">
+      <div class="hero">
+        <div class="hchar"><div id="helpChar"></div><img class="himg" src="./icons/gamerhi.png" alt="لوکو سلام می‌کند"></div>
+        <div class="htxt">
+          <b>سلام! من لوکو هستم!</b>
+          <p>توی اتاقم یک ماشین جادویی دارم که به اعداد کار می‌دهد؛ اضافه می‌کند، کم می‌کند یا ضرب! تو باید جواب ماشین را پیدا کنی و سکه جمع کنی. همهٔ وسایل اتاقم هم شکل مکعب و مکعب‌مستطیل دارند!</p>
+        </div>
+      </div>
+      <h3 class="ht"><svg class="ic"><use href="#i-play"/></svg> چطور بازی کنم؟</h3>
+      <ol class="steps">
+        <li><b>ماشین را نگاه کن:</b> روی بدنهٔ ماشین نوشته چه کاری با عدد می‌کند (اضافه، کم، ضرب یا تقسیم).</li>
+        <li><b>عددها را ببین:</b> بعضی مرحله‌ها خروجی ماشین را می‌خواهند و بعضی‌ها ورودی را!</li>
+        <li><b>جواب بده:</b> از بین گزینه‌ها انتخاب کن یا با صفحه‌عدد بنویس. هر جواب درست سکه دارد!</li>
+      </ol>
+      <h3 class="ht"><svg class="ic"><use href="#i-cube"/></svg> مکعب یا مکعب‌مستطیل؟</h3>
+      <div class="minis">
+        <div class="mini"><div class="mscene" id="miniCube"></div><b>مکعب</b><small>همهٔ ضلع‌هایش برابر است؛ مثل کارتون و مکعب بازی</small></div>
+        <div class="mini"><div class="mscene" id="miniRect"></div><b>مکعب‌مستطیل</b><small>کشیده‌تر است؛ مثل کتاب، جعبه دستمال و تلویزیون قدیمی</small></div>
+      </div>
+      <p class="hnote"><svg class="ic"><use href="#i-eye"/></svg> در حالت «کاوش اتاق» اشیاء را لمس کن تا ببینی کدام‌ها مکعب و مکعب‌مستطیل‌اند!</p>
+      <h3 class="ht"><svg class="ic"><use href="#i-machine"/></svg> راز ماشین‌ها</h3>
+      <ul class="tips">
+        <li><svg class="ic"><use href="#i-check"/></svg><span>عدد از <b>راست</b> وارد ماشین می‌شود و از <b>چپ</b> بیرون می‌آید.</span></li>
+        <li><svg class="ic"><use href="#i-check"/></svg><span>دو ماشین پشت سر هم؟ اول ماشین اول، بعد ماشین دوم!</span></li>
+        <li><svg class="ic"><use href="#i-check"/></svg><span>وقتی ورودی را می‌خواهد، از خروجی شروع کن و کار ماشین را <b>برعکس</b> انجام بده؛ به‌جای اضافه، کم کن!</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= فروشگاه ================= -->
+  <section id="scr-shop" class="screen sheet">
+    <header class="bar">
+      <button class="iconbtn" data-back><svg class="ic"><use href="#i-back"/></svg></button>
+      <div class="bar-mid"><b>فروشگاه لوکو</b><span>با سکه‌هایت قشنگ‌تر کن</span></div>
+      <div class="coinbox" id="shopCoin"><span class="coin"><img class="coin-img" src="./icons/coin.png" alt=""><svg class="ic cico"><use href="#i-coin"/></svg></span><b class="coin-val">۰</b></div>
+    </header>
+    <nav class="tabs">
+      <button data-tab="skins" class="on"><svg class="ic"><use href="#i-cube"/></svg> پوسته‌ها</button>
+      <button data-tab="custom"><svg class="ic"><use href="#i-palette"/></svg> شخصی‌سازی</button>
+    </nav>
+    <div id="shopList" class="sheet-body"></div>
+  </section>
+
+  <!-- ================= بازی ================= -->
+  <section id="scr-play" class="screen">
+    <header class="bar">
+      <button id="btnStop" class="iconbtn danger" aria-label="توقف"><svg class="ic"><use href="#i-pause"/></svg></button>
+      <div class="bar-mid"><b id="hudLv">مرحله ۱ از ۴۰</b><span id="hudSec">یک ماشین</span></div>
+      <div class="coinbox" id="hudCoin"><span class="coin"><img class="coin-img" src="./icons/coin.png" alt=""><svg class="ic cico"><use href="#i-coin"/></svg></span><b class="coin-val">۰</b></div>
+    </header>
+    <div class="play-space"></div>
+    <div id="qpanel">
+      <div class="q-top">
+        <span id="guestChip" class="chip"></span>
+        <span id="qKind" class="kind"></span>
+      </div>
+      <div id="mrow" class="mrow"></div>
+      <p id="qtext"></p>
+      <div id="ansArea"></div>
+    </div>
+    <div id="clearOv" class="hidden"><div class="ccard">
+      <span id="cIcon"></span><h3 id="cTitle"></h3><p id="cSub"></p>
+      <div class="cbtns"><button id="cAgain" class="btn ghost hidden">دوباره از اول</button><button id="cNext" class="btn primary">مرحله بعد</button></div>
+    </div></div>
+  </section>
+
+  <!-- ================= کاوش اتاق ================= -->
+  <section id="scr-explore" class="screen">
+    <header class="bar">
+      <button class="iconbtn" data-back><svg class="ic"><use href="#i-back"/></svg></button>
+      <div class="bar-mid"><b>اتاق اشکال لوکو</b><span id="exCount"></span></div>
+      <div class="coinbox" id="expCoin"><span class="coin"><img class="coin-img" src="./icons/coin.png" alt=""><svg class="ic cico"><use href="#i-coin"/></svg></span><b class="coin-val">۰</b></div>
+    </header>
+    <p class="ex-hint"><svg class="ic"><use href="#i-eye"/></svg> اشیاء را لمس کن و ببین کدام مکعب‌اند! با کشیدن انگشت هم می‌توانی اتاق را بچرخانی.</p>
+    <div class="play-space"></div>
+    <div id="exCard" class="objcard hidden">
+      <span class="icchip" id="exIcon"></span>
+      <div class="oct"><b id="exName"></b><span id="exKind" class="kind"></span><p id="exFact"></p></div>
+    </div>
+  </section>
+
+</main>
+
+<div id="fx"></div>
+<div id="toasts"></div>
+<div id="modal"><div class="mback"></div><div class="mcard"><h3 id="mtitle"></h3><div id="mbody"></div><div id="mact"></div></div></div>
+
+<script>
+/* ==================== ابزارهای کوچک ==================== */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const el=(t,c)=>{const d=document.createElement(t);if(c)d.className=c;return d};
+const cls=(e,c)=>{e.classList.add(c);return e};
+const fa=n=>String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const SYM={'+':'+','-':'−','×':'×','÷':'÷'};
+const A={'+':(a,b)=>a+b,'-':(a,b)=>a-b,'×':(a,b)=>a*b,'÷':(a,b)=>a/b};
+const disp=m=>SYM[m[0]]+fa(m[1]);
+function ruleText(m){return m[0]==='+'?fa(m[1])+' تا اضافه می‌کند':m[0]==='-'?fa(m[1])+' تا کم می‌کند':m[0]==='×'?'در '+fa(m[1])+' ضرب می‌کند':'بر '+fa(m[1])+' تقسیم می‌کند'}
+function rng(seed){let t=seed;return()=>{t+=0x6D2B79F5;let r=Math.imul(t^t>>>15,1|t);r^=r+Math.imul(r^r>>>7,61|r);return((r^r>>>14)>>>0)/4294967296}}
+function shuffle(a,R){for(let i=a.length-1;i>0;i--){const j=(R()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+
+/* ==================== صدا (Web Audio - کاملاً آفلاین) ==================== */
+const SFX={
+  ctx:null,
+  init(){if(!this.ctx){try{this.ctx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(this.ctx&&this.ctx.state==='suspended')this.ctx.resume()},
+  t(f0,f1,dur,type,vol,delay=0){if(!this.ctx||!S.sound)return;const c=this.ctx,t0=c.currentTime+delay;
+    const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f0,t0);
+    if(f1&&f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t0+dur);
+    g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(.001,t0+dur);
+    o.connect(g).connect(c.destination);o.start(t0);o.stop(t0+dur+.03)},
+  click(){this.t(660,440,.06,'triangle',.12)},
+  pop(){this.t(320,720,.09,'sine',.16)},
+  ok(){[523,659,784].forEach((f,i)=>this.t(f,f,.16,'sine',.15,i*.09));this.t(1046,1046,.22,'sine',.09,.27)},
+  wrong(){this.t(220,150,.22,'sawtooth',.11)},
+  coin(){this.t(1244,1244,.06,'square',.06);this.t(1660,1660,.14,'square',.06,.06)},
+  buy(){this.t(880,880,.08,'triangle',.14);this.t(1174,1174,.18,'triangle',.14,.08)},
+  lvl(){[392,523,659,784].forEach((f,i)=>this.t(f,f,.14,'triangle',.13,i*.08))}
+};
+document.addEventListener('pointerdown',()=>SFX.init(),true);
+document.addEventListener('click',e=>{const b=e.target.closest('button');
+  if(b&&!b.classList.contains('opt')&&!b.classList.contains('key'))SFX.click()},true);
+
+/* ==================== ذخیره‌سازی (localStorage) ==================== */
+const KEY='loko_machine_v1';
+function fresh(){return{coins:10,owned:['night','body-teal','hat-none'],skin:'night',body:'body-teal',hat:'hat-none',
+  unlocked:1,session:null,sound:true,disc:[],tele:{a:0,c:0,w:0,ms:0,ev:[]}}}
+let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+S=Object.assign(fresh(),S||{});S.tele=Object.assign({a:0,c:0,w:0,ms:0,ev:[]},S.tele||{});
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function paintCoins(){$$('.coin-val').forEach(b=>b.textContent=fa(S.coins))}
+function logTel(lv,kind,ok,ms){const T=S.tele;T.a++;ok?T.c++:T.w++;T.ms+=ms;
+  T.ev.push([Date.now(),lv,kind,ok?1:0,Math.round(ms)]);if(T.ev.length>600)T.ev=T.ev.slice(-600);save()}
+
+/* ==================== داده‌های فروشگاه (قیمت ۸ تا ۱۵ سکه) ==================== */
+const SKINS=[
+ {id:'night', name:'شب فیروزه‌ای', price:0,  desc:'اتاق پیش‌فرض لوکو؛ تیره و آرام', sw:['#12161d','#ffc93c']},
+ {id:'forest',name:'جنگل شب',      price:8,  desc:'سبز و خنک مثل کاج‌ها',            sw:['#101a12','#9edb58']},
+ {id:'desert',name:'غروب کویر',    price:10, desc:'گرم مثل شن‌های غروب',             sw:['#1d1410','#ff9d4d']},
+ {id:'ocean', name:'اقیانوس عمیق', price:12, desc:'آبی نفتی و آروم',                 sw:['#0b1a24','#43b7ff']},
+ {id:'berry', name:'توت شب',       price:14, desc:'سرخابی و شیرین',                  sw:['#1c1020','#ff7ab0']},
+ {id:'snow',  name:'روز برفی',     price:15, desc:'یک روز روشن و برفی',              sw:['#dbe7f2','#ff8f2d']},
+];
+const CUSTOM=[
+ {id:'body-teal',  type:'body', name:'بدن فیروزه‌ای', price:0,  color:'#3ecfbb', hue:0},
+ {id:'body-amber', type:'body', name:'بدن کهربایی',   price:8,  color:'#ffc93c', hue:-127},
+ {id:'body-green', type:'body', name:'بدن سبز',       price:8,  color:'#82d957', hue:-70},
+ {id:'body-pink',  type:'body', name:'بدن صورتی',     price:10, color:'#ff8fb3', hue:171},
+ {id:'body-orange',type:'body', name:'بدن نارنجی',    price:12, color:'#ff9d4d', hue:218},
+ {id:'body-red',   type:'body', name:'بدن مرجانی',    price:12, color:'#ff6b6b', hue:-170},
+ {id:'hat-none', type:'hat', name:'بدون کلاه',   price:0,  icon:'#i-hat-none'},
+ {id:'hat-cap',  type:'hat', name:'کلاه‌گارد',   price:10, icon:'#i-hat-cap'},
+ {id:'hat-crown',type:'hat', name:'تاج طلایی',   price:12, icon:'#i-hat-crown'},
+ {id:'hat-prop', type:'hat', name:'کلاه پروازی', price:15, icon:'#i-hat-prop'},
+];
+
+/* ==================== ساخت مکعب سه‌بعدی با CSS ==================== */
+function makeBox(w,h,d,col){
+  const box=el('div','box3d');
+  box.style.cssText=`width:${w}px;height:${h}px;left:${-w/2}px;top:${-h/2}px;`;
+  const F={
+    front:[w,h,`translateZ(${d/2}px)`,0,0],
+    back:[w,h,`rotateY(180deg) translateZ(${d/2}px)`,0,0],
+    right:[d,h,`rotateY(90deg) translateZ(${w/2}px)`,(w-d)/2,0],
+    left:[d,h,`rotateY(-90deg) translateZ(${w/2}px)`,(w-d)/2,0],
+    top:[w,d,`rotateX(90deg) translateZ(${h/2}px)`,0,(h-d)/2],
+    bottom:[w,d,`rotateX(-90deg) translateZ(${h/2}px)`,0,(h-d)/2]};
+  const shade={front:0,back:.3,right:.18,left:.22,top:.08,bottom:.4};
+  const c=n=>(col&&typeof col==='object'&&col[n])?col[n]:(typeof col==='string'?col:'#778');
+  box.faces={};
+  for(const n in F){const[fw,fh,tf,l,t]=F[n],f=el('div','face f-'+n);
+    f.style.cssText=`width:${fw}px;height:${fh}px;left:${l}px;top:${t}px;transform:${tf};background:${c(n)}`;
+    const sh=el('i','shade');sh.style.background=n==='top'?'rgba(255,255,255,.08)':`rgba(8,10,14,${shade[n]})`;
+    f.appendChild(sh);box.appendChild(f);box.faces[n]=f}
+  return box;
+}
+function boxAt(w,h,d,col,x,y,z){const p=el('div','pos');p.style.transform=`translate3d(${x}px,${y}px,${z}px)`;
+  p.appendChild(makeBox(w,h,d,col));return p}
+function shadow(w,d,h){const s=el('div','sh3d');
+  s.style.cssText=`width:${w}px;height:${d}px;left:${-w/2}px;top:${-d/2}px;transform:rotateX(90deg) translateZ(${h-1}px)`;
+  return s}
+function ring(w,d,h){const s=el('div','ring3');
+  s.style.cssText=`width:${w}px;height:${d}px;left:${-w/2}px;top:${-d/2}px;transform:rotateX(90deg) translateZ(${h-2}px)`;
+  return s}
+
+/* ==================== سازندهٔ اشیاء اتاق ==================== */
+function buildMachine(g,s){
+  s.appendChild(shadow(230,140,160));
+  const b=makeBox(212,160,120,'#2b3854');
+  const md=el('div','mdisp');md.innerHTML='<span id="sceneDisp">؟</span>';
+  b.faces.front.appendChild(md);cls(b.faces.front,'fx-mach-front');
+  g.appendChild(b);
+}
+function buildTV(g,s){
+  s.appendChild(shadow(175,135,132));
+  const b=makeBox(150,132,110,'#6d4a33');
+  const sc=el('div','tvscr');b.faces.front.appendChild(sc);
+  g.appendChild(b);
+  const a1=el('div','ant');a1.style.cssText+='left:-2px;top:-192px;transform:rotateZ(22deg)';
+  const a2=el('div','ant');a2.style.cssText+='left:-2px;top:-192px;transform:rotateZ(-22deg)';
+  g.appendChild(a1);g.appendChild(a2);
+}
+function buildFridge(g,s){s.appendChild(shadow(120,100,184));g.appendChild(makeBox(92,184,70,'#e3e9ef')).firstChild;
+  const b=makeBox(92,184,70,'#e3e9ef');cls(b.faces.front,'fx-fridge-front');g.appendChild(b)}
+function buildRadio(g,s){s.appendChild(shadow(145,90,76));const b=makeBox(120,76,62,'#d9553f');
+  cls(b.faces.front,'fx-radio-front');g.appendChild(b)}
+function buildCrate(g,s){s.appendChild(shadow(135,135,112));const b=makeBox(112,112,112,'#b9814f');
+  cls(b.faces.front,'fx-crate-front');cls(b.faces.top,'fx-crate-top');g.appendChild(b)}
+function buildBlock(g,s){s.appendChild(shadow(72,72,50));
+  const b=makeBox(50,50,50,{front:'#e2574c',back:'#ff8fb3',right:'#3ecfbb',left:'#7ed957',top:'#ffc93c',bottom:'#2b3854'});
+  cls(b.faces.front,'fx-block-front');g.appendChild(b)}
+function buildBook(g,s){s.appendChild(shadow(104,34,72));const b=makeBox(88,72,16,'#2f8f6b');
+  cls(b.faces.front,'fx-book-front');cls(b.faces.right,'fx-book-side');cls(b.faces.left,'fx-book-side');
+  b.faces.top.style.background='#f4ecd8';b.faces.bottom.style.background='#f4ecd8';g.appendChild(b)}
+function buildClock(g,s){s.appendChild(shadow(92,60,70));const b=makeBox(70,70,40,'#efe7d2');
+  const f=b.faces.front;
+  const face=el('div');face.style.cssText='position:absolute;inset:9px 12px;border-radius:50%;background:#fdfbf5;border:4px solid #5f4a32';
+  const h1=el('i'),h2=el('i');
+  h1.style.cssText='position:absolute;left:50%;bottom:50%;width:3.5px;height:10px;background:#444;border-radius:2px;transform-origin:50% 100%;transform:translateX(-50%) rotate(-60deg)';
+  h2.style.cssText='position:absolute;left:50%;bottom:50%;width:3.5px;height:14px;background:#444;border-radius:2px;transform-origin:50% 100%;transform:translateX(-50%) rotate(60deg)';
+  face.appendChild(h1);face.appendChild(h2);f.appendChild(face);g.appendChild(b)}
+function buildTissue(g,s){s.appendChild(shadow(115,80,62));const b=makeBox(96,62,62,'#2fb3a8');
+  cls(b.faces.top,'fx-tissue-top');g.appendChild(b)}
+function buildPlug(g,s){s.appendChild(shadow(64,26,64));const b=makeBox(46,64,12,'#e9e4d8');
+  cls(b.faces.front,'fx-plug-front');g.appendChild(b)}
+function buildFrame(g,s){s.appendChild(shadow(90,22,92));const b=makeBox(74,92,10,'#c9a24b');
+  cls(b.faces.front,'fx-frame-front');g.appendChild(b)}
+function buildBall(g,s){s.appendChild(shadow(86,86,1));const d=el('div','ball bill');g.appendChild(d)}
+function buildCup(g,s){s.appendChild(shadow(70,70,1));const d=el('div','cup bill');g.appendChild(d)}
+function buildTable(g,s){
+  s.appendChild(shadow(255,125,1));
+  g.appendChild(boxAt(232,16,102,'#8a5a36',0,-35,0));
+  [[-102,-40],[102,-40],[-102,40],[102,40]].forEach(([px,pz])=>g.appendChild(boxAt(14,70,14,'#6f4426',px,8,pz)));
+}
+
+/* تعریف اشیاء اتاق: k = نوع هندسی برای آموزش مکعب */
+const OBJLIST=[
+ {id:'machine',name:'ماشین جادویی',k:'rect',icon:'i-machine',fact:'من ماشین جادویی لوکو هستم! اعداد را به من بده تا کارشان را بکنم.',pos:[0,-80,-235],rot:0,build:buildMachine},
+ {id:'tv',name:'تلویزیون قدیمی',k:'rect',icon:'i-tv',fact:'تلویزیون‌های قدیمی بزرگ، مکعب‌مستطیل بودند!',pos:[-255,-66,25],rot:-24,build:buildTV},
+ {id:'fridge',name:'یخچال',k:'rect',icon:'i-fridge',fact:'یخچال هم یک مکعب‌مستطیل بزرگ است.',pos:[315,-92,-215],rot:14,build:buildFridge},
+ {id:'radio',name:'رادیو',k:'rect',icon:'i-radio',fact:'رادیوی قدیمی لوکو همیشه مکعب‌مستطیل است.',pos:[-140,-38,-130],rot:-18,build:buildRadio},
+ {id:'crate',name:'کارتون',k:'cube',icon:'i-crate',fact:'کارتون مکعب است؛ همهٔ ضلع‌هایش برابر!',pos:[-55,-56,135],rot:18,build:buildCrate},
+ {id:'block',name:'مکعب بازی',k:'cube',icon:'i-block',fact:'یک مکعب واقعی! طول و عرض و ارتفاعش برابر است.',pos:[128,-25,185],rot:32,build:buildBlock},
+ {id:'ball',name:'توپ',k:'sphere',icon:'i-ball',fact:'توپ مکعب نیست؛ توپ کره است!',pos:[16,-34,172],rot:0,build:buildBall},
+ {id:'table',name:'میز',k:'rect',icon:'i-table',fact:'سطح میز یک مکعب‌مستطیل تخت است.',pos:[258,-43,88],rot:-8,build:buildTable},
+ {id:'book',name:'کتاب',k:'rect',icon:'i-book',fact:'کتاب‌ها مکعب‌مستطیل‌های دوست‌داشتنی‌اند.',pos:[188,-122,84],rot:-14,build:buildBook},
+ {id:'clock',name:'ساعت رومیزی',k:'rect',icon:'i-clock',fact:'این ساعت همیشه ۱۰ و ۱۰ دقیقه را نشان می‌دهد!',pos:[240,-121,96],rot:10,build:buildClock},
+ {id:'cup',name:'لیوان',k:'cyl',icon:'i-cup',fact:'لیوان مکعب نیست؛ لیوان استوانه است!',pos:[292,-117,78],rot:0,build:buildCup},
+ {id:'tissue',name:'جعبه دستمال کاغذی',k:'rect',icon:'i-tissue',fact:'جعبهٔ دستمال؛ یک مکعب‌مستطیل پر از دستمال!',pos:[338,-117,102],rot:-6,build:buildTissue},
+ {id:'frame',name:'قاب عکس',k:'rect',icon:'i-frame',fact:'عکس خانوادهٔ لوکو؛ قابش مکعب‌مستطیل نازک است.',pos:[-95,-268,-448],rot:0,build:buildFrame},
+ {id:'plug',name:'پریز برق',k:'rect',icon:'i-plug',fact:'پریز برق مکعب‌مستطیل است؛ ولی دست نزن!',pos:[95,-160,-450],rot:0,build:buildPlug},
+];
+const GUESTS=['book','tissue','crate','radio','tv','clock','plug','frame','block','fridge','table'];
+
+/* ==================== دوربین و چرخش صحنه ==================== */
+const world=$('#world'),vp=$('#viewport');
+const cam={yaw:-26,pitch:20,zoom:0,y:0,tyaw:-26,tpitch:20,tzoom:0,ty:0,auto:true};
+const zoomBase=()=>-(Math.max(innerWidth,innerHeight)*.62+170);
+const tyBase=()=>Math.min(innerHeight*.09,64);
+function applyCam(){
+  document.documentElement.style.setProperty('--yaw',cam.yaw+'deg');
+  world.style.transform=`translate3d(0px,${cam.y}px,${cam.zoom}px) rotateX(${cam.pitch}deg) rotateY(${cam.yaw}deg)`;
+}
+function tick(){
+  if(cam.auto)cam.tyaw+=.045;
+  cam.yaw+=(cam.tyaw-cam.yaw)*.07;cam.pitch+=(cam.tpitch-cam.pitch)*.07;
+  cam.zoom+=(cam.tzoom-cam.zoom)*.07;cam.y+=(cam.ty-cam.ty*0+cam.ty-cam.y)*0+(cam.ty-cam.y)*.07;
+  applyCam();requestAnimationFrame(tick);
+}
+const drag={on:false,x:0,y:0,moved:0};
+vp.addEventListener('pointerdown',e=>{drag.on=true;drag.x=e.clientX;drag.y=e.clientY;drag.moved=0;
+  try{vp.setPointerCapture(e.pointerId)}catch(_){}});
+vp.addEventListener('pointermove',e=>{if(!drag.on)return;
+  const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
+  drag.moved+=Math.abs(dx)+Math.abs(dy);
+  cam.tyaw+=dx*.28;cam.tpitch=clamp(cam.tpitch+dy*.2,6,46)});
+vp.addEventListener('pointerup',()=>drag.on=false);
+vp.addEventListener('pointercancel',()=>drag.on=false);
+
+/* ==================== ساخت صحنه ==================== */
+const OB={};
+function buildScene(){
+  world.appendChild(el('div','floor'));
+  world.appendChild(el('div','wall wb'));
+  world.appendChild(el('div','wall wr'));
+  world.appendChild(el('div','wall wl'));
+  OBJLIST.forEach(o=>{
+    const wrap=el('div','obj');
+    wrap.style.transform=`translate3d(${o.pos[0]}px,${o.pos[1]}px,${o.pos[2]}px)`;
+    const spin=el('div','spin');spin.style.transform=`rotateY(${o.rot||0}deg)`;
+    const jump=el('div','jumper');
+    o.build(jump,spin,o);
+    spin.appendChild(jump);wrap.appendChild(spin);world.appendChild(wrap);
+    wrap.addEventListener('click',()=>objTap(o));
+    o.el=wrap;o.jump=jump;OB[o.id]=o;
+  });
+}
+let cur='menu';
+function objTap(o){
+  if(drag.moved>12)return;
+  o.jump.classList.remove('jumpy');void o.jump.offsetWidth;o.jump.classList.add('jumpy');
+  SFX.pop();
+  if(cur==='explore')showEx(o);
+}
+function setGuest(id){
+  Object.values(OB).forEach(o=>{const r=o.el.querySelector('.ring3');if(r)r.remove()});
+  const o=OB[id];if(!o)return;
+  const sizes={book:[104,34,72],tissue:[115,80,62],crate:[135,135,112],radio:[145,90,76],tv:[175,135,132],
+    clock:[92,60,70],plug:[64,26,64],frame:[90,22,92],block:[72,72,50],fridge:[120,100,184],table:[255,125,1]};
+  const[w,d,h]=sizes[id]||[100,100,60];
+  o.el.querySelector('.spin').appendChild(ring(w+34,d+34,h===1?3:h));
+}
+
+/* ==================== کاراکتر لوکو (سه‌بعدی) ==================== */
+function buildLoko(cont,opt={}){
+  cont.innerHTML='';cont.classList.add('loko-wrap');if(opt.hi)cont.classList.add('hi');
+  const sc=el('div','lk-sc'),bob=el('div','lk-bob');
+  const body=makeBox(92,92,92,{front:'var(--loko-c)',back:'var(--loko-c)',right:'var(--loko-c)',left:'var(--loko-c)',top:'var(--loko-c)',bottom:'var(--loko-c)'});
+  cls(body.faces.front,'lk-face');
+  body.faces.front.innerHTML='<span class="eye e1"><i></i></span><span class="eye e2"><i></i></span><span class="mouth"></span><span class="cheek c1"></span><span class="cheek c2"></span>';
+  bob.appendChild(body);
+  const ant=el('div','lk-ant');ant.innerHTML='<i></i>';bob.appendChild(ant);
+  const a1=el('div','lk-arm a1'),a2=el('div','lk-arm a2');bob.appendChild(a1);bob.appendChild(a2);
+  const f1=el('div','lk-foot f1'),f2=el('div','lk-foot f2');bob.appendChild(f1);bob.appendChild(f2);
+  const hat=el('div','hat-layer');bob.appendChild(hat);
+  sc.appendChild(bob);cont.appendChild(sc);
+}
+function miniBox(id,w,h,d,cols){
+  const c=$(id);if(!c)return;
+  const rot=el('div','mini-rot');rot.appendChild(makeBox(w,h,d,cols));c.appendChild(rot);
+}
+
+/* ==================== تصاویر محلی (با جایگزین داخلی) ==================== */
+function setupImgs(){
+  $$('.coin-img').forEach(im=>{
+    const ok=()=>{const c=im.closest('.coin');c&&c.classList.add('has-img')};
+    if(im.complete&&im.naturalWidth>0)ok();
+    else{im.addEventListener('load',ok);im.addEventListener('error',()=>{im.style.display='none'})}
+  });
+  $$('.himg').forEach(im=>{
+    const ok=()=>{const c=im.closest('.hchar');c&&c.classList.add('has-img')};
+    if(im.complete&&im.naturalWidth>0)ok();
+    else{im.addEventListener('load',ok);im.addEventListener('error',()=>im.remove())}
+  });
+  const ci=$('.char-img');
+  const okc=()=>$('#charBox').classList.add('has-img');
+  if(ci){
+    if(ci.complete&&ci.naturalWidth>0)okc();
+    else{ci.addEventListener('load',okc);ci.addEventListener('error',()=>ci.remove())}
+  }
+}
+
+/* ==================== توست، مودال و افکت‌ها ==================== */
+function toast(msg){const d=el('div','toast');d.textContent=msg;$('#toasts').appendChild(d);
+  setTimeout(()=>d.classList.add('out'),2000);setTimeout(()=>d.remove(),2450)}
+function openModal(title,body,actions){
+  $('#mtitle').textContent=title;$('#mbody').innerHTML=body;
+  const mact=$('#mact');mact.innerHTML='';
+  (actions||[{txt:'باشه',cls:'primary'}]).forEach(a=>{
+    const b=el('button','btn '+(a.cls||''));b.textContent=a.txt;
+    b.onclick=()=>{closeModal();a.fn&&a.fn()};mact.appendChild(b)});
+  $('#modal').classList.add('on');
+}
+function closeModal(){$('#modal').classList.remove('on')}
+ $('.mback').addEventListener('click',closeModal);
+const fx=$('#fx');
+function flyCoins(fromEl,n=1){
+  const map={menu:'#menuCoin',play:'#hudCoin',shop:'#shopCoin',explore:'#expCoin',help:'#helpCoin'};
+  const box=$(map[cur]||'#menuCoin');
+  const fr=fromEl.getBoundingClientRect(),to=box.getBoundingClientRect();
+  const cx=fr.left+fr.width/2,cy=fr.top+fr.height/2;
+  const dx=to.left+to.width/2-cx,dy=to.top+to.height/2-cy;
+  for(let i=0;i<Math.min(n,5);i++){
+    const c=el('span','flycoin');c.innerHTML='<svg class="ic"><use href="#i-coin"/></svg>';
+    c.style.left=cx+'px';c.style.top=cy+'px';
+    c.style.setProperty('--dx',dx+'px');c.style.setProperty('--dy',dy+'px');
+    c.style.animationDelay=(i*.07)+'s';
+    fx.appendChild(c);setTimeout(()=>c.remove(),1150+i*70);
+  }
+  setTimeout(()=>{box.classList.remove('bump');void box.offsetWidth;box.classList.add('bump');paintCoins()},620+n*70);
+}
+function reward(fromEl,amt){S.coins+=amt;save();flyCoins(fromEl,amt);SFX.coin()}
+function confettiFrom(elm){
+  const r=elm.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+  const cols=['#ffc93c','#3ecfbb','#ff8fb3','#9edb58','#43b7ff'];
+  for(let i=0;i<14;i++){
+    const p=el('i','cf'),a=Math.random()*Math.PI*2,d=30+Math.random()*55;
+    p.style.cssText=`left:${cx}px;top:${cy}px;background:${cols[i%cols.length]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d-40}px`;
+    fx.appendChild(p);setTimeout(()=>p.remove(),950);
+  }
+}
+
+/* ==================== مسیریابی صفحات ==================== */
+function go(name){
+  cur=name;
+  $$('.screen').forEach(s=>s.classList.toggle('on',s.id==='scr-'+name));
+  $('#dim').classList.toggle('soft',name==='play'||name==='explore');
+  if(name==='menu'){updateMenu();cam.auto=true;cam.tpitch=20;cam.tzoom=zoomBase();cam.ty=tyBase()}
+  if(name==='help'||name==='shop'){cam.auto=true;cam.tpitch=20;cam.tzoom=zoomBase();cam.ty=tyBase()}
+  if(name==='explore'){cam.auto=false;cam.tyaw=-14;cam.tpitch=25;cam.tzoom=zoomBase();cam.ty=tyBase();updateExplore()}
+}
+function camPlayView(){cam.auto=false;cam.tyaw=-6;cam.tpitch=15;cam.tzoom=zoomBase()+110;cam.ty=tyBase()+26}
+function updateMenu(){
+  const has=S.session&&S.session.lv>=1&&S.session.lv<=40;
+  $('#btnPlay').classList.toggle('hidden',!!has);
+  $('#resumeRow').classList.toggle('hidden',!has);
+  if(has)$('#resumeLv').textContent='(مرحله '+fa(S.session.lv)+')';
+}
+
+/* ==================== منطق ۴۰ مرحله (۴ بخش × ۱۰ مرحله) ==================== */
+const SECS=[
+ {name:'یک ماشین',hint:'خروجی را پیدا کن'},
+ {name:'دو ماشین پشت سر هم',hint:'خروجی آخر را پیدا کن'},
+ {name:'ماشین برعکس',hint:'ورودی را پیدا کن'},
+ {name:'دو ماشین برعکس',hint:'ورودی اول را پیدا کن'},
+];
+function makeOptions(ans,R,extras=[]){
+  const set=new Set([ans]);
+  const cand=shuffle([ans+1,ans-1,ans+2,ans-2,ans+3,ans-3,...extras],R);
+  for(const v of cand){if(set.size>=4)break;if(v>0&&v!==ans&&!set.has(v))set.add(v)}
+  let g=1;while(set.size<4){const v=ans+g++;if(v>0&&!set.has(v))set.add(v)}
+  return shuffle([...set],R);
+}
+function genLevel(lv){
+  const sec=Math.min(3,((lv-1)/10)|0),i=(lv-1)%10;
+  const R=rng(lv*7919+13),ri=(a,b)=>a+((R()*(b-a+1))|0),pick=a=>a[(R()*a.length)|0];
+  const L={lv,sec,kind:sec<2?'out':'in',two:sec%2===1};
+  if(sec===0){ /* یک ماشین - خروجی؟ */
+    let m,inV;
+    if(i<4){m=pick([['+',ri(1,4)],['-',ri(1,4)]]);inV=ri(3,12)}
+    else if(i<7){m=pick([['+',ri(1,6)],['×',pick([2,3])]]);inV=ri(2,14)}
+    else{m=pick([['×',pick([2,3,5,10])],['+',ri(4,9)],['-',ri(2,8)]]);inV=(m[0]==='×'&&m[1]>=5)?ri(2,9):ri(4,25)}
+    let out=A[m[0]](inV,m[1]),g=0;
+    while((out<1||out>99)&&g++<20){inV+=ri(2,6);out=A[m[0]](inV,m[1])}
+    Object.assign(L,{m1:m,inV,out,hideOut:true,answer:out,options:makeOptions(out,R,[inV])});
+  }else if(sec===1){ /* دو ماشین - خروجی آخر؟ */
+    let m1,m2;
+    if(i<5){m1=pick([['+',ri(1,5)],['-',ri(1,3)]]);m2=pick([['+',ri(1,5)],['-',ri(1,3)]])}
+    else{m1=pick([['×',pick([2,3])],['+',ri(2,6)],['-',ri(1,3)]]);m2=pick([['×',2],['+',ri(1,8)],['-',ri(1,4)]])}
+    let inV=ri(2,9),mid=A[m1[0]](inV,m1[1]),out=A[m2[0]](mid,m2[1]),g=0;
+    while((out<1||out>99||mid<1)&&g++<20){inV=ri(2,9);mid=A[m1[0]](inV,m1[1]);out=A[m2[0]](mid,m2[1])}
+    Object.assign(L,{m1,m2,inV,mid,out,hideOut:true,answer:out,options:makeOptions(out,R,[inV,mid])});
+  }else if(sec===2){ /* یک ماشین - ورودی؟ */
+    let m,inV;
+    if(i<4){m=pick([['+',ri(1,5)],['-',ri(1,5)]]);inV=ri(2,15)}
+    else if(i<7){m=['×',pick([2,3])];inV=ri(2,12)}
+    else{if(R()<.5){m=['÷',pick([2,3,4,5])];inV=ri(2,9)*m[1]}else{m=['×',pick([2,3,5])];inV=ri(2,10)}}
+    const out=A[m[0]](inV,m[1]);
+    Object.assign(L,{m1:m,inV,out,hideIn:true,answer:inV});
+  }else{ /* دو ماشین - ورودی اول؟ */
+    const mk=[
+      ()=>[['+',ri(1,4)],['+',ri(1,4)]],
+      ()=>[['+',ri(1,4)],['×',2]],
+      ()=>[['×',2],['+',ri(1,6)]],
+      ()=>[['-',ri(1,3)],['+',ri(2,6)]],
+      ()=>[['+',ri(1,3)],['-',ri(1,3)]],
+      ()=>[['×',2],['×',2]],
+    ];
+    let[m1,m2]=pick(mk)(),inV=ri(1,8),mid=A[m1[0]](inV,m1[1]),out=A[m2[0]](mid,m2[1]),g=0;
+    while((out<1||out>99||mid<1)&&g++<30){inV=ri(1,8);mid=A[m1[0]](inV,m1[1]);out=A[m2[0]](mid,m2[1])}
+    Object.assign(L,{m1,m2,inV,mid,out,hideIn:true,hideMid:true,answer:inV});
+  }
+  return L;
+}
+function qText(L){
+  if(!L.two){
+    if(L.kind==='out')return`ماشین جادویی ${ruleText(L.m1)}؛ عدد ${fa(L.inV)} وارد ماشین شد. چند تا بیرون می‌آید؟`;
+    return`ماشین جادویی ${ruleText(L.m1)} و ${fa(L.out)} از آن بیرون آمد. چه عددی وارد شده بود؟`;
+  }
+  if(L.kind==='out')return`ماشین اول ${ruleText(L.m1)} و ماشین دوم ${ruleText(L.m2)}. عدد ${fa(L.inV)} وارد می‌شود؛ آخرش چند تا بیرون می‌آید؟`;
+  return`ماشین اول ${ruleText(L.m1)} و ماشین دوم ${ruleText(L.m2)}. آخرش ${fa(L.out)} بیرون آمد. چه عددی وارد ماشین اول شد؟`;
+}
+function machineHTML(txt,label){
+  return`<div class="machine"><svg viewBox="0 0 150 118" aria-hidden="true">
+    <rect x="24" y="26" width="102" height="66" rx="16" class="mb"/>
+    <rect x="123" y="50" width="17" height="18" rx="4" class="mp"/>
+    <rect x="10" y="50" width="17" height="18" rx="4" class="mp"/>
+    <rect x="38" y="34" width="74" height="26" rx="9" class="md"/>
+    <text x="75" y="53" class="mt">${txt}</text>
+    <g transform="translate(112,80)"><g class="gear"><circle r="9" class="gc"/><path class="gl" d="M0-12v4M0 8v4M-12 0h4M8 0h4M-8.5-8.5l3 3M5.5 5.5l3 3M-8.5 8.5l3-3M5.5-5.5l3-3"/></g></g>
+    <circle cx="34" cy="82" r="3" class="mbolt"/><circle cx="44" cy="82" r="3" class="mbolt"/>
+    <rect x="34" y="93" width="22" height="10" rx="3" class="mp"/><rect x="94" y="93" width="22" height="10" rx="3" class="mp"/>
+  </svg>${label?`<span class="mlabel">${label}</span>`:''}</div>`;
+}
+function rowHTML(L){
+  const t=(v,c)=>`<div class="token ${c}">${v}</div>`;
+  const ar='<svg class="ic arr"><use href="#i-arrl"/></svg>';
+  let s=t(L.hideIn?'؟':fa(L.inV),L.hideIn?'tq t-in':'t-in')+ar
+    +machineHTML(disp(L.m1),L.two?'ماشین اول':'');
+  if(L.two){
+    s+=ar+t(L.hideMid?'؟':fa(L.mid),L.hideMid?'tq t-mid':'t-mid')+ar
+      +machineHTML(disp(L.m2),'ماشین دوم')+ar;
+  }else s+=ar;
+  s+=t(L.hideOut?'؟':fa(L.out),L.hideOut?'tq t-out':'t-out');
+  return s;
+}
+function keypadHTML(){
+  const keys=[1,2,3,4,5,6,7,8,9].map(n=>`<button class="key" data-k="${n}">${fa(n)}</button>`).join('');
+  return`<div class="kdisp" id="kdisp">؟</div><div class="kpad">${keys}
+    <button class="key fn" data-k="del"><svg class="ic"><use href="#i-del"/></svg></button>
+    <button class="key" data-k="0">${fa(0)}</button>
+    <button class="key okk" data-k="go"><svg class="ic"><use href="#i-check"/></svg></button></div>`;
+}
+
+/* ==================== جریان بازی ==================== */
+let L=null,done=false,firstTry=true,tries=0,kstr='',qT0=0;
+const ENC=['اشکالی نداره! یک بار دیگه فکر کن','نزدیک بود! حالا برعکس حساب کن','لوکو می‌گه: تو می‌توانی!','صبر کن! اول ماشین اول، بعد ماشین دوم'];
+function startLevel(lv){
+  go('play');
+  L=genLevel(lv);done=false;firstTry=true;tries=0;kstr='';qT0=performance.now();
+  S.session={lv};save();
+  $('#hudLv').textContent='مرحله '+fa(lv)+' از '+fa(40);
+  $('#hudSec').textContent=SECS[L.sec].name;
+  $('#qKind').textContent=SECS[L.sec].hint;
+  const gid=GUESTS[(lv*7+3)%GUESTS.length],go_=OB[gid];
+  setGuest(gid);
+  $('#guestChip').innerHTML=`<svg class="ic"><use href="#${go_.icon}"/></svg><b>${go_.name}</b><span>${go_.k==='cube'?'مکعب':'مکعب‌مستطیل'}</span>`;
+  $('#sceneDisp').textContent=L.two?disp(L.m1)+' سپس '+disp(L.m2):(L.kind==='in'?'برعکس! ':'')+disp(L.m1);
+  const row=$('#mrow');
+  row.innerHTML=rowHTML(L);row.classList.toggle('two',L.two);
+  row.classList.remove('in');void row.offsetWidth;
+  $('#qtext').textContent=qText(L);
+  const aa=$('#ansArea');
+  if(L.kind==='out'){
+    aa.innerHTML=`<div class="opts">${L.options.map(v=>`<button class="opt" data-v="${v}">${fa(v)}</button>`).join('')}</div>`;
+  }else aa.innerHTML=keypadHTML();
+  $('#clearOv').classList.add('hidden');
+  camPlayView();
+}
+function onOpt(v,btn){
+  if(done)return;
+  if(v===L.answer){btn.classList.add('good');solved()}
+  else{btn.classList.add('bad');btn.disabled=true;failed()}
+}
+function onKey(k){
+  if(done)return;
+  if(k==='del')kstr=kstr.slice(0,-1);
+  else if(k==='go'){
+    if(!kstr){toast('اول یک عدد بنویس!');return}
+    const v=+kstr;
+    if(v===L.answer){$('#kdisp').classList.add('good');solved()}
+    else{kstr='';$('#kdisp').textContent='؟';failed()}
+    return;
+  }else if(kstr.length<3)kstr+=k;
+  $('#kdisp').textContent=kstr?fa(kstr):'؟';
+}
+function solved(){
+  done=true;
+  const ms=performance.now()-qT0;
+  logTel(L.lv,L.kind,true,ms);
+  const wasFirst=(tries===0);
+  const gain=wasFirst?2:1;
+  const sel=L.kind==='out'?'.t-out':'.t-in';
+  const tok=$('#mrow '+sel);
+  tok.textContent=fa(L.answer);tok.classList.remove('tq');tok.classList.add('ok','pop');
+  $$('#mrow .machine').forEach(m=>m.classList.add('happy'));
+  SFX.ok();confettiFrom(tok);reward(tok,gain);
+  const gid=GUESTS[(L.lv*7+3)%GUESTS.length],gj=OB[gid];
+  if(gj){gj.jump.classList.remove('jumpy');void gj.jump.offsetWidth;gj.jump.classList.add('jumpy')}
+  setTimeout(()=>showClear(wasFirst),1400);
+}
+function failed(){
+  tries++;firstTry=false;
+  const ms=performance.now()-qT0;
+  logTel(L.lv,L.kind,false,ms);
+  SFX.wrong();
+  const q=$('#qpanel');q.classList.remove('shake');void q.offsetWidth;q.classList.add('shake');
+  toast(ENC[(Math.random()*ENC.length)|0]);
+}
+function showClear(wasFirst){
+  const lv=L.lv,isSec=lv%10===0,isEnd=lv===40;
+  if(!isEnd){S.unlocked=Math.max(S.unlocked,lv+1);S.session={lv:lv+1}}
+  $('#clearOv').classList.remove('hidden');
+  $('#cAgain').classList.add('hidden');
+  if(isEnd){
+    S.unlocked=40;S.session=null;S.coins+=10;save();paintCoins();
+    $('#cIcon').innerHTML='<svg class="big"><use href="#i-trophy"/></svg>';
+    $('#cTitle').textContent='همهٔ ۴۰ مرحله را تمام کردی!';
+    $('#cSub').textContent='تو قهرمان ماشین جادویی شدی! +۱۰ سکهٔ جایزهٔ بزرگ';
+    $('#cNext').textContent='بازگشت به منو';
+  }else if(isSec){
+    S.coins+=5;save();paintCoins();flyCoins($('#clearOv'),5);
+    $('#cIcon').innerHTML='<svg class="big"><use href="#i-trophy"/></svg>';
+    $('#cTitle').textContent=`بخش «${SECS[L.sec].name}» تمام شد!`;
+    $('#cSub').textContent=`+۵ سکهٔ جایزه گرفتی! ${fa(S.unlocked)} مرحله از ۴۰ باز شد.`;
+    $('#cNext').textContent='مرحله بعد';
+  }else{
+    $('#cIcon').innerHTML='<svg class="big"><use href="#i-star"/></svg>';
+    $('#cTitle').textContent='آفرین! درست بود';
+    $('#cSub').textContent=wasFirst?'در اولین تلاش! +۲ سکه':'+۱ سکه — تلاش دوباره‌ات جواب داد!';
+    $('#cNext').textContent='مرحله بعد';
+  }
+  SFX.lvl();save();
+}
+
+/* ==================== کاوش اتاق ==================== */
+function updateExplore(){$('#exCount').textContent='کشف‌ها: '+fa(S.disc.length)+' از '+fa(OBJLIST.length)}
+function showEx(o){
+  $('#exCard').classList.remove('hidden');
+  $('#exIcon').innerHTML=`<svg class="ic"><use href="#${o.icon}"/></svg>`;
+  $('#exName').textContent=o.name;
+  const km={cube:['مکعب ✓','k-ok'],rect:['مکعب‌مستطیل ✓','k-ok'],sphere:['کره — مکعب نیست','k-no'],cyl:['استوانه — مکعب نیست','k-no']};
+  const[t,c]=km[o.k]||['',''];const kk=$('#exKind');kk.textContent=t;kk.className='kind '+c;
+  $('#exFact').textContent=o.fact;
+  if(!S.disc.includes(o.id)){S.disc.push(o.id);save();reward($('#exCard'),1);toast('کشف جدید! +۱ سکه')}
+  updateExplore();
+}
+
+/* ==================== فروشگاه ==================== */
+let shopTab='skins';
+function itemRow(it){
+  const owned=S.owned.includes(it.id);
+  const active=it.type==='body'?S.body===it.id:it.type==='hat'?S.hat===it.id:S.skin===it.id;
+  const row=el('div','sitem');
+  const sw=el('div','sw');
+  if(it.type==='body'){sw.style.background=it.color;sw.innerHTML='<span class="sw-dot"></span>'}
+  else if(it.icon){sw.style.background='var(--panel2)';sw.innerHTML=`<svg class="hat-ic"><use href="${it.icon}"/></svg>`}
+  else{sw.style.background=it.sw[0];sw.innerHTML=`<span class="sw-dot" style="background:${it.sw[1]}"></span>`}
+  const meta=el('div','smeta');meta.innerHTML=`<b>${it.name}</b><p>${it.desc||''}</p>`;
+  const act=el('div','sact');
+  if(active)act.innerHTML='<span class="badge"><svg class="ic"><use href="#i-check"/></svg> در حال استفاده</span>';
+  else if(owned){const b=el('button','btn small');b.textContent='استفاده';b.onclick=()=>equip(it);act.appendChild(b)}
+  else{const b=el('button','btn small primary');b.innerHTML=`${fa(it.price)} <svg class="ic sm"><use href="#i-coin"/></svg>`;b.onclick=()=>buy(it);act.appendChild(b)}
+  row.append(sw,meta,act);return row;
+}
+function renderShop(){
+  const list=$('#shopList');list.innerHTML='';
+  if(shopTab==='skins'){
+    SKINS.forEach(it=>list.appendChild(itemRow(it)));
+  }else{
+    const h1=el('div','sgroup');h1.textContent='رنگ لوکو';list.appendChild(h1);
+    CUSTOM.filter(i=>i.type==='body').forEach(it=>list.appendChild(itemRow(it)));
+    const h2=el('div','sgroup');h2.textContent='کلاه لوکو';list.appendChild(h2);
+    CUSTOM.filter(i=>i.type==='hat').forEach(it=>list.appendChild(itemRow(it)));
+  }
+}
+function equip(it,silent){
+  if(it.type==='body')S.body=it.id;
+  else if(it.type==='hat')S.hat=it.id;
+  else S.skin=it.id;
+  save();applySkin();applyLook();
+  if(!silent)SFX.pop();
+  renderShop();
+}
+function buy(it){
+  if(S.coins<it.price){
+    toast('سکه کافی نداری! کمی بازی کن.');SFX.wrong();
+    const c=$('#shopCoin');c.classList.add('shake');setTimeout(()=>c.classList.remove('shake'),450);
+    return;
+  }
+  S.coins-=it.price;S.owned.push(it.id);save();paintCoins();
+  SFX.buy();toast(it.name+' خریدی!');
+  equip(it,true);
+}
+function applySkin(){document.body.dataset.skin=S.skin}
+function applyLook(){
+  const b=CUSTOM.find(x=>x.id===S.body)||CUSTOM[0];
+  document.documentElement.style.setProperty('--loko-c',b.color);
+  document.documentElement.style.setProperty('--loko-h',(b.hue||0)+'deg');
+  const h=CUSTOM.find(x=>x.id===S.hat);
+  const svg=h&&h.icon&&h.id!=='hat-none'?`<svg class="hat"><use href="${h.icon}"/></svg>`:'';
+  $$('.hat-layer').forEach(x=>x.innerHTML=svg);
+}
+
+/* ==================== گزارش داخلی (پنهان از کاربر) ==================== */
+let tTaps=0,tT=0;
+ $('#gameTitle').addEventListener('click',()=>{
+  const n=Date.now();if(n-tT>2200)tTaps=0;tT=n;
+  if(++tTaps>=5){tTaps=0;showReport()}
+});
+function showReport(){
+  const T=S.tele,acc=T.a?Math.round(T.c/T.a*100):0,avg=T.a?Math.round(T.ms/T.a):0;
+  const prog=Math.round(S.unlocked/40*100);
+  const rows=T.ev.slice(-8).reverse().map(e=>
+    `<tr><td>${fa(e[1])}</td><td>${e[2]==='in'?'ورودی':'خروجی'}</td><td class="${e[3]?'g':'b'}">${e[3]?'درست':'غلط'}</td><td>${fa(e[4])}</td></tr>`).join('');
+  openModal('گزارش داخلی (ویژه معلم)',`
+    <div class="rgrid">
+      <div><b>${fa(T.a)}</b><span>کل پاسخ‌ها</span></div>
+      <div><b>${fa(T.c)}</b><span>درست</span></div>
+      <div><b>${fa(T.w)}</b><span>غلط</span></div>
+      <div><b>${fa(acc)}٪</b><span>دقت</span></div>
+      <div><b>${fa(avg)}</b><span>میانگین زمان (ms)</span></div>
+      <div><b>${fa(prog)}٪</b><span>پیشرفت</span></div>
+    </div>
+    <table class="rtab"><tr><th>مرحله</th><th>نوع</th><th>نتیجه</th><th>زمان (ms)</th></tr>${rows}</table>
+    <p class="rhint">این گزارش فقط برای تحلیل داخلی ذخیره می‌شود و به بازیکن نمایش داده نمی‌شود.</p>`,
+    [{txt:'بستن',cls:'primary'},{txt:'پاک‌کردن آمار',cls:'ghost',fn:()=>{S.tele={a:0,c:0,w:0,ms:0,ev:[]};save();toast('آمار پاک شد')}}]);
+}
+
+/* ==================== رویدادها ==================== */
+ $('#btnPlay').onclick=()=>{const lv=clamp(S.unlocked,1,40);startLevel(lv)};
+ $('#btnResume').onclick=()=>startLevel(clamp(S.session?S.session.lv:1,1,40));
+ $('#btnRestart').onclick=()=>openModal('شروع مجدد','بازی از مرحله ۱ شروع می‌شود. آماده‌ای؟',[
+  {txt:'بله، بریم!',cls:'primary',fn:()=>startLevel(1)},
+  {txt:'نه',cls:'ghost'}]);
+ $('#btnStop').onclick=()=>{toast('بازی متوقف شد — هر وقت خواستی ادامه بده!');go('menu')};
+ $('#btnShop').onclick=()=>go('shop');
+ $('#btnHelp').onclick=()=>go('help');
+ $('#btnExplore').onclick=()=>go('explore');
+ $$('[data-back]').forEach(b=>b.onclick=()=>go('menu'));
+ $('#btnSound').onclick=()=>{S.sound=!S.sound;save();paintSound();if(S.sound)SFX.pop()};
+function paintSound(){$('#btnSound').innerHTML=`<svg class="ic"><use href="#${S.sound?'i-snd':'i-mute'}"/></svg>`}
+ $$('.tabs button').forEach(b=>b.onclick=()=>{
+  shopTab=b.dataset.tab;
+  $$('.tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  renderShop();
+});
+ $('#ansArea').addEventListener('click',e=>{
+  const o=e.target.closest('.opt');if(o){onOpt(+o.dataset.v,o);return}
+  const k=e.target.closest('.key');if(k)onKey(k.dataset.k);
+});
+ $('#cNext').onclick=()=>{if(L&&L.lv>=40)go('menu');else startLevel(L.lv+1)};
+ $('#cAgain').onclick=()=>startLevel(1);
+addEventListener('resize',()=>{cam.tzoom=zoomBase()+(cur==='play'?110:0)});
+
+/* ==================== راه‌اندازی ==================== */
+buildScene();
+buildLoko($('#charBox'));
+buildLoko($('#helpChar'),{hi:true});
+miniBox('#miniCube',58,58,58,{front:'#3ecfbb',back:'#1e7c70',right:'#2ba595',left:'#2ba595',top:'#7fe6d8',bottom:'#16635a'});
+miniBox('#miniRect',92,58,58,{front:'#ffc93c',back:'#b8860b',right:'#d99f1e',left:'#d99f1e',top:'#ffe08a',bottom:'#8f6a12'});
+setupImgs();applySkin();applyLook();paintCoins();paintSound();updateMenu();renderShop();updateExplore();
+cam.zoom=cam.tzoom=zoomBase();cam.y=cam.ty=tyBase();
+applyCam();requestAnimationFrame(tick);
+go('menu');
+</script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#modal"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

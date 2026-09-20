@@ -8,7 +8,8 @@ import { useAuth } from '../../context';
 import { isValidPhone, normalizePhone } from '@/lib/phone';
 import { authApi } from '../../api';
 import type { OtpSibling, VerifyOtpResult } from '../../api';
-import { ALL_GRADES, OPEN_GRADES, gradeName } from '@/lib/grades';
+import { ALL_GRADES, gradeName } from '@/lib/grades';
+import { useOpenGrades } from '@/features/games/useOpenGrades';
 import { enableGuestMode } from '../../guest';
 import { OtpInput } from '../OtpInput/OtpInput';
 import styles from './OtpAuthForm.module.css';
@@ -61,6 +62,8 @@ function errorMessage(err: unknown, fallback: string): string {
  * است، برای وقتی که کد نمی‌رسد.
  */
 export function OtpAuthForm() {
+  // کلاس‌هایی که بازی دارند (از سرور)؛ فهرستِ ثابت کهنه می‌شد
+  const openGrades = useOpenGrades();
   const navigate = useNavigate();
   // پیامی که صفحه‌ی بازی هنگامِ فرستادنِ مهمان به اینجا همراه می‌کند
   const reason = (useLocation().state as { reason?: string } | null)?.reason;
@@ -112,7 +115,7 @@ export function OtpAuthForm() {
     }
     setNeeds({ password: needsPassword, profile: needsProfile });
     setFirstName(user.firstName ?? '');
-    setGrade(user.grade && OPEN_GRADES.includes(user.grade) ? user.grade : 1);
+    setGrade(user.grade && openGrades.includes(user.grade) ? user.grade : 1);
     setPassword('');
     setError('');
     setPath('signup');
@@ -506,7 +509,7 @@ export function OtpAuthForm() {
 
           <div className={styles.grades}>
             {ALL_GRADES.map((g) => {
-              const open = OPEN_GRADES.includes(g);
+              const open = openGrades.includes(g);
               return (
                 <button
                   key={g}

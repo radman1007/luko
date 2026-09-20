@@ -15,7 +15,8 @@ from apps.common.constants import GRADE_CHOICES
 
 from .playlink import sign
 from .services import (GameUnavailable, StageLocked, blocking_stage, complete_game,
-                       completed_slugs, game_path, is_first_stage, star_map)
+                       completed_slugs, game_path, grades_with_games, is_first_stage,
+                       star_map)
 
 _GRADES = {value for value, _ in GRADE_CHOICES}
 _NOT_FOUND = {"error": {"code": 404, "message": "این بازی وجود ندارد."}}
@@ -56,6 +57,22 @@ class GamePathView(APIView):
         stages = cache.get_or_set(cache.game_path_key(str(grade)),
                                   lambda: game_path(grade), cache.TTL_LONG)
         return Response({"grade": grade, "stages": stages})
+
+
+class OpenGradesView(APIView):
+    """
+    GET /games/grades — کلاس‌هایی که بازی دارند.
+
+    فرمِ ثبت‌نام قبلاً فهرستِ ثابتی در کد داشت؛ با رسیدنِ بازی‌های کلاس‌های
+    تازه، آن فهرست کهنه می‌شد و بچه پایه‌ی خودش را پیدا نمی‌کرد.
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        grades = cache.get_or_set(cache.game_path_key("grades"),
+                                  grades_with_games, cache.TTL_LONG)
+        return Response({"grades": grades})
 
 
 class GameCompleteView(APIView):

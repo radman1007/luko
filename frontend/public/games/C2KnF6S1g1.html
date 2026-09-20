@@ -1,0 +1,2584 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>شکارچی نشانه س | بازی تقویت توجه و تشخیص الگو</title>
+    <style>
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Regular.ttf") format("truetype");
+            font-weight: 400;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Medium.ttf") format("truetype");
+            font-weight: 500;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Black.ttf") format("truetype");
+            font-weight: 900;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-ExtraBold.ttf") format("truetype");
+            font-weight: 800;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Regular.ttf") format("truetype");
+            font-weight: 400;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Medium.ttf") format("truetype");
+            font-weight: 500;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Black.ttf") format("truetype");
+            font-weight: 900;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype");
+            font-weight: 800;
+            font-display: swap;
+        }
+
+        :root {
+            --primary: #6C5CE7;
+            --secondary: #00D2FF;
+            --neon-blue: #00D2FF;
+            --neon-purple: #A855F7;
+            --success: #00B894;
+            --danger: #FF7675;
+            --dark: #0a0a1a;
+            --gold: #FFC93C;
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-color: #FFFFFF;
+            --text-secondary: #A0A0B0;
+            --font-family: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+            --shadow-xl: 0 15px 70px rgba(0, 0, 0, 0.7);
+            --radius: 20px;
+            --transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --body-bg: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 30%, #0d1b2a 60%, #0a0a1a 100%);
+            --btn-primary-bg: linear-gradient(135deg, #6C5CE7, #00D2FF);
+            --btn-primary-shadow: rgba(108, 92, 231, 0.5);
+            --btn-secondary-bg: rgba(255, 255, 255, 0.05);
+            --btn-secondary-hover: rgba(255, 255, 255, 0.12);
+            --btn-gold-bg: linear-gradient(135deg, #FFC93C, #f59e0b);
+            --btn-danger-bg: linear-gradient(135deg, #FF7675, #c0392b);
+            --menu-text-color: #FFFFFF;
+            --menu-text-secondary: #A0A0B0;
+            --btn-start-bg: linear-gradient(135deg, #FFC93C, #f59e0b);
+            --btn-start-color: #0a0a1a;
+            --btn-start-shadow: rgba(255, 201, 60, 0.4);
+            --btn-start-hover-bg: linear-gradient(135deg, #FF6B6B, #FFD93D);
+            --neon-glow: 0 0 30px rgba(0, 210, 255, 0.15), 0 0 60px rgba(108, 92, 231, 0.1);
+            --border-glow: rgba(0, 210, 255, 0.15);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --header-border: rgba(0, 210, 255, 0.15);
+            --game-card-border: rgba(0, 210, 255, 0.06);
+            --countdown-color: #FFC93C;
+        }
+
+        body.theme-default {
+            --primary: #6C5CE7;
+            --secondary: #00D2FF;
+            --neon-blue: #00D2FF;
+            --neon-purple: #A855F7;
+            --body-bg: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 30%, #0d1b2a 60%, #0a0a1a 100%);
+            --btn-primary-bg: linear-gradient(135deg, #6C5CE7, #00D2FF);
+            --btn-primary-shadow: rgba(108, 92, 231, 0.5);
+            --btn-start-bg: linear-gradient(135deg, #FFC93C, #f59e0b);
+            --btn-start-color: #0a0a1a;
+            --btn-start-shadow: rgba(255, 201, 60, 0.4);
+            --btn-start-hover-bg: linear-gradient(135deg, #FF6B6B, #FFD93D);
+            --text-color: #FFFFFF;
+            --text-secondary: #A0A0B0;
+            --menu-text-color: #FFFFFF;
+            --menu-text-secondary: #A0A0B0;
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --countdown-color: #FFC93C;
+            --gold: #FFC93C;
+        }
+
+        body.theme-ocean {
+            --primary: #0EA5E9;
+            --secondary: #22D3EE;
+            --neon-blue: #0EA5E9;
+            --neon-purple: #22D3EE;
+            --body-bg: linear-gradient(180deg, #0EA5E9 0%, #0369A1 50%, #0C4A6E 100%);
+            --btn-primary-bg: linear-gradient(135deg, #0EA5E9, #22D3EE);
+            --btn-primary-shadow: rgba(14, 165, 233, 0.5);
+            --btn-start-bg: linear-gradient(135deg, #FCD34D, #F59E0B);
+            --btn-start-color: #0C4A6E;
+            --btn-start-shadow: rgba(252, 211, 77, 0.4);
+            --btn-start-hover-bg: linear-gradient(135deg, #FBBF24, #FCD34D);
+            --text-color: #D4F4FF;
+            --text-secondary: #BAE6FD;
+            --menu-text-color: #FFFFFF;
+            --menu-text-secondary: #BAE6FD;
+            --glass-border: rgba(14, 165, 233, 0.12);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --countdown-color: #22D3EE;
+            --gold: #FCD34D;
+        }
+
+        body.theme-sunset {
+            --primary: #F97316;
+            --secondary: #FBBF24;
+            --neon-blue: #F97316;
+            --neon-purple: #A855F7;
+            --body-bg: linear-gradient(180deg, #FDE68A 0%, #F97316 30%, #A855F7 70%, #5B21B6 100%);
+            --btn-primary-bg: linear-gradient(135deg, #F97316, #FBBF24);
+            --btn-primary-shadow: rgba(249, 115, 22, 0.5);
+            --btn-start-bg: linear-gradient(135deg, #FBBF24, #F97316);
+            --btn-start-color: #5B21B6;
+            --btn-start-shadow: rgba(251, 191, 36, 0.4);
+            --btn-start-hover-bg: linear-gradient(135deg, #F59E0B, #FBBF24);
+            --text-color: #FFF7ED;
+            --text-secondary: #FDE68A;
+            --menu-text-color: #FFF7ED;
+            --menu-text-secondary: #564500;
+            --glass-border: rgba(249, 115, 22, 0.12);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --countdown-color: #FBBF24;
+            --gold: #FBBF24;
+        }
+
+        body.theme-moonlight {
+            --primary: #818CF8;
+            --secondary: #A78BFA;
+            --neon-blue: #818CF8;
+            --neon-purple: #A78BFA;
+            --body-bg: linear-gradient(180deg, #1E1B4B 0%, #312E81 30%, #4C1D95 60%, #1E1B4B 100%);
+            --btn-primary-bg: linear-gradient(135deg, #818CF8, #A78BFA);
+            --btn-primary-shadow: rgba(129, 140, 248, 0.5);
+            --btn-start-bg: linear-gradient(135deg, #FCD34D, #F59E0B);
+            --btn-start-color: #1E1B4B;
+            --btn-start-shadow: rgba(252, 211, 77, 0.4);
+            --btn-start-hover-bg: linear-gradient(135deg, #FBBF24, #FCD34D);
+            --text-color: #E0E7FF;
+            --text-secondary: #C7D2FE;
+            --menu-text-color: #E0E7FF;
+            --menu-text-secondary: #C7D2FE;
+            --glass-border: rgba(129, 140, 248, 0.12);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --countdown-color: #818CF8;
+            --gold: #FCD34D;
+        }
+
+        body.theme-seabed {
+            --primary: #8B5CF6;
+            --secondary: #06B6D4;
+            --neon-blue: #8B5CF6;
+            --neon-purple: #06B6D4;
+            --body-bg: linear-gradient(180deg, #06B6D4 0%, #8B5CF6 30%, #4C1D95 60%, #1E1B4B 100%);
+            --btn-primary-bg: linear-gradient(135deg, #8B5CF6, #06B6D4);
+            --btn-primary-shadow: rgba(139, 92, 246, 0.5);
+            --btn-start-bg: linear-gradient(135deg, #F59E0B, #FBBF24);
+            --btn-start-color: #1E1B4B;
+            --btn-start-shadow: rgba(245, 158, 11, 0.4);
+            --btn-start-hover-bg: linear-gradient(135deg, #FBBF24, #F59E0B);
+            --text-color: #EDE9FE;
+            --text-secondary: #C4B5FD;
+            --menu-text-color: #EDE9FE;
+            --menu-text-secondary: #C4B5FD;
+            --glass-border: rgba(139, 92, 246, 0.12);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --countdown-color: #8B5CF6;
+            --gold: #FBBF24;
+        }
+
+        body.theme-arctic {
+            --primary: #22D3EE;
+            --secondary: #F472B6;
+            --neon-blue: #22D3EE;
+            --neon-purple: #A78BFA;
+            --body-bg: linear-gradient(180deg, #0C4A6E 0%, #22D3EE 30%, #A78BFA 60%, #F472B6 85%, #831843 100%);
+            --btn-primary-bg: linear-gradient(135deg, #22D3EE, #F472B6);
+            --btn-primary-shadow: rgba(34, 211, 238, 0.5);
+            --btn-start-bg: linear-gradient(135deg, #A78BFA, #F472B6);
+            --btn-start-color: #0C4A6E;
+            --btn-start-shadow: rgba(167, 139, 250, 0.4);
+            --btn-start-hover-bg: linear-gradient(135deg, #F472B6, #A78BFA);
+            --text-color: #ECFEFF;
+            --text-secondary: #BAE6FD;
+            --menu-text-color: #ECFEFF;
+            --menu-text-secondary: #BAE6FD;
+            --glass-border: rgba(34, 211, 238, 0.12);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --countdown-color: #22D3EE;
+            --gold: #FBBF24;
+        }
+
+        body.theme-spring {
+            --primary: #F472B6;
+            --secondary: #34D399;
+            --neon-blue: #F472B6;
+            --neon-purple: #34D399;
+            --body-bg: linear-gradient(180deg, #FDE68A 0%, #F472B6 30%, #34D399 60%, #064E3B 100%);
+            --btn-primary-bg: linear-gradient(135deg, #F472B6, #34D399);
+            --btn-primary-shadow: rgba(244, 114, 182, 0.5);
+            --btn-start-bg: linear-gradient(135deg, #FBBF24, #F472B6);
+            --btn-start-color: #064E3B;
+            --btn-start-shadow: rgba(251, 191, 36, 0.4);
+            --btn-start-hover-bg: linear-gradient(135deg, #F472B6, #FBBF24);
+            --text-color: #FDF2F8;
+            --text-secondary: #FBCFE8;
+            --menu-text-color: #FDF2F8;
+            --menu-text-secondary: #FBCFE8;
+            --glass-border: rgba(244, 114, 182, 0.12);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --countdown-color: #F472B6;
+            --gold: #FBBF24;
+        }
+
+        body.theme-magic {
+            --primary: #A855F7;
+            --secondary: #F472B6;
+            --neon-blue: #A855F7;
+            --neon-purple: #F472B6;
+            --body-bg: linear-gradient(180deg, #1E1B4B 0%, #4C1D95 30%, #A855F7 60%, #F472B6 85%, #FBBF24 100%);
+            --btn-primary-bg: linear-gradient(135deg, #A855F7, #F472B6);
+            --btn-primary-shadow: rgba(168, 85, 247, 0.5);
+            --btn-start-bg: linear-gradient(135deg, #FBBF24, #F472B6);
+            --btn-start-color: #1E1B4B;
+            --btn-start-shadow: rgba(251, 191, 36, 0.4);
+            --btn-start-hover-bg: linear-gradient(135deg, #A855F7, #FBBF24);
+            --text-color: #F3E8FF;
+            --text-secondary: #D8B4FE;
+            --menu-text-color: #F3E8FF;
+            --menu-text-secondary: #7600f4;
+            --glass-border: rgba(168, 85, 247, 0.12);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --countdown-color: #A855F7;
+            --gold: #FBBF24;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            font-family: var(--font-family);
+            outline: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--dark);
+        }
+
+        body {
+            color: var(--text-color);
+            position: relative;
+            background-image: var(--body-bg);
+            background-size: cover !important;
+            background-position: center center !important;
+            background-repeat: no-repeat !important;
+            background-attachment: fixed;
+            transition: background 0.6s ease, color 0.6s ease;
+        }
+
+        .neon-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+        .neon-orb-1 { width: 300px; height: 300px; top: -100px; right: -100px; background: rgba(108, 92, 231, 0.3); animation: orbFloat 8s ease-in-out infinite; }
+        .neon-orb-2 { width: 400px; height: 400px; bottom: -150px; left: -150px; background: rgba(0, 210, 255, 0.2); animation: orbFloat 10s ease-in-out infinite reverse; }
+        .neon-orb-3 { width: 200px; height: 200px; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 0, 160, 0.1); animation: orbFloat 12s ease-in-out infinite; }
+        @keyframes orbFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -30px) scale(1.1); } 66% { transform: translate(-20px, 20px) scale(0.9); } }
+
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; animation: twinkle 2s ease-in-out infinite alternate; }
+        @keyframes twinkle { 0% { opacity: 0.2; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
+
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            z-index: 1;
+            overflow-y: auto;
+        }
+        .screen.active {
+            display: flex;
+            animation: screenFadeIn 0.4s ease;
+        }
+        @keyframes screenFadeIn {
+            from { opacity: 0; transform: scale(0.98) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-xl), var(--neon-glow), inset 0 1px 1px rgba(255,255,255,0.02);
+            color: var(--text-color);
+            position: relative;
+            z-index: 2;
+            transition: all 0.5s ease;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-family: var(--font-family);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            min-height: 56px;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+            transition: left 0.6s;
+        }
+        .btn:hover::before { left: 100%; }
+        .btn:active { transform: scale(0.96); }
+
+        .btn-primary {
+            background: var(--btn-primary-bg);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 25px var(--btn-primary-shadow), 0 0 40px var(--secondary);
+        }
+        .btn-primary:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 8px 35px var(--btn-primary-shadow), 0 0 60px var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .btn-secondary {
+            background: var(--btn-secondary-bg);
+            backdrop-filter: blur(12px);
+            color: var(--text-color);
+            border: 1px solid var(--glass-border);
+        }
+        .btn-secondary:hover {
+            transform: translateY(-4px) scale(1.02);
+            background: var(--btn-secondary-hover);
+            border-color: var(--secondary);
+            box-shadow: 0 0 25px var(--secondary);
+        }
+
+        .btn-gold {
+            background: var(--btn-gold-bg);
+            color: #0a0a1a;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 4px 25px rgba(255, 201, 60, 0.3);
+        }
+        .btn-gold:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 35px rgba(255, 201, 60, 0.4);
+        }
+
+        .btn-start {
+            background: var(--btn-start-bg) !important;
+            color: var(--btn-start-color) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 4px 25px var(--btn-start-shadow) !important;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+        .btn-start:hover {
+            background: var(--btn-start-hover-bg) !important;
+            transform: translateY(-6px) scale(1.03) !important;
+            box-shadow: 0 8px 35px var(--btn-start-shadow), 0 0 50px var(--secondary) !important;
+            border-color: var(--secondary) !important;
+        }
+        .btn-start:active {
+            transform: scale(0.95) !important;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--glass-border);
+            background: var(--card-bg);
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .back-btn:hover {
+            border-color: var(--danger);
+            box-shadow: 0 0 20px rgba(255, 118, 117, 0.4);
+            background: rgba(255, 118, 117, 0.1);
+            transform: rotate(180deg);
+        }
+
+        .menu-container {
+            padding: 30px 20px 25px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .coin-display {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 6px 14px 6px 10px;
+            border-radius: 30px;
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 30px rgba(255, 201, 60, 0.2), inset 0 0 20px rgba(255, 201, 60, 0.05);
+            z-index: 10;
+        }
+        .coin-display img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            animation: coinSpin 3s ease-in-out infinite;
+        }
+        .coin-amount {
+            color: var(--gold);
+            font-weight: 800;
+            font-size: 1rem;
+            text-shadow: 0 0 20px var(--gold);
+        }
+        @keyframes coinSpin {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+        }
+
+        .menu-title {
+            font-size: 2.4rem;
+            font-weight: 900;
+            margin-bottom: 4px;
+            font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif;
+            background: linear-gradient(135deg, var(--menu-text-color), var(--gold), var(--neon-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            text-shadow: 0 0 40px rgba(0, 210, 255, 0.1);
+        }
+        .menu-subtitle {
+            color: var(--menu-text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+        .menu-character {
+            width: 150px;
+            height: 150px;
+            margin: 10px auto 15px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.4) 100%);
+            border: 3px solid var(--gold);
+            box-shadow: 0 0 60px rgba(255, 201, 60, 0.25), inset 0 0 60px rgba(255,201,60,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            animation: framePulse 3s ease-in-out infinite;
+        }
+        @keyframes framePulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(255, 201, 60, 0.2), 0 0 80px var(--neon-blue); }
+            50% { box-shadow: 0 0 80px rgba(255, 201, 60, 0.4), 0 0 120px var(--secondary); }
+        }
+        .menu-character img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .menu-buttons .row {
+            display: flex;
+            gap: 10px;
+        }
+        .menu-buttons .row .btn {
+            flex: 1;
+        }
+
+        .shop-container {
+            max-width: 420px;
+            width: 100%;
+            padding: 20px 15px 15px;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .shop-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+        .shop-header h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text-color);
+            font-family: var(--font-family);
+        }
+        .shop-coin {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 20px rgba(255, 201, 60, 0.1);
+        }
+        .shop-coin img {
+            width: 18px;
+            height: 18px;
+        }
+        .shop-coin span {
+            color: var(--gold);
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .shop-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+            overflow-x: auto;
+            padding: 2px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+        .shop-tabs::-webkit-scrollbar { height: 3px; }
+        .shop-tabs::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+        .shop-tab {
+            flex: 1;
+            padding: 10px 6px;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-family: var(--font-family);
+            text-align: center;
+        }
+        .shop-tab:hover {
+            color: var(--text-color);
+        }
+        .shop-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            box-shadow: 0 0 20px var(--btn-primary-shadow);
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            overflow-y: auto;
+            padding: 5px 2px 10px;
+            flex: 1;
+        }
+        .shop-grid::-webkit-scrollbar { width: 4px; }
+        .shop-grid::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+        
+        .shop-item {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 12px 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: var(--transition);
+            color: var(--text-color);
+            justify-content: space-between;
+            cursor: pointer;
+            min-height: 260px;
+        }
+        .shop-item:hover {
+            transform: translateY(-4px);
+            border-color: var(--secondary);
+            box-shadow: 0 0 30px var(--secondary);
+        }
+        .shop-item.active-item {
+            border-color: var(--gold);
+            box-shadow: 0 0 30px rgba(255, 201, 60, 0.2);
+            background: rgba(255, 201, 60, 0.05);
+        }
+        .shop-item .shop-theme-preview {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 4px;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        .shop-item .name { 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            color: var(--text-color);
+            margin-top: 2px;
+        }
+        .shop-item .price { 
+            font-size: 0.7rem; 
+            color: var(--gold); 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            gap: 4px; 
+        }
+        .shop-item .price img { width: 14px; height: 14px; }
+        .shop-btn-sm {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-family);
+            font-weight: 700;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 3px;
+            min-height: 28px;
+        }
+        .shop-btn-sm.buy { background: var(--btn-gold-bg); color: #0a0a1a; }
+        .shop-btn-sm.buy:hover { transform: scale(1.04); }
+        .shop-btn-sm.select { background: var(--secondary); color: #fff; }
+        .shop-btn-sm.select:hover { transform: scale(1.04); }
+        .shop-btn-sm.active { background: var(--success); color: #fff; cursor: default; }
+        .shop-btn-sm.locked { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); cursor: not-allowed; }
+
+        .levels-container {
+            max-width: 420px;
+            width: 100%;
+            padding: 25px 20px;
+            text-align: center;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .levels-container h2 {
+            color: var(--gold);
+            font-size: 1.8rem;
+            font-family: 'Shoor Black', Tahoma, sans-serif;
+            margin-bottom: 15px;
+            text-shadow: 0 0 30px rgba(255, 201, 60, 0.2);
+            flex-shrink: 0;
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin: 10px 0;
+            flex: 1;
+            align-content: start;
+            overflow-y: auto;
+            padding: 4px;
+        }
+        .level-grid::-webkit-scrollbar { width: 3px; }
+        .level-grid::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+
+        .level-box {
+            aspect-ratio: 1/1;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--glass-border);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            color: var(--text-color);
+            position: relative;
+            padding: 6px;
+        }
+        .level-box:hover {
+            transform: translateY(-2px) scale(1.05);
+            border-color: var(--secondary);
+            box-shadow: 0 0 30px var(--secondary);
+            z-index: 2;
+        }
+        .level-box .level-number {
+            font-size: 1.6rem;
+            font-weight: 900;
+            font-family: 'Shoor Black', Tahoma, sans-serif;
+        }
+        .level-box.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(0.5);
+        }
+        .level-box.locked:hover {
+            transform: none;
+            border-color: var(--glass-border);
+            box-shadow: none;
+            filter: grayscale(0.5);
+            opacity: 0.4;
+        }
+        .level-box .lock-icon {
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 0.6rem;
+            opacity: 0.7;
+        }
+        .level-box .check-icon {
+            position: absolute;
+            top: 2px;
+            left: 4px;
+            font-size: 0.6rem;
+            opacity: 0.7;
+        }
+
+        #gameScreen .game-card {
+            max-width: 420px;
+            width: 100%;
+            padding: 0;
+            text-align: center;
+            position: relative;
+            background: var(--card-bg);
+            backdrop-filter: blur(25px) saturate(200%);
+            -webkit-backdrop-filter: blur(25px) saturate(200%);
+            border: 1px solid var(--game-card-border);
+            border-radius: 24px;
+            box-shadow: var(--shadow-xl), var(--neon-glow), inset 0 1px 1px rgba(255,255,255,0.02);
+            transition: all 0.5s ease;
+            overflow: hidden;
+            height: 100%;
+            max-height: 750px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--header-border);
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .game-header .game-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px var(--secondary);
+        }
+        .game-header .game-level {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            background: rgba(255,255,255,0.03);
+            padding: 2px 8px;
+            border-radius: 20px;
+            border: 1px solid var(--header-border);
+        }
+        .game-header .target-counter {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--gold);
+            background: rgba(255,255,255,0.03);
+            padding: 2px 8px;
+            border-radius: 20px;
+            border: 1px solid var(--header-border);
+        }
+
+        .stop-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            flex-shrink: 0;
+            position: relative;
+        }
+        .stop-btn:hover,
+        .stop-btn:focus {
+            border-color: var(--danger);
+            box-shadow: 0 0 30px rgba(255, 118, 117, 0.5), inset 0 0 20px rgba(255, 118, 117, 0.1);
+            background: rgba(255, 118, 117, 0.1);
+            transform: rotate(180deg);
+        }
+        .stop-btn .stop-icon {
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .stop-btn:hover .stop-icon {
+            transform: rotate(180deg);
+        }
+
+        .ocean-container {
+            flex: 1;
+            position: relative;
+            margin: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(25px) saturate(200%);
+            -webkit-backdrop-filter: blur(25px) saturate(200%);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            overflow: hidden;
+            min-height: 250px;
+            padding: 12px;
+            display: grid;
+            gap: 8px;
+            align-content: center;
+            justify-items: center;
+        }
+
+        .wave-item {
+            width: 100%;
+            max-width: 70px;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 50%;
+            padding: 4px;
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.04);
+        }
+        .wave-item svg {
+            width: 100%;
+            height: 100%;
+            fill: none;
+            stroke: #93C5FD;
+            stroke-width: 4.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 2px 12px rgba(147, 197, 253, 0.25));
+            transition: all 0.2s;
+        }
+        .floating-wave { animation: waveFloat 3.2s ease-in-out infinite alternate; }
+        @keyframes waveFloat {
+            0% { transform: translateY(0px) rotate(0deg); }
+            100% { transform: translateY(6px) rotate(4deg); }
+        }
+        .wave-item.success-pop svg { stroke: var(--success); transform: scale(1.2); }
+        .wave-item.discovered { pointer-events: none; opacity: 0.6; }
+        .wave-item.error-shake svg { stroke: var(--danger); animation: shakeAnim 0.4s ease-in-out; }
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        .game-footer {
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--header-border);
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .dashboard-badge {
+            background: rgba(0,0,0,0.2);
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            display: flex;
+            gap: 3px;
+            align-items: center;
+            color: var(--text-secondary);
+            flex: 1;
+            justify-content: center;
+        }
+        .dashboard-badge .val { font-size: 0.75rem; color: var(--text-color); }
+        .text-danger { color: var(--danger) !important; }
+
+        .stop-modal .modal-content {
+            max-width: 320px;
+        }
+        .stop-modal .modal-content .stop-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .stop-modal .modal-content .stop-options .btn {
+            min-height: 48px;
+            font-size: 0.9rem;
+        }
+        .stop-modal .modal-content .stop-options .btn-continue {
+            background: var(--btn-primary-bg);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stop-modal .modal-content .stop-options .btn-restart {
+            background: var(--btn-gold-bg);
+            color: #0a0a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stop-modal .modal-content .stop-options .btn-quit {
+            background: var(--btn-danger-bg);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(12px);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s;
+            font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+            font-weight: 700;
+            width: max-content;
+            max-width: 85%;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            pointer-events: none;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal.open { display: flex; animation: screenFadeIn 0.3s ease; }
+        .modal-content {
+            background: var(--card-bg);
+            backdrop-filter: blur(25px);
+            border: 2px solid var(--gold);
+            border-radius: 32px;
+            padding: 30px 24px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 80px rgba(255, 201, 60, 0.15);
+            color: var(--text-color);
+            transform: scale(0.85);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal.open .modal-content { transform: scale(1); }
+        .modal-content .star-badge { font-size: 3.5rem; margin-bottom: 10px; }
+        .modal-content .modal-title { color: var(--gold); font-size: 1.4rem; margin-bottom: 8px; font-weight: 900; }
+        .modal-content .modal-desc { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px; font-weight: 600; line-height: 1.5; }
+        .modal-content .modal-stats {
+            background: rgba(255,255,255,0.05);
+            padding: 14px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid var(--glass-border);
+        }
+        .modal-content .modal-stats span { 
+            display: flex; 
+            flex-direction: column; 
+            font-weight: 800; 
+            font-size: 0.9rem; 
+            color: var(--text-color);
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+        }
+        .modal-content .modal-stats span small { 
+            color: var(--text-secondary); 
+            font-size: 0.7rem; 
+            margin-bottom: 4px; 
+            font-weight: 600;
+        }
+        .modal-content .modal-stats span .coin-stats {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .modal-content .modal-stats span .coin-stats img {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .btn-modal { background: var(--btn-primary-bg); color: #fff; border: none; }
+
+        .result-modal .modal-content {
+            border-color: var(--gold);
+            max-width: 340px;
+        }
+        .result-modal .result-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: radial-gradient(circle, rgba(255,255,255,0.05), transparent);
+            border: 3px solid var(--gold);
+            animation: resultIconPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .result-modal .result-icon img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+            animation: resultIconFloat 2s ease-in-out infinite;
+        }
+        @keyframes resultIconPop {
+            0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes resultIconFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.05); }
+        }
+        .result-modal .result-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            font-family: 'Shoor Black', Tahoma, sans-serif;
+            margin-bottom: 6px;
+        }
+        .result-modal .result-title.win { color: var(--gold); }
+        .result-modal .result-title.lose { color: var(--danger); }
+        .result-modal .result-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .result-modal .result-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .result-modal .result-options .btn {
+            min-height: 48px;
+            font-size: 0.9rem;
+        }
+        .result-modal .result-options .btn-next {
+            background: var(--btn-gold-bg);
+            color: #0a0a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .result-modal .result-options .btn-retry {
+            background: var(--btn-primary-bg);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .result-modal .result-options .btn-quit-result {
+            background: var(--btn-secondary-bg);
+            color: var(--text-color);
+            border: 1px solid var(--glass-border);
+        }
+        .result-modal .result-options .btn-quit-result:hover {
+            background: var(--btn-secondary-hover);
+            border-color: var(--danger);
+        }
+
+        .full-stats-modal .modal-content {
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .full-stats-modal .modal-content::-webkit-scrollbar { width: 4px; }
+        .full-stats-modal .modal-content::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+        .stats-detail-list { text-align: right; margin: 15px 0; }
+        .stats-detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        .stats-detail-label { color: var(--text-secondary); }
+        .stats-detail-value { color: var(--gold); font-size: 1.1rem; }
+        .stats-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 12px 0; }
+
+        .btn-clear-stats { background: var(--danger); color: #fff; margin-top: 12px; border: none; }
+
+        .guide-container {
+            max-width: 420px;
+            width: 100%;
+            padding: 30px 24px;
+            text-align: center;
+            background: rgba(0, 50, 100, 0.25);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 2px solid rgba(0, 150, 255, 0.2);
+            border-radius: 24px;
+            box-shadow: var(--shadow-xl), 0 0 60px rgba(0, 150, 255, 0.05);
+        }
+        .guide-container .guide-char {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            border: 3px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: radial-gradient(circle, rgba(255,255,255,0.05), transparent);
+            box-shadow: 0 0 60px rgba(255, 201, 60, 0.2);
+        }
+        .guide-container .guide-char img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+        }
+        .guide-container .guide-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            line-height: 2;
+            text-align: center;
+            margin: 15px 0;
+            background: rgba(255,255,255,0.03);
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .guide-container .guide-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .guide-container .guide-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--neon-blue));
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+        .guide-container .guide-skip {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: var(--font-family);
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            margin-top: 5px;
+        }
+        .guide-container .guide-skip:hover {
+            color: var(--text-color);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .countdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(12px);
+        }
+        .countdown-overlay.active {
+            display: flex;
+            animation: countdownFadeIn 0.3s ease;
+        }
+        @keyframes countdownFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .countdown-number {
+            font-size: 8rem;
+            font-weight: 900;
+            font-family: 'Shoor Black', Tahoma, sans-serif;
+            text-shadow: 0 0 60px currentColor, 0 0 120px currentColor;
+            animation: countdownPulse 0.5s ease;
+        }
+        @keyframes countdownPulse {
+            0% { transform: scale(1.5); opacity: 0; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.5; }
+        }
+        .countdown-text {
+            font-size: 3rem;
+            font-weight: 900;
+            font-family: 'Shoor Black', Tahoma, sans-serif;
+            text-shadow: 0 0 60px currentColor;
+            animation: countdownTextPulse 0.8s ease;
+        }
+        @keyframes countdownTextPulse {
+            0% { transform: scale(1.3); opacity: 0; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .celebration-modal .modal-content {
+            border-color: var(--gold);
+            max-width: 340px;
+        }
+        .celebration-modal .celeb-icon {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: radial-gradient(circle, rgba(255,255,255,0.1), rgba(255,201,60,0.05));
+            border: 4px solid var(--gold);
+            animation: celebPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), celebFloat 2s ease-in-out infinite;
+        }
+        .celebration-modal .celeb-icon img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+        }
+        @keyframes celebPop {
+            0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes celebFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+        .celebration-modal .celeb-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--gold);
+            font-family: 'Shoor Black', Tahoma, sans-serif;
+            margin-bottom: 6px;
+            text-shadow: 0 0 40px rgba(255,201,60,0.2);
+        }
+        .celebration-modal .celeb-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            line-height: 1.8;
+        }
+        .celebration-modal .celeb-desc strong {
+            color: var(--gold);
+        }
+
+        .celeb-confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9001;
+            overflow: hidden;
+        }
+        .celeb-confetti .confetti-piece {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            animation: celebConfettiFall linear forwards;
+        }
+        @keyframes celebConfettiFall {
+            0% { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg) scale(0.3); opacity: 0; }
+        }
+
+        @media (max-width: 480px) {
+            .menu-title { font-size: 1.8rem; }
+            .menu-character { width: 120px; height: 120px; }
+            .levels-container h2 { font-size: 1.5rem; }
+            .level-grid { gap: 4px; }
+            .level-box .level-number { font-size: 1.3rem; }
+            .ocean-container { gap: 4px; padding: 4px; margin: 6px; }
+            .game-header .game-title { font-size: 0.6rem; }
+            .game-header .game-level { font-size: 0.55rem; padding: 2px 6px; }
+            .game-header .target-counter { font-size: 0.55rem; padding: 2px 6px; }
+            .stop-btn { width: 28px; height: 28px; font-size: 0.7rem; }
+            .dashboard-badge { font-size: 0.55rem; padding: 3px 6px; }
+            .dashboard-badge .val { font-size: 0.65rem; }
+            .modal-content { padding: 24px 18px; }
+            .shop-item { min-height: 200px; }
+            .shop-item .shop-theme-preview { height: 90px; }
+            .result-modal .result-icon { width: 90px; height: 90px; }
+            .wave-item { max-width: 60px; }
+            .celebration-modal .celeb-icon { width: 100px; height: 100px; }
+            .countdown-number { font-size: 5rem; }
+            .countdown-text { font-size: 2rem; }
+        }
+        @media (max-width: 380px) {
+            .menu-title { font-size: 1.5rem; }
+            .menu-character { width: 100px; height: 100px; }
+            .ocean-container { gap: 3px; padding: 3px; }
+            .level-grid { gap: 3px; }
+            .level-box .level-number { font-size: 1.1rem; }
+            .result-modal .result-icon { width: 75px; height: 75px; }
+            .wave-item { max-width: 50px; }
+            .shop-item .shop-theme-preview { height: 70px; }
+            .celebration-modal .celeb-icon { width: 80px; height: 80px; }
+            .countdown-number { font-size: 4rem; }
+            .countdown-text { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="neon-orb neon-orb-1"></div>
+    <div class="neon-orb neon-orb-2"></div>
+    <div class="neon-orb neon-orb-3"></div>
+    <div class="stars" id="stars"></div>
+
+    <div id="toast" class="toast">🧜‍♀️ <span id="toast-text">پیام فرشته‌ی دریا</span></div>
+
+    <div id="countdownOverlay" class="countdown-overlay">
+        <div id="countdownDisplay" class="countdown-number">3</div>
+    </div>
+
+    <div id="resultModal" class="modal result-modal">
+        <div class="modal-content">
+            <div class="result-icon" id="resultIcon">
+                <img id="resultIconImg" src="icons/happy gamer.png" alt="نتیجه">
+            </div>
+            <h2 class="result-title" id="resultTitle">آفرین!</h2>
+            <p class="result-desc" id="resultDesc">همه نشانه‌ها رو پیدا کردی!</p>
+            <div class="modal-stats" id="resultStats"></div>
+            <div class="result-options" id="resultOptions"></div>
+        </div>
+    </div>
+
+    <div id="stopModal" class="modal stop-modal">
+        <div class="modal-content">
+            <div class="star-badge">⏸️</div>
+            <h2 class="modal-title">بازی متوقف شد</h2>
+            <p class="modal-desc">چه کاری می‌خوای انجام بدی؟</p>
+            <div class="stop-options">
+                <button class="btn btn-continue" onclick="oceanGame.continueGame()">▶️ ادامه بازی</button>
+                <button class="btn btn-restart" onclick="oceanGame.restartGame()">🔄 شروع مجدد</button>
+                <button class="btn btn-quit" onclick="oceanGame.quitGame()">🚪 خروج به منو</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="fullStatsModal" class="modal full-stats-modal">
+        <div class="modal-content">
+            <div class="star-badge">📊</div>
+            <h2 class="modal-title">کارنامه شکارچی نشانه س</h2>
+            <div class="stats-detail-list" id="fullStatsList"></div>
+            <button onclick="oceanGame.closeFullStats()" class="btn btn-modal">بستن</button>
+            <button onclick="oceanGame.clearAllStats()" class="btn btn-clear-stats">🗑️ پاک کردن همه آمار</button>
+        </div>
+    </div>
+
+    <div id="celebrationModal" class="modal celebration-modal">
+        <div class="modal-content">
+            <div class="celeb-icon" id="celebIcon">
+                <img src="icons/happy gamer.png" alt="تبریک" onerror="this.textContent='🎉'">
+            </div>
+            <h2 class="celeb-title">🎉 تبریک!</h2>
+            <p class="celeb-desc" id="celebDesc">
+                <strong>پوسته جدید</strong> خریداری شد!<br>
+                حالا با استایل جدیدت<br>
+                قشنگ‌تر از همیشه! 😍
+            </p>
+            <button class="btn btn-gold" onclick="oceanGame.closeCelebration()">🚀 بزن بریم!</button>
+        </div>
+    </div>
+
+    <div id="homeScreen" class="screen active">
+        <div class="menu-container glass-card">
+            <div class="coin-display">
+                <img src="icons/coin.png" alt="Coin" onerror="this.textContent='🪙'">
+                <span class="coin-amount" id="menu-coin-amount">0</span>
+            </div>
+            <div class="menu-character">
+                <img src="icons/gamerhi.png" alt="Pixel" onerror="this.textContent='🧑‍🌾'">
+            </div>
+            <h1 class="menu-title">شکارچی نشانه‌ی «س»</h1>
+            <p class="menu-subtitle">موج‌هایی که شکل «س» هستن رو پیدا کن و آروم روشون دست بزن.</p>
+
+            <div class="menu-buttons">
+                <button onclick="oceanGame.showLevels()" class="btn btn-start">🚀 شروع بازی</button>
+                <div class="row">
+                    <button id="guideBtn" onclick="oceanGame.showGuideFromMenu()" class="btn btn-secondary">📘 راهنما</button>
+                    <button onclick="oceanGame.showShop()" class="btn btn-secondary">🛍️ فروشگاه</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="guideScreen" class="screen">
+        <div class="guide-container">
+            <div class="guide-char">
+                <img src="icons/gamer.png" alt="راهنما" onerror="this.textContent='🧜‍♀️'">
+            </div>
+            <div class="guide-text" id="guideText">سلام! من پری دریایی هستم. بیا بهت یاد بدم چطور شکارچی نشانه س باشی! 🌊</div>
+            <div class="guide-progress"><div class="guide-progress-bar" id="guideProgressBar"></div></div>
+            <button class="guide-skip" id="guideSkipBtn">⏭️ رد کردن</button>
+            <button class="btn btn-secondary" onclick="oceanGame.closeGuide()" style="margin-top:10px;">بازگشت</button>
+        </div>
+    </div>
+
+    <div id="shopScreen" class="screen">
+        <div class="shop-container glass-card">
+            <div class="shop-header">
+                <button class="back-btn" onclick="oceanGame.closeShop()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:20px;height:20px;">
+                        <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <h2>🛍️ فروشگاه</h2>
+                <div class="shop-coin">
+                    <img src="icons/coin.png" alt="Coin" onerror="this.textContent='🪙'">
+                    <span id="shop-coin-amount">0</span>
+                </div>
+            </div>
+            <div class="shop-tabs">
+                <button class="shop-tab active" data-tab="themes">🎨 پوسته‌ها</button>
+            </div>
+            <div class="shop-grid" id="shop-grid"></div>
+        </div>
+    </div>
+
+    <div id="levelScreen" class="screen">
+        <div class="levels-container glass-card">
+            <h2>🌊 مراحل شکارچی</h2>
+            <div class="level-grid" id="levelGrid"></div>
+            <button class="btn btn-secondary" onclick="oceanGame.closeLevels()" style="margin-top:10px;flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                </svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <div id="gameScreen" class="screen">
+        <div class="game-card">
+            <div class="game-header">
+                <span class="game-title">🌊 شکارچی نشانه س</span>
+                <span class="game-level" id="gameLevelDisplay">مرحله ۱</span>
+                <span class="target-counter" id="targetCounterDisplay">🎯 4 تا مونده</span>
+                <button class="stop-btn" onclick="oceanGame.showStopMenu()" aria-label="توقف بازی">
+                    <svg class="stop-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="4" y="4" width="16" height="16" rx="2" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="ocean-container" id="oceanGrid"></div>
+
+            <div class="game-footer">
+                <div class="dashboard-badge"><span>❌ صید اشتباه:</span><span id="liveMistakes" class="val text-danger">0</span></div>
+                <div class="dashboard-badge"><span>⏳ زمان:</span><span id="liveTimer" class="val">--</span></div>
+                <div class="dashboard-badge"><span>🎯 دقت:</span><span id="liveAccuracy" class="val">100%</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = (Math.random() * 2 + 1) + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = (Math.random() * 3) + 's';
+                star.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                container.appendChild(star);
+            }
+        }
+        createStars();
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        const oceanGame = {
+            level: 1,
+            totalTargets: 0,
+            foundTargets: 0,
+            mistakes: 0,
+            startTime: 0,
+            timerInterval: null,
+            timeLeft: 30,
+            isGameOver: false,
+            isPaused: false,
+            maxMistakes: 3,
+            totalLevels: 15,
+            bgMusic: null,
+            currentMusic: null,
+            isFirstGame: true,
+            guideAudio: null,
+            isUserInteracted: false,
+            coins: 0,
+
+            playCountdownSound(number) {
+                try {
+                    const audio = new Audio('musics/countdown' + number + '.mp3');
+                    audio.volume = 0.7;
+                    audio.play().catch(e => console.log('Audio play prevented'));
+                } catch(e) {
+                    console.log('Countdown sound error:', e);
+                }
+            },
+
+            playGoSound() {
+                try {
+                    const audio = new Audio('musics/go.mp3');
+                    audio.volume = 0.8;
+                    audio.play().catch(e => console.log('Audio play prevented'));
+                } catch(e) {
+                    console.log('Go sound error:', e);
+                }
+            },
+
+            playWinSound() {
+                try {
+                    const audio = new Audio('musics/win.mp3');
+                    audio.volume = 0.7;
+                    audio.play().catch(e => console.log('Audio play prevented'));
+                } catch(e) {
+                    console.log('Win sound error:', e);
+                }
+            },
+
+            playLoseSoundEffect() {
+                try {
+                    const audio = new Audio('musics/lose.mp3');
+                    audio.volume = 0.7;
+                    audio.play().catch(e => console.log('Audio play prevented'));
+                } catch(e) {
+                    console.log('Lose sound error:', e);
+                }
+            },
+
+            levelConfigs: {},
+
+            generateLevelConfigs() {
+                const configs = {};
+                for (let lvl = 1; lvl <= this.totalLevels; lvl++) {
+                    const total = Math.min(6 + lvl, 18);
+                    const targets = Math.min(lvl, 8);
+                    const distractors = total - targets;
+                    const dist1 = Math.floor(distractors * 0.4);
+                    const dist2 = Math.floor(distractors * 0.3);
+                    const dist3 = distractors - dist1 - dist2;
+                    const timeLimit = Math.max(15, 45 - Math.floor(lvl * 1.5));
+                    const cols = Math.min(4 + Math.floor(lvl / 4), 6);
+                    configs[lvl] = {
+                        total: total,
+                        targets: targets,
+                        dist1: dist1,
+                        dist2: dist2,
+                        dist3: dist3,
+                        timeLimit: timeLimit,
+                        cols: cols
+                    };
+                }
+                return configs;
+            },
+
+            globalStats: {
+                totalGames: 0,
+                totalWins: 0,
+                totalMistakes: 0,
+                totalCorrect: 0,
+                totalTimePlayed: 0,
+                levelStats: {}
+            },
+
+            themeItems: [
+                { id: 'default', name: 'پیش‌فرض', price: 0, icon: '🌊', file: '', music: 'first1.mp3' },
+                { id: 'ocean', name: 'اقیانوسی', price: 10, icon: '🌊', file: 'd darya.jpg', music: 'piano.mp3' },
+                { id: 'sunset', name: 'غروب', price: 12, icon: '🌅', file: 'd qhroob.jpg', music: 'volcano.mp3' },
+                { id: 'moonlight', name: 'شب مهتابی', price: 14, icon: '🌙', file: 'd mahtabi.jpg', music: 'space.mp3' },
+                { id: 'seabed', name: 'کف دریا', price: 15, icon: '🐠', file: 'd kaf darya.jpg', music: 'snowy.mp3' },
+                { id: 'arctic', name: 'قطبی', price: 13, icon: '🧊', file: 'd qhotbi.jpg', music: 'forest.mp3' },
+                { id: 'spring', name: 'بهاری', price: 11, icon: '🌸', file: 'd bahari.jpg', music: 'Abnabat.mp3' },
+                { id: 'magic', name: 'جادویی', price: 16, icon: '✨', file: 'd jadooy.jpg', music: 'jadooyi forest.mp3' }
+            ],
+
+            ownedThemes: ['default'],
+            activeTheme: 'default',
+
+            vectors: {
+                seen: `<path d="M 65 30 C 65 42, 55 42, 55 30 C 55 42, 45 42, 45 30 C 45 65, 15 65, 15 30"></path>`,
+                distractor1: `<path d="M 65 45 C 65 25, 45 25, 45 45 C 45 65, 15 65, 15 45 M 55 25 A 3 3 0 1 1 55 24"></path>`,
+                distractor2: `<path d="M 60 25 C 60 65, 20 65, 20 35 M 20 35 C 35 35, 45 20, 60 20"></path>`,
+                distractor3: `<path d="M 25 50 Q 45 30, 65 50 T 85 30"></path>`,
+                normalWave: `<path d="M 15 50 Q 35 25, 55 50 T 95 50"></path>`
+            },
+
+            audio: {
+                ctx: null,
+                init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+                playSuccess() {
+                    this.init();
+                    const now = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.08);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                },
+                playFail() {
+                    this.init();
+                    const now = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(130, now);
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.15);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                },
+                playWinArpeggio() {
+                    this.init();
+                    const now = this.ctx.currentTime;
+                    const scale = [523.25, 587.33, 659.25, 783.99, 1046.50];
+                    scale.forEach((freq, idx) => {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+                        gain.gain.setValueAtTime(0.1, now + idx * 0.07);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.25);
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start(now + idx * 0.07);
+                        osc.stop(now + idx * 0.07 + 0.25);
+                    });
+                },
+                playLoseSound() {
+                    this.init();
+                    const now = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.4);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.4);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                }
+            },
+
+            loadCoins() {
+                const saved = localStorage.getItem('oceanHunterCoins');
+                this.coins = saved ? parseInt(saved) : 0;
+                this.updateCoinDisplay();
+            },
+
+            saveCoins() {
+                localStorage.setItem('oceanHunterCoins', this.coins.toString());
+                this.updateCoinDisplay();
+            },
+
+            updateCoinDisplay() {
+                document.getElementById('menu-coin-amount').textContent = this.coins;
+                document.getElementById('shop-coin-amount').textContent = this.coins;
+            },
+
+            loadStats() {
+                const saved = localStorage.getItem('letterSGameStats_v2');
+                if (saved) {
+                    try { 
+                        this.globalStats = JSON.parse(saved); 
+                    } catch(e) {}
+                }
+                if (!this.globalStats.levelStats) {
+                    this.globalStats.levelStats = {};
+                }
+                for (let i = 1; i <= this.totalLevels; i++) {
+                    if (!this.globalStats.levelStats[i]) {
+                        this.globalStats.levelStats[i] = { play: 0, win: 0, bestTime: null };
+                    }
+                }
+                if (this.globalStats.totalGames === 0 && this.globalStats.totalWins === 0) {
+                    this.isFirstGame = true;
+                } else {
+                    this.isFirstGame = false;
+                }
+                this.updateStatsUI();
+            },
+
+            saveStats() {
+                localStorage.setItem('letterSGameStats_v2', JSON.stringify(this.globalStats));
+                this.updateStatsUI();
+            },
+
+            updateStatsUI() {
+                this.updateCoinDisplay();
+            },
+
+            playThemeMusic(musicFile) {
+                try {
+                    if (this.bgMusic) {
+                        this.bgMusic.pause();
+                        this.bgMusic = null;
+                    }
+                    if (!musicFile) return;
+                    this.bgMusic = new Audio('musics/' + musicFile);
+                    this.bgMusic.loop = true;
+                    this.bgMusic.volume = 0.5;
+                    if (this.isUserInteracted) {
+                        this.bgMusic.play().catch(e => console.log('Audio play prevented'));
+                    }
+                    this.currentMusic = musicFile;
+                } catch(e) {
+                    console.log('Music error:', e);
+                }
+            },
+
+            startMusicOnInteraction() {
+                if (this.isUserInteracted) return;
+                this.isUserInteracted = true;
+                const theme = this.themeItems.find(t => t.id === this.activeTheme);
+                if (theme && theme.music) {
+                    this.playThemeMusic(theme.music);
+                }
+            },
+
+            showLevels() {
+                this.startMusicOnInteraction();
+                this.levelConfigs = this.generateLevelConfigs();
+                this.renderLevels();
+                showScreen('levelScreen');
+            },
+
+            closeLevels() {
+                showScreen('homeScreen');
+            },
+
+            showGuideFromMenu() {
+                this.startMusicOnInteraction();
+                showScreen('guideScreen');
+                this.startGuide(true);
+                this.playGuideAudio('pixel2.mp3');
+            },
+
+            showGuideForFirstTime() {
+                this.startMusicOnInteraction();
+                showScreen('guideScreen');
+                document.getElementById('guideSkipBtn').style.display = 'none';
+                this.startGuide(false);
+                this.playGuideAudio('pixel2.mp3');
+            },
+
+            playGuideAudio(file) {
+                try {
+                    if (this.guideAudio) {
+                        this.guideAudio.pause();
+                        this.guideAudio = null;
+                    }
+                    this.guideAudio = new Audio('musics/' + file);
+                    this.guideAudio.volume = 0.8;
+                    this.guideAudio.play().catch(e => console.log('Audio play prevented'));
+                } catch(e) {
+                    console.log('Guide audio error:', e);
+                }
+            },
+
+            stopGuideAudio() {
+                if (this.guideAudio) {
+                    this.guideAudio.pause();
+                    this.guideAudio = null;
+                }
+            },
+
+            closeGuide() {
+                if (this.guideInterval) {
+                    clearInterval(this.guideInterval);
+                    this.guideInterval = null;
+                }
+                this.stopGuideAudio();
+                showScreen('homeScreen');
+                document.getElementById('guideSkipBtn').style.display = 'block';
+            },
+
+            showShop() {
+                this.startMusicOnInteraction();
+                this.renderShop();
+                showScreen('shopScreen');
+            },
+
+            closeShop() {
+                showScreen('homeScreen');
+            },
+
+            closeCelebration() {
+                document.getElementById('celebrationModal').classList.remove('open');
+                document.querySelector('.celeb-confetti')?.remove();
+            },
+
+            guideScripts: [
+                { start: 0, end: 4, text: 'سلام به شکارچی کوچولوی دریایی! من پیکسل هستم!' },
+                { start: 4, end: 16, text: 'به بازی شکارچی نشانه "سین" خوش اومدی! اینجا قراره توی یه دنیای جادویی زیر آب، دنبال شکل‌های قشنگ "س" بگردی و اونها رو پیدا کنی!' },
+                { start: 16, end: 24.5, text: 'اول نگاه کن! توی صفحه بازی، یه عالمه شکل‌های مختلف میبینی. بعضی از این شکل‌ها، شبیه حرف "س" هستن!' },
+                { start: 24.5, end: 38, text: 'بعد تشخیص بده! با دقت به هر شکل نگاه کن. فقط اونایی که شبیه "س" هستن رو باید انتخاب کنی. شکل‌های دیگه، دشمن‌های بازی هستن که نباید روشون کلیک کنی!' },
+                { start: 38, end: 48, text: 'وقتی شکل "س" رو پیدا کردی، روش کلیک کن. اگه درست انتخاب کرده باشی، یه صدای خوشگل میشنوی و اون شکل سبز میشه!' },
+                { start: 48, end: 55, text: 'موفق باشی دوست من!' }
+            ],
+
+            startGuide(fromMenu) {
+                const guideText = document.getElementById('guideText');
+                const progressBar = document.getElementById('guideProgressBar');
+                const skipBtn = document.getElementById('guideSkipBtn');
+                
+                if (fromMenu) {
+                    skipBtn.style.display = 'block';
+                    skipBtn.onclick = () => {
+                        if (this.guideInterval) {
+                            clearInterval(this.guideInterval);
+                            this.guideInterval = null;
+                        }
+                        this.stopGuideAudio();
+                        this.closeGuide();
+                    };
+                } else {
+                    skipBtn.style.display = 'none';
+                }
+                
+                this.guideStartTime = Date.now();
+                let lastIndex = -1;
+                this.guideInterval = setInterval(() => {
+                    const elapsed = (Date.now() - this.guideStartTime) / 1000;
+                    const progress = Math.min((elapsed / 55) * 100, 100);
+                    progressBar.style.width = progress + '%';
+                    let currentText = this.guideScripts[0].text;
+                    let currentIndex = 0;
+                    for (let i = this.guideScripts.length - 1; i >= 0; i--) {
+                        if (elapsed >= this.guideScripts[i].start) {
+                            currentText = this.guideScripts[i].text;
+                            currentIndex = i;
+                            break;
+                        }
+                    }
+                    if (currentIndex !== lastIndex) {
+                        guideText.textContent = currentText;
+                        guideText.style.animation = 'none';
+                        requestAnimationFrame(() => {
+                            guideText.style.animation = 'screenFadeIn 0.4s ease';
+                        });
+                        lastIndex = currentIndex;
+                    }
+                    if (elapsed >= 55) {
+                        clearInterval(this.guideInterval);
+                        this.guideInterval = null;
+                        this.stopGuideAudio();
+                        if (fromMenu) {
+                            this.closeGuide();
+                        } else {
+                            this.closeGuide();
+                            this.startCountdown(1);
+                        }
+                    }
+                }, 100);
+            },
+
+            startCountdown(level) {
+                this.startMusicOnInteraction();
+                const overlay = document.getElementById('countdownOverlay');
+                const display = document.getElementById('countdownDisplay');
+                overlay.classList.add('active');
+                
+                const countdownColor = getComputedStyle(document.body).getPropertyValue('--countdown-color').trim() || '#FFC93C';
+                display.style.color = countdownColor;
+                
+                let count = 3;
+                display.textContent = '3';
+                this.playCountdownSound(3);
+                display.style.animation = 'none';
+                requestAnimationFrame(() => {
+                    display.style.animation = 'countdownPulse 0.5s ease';
+                });
+                
+                const interval = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        display.textContent = count;
+                        this.playCountdownSound(count);
+                        display.style.animation = 'none';
+                        requestAnimationFrame(() => {
+                            display.style.animation = 'countdownPulse 0.5s ease';
+                        });
+                    } else if (count === 0) {
+                        display.textContent = 'بریم!';
+                        this.playGoSound();
+                        display.style.fontSize = '4rem';
+                        display.style.animation = 'none';
+                        requestAnimationFrame(() => {
+                            display.style.animation = 'countdownTextPulse 0.8s ease';
+                        });
+                    } else {
+                        clearInterval(interval);
+                        overlay.classList.remove('active');
+                        display.style.fontSize = '';
+                        this.startGameAfterCountdown(level);
+                    }
+                }, 700);
+            },
+
+            startGameAfterCountdown(level) {
+                this.level = level;
+                this.levelConfigs = this.generateLevelConfigs();
+                const cfg = this.levelConfigs[level];
+                this.foundTargets = 0;
+                this.mistakes = 0;
+                this.isGameOver = false;
+                this.isPaused = false;
+                document.getElementById('liveMistakes').innerText = '0';
+                this.timeLeft = cfg.timeLimit || 30;
+                document.getElementById('liveTimer').innerText = this.timeLeft + ' ثانیه';
+                this.updateAccuracyDisplay();
+                showScreen('gameScreen');
+                document.getElementById('gameLevelDisplay').textContent = `مرحله ${level}`;
+                this.setupOceanFloor(cfg);
+                this.startTime = Date.now();
+                this.startTimer();
+                showToast(`مرحله ${level} - آماده‌ای؟ 🚀`);
+            },
+
+            loadShopData() {
+                try {
+                    const saved = localStorage.getItem('oceanHunterShop');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        this.ownedThemes = data.ownedThemes || ['default'];
+                        this.activeTheme = data.activeTheme || 'default';
+                    }
+                } catch(e) {}
+                if (!this.ownedThemes.includes(this.activeTheme)) {
+                    this.activeTheme = 'default';
+                }
+            },
+
+            saveShopData() {
+                localStorage.setItem('oceanHunterShop', JSON.stringify({
+                    ownedThemes: this.ownedThemes,
+                    activeTheme: this.activeTheme
+                }));
+            },
+
+            renderShop() {
+                const grid = document.getElementById('shop-grid');
+                grid.innerHTML = '';
+                this.updateCoinDisplay();
+
+                const items = this.themeItems;
+                const owned = this.ownedThemes;
+                const active = this.activeTheme;
+
+                items.forEach(item => {
+                    const isOwned = owned.includes(item.id);
+                    const isActive = active === item.id;
+                    const card = document.createElement('div');
+                    card.className = `shop-item ${isActive ? 'active-item' : ''}`;
+
+                    let previewHtml = '';
+                    if (item.file) {
+                        previewHtml = `<img src="icons/${item.file}" class="shop-theme-preview" alt="${item.name}" onerror="this.style.display='none'">`;
+                    } else {
+                        previewHtml = `<div class="shop-theme-preview" style="display:flex;align-items:center;justify-content:center;font-size:3rem;background:rgba(255,255,255,0.05);">${item.icon}</div>`;
+                    }
+
+                    let btnHtml = '';
+                    if (isActive) {
+                        btnHtml = `<button class="shop-btn-sm active">✓ فعال</button>`;
+                    } else if (isOwned || item.id === 'default') {
+                        btnHtml = `<button class="shop-btn-sm select" onclick="oceanGame.selectShopItem('${item.id}')">✨ انتخاب</button>`;
+                    } else {
+                        const canAfford = this.coins >= item.price;
+                        btnHtml = `<button class="shop-btn-sm ${canAfford ? 'buy' : 'locked'}" ${canAfford ? `onclick="oceanGame.buyShopItem('${item.id}')"` : 'disabled'}>${canAfford ? '🛒 خرید' : '🔒 قفل'}</button>`;
+                    }
+
+                    card.innerHTML = `
+                        ${previewHtml}
+                        <div class="name">${item.name}</div>
+                        <div class="price">${item.price > 0 ? `<img src="icons/coin.png" alt="Coin" onerror="this.textContent='🪙'"> ${item.price}` : '🎁 رایگان'}</div>
+                        ${btnHtml}
+                    `;
+                    grid.appendChild(card);
+                });
+            },
+
+            buyShopItem(id) {
+                this.startMusicOnInteraction();
+                const item = this.themeItems.find(i => i.id === id);
+                if (!item) return;
+                if (this.coins < item.price) {
+                    showToast('سکه کافی نداری! 😢');
+                    return;
+                }
+                if (this.ownedThemes.includes(id)) {
+                    showToast('این رو قبلاً خریدی!');
+                    return;
+                }
+                this.coins -= item.price;
+                this.saveCoins();
+                this.ownedThemes.push(id);
+                this.activeTheme = id;
+                this.saveShopData();
+                this.renderShop();
+                this.applyThemeStyle(id);
+                this.showCelebration(item.name);
+                showToast(`🎉 ${item.name} خریداری شد!`);
+            },
+
+            showCelebration(themeName) {
+                const modal = document.getElementById('celebrationModal');
+                const desc = document.getElementById('celebDesc');
+                desc.innerHTML = `<strong>${themeName}</strong> خریداری شد!<br>حالا با استایل جدیدت<br>قشنگ‌تر از همیشه! 😍`;
+                modal.classList.add('open');
+                
+                const container = document.createElement('div');
+                container.className = 'celeb-confetti';
+                document.body.appendChild(container);
+                const colors = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#9B59B6', '#FF6BB5', '#FFB347', '#00D2FF', '#A855F7', '#FF00A0'];
+                for (let i = 0; i < 80; i++) {
+                    const c = document.createElement('div');
+                    c.className = 'confetti-piece';
+                    c.style.left = Math.random() * 100 + '%';
+                    c.style.top = '-10px';
+                    c.style.width = (Math.random() * 8 + 6) + 'px';
+                    c.style.height = (Math.random() * 8 + 6) + 'px';
+                    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+                    c.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+                    c.style.animationDelay = (Math.random() * 1.5) + 's';
+                    container.appendChild(c);
+                }
+                setTimeout(() => container.remove(), 4500);
+            },
+
+            selectShopItem(id) {
+                this.startMusicOnInteraction();
+                this.activeTheme = id;
+                this.saveShopData();
+                this.renderShop();
+                this.applyThemeStyle(id);
+                showToast(`✨ ${this.themeItems.find(t => t.id === id).name} انتخاب شد!`);
+            },
+
+            applyThemeStyle(themeId) {
+                document.body.className = '';
+                if (themeId !== 'default') {
+                    document.body.classList.add('theme-' + themeId);
+                }
+                const theme = this.themeItems.find(t => t.id === themeId);
+                if (theme && theme.file) {
+                    document.body.style.backgroundImage = `url('icons/${theme.file}')`;
+                    document.body.style.backgroundSize = 'cover';
+                    document.body.style.backgroundPosition = 'center';
+                } else {
+                    document.body.style.backgroundImage = '';
+                    document.body.style.backgroundSize = '';
+                    document.body.style.backgroundPosition = '';
+                }
+                if (theme && theme.music) {
+                    this.playThemeMusic(theme.music);
+                }
+                this.updateStatsUI();
+            },
+
+            renderLevels() {
+                const grid = document.getElementById('levelGrid');
+                grid.innerHTML = '';
+                for (let i = 1; i <= this.totalLevels; i++) {
+                    const box = document.createElement('div');
+                    box.className = 'level-box';
+                    const stats = this.globalStats.levelStats[i];
+                    const isUnlocked = i === 1 || (i > 1 && this.globalStats.levelStats[i-1] && this.globalStats.levelStats[i-1].win > 0);
+                    if (!isUnlocked) {
+                        box.classList.add('locked');
+                    }
+                    box.innerHTML = `
+                        <span class="level-number">${i}</span>
+                        ${!isUnlocked ? '<span class="lock-icon">🔒</span>' : ''}
+                        ${stats.win > 0 ? '<span class="check-icon">✅</span>' : ''}
+                    `;
+                    if (isUnlocked) {
+                        box.addEventListener('click', () => {
+                            this.startMusicOnInteraction();
+                            this.handleLevelClick(i);
+                        });
+                    }
+                    grid.appendChild(box);
+                }
+            },
+
+            handleLevelClick(level) {
+                if (this.isFirstGame && level === 1) {
+                    this.isFirstGame = false;
+                    this.showGuideForFirstTime();
+                } else {
+                    this.startCountdown(level);
+                }
+            },
+
+            startTimer() {
+                clearInterval(this.timerInterval);
+                this.timerInterval = setInterval(() => {
+                    if (this.isPaused) return;
+                    this.timeLeft--;
+                    document.getElementById('liveTimer').innerText = this.timeLeft + ' ثانیه';
+                    if (this.timeLeft <= 0) {
+                        this.endGame(false, 'timeout');
+                    }
+                }, 1000);
+            },
+
+            setupOceanFloor(cfg) {
+                const container = document.getElementById('oceanGrid');
+                container.innerHTML = '';
+                this.totalTargets = cfg.targets;
+                this.updateTargetCounter();
+
+                let pool = [];
+                for (let i = 0; i < cfg.targets; i++) pool.push({ type: 'target', svg: this.vectors.seen });
+                for (let i = 0; i < cfg.dist1; i++) pool.push({ type: 'distractor', svg: this.vectors.distractor1 });
+                for (let i = 0; i < cfg.dist2; i++) pool.push({ type: 'distractor', svg: this.vectors.distractor2 });
+                for (let i = 0; i < cfg.dist3; i++) pool.push({ type: 'distractor', svg: this.vectors.distractor3 });
+                while (pool.length < cfg.total) pool.push({ type: 'normal', svg: this.vectors.normalWave });
+                pool.sort(() => Math.random() - 0.5);
+
+                const cols = cfg.cols || Math.min(4 + Math.floor(this.level / 4), 6);
+                container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+                
+                pool.forEach((item) => {
+                    const waveEl = document.createElement('div');
+                    waveEl.className = 'wave-item floating-wave';
+                    waveEl.innerHTML = `<svg viewBox="0 0 100 100">${item.svg}</svg>`;
+                    waveEl.style.animationDelay = `${Math.random() * 2}s`;
+                    waveEl.onclick = (e) => {
+                        this.startMusicOnInteraction();
+                        this.handleWaveClick(waveEl, item, e);
+                    };
+                    container.appendChild(waveEl);
+                });
+            },
+
+            updateTargetCounter() {
+                const remaining = this.totalTargets - this.foundTargets;
+                const counter = document.getElementById('targetCounterDisplay');
+                if (remaining === 0) {
+                    counter.textContent = '🎯 همه پیدا شد!';
+                } else if (remaining === 1) {
+                    counter.textContent = '🎯 1 تا مونده';
+                } else {
+                    counter.textContent = `🎯 ${remaining} تا مونده`;
+                }
+            },
+
+            handleWaveClick(element, item, event) {
+                if (this.isGameOver || element.classList.contains('discovered') || this.isPaused) return;
+                if (item.type === 'target') {
+                    element.classList.remove('floating-wave');
+                    element.classList.add('success-pop', 'discovered');
+                    this.audio.playSuccess();
+                    this.foundTargets++;
+                    this.updateTargetCounter();
+                    this.updateAccuracyDisplay();
+                    if (this.foundTargets === this.totalTargets) {
+                        this.endGame(true, 'win');
+                    }
+                } else {
+                    element.classList.add('error-shake');
+                    this.audio.playFail();
+                    this.mistakes++;
+                    document.getElementById('liveMistakes').innerText = this.mistakes;
+                    this.updateAccuracyDisplay();
+                    setTimeout(() => element.classList.remove('error-shake'), 400);
+                    
+                    if (this.mistakes > this.maxMistakes) {
+                        this.endGame(false, 'too_many_mistakes');
+                    }
+                }
+            },
+
+            updateAccuracyDisplay() {
+                const total = this.foundTargets + this.mistakes;
+                const accuracy = total > 0 ? Math.round((this.foundTargets / total) * 100) : 100;
+                document.getElementById('liveAccuracy').innerText = accuracy + '%';
+            },
+
+            showResultModal(isWin, reason) {
+                const modal = document.getElementById('resultModal');
+                const iconImg = document.getElementById('resultIconImg');
+                const title = document.getElementById('resultTitle');
+                const desc = document.getElementById('resultDesc');
+                const stats = document.getElementById('resultStats');
+                const options = document.getElementById('resultOptions');
+                const duration = Math.floor((Date.now() - this.startTime) / 1000);
+                const totalAttempts = this.foundTargets + this.mistakes;
+                const accuracy = totalAttempts > 0 ? Math.round((this.foundTargets / totalAttempts) * 100) : 100;
+
+                if (isWin) {
+                    this.playWinSound();
+                    this.audio.playWinArpeggio();
+                    // جایزه سکه
+                    this.coins += 1;
+                    this.saveCoins();
+                } else {
+                    this.playLoseSoundEffect();
+                    this.audio.playLoseSound();
+                }
+
+                let statsHtml = '';
+                if (isWin) {
+                    statsHtml = `
+                        <span><small>دقت</small>${accuracy}%</span>
+                        <span><small>زمان</small>${duration} ثانیه</span>
+                        <span><small>اشتباهات</small>${this.mistakes}</span>
+                        <span>
+                            <small>سکه</small>
+                            <span class="coin-stats">
+                                <img src="icons/coin.png" alt="سکه"> +1
+                            </span>
+                        </span>
+                    `;
+                } else {
+                    statsHtml = `
+                        <span><small>پیدا شده</small>${this.foundTargets}/${this.totalTargets}</span>
+                        <span><small>دقت</small>${accuracy}%</span>
+                        <span><small>زمان</small>${duration} ثانیه</span>
+                        <span><small>اشتباهات</small>${this.mistakes}/3</span>
+                    `;
+                }
+                stats.innerHTML = statsHtml;
+
+                if (isWin) {
+                    iconImg.src = 'icons/happy gamer.png';
+                    title.textContent = '🎉 آفرین!';
+                    title.className = 'result-title win';
+                    desc.textContent = 'همه‌ی نشانه‌های «س» رو با موفقیت پیدا کردی!';
+                    const nextLevel = this.level < this.totalLevels ? this.level + 1 : null;
+                    options.innerHTML = `
+                        ${nextLevel ? `<button class="btn btn-next" onclick="oceanGame.goToNextLevel(${nextLevel})">🚀 مرحله بعد</button>` : '<button class="btn btn-next" onclick="oceanGame.goToNextLevel(1)">🏆 بازی کامل شد! شروع مجدد</button>'}
+                        <button class="btn btn-retry" onclick="oceanGame.restartCurrentLevel()">🔄 شروع مجدد</button>
+                        <button class="btn btn-quit-result" onclick="oceanGame.closeResultAndQuit()">🚪 خروج به منو</button>
+                    `;
+                } else {
+                    iconImg.src = 'icons/sad gamer.png';
+                    title.textContent = '😔 متأسفم!';
+                    title.className = 'result-title lose';
+                    if (reason === 'timeout') {
+                        desc.textContent = '⏰ زمانت تموم شد! دوباره تلاش کن قهرمان!';
+                    } else if (reason === 'too_many_mistakes') {
+                        desc.textContent = '❌ بیش از ۳ اشتباه کردی! برای بهتر شدن تمرین کن!';
+                    } else {
+                        desc.textContent = 'نتونستی همه رو پیدا کنی! دوباره امتحان کن!';
+                    }
+                    options.innerHTML = `
+                        <button class="btn btn-retry" onclick="oceanGame.restartCurrentLevel()">🔄 تلاش دوباره</button>
+                        <button class="btn btn-quit-result" onclick="oceanGame.closeResultAndQuit()">🚪 خروج به منو</button>
+                    `;
+                }
+
+                const iconContainer = document.getElementById('resultIcon');
+                iconContainer.style.animation = 'none';
+                requestAnimationFrame(() => {
+                    iconContainer.style.animation = 'resultIconPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                });
+                iconImg.style.animation = 'none';
+                requestAnimationFrame(() => {
+                    iconImg.style.animation = 'resultIconFloat 2s ease-in-out infinite';
+                });
+                modal.classList.add('open');
+            },
+
+            goToNextLevel(nextLevel) {
+                this.startMusicOnInteraction();
+                document.getElementById('resultModal').classList.remove('open');
+                this.startCountdown(nextLevel);
+            },
+
+            restartCurrentLevel() {
+                this.startMusicOnInteraction();
+                document.getElementById('resultModal').classList.remove('open');
+                const currentLevel = this.level;
+                this.startCountdown(currentLevel);
+            },
+
+            closeResultAndQuit() {
+                document.getElementById('resultModal').classList.remove('open');
+                this.quitGame();
+            },
+
+            endGame(isWin, reason) {
+                if (this.isGameOver) return;
+                this.isGameOver = true;
+                clearInterval(this.timerInterval);
+                const duration = Math.floor((Date.now() - this.startTime) / 1000);
+                const totalAttempts = this.foundTargets + this.mistakes;
+                const accuracy = totalAttempts > 0 ? Math.round((this.foundTargets / totalAttempts) * 100) : 100;
+
+                this.globalStats.totalGames++;
+                this.globalStats.totalTimePlayed += duration;
+                this.globalStats.totalCorrect += this.foundTargets;
+                this.globalStats.totalMistakes += this.mistakes;
+                if (!this.globalStats.levelStats[this.level]) {
+                    this.globalStats.levelStats[this.level] = { play: 0, win: 0, bestTime: null };
+                }
+                this.globalStats.levelStats[this.level].play++;
+
+                if (isWin) {
+                    this.globalStats.totalWins++;
+                    this.globalStats.levelStats[this.level].win++;
+                    if (!this.globalStats.levelStats[this.level].bestTime || duration < this.globalStats.levelStats[this.level].bestTime) {
+                        this.globalStats.levelStats[this.level].bestTime = duration;
+                    }
+                }
+
+                this.saveStats();
+                setTimeout(() => {
+                    this.showResultModal(isWin, reason);
+                }, 400);
+            },
+
+            showStopMenu() {
+                if (this.isGameOver) return;
+                document.getElementById('stopModal').classList.add('open');
+            },
+
+            continueGame() {
+                document.getElementById('stopModal').classList.remove('open');
+            },
+
+            restartGame() {
+                this.startMusicOnInteraction();
+                document.getElementById('stopModal').classList.remove('open');
+                if (this.isGameOver) return;
+                const currentLevel = this.level;
+                this.startCountdown(currentLevel);
+            },
+
+            showFullStats() {
+                this.startMusicOnInteraction();
+                const container = document.getElementById('fullStatsList');
+                const totalAttempts = this.globalStats.totalCorrect + this.globalStats.totalMistakes;
+                const overallAcc = totalAttempts > 0 ? Math.round((this.globalStats.totalCorrect / totalAttempts) * 100) : 0;
+                let levelStatsHtml = '';
+                for (let i = 1; i <= this.totalLevels; i++) {
+                    const st = this.globalStats.levelStats[i] || { play: 0, win: 0, bestTime: null };
+                    levelStatsHtml += `
+                        <div class="stats-detail-item">
+                            <span class="stats-detail-label">📌 مرحله ${i}:</span>
+                            <span class="stats-detail-value">${st.play} بازی | ${st.win} برد ${st.bestTime ? '| ⏱️'+st.bestTime+'s' : ''}</span>
+                        </div>
+                    `;
+                }
+                container.innerHTML = `
+                    <div class="stats-detail-item"><span class="stats-detail-label">🎮 کل بازی‌ها:</span><span class="stats-detail-value">${this.globalStats.totalGames}</span></div>
+                    <div class="stats-detail-item"><span class="stats-detail-label">🏆 پیروزی‌ها:</span><span class="stats-detail-value">${this.globalStats.totalWins}</span></div>
+                    <div class="stats-detail-item"><span class="stats-detail-label">✅ پیدا کردن درست:</span><span class="stats-detail-value">${this.globalStats.totalCorrect}</span></div>
+                    <div class="stats-detail-item"><span class="stats-detail-label">❌ اشتباهات کل:</span><span class="stats-detail-value">${this.globalStats.totalMistakes}</span></div>
+                    <div class="stats-detail-item"><span class="stats-detail-label">🎯 دقت کلی:</span><span class="stats-detail-value">${overallAcc}%</span></div>
+                    <div class="stats-detail-item"><span class="stats-detail-label">⏱️ زمان کل:</span><span class="stats-detail-value">${Math.floor(this.globalStats.totalTimePlayed / 60)} دقیقه ${this.globalStats.totalTimePlayed % 60} ثانیه</span></div>
+                    <div class="stats-divider"></div>
+                    ${levelStatsHtml}
+                `;
+                document.getElementById('fullStatsModal').classList.add('open');
+            },
+
+            closeFullStats() {
+                document.getElementById('fullStatsModal').classList.remove('open');
+            },
+
+            clearAllStats() {
+                if (confirm('آیا از پاک کردن همه آمار مطمئنی؟ این کار قابل بازگشت نیست.')) {
+                    this.globalStats = {
+                        totalGames: 0,
+                        totalWins: 0,
+                        totalMistakes: 0,
+                        totalCorrect: 0,
+                        totalTimePlayed: 0,
+                        levelStats: {}
+                    };
+                    for (let i = 1; i <= this.totalLevels; i++) {
+                        this.globalStats.levelStats[i] = { play: 0, win: 0, bestTime: null };
+                    }
+                    this.saveStats();
+                    showToast('آمار با موفقیت پاک شد!');
+                    this.closeFullStats();
+                }
+            },
+
+            quitGame() {
+                clearInterval(this.timerInterval);
+                this.isGameOver = true;
+                document.getElementById('stopModal').classList.remove('open');
+                document.getElementById('resultModal').classList.remove('open');
+                showScreen('homeScreen');
+            }
+        };
+
+        // ===== رویداد برای اولین کلیک =====
+        document.addEventListener('click', function firstInteraction() {
+            oceanGame.startMusicOnInteraction();
+            document.removeEventListener('click', firstInteraction);
+        }, { once: true });
+
+        document.addEventListener('touchstart', function firstInteraction() {
+            oceanGame.startMusicOnInteraction();
+            document.removeEventListener('touchstart', firstInteraction);
+        }, { once: true });
+
+        oceanGame.levelConfigs = oceanGame.generateLevelConfigs();
+        oceanGame.loadStats();
+        oceanGame.loadCoins();
+        oceanGame.loadShopData();
+        oceanGame.applyThemeStyle(oceanGame.activeTheme);
+
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('open');
+                }
+            });
+        });
+
+        document.getElementById('guideBtn').addEventListener('click', function(e) {
+            oceanGame.showGuideFromMenu();
+        });
+    </script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#celebrationModal", "#resultModal", "#resultStats", "#resultOptions"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

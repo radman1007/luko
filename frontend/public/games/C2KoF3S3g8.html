@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🌿 باغچه جادویی بامبو</title>
+
+    <style>
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Regular.ttf") format("truetype");
+            font-weight: 400; font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Medium.ttf") format("truetype");
+            font-weight: 500; font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Black.ttf") format("truetype");
+            font-weight: 900; font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Regular.ttf") format("truetype");
+            font-weight: 400; font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Black.ttf") format("truetype");
+            font-weight: 900; font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype");
+            font-weight: 800; font-display: swap;
+        }
+
+        :root {
+            --primary: #39FF14;
+            --secondary: #00D2FF;
+            --neon-pink: #FE00FE;
+            --gold: #FFC93C;
+            --danger: #FF4757;
+            --dark: #050a10;
+            --glass-bg: rgba(10, 15, 25, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-color: #FFFFFF;
+            --text-secondary: #B0B0C0;
+            --font-family: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+            --shadow-xl: 0 15px 70px rgba(0, 0, 0, 0.8);
+            --glow-gold: 0 0 20px rgba(255, 201, 60, 0.6);
+            --glow-primary: 0 0 20px rgba(57, 255, 20, 0.5);
+            --transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --radius: 20px;
+            --btn-primary-bg: linear-gradient(135deg, #39FF14, #00D2FF);
+            --btn-primary-shadow: rgba(57, 255, 20, 0.4);
+            --btn-start-bg: linear-gradient(135deg, #FFC93C, #f59e0b);
+            --btn-start-color: #0a0a1a;
+            --btn-start-shadow: rgba(255, 201, 60, 0.4);
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: var(--font-family);
+        }
+
+        html, body {
+            width: 100%; height: 100%; overflow: hidden;
+            background-color: var(--dark);
+            background-image: radial-gradient(circle at top, #0b1f0e 0%, #050a10 100%);
+        }
+
+        /* ===== Cyber Grid Background (Animated) ===== */
+        .cyber-grid {
+            position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
+            background-image: 
+                linear-gradient(rgba(0, 210, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 210, 255, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0; pointer-events: none;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+            animation: gridMove 20s linear infinite;
+            transform: perspective(500px) rotateX(60deg);
+        }
+        @keyframes gridMove {
+            from { background-position: 0 0; }
+            to { background-position: 40px 40px; }
+        }
+
+        /* ===== Background Effects ===== */
+        .neon-orb { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; opacity: 0.4; }
+        .neon-orb-1 { width: 500px; height: 500px; top: -150px; right: -100px; background: var(--primary); animation: orbFloat 8s ease-in-out infinite; }
+        .neon-orb-2 { width: 600px; height: 600px; bottom: -200px; left: -150px; background: var(--secondary); animation: orbFloat 10s ease-in-out infinite reverse; }
+        .neon-orb-3 { width: 400px; height: 400px; top: 40%; left: 30%; background: var(--neon-pink); animation: orbFloat 12s ease-in-out infinite; }
+        @keyframes orbFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(40px, -40px) scale(1.1); } 66% { transform: translate(-30px, 30px) scale(0.9); } }
+
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 2s ease-in-out infinite alternate; }
+        @keyframes twinkle { 0% { opacity: 0.1; transform: scale(0.5); } 100% { opacity: 0.9; transform: scale(1.2); } }
+
+        /* ===== Canvas Fix ===== */
+        canvas { position: fixed !important; top: 0 !important; left: 0 !important; z-index: 1 !important; }
+
+        /* ===== Custom Scrollbar (Neon) ===== */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(var(--primary), var(--secondary)); 
+            border-radius: 10px; 
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        /* ===== UI Panels ===== */
+        .ui-panel {
+            position: fixed; top: 15px; left: 15px; right: 15px;
+            background: rgba(10, 15, 25, 0.7); backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border: 1px solid var(--glass-border); border-radius: 16px;
+            padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+            z-index: 100; box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03); padding: 6px 14px; border-radius: 12px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.05); min-width: 60px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+        }
+        .stat-label { font-size: 0.6rem; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 1.1rem; font-weight: 800; color: var(--gold); line-height: 1.2; text-shadow: 0 0 15px var(--gold); }
+
+        .coin-display {
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(0, 0, 0, 0.5); padding: 4px 12px 4px 8px;
+            border-radius: 30px; border: 1px solid var(--gold); box-shadow: 0 0 20px rgba(255, 201, 60, 0.2); z-index: 10;
+        }
+        .coin-display img { width: 18px; height: 18px; object-fit: contain; }
+        .coin-amount { color: var(--gold); font-weight: 800; font-size: 0.95rem; text-shadow: 0 0 15px var(--gold); }
+
+        /* ===== Music Player Indicator ===== */
+        .music-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: rgba(0,0,0,0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+        .music-indicator .music-icon {
+            animation: musicPulse 1s ease-in-out infinite;
+        }
+        @keyframes musicPulse {
+            0%, 100% { opacity: 0.4; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        .music-indicator .music-name {
+            max-width: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .music-indicator .music-toggle {
+            background: none;
+            border: none;
+            color: var(--gold);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0 4px;
+        }
+        .music-indicator .music-toggle:hover {
+            transform: scale(1.2);
+        }
+
+        /* ===== Stop Button ===== */
+        .stop-btn, .back-btn {
+            width: 38px; height: 38px; border-radius: 50%;
+            border: 2px solid rgba(255, 118, 117, 0.3);
+            background: rgba(255, 118, 117, 0.1);
+            color: var(--text-color); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); flex-shrink: 0;
+        }
+        .back-btn { border-radius: 10px; border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); }
+        .stop-btn:hover, .back-btn:hover {
+            border-color: var(--danger) !important;
+            box-shadow: 0 0 20px rgba(255, 118, 117, 0.5);
+            background: rgba(255, 118, 117, 0.2);
+            transform: rotate(180deg);
+        }
+        .stop-btn svg { width: 16px; height: 16px; fill: currentColor; }
+        .back-btn svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2.5; fill: none; }
+
+        /* ===== Buttons ===== */
+        button { border: none; cursor: pointer; font-family: inherit; outline: none; transition: all 0.3s ease; }
+        
+        .btn-grow {
+            background: var(--btn-primary-bg); color: #050a10;
+            padding: 10px 24px; border-radius: 14px; font-size: 1rem; font-weight: 900;
+            box-shadow: 0 4px 15px var(--btn-primary-shadow); position: relative; overflow: hidden;
+            min-width: 80px; text-shadow: 0 1px 1px rgba(255,255,255,0.3);
+            animation: btnPulse 2s infinite;
+        }
+        @keyframes btnPulse {
+            0% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(57, 255, 20, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); }
+        }
+        .btn-grow::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transition: left 0.6s; }
+        .btn-grow:hover::before { left: 100%; }
+        .btn-grow:active { transform: scale(0.9); }
+
+        /* ===== Helper & Instructions ===== */
+        .character-tip {
+            position: fixed; bottom: 85px; left: 15px; right: 15px;
+            background: rgba(10, 15, 25, 0.7); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 201, 60, 0.3); border-radius: 14px; padding: 10px 16px;
+            text-align: center; z-index: 101; font-weight: 700; color: var(--gold);
+            font-size: 0.85rem; box-shadow: 0 0 20px rgba(255, 201, 60, 0.1);
+            animation: tipPulse 3s ease-in-out infinite;
+        }
+        @keyframes tipPulse { 0%, 100% { box-shadow: 0 0 15px rgba(255, 201, 60, 0.1); } 50% { box-shadow: 0 0 30px rgba(255, 201, 60, 0.3); } }
+        .character-tip span { font-size: 1.2rem; margin-left: 6px; }
+
+        .instructions {
+            position: fixed; bottom: 15px; left: 15px; right: 15px; text-align: center;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 6px 14px;
+            border-radius: 30px; font-size: 0.7rem; color: var(--text-secondary); z-index: 100;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* ===== Overlays & Modals ===== */
+        .overlay-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 10, 16, 0.85); backdrop-filter: blur(20px);
+            display: flex; justify-content: center; align-items: center; z-index: 200;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+            padding: 15px; visibility: hidden; opacity: 0; pointer-events: none;
+        }
+        .overlay-screen.active { visibility: visible; opacity: 1; pointer-events: auto; }
+
+        .glass-card {
+            background: rgba(10, 15, 25, 0.75); backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid var(--glass-border); border-radius: 24px;
+            padding: 30px 20px 25px; text-align: center; max-width: 500px; width: 100%;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            position: relative; overflow: hidden;
+        }
+        
+        /* ===== Aurora Border Animation (Holographic) ===== */
+        .glass-card::after {
+            content: ''; position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px;
+            border-radius: 24px; padding: 1.5px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--neon-pink), var(--gold), var(--primary));
+            background-size: 400% 400%;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: auroraBorder 4s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+        @keyframes auroraBorder {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 400% 50%; }
+        }
+
+        /* ===== 3D Entrance Animations ===== */
+        .overlay-screen.active .glass-card { animation: cardZoomIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes cardZoomIn {
+            0% { opacity: 0; transform: scale(0.8) translateY(20px) rotateX(-10deg); filter: blur(5px); }
+            100% { opacity: 1; transform: scale(1) translateY(0) rotateX(0); filter: blur(0); }
+        }
+
+        .menu-container .menu-character,
+        .menu-container .menu-title,
+        .menu-container .menu-subtitle,
+        .menu-container .btn,
+        .menu-container .row-buttons {
+            opacity: 0;
+            animation: fadeInUp3D 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        .overlay-screen.active .menu-character { animation-delay: 0.2s; }
+        .overlay-screen.active .menu-title { animation-delay: 0.3s; }
+        .overlay-screen.active .menu-subtitle { animation-delay: 0.4s; }
+        .overlay-screen.active .btn { animation-delay: 0.5s; }
+        .overlay-screen.active .row-buttons { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp3D {
+            0% { opacity: 0; transform: translateY(30px) scale(0.9) rotateX(-15deg); filter: blur(4px); }
+            100% { opacity: 1; transform: translateY(0) scale(1) rotateX(0); filter: blur(0); }
+        }
+
+        /* === Landing Menu === */
+        .menu-container { max-width: 400px; z-index: 2; }
+        .menu-character {
+            width: 120px; height: 120px; margin: 30px auto 25px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.4) 100%);
+            border: 3px solid var(--gold); box-shadow: 0 0 50px var(--glow-gold), inset 0 0 30px rgba(255, 201, 60, 0.05);
+            display: flex; align-items: center; justify-content: center; overflow: visible;
+            animation: framePulse 3s ease-in-out infinite; position: relative;
+        }
+        .menu-character img {
+            width: 85%; height: 85%; object-fit: contain;
+            animation: float 3s ease-in-out infinite;
+        }
+        .menu-character .pixel-speech {
+            position: absolute; bottom: 100%; left: 50%; margin-bottom: 12px; transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.85)); backdrop-filter: blur(15px);
+            padding: 8px 18px; border-radius: 14px; border: 1.5px solid var(--gold); font-size: 0.85rem; font-weight: 800;
+            color: var(--gold); text-shadow: 0 0 10px var(--gold); white-space: nowrap;
+            animation: speechBounce 2s ease-in-out infinite, bubblePop 0.5s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4); z-index: 10;
+        }
+        .menu-character .pixel-speech::after {
+            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            border-width: 7px; border-style: solid; border-color: rgba(0,0,0,0.85) transparent transparent transparent;
+        }
+        @keyframes speechBounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-5px); } }
+        @keyframes bubblePop { 0% { opacity: 0; transform: translateX(-50%) scale(0.5); } 100% { opacity: 1; transform: translateX(-50%) scale(1); } }
+        @keyframes framePulse { 0%, 100% { box-shadow: 0 0 30px rgba(255, 201, 60, 0.2), 0 0 60px var(--secondary); } 50% { box-shadow: 0 0 60px rgba(255, 201, 60, 0.4), 0 0 100px var(--primary); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+        .menu-title {
+            font-size: 2.2rem; font-weight: 900; margin-bottom: 4px;
+            font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #FFFFFF, var(--primary), var(--secondary));
+            background-size: 200% auto;
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(57, 255, 20, 0.1); 
+            animation: shineText 3s linear infinite;
+        }
+        @keyframes shineText { to { background-position: 200% center; } }
+        .menu-subtitle {
+            color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; margin-bottom: 15px;
+        }
+
+        .btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 14px 24px; border: none; border-radius: 14px; font-size: 1rem;
+            font-family: 'Shoor Rounded ExtraBold', 'Shoor', Tahoma, sans-serif; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); font-weight: 800;
+            position: relative; overflow: hidden; width: 100%; min-height: 54px; margin: 10px 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent); transition: left 0.6s; }
+        .btn:hover::before { left: 100%; }
+        .btn:active { transform: scale(0.96) translateY(2px); }
+        .btn-primary { background: var(--btn-primary-bg); color: #050a10; box-shadow: 0 4px 20px var(--btn-primary-shadow); }
+        .btn-primary:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 8px 30px var(--btn-primary-shadow); }
+        .btn-gold { background: var(--btn-start-bg); color: var(--btn-start-color); border: 1px solid rgba(255, 255, 255, 0.25); box-shadow: 0 4px 20px var(--btn-start-shadow); }
+        .btn-gold:hover { transform: translateY(-4px); box-shadow: 0 8px 30px var(--btn-start-shadow); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); color: var(--text-color); border: 1px solid var(--glass-border); }
+        .btn-secondary:hover { transform: translateY(-4px) scale(1.02); background: rgba(255, 255, 255, 0.1); border-color: var(--secondary); box-shadow: 0 0 20px var(--secondary); }
+        
+        .row-buttons { display: flex; gap: 10px; }
+        .row-buttons .btn { flex: 1; margin: 5px 0; }
+
+        /* Gameover Specifics */
+        .gameover-card .score-circle {
+            width: 90px; height: 90px; margin: 0 auto 20px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.4) 100%);
+            border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 30px var(--glow-gold); animation: happyPulse 2s infinite;
+        }
+        .gameover-card .score-circle span { font-size: 2.2rem; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+        @keyframes happyPulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 30px var(--glow-gold); } 50% { transform: scale(1.05); box-shadow: 0 0 50px var(--glow-gold); } }
+
+        /* Reward Box in Game Over */
+        .reward-box {
+            background: rgba(255, 201, 60, 0.1);
+            border: 1px solid var(--gold);
+            border-radius: 14px; padding: 12px; margin-bottom: 15px;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+            color: var(--gold); font-weight: 800; font-size: 1.2rem;
+            box-shadow: 0 0 15px rgba(255, 201, 60, 0.2);
+        }
+        .reward-box img { width: 28px; height: 28px; object-fit: contain; }
+
+        /* === Shop Specifics === */
+        .shop-tabs { display: flex; gap: 6px; margin-bottom: 15px; overflow-x: auto; padding: 4px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid var(--glass-border); }
+        .shop-tab { flex: 1; padding: 10px 6px; border: none; border-radius: 8px; background: transparent; color: var(--text-secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; white-space: nowrap; transition: all 0.3s ease; }
+        .shop-tab.active { background: var(--btn-primary-bg); color: #050a10; box-shadow: 0 0 15px var(--btn-primary-shadow); }
+        
+        .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; overflow-y: auto; max-height: 45vh; padding: 5px; }
+        
+        /* Shop Item 3D Pop In */
+        .shop-item {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 14px; padding: 12px 8px; text-align: center; display: flex; flex-direction: column; gap: 8px; min-height: 180px; transition: all 0.3s ease;
+            opacity: 0;
+            animation: itemPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes itemPopIn {
+            0% { opacity: 0; transform: scale(0.5) translateY(20px) rotateY(45deg); filter: blur(4px); }
+            100% { opacity: 1; transform: scale(1) translateY(0) rotateY(0); filter: blur(0); }
+        }
+        
+        .shop-item:hover { transform: translateY(-5px) scale(1.02); border-color: var(--secondary); box-shadow: 0 10px 25px var(--secondary); background: rgba(255,255,255,0.05); }
+        
+        .shop-item-preview { width: 100%; height: 70px; border-radius: 10px; background: radial-gradient(circle, #1a2a35 0%, #050a10 100%); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 4px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; }
+        
+        .shop-item-name { font-size: 0.9rem; font-weight: 800; color: var(--text-color); }
+        .shop-item-price { font-size: 0.85rem; color: var(--gold); font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .shop-item-price img { width: 14px; height: 14px; object-fit: contain; }
+        .shop-btn-sm { padding: 8px 10px; border: none; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; width: 100%; margin-top: auto; transition: all 0.3s ease; }
+        .shop-btn-sm.buy { background: var(--btn-start-bg); color: var(--btn-start-color); }
+        .shop-btn-sm.active { background: #00B894; color: #fff; cursor: default; box-shadow: 0 0 10px #00B894; }
+        .shop-btn-sm.select { background: var(--secondary); color: #050a10; box-shadow: 0 0 10px var(--secondary); }
+        .shop-btn-sm.locked { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.3); cursor: not-allowed; }
+        .shop-btn-sm.playing { background: #FF6B6B; color: #fff; box-shadow: 0 0 15px #FF6B6B; }
+
+        .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
+
+        /* === Congrats Modal === */
+        .congrats-card { max-width: 320px; }
+        .happy-gamer-img {
+            width: 120px; height: 120px; margin: 0 auto 15px;
+            border-radius: 50%; border: 3px solid var(--gold);
+            overflow: hidden; box-shadow: 0 0 30px var(--glow-gold);
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.4);
+            animation: happyFloat 1.5s ease-in-out infinite;
+        }
+        .happy-gamer-img img { width: 90%; height: 90%; object-fit: contain; }
+        @keyframes happyFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-6px) scale(1.05); }
+        }
+        .congrats-title { font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; font-size: 1.6rem; color: var(--primary); text-shadow: 0 0 20px var(--primary); margin-bottom: 10px; }
+        .congrats-sub { font-family: 'Shoor Rounded ExtraBold', 'Shoor', Tahoma, sans-serif; color: var(--text-secondary); font-size: 1rem; margin-bottom: 20px; }
+
+        /* ===== Grow Effect ===== */
+        .grow-flash {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 50;
+            background: radial-gradient(circle at center, rgba(57, 255, 20, 0.2) 0%, transparent 70%);
+            animation: flashAnim 0.6s ease-out forwards;
+        }
+        @keyframes flashAnim { 0% { opacity: 1; transform: scale(0.5); } 100% { opacity: 0; transform: scale(2); } }
+
+        .grow-particles {
+            position: fixed; pointer-events: none; z-index: 51;
+            animation: particleFly 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        @keyframes particleFly {
+            0% { opacity: 1; transform: translate(0, 0) scale(0.5) rotate(0deg); }
+            20% { transform: translate(calc(var(--tx)*0.3), calc(var(--ty)*0.3)) scale(1.2) rotate(90deg); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.5) rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .ui-panel { padding: 8px 10px; gap: 6px; justify-content: center; }
+            .stat-card { min-width: 50px; padding: 4px 8px; }
+            .stat-value { font-size: 0.9rem; }
+            .stat-label { font-size: 0.55rem; }
+            .btn-grow { padding: 8px 16px; font-size: 0.8rem; min-width: 70px; }
+            .character-tip { font-size: 0.75rem; padding: 8px 12px; bottom: 75px; }
+            .instructions { font-size: 0.6rem; bottom: 15px; }
+            .menu-title { font-size: 1.8rem; }
+            .shop-grid { grid-template-columns: 1fr; }
+            .menu-character { width: 100px; height: 100px; margin: 25px auto 20px; }
+            .menu-character .pixel-speech { font-size: 0.75rem; padding: 6px 14px; white-space: normal; }
+            .menu-character img { width: 80%; height: 80%; }
+            .stop-btn, .back-btn { width: 34px; height: 34px; }
+            .music-indicator .music-name { max-width: 40px; }
+        }
+        @media (max-width: 400px) {
+            .ui-panel { gap: 4px; }
+            .stat-card { min-width: 40px; padding: 2px 6px; }
+            .stat-value { font-size: 0.75rem; }
+            .btn-grow { padding: 6px 12px; font-size: 0.7rem; min-width: 55px; }
+            .menu-title { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cyber-grid"></div>
+    <div class="neon-orb neon-orb-1"></div>
+    <div class="neon-orb neon-orb-2"></div>
+    <div class="neon-orb neon-orb-3"></div>
+    <div class="stars" id="stars"></div>
+
+    <!-- ===== UI Panel ===== -->
+    <div class="ui-panel" id="gameHUD">
+        <button class="stop-btn" id="stopBtn" aria-label="توقف بازی">
+            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+        </button>
+        <div class="stat-card"><div class="stat-label">قد</div><div class="stat-value" id="heightValue">0.0</div></div>
+        <div class="stat-card"><div class="stat-label">امتیاز</div><div class="stat-value" id="scoreValue">0</div></div>
+        <div class="stat-card"><div class="stat-label">گره</div><div class="stat-value" id="nodesValue">0</div></div>
+        <div class="coin-display">
+            <img src="icons/coin.png" alt="سکه" onerror="this.textContent='🪙'">
+            <span class="coin-amount" id="gameCoinAmount">0</span>
+        </div>
+        <!-- Music Indicator -->
+        <div class="music-indicator" id="musicIndicator">
+            <span class="music-icon">🎵</span>
+            <span class="music-name" id="currentMusicName">هیچ</span>
+            <button class="music-toggle" id="musicToggleBtn">⏸</button>
+        </div>
+        <button id="growBtn" class="btn-grow">🌱 رشد</button>
+    </div>
+
+    <div class="character-tip" id="helperTip">
+        <span>🌿</span> دکمه نئونی رو بزن تا بامبو رشد کنه!
+    </div>
+
+    <div class="instructions">
+        📱 بکش = چرخش | 🔍 دو انگشت = زوم | 🌱 دکمه = رشد | 🎵 آهنگ = فروشگاه
+    </div>
+
+    <!-- ===== Landing Screen ===== -->
+    <section id="startScreen" class="overlay-screen active">
+        <div class="glass-card menu-container">
+            <div class="coin-display" style="position: absolute; top: 15px; left: 15px; z-index: 2;">
+                <img src="icons/coin.png" alt="سکه" onerror="this.textContent='🪙'">
+                <span class="coin-amount" id="menuCoinAmount">0</span>
+            </div>
+            <div class="menu-character">
+                <img src="icons/gamerhi.png" alt="Pixel" onerror="this.textContent='🧒'">
+                <span class="pixel-speech">سلام! بریم باغچه؟</span>
+            </div>
+            <h1 class="menu-title">🌿 باغچه جادویی بامبو</h1>
+            <p class="menu-subtitle">بامبو رو رشد بده و جادوی طبیعت رو حس کن! 🚀</p>
+            <button id="startBtn" class="btn btn-primary">🎮 شروع بازی</button>
+            <div class="row-buttons">
+                <button id="shopBtn" class="btn btn-gold">🛍️ فروشگاه</button>
+                <button id="howBtn" class="btn btn-secondary">📖 راهنما</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Shop Screen ===== -->
+    <section id="shopScreen" class="overlay-screen">
+        <div class="glass-card" style="max-width: 450px; z-index: 2;">
+            <div class="shop-header">
+                <button class="back-btn" id="shopBackBtn">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </button>
+                <h2 class="menu-title" style="font-size: 1.4rem; margin:0;">🛍️ فروشگاه جادو</h2>
+                <div class="coin-display" style="position: static; box-shadow: none; background: rgba(0,0,0,0.4); border-width: 1px;">
+                    <img src="icons/coin.png" alt="سکه" onerror="this.textContent='🪙'">
+                    <span class="coin-amount" id="shopCoinAmount">0</span>
+                </div>
+            </div>
+            <div class="shop-tabs" id="shopTabs">
+                <button class="shop-tab active" data-tab="bamboo">🎋 بامبو</button>
+                <button class="shop-tab" data-tab="effect">✨ افکت</button>
+                <button class="shop-tab" data-tab="theme">🌍 تم</button>
+                <button class="shop-tab" data-tab="music">🎵 آهنگ</button>
+            </div>
+            <div class="shop-grid" id="shopGrid"></div>
+        </div>
+    </section>
+
+    <!-- ===== Game Over Screen ===== -->
+    <section id="gameoverOverlay" class="overlay-screen">
+        <div class="glass-card gameover-card" style="z-index: 2;">
+            <div class="score-circle"><span id="finalScoreSpan">0</span></div>
+            <h2 class="menu-title">🎉 آفرین قهرمان! 🎉</h2>
+            <p class="menu-subtitle">بامبو جادویی تو به آسمون رسید!</p>
+            <div class="reward-box">
+                <img src="icons/coin.png" alt="سکه" onerror="this.textContent='🪙'">
+                سکه‌های دریافت شده: <span id="earnedCoinsSpan">0</span>
+            </div>
+            <button class="btn btn-gold" id="restartBtn">🔄 دوباره بکار</button>
+            <button class="btn btn-secondary" id="menuBtn" style="margin-top: 5px;">🏠 منو</button>
+        </div>
+    </section>
+
+    <!-- ===== Stop Modal ===== -->
+    <section id="stopModal" class="overlay-screen">
+        <div class="glass-card" style="max-width: 320px; z-index: 2;">
+            <h2 class="menu-title" style="font-size: 1.4rem;">⏸️ توقف</h2>
+            <p class="menu-subtitle">بازی متوقف شد! چی کار میخوای بکنی؟</p>
+            <button class="btn btn-primary" id="resumeBtn">▶️ ادامه</button>
+            <button class="btn btn-gold" id="restartFromStopBtn">🔄 شروع مجدد</button>
+            <button class="btn btn-secondary" id="quitBtn">🏠 خروج به منو</button>
+        </div>
+    </section>
+
+    <!-- ===== Congrats Modal ===== -->
+    <section id="congratsModal" class="overlay-screen">
+        <div class="glass-card congrats-card" style="z-index: 2;">
+            <div class="happy-gamer-img">
+                <img src="icons/happy gamer.png" alt="تبریک" onerror="this.textContent='🎉'">
+            </div>
+            <h2 class="congrats-title">آفرین! خریدت با موفقیت انجام شد!</h2>
+            <p class="congrats-sub">آیتم جدیدت فعال شد ✨</p>
+            <button class="btn btn-gold" id="congratsCloseBtn">عالیه! 🚀</button>
+        </div>
+    </section>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "/games/assets/vendor/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // ============================================
+        // === MUSIC SYSTEM (Global, never stops) ===
+        // ============================================
+        const MUSIC_DATA = {
+            'm_piano': { file: 'musics/piano.mp3', name: 'پیانو', price: 0, icon: '🎹' },
+            'm_space': { file: 'musics/space.mp3', name: 'فضایی', price: 10, icon: '🚀' },
+            'm_first': { file: 'musics/first1.mp3', name: 'اولین', price: 10, icon: '🌟' },
+            'm_forest': { file: 'musics/forest.mp3', name: 'جنگل', price: 12, icon: '🌲' },
+            'm_snowy': { file: 'musics/snowy.mp3', name: 'برفی', price: 12, icon: '❄️' },
+            'm_volcano': { file: 'musics/volcano.mp3', name: 'آتشفشان', price: 12, icon: '🌋' },
+            'm_abnabat': { file: 'musics/Abnabat.mp3', name: 'آبنبات', price: 14, icon: '🍭' },
+            'm_jadooyi': { file: 'musics/jadooyi forest.mp3', name: 'جنگل جادویی', price: 15, icon: '✨' }
+        };
+
+        let audioElement = null;
+        let currentMusicId = 'm_piano';
+        let isMusicPlaying = true;
+        let ownedMusic = ['m_piano'];
+
+        // Load saved music state
+        try {
+            const savedMusic = localStorage.getItem('bambooMusic');
+            if (savedMusic) {
+                const parsed = JSON.parse(savedMusic);
+                if (parsed.owned) ownedMusic = parsed.owned;
+                if (parsed.current) currentMusicId = parsed.current;
+                if (parsed.playing !== undefined) isMusicPlaying = parsed.playing;
+            }
+        } catch(e) {}
+
+        function saveMusicState() {
+            try {
+                localStorage.setItem('bambooMusic', JSON.stringify({
+                    owned: ownedMusic,
+                    current: currentMusicId,
+                    playing: isMusicPlaying
+                }));
+            } catch(e) {}
+        }
+
+        function initAudio() {
+            if (!audioElement) {
+                audioElement = new Audio();
+                audioElement.loop = true;
+                audioElement.volume = 0.5;
+            }
+            const music = MUSIC_DATA[currentMusicId];
+            if (music) {
+                // Only change if different
+                if (audioElement.src !== window.location.origin + '/' + music.file) {
+                    audioElement.src = music.file;
+                    audioElement.load();
+                }
+            }
+            updateMusicUI();
+        }
+
+        function playMusic() {
+            if (!audioElement) initAudio();
+            if (audioElement && isMusicPlaying) {
+                const playPromise = audioElement.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {
+                        // Auto-play was blocked, user needs to interact
+                        console.log('Auto-play blocked, waiting for user interaction');
+                    });
+                }
+            }
+            updateMusicUI();
+        }
+
+        function toggleMusic() {
+            isMusicPlaying = !isMusicPlaying;
+            if (isMusicPlaying) {
+                if (audioElement) {
+                    audioElement.play().catch(() => {});
+                }
+            } else {
+                if (audioElement) {
+                    audioElement.pause();
+                }
+            }
+            saveMusicState();
+            updateMusicUI();
+        }
+
+        function changeMusic(musicId) {
+            if (!ownedMusic.includes(musicId)) return;
+            
+            currentMusicId = musicId;
+            const music = MUSIC_DATA[musicId];
+            if (music && audioElement) {
+                audioElement.src = music.file;
+                audioElement.load();
+                if (isMusicPlaying) {
+                    audioElement.play().catch(() => {});
+                }
+            }
+            saveMusicState();
+            updateMusicUI();
+        }
+
+        function updateMusicUI() {
+            const nameEl = document.getElementById('currentMusicName');
+            const toggleBtn = document.getElementById('musicToggleBtn');
+            if (nameEl) {
+                nameEl.textContent = MUSIC_DATA[currentMusicId]?.name || 'هیچ';
+            }
+            if (toggleBtn) {
+                toggleBtn.textContent = isMusicPlaying ? '⏸' : '▶️';
+            }
+        }
+
+        // ============================================
+        // === Stars Background ===
+        // ============================================
+        const starsContainer = document.getElementById('stars');
+        for(let i=0; i<80; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            s.style.left = Math.random() * 100 + '%';
+            s.style.top = Math.random() * 100 + '%';
+            s.style.width = s.style.height = (Math.random() * 2 + 1) + 'px';
+            starsContainer.appendChild(s);
+        }
+
+        // ===== COINS =====
+        let coins = 0;
+        try {
+            const savedCoins = localStorage.getItem('bambooCoins');
+            if (savedCoins !== null) coins = parseInt(savedCoins);
+        } catch(e) {}
+
+        // === Shop Data (with Music) ===
+        const SHOP_DATA = {
+            bamboo: [
+                { id: 'b_default', name: 'سبز جادویی', price: 0, color: 0x39FF14, icon: '🎋' },
+                { id: 'b_pink', name: 'صورتی نئونی', price: 12, color: 0xFF00FE, icon: '🌸' },
+                { id: 'b_gold', name: 'طلایی پادشاهی', price: 15, color: 0xFFD700, icon: '👑' },
+                { id: 'b_ice', name: 'یخی آبی', price: 12, color: 0x00D2FF, icon: '❄️' },
+                { id: 'b_rainbow', name: 'رینبو جشن', price: 15, color: 'rainbow', icon: '🌈' }
+            ],
+            effect: [
+                { id: 'e_snow', name: 'بارش برف', price: 0, color: 0xFFFFFF, size: 0.1, icon: '❄️', emojis: ['❄️', '⛄', '🌨️'] },
+                { id: 'e_petals', name: 'گل‌برگ‌ها', price: 14, color: 0xFE00FE, size: 0.12, icon: '🌸', emojis: ['🌸', '🌺', '🌷'] },
+                { id: 'e_stars', name: 'ستاره‌های جادویی', price: 15, color: 0xFFC93C, size: 0.07, icon: '⭐', emojis: ['⭐', '✨', '🌟', '💫'] },
+                { id: 'e_bubbles', name: 'حباب‌های صابون', price: 12, color: 0x80DEEA, size: 0.15, icon: '🫧', emojis: ['🫧', '💧', '🧼'] },
+                { id: 'e_hearts', name: 'قلب‌های عاشقانه', price: 13, color: 0xFF4757, size: 0.13, icon: '❤️', emojis: ['❤️', '💖', '💝', '💕'] }
+            ],
+            theme: [
+                { id: 't_default', name: 'شب سبز', price: 0, bg: 0x050a10, fog: 0x050a10, ground: 0x0b1f0e, ambient: 0x223333, icon: '🌙' },
+                { id: 't_sunset', name: 'غروب نارنجی', price: 13, bg: 0x2a0a05, fog: 0x2a0a05, ground: 0x3a1a0a, ambient: 0x553322, icon: '🌅' },
+                { id: 't_ocean', name: 'اقیانوس عمیق', price: 14, bg: 0x001f3f, fog: 0x001f3f, ground: 0x003366, ambient: 0x001144, icon: '🌊' },
+                { id: 't_alien', name: 'سیاره ناشناخته', price: 15, bg: 0x1a0033, fog: 0x1a0033, ground: 0x330066, ambient: 0x220044, icon: '👽' }
+            ],
+            music: [
+                { id: 'm_piano', name: 'پیانو', price: 0, icon: '🎹' },
+                { id: 'm_space', name: 'فضایی', price: 10, icon: '🚀' },
+                { id: 'm_first', name: 'اولین', price: 10, icon: '🌟' },
+                { id: 'm_forest', name: 'جنگل', price: 12, icon: '🌲' },
+                { id: 'm_snowy', name: 'برفی', price: 12, icon: '❄️' },
+                { id: 'm_volcano', name: 'آتشفشان', price: 12, icon: '🌋' },
+                { id: 'm_abnabat', name: 'آبنبات', price: 14, icon: '🍭' },
+                { id: 'm_jadooyi', name: 'جنگل جادویی', price: 15, icon: '✨' }
+            ]
+        };
+
+        let ownedItems = { bamboo: ["b_default"], effect: ["e_snow"], theme: ["t_default"], music: ["m_piano"] };
+        let activeItems = { bamboo: "b_default", effect: "e_snow", theme: "t_default", music: "m_piano" };
+
+        try {
+            const savedOwned = localStorage.getItem('bambooShop');
+            if (savedOwned) {
+                const parsed = JSON.parse(savedOwned);
+                if (parsed.bamboo) ownedItems.bamboo = parsed.bamboo;
+                if (parsed.effect) ownedItems.effect = parsed.effect;
+                if (parsed.theme) ownedItems.theme = parsed.theme;
+                if (parsed.music) ownedItems.music = parsed.music;
+            }
+            const savedActive = localStorage.getItem('bambooActive');
+            if (savedActive) {
+                const parsed = JSON.parse(savedActive);
+                if (parsed.bamboo) activeItems.bamboo = parsed.bamboo;
+                if (parsed.effect) activeItems.effect = parsed.effect;
+                if (parsed.theme) activeItems.theme = parsed.theme;
+                if (parsed.music) activeItems.music = parsed.music;
+            }
+        } catch (e) { console.warn("LocalStorage error, using defaults."); }
+
+        // Validate and merge music data
+        if (!SHOP_DATA.music.find(m => m.id === activeItems.music)) activeItems.music = "m_piano";
+        if (!ownedItems.music.includes(activeItems.music)) ownedItems.music.push(activeItems.music);
+        // Sync with music system
+        ownedMusic = ownedItems.music;
+        currentMusicId = activeItems.music;
+
+        function saveShopData() {
+            try {
+                localStorage.setItem('bambooShop', JSON.stringify(ownedItems));
+                localStorage.setItem('bambooActive', JSON.stringify(activeItems));
+            } catch (e) {}
+        }
+        function saveCoins() {
+            try { localStorage.setItem('bambooCoins', coins); } catch (e) {}
+            updateCoinUI();
+        }
+        function updateCoinUI() {
+            document.getElementById('gameCoinAmount').textContent = coins;
+            document.getElementById('shopCoinAmount').textContent = coins;
+            document.getElementById('menuCoinAmount').textContent = coins;
+        }
+
+        // === Screen Manager ===
+        const ScreenManager = {
+            current: 'startScreen',
+            history: [],
+            show(screenId) {
+                document.querySelectorAll('.overlay-screen').forEach(screen => screen.classList.remove('active'));
+                const screen = document.getElementById(screenId);
+                if (screen) {
+                    screen.classList.add('active');
+                    this.current = screenId;
+                }
+            },
+            hide(screenId) {
+                const screen = document.getElementById(screenId);
+                if (screen) screen.classList.remove('active');
+            },
+            navigateTo(screenId) {
+                this.history.push(this.current);
+                this.show(screenId);
+            },
+            goBack() {
+                if (this.history.length > 0) {
+                    const prevScreen = this.history.pop();
+                    this.show(prevScreen);
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        // === 1. Scene Setup ===
+        const scene = new THREE.Scene();
+        const initialTheme = SHOP_DATA.theme.find(t => t.id === activeItems.theme);
+        scene.background = new THREE.Color(initialTheme.bg);
+        scene.fog = new THREE.FogExp2(initialTheme.fog, 0.04);
+        
+        const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.3, 50);
+        camera.position.set(0, 4, 6);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
+        
+        // === 2. Controls ===
+        let touchStartX = 0, touchStartY = 0, targetAngleY = 0, targetAngleX = 0.5;
+        let cameraDistance = 5.8, initialPinchDistance = 0, mouseX = 0, mouseY = 0, useMouse = true;
+        let cameraIntroActive = false;
+        
+        function handleTouchStart(e) {
+            const touches = e.touches;
+            if (touches.length === 1) { touchStartX = touches[0].clientX; touchStartY = touches[0].clientY; useMouse = false; }
+            else if (touches.length === 2) { initialPinchDistance = Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY); }
+        }
+        function handleTouchMove(e) {
+            const touches = e.touches;
+            if (touches.length === 1 && !initialPinchDistance) {
+                targetAngleY += (touches[0].clientX - touchStartX) * 0.008; targetAngleX += (touches[0].clientY - touchStartY) * 0.008;
+                targetAngleX = Math.max(0.2, Math.min(1.2, targetAngleX));
+                touchStartX = touches[0].clientX; touchStartY = touches[0].clientY;
+            } else if (touches.length === 2) {
+                const dist = Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
+                if (initialPinchDistance > 0) { cameraDistance += (dist - initialPinchDistance) * 0.008; cameraDistance = Math.min(8.5, Math.max(3.2, cameraDistance)); initialPinchDistance = dist; }
+            }
+        }
+        function handleTouchEnd(e) { initialPinchDistance = 0; }
+        document.addEventListener('touchstart', handleTouchStart, { passive: true });
+        document.addEventListener('touchmove', handleTouchMove, { passive: true });
+        document.addEventListener('touchend', handleTouchEnd);
+        document.addEventListener('mousemove', (e) => {
+            if (!useMouse && window.innerWidth > 768) useMouse = true;
+            if (useMouse && e.buttons === 1) {
+                mouseX = (e.clientX / window.innerWidth) * 2 - 1; mouseY = (e.clientY / window.innerHeight) * 2 - 1;
+                targetAngleY += (mouseX * 0.015); targetAngleX += (mouseY * 0.008); targetAngleX = Math.max(0.2, Math.min(1.2, targetAngleX));
+            }
+        });
+        document.addEventListener('wheel', (e) => { cameraDistance += e.deltaY * 0.005; cameraDistance = Math.min(8.5, Math.max(3.2, cameraDistance)); });
+        
+        // === 3. Lights ===
+        const ambientLight = new THREE.AmbientLight(initialTheme.ambient, 0.5); scene.add(ambientLight);
+        const neonLight1 = new THREE.PointLight(0x39FF14, 2, 15); neonLight1.position.set(2, 4, 2); scene.add(neonLight1);
+        const neonLight2 = new THREE.PointLight(0x00D2FF, 1.5, 15); neonLight2.position.set(-2, 3, -2); scene.add(neonLight2);
+        const spotLight = new THREE.SpotLight(0xffffff, 1.5, 15, Math.PI / 6, 0.5, 1);
+        spotLight.position.set(0, 8, 0);
+        spotLight.target.position.set(0, 0, 0);
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+        scene.add(spotLight.target);
+        
+        // === 4. Ground & Base Ring ===
+        const ground = new THREE.Mesh(new THREE.CircleGeometry(7.5, 32), new THREE.MeshStandardMaterial({ color: initialTheme.ground, roughness: 0.9, metalness: 0.1 }));
+        ground.rotation.x = -Math.PI / 2; ground.position.y = -0.12; ground.receiveShadow = true; scene.add(ground);
+        
+        const ringGeo = new THREE.RingGeometry(0.7, 0.85, 32);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0x00D2FF, side: THREE.DoubleSide, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending });
+        const baseRing = new THREE.Mesh(ringGeo, ringMat);
+        baseRing.rotation.x = -Math.PI / 2;
+        baseRing.position.y = -0.1;
+        scene.add(baseRing);
+
+        function addSmallTree(x, z) {
+            const group = new THREE.Group();
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.22, 0.6, 5), new THREE.MeshStandardMaterial({ color: 0x4a2e1a, emissive: 0x110000 }));
+            trunk.position.y = 0.3; group.add(trunk);
+            const foliage = new THREE.Mesh(new THREE.ConeGeometry(0.45, 0.7, 6), new THREE.MeshStandardMaterial({ color: 0x1b3a25, emissive: 0x0a1a10, emissiveIntensity: 0.5 }));
+            foliage.position.y = 0.7; group.add(foliage);
+            group.position.set(x, -0.1, z); scene.add(group);
+        }
+        [[-3,-2.8],[3.2,-3],[-3.5,2.5],[3.8,2.8],[-2.5,-4],[2.7,-4.2],[-4.5,0.5],[4.6,0.2]].forEach(p => addSmallTree(p[0], p[1]));
+        
+        // === 5. Bamboo Class ===
+        class BambooFriend {
+            constructor(pos) {
+                this.pos = pos; 
+                this.segments = []; 
+                this.nodeCount = 3; 
+                this.maxNodes = 20; 
+                this.segH = 0.4;
+                this.createPot(); 
+                this.build(3);
+            }
+            createPot() {
+                if (this.pot) scene.remove(this.pot);
+                const mat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.4, metalness: 0.8 });
+                this.pot = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.55, 0.35, 8), mat);
+                this.pot.position.set(this.pos.x, -0.2, this.pos.z); 
+                this.pot.receiveShadow = true;
+                scene.add(this.pot);
+            }
+            createSegment(yBase, idx) {
+                const h = this.segH;
+                const rad = 0.17;
+                const isTop = idx === this.nodeCount - 1;
+                const bData = SHOP_DATA.bamboo.find(b => b.id === activeItems.bamboo);
+                
+                let mainColor = bData.color;
+                if (mainColor === 'rainbow') {
+                    mainColor = new THREE.Color().setHSL((idx % 5) / 5, 1, 0.5);
+                }
+                
+                const emInt = isTop ? 0.8 : 0.2;
+
+                const material = new THREE.MeshStandardMaterial({ 
+                    color: mainColor, roughness: 0.2, emissive: mainColor, emissiveIntensity: emInt 
+                });
+                const cylinder = new THREE.Mesh(new THREE.CylinderGeometry(rad, rad * 1.02, h, 12), material);
+                cylinder.position.set(this.pos.x, yBase + h/2, this.pos.z);
+                cylinder.castShadow = true;
+                
+                const ringMat = new THREE.MeshStandardMaterial({ color: mainColor, emissive: mainColor, emissiveIntensity: 0.8 });
+                const ring = new THREE.Mesh(new THREE.TorusGeometry(rad + 0.02, 0.02, 8, 24), ringMat);
+                ring.rotation.x = Math.PI/2; 
+                cylinder.add(ring);
+                
+                if (idx % 2 === 1 && idx > 0) {
+                    const leafMat = new THREE.MeshStandardMaterial({ color: mainColor, emissive: mainColor, emissiveIntensity: 0.4 });
+                    for (let i = 0; i < 3; i++) {
+                        const angle = (i / 3) * Math.PI * 2;
+                        const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.25, 5), leafMat);
+                        leaf.position.set(Math.cos(angle) * 0.19, 0.08, Math.sin(angle) * 0.19);
+                        leaf.rotation.z = Math.cos(angle) * 0.5;
+                        leaf.rotation.x = Math.sin(angle) * 0.5;
+                        cylinder.add(leaf);
+                    }
+                }
+                scene.add(cylinder);
+                return cylinder;
+            }
+            build(nodes) {
+                this.segments.forEach(seg => {
+                    if (seg.parent) scene.remove(seg);
+                });
+                this.segments = [];
+                
+                for (let i = 0; i < nodes; i++) {
+                    const yPos = i * this.segH;
+                    const seg = this.createSegment(yPos, i);
+                    this.segments.push(seg);
+                    
+                    seg.scale.y = 0.01; 
+                    seg.scale.x = 0.01;
+                    setTimeout(() => { 
+                        let step = 0;
+                        const animateGrow = () => {
+                            step += 0.08;
+                            if (step >= 1) { seg.scale.y = 1; seg.scale.x = 1; return; }
+                            const bounce = step < 0.5 ? 2 * step * step : 1 - Math.pow(-2 * step + 2, 2) / 2;
+                            const overshoot = bounce * 1.1; 
+                            seg.scale.y = overshoot;
+                            seg.scale.x = overshoot;
+                            requestAnimationFrame(animateGrow);
+                        };
+                        animateGrow();
+                    }, i * 40);
+                }
+                this.nodeCount = nodes;
+            }
+            grow() { 
+                if (this.nodeCount < this.maxNodes) { this.build(this.nodeCount + 1); return true; } 
+                return false; 
+            }
+            refreshSkin() { this.createPot(); this.build(this.nodeCount); }
+            getHeight() { return this.nodeCount * this.segH; }
+            getNodes() { return this.nodeCount; }
+        }
+        
+        const bamboo = new BambooFriend({ x: 0, z: 0 });
+        
+        // === 6. Particles ===
+        let particles;
+        function createParticles() {
+            if (particles) scene.remove(particles);
+            const eData = SHOP_DATA.effect.find(e => e.id === activeItems.effect);
+            const pCount = 500;
+            const pGeo = new THREE.BufferGeometry();
+            const posArr = [];
+            for (let i=0;i<pCount;i++) { posArr.push((Math.random()-0.5)*8, Math.random()*5.5, (Math.random()-0.5)*8); }
+            pGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(posArr), 3));
+            const pMat = new THREE.PointsMaterial({ color: eData.color, size: eData.size, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending });
+            particles = new THREE.Points(pGeo, pMat);
+            scene.add(particles);
+        }
+        createParticles();
+
+        // === 7. Apply Theme ===
+        function applyTheme() {
+            const tData = SHOP_DATA.theme.find(t => t.id === activeItems.theme);
+            scene.background = new THREE.Color(tData.bg);
+            scene.fog = new THREE.FogExp2(tData.fog, 0.04);
+            ground.material.color.setHex(tData.ground);
+            ambientLight.color.setHex(tData.ambient);
+        }
+        
+        // === 8. Game Logic ===
+        let score = 0, gameActive = false;
+        let highScore = 0;
+        try { highScore = parseInt(localStorage.getItem('bambooHighScore') || '0'); } catch(e) {}
+
+        const growBtn = document.getElementById('growBtn');
+        
+        function updateGameUI() {
+            document.getElementById('heightValue').textContent = bamboo.getHeight().toFixed(1);
+            document.getElementById('scoreValue').textContent = score;
+            document.getElementById('nodesValue').textContent = bamboo.getNodes();
+            updateCoinUI();
+        }
+        
+        // ===== DYNAMIC GROW EFFECT =====
+        function triggerGrowEffect() {
+            const flash = document.createElement('div');
+            flash.className = 'grow-flash';
+            document.body.appendChild(flash);
+            setTimeout(() => flash.remove(), 700);
+            
+            const effectData = SHOP_DATA.effect.find(e => e.id === activeItems.effect);
+            const emojis = effectData.emojis || ['✨'];
+            const colors = ['#39FF14', '#00D2FF', '#FFC93C', '#FE00FE', '#FF4757', '#FFFFFF'];
+            
+            const rect = growBtn.getBoundingClientRect();
+            const startX = rect.left + rect.width / 2;
+            const startY = rect.top + rect.height / 2;
+
+            for (let i = 0; i < 30; i++) {
+                const p = document.createElement('div');
+                p.className = 'grow-particles';
+                p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                p.style.color = colors[Math.floor(Math.random() * colors.length)];
+                p.style.fontSize = (1.2 + Math.random() * 1.8) + 'rem';
+                p.style.left = startX + 'px';
+                p.style.top = startY + 'px';
+                p.style.position = 'fixed';
+                
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 150 + Math.random() * 250;
+                const tx = Math.cos(angle) * velocity;
+                const ty = Math.sin(angle) * velocity - 150;
+                
+                p.style.setProperty('--tx', tx + 'px');
+                p.style.setProperty('--ty', ty + 'px');
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1200);
+            }
+        }
+        
+        function winParty() {
+            for (let i=0;i<180;i++) {
+                const colors = [0x39FF14, 0x00D2FF, 0xFFC93C, 0xFE00FE, 0xFF4757];
+                const conf = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.07,0.07,0.07), 
+                    new THREE.MeshStandardMaterial({ color: colors[Math.floor(Math.random() * colors.length)], emissive: 0xffffff, emissiveIntensity: 0.5 })
+                );
+                conf.position.set((Math.random()-0.5)*6, Math.random()*5 + bamboo.getHeight() * 0.3, (Math.random()-0.5)*6);
+                scene.add(conf); 
+                setTimeout(() => scene.remove(conf), 2500);
+            }
+        }
+        
+        growBtn.addEventListener('click', () => {
+            if (!gameActive) return;
+            if (bamboo.getNodes() < 20) {
+                if (bamboo.grow()) {
+                    score += 10; 
+                    saveCoins();
+                    updateGameUI(); 
+                    triggerGrowEffect();
+                    growBtn.style.transform = 'scale(0.9)';
+                    setTimeout(() => growBtn.style.transform = '', 120);
+                    
+                    const tip = document.getElementById('helperTip');
+                    const tips = ['🌱 آفرین! بامبو داره رشد میکنه!', '🌿 عالیه! ادامه بده!', '🎋 بامبو قد میکشه!', '🌳 داره بزرگ میشه!', '🌟 تو بهترینی!', '💪 به رشد ادامه بده!', '🎈 نصف راه!', '⭐ فوق‌العاده!', '🚀 فقط چند تا دیگه!', '🎉 تقریبا تموم!'];
+                    const idx = Math.min(Math.floor(bamboo.getNodes() / 2), tips.length - 1);
+                    tip.innerHTML = `<span>${['🌱','🌿','🎋','🌳','🌟','💪','🎈','⭐','🚀','🎉'][idx] || '🌿'}</span> ${tips[idx]}`;
+                    
+                    if (bamboo.getNodes() >= 20) {
+                        gameActive = false;
+                        
+                        let earnedCoins = (coins === 0) ? 10 : 1;
+                        coins += earnedCoins;
+                        saveCoins();
+                        
+                        document.getElementById('finalScoreSpan').textContent = score;
+                        document.getElementById('earnedCoinsSpan').textContent = earnedCoins;
+                        ScreenManager.show('gameoverOverlay');
+                        winParty();
+                        if (score > highScore) { 
+                            highScore = score; 
+                            try { localStorage.setItem('bambooHighScore', highScore); } catch(e) {}
+                        }
+                    }
+                }
+            }
+        });
+        
+        // === 9. Render Loop ===
+        let time = 0;
+        function renderLoop() {
+            requestAnimationFrame(renderLoop);
+            
+            const targetHeight = bamboo.getHeight();
+            
+            let minDist = 5.8 + (targetHeight > 3 ? (targetHeight - 3) * 0.8 : 0);
+            if (cameraDistance < minDist) cameraDistance = minDist;
+            
+            const baseY = 1.5 + targetHeight * 0.5;
+            const yPos = Math.sin(targetAngleX) * 2.5 + baseY * 0.6;
+            
+            const xPos = Math.sin(targetAngleY) * cameraDistance; 
+            const zPos = Math.cos(targetAngleY) * cameraDistance;
+            
+            const lookY = targetHeight * 0.25;
+            
+            if (cameraIntroActive) {
+                camera.position.y += (4.5 - camera.position.y) * 0.05;
+                camera.position.z += (6 - camera.position.z) * 0.05;
+                camera.position.x += (4 - camera.position.x) * 0.05;
+                camera.lookAt(0, lookY, 0);
+                if (Math.abs(camera.position.z - 6) < 0.1) cameraIntroActive = false;
+            } else {
+                camera.position.x += (xPos - camera.position.x) * 0.1; 
+                camera.position.z += (zPos - camera.position.z) * 0.1;
+                camera.position.y += (yPos - camera.position.y) * 0.1; 
+                camera.lookAt(0, lookY, 0);
+            }
+            
+            if (particles) {
+                const positions = particles.geometry.attributes.position.array;
+                const maxY = 5 + targetHeight * 0.3;
+                for (let i=0;i<500;i++) {
+                    let y = positions[i*3+1] + 0.003; 
+                    if (y > maxY) y = 0;
+                    positions[i*3+1] = y; 
+                    positions[i*3] += (Math.sin(time + i) * 0.0008); 
+                    positions[i*3+2] += (Math.cos(time + i) * 0.0008);
+                }
+                particles.geometry.attributes.position.needsUpdate = true;
+            }
+            
+            neonLight1.intensity = 2 + Math.sin(Date.now() * 0.003) * 0.5;
+            neonLight2.intensity = 1.5 + Math.cos(Date.now() * 0.004) * 0.5;
+            baseRing.scale.x = 1 + Math.sin(Date.now() * 0.002) * 0.05;
+            baseRing.scale.y = 1 + Math.sin(Date.now() * 0.002) * 0.05;
+            baseRing.material.opacity = 0.4 + Math.sin(Date.now() * 0.003) * 0.2;
+            
+            renderer.render(scene, camera); 
+            time += 0.016;
+        }
+        renderLoop();
+        
+        // === 10. Shop Logic ===
+        function renderShop() {
+            const grid = document.getElementById('shopGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            
+            const activeTab = document.querySelector('.shop-tab.active');
+            if (!activeTab) return;
+            
+            const tab = activeTab.dataset.tab;
+            const items = SHOP_DATA[tab];
+
+            items.forEach((item, index) => {
+                const isOwned = ownedItems[tab] && ownedItems[tab].includes(item.id);
+                const isActive = activeItems[tab] === item.id;
+                const card = document.createElement('div');
+                card.className = 'shop-item';
+                
+                card.style.animationDelay = (index * 0.05) + 's';
+                
+                let btnHtml = '';
+                let isMusic = tab === 'music';
+                let isCurrentlyPlaying = isMusic && isActive && isMusicPlaying;
+                
+                if (isActive && !isMusic) {
+                    btnHtml = `<button class="shop-btn-sm active">✓ فعال</button>`;
+                } else if (isMusic && isActive) {
+                    btnHtml = `<button class="shop-btn-sm ${isCurrentlyPlaying ? 'playing' : 'select'}" data-id="${item.id}" data-tab="${tab}">${isCurrentlyPlaying ? '🔊 پخش' : '🎵 انتخاب'}</button>`;
+                } else if (isOwned) {
+                    btnHtml = `<button class="shop-btn-sm select" data-id="${item.id}" data-tab="${tab}">✨ انتخاب</button>`;
+                } else {
+                    const canAfford = coins >= item.price;
+                    btnHtml = `<button class="shop-btn-sm ${canAfford ? 'buy' : 'locked'}" data-id="${item.id}" data-tab="${tab}" ${canAfford ? '' : 'disabled'}>${canAfford ? '🛒 خرید' : '🔒 قفل'}</button>`;
+                }
+                
+                let previewHtml = '';
+                if (tab === 'bamboo') {
+                    let col = item.color;
+                    if (col === 'rainbow') col = 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)';
+                    else if (typeof col === 'number') col = `#${col.toString(16).padStart(6, '0')}`;
+                    else col = '#39FF14';
+                    previewHtml = `<div class="shop-item-preview" style="background: radial-gradient(circle, ${col} 0%, #050a10 100%); box-shadow: 0 0 15px ${col};">${item.icon}</div>`;
+                } else if (tab === 'music') {
+                    previewHtml = `<div class="shop-item-preview" style="background: radial-gradient(circle, #FF6B6B 0%, #050a10 100%); box-shadow: 0 0 15px #FF6B6B; font-size: 3rem;">${item.icon}</div>`;
+                } else {
+                    previewHtml = `<div class="shop-item-preview" style="background: #0a1a1a; box-shadow: inset 0 0 20px rgba(255,255,255,0.1); font-size: 2.5rem;">${item.icon}</div>`;
+                }
+
+                const priceHtml = item.price > 0 ? `<img src="icons/coin.png" alt="سکه" style="width:14px;height:14px;object-fit:contain;" onerror="this.textContent='🪙'"> ${item.price}` : '🎁 رایگان';
+                
+                // Show playing indicator for music
+                let nameHtml = item.name;
+                if (tab === 'music' && isActive) {
+                    nameHtml = `🎵 ${item.name} ${isCurrentlyPlaying ? '(پخش)' : ''}`;
+                }
+                
+                card.innerHTML = `${previewHtml}<div class="shop-item-name">${nameHtml}</div><div class="shop-item-price">${priceHtml}</div>${btnHtml}`;
+                grid.appendChild(card);
+            });
+
+            grid.querySelectorAll('.shop-btn-sm.buy, .shop-btn-sm.select').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.target.dataset.id;
+                    const tabName = e.target.dataset.tab;
+                    
+                    if (tabName === 'music') {
+                        // Music special handling
+                        if (e.target.classList.contains('buy')) {
+                            const itemData = SHOP_DATA.music.find(i => i.id === id);
+                            if (coins >= itemData.price) {
+                                coins -= itemData.price;
+                                saveCoins();
+                                if (!ownedItems.music) ownedItems.music = [];
+                                ownedItems.music.push(id);
+                                activeItems.music = id;
+                                saveShopData();
+                                // Update music system
+                                ownedMusic = ownedItems.music;
+                                currentMusicId = id;
+                                changeMusic(id);
+                                renderShop();
+                                ScreenManager.show('congratsModal');
+                            }
+                        } else if (e.target.classList.contains('select')) {
+                            activeItems.music = id;
+                            saveShopData();
+                            currentMusicId = id;
+                            changeMusic(id);
+                            renderShop();
+                        }
+                    } else {
+                        // Regular items
+                        if (e.target.classList.contains('buy')) {
+                            const itemData = SHOP_DATA[tabName].find(i => i.id === id);
+                            if (coins >= itemData.price) {
+                                coins -= itemData.price;
+                                saveCoins();
+                                if (!ownedItems[tabName]) ownedItems[tabName] = [];
+                                ownedItems[tabName].push(id);
+                                activeItems[tabName] = id;
+                                saveShopData();
+                                applyShopItem(tabName, id);
+                                renderShop();
+                                ScreenManager.show('congratsModal');
+                            }
+                        } else if (e.target.classList.contains('select')) {
+                            activeItems[tabName] = id;
+                            saveShopData();
+                            applyShopItem(tabName, id);
+                            renderShop();
+                        }
+                    }
+                });
+            });
+        }
+
+        function applyShopItem(tab, id) {
+            if (tab === 'bamboo') bamboo.refreshSkin();
+            else if (tab === 'effect') createParticles();
+            else if (tab === 'theme') applyTheme();
+        }
+
+        document.querySelectorAll('.shop-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active'); 
+                renderShop();
+            });
+        });
+
+        // ===== NAVIGATION =====
+        function resetGame() {
+            score = 0; gameActive = true;
+            bamboo.build(3); updateGameUI();
+            document.getElementById('helperTip').innerHTML = '<span>🌿</span> دکمه نئونی رو بزن تا بامبو رشد کنه!';
+            cameraDistance = 5.8;
+            targetAngleY = 0;
+            targetAngleX = 0.5;
+            cameraIntroActive = true;
+        }
+
+        document.getElementById('startBtn').addEventListener('click', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            resetGame();
+            ScreenManager.hide('startScreen');
+            cameraIntroActive = true;
+            // Try to play music on user interaction
+            if (isMusicPlaying && audioElement) {
+                audioElement.play().catch(() => {});
+            }
+        });
+        
+        document.getElementById('shopBtn').addEventListener('click', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            ScreenManager.navigateTo('shopScreen');
+            renderShop();
+        });
+        
+        document.getElementById('shopBackBtn').addEventListener('click', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            ScreenManager.goBack();
+        });
+        
+        document.getElementById('restartBtn').addEventListener('click', function() {
+            resetGame();
+            ScreenManager.hide('gameoverOverlay');
+        });
+        
+        document.getElementById('menuBtn').addEventListener('click', function() {
+            ScreenManager.show('startScreen');
+            ScreenManager.hide('gameoverOverlay');
+            gameActive = false;
+        });
+
+        document.getElementById('stopBtn').addEventListener('click', function() {
+            if (gameActive) ScreenManager.show('stopModal');
+        });
+        document.getElementById('resumeBtn').addEventListener('click', function() { ScreenManager.hide('stopModal'); });
+        document.getElementById('restartFromStopBtn').addEventListener('click', function() { ScreenManager.hide('stopModal'); resetGame(); });
+        document.getElementById('quitBtn').addEventListener('click', function() { ScreenManager.hide('stopModal'); ScreenManager.show('startScreen'); gameActive = false; });
+
+        document.getElementById('howBtn').addEventListener('click', function() {
+            alert("🌈 راهنمای دوستانه:\n\n📱 انگشت بکشید تا دور باغچه بچرخید.\n🔍 دو انگشت باز و جمع کنید تا زوم کنید.\n🌱 دکمه نئونی رو بزنید تا بامبو رشد کنه.\n🎯 با ۲۰ گره، بامبو به آسمون میرسه!\n🪙 اگه سکه هات 0 باشه 10 سکه میدی وگرنه 1 سکه میگیری!\n✨ با انتخاب افکت‌های جدید، هنگام رشد افکت‌های قشنگی میاد!\n🎵 از فروشگاه آهنگ‌های جدید بخر!");
+        });
+
+        document.getElementById('congratsCloseBtn').addEventListener('click', function() {
+            ScreenManager.hide('congratsModal');
+            ScreenManager.show('shopScreen');
+        });
+
+        // ===== Music Controls =====
+        document.getElementById('musicToggleBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleMusic();
+        });
+
+        // ===== INIT =====
+        updateCoinUI();
+        updateGameUI();
+        renderShop();
+        saveShopData();
+        
+        // Init audio
+        initAudio();
+        // Start playing if was playing
+        if (isMusicPlaying) {
+            setTimeout(() => {
+                if (audioElement) {
+                    audioElement.play().catch(() => {
+                        // Will play on user interaction
+                        console.log('Waiting for user interaction to play audio');
+                    });
+                }
+            }, 100);
+        }
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix(); 
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#gameoverOverlay", "#congratsModal"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>mp3

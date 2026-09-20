@@ -1,0 +1,2836 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>آزمایشگاه میوه‌ها - علوم کلاس اول</title>
+    <style>
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Regular.ttf") format("truetype");
+            font-weight: 400;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Medium.ttf") format("truetype");
+            font-weight: 500;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Black.ttf") format("truetype");
+            font-weight: 900;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-ExtraBold.ttf") format("truetype");
+            font-weight: 800;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Regular.ttf") format("truetype");
+            font-weight: 400;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Medium.ttf") format("truetype");
+            font-weight: 500;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Black.ttf") format("truetype");
+            font-weight: 900;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype");
+            font-weight: 800;
+            font-display: swap;
+        }
+    </style>
+    <style>
+        /* ===== متغیرهای پایه ===== */
+        :root {
+            --primary: #6C5CE7;
+            --secondary: #00D2FF;
+            --neon-green: #00FF9D;
+            --success: #00B894;
+            --danger: #FF7675;
+            --dark: #1E1E2F;
+            --gold: #FFC93C;
+            --gold-dark: #B96F00;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text-color: #FFFFFF;
+            --text-secondary: #A0A0B0;
+            --font-family: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+            --shadow-xl: 0 15px 70px rgba(0, 0, 0, 0.5);
+            --radius: 20px;
+            --transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --body-bg: linear-gradient(135deg, #0c0a14 0%, #181225 50%, #1a1a3e 100%);
+            --btn-primary-bg: linear-gradient(135deg, #6C5CE7, #00D2FF);
+            --btn-primary-shadow: rgba(108, 92, 231, 0.35);
+            --btn-secondary-bg: rgba(255, 255, 255, 0.08);
+            --btn-secondary-hover: rgba(255, 255, 255, 0.15);
+            --btn-gold-bg: linear-gradient(135deg, #FFC93C, #f59e0b);
+            --btn-danger-bg: linear-gradient(135deg, #FF7675, #c0392b);
+            --menu-text-color: #FFFFFF;
+            --menu-text-secondary: #A0A0B0;
+            --help-text-color: #1500b5;
+            --btn-start-bg: linear-gradient(135deg, #FFC93C, #f59e0b);
+            --btn-start-color: #0a0a1a;
+            --btn-start-shadow: rgba(255, 201, 60, 0.3);
+            --btn-start-hover-bg: linear-gradient(135deg, #FF6B6B, #FFD93D);
+            --countdown-color: #FFC93C;
+            --countdown-glow: rgba(255, 201, 60, 0.3);
+            --current-theme-bg: none;
+            --theme-primary: #6C5CE7;
+            --theme-secondary: #00D2FF;
+            --theme-gold: #FFC93C;
+            --theme-btn-start: #FFC93C;
+            --theme-btn-primary: #6C5CE7;
+            --theme-btn-secondary: rgba(255,255,255,0.08);
+            --theme-glass-bg: rgba(255,255,255,0.08);
+            --shop-text-secondary: #0000ae;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            font-family: var(--font-family);
+            outline: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--dark);
+        }
+
+        body {
+            color: var(--text-color);
+            position: relative;
+            background: var(--body-bg);
+            background-attachment: fixed;
+            transition: all 0.6s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: var(--body-bg);
+            transition: all 0.6s ease;
+        }
+
+        body.has-theme-bg {
+            background-size: cover !important;
+            background-position: center !important;
+            background-attachment: fixed !important;
+            background-repeat: no-repeat !important;
+        }
+        body.has-theme-bg::before {
+            background: rgba(0, 0, 0, 0.5) !important;
+            z-index: -1;
+        }
+
+        /* ===== تم مخصوص ===== */
+        body.theme-mamooli {
+            --theme-primary: #6C5CE7;
+            --theme-secondary: #00D2FF;
+            --theme-gold: #FFC93C;
+            --theme-btn-start: #FFC93C;
+            --theme-btn-primary: #6C5CE7;
+            --theme-btn-secondary: rgba(255,255,255,0.08);
+            --theme-glass-bg: rgba(255,255,255,0.08);
+            --shop-text-secondary: #0000ae;
+        }
+        body.theme-fazayi {
+            --theme-primary: #00D4FF;
+            --theme-secondary: #7B68EE;
+            --theme-gold: #FFD700;
+            --theme-btn-start: #00D4FF;
+            --theme-btn-primary: #7B68EE;
+            --theme-btn-secondary: rgba(0, 212, 255, 0.15);
+            --theme-glass-bg: rgba(0, 212, 255, 0.08);
+            --shop-text-secondary: #0000ae;
+        }
+        body.theme-modern {
+            --theme-primary: #FF1744;
+            --theme-secondary: #FF6B35;
+            --theme-gold: #FFD700;
+            --theme-btn-start: #FF1744;
+            --theme-btn-primary: #FF6B35;
+            --theme-btn-secondary: rgba(255, 23, 68, 0.15);
+            --theme-glass-bg: rgba(255, 23, 68, 0.08);
+            --shop-text-secondary: #0000ae;
+        }
+        body.theme-jangali {
+            --theme-primary: #22C55E;
+            --theme-secondary: #4ADE80;
+            --theme-gold: #FBBF24;
+            --theme-btn-start: #22C55E;
+            --theme-btn-primary: #4ADE80;
+            --theme-btn-secondary: rgba(34, 197, 94, 0.15);
+            --theme-glass-bg: rgba(34, 197, 94, 0.08);
+            --shop-text-secondary: #0000ae;
+        }
+        body.theme-abnabati {
+            --theme-primary: #FF6BB5;
+            --theme-secondary: #7B68EE;
+            --theme-gold: #FFD700;
+            --theme-btn-start: #FF6BB5;
+            --theme-btn-primary: #7B68EE;
+            --theme-btn-secondary: rgba(255, 107, 181, 0.15);
+            --theme-glass-bg: rgba(255, 107, 181, 0.08);
+            --shop-text-secondary: #0000ae;
+        }
+        body.theme-darya {
+            --theme-primary: #00D4AA;
+            --theme-secondary: #FF6BB5;
+            --theme-gold: #FFD700;
+            --theme-btn-start: #00D4AA;
+            --theme-btn-primary: #FF6BB5;
+            --theme-btn-secondary: rgba(0, 212, 170, 0.15);
+            --theme-glass-bg: rgba(0, 212, 170, 0.08);
+            --shop-text-secondary: #0000ae;
+        }
+        body.theme-mincrafti {
+            --theme-primary: #4CAF50;
+            --theme-secondary: #FF6B35;
+            --theme-gold: #FFD700;
+            --theme-btn-start: #4CAF50;
+            --theme-btn-primary: #FF6B35;
+            --theme-btn-secondary: rgba(76, 175, 80, 0.15);
+            --theme-glass-bg: rgba(76, 175, 80, 0.08);
+            --shop-text-secondary: #0000ae;
+        }
+        body.theme-atashfeshani {
+            --theme-primary: #FF4500;
+            --theme-secondary: #FF6B00;
+            --theme-gold: #FF8C00;
+            --theme-btn-start: #FF4500;
+            --theme-btn-primary: #FF6B00;
+            --theme-btn-secondary: rgba(255, 69, 0, 0.2);
+            --theme-glass-bg: rgba(255, 69, 0, 0.1);
+            --shop-text-secondary: #0000ae;
+        }
+
+        /* ===== استفاده از متغیرهای تم ===== */
+        .glass-card {
+            background: var(--theme-glass-bg) !important;
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-xl), inset 0 1px 1px rgba(255,255,255,0.03);
+            color: var(--text-color);
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--theme-btn-primary), var(--theme-secondary)) !important;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 25px rgba(108, 92, 231, 0.35);
+        }
+        .btn-primary:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 8px 35px rgba(108, 92, 231, 0.35), 0 0 30px rgba(0, 210, 255, 0.3);
+            border-color: var(--theme-secondary);
+        }
+
+        .btn-secondary {
+            background: var(--theme-btn-secondary) !important;
+            backdrop-filter: blur(12px);
+            color: var(--text-color);
+            border: 1px solid var(--glass-border);
+        }
+        .btn-secondary:hover {
+            transform: translateY(-4px) scale(1.02);
+            background: rgba(255, 255, 255, 0.15) !important;
+            border-color: var(--theme-secondary);
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.3);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--theme-gold), var(--theme-btn-primary)) !important;
+            color: #0a0a1a;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 4px 25px rgba(255, 201, 60, 0.3);
+        }
+        .btn-gold:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 35px rgba(255, 201, 60, 0.4);
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--theme-btn-start), var(--theme-secondary)) !important;
+            color: #fff !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 4px 25px rgba(255, 201, 60, 0.3) !important;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+        .btn-start:hover {
+            transform: translateY(-6px) scale(1.03) !important;
+            box-shadow: 0 8px 35px rgba(255, 201, 60, 0.3), 0 0 30px rgba(255, 200, 100, 0.4) !important;
+            border-color: var(--theme-gold) !important;
+        }
+        .btn-start:active {
+            transform: scale(0.95) !important;
+        }
+
+        .btn-danger {
+            background: var(--btn-danger-bg);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 25px rgba(255, 118, 117, 0.3);
+        }
+
+        .coin-display {
+            background: rgba(0, 0, 0, 0.5) !important;
+            border: 1px solid var(--theme-gold) !important;
+        }
+        .coin-amount {
+            color: var(--theme-gold) !important;
+            text-shadow: 0 0 10px var(--theme-gold) !important;
+        }
+
+        .menu-title {
+            background: linear-gradient(135deg, var(--text-color), var(--theme-gold));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+
+        .shop-coin {
+            border: 1px solid var(--theme-gold) !important;
+        }
+        .shop-coin span {
+            color: var(--theme-gold) !important;
+        }
+
+        .shop-tab.active {
+            background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary)) !important;
+            box-shadow: 0 0 15px rgba(108, 92, 231, 0.35);
+        }
+
+        .shop-btn-sm.buy {
+            background: linear-gradient(135deg, var(--theme-gold), var(--theme-primary)) !important;
+            color: #0a0a1a;
+        }
+        .shop-btn-sm.select {
+            background: var(--theme-secondary) !important;
+            color: #fff;
+        }
+        .shop-btn-sm.active {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .shop-item.active-item {
+            border-color: var(--theme-gold) !important;
+            box-shadow: 0 0 20px rgba(255, 201, 60, 0.2);
+        }
+
+        .back-btn {
+            border: 1px solid var(--glass-border);
+            background: var(--theme-glass-bg);
+            color: var(--text-color);
+        }
+        .back-btn:hover {
+            border-color: var(--danger);
+            box-shadow: 0 0 20px rgba(255, 118, 117, 0.4);
+            background: rgba(255, 118, 117, 0.1);
+            transform: rotate(180deg);
+        }
+
+        .stop-btn {
+            border: 1px solid var(--glass-border);
+            background: var(--theme-glass-bg);
+            color: var(--text-color);
+        }
+        .stop-btn:hover {
+            border-color: var(--danger);
+            box-shadow: 0 0 20px rgba(255, 118, 117, 0.4);
+            background: rgba(255, 118, 117, 0.1);
+            transform: rotate(180deg);
+        }
+
+        .step-hint {
+            background: rgba(0,0,0,0.6) !important;
+            border: 1px solid var(--theme-gold) !important;
+        }
+        .step-hint .hint-text {
+            color: var(--text-secondary);
+        }
+
+        .game-header {
+            background: rgba(0,0,0,0.5) !important;
+            border: 1px solid var(--theme-gold) !important;
+        }
+        .game-header .header-title {
+            color: var(--theme-gold) !important;
+        }
+
+        .timer-quiz {
+            border: 1px solid var(--theme-gold) !important;
+            background: rgba(255, 201, 60, 0.1) !important;
+        }
+        .timer-quiz .timer-number {
+            color: var(--theme-gold) !important;
+        }
+
+        .q-number {
+            color: var(--theme-gold) !important;
+        }
+
+        .option-btn.correct {
+            border-color: var(--success);
+            background: rgba(0, 184, 148, 0.2);
+            box-shadow: 0 0 30px rgba(0, 184, 148, 0.2);
+        }
+        .option-btn.wrong {
+            border-color: var(--danger);
+            background: rgba(255, 118, 117, 0.2);
+            box-shadow: 0 0 30px rgba(255, 118, 117, 0.2);
+        }
+
+        .modal-content {
+            border: 1px solid var(--theme-gold) !important;
+            box-shadow: 0 0 60px rgba(255, 201, 60, 0.2) !important;
+        }
+        .modal-content h2 {
+            color: var(--theme-gold) !important;
+        }
+
+        .celebration-box {
+            border: 3px solid var(--theme-gold) !important;
+            box-shadow: 0 0 80px rgba(255, 201, 60, 0.3) !important;
+        }
+        .celebration-box h2 {
+            color: var(--theme-gold) !important;
+            text-shadow: 0 0 30px rgba(255, 201, 60, 0.2) !important;
+        }
+        .celebration-box .celeb-message strong {
+            color: var(--theme-gold) !important;
+        }
+
+        .feedback-char {
+            border: 3px solid var(--theme-gold) !important;
+            box-shadow: 0 0 40px rgba(255, 201, 60, 0.15) !important;
+        }
+
+        .help-character {
+            border: 3px solid var(--theme-gold) !important;
+            box-shadow: 0 0 40px rgba(255, 201, 60, 0.15) !important;
+        }
+        .help-container h2 {
+            color: var(--help-text-color) !important;
+            text-shadow: 0 0 20px rgba(255, 201, 60, 0.2) !important;
+        }
+        .help-tip {
+            border: 1px solid var(--theme-gold) !important;
+        }
+        .help-steps .step .text {
+            color: var(--help-text-color) !important;
+        }
+        .help-tip span {
+            color: var(--help-text-color) !important;
+        }
+
+        .intro-container h2 {
+            color: var(--theme-gold) !important;
+            text-shadow: 0 0 20px rgba(255, 201, 60, 0.2) !important;
+        }
+        .intro-fact {
+            border-right: 3px solid var(--theme-gold) !important;
+        }
+        .intro-fact .fact-text strong {
+            color: var(--theme-gold) !important;
+        }
+        .intro-fun-fact {
+            border: 1px solid rgba(255, 201, 60, 0.1) !important;
+        }
+        .intro-fun-fact .ff-text strong {
+            color: var(--theme-gold) !important;
+        }
+
+        .fruit-select-container h2 {
+            color: var(--theme-gold) !important;
+            text-shadow: 0 0 20px rgba(255, 201, 60, 0.2) !important;
+        }
+        .fruit-option:hover {
+            border-color: var(--theme-gold) !important;
+            box-shadow: 0 8px 25px rgba(255, 201, 60, 0.15) !important;
+        }
+
+        .fruit-body {
+            background: rgba(255,255,255,0.05);
+            box-shadow: inset -8px -8px 20px rgba(0,0,0,0.2), inset 8px 8px 20px rgba(255,255,255,0.1), 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; animation: twinkle 2s ease-in-out infinite alternate; }
+        @keyframes twinkle { 0% { opacity: 0.2; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
+
+        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 12px; z-index: 1; overflow-y: auto; }
+        .screen.active { display: flex; animation: screenFadeIn 0.4s ease; }
+        @keyframes screenFadeIn { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-family: var(--font-family);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            min-height: 56px;
+        }
+        .btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent); transition: left 0.6s; }
+        .btn:hover::before { left: 100%; }
+        .btn:active { transform: scale(0.96); }
+
+        .back-btn { width: 40px; height: 40px; border: 1px solid var(--glass-border); background: var(--theme-glass-bg); border-radius: 12px; cursor: pointer; color: var(--text-color); display: flex; align-items: center; justify-content: center; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); font-size: 1.2rem; flex-shrink: 0; }
+        .back-btn:hover { border-color: var(--danger); box-shadow: 0 0 20px rgba(255, 118, 117, 0.4); background: rgba(255, 118, 117, 0.1); transform: rotate(180deg); }
+        .back-btn:active { border-color: var(--danger); box-shadow: 0 0 30px rgba(255, 118, 117, 0.6); background: rgba(255, 118, 117, 0.2); transform: rotate(180deg) scale(0.9); }
+
+        /* ===== منو ===== */
+        .menu-container { padding: 30px 20px 25px; text-align: center; max-width: 400px; width: 100%; position: relative; overflow: hidden; }
+        .coin-display { position: absolute; top: 15px; left: 15px; display: flex; align-items: center; gap: 6px; padding: 6px 14px 6px 10px; border-radius: 30px; box-shadow: 0 0 20px rgba(255, 201, 60, 0.15); z-index: 10; }
+        .coin-display img { width: 22px; height: 22px; object-fit: contain; animation: coinSpin 3s ease-in-out infinite; }
+        .coin-amount { font-weight: 800; font-size: 1rem; }
+        @keyframes coinSpin { 0%, 100% { transform: rotateY(0deg); } 50% { transform: rotateY(180deg); } }
+        .menu-title { font-size: 2.4rem; font-weight: 900; margin-bottom: 4px; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+        .menu-subtitle { color: var(#00a884); font-size: 0.9rem; font-weight: 500; margin-bottom: 15px; }
+        .menu-character { width: 150px; height: 150px; margin: 10px auto 15px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.3) 100%); border: 3px solid var(--theme-gold); box-shadow: 0 0 40px rgba(255, 201, 60, 0.2), inset 0 0 40px rgba(255,201,60,0.05); display: flex; align-items: center; justify-content: center; overflow: hidden; animation: framePulse 3s ease-in-out infinite; }
+        @keyframes framePulse { 0%, 100% { box-shadow: 0 0 30px rgba(255, 201, 60, 0.2); } 50% { box-shadow: 0 0 60px rgba(255, 201, 60, 0.4); } }
+        .menu-character img { width: 85%; height: 85%; object-fit: contain; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .menu-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
+        .menu-buttons .row { display: flex; gap: 10px; }
+        .menu-buttons .row .btn { flex: 1; }
+
+        /* ===== انتخاب میوه با اسکرول ===== */
+        .fruit-select-container { max-width: 420px; width: 100%; padding: 25px 20px; text-align: center; max-height: 92vh; display: flex; flex-direction: column; }
+        .fruit-select-container h2 { font-size: 1.8rem; font-family: 'Shoor Black', Tahoma, sans-serif; margin-bottom: 15px; flex-shrink: 0; }
+        .fruit-select-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+            margin: 10px 0 15px; 
+            max-width: 380px; 
+            margin-left: auto; 
+            margin-right: auto;
+            overflow-y: auto;
+            padding: 5px;
+            flex: 1;
+            align-content: start;
+        }
+        .fruit-select-grid::-webkit-scrollbar { width: 4px; }
+        .fruit-select-grid::-webkit-scrollbar-thumb { background: var(--theme-gold); border-radius: 4px; }
+        .fruit-select-grid::-webkit-scrollbar-track { background: transparent; }
+        
+        .fruit-option { 
+            background: var(--theme-glass-bg); 
+            backdrop-filter: blur(10px); 
+            border: 2px solid var(--glass-border); 
+            border-radius: 16px; 
+            padding: 15px 10px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            text-align: center; 
+        }
+        .fruit-option:hover { transform: translateY(-3px); border-color: var(--theme-gold); box-shadow: 0 8px 25px rgba(255, 201, 60, 0.15); }
+        .fruit-option:active { transform: scale(0.95); }
+        .fruit-option .fruit-icon { font-size: 3.2rem; display: block; margin-bottom: 4px; line-height: 1.2; }
+        .fruit-option .fruit-name { font-size: 1rem; font-weight: 700; color: var(--text-color); }
+        .fruit-option .fruit-desc { font-size: 0.7rem; color: var(--text-secondary); margin-top: 2px; }
+
+        /* ===== مقدمه ===== */
+        .intro-container { max-width: 420px; width: 100%; padding: 25px 20px; text-align: center; max-height: 92vh; overflow-y: auto; }
+        .intro-container::-webkit-scrollbar { width: 4px; }
+        .intro-container::-webkit-scrollbar-thumb { background: var(--theme-gold); border-radius: 4px; }
+        .intro-container h2 { font-size: 1.8rem; font-family: 'Shoor Black', Tahoma, sans-serif; margin-bottom: 12px; }
+        .intro-fruit { font-size: 5rem; display: block; margin: 5px auto 12px; animation: gentleBounce 2s ease-in-out infinite; }
+        @keyframes gentleBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .intro-facts { text-align: right; margin: 10px 0 15px; display: flex; flex-direction: column; gap: 6px; }
+        .intro-fact { display: flex; align-items: center; gap: 12px; padding: 9px 14px; background: rgba(255,255,255,0.05); border-radius: 12px; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary); }
+        .intro-fact .fact-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .intro-fact .fact-text { font-weight: 500; }
+        .intro-divider { width: 100%; height: 2px; background: var(--glass-border); margin: 10px 0; }
+        .intro-fun-facts { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 12px; }
+        .intro-fun-fact { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: rgba(255, 201, 60, 0.05); border-radius: 10px; font-size: 0.85rem; color: var(--text-secondary); }
+        .intro-fun-fact .ff-icon { font-size: 1.3rem; flex-shrink: 0; }
+
+        /* ===== راهنما ===== */
+        .help-container { max-width: 420px; width: 100%; padding: 25px 20px; text-align: center; }
+        .help-container h2 { font-size: 1.6rem; font-family: 'Shoor Black', Tahoma, sans-serif; margin-bottom: 15px; }
+        .help-character { width: 120px; height: 120px; margin: 0 auto 15px; border-radius: 50%; border: 3px solid var(--theme-gold); display: flex; align-items: center; justify-content: center; overflow: hidden; background: radial-gradient(circle, rgba(255,255,255,0.05), transparent); box-shadow: 0 0 40px rgba(255, 201, 60, 0.15); animation: float 3s ease-in-out infinite; }
+        .help-character img { width: 85%; height: 85%; object-fit: contain; }
+        .help-steps { display: flex; flex-direction: column; gap: 8px; text-align: right; margin-bottom: 12px; }
+        .help-steps .step { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 10px 12px; border-radius: 12px; }
+        .help-steps .step .num { background: var(--theme-primary); color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: 900; flex-shrink: 0; font-size: 0.85rem; }
+        .help-steps .step .text { font-size: 0.9rem; color: var(--help-text-color); }
+        .help-tip { background: rgba(255, 201, 60, 0.1); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+        .help-tip span { font-size: 0.9rem; color: var(--help-text-color); }
+
+        /* ===== فروشگاه پوسته - 2 ستون با عکس مربعی ===== */
+        .shop-container { max-width: 420px; width: 100%; padding: 20px 15px 15px; max-height: 92vh; display: flex; flex-direction: column; }
+        .shop-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; flex-shrink: 0; }
+        .shop-header h2 { font-size: 1.3rem; font-weight: 800; color: var(--text-color); font-family: var(--font-family); }
+        .shop-coin { display: flex; align-items: center; gap: 5px; background: rgba(0, 0, 0, 0.3); padding: 5px 12px; border-radius: 20px; }
+        .shop-coin img { width: 18px; height: 18px; }
+        .shop-coin span { font-weight: 800; font-size: 0.9rem; }
+        
+        .shop-tabs { 
+            display: flex; 
+            gap: 5px; 
+            margin-bottom: 12px; 
+            background: rgba(0,0,0,0.3); 
+            padding: 4px; 
+            border-radius: 12px; 
+            border: 1px solid var(--glass-border); 
+            flex-shrink: 0; 
+        }
+        .shop-tab { 
+            flex: 1; 
+            padding: 8px 10px; 
+            border-radius: 10px; 
+            background: transparent; 
+            border: none; 
+            color: var(--text-secondary); 
+            font-family: var(--font-family); 
+            font-weight: 700; 
+            font-size: 0.8rem; 
+            cursor: pointer; 
+            transition: var(--transition); 
+            text-align: center; 
+            white-space: nowrap; 
+        }
+        .shop-tab.active { 
+            background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary)) !important; 
+            color: #fff; 
+            box-shadow: 0 0 15px var(--btn-primary-shadow); 
+        }
+
+        .shop-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr) !important; 
+            gap: 10px; 
+            overflow-y: auto; 
+            padding: 5px 2px 10px; 
+            flex: 1; 
+            align-content: start;
+        }
+        .shop-grid::-webkit-scrollbar { width: 4px; }
+        .shop-grid::-webkit-scrollbar-thumb { background: var(--theme-gold); border-radius: 4px; }
+        
+        .shop-item { 
+            background: var(--theme-glass-bg); 
+            backdrop-filter: blur(10px); 
+            border: 2px solid var(--glass-border); 
+            border-radius: 16px; 
+            padding: 14px 10px; 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 4px; 
+            transition: var(--transition); 
+            color: var(--text-color); 
+            justify-content: flex-start; 
+            cursor: pointer; 
+            min-height: 220px;
+        }
+        .shop-item:hover { transform: translateY(-4px); border-color: var(--theme-secondary); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+        .shop-item.active-item { border-color: var(--theme-gold); box-shadow: 0 0 20px rgba(255, 201, 60, 0.2); background: rgba(255, 201, 60, 0.08); }
+        .shop-item.locked-item { opacity: 0.6; filter: grayscale(0.5); }
+        
+        /* ===== عکس پوسته در فروشگاه - مربعی ===== */
+        .shop-item .shop-preview { 
+            width: 100%; 
+            aspect-ratio: 1/1 !important;
+            max-width: 120px;
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: 2px solid var(--glass-border);
+            background: rgba(255,255,255,0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .shop-item .shop-preview img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            border-radius: 10px;
+        }
+        .shop-item .shop-preview .preview-emoji { font-size: 2.5rem; }
+        
+        .shop-item .name { 
+            font-size: 0.8rem; 
+            font-weight: 700; 
+            color: var(--text-color); 
+            font-family: var(--font-family); 
+            margin-top: 4px; 
+        }
+        .shop-item .price { 
+            font-size: 0.7rem; 
+            color: var(--theme-gold); 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            gap: 4px; 
+            font-family: var(--font-family); 
+        }
+        .shop-item .price img { width: 14px; height: 14px; }
+        
+        .shop-btn-sm { 
+            padding: 5px 10px; 
+            border: none; 
+            border-radius: 8px; 
+            font-family: var(--font-family); 
+            font-weight: 700; 
+            font-size: 0.65rem; 
+            cursor: pointer; 
+            transition: var(--transition); 
+            width: 100%; 
+            margin-top: 2px; 
+        }
+        .shop-btn-sm.buy:hover { transform: scale(1.04); }
+        .shop-btn-sm.select:hover { transform: scale(1.04); }
+        .shop-btn-sm.active { background: var(--success); color: #fff; cursor: default; }
+        .shop-btn-sm.locked { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); cursor: not-allowed; }
+
+        /* ===== آشپزخانه ===== */
+        .kitchen-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            min-height: 65vh;
+            border-radius: 20px 20px 0 0;
+            margin-top: 75px;
+            overflow: hidden;
+            background: #f5f0e8;
+        }
+
+        .kitchen-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .water-stream {
+            position: absolute;
+            top: 32%;
+            left: 41%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 140px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, #74b9ff 40%, #0984e3 100%);
+            border-radius: 0 0 8px 8px;
+            opacity: 0;
+            z-index: 12;
+            box-shadow: 0 0 8px rgba(9, 132, 227, 0.5);
+        }
+        .water-stream.active { opacity: 1; animation: waterFlow 0.3s linear infinite; }
+        @keyframes waterFlow { 0% { background-position: 0 -20px; } 100% { background-position: 0 0; } }
+
+        .water-splash {
+            position: absolute;
+            bottom: 35%;
+            left: 45%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 25px;
+            background: radial-gradient(ellipse at center, rgba(116, 185, 255, 0.6) 0%, transparent 70%);
+            opacity: 0;
+            z-index: 10;
+        }
+        .water-splash.active { opacity: 1; animation: splash 0.4s ease-out infinite; }
+        @keyframes splash { 0%, 100% { transform: translateX(-50%) scaleX(0.8); opacity: 0.5; } 50% { transform: translateX(-50%) scaleX(1.1); opacity: 1; } }
+
+        /* ===== میوه ===== */
+        .fruit-item {
+            position: absolute;
+            bottom: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: grab;
+            z-index: 30;
+            touch-action: none;
+            transition: all 0.3s ease;
+        }
+        .fruit-item:active { cursor: grabbing; }
+        
+        .fruit-body {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4.5rem;
+            background: rgba(255,255,255,0.05);
+            box-shadow: inset -8px -8px 20px rgba(0,0,0,0.2), inset 8px 8px 20px rgba(255,255,255,0.1), 0 8px 20px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+            overflow: hidden;
+        }
+        .fruit-body .fruit-emoji {
+            font-size: 4.5rem;
+            line-height: 1;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+        .fruit-body .fruit-shine {
+            position: absolute;
+            top: 15%;
+            left: 18%;
+            width: 20px;
+            height: 16px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 50%;
+            transform: rotate(-30deg);
+            pointer-events: none;
+        }
+        .fruit-body .fruit-stem-group {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .fruit-body .fruit-stem-main {
+            width: 12px;
+            height: 10px;
+            background: linear-gradient(180deg, #2ecc71, #27ae60);
+            border-radius: 50% 50% 0 0;
+            margin: 0 auto;
+        }
+        .fruit-body .fruit-stem-leaf {
+            position: absolute;
+            width: 14px;
+            height: 18px;
+            background: #2ecc71;
+            border-radius: 50% 0;
+            top: -4px;
+        }
+        .fruit-body .fruit-stem-leaf:first-of-type { left: -11px; transform: rotate(-30deg); }
+        .fruit-body .fruit-stem-leaf:last-of-type { right: -11px; transform: rotate(30deg) scaleX(-1); }
+
+        .fruit-washed {
+            position: absolute;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%) scale(0.85);
+            z-index: 7;
+            opacity: 0;
+            transition: all 0.8s ease;
+            pointer-events: none;
+        }
+        .fruit-washed.show { opacity: 1; bottom: 28%; }
+        .fruit-washed .fruit-body { width: 70px; height: 70px; font-size: 3.8rem; }
+        .fruit-washed .water-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(180deg, transparent, rgba(116, 185, 255, 0.6), rgba(9, 132, 227, 0.4));
+            border-radius: 0 0 50% 50%;
+            pointer-events: none;
+        }
+
+        .fruit-on-board {
+            position: absolute;
+            bottom: 30%;
+            right: 12%;
+            z-index: 25;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+        }
+        .fruit-on-board.show { opacity: 1; transform: scale(1); }
+        .fruit-on-board .fruit-body { width: 70px; height: 70px; font-size: 3.8rem; }
+
+        /* ===== قاچ‌ها ===== */
+        .fruit-slices {
+            position: absolute;
+            bottom: 32%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 160px;
+            height: 100px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            padding: 10px;
+            z-index: 20;
+        }
+        .slice { 
+            width: 65px; 
+            height: 40px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 2.8rem; 
+            background: rgba(255,255,255,0.05); 
+            border-radius: 50%; 
+            animation: sliceIn 0.5s ease backwards; 
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.1); 
+            overflow: hidden;
+        }
+        .slice.s1 { animation-delay: 0s; }
+        .slice.s2 { animation-delay: 0.1s; transform: rotate(45deg); }
+        .slice.s3 { animation-delay: 0.2s; transform: rotate(-30deg); }
+        .slice.s4 { animation-delay: 0.3s; transform: rotate(15deg); }
+        @keyframes sliceIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* ===== له شده ===== */
+        .fruit-squashed {
+            position: absolute;
+            bottom: 32%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 130px;
+            height: 50px;
+            z-index: 20;
+            text-align: center;
+            font-size: 3.5rem;
+            animation: squashAnim 0.6s ease;
+        }
+        @keyframes squashAnim { 0% { transform: translateX(-50%) scale(1); } 40% { transform: translateX(-50%) scale(1.3, 0.5); } 100% { transform: translateX(-50%) scale(1.4, 0.3); } }
+        .squash-juice {
+            position: absolute;
+            bottom: 0;
+            height: 14px;
+            background: linear-gradient(180deg, #e74c3c, transparent);
+            border-radius: 50%;
+            animation: juiceSpread 0.5s ease;
+        }
+        .squash-juice.j1 { left: 5%; width: 70px; }
+        .squash-juice.j2 { left: 35%; width: 55px; animation-delay: 0.1s; }
+        .squash-juice.j3 { right: 5%; width: 60px; animation-delay: 0.2s; }
+        @keyframes juiceSpread { 0% { transform: scaleX(0.3); opacity: 0; } 100% { transform: scaleX(1); opacity: 1; } }
+
+        .hold-area {
+            position: absolute;
+            bottom: 32%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 110px;
+            z-index: 40;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .hold-hint { font-size: 2rem; animation: pulse 1s ease-in-out infinite; margin-bottom: 5px; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+        .hold-progress { width: 80px; height: 10px; background: #ddd; border-radius: 5px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .hold-progress-bar { height: 100%; background: linear-gradient(90deg, var(--success), #00a884); width: 0%; transition: width 0.05s linear; border-radius: 5px; }
+
+        /* ===== چاقو ===== */
+        .knife-item { position: absolute; bottom: 38%; right: 8%; width: 90px; height: auto; cursor: grab; z-index: 100 !important; touch-action: none; transform: rotate(-20deg); transition: none; pointer-events: auto !important; background: transparent; padding: 10px; margin: -10px; }
+        .knife-item:active { cursor: grabbing; }
+        .knife-item img { width: 100%; height: auto; display: block; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); pointer-events: none; -webkit-user-drag: none; }
+
+        .drop-zone { position: absolute; border: 3px dashed transparent; border-radius: 15px; transition: all 0.3s ease; pointer-events: none; z-index: 5; }
+        .drop-zone.highlight { border-color: transparent !important; background: transparent !important; animation: none !important; }
+        #sink-zone { bottom: 22%; left: 18%; width: 40%; height: 25%; }
+        #board-zone { bottom: 22%; right: 10%; width: 30%; height: 22%; }
+
+        .step-hint { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 30px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow-lg); animation: slideUp 0.4s ease; z-index: 50; white-space: nowrap; }
+        @keyframes slideUp { 0% { transform: translateX(-50%) translateY(20px); opacity: 0; } 100% { transform: translateX(-50%) translateY(0); opacity: 1; } }
+        .hint-icon { font-size: 1.3rem; animation: bounce 1s ease-in-out infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        .hint-text { font-size: 1rem; font-weight: 600; }
+
+        /* ===== هدر ===== */
+        .game-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            backdrop-filter: blur(12px);
+            border-radius: 14px;
+            flex-shrink: 0;
+            color: var(--text-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            margin: 8px;
+        }
+        .game-header .header-title { font-size: 0.85rem; font-weight: 700; }
+        .stop-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--glass-border);
+            background: var(--theme-glass-bg);
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 1.1rem;
+        }
+        .stop-btn:hover { border-color: var(--danger); box-shadow: 0 0 20px rgba(255, 118, 117, 0.4); background: rgba(255, 118, 117, 0.1); transform: rotate(180deg); }
+        .stop-btn:active { border-color: var(--danger); box-shadow: 0 0 30px rgba(255, 118, 117, 0.6); background: rgba(255, 118, 117, 0.2); transform: rotate(180deg) scale(0.9); }
+
+        .game-speech p {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #000000 !important;
+            font-weight: 700;
+            text-shadow: none;
+        }
+
+        /* ===== سوالات ===== */
+        #question-scene {
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+            background: rgba(0,0,0,0.7);
+        }
+        .question-wrapper {
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            padding-top: 70px;
+        }
+        .q-character { margin-bottom: 15px; }
+        .q-character img { width: 90px; height: auto; animation: wave 2s ease-in-out infinite; filter: drop-shadow(0 0 30px rgba(255, 201, 60, 0.2)); }
+        @keyframes wave { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+        .question-card {
+            background: var(--theme-glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 25px 20px;
+            box-shadow: var(--shadow-xl);
+            color: var(--text-color);
+            min-height: 420px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .q-number { font-size: 0.9rem; margin-bottom: 8px; font-weight: 700; }
+        .q-text { font-size: 1.15rem; line-height: 1.8; margin-bottom: 20px; font-weight: 600; color: var(--text-color); }
+        .options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; }
+        .option-btn {
+            background: rgba(255,255,255,0.05);
+            border: 3px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 18px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-height: 90px;
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .option-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); border-color: var(--theme-secondary); }
+        .option-btn:active { transform: scale(0.95); }
+        .option-btn.correct { border-color: var(--success); background: rgba(0, 184, 148, 0.2); box-shadow: 0 0 30px rgba(0, 184, 148, 0.2); }
+        .option-btn.wrong { border-color: var(--danger); background: rgba(255, 118, 117, 0.2); box-shadow: 0 0 30px rgba(255, 118, 117, 0.2); }
+        .option-btn.disabled { pointer-events: none; opacity: 0.6; }
+        .option-icon { font-size: 2.8rem; }
+        .option-label { font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); }
+
+        .timer-quiz {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 15px 0 10px;
+            padding: 8px 20px;
+            border-radius: 30px;
+        }
+        .timer-quiz .timer-icon { font-size: 1.5rem; }
+        .timer-quiz .timer-number { font-size: 2rem; font-weight: 900; font-family: 'Shoor Black', Tahoma, sans-serif; min-width: 45px; }
+
+        .answer-feedback {
+            margin-top: 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            animation: popIn 0.5s ease;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .answer-feedback .feedback-char {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 10px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: radial-gradient(circle, rgba(255,255,255,0.05), transparent);
+        }
+        .answer-feedback .feedback-char img { width: 85%; height: 85%; object-fit: contain; }
+        .feedback-title { font-size: 1.5rem; font-weight: 900; font-family: 'Shoor Black', Tahoma, sans-serif; margin-bottom: 5px; }
+        .feedback-title.success { color: var(--success); }
+        .feedback-title.error { color: var(--danger); }
+        .feedback-msg { font-size: 1rem; color: var(--text-secondary); line-height: 1.8; }
+        .feedback-msg strong { color: var(--theme-gold); }
+
+        /* ===== مودال ===== */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(16px); z-index: 5000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.show { display: flex; animation: screenFadeIn 0.3s ease; }
+        .modal-content { background: var(--theme-glass-bg); backdrop-filter: blur(25px); border-radius: 24px; padding: 30px 24px; max-width: 350px; width: 100%; text-align: center; color: var(--text-color); }
+        .modal-content h2 { font-size: 1.8rem; margin-bottom: 15px; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+        .modal-content p { color: var(--text-secondary); margin-bottom: 20px; font-size: 1.1rem; font-family: var(--font-family); }
+        .modal-content .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
+
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 6000; display: flex; flex-direction: column; gap: 8px; width: 90%; max-width: 350px; pointer-events: none; }
+        .toast { background: rgba(0,0,0,0.7); backdrop-filter: blur(16px); padding: 12px 18px; border-radius: 12px; border: 1px solid var(--glass-border); color: var(--text-color); font-weight: 700; text-align: center; animation: toastIn 0.4s ease; box-shadow: var(--shadow-xl); font-family: var(--font-family); font-size: 0.95rem; }
+        .toast.success { border-right: 4px solid var(--success); }
+        .toast.error { border-right: 4px solid var(--danger); }
+        .toast.info { border-right: 4px solid var(--theme-secondary); }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(-20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .celebration-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9000; display: none; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); }
+        .celebration-overlay.show { display: flex; }
+        .celebration-box { background: var(--theme-glass-bg); backdrop-filter: blur(20px); border-radius: 30px; padding: 40px 30px; max-width: 400px; width: 100%; text-align: center; animation: celebPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes celebPop { 0% { transform: scale(0.5) rotate(-5deg); opacity: 0; } 60% { transform: scale(1.05) rotate(2deg); } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+        .celebration-box .celeb-char { width: 120px; height: 120px; margin: 0 auto 15px; border-radius: 50%; border: 4px solid var(--theme-gold); display: flex; align-items: center; justify-content: center; overflow: hidden; background: radial-gradient(circle, rgba(255,255,255,0.05), transparent); box-shadow: 0 0 60px rgba(255, 201, 60, 0.2); animation: float 3s ease-in-out infinite; }
+        .celebration-box .celeb-char img { width: 85%; height: 85%; object-fit: contain; }
+        .celebration-box h2 { font-size: 1.8rem; font-weight: 900; font-family: 'Shoor Black', Tahoma, sans-serif; margin: 10px 0 8px; }
+        .celebration-box .celeb-message { color: var(--text-color); font-size: 1.1rem; font-weight: 500; line-height: 1.8; }
+        .celebration-box .celeb-message strong { color: var(--theme-gold); }
+        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9001; overflow: hidden; }
+        .confetti { position: absolute; width: 10px; height: 10px; border-radius: 2px; animation: confettiFall linear forwards; }
+        @keyframes confettiFall { 0% { transform: translateY(-10px) rotate(0deg) scale(1); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg) scale(0.3); opacity: 0; } }
+
+        .vibrate-effect { position: fixed; inset: 0; pointer-events: none; z-index: 999; display: none; }
+        .vibrate-effect.active { display: block; animation: vibrate 0.1s linear infinite; }
+        @keyframes vibrate { 0%, 100% { background: transparent; } 50% { background: rgba(231, 76, 60, 0.1); } }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 480px) {
+            .menu-title { font-size: 1.8rem; }
+            .menu-character { width: 120px; height: 120px; }
+            .fruit-select-container h2 { font-size: 1.5rem; }
+            .fruit-option .fruit-icon { font-size: 2.8rem; }
+            .fruit-option { padding: 12px 8px; }
+            .intro-container h2 { font-size: 1.5rem; }
+            .intro-fruit { font-size: 4rem; }
+            .intro-fact { font-size: 0.85rem; padding: 8px 12px; }
+            .intro-fun-fact { font-size: 0.8rem; padding: 6px 10px; }
+            .fruit-body { width: 65px; height: 65px; font-size: 3.5rem; }
+            .fruit-body .fruit-emoji { font-size: 3.5rem; }
+            .fruit-washed .fruit-body { width: 55px; height: 55px; font-size: 3rem; }
+            .fruit-washed .fruit-body .fruit-emoji { font-size: 3rem; }
+            .fruit-on-board .fruit-body { width: 55px; height: 55px; font-size: 3rem; }
+            .fruit-on-board .fruit-body .fruit-emoji { font-size: 3rem; }
+            .knife-item { width: 65px; right: 5%; }
+            .step-hint { padding: 10px 18px; bottom: 15px; }
+            .step-hint .hint-text { font-size: 0.85rem; }
+            .options-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .option-btn { padding: 15px 10px; min-height: 80px; font-size: 0.9rem; }
+            .option-icon { font-size: 2.2rem; }
+            .option-label { font-size: 0.75rem; }
+            .fruit-slices { width: 130px; height: 80px; gap: 4px; }
+            .slice { width: 55px; height: 34px; font-size: 2.2rem; }
+            .fruit-squashed { width: 110px; height: 42px; font-size: 2.8rem; }
+            .hold-area { width: 120px; height: 90px; }
+            .hold-hint { font-size: 1.6rem; }
+            .hold-progress { width: 60px; height: 8px; }
+            #sink-zone { bottom: 20%; left: 15%; width: 45%; height: 22%; }
+            #board-zone { bottom: 20%; right: 8%; width: 32%; height: 20%; }
+            .fruit-item { bottom: 32%; }
+            .q-character img { width: 70px; }
+            .game-speech p { font-size: 0.8rem; }
+            .answer-feedback .feedback-char { width: 80px; height: 80px; }
+            .question-card { min-height: 350px; padding: 18px; }
+            .shop-item { min-height: 130px; padding: 10px 8px; }
+            .shop-item .shop-preview { aspect-ratio: 1/1 !important; max-width: 100px; }
+            .shop-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+        }
+        @media (max-width: 380px) {
+            .menu-title { font-size: 1.5rem; }
+            .menu-character { width: 100px; height: 100px; }
+            .fruit-select-container h2 { font-size: 1.3rem; }
+            .fruit-option .fruit-icon { font-size: 2.2rem; }
+            .fruit-option { padding: 10px 6px; }
+            .fruit-option .fruit-name { font-size: 0.8rem; }
+            .fruit-option .fruit-desc { font-size: 0.6rem; }
+            .intro-container h2 { font-size: 1.3rem; }
+            .intro-fruit { font-size: 3.5rem; }
+            .intro-fact { font-size: 0.8rem; padding: 6px 10px; }
+            .intro-fun-fact { font-size: 0.75rem; padding: 5px 8px; }
+            .fruit-body { width: 55px; height: 55px; font-size: 3rem; }
+            .fruit-body .fruit-emoji { font-size: 3rem; }
+            .fruit-washed .fruit-body { width: 45px; height: 45px; font-size: 2.5rem; }
+            .fruit-washed .fruit-body .fruit-emoji { font-size: 2.5rem; }
+            .fruit-on-board .fruit-body { width: 45px; height: 45px; font-size: 2.5rem; }
+            .fruit-on-board .fruit-body .fruit-emoji { font-size: 2.5rem; }
+            .knife-item { width: 55px; right: 3%; }
+            .step-hint { padding: 8px 14px; bottom: 10px; }
+            .step-hint .hint-text { font-size: 0.8rem; }
+            .step-hint .hint-icon { font-size: 1.1rem; }
+            .q-character img { width: 60px; }
+            .question-card { padding: 15px; min-height: 300px; }
+            .q-text { font-size: 1rem; }
+            .options-grid { gap: 8px; }
+            .option-btn { padding: 12px 8px; min-height: 70px; font-size: 0.85rem; }
+            .option-icon { font-size: 2rem; }
+            .option-label { font-size: 0.7rem; }
+            .fruit-slices { width: 110px; height: 70px; }
+            .slice { width: 46px; height: 30px; font-size: 1.8rem; }
+            .fruit-squashed { width: 90px; height: 36px; font-size: 2.2rem; }
+            .hold-area { width: 100px; height: 80px; }
+            .hold-hint { font-size: 1.4rem; }
+            .hold-progress { width: 50px; height: 6px; }
+            .game-speech p { font-size: 0.75rem; }
+            .shop-item { min-height: 110px; padding: 8px 6px; }
+            .shop-item .shop-preview { aspect-ratio: 1/1 !important; max-width: 80px; }
+            .shop-item .name { font-size: 0.65rem; }
+            .shop-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 6px; }
+        }
+        @media (min-width: 768px) {
+            .menu-character { width: 160px; }
+            .fruit-body { width: 90px; height: 90px; font-size: 5rem; }
+            .fruit-body .fruit-emoji { font-size: 5rem; }
+            .fruit-washed .fruit-body { width: 75px; height: 75px; font-size: 4.2rem; }
+            .fruit-washed .fruit-body .fruit-emoji { font-size: 4.2rem; }
+            .fruit-on-board .fruit-body { width: 75px; height: 75px; font-size: 4.2rem; }
+            .fruit-on-board .fruit-body .fruit-emoji { font-size: 4.2rem; }
+            .knife-item { width: 100px; }
+            .step-hint { padding: 14px 28px; }
+            .step-hint .hint-text { font-size: 1.1rem; }
+            .options-grid { gap: 15px; }
+            .option-btn { padding: 25px 20px; min-height: 120px; }
+            .option-icon { font-size: 3.5rem; }
+            .question-card { padding: 30px; min-height: 500px; }
+            .q-text { font-size: 1.2rem; }
+            .fruit-select-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+            .shop-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px; }
+            .shop-item .shop-preview { aspect-ratio: 1/1 !important; max-width: 120px; }
+        }
+        @media (hover: none) and (pointer: coarse) {
+            .action-btn, .control-btn, .option-btn, .back-btn { min-height: 48px; }
+            .fruit-item, .knife-item { cursor: default; }
+            .option-btn:hover { transform: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stars" id="stars"></div>
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ===== MENU ===== -->
+    <div id="menu-scene" class="screen active">
+        <div class="menu-container glass-card">
+            <div class="coin-display">
+                <img src="icons/coin.png" alt="Coin" onerror="this.textContent='🪙'">
+                <span class="coin-amount" id="menu-coin-amount">0</span>
+            </div>
+            <h1 class="menu-title">آزمایشگاه میوه‌ها</h1>
+            <p class="menu-subtitle">🍓 با میوه‌ها آشنا بشو!</p>
+            <div class="menu-character">
+                <img src="icons/gamerhi.png" alt="Pixel" onerror="this.textContent='🧒'">
+            </div>
+            <div class="menu-buttons">
+                <button class="btn btn-start" id="start-game-btn">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polygon points="5,3 19,12 5,21"></polygon>
+                    </svg>
+                    شروع بازی
+                </button>
+                <div class="row">
+                    <button class="btn btn-secondary" id="help-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        راهنما
+                    </button>
+                    <button class="btn btn-secondary" id="shop-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                        فروشگاه
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== انتخاب میوه با اسکرول ===== -->
+    <div id="fruit-select-scene" class="screen">
+        <div class="fruit-select-container glass-card">
+            <h2>🍓 کدوم میوه رو می‌خوای؟</h2>
+            <div class="fruit-select-grid">
+                <div class="fruit-option" onclick="selectFruit('tomato')">
+                    <span class="fruit-icon">🍅</span>
+                    <div class="fruit-name">گوجه</div>
+                    <div class="fruit-desc">قرمز و آبدار</div>
+                </div>
+                <div class="fruit-option" onclick="selectFruit('orange')">
+                    <span class="fruit-icon">🍊</span>
+                    <div class="fruit-name">پرتقال</div>
+                    <div class="fruit-desc">نارنجی و خوشمزه</div>
+                </div>
+                <div class="fruit-option" onclick="selectFruit('apple')">
+                    <span class="fruit-icon">🍏</span>
+                    <div class="fruit-name">سیب</div>
+                    <div class="fruit-desc">سبز و شیرین</div>
+                </div>
+                <div class="fruit-option" onclick="selectFruit('strawberry')" style="border-color: var(--gold);">
+                    <span class="fruit-icon">🍓</span>
+                    <div class="fruit-name">توت فرنگی</div>
+                    <div class="fruit-desc">قرمز و خوشمزه</div>
+                </div>
+                <div class="fruit-option" onclick="selectFruit('watermelon')">
+                    <span class="fruit-icon">🍉</span>
+                    <div class="fruit-name">هندوانه</div>
+                    <div class="fruit-desc">آبدار و تابستونی</div>
+                </div>
+                <div class="fruit-option" onclick="selectFruit('grape')">
+                    <span class="fruit-icon">🍇</span>
+                    <div class="fruit-name">انگور</div>
+                    <div class="fruit-desc">خوشه‌ای و شیرین</div>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="showScene('menu-scene')" style="margin-top:10px;flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                </svg>
+                برگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== INTRO گوجه ===== -->
+    <div id="intro-tomato-scene" class="screen">
+        <div class="intro-container glass-card">
+            <h2>🍅 گوجه یعنی چی؟</h2>
+            <span class="intro-fruit">🍅</span>
+            <div class="intro-facts">
+                <div class="intro-fact"><span class="fact-icon">🔴</span><span class="fact-text"><strong>گوجه قرمزرنگه</strong> و شبیه دایره است</span></div>
+                <div class="intro-fact"><span class="fact-icon">💚</span><span class="fact-text">روی گوجه یک <strong>برگ سبز</strong> هست</span></div>
+                <div class="intro-fact"><span class="fact-icon">💧</span><span class="fact-text">داخلش <strong>آب داره</strong> و نرمه</span></div>
+                <div class="intro-fact"><span class="fact-icon">🍽️</span><span class="fact-text">با گوجه میشه <strong>سالاد</strong> و <strong>سس گوجه</strong> درست کرد</span></div>
+            </div>
+            <div class="intro-divider"></div>
+            <div class="intro-fun-facts">
+                <div class="intro-fun-fact"><span class="ff-icon">🧬</span><span class="ff-text">از نظر علمی، <strong>گوجه میوه هست</strong> چون دانه داره!</span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">🌈</span><span class="ff-text">گوجه فقط قرمز نیست! رنگ‌های <strong>زرد، نارنجی، سبز، بنفش</strong> و حتی <strong>سیاه</strong> هم داره!</span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">💪</span><span class="ff-text">گوجه پر از <strong>ویتامین C</strong> هست!</span></div>
+            </div>
+            <button class="btn btn-primary" id="intro-start-btn" style="margin-top:12px;"><span>🚀</span> بزن بریم!</button>
+        </div>
+    </div>
+
+    <!-- ===== INTRO پرتقال ===== -->
+    <div id="intro-orange-scene" class="screen">
+        <div class="intro-container glass-card">
+            <h2>🍊 پرتقال یعنی چی؟</h2>
+            <span class="intro-fruit">🍊</span>
+            <div class="intro-facts">
+                <div class="intro-fact"><span class="fact-icon">🟠</span><span class="fact-text"><strong>پرتقال نارنجی رنگه!</strong></span></div>
+                <div class="intro-fact"><span class="fact-icon">💪</span><span class="fact-text">پرتقال پر از <strong>ویتامین C</strong> هست</span></div>
+                <div class="intro-fact"><span class="fact-icon">⭕</span><span class="fact-text">پرتقال شبیه <strong>دایره</strong> و گرده!</span></div>
+                <div class="intro-fact"><span class="fact-icon">🧃</span><span class="fact-text">از پرتقال <strong>آب پرتقال</strong> درست میشه</span></div>
+            </div>
+            <div class="intro-divider"></div>
+            <div class="intro-fun-facts">
+                <div class="intro-fun-fact"><span class="ff-icon">🌱</span><span class="ff-text">داخل پرتقال <strong>دانه‌های ریز</strong> هست!</span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">🍊</span><span class="ff-text">پوست پرتقال <strong>ضخیم</strong> هست و بوی خوبی داره!</span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">🌈</span><span class="ff-text">پرتقال انواع مختلفی داره: <strong>شیرین، ترش و خونی</strong></span></div>
+            </div>
+            <button class="btn btn-primary" id="intro-orange-start-btn" style="margin-top:12px;"><span>🚀</span> بزن بریم!</button>
+        </div>
+    </div>
+
+    <!-- ===== INTRO سیب ===== -->
+    <div id="intro-apple-scene" class="screen">
+        <div class="intro-container glass-card">
+            <h2>🍏 سیب یعنی چی؟</h2>
+            <span class="intro-fruit">🍏</span>
+            <div class="intro-facts">
+                <div class="intro-fact"><span class="fact-icon">🍏</span><span class="fact-text"><strong>سیب می‌تونه قرمز، سبز یا زرد باشه!</strong></span></div>
+                <div class="intro-fact"><span class="fact-icon">⭕</span><span class="fact-text">سیب <strong>گرد</strong> هست و یک ساقه کوچک داره</span></div>
+                <div class="intro-fact"><span class="fact-icon">💪</span><span class="fact-text">سیب پر از <strong>ویتامین C</strong> هست</span></div>
+                <div class="intro-fact"><span class="fact-icon">🧃</span><span class="fact-text">از سیب <strong>آب سیب</strong> خوشمزه درست میشه</span></div>
+            </div>
+            <div class="intro-divider"></div>
+            <div class="intro-fun-facts">
+                <div class="intro-fun-fact"><span class="ff-icon">🌱</span><span class="ff-text">داخل سیب <strong>دونه‌های قهوه‌ای</strong> رنگ هست</span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">🍏</span><span class="ff-text">سیب انواع مختلفی داره: <strong>قرمز، سبز و زرد</strong></span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">🥧</span><span class="ff-text">با سیب میشه <strong>پای سیب</strong> و <strong>مربا</strong> درست کرد</span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">🧬</span><span class="ff-text">سیب از نظر علمی یک <strong>میوه</strong> هست</span></div>
+            </div>
+            <button class="btn btn-primary" id="intro-apple-start-btn" style="margin-top:12px;"><span>🚀</span> بزن بریم!</button>
+        </div>
+    </div>
+
+    <!-- ===== INTRO توت فرنگی ===== -->
+    <div id="intro-strawberry-scene" class="screen">
+        <div class="intro-container glass-card">
+            <h2>🍓 توت فرنگی یعنی چی؟</h2>
+            <span class="intro-fruit">🍓</span>
+            <div class="intro-facts">
+                <div class="intro-fact"><span class="fact-icon">🔴</span><span class="fact-text"><strong>توت فرنگی قرمز رنگه</strong> و شکلش مثل قلب هست!</span></div>
+                <div class="intro-fact"><span class="fact-icon">🌱</span><span class="fact-text">روی توت فرنگی <strong>دونه‌های ریز</strong> هست!</span></div>
+                <div class="intro-fact"><span class="fact-icon">💪</span><span class="fact-text">توت فرنگی پر از <strong>ویتامین C</strong> هست!</span></div>
+                <div class="intro-fact"><span class="fact-icon">🍰</span><span class="fact-text">با توت فرنگی میشه <strong>کیک</strong> و <strong>مربا</strong> درست کرد!</span></div>
+            </div>
+            <div class="intro-divider"></div>
+            <div class="intro-fun-facts">
+                <div class="intro-fun-fact"><span class="ff-icon">🍓</span><span class="ff-text">توت فرنگی <strong>تنها میوه‌ای</strong> هست که دانه‌هاش روی پوستش هست!</span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">💕</span><span class="ff-text">شکل توت فرنگی شبیه <strong>قلب</strong> هست!</span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">🌈</span><span class="ff-text">توت فرنگی انواع مختلفی داره: <strong>قرمز، سفید و صورتی</strong></span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">🧬</span><span class="ff-text">توت فرنگی از نظر علمی یک <strong>میوه</strong> هست!</span></div>
+            </div>
+            <button class="btn btn-primary" id="intro-strawberry-start-btn" style="margin-top:12px;"><span>🚀</span> بزن بریم!</button>
+        </div>
+    </div>
+
+    <!-- ===== INTRO هندوانه ===== -->
+    <div id="intro-watermelon-scene" class="screen">
+        <div class="intro-container glass-card">
+            <h2>🍉 هندوانه یعنی چی؟</h2>
+            <span class="intro-fruit">🍉</span>
+            <div class="intro-facts">
+                <div class="intro-fact"><span class="fact-icon">🍉</span><span class="fact-text">هندوانه <strong>بزرگ</strong> و <strong>گرد یا بیضی</strong>‌شکل هست</span></div>
+                <div class="intro-fact"><span class="fact-icon">🟢</span><span class="fact-text">پوست هندوانه <strong>سبز</strong> هست با <strong>خط‌های تیره</strong></span></div>
+                <div class="intro-fact"><span class="fact-icon">🔴</span><span class="fact-text">داخل هندوانه <strong>قرمز</strong> رنگه (بعضی‌هاش زرد یا نارنجی هم هست)</span></div>
+                <div class="intro-fact"><span class="fact-icon">💧</span><span class="fact-text">هندوانه خیلی <strong>آبدار</strong>ه و تشنگی رو رفع میکنه</span></div>
+            </div>
+            <div class="intro-divider"></div>
+            <div class="intro-fun-facts">
+                <div class="intro-fun-fact"><span class="ff-icon">🌱</span><span class="ff-text">داخل هندوانه <strong>دانه‌های سیاه و سفید</strong> هست</span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">🍉</span><span class="ff-text">هندوانه انواع مختلفی داره: <strong>بی‌دانه، زرد و گرد</strong></span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">🧃</span><span class="ff-text">از هندوانه <strong>آب هندوانه</strong> خوشمزه درست میشه</span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">💪</span><span class="ff-text">هندوانه پر از <strong>ویتامین A و C</strong> هست</span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">🥗</span><span class="ff-text">با هندوانه میشه <strong>سالاد میوه</strong> و <strong>اسموتی</strong> درست کرد</span></div>
+            </div>
+            <button class="btn btn-primary" id="intro-watermelon-start-btn" style="margin-top:12px;"><span>🚀</span> بزن بریم!</button>
+        </div>
+    </div>
+
+    <!-- ===== INTRO انگور ===== -->
+    <div id="intro-grape-scene" class="screen">
+        <div class="intro-container glass-card">
+            <h2>🍇 انگور یعنی چی؟</h2>
+            <span class="intro-fruit">🍇</span>
+            <div class="intro-facts">
+                <div class="intro-fact"><span class="fact-icon">🟣</span><span class="fact-text">انگور می‌تونه <strong>سبز، قرمز یا بنفش</strong> باشه!</span></div>
+                <div class="intro-fact"><span class="fact-icon">🍇</span><span class="fact-text">انگورها به صورت <strong>خوشه‌ای</strong> دور هم جمع شدن!</span></div>
+                <div class="intro-fact"><span class="fact-icon">💧</span><span class="fact-text">داخل انگور <strong>آب</strong> داره و خیلی شیرینه!</span></div>
+                <div class="intro-fact"><span class="fact-icon">🧃</span><span class="fact-text">از انگور <strong>آب انگور</strong> و <strong>کشمش</strong> درست میشه!</span></div>
+            </div>
+            <div class="intro-divider"></div>
+            <div class="intro-fun-facts">
+                <div class="intro-fun-fact"><span class="ff-icon">🍇</span><span class="ff-text">انگورها روی یک <strong>ساقه</strong> به صورت خوشه‌ای رشد میکنن!</span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">🌈</span><span class="ff-text">انگور انواع مختلفی داره: <strong>انگور سبز، قرمز، بنفش و سیاه</strong></span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">🧬</span><span class="ff-text">انگور از نظر علمی یک <strong>میوه</strong> هست!</span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">💪</span><span class="ff-text">انگور برای <strong>قلب</strong> و <strong>خون</strong> خیلی خوبه!</span></div>
+                <div class="intro-fun-fact"><span class="ff-icon">🧊</span><span class="ff-text">انگور رو میشه توی <strong>یخچال</strong> گذاشت و خنک خورد!</span></div>
+            </div>
+            <button class="btn btn-primary" id="intro-grape-start-btn" style="margin-top:12px;"><span>🚀</span> بزن بریم!</button>
+        </div>
+    </div>
+
+    <!-- ===== HELP ===== -->
+    <div id="help-scene" class="screen">
+        <div class="glass-card" style="max-width:420px;width:100%;padding:25px 20px;text-align:center;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+                <button class="back-btn" onclick="showScene('menu-scene')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <h2 style="font-size:1.6rem;font-family:'Shoor Black',Tahoma,sans-serif;color:#1500b5;">📖 راهنما</h2>
+                <div style="width:40px;"></div>
+            </div>
+            <div class="help-character">
+                <img src="icons/gamer.png" alt="راهنما" onerror="this.textContent='🧒'">
+            </div>
+            <div class="help-steps">
+                <div class="step"><span class="num">۱</span><span class="text">میوه رو ببر به سینک 🚿</span></div>
+                <div class="step"><span class="num">۲</span><span class="text">چاقو رو بکش و ببر روی میوه 🔪</span></div>
+                <div class="step"><span class="num">۳</span><span class="text">انگشتت رو ۲ ثانیه نگه دار 👆</span></div>
+                <div class="step"><span class="num">۴</span><span class="text">به سوالات جواب بده ❓</span></div>
+            </div>
+            
+            <button class="btn btn-secondary" onclick="showScene('menu-scene')" style="margin-top:5px;">بازگشت</button>
+        </div>
+    </div>
+
+    <!-- ===== SHOP با تب ===== -->
+    <div id="shop-scene" class="screen">
+        <div class="shop-container glass-card">
+            <div class="shop-header">
+                <button class="back-btn" onclick="showScene('menu-scene')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <h2>🛍️ فروشگاه</h2>
+                <div class="shop-coin">
+                    <img src="icons/coin.png" alt="Coin" onerror="this.textContent='🪙'">
+                    <span id="shop-coin-amount">0</span>
+                </div>
+            </div>
+            <div class="shop-tabs">
+                <button class="shop-tab active" data-tab="themes" onclick="switchShopTab('themes', this)">🎨 پوسته‌ها</button>
+                <button class="shop-tab" data-tab="custom" onclick="switchShopTab('custom', this)">🖌️ شخصی‌سازی</button>
+            </div>
+            <div class="shop-grid" id="shop-grid"></div>
+        </div>
+    </div>
+
+    <!-- ===== GAME ===== -->
+    <div id="game-scene" class="screen">
+        <header class="game-header">
+            <span class="header-title">🍓 آزمایشگاه میوه</span>
+            <button class="stop-btn" id="stop-game-btn">
+                <span>⏹️</span>
+            </button>
+        </header>
+
+        <div style="position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:50;text-align:center;">
+            <img src="icons/gamerhi.png" alt="" style="width:60px;animation:wave 2s ease-in-out infinite;" onerror="this.textContent='🧒'">
+            <div class="game-speech" id="game-speech" style="background:rgba(0,0,0,0.5);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:15px;padding:8px 14px;margin-top:5px;max-width:180px;box-shadow:var(--shadow);position:relative;animation:popIn 0.4s ease;color:var(--text-color);">
+                <p style="font-size:0.85rem;line-height:1.6;">سلام! بیا با میوه آشنا بشیم!</p>
+            </div>
+        </div>
+
+        <div class="kitchen-wrapper">
+            <img src="icons/sink.jpg" alt="سینک آشپزخانه" class="kitchen-bg" id="kitchen-bg" onerror="this.style.display='none'">
+
+            <div class="water-stream" id="water-stream"></div>
+            <div class="water-splash" id="water-splash"></div>
+
+            <!-- میوه اصلی با ایموجی -->
+            <div class="fruit-item" id="fruit-item">
+                <div class="fruit-body" id="fruit-body">
+                    <span class="fruit-emoji" id="fruit-emoji">🍓</span>
+                    <div class="fruit-shine"></div>
+                    <div class="fruit-stem-group">
+                        <div class="fruit-stem-main"></div>
+                        <div class="fruit-stem-leaf"></div>
+                        <div class="fruit-stem-leaf"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- میوه در سینک -->
+            <div class="fruit-washed" id="fruit-washed">
+                <div class="fruit-body">
+                    <span class="fruit-emoji" id="washed-emoji">🍓</span>
+                    <div class="fruit-shine"></div>
+                    <div class="fruit-stem-group">
+                        <div class="fruit-stem-main"></div>
+                        <div class="fruit-stem-leaf"></div>
+                        <div class="fruit-stem-leaf"></div>
+                    </div>
+                </div>
+                <div class="water-overlay"></div>
+            </div>
+
+            <!-- قاچ‌ها -->
+            <div class="fruit-slices hidden" id="fruit-slices">
+                <div class="slice s1" id="slice1">🍓</div>
+                <div class="slice s2" id="slice2">🍓</div>
+                <div class="slice s3" id="slice3">🍓</div>
+                <div class="slice s4" id="slice4">🍓</div>
+            </div>
+
+            <!-- له شده -->
+            <div class="fruit-squashed hidden" id="fruit-squashed">
+                <span id="squash-emoji">🍓</span>
+                <div class="squash-juice j1"></div>
+                <div class="squash-juice j2"></div>
+                <div class="squash-juice j3"></div>
+            </div>
+
+            <div class="hold-area hidden" id="hold-area">
+                <div class="hold-hint">👆</div>
+                <div class="hold-progress">
+                    <div class="hold-progress-bar" id="hold-progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="knife-item" id="knife-item">
+                <img src="icons/chaqhoo.png" alt="چاقو" draggable="false" onerror="this.outerHTML='<div style=\'width:90px;height:22px;background:linear-gradient(90deg,#a0522d 0%,#a0522d 30%,#dfe6e9 35%,#b2bec3 100%);border-radius:4px;box-shadow:0 4px 10px rgba(0,0,0,0.3);\'></div>'">
+            </div>
+        </div>
+
+        <div class="drop-zone" id="sink-zone"></div>
+        <div class="drop-zone" id="board-zone"></div>
+
+        <div class="step-hint" id="step-hint">
+            <div class="hint-icon">👆</div>
+            <div class="hint-text">میوه رو ببر به سینک!</div>
+        </div>
+    </div>
+
+    <!-- ===== QUESTION ===== -->
+    <div id="question-scene" class="screen">
+        <div class="question-wrapper">
+            <div class="q-character">
+                <img src="icons/gamerhi.png" alt="" onerror="this.textContent='🧒'">
+            </div>
+            <div class="question-card" id="question-card">
+                <div class="q-number" id="q-number">سوال ۱ از ۶</div>
+                <p class="q-text" id="q-text">سوال اینجا نمایش داده میشه</p>
+                <div class="options-grid" id="options-grid"></div>
+                <div class="timer-quiz" id="timer-quiz">
+                    <span class="timer-icon">⏱️</span>
+                    <span class="timer-number" id="quiz-timer">70</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STOP MODAL ===== -->
+    <div class="modal-overlay" id="stop-modal">
+        <div class="modal-content glass-card">
+            <h2>⏸️ توقف</h2>
+            <p>بازی متوقف شد!</p>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="resume-game-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5,3 19,12 5,21"></polygon>
+                    </svg>
+                    ادامه بازی
+                </button>
+                <button class="btn btn-secondary" id="restart-game-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 4v6h6M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                    </svg>
+                    شروع مجدد
+                </button>
+                <button class="btn btn-danger" id="quit-game-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path>
+                    </svg>
+                    خروج به منو
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CELEBRATION ===== -->
+    <div class="celebration-overlay" id="celebration-overlay">
+        <div class="confetti-container" id="confetti-container"></div>
+        <div class="celebration-box">
+            <div class="celeb-char">
+                <img src="icons/happy gamer.png" alt="Happy" onerror="this.textContent='🎉'">
+            </div>
+            <h2>🎉 آفرین!</h2>
+            <div class="celeb-message" id="celeb-message">
+                <strong>پوسته جدید خریداری شد!</strong><br>
+                حالا با استایل جدیدت<br>
+                قشنگ‌تر از همیشه! 😍
+            </div>
+            <button class="btn btn-gold" onclick="closeCelebration()">🚀 بزن بریم!</button>
+        </div>
+    </div>
+
+    <div class="vibrate-effect" id="vibrate-effect"></div>
+
+    <script>
+        // ===== ستاره‌ها =====
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = (Math.random() * 2 + 1) + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = (Math.random() * 3) + 's';
+                star.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                container.appendChild(star);
+            }
+        }
+        createStars();
+
+        // ===== متغیرهای بازی =====
+        const GameState = {
+            currentStep: 1,
+            totalSteps: 4,
+            correctAnswers: 0,
+            wrongAnswers: 0,
+            currentQuestion: 0,
+            fruitWashed: false,
+            fruitSliced: false,
+            fruitSquashed: false,
+            isDragging: false,
+            dragItem: null,
+            startX: 0,
+            startY: 0,
+            initialX: 0,
+            initialY: 0,
+            isHolding: false,
+            holdProgress: 0,
+            holdRequired: 2000,
+            coins: 0,
+            ownedThemes: ['mamooli'],
+            activeTheme: 'mamooli',
+            audioContext: null,
+            isPlaying: false,
+            isPaused: false,
+            quizTimer: 70,
+            quizInterval: null,
+            isQuizActive: false,
+            selectedFruit: 'strawberry',
+            currentTab: 'themes'
+        };
+
+        // ===== سوالات =====
+        const QuestionsTomato = [
+            { question: "گوجه چه رنگیه؟", options: [{ icon: "🌊", label: "آبی", correct: false }, { icon: "🔴", label: "قرمز", correct: true }, { icon: "🟢", label: "سبز", correct: false }], explanation: "🍅 گوجه‌ها معمولاً <strong>قرمز</strong> هستن!" },
+            { question: "داخل گوجه چیه؟", options: [{ icon: "💧", label: "آب", correct: true }, { icon: "🥩", label: "گوشت", correct: false }, { icon: "🌿", label: "برگ", correct: false }], explanation: "💧 گوجه داخلش <strong>آب داره</strong> و نرمه!" },
+            { question: "با گوجه چی میشه درست کرد؟", options: [{ icon: "🍕", label: "پیتزا", correct: false }, { icon: "🥫", label: "سس گوجه", correct: true }, { icon: "🍔", label: "همبرگر", correct: false }], explanation: "🥫 از گوجه <strong>سس گوجه</strong> درست میشه!" },
+            { question: "گوجه از نظر علمی چیه؟", options: [{ icon: "🥬", label: "سبزی", correct: false }, { icon: "🍎", label: "میوه", correct: true }, { icon: "🌾", label: "غلات", correct: false }], explanation: "🍎 گوجه یک <strong>میوه</strong> هست چون دانه داره!" },
+            { question: "گوجه چند نوع رنگ داره؟", options: [{ icon: "🔴", label: "فقط قرمز", correct: false }, { icon: "🌈", label: "چند رنگ", correct: true }, { icon: "🟡", label: "فقط زرد", correct: false }], explanation: "🌈 گوجه رنگ‌های مختلفی داره!" },
+            { question: "گوجه برای چی خوبه؟", options: [{ icon: "💪", label: "ویتامین C", correct: true }, { icon: "🦴", label: "استخوان", correct: false }, { icon: "🧠", label: "مغز", correct: false }], explanation: "💪 گوجه پر از <strong>ویتامین C</strong> هست!" }
+        ];
+
+        const QuestionsOrange = [
+            { question: "پرتقال چه رنگیه؟", options: [{ icon: "🔴", label: "قرمز", correct: false }, { icon: "🟠", label: "نارنجی", correct: true }, { icon: "🟡", label: "زرد", correct: false }], explanation: "🍊 پرتقال <strong>نارنجی</strong> رنگه!" },
+            { question: "داخل پرتقال چیه؟", options: [{ icon: "💧", label: "آب پرتقال", correct: true }, { icon: "🥩", label: "گوشت", correct: false }, { icon: "🌿", label: "برگ", correct: false }], explanation: "🧃 داخل پرتقال <strong>آب پرتقال</strong> هست!" },
+            { question: "با پرتقال چی میشه درست کرد؟", options: [{ icon: "🍕", label: "پیتزا", correct: false }, { icon: "🧃", label: "آب پرتقال", correct: true }, { icon: "🍔", label: "همبرگر", correct: false }], explanation: "🧃 از پرتقال <strong>آب پرتقال</strong> درست میشه!" },
+            { question: "پرتقال از نظر علمی چیه؟", options: [{ icon: "🥬", label: "سبزی", correct: false }, { icon: "🍎", label: "میوه", correct: true }, { icon: "🌾", label: "غلات", correct: false }], explanation: "🍎 پرتقال یک <strong>میوه</strong> هست!" },
+            { question: "پرتقال برای چی خوبه؟", options: [{ icon: "💪", label: "ویتامین C", correct: true }, { icon: "🦴", label: "استخوان", correct: false }, { icon: "🧠", label: "مغز", correct: false }], explanation: "💪 پرتقال پر از <strong>ویتامین C</strong> هست!" },
+            { question: "پوست پرتقال چطوره؟", options: [{ icon: "🧊", label: "نازک", correct: false }, { icon: "🛡️", label: "ضخیم", correct: true }, { icon: "🍃", label: "برگی", correct: false }], explanation: "🍊 پوست پرتقال <strong>ضخیم</strong> هست!" }
+        ];
+
+        const QuestionsApple = [
+            { question: "سیب چه رنگی می‌تونه باشه؟", options: [{ icon: "🔴", label: "قرمز", correct: false }, { icon: "🟢", label: "سبز", correct: false }, { icon: "🟡", label: "زرد", correct: false }, { icon: "🌈", label: "همه موارد", correct: true }], explanation: "🍎 سیب در رنگ‌های <strong>قرمز، سبز و زرد</strong> وجود داره!" },
+            { question: "داخل سیب چیه؟", options: [{ icon: "🌱", label: "دونه", correct: true }, { icon: "💧", label: "آب", correct: false }, { icon: "🥩", label: "گوشت", correct: false }], explanation: "🌱 داخل سیب <strong>دونه‌های قهوه‌ای</strong> هست!" },
+            { question: "با سیب چی میشه درست کرد؟", options: [{ icon: "🧃", label: "آب سیب", correct: false }, { icon: "🥧", label: "پای سیب", correct: false }, { icon: "🍯", label: "مربا", correct: false }, { icon: "✅", label: "همه موارد", correct: true }], explanation: "🍎 از سیب <strong>آب سیب، پای سیب و مربا</strong> درست میشه!" },
+            { question: "سیب از نظر علمی چیه؟", options: [{ icon: "🥬", label: "سبزی", correct: false }, { icon: "🍎", label: "میوه", correct: true }, { icon: "🌾", label: "غلات", correct: false }], explanation: "🍎 سیب یک <strong>میوه</strong> هست!" },
+            { question: "سیب برای چی خوبه؟", options: [{ icon: "💪", label: "ویتامین C", correct: false }, { icon: "🦷", label: "دندان", correct: false }, { icon: "✅", label: "هر دو", correct: true }], explanation: "💪 سیب هم <strong>ویتامین C</strong> داره و هم برای <strong>دندان</strong> مفیده!" },
+            { question: "سیب شبیه کدومه؟", options: [{ icon: "⭕", label: "گرد", correct: true }, { icon: "🔲", label: "مربع", correct: false }, { icon: "🔺", label: "مثلث", correct: false }], explanation: "🍎 سیب <strong>گرد</strong> هست!" }
+        ];
+
+        const QuestionsStrawberry = [
+            { question: "توت فرنگی چه رنگیه؟", options: [{ icon: "🔴", label: "قرمز", correct: true }, { icon: "🟢", label: "سبز", correct: false }, { icon: "🔵", label: "آبی", correct: false }], explanation: "🍓 توت فرنگی <strong>قرمز</strong> رنگه!" },
+            { question: "شکل توت فرنگی شبیه چیه؟", options: [{ icon: "💕", label: "قلب", correct: true }, { icon: "⭕", label: "دایره", correct: false }, { icon: "🔺", label: "مثلث", correct: false }], explanation: "🍓 توت فرنگی شبیه <strong>قلب</strong> هست!" },
+            { question: "روی توت فرنگی چیه؟", options: [{ icon: "🌱", label: "دونه‌های ریز", correct: true }, { icon: "🍃", label: "برگ", correct: false }, { icon: "💧", label: "قطره آب", correct: false }], explanation: "🌱 روی توت فرنگی <strong>دونه‌های ریز</strong> هست!" },
+            { question: "توت فرنگی برای چی خوبه؟", options: [{ icon: "💪", label: "ویتامین C", correct: true }, { icon: "🦴", label: "استخوان", correct: false }, { icon: "🧠", label: "مغز", correct: false }], explanation: "💪 توت فرنگی پر از <strong>ویتامین C</strong> هست!" },
+            { question: "با توت فرنگی چی میشه درست کرد؟", options: [{ icon: "🍰", label: "کیک", correct: false }, { icon: "🍯", label: "مربا", correct: false }, { icon: "🍦", label: "بستنی", correct: false }, { icon: "✅", label: "همه موارد", correct: true }], explanation: "🍓 از توت فرنگی <strong>کیک، مربا و بستنی</strong> درست میشه!" },
+            { question: "توت فرنگی چه نوع میوه‌ای هست؟", options: [{ icon: "🍎", label: "میوه", correct: true }, { icon: "🥬", label: "سبزی", correct: false }, { icon: "🌾", label: "غلات", correct: false }], explanation: "🍓 توت فرنگی از نظر علمی یک <strong>میوه</strong> هست!" }
+        ];
+
+        const QuestionsWatermelon = [
+            { question: "پوست هندوانه چه رنگیه؟", options: [{ icon: "🟢", label: "سبز", correct: true }, { icon: "🔴", label: "قرمز", correct: false }, { icon: "🟡", label: "زرد", correct: false }], explanation: "🍉 پوست هندوانه <strong>سبز</strong> هست با خط‌های تیره!" },
+            { question: "داخل هندوانه چه رنگیه؟", options: [{ icon: "🔴", label: "قرمز", correct: true }, { icon: "🟢", label: "سبز", correct: false }, { icon: "🔵", label: "آبی", correct: false }], explanation: "🍉 داخل هندوانه <strong>قرمز</strong> رنگه!" },
+            { question: "داخل هندوانه چیه؟", options: [{ icon: "🌱", label: "دونه", correct: false }, { icon: "💧", label: "آب", correct: false }, { icon: "🥩", label: "گوشت", correct: false }, { icon: "✅", label: "همه موارد", correct: true }], explanation: "🍉 داخل هندوانه <strong>دونه، آب و گوشت</strong> هست!" },
+            { question: "با هندوانه چی میشه درست کرد؟", options: [{ icon: "🧃", label: "آب هندوانه", correct: false }, { icon: "🥗", label: "سالاد میوه", correct: false }, { icon: "🍧", label: "اسموتی", correct: false }, { icon: "✅", label: "همه موارد", correct: true }], explanation: "🍉 از هندوانه <strong>آب، سالاد و اسموتی</strong> درست میشه!" },
+            { question: "هندوانه برای چی خوبه؟", options: [{ icon: "💧", label: "تشنگی", correct: false }, { icon: "💪", label: "ویتامین", correct: false }, { icon: "✅", label: "هر دو", correct: true }], explanation: "🍉 هندوانه هم <strong>تشنگی</strong> رو رفع میکنه و هم <strong>ویتامین</strong> داره!" },
+            { question: "هندوانه شبیه کدومه؟", options: [{ icon: "⭕", label: "گرد", correct: false }, { icon: "🏈", label: "بیضی", correct: false }, { icon: "✅", label: "هر دو", correct: true }], explanation: "🍉 هندوانه می‌تونه <strong>گرد</strong> یا <strong>بیضی</strong> باشه!" }
+        ];
+
+        const QuestionsGrape = [
+            { question: "انگور چه رنگ‌هایی داره؟", options: [{ icon: "🟢", label: "سبز", correct: false }, { icon: "🔴", label: "قرمز", correct: false }, { icon: "🟣", label: "بنفش", correct: false }, { icon: "🌈", label: "همه موارد", correct: true }], explanation: "🍇 انگور می‌تونه <strong>سبز، قرمز، بنفش</strong> و حتی <strong>سیاه</strong> باشه!" },
+            { question: "انگورها چطوری رشد میکنن؟", options: [{ icon: "🍇", label: "خوشه‌ای", correct: true }, { icon: "🍎", label: "تکی", correct: false }, { icon: "🌿", label: "زیر زمین", correct: false }], explanation: "🍇 انگورها به صورت <strong>خوشه‌ای</strong> روی یک ساقه رشد میکنن!" },
+            { question: "از انگور چی میشه درست کرد؟", options: [{ icon: "🧃", label: "آب انگور", correct: false }, { icon: "🍇", label: "کشمش", correct: false }, { icon: "🍷", label: "کشمش", correct: false }, { icon: "✅", label: "همه موارد", correct: true }], explanation: "🍇 از انگور <strong>آب انگور</strong> و <strong>کشمش</strong> درست میشه!" },
+            { question: "داخل انگور چیه؟", options: [{ icon: "💧", label: "آب", correct: true }, { icon: "🌱", label: "دونه", correct: false }, { icon: "🥩", label: "گوشت", correct: false }], explanation: "💧 داخل انگور <strong>آب</strong> داره و خیلی شیرینه!" },
+            { question: "انگور چه شکلیه؟", options: [{ icon: "⭕", label: "گرد", correct: true }, { icon: "🔲", label: "مربع", correct: false }, { icon: "🔺", label: "مثلث", correct: false }], explanation: "🍇 انگور <strong>گرد</strong> و کوچیک هست!" },
+            { question: "انگور برای چی خوبه؟", options: [{ icon: "💓", label: "قلب", correct: false }, { icon: "🩸", label: "خون", correct: false }, { icon: "✅", label: "هر دو", correct: true }], explanation: "🍇 انگور برای <strong>قلب</strong> و <strong>خون</strong> خیلی خوبه!" }
+        ];
+
+        // ===== پوسته‌های آشپزخانه =====
+        const THEMES = [
+            { id: 'mamooli', name: 'پیش‌فرض', image: 'icons/a mamooli.jpg', emoji: '🏠', price: 0 },
+            { id: 'fazayi', name: 'فضایی', image: 'icons/a fazayi.jpg', emoji: '🚀', price: 15 },
+            { id: 'modern', name: 'فوق مدرن', image: 'icons/a modern.jpg', emoji: '✨', price: 15 },
+            { id: 'jangali', name: 'جنگلی', image: 'icons/a jangali.jpg', emoji: '🌿', price: 12 },
+            { id: 'abnabati', name: 'آبنباتی', image: 'icons/a abnabati.jpg', emoji: '🍭', price: 10 },
+            { id: 'darya', name: 'زیر دریایی', image: 'icons/a darya.jpg', emoji: '🌊', price: 12 },
+            { id: 'mincrafti', name: 'ماین‌کرافتی', image: 'icons/a mincrafti.jpg', emoji: '🧱', price: 14 },
+            { id: 'atashfeshani', name: 'آتشفشانی', image: 'icons/a atashfeshani.jpg', emoji: '🌋', price: 18 }
+        ];
+
+        // ===== متن‌ها =====
+        const Messages = {
+            welcome: "سلام! بیا با میوه آشنا بشیم!",
+            step1: "میوه رو ببر به سینک! 🚿",
+            step2: "چاقو رو بکش و ببر روی میوه! 🔪",
+            step3: "انگشتت رو ۲ ثانیه نگه دار! 👆",
+            step4: "دیدی ترکید! یادت باشه نرمه!",
+            washed: "تمیز شد! ✨",
+            sliced: "قاچ شد! ✂️",
+            squashed: "ترکید! 💥"
+        };
+
+        // ===== صدا =====
+        function initAudio() {
+            try { GameState.audioContext = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+        }
+
+        function playSound(type) {
+            if (!GameState.audioContext) return;
+            try {
+                const sounds = {
+                    click: () => playTone(600, 0.05, 'sine', 0.15),
+                    success: () => { [523, 659, 784].forEach((f, i) => setTimeout(() => playTone(f, 0.1, 'sine', 0.15), i * 120)); },
+                    error: () => playTone(200, 0.25, 'sawtooth', 0.15),
+                    levelup: () => { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => playTone(f, 0.15, 'sine', 0.2), i * 100)); },
+                    buy: () => { [440, 554, 659].forEach((f, i) => setTimeout(() => playTone(f, 0.1, 'sine', 0.15), i * 100)); }
+                };
+                if (sounds[type]) sounds[type]();
+            } catch(e) {}
+        }
+
+        function playTone(freq, duration, type, vol) {
+            try {
+                const osc = GameState.audioContext.createOscillator();
+                const gain = GameState.audioContext.createGain();
+                osc.connect(gain);
+                gain.connect(GameState.audioContext.destination);
+                osc.frequency.value = freq;
+                osc.type = type || 'sine';
+                gain.gain.setValueAtTime(vol || 0.2, GameState.audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, GameState.audioContext.currentTime + duration);
+                osc.start();
+                osc.stop(GameState.audioContext.currentTime + duration);
+            } catch(e) {}
+        }
+
+        // ===== سکه =====
+        function getCoins() {
+            try { return parseInt(localStorage.getItem('fruitGameCoins')) || 0; } catch(e) { return 0; }
+        }
+
+        function setCoins(v) {
+            try { localStorage.setItem('fruitGameCoins', String(v)); } catch(e) {}
+            updateCoinDisplay();
+        }
+
+        function addCoins(amount) {
+            const current = getCoins();
+            setCoins(current + amount);
+            return getCoins();
+        }
+
+        function updateCoinDisplay() {
+            const coins = getCoins();
+            document.getElementById('menu-coin-amount').textContent = coins;
+            document.getElementById('shop-coin-amount').textContent = coins;
+            GameState.coins = coins;
+        }
+
+        // ===== پوسته =====
+        function getShopData() {
+            try {
+                const d = localStorage.getItem('fruitKitchenThemes');
+                if (d) {
+                    const parsed = JSON.parse(d);
+                    return { ownedThemes: parsed.ownedThemes || ['mamooli'], activeTheme: parsed.activeTheme || 'mamooli' };
+                }
+            } catch(e) {}
+            return { ownedThemes: ['mamooli'], activeTheme: 'mamooli' };
+        }
+
+        function setShopData(data) {
+            try { localStorage.setItem('fruitKitchenThemes', JSON.stringify(data)); } catch(e) {}
+        }
+
+        function applyTheme(themeId) {
+            const theme = THEMES.find(t => t.id === themeId);
+            if (!theme) return;
+            
+            document.body.className = document.body.className
+                .split(' ')
+                .filter(c => !c.startsWith('theme-'))
+                .join(' ');
+            
+            document.body.classList.add('theme-' + themeId);
+            
+            document.body.style.backgroundImage = `url('${theme.image}')`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.backgroundAttachment = 'fixed';
+            document.body.classList.add('has-theme-bg');
+            
+            const bg = document.getElementById('kitchen-bg');
+            if (bg) {
+                bg.src = 'icons/sink.jpg';
+            }
+            
+            const themeColors = {
+                mamooli: { primary: '#6C5CE7', secondary: '#00D2FF', gold: '#FFC93C', start: '#FFC93C' },
+                fazayi: { primary: '#00D4FF', secondary: '#7B68EE', gold: '#FFD700', start: '#00D4FF' },
+                modern: { primary: '#FF1744', secondary: '#FF6B35', gold: '#FFD700', start: '#FF1744' },
+                jangali: { primary: '#22C55E', secondary: '#4ADE80', gold: '#FBBF24', start: '#22C55E' },
+                abnabati: { primary: '#FF6BB5', secondary: '#7B68EE', gold: '#FFD700', start: '#FF6BB5' },
+                darya: { primary: '#00D4AA', secondary: '#FF6BB5', gold: '#FFD700', start: '#00D4AA' },
+                mincrafti: { primary: '#4CAF50', secondary: '#FF6B35', gold: '#FFD700', start: '#4CAF50' },
+                atashfeshani: { primary: '#FF4500', secondary: '#FF6B00', gold: '#FF8C00', start: '#FF4500' }
+            };
+            
+            const colors = themeColors[themeId] || themeColors.mamooli;
+            
+            const root = document.documentElement;
+            root.style.setProperty('--theme-primary', colors.primary);
+            root.style.setProperty('--theme-secondary', colors.secondary);
+            root.style.setProperty('--theme-gold', colors.gold);
+            root.style.setProperty('--theme-btn-start', colors.start);
+            root.style.setProperty('--theme-btn-primary', colors.primary);
+            root.style.setProperty('--theme-btn-secondary', colors.secondary + '33');
+            
+            const startBtn = document.querySelector('.btn-start');
+            if (startBtn) {
+                startBtn.style.background = `linear-gradient(135deg, ${colors.start}, ${colors.secondary})`;
+                startBtn.style.boxShadow = `0 4px 25px rgba(255, 201, 60, 0.3)`;
+            }
+            
+            const shopData = getShopData();
+            shopData.activeTheme = themeId;
+            setShopData(shopData);
+            GameState.activeTheme = themeId;
+            renderShop();
+        }
+
+        // ===== فروشگاه با تب =====
+        function switchShopTab(tab, btn) {
+            GameState.currentTab = tab;
+            document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderShop();
+            playSound('click');
+        }
+
+        function renderShop() {
+            const grid = document.getElementById('shop-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            
+            const shopData = getShopData();
+            const coins = getCoins();
+            const activeTab = GameState.currentTab || 'themes';
+
+            let items = [];
+            if (activeTab === 'themes') {
+                items = THEMES.map(theme => ({
+                    ...theme,
+                    isOwned: shopData.ownedThemes?.includes(theme.id) || false,
+                    isActive: shopData.activeTheme === theme.id,
+                    type: 'theme'
+                }));
+            } else if (activeTab === 'custom') {
+                items = [
+                    { id: 'custom_pen', name: 'قلم طلایی', emoji: '✒️', price: 8, isOwned: false, isActive: false, type: 'custom' },
+                    { id: 'custom_star', name: 'ستاره‌ها', emoji: '⭐', price: 10, isOwned: false, isActive: false, type: 'custom' },
+                    { id: 'custom_heart', name: 'قلب‌ها', emoji: '❤️', price: 12, isOwned: false, isActive: false, type: 'custom' }
+                ];
+            }
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `shop-item ${item.isActive ? 'active-item' : ''} ${!item.isOwned && item.price > 0 ? 'locked-item' : ''}`;
+
+                let btnHtml = '';
+                if (item.isActive) {
+                    btnHtml = `<button class="shop-btn-sm active">✓ فعال</button>`;
+                } else if (item.isOwned) {
+                    btnHtml = `<button class="shop-btn-sm select" onclick="selectTheme('${item.id}')">انتخاب</button>`;
+                } else {
+                    const canAfford = coins >= item.price;
+                    btnHtml = `<button class="shop-btn-sm ${canAfford ? 'buy' : 'locked'}" ${canAfford ? `onclick="buyTheme('${item.id}')"` : 'disabled'}>${canAfford ? '🛒 خرید' : '🔒 قفل'}</button>`;
+                }
+
+                const previewContent = item.type === 'theme' ?
+                    `<img src="${item.image}" alt="${item.name}" onerror="this.innerHTML='<span class=\\'preview-emoji\\'>${item.emoji}</span>'">` :
+                    `<span class="preview-emoji">${item.emoji}</span>`;
+
+                card.innerHTML = `
+                    <div class="shop-preview">
+                        ${previewContent}
+                    </div>
+                    <div class="name">${item.type === 'theme' ? item.emoji : ''} ${item.name}</div>
+                    <div class="price">
+                        ${item.price > 0 ? `<img src="icons/coin.png" alt="Coin" onerror="this.textContent='🪙'"> ${item.price}` : '🎁 رایگان'}
+                    </div>
+                    ${btnHtml}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function buyTheme(themeId) {
+            const theme = THEMES.find(t => t.id === themeId);
+            if (!theme) return;
+            const coins = getCoins();
+            if (coins < theme.price) {
+                showToast('سکه کافی نداری! 😢', 'error');
+                return;
+            }
+            const shopData = getShopData();
+            if (shopData.ownedThemes?.includes(themeId)) {
+                showToast('این پوسته رو قبلاً خریدی!', 'warning');
+                return;
+            }
+            setCoins(coins - theme.price);
+            if (!shopData.ownedThemes) shopData.ownedThemes = [];
+            shopData.ownedThemes.push(themeId);
+            shopData.activeTheme = themeId;
+            setShopData(shopData);
+            GameState.activeTheme = themeId;
+            
+            applyTheme(themeId);
+            renderShop();
+            playSound('buy');
+            showCelebration(theme.name);
+            showToast('✅ پوسته "' + theme.name + '" خریداری و فعال شد!', 'success');
+        }
+
+        function selectTheme(themeId) {
+            const shopData = getShopData();
+            if (!shopData.ownedThemes?.includes(themeId)) {
+                showToast('این پوسته رو نداری! اول بخر!', 'error');
+                return;
+            }
+            shopData.activeTheme = themeId;
+            setShopData(shopData);
+            applyTheme(themeId);
+            renderShop();
+            playSound('click');
+            showToast('✅ پوسته "' + THEMES.find(t => t.id === themeId).name + '" فعال شد!', 'success');
+        }
+
+        function showCelebration(name) {
+            const overlay = document.getElementById('celebration-overlay');
+            const message = document.getElementById('celeb-message');
+            const msgs = [
+                '🎊 <strong>چه خرید قشنگی!</strong><br>پوسته <strong>' + name + '</strong> رو خریدی!<br>چه انتخاب خوبی کردی! 👏',
+                '🌟 <strong>تبریک قهرمان!</strong><br>حالا با پوسته <strong>' + name + '</strong><br>بازی کردن قشنگ‌تر شده! 🚀'
+            ];
+            message.innerHTML = msgs[Math.floor(Math.random() * msgs.length)];
+
+            const container = document.getElementById('confetti-container');
+            container.innerHTML = '';
+            const colors = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#9B59B6', '#FF6BB5', '#FFB347', '#00D2FF'];
+            for (let i = 0; i < 50; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = Math.random() * 100 + '%';
+                c.style.top = '-10px';
+                c.style.width = (Math.random() * 8 + 4) + 'px';
+                c.style.height = (Math.random() * 8 + 4) + 'px';
+                c.style.background = colors[Math.floor(Math.random() * colors.length)];
+                c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                c.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+                c.style.animationDelay = (Math.random() * 1.5) + 's';
+                container.appendChild(c);
+            }
+            overlay.classList.add('show');
+            setTimeout(() => {
+                setTimeout(() => { container.innerHTML = ''; }, 3000);
+            }, 100);
+        }
+
+        function closeCelebration() {
+            document.getElementById('celebration-overlay').classList.remove('show');
+            document.getElementById('confetti-container').innerHTML = '';
+        }
+
+        // ===== پیام =====
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + (type || 'info');
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                setTimeout(() => toast.remove(), 400);
+            }, 2500);
+        }
+
+        // ===== نمایش صفحه =====
+        function showScene(sceneId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const el = document.getElementById(sceneId);
+            if (el) el.classList.add('active');
+        }
+
+        // ===== انتخاب میوه =====
+        function selectFruit(fruit) {
+            GameState.selectedFruit = fruit;
+            playSound('click');
+
+            const emojis = {
+                tomato: '🍅',
+                orange: '🍊',
+                apple: '🍏',
+                strawberry: '🍓',
+                watermelon: '🍉',
+                grape: '🍇'
+            };
+
+            const emoji = emojis[fruit] || '🍓';
+
+            document.getElementById('fruit-emoji').textContent = emoji;
+            document.getElementById('washed-emoji').textContent = emoji;
+            document.getElementById('slice1').textContent = emoji;
+            document.getElementById('slice2').textContent = emoji;
+            document.getElementById('slice3').textContent = emoji;
+            document.getElementById('slice4').textContent = emoji;
+            document.getElementById('squash-emoji').textContent = emoji;
+
+            const scenes = {
+                tomato: 'intro-tomato-scene',
+                orange: 'intro-orange-scene',
+                apple: 'intro-apple-scene',
+                strawberry: 'intro-strawberry-scene',
+                watermelon: 'intro-watermelon-scene',
+                grape: 'intro-grape-scene'
+            };
+
+            showScene(scenes[fruit] || 'intro-strawberry-scene');
+        }
+
+        function goToMenu() {
+            showScene('menu-scene');
+            if (GameState.quizInterval) {
+                clearInterval(GameState.quizInterval);
+                GameState.quizInterval = null;
+            }
+            GameState.isQuizActive = false;
+        }
+
+        // ===== شروع بازی =====
+        function startGame() {
+            GameState.currentStep = 1;
+            GameState.currentQuestion = 0;
+            GameState.correctAnswers = 0;
+            GameState.wrongAnswers = 0;
+            GameState.fruitWashed = false;
+            GameState.fruitSliced = false;
+            GameState.fruitSquashed = false;
+            GameState.isHolding = false;
+            GameState.holdProgress = 0;
+            GameState.isPlaying = true;
+            GameState.isPaused = false;
+
+            const shopData = getShopData();
+            applyTheme(shopData.activeTheme);
+
+            const fruitItem = document.getElementById('fruit-item');
+            fruitItem.classList.remove('hidden');
+            fruitItem.style.position = 'absolute';
+            fruitItem.style.left = '50%';
+            fruitItem.style.top = 'auto';
+            fruitItem.style.bottom = '35%';
+            fruitItem.style.transform = 'translateX(-50%)';
+            fruitItem.style.right = 'auto';
+            fruitItem.style.zIndex = '30';
+
+            document.getElementById('fruit-washed').classList.remove('show');
+            document.getElementById('fruit-washed').style.opacity = '0';
+            document.getElementById('fruit-slices').classList.add('hidden');
+            document.getElementById('fruit-squashed').classList.add('hidden');
+            document.getElementById('hold-area').classList.add('hidden');
+            document.getElementById('hold-progress-bar').style.width = '0%';
+
+            document.getElementById('knife-item').style.position = 'absolute';
+            document.getElementById('knife-item').style.left = 'auto';
+            document.getElementById('knife-item').style.right = '8%';
+            document.getElementById('knife-item').style.top = 'auto';
+            document.getElementById('knife-item').style.bottom = '38%';
+            document.getElementById('knife-item').style.transform = 'rotate(-20deg)';
+            document.getElementById('knife-item').style.zIndex = '100';
+
+            document.getElementById('water-stream').classList.remove('active');
+            document.getElementById('water-splash').classList.remove('active');
+
+            showScene('game-scene');
+            updateSpeech(Messages.welcome);
+            updateHint('میوه رو ببر به سینک!');
+            playSound('click');
+        }
+
+        function updateSpeech(text) {
+            const speech = document.querySelector('#game-speech p');
+            if (speech) speech.textContent = text;
+        }
+
+        function updateHint(text) {
+            const hintText = document.querySelector('#step-hint .hint-text');
+            if (hintText) hintText.textContent = text;
+        }
+
+        function vibrate(duration = 300) {
+            document.getElementById('vibrate-effect').classList.add('active');
+            setTimeout(() => document.getElementById('vibrate-effect').classList.remove('active'), duration);
+            if (navigator.vibrate) navigator.vibrate(duration);
+        }
+
+        function shortVibrate() { vibrate(100); }
+
+        // ===== سیستم درگ و دراپ =====
+        function initDragAndDrop() {
+            const fruit = document.getElementById('fruit-item');
+            const knife = document.getElementById('knife-item');
+
+            fruit.addEventListener('mousedown', (e) => startDrag(e, 'fruit'));
+            fruit.addEventListener('touchstart', (e) => startDrag(e, 'fruit'), { passive: false });
+
+            knife.addEventListener('mousedown', (e) => startDrag(e, 'knife'));
+            knife.addEventListener('touchstart', (e) => startDrag(e, 'knife'), { passive: false });
+
+            document.addEventListener('mousemove', handleMove);
+            document.addEventListener('touchmove', handleMove, { passive: false });
+            document.addEventListener('mouseup', handleEnd);
+            document.addEventListener('touchend', handleEnd);
+        }
+
+        function startDrag(e, itemType) {
+            e.preventDefault();
+
+            if (itemType === 'knife' && GameState.currentStep !== 2) return;
+            if (itemType === 'fruit' && GameState.currentStep !== 1) return;
+
+            const touch = e.touches ? e.touches[0] : e;
+            const item = itemType === 'fruit' ? document.getElementById('fruit-item') : document.getElementById('knife-item');
+            const rect = item.getBoundingClientRect();
+
+            GameState.isDragging = true;
+            GameState.dragItem = itemType;
+            GameState.startX = touch.clientX;
+            GameState.startY = touch.clientY;
+            GameState.initialX = rect.left;
+            GameState.initialY = rect.top;
+
+            item.style.position = 'fixed';
+            item.style.left = rect.left + 'px';
+            item.style.top = rect.top + 'px';
+            item.style.bottom = 'auto';
+            item.style.right = 'auto';
+            item.style.transform = 'none';
+            item.style.zIndex = '1000';
+        }
+
+        function handleMove(e) {
+            if (!GameState.isDragging) return;
+            e.preventDefault();
+
+            const touch = e.touches ? e.touches[0] : e;
+            const dx = touch.clientX - GameState.startX;
+            const dy = touch.clientY - GameState.startY;
+            const item = GameState.dragItem === 'fruit' ? document.getElementById('fruit-item') : document.getElementById('knife-item');
+
+            item.style.left = (GameState.initialX + dx) + 'px';
+            item.style.top = (GameState.initialY + dy) + 'px';
+
+            checkDropZones(touch.clientX, touch.clientY);
+        }
+
+        function handleEnd(e) {
+            if (!GameState.isDragging) return;
+
+            const touch = e.changedTouches ? e.changedTouches[0] : e;
+            const dropped = checkDrop(touch.clientX, touch.clientY);
+
+            if (!dropped) {
+                resetItemPosition(GameState.dragItem);
+            }
+
+            document.getElementById('sink-zone').classList.remove('highlight');
+            document.getElementById('board-zone').classList.remove('highlight');
+            GameState.isDragging = false;
+            GameState.dragItem = null;
+        }
+
+        function checkDropZones(x, y) {
+            const sinkRect = document.getElementById('sink-zone').getBoundingClientRect();
+            const boardRect = document.getElementById('board-zone').getBoundingClientRect();
+
+            if (GameState.currentStep === 1) {
+                document.getElementById('sink-zone').classList.toggle('highlight', isInArea(x, y, sinkRect));
+            }
+            if (GameState.currentStep === 2) {
+                document.getElementById('board-zone').classList.toggle('highlight', isInArea(x, y, boardRect));
+            }
+        }
+
+        function checkDrop(x, y) {
+            const sinkRect = document.getElementById('sink-zone').getBoundingClientRect();
+
+            if (GameState.dragItem === 'fruit' && GameState.currentStep === 1) {
+                if (isInArea(x, y, sinkRect)) { washFruit(); return true; }
+            }
+
+            if (GameState.dragItem === 'knife' && GameState.currentStep === 2) {
+                const boardRect = document.getElementById('board-zone').getBoundingClientRect();
+                if (isInArea(x, y, boardRect)) { sliceFruit(); return true; }
+            }
+            return false;
+        }
+
+        function isInArea(x, y, rect) {
+            return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+        }
+
+        function resetItemPosition(itemType) {
+            const item = itemType === 'fruit' ? document.getElementById('fruit-item') : document.getElementById('knife-item');
+            if (itemType === 'fruit') {
+                item.style.position = 'absolute';
+                item.style.left = '50%';
+                item.style.top = 'auto';
+                item.style.bottom = '35%';
+                item.style.transform = 'translateX(-50%)';
+                item.style.right = 'auto';
+                item.style.zIndex = '30';
+            } else {
+                item.style.position = 'absolute';
+                item.style.left = 'auto';
+                item.style.right = '8%';
+                item.style.top = 'auto';
+                item.style.bottom = '38%';
+                item.style.transform = 'rotate(-20deg)';
+                item.style.zIndex = '100';
+            }
+        }
+
+        // ===== سیستم نگه داشتن =====
+        function initHoldSystem() {
+            const holdArea = document.getElementById('hold-area');
+
+            holdArea.addEventListener('mousedown', startHold);
+            holdArea.addEventListener('touchstart', startHold, { passive: false });
+            holdArea.addEventListener('mouseup', cancelHold);
+            holdArea.addEventListener('mouseleave', cancelHold);
+            holdArea.addEventListener('touchend', cancelHold);
+            holdArea.addEventListener('touchcancel', cancelHold);
+        }
+
+        function startHold(e) {
+            e.preventDefault();
+            if (GameState.currentStep !== 3) return;
+
+            GameState.isHolding = true;
+            GameState.holdProgress = 0;
+            document.getElementById('hold-progress-bar').style.width = '0%';
+
+            const startTime = Date.now();
+            const progressBar = document.getElementById('hold-progress-bar');
+
+            function updateProgress() {
+                if (!GameState.isHolding) return;
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min((elapsed / GameState.holdRequired) * 100, 100);
+                progressBar.style.width = progress + '%';
+                if (elapsed >= GameState.holdRequired) {
+                    squashFruit();
+                    GameState.isHolding = false;
+                } else {
+                    requestAnimationFrame(updateProgress);
+                }
+            }
+            requestAnimationFrame(updateProgress);
+            vibrate(50);
+        }
+
+        function cancelHold() {
+            GameState.isHolding = false;
+            document.getElementById('hold-progress-bar').style.width = '0%';
+        }
+
+        // ===== عملیات‌های میوه =====
+        function washFruit() {
+            if (GameState.fruitWashed) return;
+            GameState.fruitWashed = true;
+
+            document.getElementById('fruit-item').classList.add('hidden');
+            document.getElementById('water-stream').classList.add('active');
+            document.getElementById('water-splash').classList.add('active');
+            vibrate(800);
+
+            setTimeout(() => {
+                document.getElementById('fruit-washed').classList.add('show');
+                document.getElementById('fruit-washed').style.opacity = '1';
+            }, 300);
+
+            setTimeout(() => {
+                document.getElementById('water-stream').classList.remove('active');
+                document.getElementById('water-splash').classList.remove('active');
+                document.getElementById('fruit-washed').classList.remove('show');
+                document.getElementById('fruit-washed').style.opacity = '0';
+
+                document.getElementById('fruit-item').classList.remove('hidden');
+                document.getElementById('fruit-item').style.position = 'absolute';
+                document.getElementById('fruit-item').style.left = 'auto';
+                document.getElementById('fruit-item').style.right = '15%';
+                document.getElementById('fruit-item').style.top = 'auto';
+                document.getElementById('fruit-item').style.bottom = '30%';
+                document.getElementById('fruit-item').style.transform = 'scale(0.9)';
+                document.getElementById('fruit-item').style.zIndex = '25';
+
+                updateSpeech(Messages.washed);
+
+                GameState.currentStep = 2;
+                updateHint('چاقو رو بکش و ببر روی میوه!');
+                playSound('success');
+            }, 1800);
+        }
+
+        function sliceFruit() {
+            if (GameState.fruitSliced) return;
+            GameState.fruitSliced = true;
+
+            document.getElementById('fruit-item').classList.add('hidden');
+            document.getElementById('fruit-slices').classList.remove('hidden');
+
+            vibrate(500);
+            setTimeout(shortVibrate, 200);
+
+            updateSpeech(Messages.sliced);
+
+            setTimeout(() => {
+                GameState.currentStep = 3;
+                updateHint('انگشتت رو ۲ ثانیه نگه دار!');
+                document.getElementById('fruit-slices').classList.add('hidden');
+                document.getElementById('hold-area').classList.remove('hidden');
+                playSound('success');
+            }, 1200);
+        }
+
+        function squashFruit() {
+            if (GameState.fruitSquashed) return;
+            GameState.fruitSquashed = true;
+
+            document.getElementById('hold-area').classList.add('hidden');
+            document.getElementById('fruit-squashed').classList.remove('hidden');
+
+            vibrate(1000);
+            updateSpeech(Messages.squashed);
+
+            setTimeout(() => {
+                GameState.currentStep = 4;
+                updateHint('به سوالات جواب بده!');
+                setTimeout(() => {
+                    showScene('question-scene');
+                    startQuiz();
+                }, 1500);
+            }, 1500);
+        }
+
+        // ===== سیستم سوالات =====
+        function startQuiz() {
+            GameState.currentQuestion = 0;
+            GameState.correctAnswers = 0;
+            GameState.wrongAnswers = 0;
+            GameState.isQuizActive = true;
+            GameState.quizTimer = 70;
+
+            const card = document.getElementById('question-card');
+            card.innerHTML = `
+                <div class="q-number" id="q-number">سوال ۱ از ۶</div>
+                <p class="q-text" id="q-text">سوال اینجا نمایش داده میشه</p>
+                <div class="options-grid" id="options-grid"></div>
+                <div class="timer-quiz" id="timer-quiz">
+                    <span class="timer-icon">⏱️</span>
+                    <span class="timer-number" id="quiz-timer">70</span>
+                </div>
+            `;
+            
+            loadQuestion();
+            startQuizTimer();
+        }
+
+        function startQuizTimer() {
+            if (GameState.quizInterval) {
+                clearInterval(GameState.quizInterval);
+            }
+            GameState.quizTimer = 70;
+            document.getElementById('quiz-timer').textContent = '70';
+
+            GameState.quizInterval = setInterval(() => {
+                GameState.quizTimer--;
+                document.getElementById('quiz-timer').textContent = GameState.quizTimer;
+
+                if (GameState.quizTimer <= 0) {
+                    clearInterval(GameState.quizInterval);
+                    GameState.quizInterval = null;
+                    showQuizResult(false, '⏰ زمان تموم شد!', '');
+                }
+            }, 1000);
+        }
+
+        function getQuestions() {
+            if (GameState.selectedFruit === 'orange') return QuestionsOrange;
+            if (GameState.selectedFruit === 'apple') return QuestionsApple;
+            if (GameState.selectedFruit === 'strawberry') return QuestionsStrawberry;
+            if (GameState.selectedFruit === 'watermelon') return QuestionsWatermelon;
+            if (GameState.selectedFruit === 'grape') return QuestionsGrape;
+            return QuestionsTomato;
+        }
+
+        function loadQuestion() {
+            const questions = getQuestions();
+            if (GameState.currentQuestion >= questions.length) {
+                clearInterval(GameState.quizInterval);
+                GameState.quizInterval = null;
+                showQuizResult(true, '🎉 همه سوالات رو درست جواب دادی!', '');
+                return;
+            }
+
+            const q = questions[GameState.currentQuestion];
+            document.getElementById('q-number').textContent = `سوال ${GameState.currentQuestion + 1} از ${questions.length}`;
+            document.getElementById('q-text').textContent = q.question;
+
+            const optionsGrid = document.getElementById('options-grid');
+            optionsGrid.innerHTML = '';
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = `<span class="option-icon">${opt.icon}</span><span class="option-label">${opt.label}</span>`;
+                btn.dataset.correct = opt.correct;
+                btn.addEventListener('click', () => handleQuizAnswer(btn, opt.correct, q.explanation));
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function handleQuizAnswer(btn, correct, explanation) {
+            if (!GameState.isQuizActive) return;
+            if (btn.classList.contains('disabled')) return;
+
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.add('disabled'));
+
+            if (correct) {
+                btn.classList.add('correct');
+                GameState.correctAnswers++;
+                playSound('success');
+                const currentCoins = getCoins();
+                let reward = currentCoins === 0 ? 10 : 1;
+                addCoins(reward);
+                updateCoinDisplay();
+                showToast(`✨ ${reward} سکه گرفتی!`, 'success');
+
+                setTimeout(() => {
+                    GameState.currentQuestion++;
+                    const questions = getQuestions();
+                    if (GameState.currentQuestion >= questions.length) {
+                        clearInterval(GameState.quizInterval);
+                        GameState.quizInterval = null;
+                        showQuizResult(true, '🎉 همه سوالات رو درست جواب دادی!', '');
+                    } else {
+                        loadQuestion();
+                    }
+                }, 1200);
+
+            } else {
+                btn.classList.add('wrong');
+                GameState.wrongAnswers++;
+                playSound('error');
+                document.querySelectorAll('.option-btn').forEach(b => {
+                    if (b.dataset.correct === 'true') {
+                        b.classList.add('correct');
+                    }
+                });
+
+                setTimeout(() => {
+                    clearInterval(GameState.quizInterval);
+                    GameState.quizInterval = null;
+                    showQuizResult(false, '❌ اشتباه بود!', explanation);
+                }, 1500);
+            }
+        }
+
+        function showQuizResult(isSuccess, message, explanation) {
+            GameState.isQuizActive = false;
+            if (GameState.quizInterval) {
+                clearInterval(GameState.quizInterval);
+                GameState.quizInterval = null;
+            }
+
+            const card = document.getElementById('question-card');
+            card.innerHTML = '';
+
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.className = 'answer-feedback';
+            feedbackDiv.style.marginTop = '0';
+            feedbackDiv.style.padding = '20px';
+            feedbackDiv.style.background = 'rgba(255,255,255,0.05)';
+            feedbackDiv.style.borderRadius = '20px';
+            feedbackDiv.style.animation = 'popIn 0.5s ease';
+            feedbackDiv.style.flex = '1';
+            feedbackDiv.style.display = 'flex';
+            feedbackDiv.style.flexDirection = 'column';
+            feedbackDiv.style.justifyContent = 'center';
+
+            const charDiv = document.createElement('div');
+            charDiv.className = 'feedback-char';
+            charDiv.style.width = '100px';
+            charDiv.style.height = '100px';
+            charDiv.style.margin = '0 auto 10px';
+            charDiv.style.borderRadius = '50%';
+            charDiv.style.border = '3px solid var(--theme-gold)';
+            charDiv.style.display = 'flex';
+            charDiv.style.alignItems = 'center';
+            charDiv.style.justifyContent = 'center';
+            charDiv.style.overflow = 'hidden';
+            charDiv.style.background = 'radial-gradient(circle, rgba(255,255,255,0.05), transparent)';
+            charDiv.style.boxShadow = '0 0 40px rgba(255, 201, 60, 0.15)';
+
+            const img = document.createElement('img');
+            img.src = isSuccess ? 'icons/happy gamer.png' : 'icons/sad gamer.png';
+            img.style.width = '85%';
+            img.style.height = '85%';
+            img.style.objectFit = 'contain';
+            charDiv.appendChild(img);
+            feedbackDiv.appendChild(charDiv);
+
+            const title = document.createElement('div');
+            title.className = 'feedback-title ' + (isSuccess ? 'success' : 'error');
+            title.textContent = isSuccess ? '🎉 آفرین!' : '😢 باختی!';
+            title.style.fontSize = '1.5rem';
+            title.style.fontWeight = '900';
+            title.style.fontFamily = "'Shoor Black', Tahoma, sans-serif";
+            title.style.marginBottom = '5px';
+            title.style.color = isSuccess ? 'var(--success)' : 'var(--danger)';
+            feedbackDiv.appendChild(title);
+
+            const msg = document.createElement('p');
+            msg.className = 'feedback-msg';
+            msg.style.fontSize = '1rem';
+            msg.style.color = 'var(--text-secondary)';
+            msg.style.lineHeight = '1.8';
+            if (isSuccess) {
+                const fruitName = GameState.selectedFruit === 'orange' ? 'پرتقال' : GameState.selectedFruit === 'apple' ? 'سیب' : GameState.selectedFruit === 'strawberry' ? 'توت فرنگی' : GameState.selectedFruit === 'watermelon' ? 'هندوانه' : GameState.selectedFruit === 'grape' ? 'انگور' : 'گوجه';
+                msg.innerHTML = `🌟 همه سوالات رو درست جواب دادی!<br>تو واقعاً درباره <strong>${fruitName}</strong> خیلی چیزها یاد گرفتی!`;
+            } else {
+                const msgText = explanation ? `جواب درست: ${explanation}` : 'دوباره تلاش کن! 💪';
+                msg.innerHTML = message + '<br><br>' + msgText;
+            }
+            feedbackDiv.appendChild(msg);
+
+            const btnContainer = document.createElement('div');
+            btnContainer.style.display = 'flex';
+            btnContainer.style.flexDirection = 'column';
+            btnContainer.style.gap = '10px';
+            btnContainer.style.marginTop = '12px';
+
+            if (!isSuccess) {
+                const retryBtn = document.createElement('button');
+                retryBtn.className = 'btn btn-primary';
+                retryBtn.textContent = '🔄 تلاش دوباره';
+                retryBtn.onclick = function() {
+                    startQuiz();
+                };
+                btnContainer.appendChild(retryBtn);
+            }
+
+            const menuBtn = document.createElement('button');
+            menuBtn.className = 'btn btn-secondary';
+            menuBtn.textContent = '🏠 منوی اصلی';
+            menuBtn.onclick = goToMenu;
+            btnContainer.appendChild(menuBtn);
+
+            feedbackDiv.appendChild(btnContainer);
+            card.appendChild(feedbackDiv);
+
+            if (isSuccess) {
+                playSound('levelup');
+            } else {
+                playSound('error');
+            }
+        }
+
+        // ===== توقف بازی =====
+        function pauseGame() {
+            if (!GameState.isPlaying) return;
+            GameState.isPaused = true;
+            document.getElementById('stop-modal').classList.add('show');
+            playSound('click');
+        }
+
+        function resumeGame() {
+            GameState.isPaused = false;
+            document.getElementById('stop-modal').classList.remove('show');
+            playSound('click');
+        }
+
+        function restartGame() {
+            document.getElementById('stop-modal').classList.remove('show');
+            startGame();
+            playSound('click');
+        }
+
+        function quitGame() {
+            document.getElementById('stop-modal').classList.remove('show');
+            GameState.isPlaying = false;
+            GameState.isPaused = false;
+            showScene('menu-scene');
+            playSound('click');
+        }
+
+        // ===== رویدادها =====
+        document.addEventListener('DOMContentLoaded', () => {
+            initAudio();
+            
+            setCoins(0);
+            updateCoinDisplay();
+
+            const shopData = getShopData();
+            applyTheme(shopData.activeTheme);
+            renderShop();
+
+            document.getElementById('start-game-btn').addEventListener('click', () => {
+                playSound('click');
+                showScene('fruit-select-scene');
+            });
+
+            document.getElementById('help-btn').addEventListener('click', () => {
+                playSound('click');
+                showScene('help-scene');
+            });
+
+            document.getElementById('shop-btn').addEventListener('click', () => {
+                playSound('click');
+                renderShop();
+                showScene('shop-scene');
+            });
+
+            document.getElementById('intro-start-btn').addEventListener('click', () => {
+                playSound('click');
+                startGame();
+            });
+
+            document.getElementById('intro-orange-start-btn').addEventListener('click', () => {
+                playSound('click');
+                startGame();
+            });
+
+            document.getElementById('intro-apple-start-btn').addEventListener('click', () => {
+                playSound('click');
+                startGame();
+            });
+
+            document.getElementById('intro-strawberry-start-btn').addEventListener('click', () => {
+                playSound('click');
+                startGame();
+            });
+
+            document.getElementById('intro-watermelon-start-btn').addEventListener('click', () => {
+                playSound('click');
+                startGame();
+            });
+
+            document.getElementById('intro-grape-start-btn').addEventListener('click', () => {
+                playSound('click');
+                startGame();
+            });
+
+            document.getElementById('stop-game-btn').addEventListener('click', pauseGame);
+            document.getElementById('resume-game-btn').addEventListener('click', resumeGame);
+            document.getElementById('restart-game-btn').addEventListener('click', restartGame);
+            document.getElementById('quit-game-btn').addEventListener('click', quitGame);
+
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('show');
+                    }
+                });
+            });
+
+            document.addEventListener('click', () => {
+                if (GameState.audioContext && GameState.audioContext.state === 'suspended') {
+                    GameState.audioContext.resume();
+                }
+            }, { once: true });
+
+            initDragAndDrop();
+            initHoldSystem();
+        });
+
+        window.showScene = showScene;
+        window.switchShopTab = switchShopTab;
+        window.buyTheme = buyTheme;
+        window.selectTheme = selectTheme;
+        window.closeCelebration = closeCelebration;
+        window.startGame = startGame;
+        window.pauseGame = pauseGame;
+        window.resumeGame = resumeGame;
+        window.restartGame = restartGame;
+        window.quitGame = quitGame;
+        window.goToMenu = goToMenu;
+        window.selectFruit = selectFruit;
+        window.applyTheme = applyTheme;
+        window.renderShop = renderShop;
+    </script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#celebration-overlay"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

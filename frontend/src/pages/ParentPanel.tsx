@@ -40,7 +40,8 @@ import { DailyView } from '@/features/parent/components/views/DailyView';
 import { HealthView } from '@/features/parent/components/views/HealthView';
 import { SettingsView } from '@/features/parent/components/views/SettingsView';
 import { isValidPhone, normalizePhone } from '@/lib/phone';
-import { ALL_GRADES, OPEN_GRADES, gradeName } from '@/lib/grades';
+import { ALL_GRADES, gradeName } from '@/lib/grades';
+import { useOpenGrades } from '@/features/games/useOpenGrades';
 import styles from './ParentPanel.module.css';
 
 type SheetKind = 'notifications' | 'support' | 'addChild' | 'removeChild' | 'logout' | 'privacy' | 'about';
@@ -70,6 +71,8 @@ function Skeleton() {
 }
 
 function AuthenticatedParentPanel() {
+  // کلاس‌هایی که بازی دارند؛ فهرستِ ثابت با رسیدنِ محتوای تازه کهنه می‌شد
+  const openGrades = useOpenGrades();
   const { user, logout } = useAuth();
   const [tab, setTab] = useState<PanelTab>('dashboard');
   const [childId, setChildId] = useState<string>();
@@ -421,9 +424,9 @@ function AuthenticatedParentPanel() {
             onChange={(event) => setForm({ ...form, grade: event.target.value })}
           >
             {ALL_GRADES.map((grade) => (
-              <option key={grade} value={grade} disabled={!OPEN_GRADES.includes(grade)}>
+              <option key={grade} value={grade} disabled={!openGrades.includes(grade)}>
                 {gradeName(grade)}
-                {!OPEN_GRADES.includes(grade) ? ' — به‌زودی' : ''}
+                {!openGrades.includes(grade) ? ' — به‌زودی' : ''}
               </option>
             ))}
           </select>

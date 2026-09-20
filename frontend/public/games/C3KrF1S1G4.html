@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طراح الگو: معلم کوچک</title>
+    <!-- ============================================================
+    🧠 بازی «طراح الگو: معلم کوچک» — LOKO Design System
+    ✦ شخصیت: ./icons/gamer.png | سکه: ./icons/coin.png | راهنما: ./icons/gamerhi.png
+    ✦ Game Logic دست‌نخورده
+    ============================================================ -->
+    <style>
+        @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Regular.ttf") format("truetype"); font-weight: 400; }
+        @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Medium.ttf") format("truetype"); font-weight: 500; }
+        @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Black.ttf") format("truetype"); font-weight: 900; }
+        @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-ExtraBold.ttf") format("truetype"); font-weight: 800; }
+        @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Regular.ttf") format("truetype"); font-weight: 400; }
+        @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Medium.ttf") format("truetype"); font-weight: 500; }
+        @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Black.ttf") format("truetype"); font-weight: 900; }
+        @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype"); font-weight: 800; }
+
+        :root {
+            --primary: #6C5CE7;
+            --neon-blue: #00D2FF;
+            --neon-pink: #FF00A0;
+            --neon-green: #00FF9D;
+            --accent: #FFEAA7;
+            --success: #00B894;
+            --danger: #FF7675;
+            --dark: #1E1E2F;
+            --gold: #FFC93C;
+            --gold-dark: #B96F00;
+            --text: #EAEAF5;
+            --text-light: #9A9AB8;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.16);
+            --radius: 24px;
+            --radius-sm: 16px;
+            --font: 'Shoor Rounded', 'Shoor', Vazirmatn, Tahoma, sans-serif;
+            --bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font);
+            background:
+                radial-gradient(ellipse at 15% 8%, rgba(108, 92, 231, 0.28), transparent 55%),
+                radial-gradient(ellipse at 88% 90%, rgba(255, 0, 160, 0.14), transparent 50%),
+                radial-gradient(ellipse at 80% 15%, rgba(0, 210, 255, 0.10), transparent 45%),
+                linear-gradient(135deg, #0c0a14, #181225);
+            background-attachment: fixed;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+        }
+
+        /* ===== پس‌زمینه زنده: هاله‌ها + ستاره‌ها + شکل‌های شنارو ===== */
+        .bg-particle {
+            position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+            opacity: 0.22; filter: blur(50px);
+            animation: floatParticle 12s ease-in-out infinite;
+        }
+        .bg-particle:nth-child(1) { width: 180px; height: 180px; background: var(--primary); top: 8%; left: 4%; }
+        .bg-particle:nth-child(2) { width: 220px; height: 220px; background: var(--neon-pink); bottom: 12%; right: 4%; animation-delay: -5s; }
+        .bg-particle:nth-child(3) { width: 130px; height: 130px; background: var(--neon-blue); top: 55%; left: 18%; animation-delay: -10s; }
+        @keyframes floatParticle {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(20px, -30px) scale(1.2); }
+            66% { transform: translate(-15px, 20px) scale(0.9); }
+        }
+        .bg-star {
+            position: fixed; width: 3px; height: 3px; background: #fff; border-radius: 50%;
+            z-index: 0; pointer-events: none; opacity: 0;
+            animation: starTwinkle 3s ease-in-out infinite;
+        }
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 0.75; transform: scale(1); }
+        }
+        .deco-shape { position: fixed; z-index: 0; opacity: 0.13; pointer-events: none; animation: decoFloat 14s ease-in-out infinite; }
+        .ds1 { width: 70px; height: 70px; border: 4px solid var(--neon-blue); border-radius: 50%; top: 16%; right: 7%; }
+        .ds2 { width: 52px; height: 52px; border: 4px solid var(--neon-pink); border-radius: 12px; bottom: 22%; left: 6%; animation-delay: -4s; }
+        .ds3 { width: 0; height: 0; border-left: 30px solid transparent; border-right: 30px solid transparent; border-bottom: 52px solid var(--neon-green); top: 62%; right: 11%; animation-delay: -8s; }
+        @keyframes decoFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-26px) rotate(9deg); }
+        }
+
+        /* ===== App Wrapper ===== */
+        .main-container {
+            width: 100%; max-width: 480px; min-height: 520px;
+            background: rgba(255, 255, 255, 0.055);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 0 40px rgba(108, 92, 231, 0.18);
+            position: relative; z-index: 1; overflow: hidden;
+            transition: box-shadow 0.4s, border-color 0.4s;
+        }
+        .main-container.win-flash {
+            border-color: rgba(0, 255, 157, 0.55);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 0 55px rgba(0, 255, 157, 0.45);
+        }
+
+        .game-header {
+            background: linear-gradient(135deg, rgba(108, 92, 231, 0.32), rgba(0, 210, 255, 0.10));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 14px 16px 12px;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 10px; flex-wrap: wrap;
+        }
+        .game-header .title-area { display: flex; align-items: center; gap: 8px; }
+        .game-header h1 {
+            font-size: 1.3em; font-weight: 900; color: #fff;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 10px rgba(108, 92, 231, 0.5); }
+            50% { text-shadow: 0 0 22px rgba(108, 92, 231, 0.95), 0 0 36px rgba(0, 210, 255, 0.4); }
+        }
+        .subtitle { font-size: 0.7em; color: rgba(255, 255, 255, 0.75); font-weight: 400; }
+
+        /* ===== LOKO Coin Display (./icons/coin.png) ===== */
+        .header-controls { display: flex; align-items: center; gap: 10px; }
+        .coin-display {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 201, 60, 0.45);
+            padding: 6px 14px; border-radius: 50px;
+            box-shadow: 0 0 16px rgba(255, 201, 60, 0.25), inset 0 0 10px rgba(255, 201, 60, 0.08);
+        }
+        .coin-icon-img {
+            width: 24px; height: 24px; object-fit: contain;
+            filter: drop-shadow(0 0 6px rgba(255, 201, 60, 0.65));
+            animation: coinSpin 6s linear infinite;
+        }
+        @keyframes coinSpin {
+            0%, 88% { transform: rotateY(0); }
+            94% { transform: rotateY(180deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        .coin-fallback { font-size: 1.15em; }
+        .coin-amount { font-weight: 900; color: var(--gold); font-size: 1.05em; min-width: 2ch; text-align: center; }
+        .coin-amount.bump { animation: coinBump 0.45s var(--bounce); }
+        @keyframes coinBump {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.5); text-shadow: 0 0 18px rgba(255, 201, 60, 0.9); }
+            100% { transform: scale(1); }
+        }
+
+        .mute-btn {
+            background: rgba(255, 255, 255, 0.14); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25); color: white;
+            width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
+            font-size: 1.2em; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s; flex-shrink: 0;
+        }
+        .mute-btn:hover { background: rgba(255, 255, 255, 0.28); transform: scale(1.08); }
+
+        .progress-bar-wrap {
+            width: 100%; height: 8px;
+            background: rgba(255, 255, 255, 0.14);
+            border-radius: 4px; margin-top: 4px; overflow: hidden;
+        }
+        .progress-fill {
+            position: relative; height: 100%;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+            border-radius: 4px; transition: width 0.5s;
+            box-shadow: 0 0 12px rgba(0, 210, 255, 0.6); overflow: hidden;
+        }
+        .progress-fill::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+            animation: shimmerBar 2s linear infinite;
+        }
+        @keyframes shimmerBar { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+        .game-content {
+            padding: 20px; min-height: 430px;
+            display: flex; flex-direction: column; align-items: center; gap: 16px;
+            position: relative;
+        }
+
+        /* ===== Landing ===== */
+        .landing-screen { display: flex; flex-direction: column; align-items: center; gap: 13px; text-align: center; }
+        .hero-title {
+            font-size: 2.3em; font-weight: 900; line-height: 1.2;
+            background: linear-gradient(90deg, #FFE68A, #FFC93C, #FFA800, #FFE68A);
+            background-size: 200% auto;
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            animation: shimmerText 3.5s linear infinite;
+            filter: drop-shadow(0 4px 16px rgba(255, 201, 60, 0.35));
+        }
+        @keyframes shimmerText { to { background-position: 200% center; } }
+        .hero-subtitle { font-size: 0.95em; color: var(--text-light); }
+
+        .speech-bubble {
+            position: relative; max-width: 290px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 16px; padding: 10px 18px;
+            color: #fff; font-size: 0.95em; font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        .speech-bubble::after {
+            content: ''; position: absolute; bottom: -7px; left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 14px; height: 14px; background: rgba(255, 255, 255, 0.12);
+            border-left: 1px solid rgba(255, 255, 255, 0.28);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+        }
+
+        /* ===== شخصیت اصلی: ./icons/gamer.png ===== */
+        .char-wrap { position: relative; display: inline-block; margin-top: 2px; }
+        .pixel-char {
+            width: 150px; height: auto; display: block;
+            animation: floatChar 3.2s ease-in-out infinite;
+        }
+        #gamerChar { filter: drop-shadow(0 0 22px rgba(108, 92, 231, 0.65)) drop-shadow(0 0 40px rgba(0, 210, 255, 0.25)); }
+        @keyframes floatChar {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-11px) rotate(1.5deg); }
+        }
+        .char-wrap::after {
+            content: ''; position: absolute; bottom: -12px; left: 50%;
+            transform: translateX(-50%);
+            width: 110px; height: 16px; border-radius: 50%;
+            background: radial-gradient(ellipse, rgba(108, 92, 231, 0.5), transparent 70%);
+            filter: blur(4px);
+            animation: shadowPulse 3.2s ease-in-out infinite;
+        }
+        @keyframes shadowPulse {
+            0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+            50% { opacity: 0.95; transform: translateX(-50%) scale(0.82); }
+        }
+        .sparkle {
+            position: absolute; font-size: 1.1em; pointer-events: none; z-index: 2;
+            animation: twinkle 1.8s ease-in-out infinite;
+            filter: drop-shadow(0 0 6px rgba(255, 201, 60, 0.9));
+        }
+        .sp1 { top: -8px; right: -16px; }
+        .sp2 { bottom: 10px; left: -18px; animation-delay: 0.6s; }
+        .sp3 { top: 32%; left: -26px; font-size: 0.8em; animation-delay: 1.2s; }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.15; transform: scale(0.7) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1.2) rotate(20deg); }
+        }
+
+        /* ===== Buttons – LOKO ===== */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 14px 26px; border-radius: 50px;
+            font-size: 1.05em; font-weight: 800; cursor: pointer; border: none;
+            transition: all 0.15s; position: relative; overflow: hidden;
+            min-height: 56px; min-width: 170px; font-family: var(--font);
+        }
+        .btn:active { transform: translateY(3px) scale(0.99); }
+        .btn-primary {
+            background: linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%);
+            color: #5a3a00; border: 2px solid var(--gold-dark);
+            box-shadow: 0 6px 0 var(--gold-dark), 0 12px 26px rgba(255, 168, 0, 0.35);
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+        }
+        .btn-primary:active { transform: translateY(4px) scale(0.99); box-shadow: 0 2px 0 var(--gold-dark), 0 5px 14px rgba(255, 168, 0, 0.3); }
+        .btn-start {
+            width: 100%; max-width: 300px; font-size: 1.2em; padding: 16px 30px;
+            animation: startPulse 2.4s ease-in-out infinite;
+        }
+        @keyframes startPulse {
+            0%, 100% { filter: drop-shadow(0 0 6px rgba(255, 201, 60, 0.35)); }
+            50% { filter: drop-shadow(0 0 22px rgba(255, 201, 60, 0.75)); }
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            color: var(--accent); border: 1.5px solid rgba(255, 255, 255, 0.28);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        }
+        .btn-secondary:active { transform: translateY(2px); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); }
+        .btn-success {
+            background: linear-gradient(180deg, #2EE6A8, #00B894);
+            color: #00332a; border: 2px solid #00876a;
+            box-shadow: 0 5px 0 #00876a, 0 0 18px rgba(0, 255, 157, 0.3);
+        }
+        .btn-success:active { transform: translateY(3px); box-shadow: 0 2px 0 #00876a; }
+        .secondary-row { display: flex; gap: 10px; width: 100%; max-width: 300px; }
+        .secondary-row .btn { flex: 1; min-width: 0; font-size: 0.95em; min-height: 50px; }
+
+        .ripple {
+            position: absolute; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.45); transform: scale(0);
+            animation: rippleAnim 0.6s ease-out forwards; pointer-events: none;
+        }
+        @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
+        .bounce-in { animation: bounceIn 0.6s var(--bounce); }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            60% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* ===== Game Screen ===== */
+        .game-screen { display: none; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
+        .game-screen.active { display: flex; }
+
+        #phaseMessage {
+            font-weight: 800; color: var(--accent); text-align: center;
+            text-shadow: 0 0 16px rgba(255, 201, 60, 0.35); min-height: 1.6em;
+        }
+
+        .pattern-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .pattern-slot {
+            width: 70px; height: 70px;
+            border: 3px dashed rgba(255, 255, 255, 0.22);
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            transition: 0.3s; position: relative;
+        }
+        .pattern-slot:hover { border-color: rgba(255, 255, 255, 0.45); }
+        .pattern-slot.filled {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.16);
+            box-shadow: 0 0 16px rgba(108, 92, 231, 0.4);
+            animation: popIn 0.4s var(--bounce);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .shape-svg { width: 48px; height: 48px; transition: 0.2s; }
+        #aiGuessShape svg { animation: popIn 0.5s var(--bounce); }
+        .mini-burst {
+            position: absolute; inset: 0; display: flex; align-items: center;
+            justify-content: center; font-size: 1.4em; pointer-events: none;
+            animation: miniBurst 0.6s ease-out forwards;
+        }
+        @keyframes miniBurst {
+            0% { transform: scale(0.4); opacity: 1; }
+            100% { transform: scale(2.1) rotate(25deg); opacity: 0; }
+        }
+
+        .palette {
+            display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(8px); border: 1px solid var(--glass-border);
+            padding: 14px; border-radius: 18px;
+        }
+        .palette-btn {
+            width: 64px; height: 64px; border-radius: 50%;
+            border: 3px solid transparent; background: rgba(255, 255, 255, 0.08);
+            cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .palette-btn:hover { transform: translateY(-4px); border-color: var(--neon-blue); box-shadow: 0 0 18px rgba(0, 210, 255, 0.4); }
+        .palette-btn:active { transform: scale(0.86); }
+
+        .ai-response-area {
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
+            background: rgba(255, 201, 60, 0.08);
+            backdrop-filter: blur(10px);
+            padding: 16px; border-radius: var(--radius-sm);
+            border: 2px solid rgba(255, 201, 60, 0.45);
+            box-shadow: 0 0 22px rgba(255, 201, 60, 0.12);
+            width: 100%;
+        }
+        /* 🤖 انیمیشن «دارم فکر می‌کنم» (فقط نمایشی — منطق تغییر نکرده) */
+        .ai-thinking { display: flex; align-items: center; justify-content: center; gap: 14px; min-height: 60px; }
+        .think-robot { font-size: 2.1em; display: inline-block; animation: robotThink 0.9s ease-in-out infinite; }
+        @keyframes robotThink {
+            0%, 100% { transform: rotate(-10deg) translateY(0); }
+            50% { transform: rotate(10deg) translateY(-4px); }
+        }
+        .think-dots { display: flex; gap: 7px; }
+        .think-dots span {
+            width: 11px; height: 11px; border-radius: 50%;
+            background: var(--gold); box-shadow: 0 0 10px rgba(255, 201, 60, 0.8);
+            animation: dotB 0.9s ease-in-out infinite;
+        }
+        .think-dots span:nth-child(2) { animation-delay: 0.15s; }
+        .think-dots span:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes dotB {
+            0%, 100% { transform: translateY(0); opacity: 0.45; }
+            50% { transform: translateY(-9px); opacity: 1; }
+        }
+
+        .judge-btns { display: flex; gap: 16px; margin-top: 8px; }
+        .judge-btn {
+            font-size: 1.15em; padding: 12px 26px; border-radius: 50px;
+            border: none; cursor: pointer; transition: 0.15s;
+            font-weight: 800; font-family: var(--font); color: #fff;
+        }
+        .judge-btn.correct { background: linear-gradient(180deg, #2EE6A8, #00B894); box-shadow: 0 4px 0 #00876a, 0 0 16px rgba(0, 255, 157, 0.35); }
+        .judge-btn.wrong { background: linear-gradient(180deg, #FF9A99, #FF7675); box-shadow: 0 4px 0 #c94f4e, 0 0 16px rgba(255, 118, 117, 0.35); }
+        .judge-btn:hover { transform: scale(1.05); }
+        .judge-btn:active { transform: translateY(3px); }
+
+        /* متن شناور +۱۰ */
+        .float-score {
+            position: fixed; left: 50%; top: 40%; z-index: 9996; pointer-events: none;
+            font-weight: 900; font-size: 2.1em; color: var(--neon-green);
+            text-shadow: 0 0 22px rgba(0, 255, 157, 0.8);
+            animation: floatUp 1.5s ease forwards;
+        }
+        @keyframes floatUp {
+            0% { opacity: 0; transform: translate(-50%, 24px) scale(0.5); }
+            25% { opacity: 1; transform: translate(-50%, 0) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -80px) scale(1); }
+        }
+
+        /* ===== Toast ===== */
+        .toast-container {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 9999; display: flex; flex-direction: column; gap: 8px;
+            pointer-events: none; width: 90%; max-width: 480px;
+        }
+        .toast {
+            padding: 14px 20px; border-radius: 50px; font-weight: 700; font-size: 0.95em;
+            text-align: center;
+            animation: toastIn 0.4s ease, toastOut 0.4s ease 2.8s forwards;
+            background: rgba(30, 30, 47, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            pointer-events: auto;
+        }
+        .toast-success { border-color: rgba(0, 255, 157, 0.65); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 18px rgba(0, 255, 157, 0.3); }
+        .toast-info { border-color: rgba(0, 210, 255, 0.65); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 18px rgba(0, 210, 255, 0.3); }
+        @keyframes toastIn { from { transform: translateY(-40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes toastOut { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-30px); opacity: 0; } }
+
+        /* ===== Modal (Glass LOKO) ===== */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(6, 4, 12, 0.65); backdrop-filter: blur(4px);
+            z-index: 1000; display: flex; align-items: center; justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+        .modal {
+            background: rgba(24, 18, 37, 0.94);
+            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 20px; padding: 24px;
+            width: 90%; max-width: 480px; max-height: 85vh; overflow-y: auto;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 40px rgba(108, 92, 231, 0.2);
+            animation: modalPop 0.4s var(--bounce); color: var(--text);
+        }
+        .modal h2 { font-size: 1.4em; margin-bottom: 12px; color: var(--gold); }
+        .modal p { color: var(--text); line-height: 1.9; }
+        .modal .close-btn {
+            float: left; background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.22); color: #fff;
+            width: 36px; height: 36px; border-radius: 50%;
+            cursor: pointer; font-size: 1.1em; z-index: 2; position: relative;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .hidden { display: none !important; }
+
+        /* ===== 📖 راهنمای جدید با ./icons/gamerhi.png ===== */
+        .guide-modal { text-align: center; }
+        .guide-head { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 2px 0 14px; }
+        .guide-char-wrap { position: relative; display: inline-block; }
+        .guide-char {
+            width: 120px; height: auto; display: block;
+            filter: drop-shadow(0 0 24px rgba(0, 210, 255, 0.6)) drop-shadow(0 0 44px rgba(108, 92, 231, 0.3));
+            animation: floatChar 3.2s ease-in-out infinite;
+        }
+        .guide-char-fallback {
+            font-size: 4.6em; line-height: 1.2;
+            filter: drop-shadow(0 0 18px rgba(0, 210, 255, 0.55));
+            animation: floatChar 3.2s ease-in-out infinite;
+        }
+        .guide-bubble {
+            position: relative; max-width: 320px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 16px; padding: 12px 18px;
+            color: #fff; font-size: 0.95em; font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            animation: bounceIn 0.7s var(--bounce) 0.15s backwards;
+        }
+        .guide-bubble::before {
+            content: ''; position: absolute; top: -7px; left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 14px; height: 14px; background: rgba(255, 255, 255, 0.12);
+            border-top: 1px solid rgba(255, 255, 255, 0.28);
+            border-left: 1px solid rgba(255, 255, 255, 0.28);
+        }
+        .guide-title {
+            font-size: 1.5em; font-weight: 900; margin-bottom: 14px;
+            background: linear-gradient(90deg, #FFE68A, #FFC93C, #FFA800, #FFE68A);
+            background-size: 200% auto;
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            animation: shimmerText 3.5s linear infinite;
+        }
+        .guide-example {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 14px; padding: 8px 14px; margin-bottom: 14px;
+            font-size: 1.35em;
+            animation: stepIn 0.5s var(--bounce) 0.1s backwards;
+        }
+        .guide-example .gq {
+            font-weight: 900; color: var(--gold); font-size: 1.15em;
+            text-shadow: 0 0 14px rgba(255, 201, 60, 0.7);
+            animation: twinkle 1.6s ease-in-out infinite;
+        }
+        .guide-example .gcap { font-size: 0.55em; color: var(--text-light); margin-left: 4px; }
+        .guide-steps { display: flex; flex-direction: column; gap: 10px; text-align: right; }
+        .guide-step {
+            display: flex; align-items: flex-start; gap: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px; padding: 12px 14px;
+            transition: 0.25s;
+            animation: stepIn 0.55s var(--bounce) backwards;
+        }
+        .guide-step:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateX(-4px);
+        }
+        .guide-step:nth-child(1) { animation-delay: 0.2s; }
+        .guide-step:nth-child(2) { animation-delay: 0.32s; }
+        .guide-step:nth-child(3) { animation-delay: 0.44s; }
+        .guide-step:nth-child(4) { animation-delay: 0.56s; }
+        @keyframes stepIn {
+            from { opacity: 0; transform: translateX(28px) scale(0.95); }
+            to { opacity: 1; transform: none; }
+        }
+        .step-num {
+            min-width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 1.05em; color: var(--dark); flex-shrink: 0;
+        }
+        .n1 { background: var(--primary); color: #fff; box-shadow: 0 0 16px rgba(108, 92, 231, 0.65); }
+        .n2 { background: var(--neon-blue); box-shadow: 0 0 16px rgba(0, 210, 255, 0.55); }
+        .n3 { background: var(--neon-pink); color: #fff; box-shadow: 0 0 16px rgba(255, 0, 160, 0.55); }
+        .n4 { background: var(--neon-green); box-shadow: 0 0 16px rgba(0, 255, 157, 0.55); }
+        .step-t { font-weight: 800; color: #fff; margin-bottom: 3px; font-size: 1.02em; }
+        .step-d { font-size: 0.88em; color: var(--text-light); line-height: 1.8; }
+        .guide-tip {
+            margin-top: 14px;
+            background: rgba(255, 201, 60, 0.1);
+            border: 1.5px solid rgba(255, 201, 60, 0.5);
+            border-radius: 14px; padding: 12px 16px;
+            color: var(--accent); font-weight: 700; font-size: 0.92em; line-height: 1.8;
+            box-shadow: 0 0 18px rgba(255, 201, 60, 0.12);
+            animation: stepIn 0.55s var(--bounce) 0.68s backwards;
+        }
+        .guide-cta {
+            margin-top: 12px; font-weight: 900; color: var(--neon-green);
+            text-shadow: 0 0 14px rgba(0, 255, 157, 0.55);
+            animation: stepIn 0.55s var(--bounce) 0.8s backwards;
+        }
+
+        /* ===== Game Complete Screen ===== */
+        .end-modal { text-align: center; }
+        .end-modal h2 { color: var(--gold); text-shadow: 0 0 16px rgba(255, 201, 60, 0.4); }
+        #endGameSummary { white-space: pre-line; color: var(--text-light); }
+        .end-score { font-size: 1.2em; font-weight: 900; color: var(--gold); margin-top: 10px; }
+        #endStars { font-size: 1.8em; letter-spacing: 8px; margin: 6px 0; text-shadow: 0 0 14px rgba(255, 201, 60, 0.55); }
+        .coin-reward {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: rgba(255, 201, 60, 0.12);
+            border: 1.5px solid rgba(255, 201, 60, 0.55);
+            border-radius: 50px; padding: 10px 22px;
+            margin: 14px auto; width: fit-content;
+            color: var(--gold); font-weight: 900; font-size: 1.15em;
+            animation: rewardGlow 1.6s ease-in-out infinite;
+        }
+        @keyframes rewardGlow {
+            0%, 100% { box-shadow: 0 0 14px rgba(255, 201, 60, 0.2); }
+            50% { box-shadow: 0 0 32px rgba(255, 201, 60, 0.5); }
+        }
+        .end-modal .btn { width: 100%; margin-top: 8px; }
+
+        /* ===== Confetti & پاداش (منطق بازی – حفظ شده) ===== */
+        .confetti-piece {
+            position: fixed; width: 12px; height: 12px; border-radius: 50%;
+            pointer-events: none; z-index: 9998;
+            animation: confettiFall 2.5s ease forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-60px) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(105vh) rotate(720deg) scale(0.2); opacity: 0; }
+        }
+        .irregular-reward {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 9997; pointer-events: none;
+            animation: rewardPop 2s ease forwards;
+        }
+        @keyframes rewardPop {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(-30deg); opacity: 0; }
+            30% { transform: translate(-50%, -50%) scale(1.8) rotate(10deg); opacity: 1; }
+            100% { transform: translate(-50%, -60%) scale(0.4) rotate(20deg); opacity: 0; }
+        }
+
+        @media (max-width: 480px) {
+            .pattern-slot { width: 58px; height: 58px; }
+            .shape-svg { width: 38px; height: 38px; }
+            .palette-btn { width: 54px; height: 54px; }
+            .btn { padding: 12px 18px; font-size: 0.95em; min-width: 140px; }
+            .btn-start { font-size: 1.1em; }
+            .hero-title { font-size: 1.85em; }
+            .pixel-char { width: 122px; }
+            .guide-char { width: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
+    <div class="deco-shape ds1"></div>
+    <div class="deco-shape ds2"></div>
+    <div class="deco-shape ds3"></div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ===== 📖 راهنمای بازطراحی‌شده با ./icons/gamerhi.png ===== -->
+    <div class="modal-overlay hidden" id="guideModal">
+        <div class="modal guide-modal">
+            <button class="close-btn" id="closeGuide">✕</button>
+            <div class="guide-head">
+                <div class="guide-char-wrap">
+                    <img src="./icons/gamerhi.png" class="guide-char" alt="شخصیت راهنما"
+                         onerror="this.style.display='none';document.getElementById('guideCharFallback').style.display='block'">
+                    <div class="guide-char-fallback" id="guideCharFallback" style="display:none">🤖</div>
+                    <span class="sparkle sp1">✨</span>
+                    <span class="sparkle sp2">✨</span>
+                </div>
+                <div class="guide-bubble">سلام! من همراه تو هستم! 🤖<br>بذار یادت بدم چطور استاد الگو بشی!</div>
+            </div>
+
+            <div class="guide-title">📖 راهنمای بازی</div>
+
+            <div class="guide-example">
+                <span>🔴</span><span>🔵</span><span>🔴</span>
+                <span class="gcap">مثلاً:</span>
+                <span class="gq">؟</span>
+            </div>
+
+            <div class="guide-steps">
+                <div class="guide-step">
+                    <div class="step-num n1">۱</div>
+                    <div class="step-body">
+                        <div class="step-t">🎨 الگوت رو بساز</div>
+                        <div class="step-d">از انبار اشکال، ۴ شکل انتخاب کن و الگوی خودت رو بساز.</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-num n2">۲</div>
+                    <div class="step-body">
+                        <div class="step-t">🧠 هوش مصنوعی رو به چالش بکش</div>
+                        <div class="step-d">دکمه «تست هوش مصنوعی» رو بزن تا سیستم حدس بزنه الگوی بعدی چیه.</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-num n3">۳</div>
+                    <div class="step-body">
+                        <div class="step-t">⚖️ داوری کن!</div>
+                        <div class="step-d">حالا بگو حدس سیستم درسته یا غلط!</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="step-num n4">۴</div>
+                    <div class="step-body">
+                        <div class="step-t">🏆 امتیاز بگیر</div>
+                        <div class="step-d">اگه سیستم اشتباه کرده باشه، تو برنده‌ای و <strong>۱۰ امتیاز</strong> می‌گیری.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-tip">💡 هرچقدر الگوهای خلاقانه‌تر و سخت‌تر بسازی، شانس برنده‌شدنت بیشتره!</div>
+            <div class="guide-cta">🔥 تو استاد الگویی، هوش مصنوعی رو به چالش بکش!</div>
+        </div>
+    </div>
+
+    <!-- مودال آمار: طبق قانون LOKO از دید کاربر مخفی، دیتاپایپ‌لاین فعال -->
+    <div class="modal-overlay hidden" id="statsModal">
+        <div class="modal">
+            <button class="close-btn" id="closeStats">✕</button>
+            <h2>📊 آمار</h2>
+            <div id="statsDisplay"></div>
+            <button class="btn btn-secondary" id="btnResetStats" style="margin-top:12px;">🗑️ پاک کردن آمار</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="endGameModal">
+        <div class="modal end-modal">
+            <h2>🎉 جلسه تموم شد!</h2>
+            <div id="endStars"></div>
+            <p id="endGameSummary"></p>
+            <p class="end-score">⭐ امتیاز این جلسه: <span id="endGameScore">0</span></p>
+            <div class="coin-reward">
+                <img src="./icons/coin.png" class="coin-icon-img" alt="سکه لوکو"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                <span class="coin-fallback" style="display:none">🪙</span>
+                <span id="coinRewardText">+0 سکه لوکو</span>
+            </div>
+            <button class="btn btn-primary" id="btnPlayAgain">🔄 بازی دوباره</button>
+            <button class="btn btn-secondary" id="btnEndToLanding">🏠 بازگشت</button>
+        </div>
+    </div>
+
+    <!-- کانتینر اصلی -->
+    <div class="main-container" id="mainContainer">
+        <div class="game-header">
+            <div class="title-area">
+                <svg width="32" height="32" viewBox="0 0 32 32">
+                    <circle cx="10" cy="16" r="8" fill="#FFC93C" stroke="#B96F00" stroke-width="2"/>
+                    <rect x="16" y="8" width="12" height="12" rx="3" fill="#FF00A0" stroke="#c4007d" stroke-width="2"/>
+                    <polygon points="24,22 28,30 20,30" fill="#00FF9D" stroke="#00b374" stroke-width="2"/>
+                </svg>
+                <div>
+                    <h1>طراح الگو</h1>
+                    <div class="subtitle">معلم کوچک</div>
+                </div>
+            </div>
+            <div class="header-controls">
+                <!-- 🪙 LOKO Coin Display – ./icons/coin.png -->
+                <div class="coin-display" id="coinDisplay">
+                    <img src="./icons/coin.png" class="coin-icon-img" alt="سکه لوکو"
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+                    <span class="coin-fallback" style="display:none">🪙</span>
+                    <div class="coin-amount" id="coinAmount">0</div>
+                </div>
+                <button class="mute-btn" id="muteBtn">🔊</button>
+            </div>
+            <div class="progress-bar-wrap">
+                <div class="progress-fill" id="progressBar" style="width:0%;"></div>
+            </div>
+        </div>
+
+        <div class="game-content">
+            <!-- لندینگ: تایتل → حباب → gamer.png → شروع → فرعی -->
+            <div class="landing-screen" id="landingScreen">
+                <div class="hero-banner">
+                    <div class="hero-title">طراح الگو</div>
+                    <div class="hero-subtitle">الگو بساز، هوش مصنوعی رو به چالش بکش!</div>
+                </div>
+
+                <div class="speech-bubble bounce-in">سلام! تو استاد الگوها هستی! یه الگو بساز، ببینم می‌تونم حدس بزنم! 🤖</div>
+
+                <!-- 👾 شخصیت اصلی: ./icons/gamer.png -->
+                <div class="char-wrap">
+                    <img id="gamerChar" src="./icons/gamer.png" class="pixel-char" alt="شخصیت بازی"
+                         onerror="this.style.display='none';document.getElementById('charFallback').style.display='block'">
+                    <svg id="charFallback" class="pixel-char" style="display:none" viewBox="0 0 96 104" shape-rendering="crispEdges" aria-hidden="true">
+                        <rect x="44" y="0" width="8" height="8" fill="#FF00A0"/>
+                        <rect x="44" y="8" width="8" height="8" fill="#6C5CE7"/>
+                        <rect x="24" y="16" width="48" height="40" fill="#6C5CE7"/>
+                        <rect x="16" y="28" width="8" height="16" fill="#FFC93C"/>
+                        <rect x="72" y="28" width="8" height="16" fill="#FFC93C"/>
+                        <rect x="32" y="24" width="32" height="24" fill="#1E1E2F"/>
+                        <rect x="36" y="30" width="8" height="8" fill="#00FF9D"/>
+                        <rect x="52" y="30" width="8" height="8" fill="#00FF9D"/>
+                        <rect x="40" y="42" width="16" height="4" fill="#00FF9D"/>
+                        <rect x="44" y="56" width="8" height="8" fill="#4834D0"/>
+                        <rect x="28" y="64" width="40" height="24" fill="#00D2FF"/>
+                        <rect x="36" y="68" width="24" height="16" fill="#1E1E2F"/>
+                        <rect x="44" y="72" width="8" height="8" fill="#FFC93C"/>
+                        <rect x="20" y="64" width="8" height="16" fill="#00D2FF"/>
+                        <rect x="68" y="64" width="8" height="16" fill="#00D2FF"/>
+                        <rect x="20" y="80" width="8" height="8" fill="#FFC93C"/>
+                        <rect x="68" y="80" width="8" height="8" fill="#FFC93C"/>
+                        <rect x="32" y="88" width="8" height="8" fill="#4834D0"/>
+                        <rect x="56" y="88" width="8" height="8" fill="#4834D0"/>
+                        <rect x="28" y="96" width="16" height="8" fill="#FFC93C"/>
+                        <rect x="52" y="96" width="16" height="8" fill="#FFC93C"/>
+                    </svg>
+                    <span class="sparkle sp1">✨</span>
+                    <span class="sparkle sp2">✨</span>
+                    <span class="sparkle sp3">✨</span>
+                </div>
+
+                <button class="btn btn-primary btn-start" id="btnStart">🚀 شروع طراحی</button>
+
+                <div class="secondary-row">
+                    <button class="btn btn-secondary" id="btnGuide">📖 راهنما</button>
+                </div>
+            </div>
+
+            <!-- صفحه بازی (منطق دست‌نخورده) -->
+            <div class="game-screen" id="gameScreen">
+                <div id="phaseMessage"></div>
+                <div class="pattern-row" id="patternRow">
+                    <div class="pattern-slot" data-index="0"></div>
+                    <div class="pattern-slot" data-index="1"></div>
+                    <div class="pattern-slot" data-index="2"></div>
+                    <div class="pattern-slot" data-index="3"></div>
+                </div>
+                <div class="palette" id="palette">
+                    <button class="palette-btn" data-shape="circle" title="دایره">
+                        <svg width="36" height="36"><circle cx="18" cy="18" r="16" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/></svg>
+                    </button>
+                    <button class="palette-btn" data-shape="square" title="مربع">
+                        <svg width="36" height="36"><rect x="3" y="3" width="30" height="30" rx="3" fill="#3b82f6" stroke="#1d4ed8" stroke-width="2"/></svg>
+                    </button>
+                    <button class="palette-btn" data-shape="triangle" title="مثلث">
+                        <svg width="36" height="36"><polygon points="18,3 34,31 2,31" fill="#10b981" stroke="#047857" stroke-width="2"/></svg>
+                    </button>
+                    <button class="palette-btn" data-shape="star" title="ستاره">
+                        <svg width="36" height="36"><polygon points="18,2 22,13 34,14 25,21 27,32 18,26 9,32 11,21 2,14 14,13" fill="#fbbf24" stroke="#b45309" stroke-width="1.5"/></svg>
+                    </button>
+                </div>
+                <button class="btn btn-primary" id="btnTestAI">🧠 تست هوش مصنوعی</button>
+                <button class="btn btn-secondary" id="btnClearPattern">🗑️ پاک کردن الگو</button>
+                <div class="ai-response-area hidden" id="aiResponseArea">
+                    <p style="font-weight:700;">🤖 حدس سیستم:</p>
+                    <div class="ai-thinking" id="aiThinking">
+                        <span class="think-robot">🤖</span>
+                        <span class="think-dots"><span></span><span></span><span></span></span>
+                    </div>
+                    <div id="aiGuessShape" style="width:60px;height:60px;display:none;"></div>
+                    <div class="judge-btns" id="judgeWrap" style="display:none">
+                        <button class="judge-btn correct" id="btnCorrect">✅ درست</button>
+                        <button class="judge-btn wrong" id="btnWrong">❌ غلط</button>
+                    </div>
+                </div>
+                <button class="btn btn-success hidden" id="btnNextPattern">▶️ الگوی بعدی</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 🎮 موتور بازی «طراح الگو: معلم کوچک» + LOKO Shared Systems
+        // قانون طلایی: منطق بازی ۱۰۰٪ دست‌نخورده — فقط UI/جلوه‌ها اضافه شد
+        // ============================================================
+
+        // ---------- 🌐 LOKO Offline / Sync ----------
+        const LOKO_SYNC_ENDPOINT = null;
+        const LOKO_SYNC_TIMEOUT = 5000;
+
+        function fetchWithTimeout(url, options = {}, timeoutMs = LOKO_SYNC_TIMEOUT) {
+            return new Promise((resolve, reject) => {
+                const timer = setTimeout(() => reject(new Error('LOKO_SYNC_TIMEOUT')), timeoutMs);
+                fetch(url, options)
+                    .then(res => { clearTimeout(timer); resolve(res); })
+                    .catch(err => { clearTimeout(timer); reject(err); });
+            });
+        }
+
+        const LokoSync = {
+            queueKey: 'lokoPendingSync',
+            _readQueue() {
+                try { return JSON.parse(localStorage.getItem(this.queueKey) || '[]'); }
+                catch (e) { return []; }
+            },
+            _writeQueue(q) {
+                try { localStorage.setItem(this.queueKey, JSON.stringify(q)); } catch (e) {}
+            },
+            enqueue(payload) {
+                const q = this._readQueue();
+                q.push(Object.assign({}, payload, { queuedAt: Date.now() }));
+                this._writeQueue(q);
+            },
+            mergeRemoteIntoLocal(remote) {
+                try {
+                    const localCoins = LokoCoins.get();
+                    if (remote && typeof remote.coins === 'number') {
+                        LokoCoins.set(Math.max(localCoins, remote.coins));
+                    }
+                } catch (e) {}
+            },
+            async sync() {
+                if (!LOKO_SYNC_ENDPOINT) return { status: 'offline-cache' };
+                const q = this._readQueue();
+                if (!q.length) return { status: 'empty' };
+                try {
+                    const res = await fetchWithTimeout(LOKO_SYNC_ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(q)
+                    });
+                    if (res.ok) {
+                        try { this.mergeRemoteIntoLocal(await res.json()); } catch (e) {}
+                        this._writeQueue([]);
+                    }
+                    return { status: res.ok ? 'synced' : 'server-error' };
+                } catch (e) { return { status: 'offline' }; }
+            },
+            init() {
+                window.addEventListener('online', () => {
+                    showToast('🌐 اتصال برقرار شد؛ همگام‌سازی داده‌ها...', 'info');
+                    this.sync();
+                });
+                window.addEventListener('offline', () => {
+                    showToast('📴 حالت آفلاین: داده‌ها محلی ذخیره می‌شوند.', 'info');
+                });
+                setInterval(() => { this.sync(); }, 30000);
+                this.sync();
+            }
+        };
+
+        // ---------- 🪙 LOKO Coin System ----------
+        const LokoCoins = {
+            key: 'lokoCoins',
+            get() {
+                try {
+                    const n = parseInt(localStorage.getItem(this.key), 10);
+                    return isNaN(n) ? 0 : n;
+                } catch (e) { return 0; }
+            },
+            set(n) {
+                try { localStorage.setItem(this.key, String(Math.max(0, n))); } catch (e) {}
+                this.render(false);
+            },
+            add(n) {
+                const total = this.get() + n;
+                try { localStorage.setItem(this.key, String(total)); } catch (e) {}
+                this.render(true);
+                return total;
+            },
+            render(bump) {
+                const el = document.getElementById('coinAmount');
+                if (!el) return;
+                el.textContent = this.get();
+                if (bump) {
+                    el.classList.remove('bump');
+                    void el.offsetWidth;
+                    el.classList.add('bump');
+                }
+            }
+        };
+
+        // ---------- 🎮 Audio Engine (منطق اصلی – دست‌نخورده) ----------
+        class AudioEngine {
+            constructor() { this.ctx = null; this.muted = false; }
+            _ensureContext() {
+                if (!this.ctx) {
+                    try { this.ctx = new(window.AudioContext || window.webkitAudioContext)(); } catch (e) { this
+                            .ctx = null; }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+            }
+            _playTone(freq, duration, type = 'sine', vol = 0.15, delay = 0) {
+                if (this.muted || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + delay);
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime + delay);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + delay);
+                    osc.stop(this.ctx.currentTime + delay + duration);
+                } catch (e) {}
+            }
+            clickSound() { this._playTone(784, 0.07, 'sine', 0.12); }
+            successSound() {
+                this._playTone(523, 0.12, 'sine', 0.15, 0);
+                this._playTone(659, 0.12, 'sine', 0.15, 0.1);
+                this._playTone(784, 0.18, 'sine', 0.18, 0.2);
+            }
+            neutralSound() { this._playTone(440, 0.15, 'triangle', 0.1); }
+            endGameSound() {
+                this._playTone(523, 0.12, 'sine', 0.15, 0);
+                this._playTone(659, 0.12, 'sine', 0.15, 0.15);
+                this._playTone(784, 0.12, 'sine', 0.15, 0.3);
+                this._playTone(1047, 0.2, 'sine', 0.2, 0.45);
+            }
+            rewardSound() { this._playTone(880, 0.08, 'sine', 0.12, 0);
+                this._playTone(1100, 0.12, 'sine', 0.1, 0.08); }
+            coinSound() { this._playTone(988, 0.07, 'square', 0.08, 0);
+                this._playTone(1319, 0.12, 'square', 0.07, 0.07); }
+            toggleMute() { this.muted = !this.muted; return this.muted; }
+        }
+        const audio = new AudioEngine();
+
+        // ---------- Toast ----------
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3200);
+        }
+
+        // ---------- Ripple ----------
+        function addRipple(btn) {
+            btn.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                const rect = btn.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                btn.appendChild(ripple);
+                ripple.addEventListener('animationend', () => ripple.remove());
+            });
+        }
+        document.querySelectorAll('.btn, .palette-btn, .judge-btn, .mute-btn').forEach(addRipple);
+
+        // ---------- کنفتی (منطق بازی – حفظ شده) ----------
+        function spawnConfetti(count = 35) {
+            const colors = ['#6C5CE7', '#FFC93C', '#00FF9D', '#00D2FF', '#FF00A0', '#FFEAA7'];
+            for (let i = 0; i < count; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti-piece';
+                el.style.left = Math.random() * 100 + '%';
+                el.style.top = -(Math.random() * 30 + 10) + 'px';
+                el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                el.style.width = (Math.random() * 10 + 6) + 'px';
+                el.style.height = (Math.random() * 10 + 6) + 'px';
+                el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                el.style.animationDelay = Math.random() * 0.7 + 's';
+                document.body.appendChild(el);
+                el.addEventListener('animationend', () => el.remove());
+            }
+        }
+
+        function showIrregularReward() {
+            const reward = document.createElement('div');
+            reward.className = 'irregular-reward';
+            reward.innerHTML = `<svg width="80" height="80" viewBox="0 0 80 80">
+            <polygon points="40,5 50,30 78,30 55,47 62,75 40,58 18,75 25,47 2,30 30,30"
+            fill="#FFC93C" stroke="#B96F00" stroke-width="2.5"/>
+          </svg>`;
+            document.body.appendChild(reward);
+            audio.rewardSound();
+            reward.addEventListener('animationend', () => reward.remove());
+        }
+
+        // ---------- ✨ جلوه‌های جدید (فقط UI) ----------
+        function spawnStars(n = 14) {
+            for (let i = 0; i < n; i++) {
+                const s = document.createElement('div');
+                s.className = 'bg-star';
+                s.style.left = Math.random() * 100 + '%';
+                s.style.top = Math.random() * 100 + '%';
+                s.style.animationDelay = (Math.random() * 3) + 's';
+                s.style.animationDuration = (2 + Math.random() * 3) + 's';
+                document.body.appendChild(s);
+            }
+        }
+
+        function floatScoreText(text) {
+            const el = document.createElement('div');
+            el.className = 'float-score';
+            el.textContent = text;
+            document.body.appendChild(el);
+            el.addEventListener('animationend', () => el.remove());
+        }
+
+        function flashWin() {
+            const c = document.getElementById('mainContainer');
+            if (!c) return;
+            c.classList.add('win-flash');
+            setTimeout(() => c.classList.remove('win-flash'), 900);
+        }
+
+        function miniBurst(slotEl) {
+            if (!slotEl) return;
+            const b = document.createElement('span');
+            b.className = 'mini-burst';
+            b.textContent = '✨';
+            slotEl.appendChild(b);
+            b.addEventListener('animationend', () => b.remove());
+        }
+
+        // ---------- کلاس بازی (منطق اصلی – دست‌نخورده) ----------
+        class PatternDesignerGame {
+            constructor() {
+                this.state = 'landing';
+                this.currentPatternIndex = 0;
+                this.maxPatterns = 5;
+                this.sessionScore = 0;
+                this.sessionCreativePatterns = 0;
+                this.sessionSystemWins = 0;
+                this.patternSlots = [null, null, null, null];
+                this.currentAiGuess = null;
+                this.aiCorrectAnswer = null;
+                this.initialCoinsAtSessionStart = LokoCoins.get();
+                // 🎨 متغیرهای صرفاً نمایشی
+                this.winStreak = 0;
+                this.aiThinkingToken = 0;
+
+                this.landingScreen = document.getElementById('landingScreen');
+                this.gameScreen = document.getElementById('gameScreen');
+                this.patternRow = document.getElementById('patternRow');
+                this.phaseMessage = document.getElementById('phaseMessage');
+                this.aiResponseArea = document.getElementById('aiResponseArea');
+                this.aiGuessShapeDiv = document.getElementById('aiGuessShape');
+                this.btnTestAI = document.getElementById('btnTestAI');
+                this.btnClearPattern = document.getElementById('btnClearPattern');
+                this.btnNextPattern = document.getElementById('btnNextPattern');
+                this.progressBar = document.getElementById('progressBar');
+                this.muteBtn = document.getElementById('muteBtn');
+
+                this._bindEvents();
+                this._updateLandingStats();
+                LokoCoins.render(false);
+            }
+
+            _bindEvents() {
+                document.getElementById('btnStart').addEventListener('click', () => this.startGame());
+                document.getElementById('btnGuide').addEventListener('click', () => this.showModal('guideModal'));
+                const statsBtn = document.getElementById('btnStats');
+                if (statsBtn) statsBtn.addEventListener('click', () => this.showStats());
+                document.getElementById('closeGuide').addEventListener('click', () => this.hideModal('guideModal'));
+                document.getElementById('closeStats').addEventListener('click', () => this.hideModal('statsModal'));
+                document.getElementById('btnResetStats').addEventListener('click', () => this.resetStats());
+                document.getElementById('btnPlayAgain').addEventListener('click', () => this.startGame());
+                document.getElementById('btnEndToLanding').addEventListener('click', () => this.goToLanding());
+
+                this.muteBtn.addEventListener('click', () => {
+                    this.muteBtn.textContent = audio.toggleMute() ? '🔇' : '🔊';
+                });
+
+                document.querySelectorAll('.palette-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this._addShapeToPattern(btn.dataset.shape));
+                });
+
+                this.btnClearPattern.addEventListener('click', () => this._clearPattern());
+                this.btnTestAI.addEventListener('click', () => this._testAI());
+                document.getElementById('btnCorrect').addEventListener('click', () => this._judge('correct'));
+                document.getElementById('btnWrong').addEventListener('click', () => this._judge('wrong'));
+                this.btnNextPattern.addEventListener('click', () => this._nextPattern());
+
+                document.querySelectorAll('.modal-overlay').forEach(o => {
+                    o.addEventListener('click', (e) => { if (e.target === o) o.classList.add(
+                            'hidden'); });
+                });
+
+                document.addEventListener('click', () => audio._ensureContext(), { once: true });
+                document.addEventListener('touchstart', () => audio._ensureContext(), { once: true });
+            }
+
+            _addShapeToPattern(shape) {
+                if (this.state !== 'designing') return;
+                const emptyIndex = this.patternSlots.findIndex(s => s === null);
+                if (emptyIndex === -1) {
+                    showToast('هر ۴ جایگاه پر شدن! الگو رو تست کن.', 'info');
+                    return;
+                }
+                this.patternSlots[emptyIndex] = shape;
+                this._renderSlots();
+                audio.clickSound();
+                miniBurst(this.patternRow.children[emptyIndex]); // ✨ جلوه نمایشی
+                if (this.patternSlots.filter(s => s !== null).length >= 3) {
+                    this.btnTestAI.classList.remove('hidden');
+                }
+            }
+
+            _resetGuessAreaVisuals() {
+                const t = document.getElementById('aiThinking');
+                if (t) t.style.display = 'none';
+                if (this.aiGuessShapeDiv) { this.aiGuessShapeDiv.innerHTML = ''; this.aiGuessShapeDiv.style.display = 'none'; }
+                const j = document.getElementById('judgeWrap');
+                if (j) j.style.display = 'none';
+            }
+
+            _clearPattern() {
+                if (this.state !== 'designing') return;
+                this.aiThinkingToken++;
+                this._resetGuessAreaVisuals();
+                this.patternSlots = [null, null, null, null];
+                this._renderSlots();
+                this.btnTestAI.classList.add('hidden');
+                this.aiResponseArea.classList.add('hidden');
+                this.btnNextPattern.classList.add('hidden');
+                audio.clickSound();
+            }
+
+            _renderSlots() {
+                const slots = this.patternRow.querySelectorAll('.pattern-slot');
+                slots.forEach((slot, i) => {
+                    slot.innerHTML = '';
+                    slot.classList.remove('filled');
+                    if (this.patternSlots[i]) {
+                        slot.classList.add('filled');
+                        slot.appendChild(this._createShapeSVG(this.patternSlots[i], 42));
+                    }
+                });
+            }
+
+            _createShapeSVG(shape, size = 48) {
+                const svgNS = 'http://www.w3.org/2000/svg';
+                const svg = document.createElementNS(svgNS, 'svg');
+                svg.setAttribute('width', size);
+                svg.setAttribute('height', size);
+                svg.setAttribute('viewBox', '0 0 36 36');
+                svg.classList.add('shape-svg');
+                let shapeEl;
+                switch (shape) {
+                    case 'circle':
+                        shapeEl = document.createElementNS(svgNS, 'circle');
+                        shapeEl.setAttribute('cx', '18');
+                        shapeEl.setAttribute('cy', '18');
+                        shapeEl.setAttribute('r', '15');
+                        shapeEl.setAttribute('fill', '#ef4444');
+                        shapeEl.setAttribute('stroke', '#b91c1c');
+                        shapeEl.setAttribute('stroke-width', '2');
+                        break;
+                    case 'square':
+                        shapeEl = document.createElementNS(svgNS, 'rect');
+                        shapeEl.setAttribute('x', '3');
+                        shapeEl.setAttribute('y', '3');
+                        shapeEl.setAttribute('width', '30');
+                        shapeEl.setAttribute('height', '30');
+                        shapeEl.setAttribute('rx', '4');
+                        shapeEl.setAttribute('fill', '#3b82f6');
+                        shapeEl.setAttribute('stroke', '#1d4ed8');
+                        shapeEl.setAttribute('stroke-width', '2');
+                        break;
+                    case 'triangle':
+                        shapeEl = document.createElementNS(svgNS, 'polygon');
+                        shapeEl.setAttribute('points', '18,3 34,31 2,31');
+                        shapeEl.setAttribute('fill', '#10b981');
+                        shapeEl.setAttribute('stroke', '#047857');
+                        shapeEl.setAttribute('stroke-width', '2');
+                        break;
+                    case 'star':
+                        shapeEl = document.createElementNS(svgNS, 'polygon');
+                        shapeEl.setAttribute('points',
+                            '18,2 22,13 34,14 25,21 27,32 18,26 9,32 11,21 2,14 14,13');
+                        shapeEl.setAttribute('fill', '#fbbf24');
+                        shapeEl.setAttribute('stroke', '#b45309');
+                        shapeEl.setAttribute('stroke-width', '1.5');
+                        break;
+                    default:
+                        return svg;
+                }
+                svg.appendChild(shapeEl);
+                return svg;
+            }
+
+            _detectPattern(shapes) {
+                if (shapes.length < 3) return null;
+                const map = { circle: 0, square: 1, triangle: 2, star: 3 };
+                const rev = ['circle', 'square', 'triangle', 'star'];
+                const nums = shapes.map(s => map[s]);
+                if (nums.every(n => n === nums[0])) return { type: 'constant', next: shapes[0] };
+                if (shapes[0] === shapes[2] && shapes[1] === shapes[3] && shapes[0] !== shapes[1]) return { type: 'alternating',
+                    next: shapes[1] };
+                let isIncremental = true;
+                for (let i = 1; i < nums.length; i++) {
+                    if ((nums[i - 1] + 1) % 4 !== nums[i]) { isIncremental = false; break; }
+                }
+                if (isIncremental) return { type: 'incremental', next: rev[(nums[nums.length - 1] + 1) % 4] };
+                return null;
+            }
+
+            _aiGuess(patternShapes) {
+                const rule = this._detectPattern(patternShapes);
+                const randomError = Math.random() < 0.2;
+                if (rule && !randomError) return rule.next;
+                const options = ['circle', 'square', 'triangle', 'star'];
+                return options[Math.floor(Math.random() * options.length)];
+            }
+
+            _computeRealNextShape() {
+                const rule = this._detectPattern(this.patternSlots);
+                if (rule) return rule.next;
+                const options = ['circle', 'square', 'triangle', 'star'];
+                return this.patternSlots[this.patternSlots.length - 1] || options[0];
+            }
+
+            _testAI() {
+                if (this.state !== 'designing') return;
+                const filled = this.patternSlots.filter(s => s !== null);
+                if (filled.length < 3) {
+                    showToast('حداقل ۳ شکل لازمه تا بتونم حدس بزنم!', 'info');
+                    return;
+                }
+                const pattern = [...this.patternSlots];
+                const activePattern = pattern.filter(s => s !== null);
+                this.aiCorrectAnswer = this._computeRealNextShape();
+                this.currentAiGuess = this._aiGuess(activePattern);
+
+                // 🎬 انیمیشن «فکر کردن» – فقط نمایشی؛ محاسبه بالا همان لحظه انجام شده
+                this.aiThinkingToken++;
+                const token = this.aiThinkingToken;
+                this._resetGuessAreaVisuals();
+                document.getElementById('aiThinking').style.display = 'flex';
+                this.aiResponseArea.classList.remove('hidden');
+                this.btnTestAI.classList.add('hidden');
+                this.state = 'ai_guess';
+                this.phaseMessage.textContent = '🤖 سیستم داره فکر می‌کنه...';
+                audio.clickSound();
+
+                setTimeout(() => {
+                    if (token !== this.aiThinkingToken) return; // اگر صحنه عوض شد، افشا نکن
+                    document.getElementById('aiThinking').style.display = 'none';
+                    this.aiGuessShapeDiv.style.display = '';
+                    this.aiGuessShapeDiv.appendChild(this._createShapeSVG(this.currentAiGuess, 56));
+                    document.getElementById('judgeWrap').style.display = '';
+                    this.phaseMessage.textContent = '🤖 سیستم حدس زد... نظر تو چیه؟';
+                    audio.neutralSound();
+                }, 1100);
+            }
+
+            _judge(verdict) {
+                if (this.state !== 'ai_guess') return;
+                const aiGuess = this.currentAiGuess;
+                const realNext = this.aiCorrectAnswer;
+                const systemCorrect = (aiGuess === realNext);
+                let childWins = false;
+
+                if (verdict === 'wrong') {
+                    childWins = !systemCorrect;
+                } else {
+                    childWins = false;
+                }
+
+                this.aiResponseArea.classList.add('hidden');
+                this.btnNextPattern.classList.remove('hidden');
+                this.state = 'round_complete';
+
+                if (childWins) {
+                    this.sessionScore += 10;
+                    this.sessionCreativePatterns++;
+                    audio.successSound();
+                    showToast('🎉 آفرین! سیستم اشتباه کرد! تو باهوش‌تری! +۱۰ امتیاز', 'success');
+                    this.phaseMessage.textContent = '🥳 تو برنده شدی! سیستم نتونست حدس بزنه.';
+                    // ✨ جلوه‌های نمایشی برد
+                    floatScoreText('+۱۰ امتیاز');
+                    flashWin();
+                    this.winStreak++;
+                    if (this.winStreak >= 2) showToast(`🔥 ${this.winStreak} برد متوالی! داری هیجان‌انگیز می‌شی!`, 'success');
+                    if (Math.random() < 0.3) setTimeout(showIrregularReward, 500);
+                } else {
+                    this.sessionSystemWins++;
+                    this.winStreak = 0;
+                    audio.neutralSound();
+                    showToast('🤖 سیستم درست حدس زد! این بار تو بردی، دفعه بعد سخت‌تر بساز!', 'info');
+                    this.phaseMessage.textContent = '🤖 این دور سیستم موفق بود. الگوی پیچیده‌تر بساز!';
+                }
+                this._updateProgress();
+            }
+
+            _nextPattern() {
+                this.aiThinkingToken++;
+                this._resetGuessAreaVisuals();
+                this.btnNextPattern.classList.add('hidden');
+                this.aiResponseArea.classList.add('hidden');
+                this.currentPatternIndex++;
+                if (this.currentPatternIndex >= this.maxPatterns) {
+                    this._endGame();
+                } else {
+                    this._clearPattern();
+                    this.state = 'designing';
+                    this.phaseMessage.textContent =
+                        `الگوی ${this.currentPatternIndex + 1} از ${this.maxPatterns} رو طراحی کن!`;
+                    this.btnTestAI.classList.add('hidden');
+                    this._updateProgress();
+                }
+            }
+
+            _updateProgress() {
+                const p = Math.round((this.currentPatternIndex / this.maxPatterns) * 100);
+                this.progressBar.style.width = p + '%';
+            }
+
+            startGame() {
+                this.initialCoinsAtSessionStart = LokoCoins.get();
+                this.winStreak = 0;
+                this.aiThinkingToken++;
+
+                document.getElementById('endGameModal').classList.add('hidden');
+                this.landingScreen.classList.add('hidden');
+                this.gameScreen.classList.add('active');
+                this.currentPatternIndex = 0;
+                this.sessionScore = 0;
+                this.sessionCreativePatterns = 0;
+                this.sessionSystemWins = 0;
+                this.state = 'designing';
+                this._clearPattern();
+                this.phaseMessage.textContent = 'الگوی اول رو طراحی کن! (حداقل ۳ شکل)';
+                this.btnTestAI.classList.add('hidden');
+                this.btnNextPattern.classList.add('hidden');
+                this._updateProgress();
+                audio.clickSound();
+            }
+
+            _endGame() {
+                this.state = 'end';
+                this.progressBar.style.width = '100%';
+                audio.endGameSound();
+                spawnConfetti(45);
+                this._saveStats();
+
+                // 🪙 LOKO Coin Reward — فقط بعد از اتمام «تمام» مراحل
+                // قانون: initialCoins === 0 → +10 | وگرنه → +1
+                const reward = (this.initialCoinsAtSessionStart === 0) ? 10 : 1;
+                const newTotal = LokoCoins.add(reward);
+                audio.coinSound();
+                const rewardTextEl = document.getElementById('coinRewardText');
+                if (rewardTextEl) rewardTextEl.textContent = `+${reward} سکه لوکو`;
+                LokoSync.enqueue({
+                    type: 'coin_reward',
+                    game: 'patternDesigner',
+                    amount: reward,
+                    initialCoins: this.initialCoinsAtSessionStart,
+                    totalAfter: newTotal,
+                    sessionScore: this.sessionScore
+                });
+
+                document.getElementById('endGameSummary').textContent =
+                    `🎨 الگوهای خلاقانه: ${this.sessionCreativePatterns}\n🤖 دفعات پیروزی سیستم: ${this.sessionSystemWins}`;
+                document.getElementById('endGameScore').textContent = this.sessionScore;
+                const starsEl = document.getElementById('endStars');
+                if (starsEl) {
+                    const filled = Math.min(3, this.sessionCreativePatterns);
+                    starsEl.textContent = '⭐'.repeat(filled) + '☆'.repeat(3 - filled);
+                }
+                document.getElementById('endGameModal').classList.remove('hidden');
+                this.gameScreen.classList.remove('active');
+                this.landingScreen.classList.remove('hidden');
+                this._updateLandingStats();
+            }
+
+            goToLanding() {
+                document.getElementById('endGameModal').classList.add('hidden');
+                this.gameScreen.classList.remove('active');
+                this.landingScreen.classList.remove('hidden');
+                this._updateLandingStats();
+                this.progressBar.style.width = '0%';
+            }
+
+            // 💾 Data Persistence — آمار همچنان جمع‌آوری و ذخیره می‌شود (UI مخفی)
+            _loadStats() {
+                const key = 'patternDesignerStats';
+                try {
+                    const raw = localStorage.getItem(key);
+                    return raw ? JSON.parse(raw) : { totalGames: 0, totalCreativePatterns: 0, totalSystemWins: 0,
+                        totalScore: 0, bestScore: 0, lastPlayDate: null };
+                } catch (e) { return { totalGames: 0, totalCreativePatterns: 0, totalSystemWins: 0, totalScore: 0,
+                        bestScore: 0, lastPlayDate: null }; }
+            }
+            _saveStats() {
+                const key = 'patternDesignerStats';
+                const s = this._loadStats();
+                s.totalGames += 1;
+                s.totalCreativePatterns += this.sessionCreativePatterns;
+                s.totalSystemWins += this.sessionSystemWins;
+                s.totalScore += this.sessionScore;
+                s.bestScore = Math.max(s.bestScore, this.sessionScore);
+                s.lastPlayDate = new Date().toISOString();
+                try { localStorage.setItem(key, JSON.stringify(s)); } catch (e) {}
+                LokoSync.enqueue({
+                    type: 'game_stats',
+                    game: 'patternDesigner',
+                    sessionScore: this.sessionScore,
+                    creativePatterns: this.sessionCreativePatterns,
+                    systemWins: this.sessionSystemWins,
+                    totals: s
+                });
+            }
+            resetStats() {
+                try { localStorage.removeItem('patternDesignerStats'); } catch (e) {}
+                this._updateLandingStats();
+                this.showStats();
+                showToast('🗑️ آمار پاک شد.', 'info');
+            }
+            _updateLandingStats() {
+                const s = this._loadStats();
+                const sc = document.getElementById('landingScore');
+                const cr = document.getElementById('landingCreative');
+                if (sc) sc.textContent = s.totalScore || 0;
+                if (cr) cr.textContent = s.totalCreativePatterns || 0;
+            }
+            showStats() {
+                const s = this._loadStats();
+                document.getElementById('statsDisplay').innerHTML = `
+            <p>🎮 <strong>تعداد جلسات:</strong> ${s.totalGames}</p>
+            <p>🎨 <strong>الگوهای خلاقانه (سیستم شکست خورده):</strong> ${s.totalCreativePatterns}</p>
+            <p>🤖 <strong>پیروزی‌های سیستم:</strong> ${s.totalSystemWins}</p>
+            <p>⭐ <strong>امتیاز کل:</strong> ${s.totalScore}</p>
+            <p>🏆 <strong>بهترین امتیاز:</strong> ${s.bestScore}</p>
+            <p>📅 <strong>آخرین بازی:</strong> ${s.lastPlayDate ? new Date(s.lastPlayDate).toLocaleDateString('fa-IR') : '—'}</p>
+          `;
+                document.getElementById('statsModal').classList.remove('hidden');
+            }
+            showModal(id) { document.getElementById(id).classList.remove('hidden'); }
+            hideModal(id) { document.getElementById(id).classList.add('hidden'); }
+        }
+
+        new PatternDesignerGame();
+        LokoSync.init();
+        spawnStars(14);
+        console.log('🎨 طراح الگو: معلم کوچک – نسخه جذاب‌تر با آیکون‌های اختصاصی آماده! ✨');
+    </script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#endGameModal"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

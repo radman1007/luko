@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>مغازه‌دار باهوش</title>
+<style>
+@font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Black.ttf") format("truetype"); font-weight: 900; font-display: swap; }
+@font-face { font-family: "Shoor"; src: url("./fonts/Shoor-ExtraBold.ttf") format("truetype"); font-weight: 800; font-display: swap; }
+@font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Black.ttf") format("truetype"); font-weight: 900; font-display: swap; }
+@font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype"); font-weight: 800; font-display: swap; }
+
+:root {
+--primary: #6C5CE7; --secondary: #00D2FF; --neon-blue: #00D2FF; --neon-pink: #FF00A0;
+--neon-green: #00FF9D; --neon-purple: #A855F7; --success: #00B894; --danger: #FF7675;
+--dark: #0a0a1a; --gold: #FFC93C; --gold-dark: #B96F00;
+--glass-bg: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.08);
+--text-color: #FFFFFF; --text-secondary: #A0A0B0;
+--font-family: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+--shadow-xl: 0 15px 70px rgba(0, 0, 0, 0.7); --radius: 20px;
+--transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+--body-bg: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 30%, #0d1b2a 60%, #0a0a1a 100%);
+--btn-primary-bg: linear-gradient(135deg, #6C5CE7, #00D2FF); --btn-primary-shadow: rgba(108, 92, 231, 0.5);
+--btn-secondary-bg: rgba(255, 255, 255, 0.05); --btn-secondary-hover: rgba(255, 255, 255, 0.12);
+--btn-gold-bg: linear-gradient(135deg, #FFC93C, #f59e0b);
+--btn-start-bg: linear-gradient(135deg, #FFC93C, #f59e0b); --btn-start-color: #0a0a1a; --btn-start-shadow: rgba(255, 201, 60, 0.4); --btn-start-hover-bg: linear-gradient(135deg, #FF6B6B, #FFD93D);
+--neon-glow: 0 0 30px rgba(0, 210, 255, 0.15), 0 0 60px rgba(108, 92, 231, 0.1);
+--border-glow: rgba(0, 210, 255, 0.15); --card-bg: rgba(255, 255, 255, 0.03);
+--header-border: rgba(0, 210, 255, 0.15); --game-card-border: rgba(0, 210, 255, 0.06);
+--guide-bg: rgba(0, 0, 0, 0.8); --countdown-color: #FFC93C;
+--radius-sm: 10px;
+}
+
+body.theme-default { --primary: #6C5CE7; --secondary: #00D2FF; --body-bg: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 30%, #0d1b2a 60%, #0a0a1a 100%); --btn-primary-bg: linear-gradient(135deg, #6C5CE7, #00D2FF); --btn-primary-shadow: rgba(108, 92, 231, 0.5); --neon-glow: 0 0 30px rgba(0, 210, 255, 0.15), 0 0 60px rgba(108, 92, 231, 0.1); --border-glow: rgba(0, 210, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.08); --card-bg: rgba(255, 255, 255, 0.03); --countdown-color: #FFC93C; }
+body.theme-jangal { --primary: #2D8A4E; --secondary: #5D4037; --btn-primary-bg: linear-gradient(135deg, #2D8A4E, #5D4037); --btn-primary-shadow: rgba(45, 138, 78, 0.4); --glass-bg: rgba(45, 138, 78, 0.15); --glass-border: rgba(45, 138, 78, 0.25); --text-color: #E8F5E9; --text-secondary: #A5D6A7; --btn-start-bg: linear-gradient(135deg, #2D8A4E, #5D4037); --btn-start-color: #FFFFFF; --btn-start-shadow: rgba(45, 138, 78, 0.4); --btn-start-hover-bg: linear-gradient(135deg, #2D8A4E, #8D6E63); --gold: #A5D6A7; --neon-glow: 0 0 30px rgba(45, 138, 78, 0.15), 0 0 60px rgba(45, 138, 78, 0.1); --border-glow: rgba(45, 138, 78, 0.15); --header-border: rgba(45, 138, 78, 0.25); --game-card-border: rgba(45, 138, 78, 0.2); --card-bg: rgba(45, 138, 78, 0.1); --countdown-color: #A5D6A7; }
+body.theme-oqhianoos { --primary: #0077BE; --secondary: #00B4D8; --btn-primary-bg: linear-gradient(135deg, #0077BE, #00B4D8); --btn-primary-shadow: rgba(0, 119, 190, 0.4); --glass-bg: rgba(0, 119, 190, 0.15); --glass-border: rgba(0, 119, 190, 0.25); --text-color: #E3F2FD; --text-secondary: #90CAF9; --btn-start-bg: linear-gradient(135deg, #0077BE, #00B4D8); --btn-start-color: #FFFFFF; --btn-start-shadow: rgba(0, 119, 190, 0.4); --btn-start-hover-bg: linear-gradient(135deg, #0077BE, #00B4D8); --gold: #90CAF9; --neon-glow: 0 0 30px rgba(0, 119, 190, 0.15), 0 0 60px rgba(0, 119, 190, 0.1); --border-glow: rgba(0, 119, 190, 0.15); --header-border: rgba(0, 119, 190, 0.25); --game-card-border: rgba(0, 119, 190, 0.2); --card-bg: rgba(0, 119, 190, 0.1); --countdown-color: #90CAF9; }
+body.theme-mahtabi { --primary: #F9A825; --secondary: #FF6F00; --btn-primary-bg: linear-gradient(135deg, #F9A825, #FF6F00); --btn-primary-shadow: rgba(249, 168, 37, 0.4); --glass-bg: rgba(249, 168, 37, 0.15); --glass-border: rgba(249, 168, 37, 0.25); --text-color: #FFF8E1; --text-secondary: #FFE082; --btn-start-bg: linear-gradient(135deg, #F9A825, #FF6F00); --btn-start-color: #FFFFFF; --btn-start-shadow: rgba(249, 168, 37, 0.4); --btn-start-hover-bg: linear-gradient(135deg, #F9A825, #FF6F00); --gold: #FFE082; --neon-glow: 0 0 30px rgba(249, 168, 37, 0.15), 0 0 60px rgba(249, 168, 37, 0.1); --border-glow: rgba(249, 168, 37, 0.15); --header-border: rgba(249, 168, 37, 0.25); --game-card-border: rgba(249, 168, 37, 0.2); --card-bg: rgba(249, 168, 37, 0.1); --countdown-color: #FFE082; }
+body.theme-atashfeshani { --primary: #D32F2F; --secondary: #F57C00; --btn-primary-bg: linear-gradient(135deg, #D32F2F, #F57C00); --btn-primary-shadow: rgba(211, 47, 47, 0.4); --glass-bg: rgba(211, 47, 47, 0.15); --glass-border: rgba(211, 47, 47, 0.25); --text-color: #FFEBEE; --text-secondary: #EF9A9A; --btn-start-bg: linear-gradient(135deg, #D32F2F, #F57C00); --btn-start-color: #FFFFFF; --btn-start-shadow: rgba(211, 47, 47, 0.4); --btn-start-hover-bg: linear-gradient(135deg, #D32F2F, #F57C00); --gold: #EF9A9A; --neon-glow: 0 0 30px rgba(211, 47, 47, 0.15), 0 0 60px rgba(211, 47, 47, 0.1); --border-glow: rgba(211, 47, 47, 0.15); --header-border: rgba(211, 47, 47, 0.25); --game-card-border: rgba(211, 47, 47, 0.2); --card-bg: rgba(211, 47, 47, 0.1); --countdown-color: #EF9A9A; }
+body.theme-barfi { --primary: #4FC3F7; --secondary: #E3F2FD; --btn-primary-bg: linear-gradient(135deg, #4FC3F7, #81D4FA); --btn-primary-shadow: rgba(79, 195, 247, 0.4); --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.15); --text-color: #FFFFFF; --text-secondary: #B3E5FC; --btn-start-bg: linear-gradient(135deg, #4FC3F7, #81D4FA); --btn-start-color: #0a0a1a; --btn-start-shadow: rgba(79, 195, 247, 0.4); --btn-start-hover-bg: linear-gradient(135deg, #4FC3F7, #81D4FA); --gold: #B3E5FC; --neon-glow: 0 0 30px rgba(79, 195, 247, 0.15), 0 0 60px rgba(79, 195, 247, 0.1); --border-glow: rgba(79, 195, 247, 0.15); --header-border: rgba(79, 195, 247, 0.25); --game-card-border: rgba(79, 195, 247, 0.2); --card-bg: rgba(255, 255, 255, 0.05); --countdown-color: #B3E5FC; }
+body.theme-jangal-sami { --primary: #7B1FA2; --secondary: #4CAF50; --btn-primary-bg: linear-gradient(135deg, #7B1FA2, #4CAF50); --btn-primary-shadow: rgba(123, 31, 162, 0.4); --glass-bg: rgba(123, 31, 162, 0.15); --glass-border: rgba(123, 31, 162, 0.25); --text-color: #F3E5F5; --text-secondary: #CE93D8; --btn-start-bg: linear-gradient(135deg, #7B1FA2, #4CAF50); --btn-start-color: #FFFFFF; --btn-start-shadow: rgba(123, 31, 162, 0.4); --btn-start-hover-bg: linear-gradient(135deg, #7B1FA2, #4CAF50); --gold: #CE93D8; --neon-glow: 0 0 30px rgba(123, 31, 162, 0.15), 0 0 60px rgba(123, 31, 162, 0.1); --border-glow: rgba(123, 31, 162, 0.15); --header-border: rgba(123, 31, 162, 0.25); --game-card-border: rgba(123, 31, 162, 0.2); --card-bg: rgba(123, 31, 162, 0.1); --countdown-color: #CE93D8; }
+body.theme-kahkeshani { --primary: #6A1B9A; --secondary: #1A237E; --btn-primary-bg: linear-gradient(135deg, #6A1B9A, #1A237E); --btn-primary-shadow: rgba(106, 27, 154, 0.4); --glass-bg: rgba(106, 27, 154, 0.15); --glass-border: rgba(106, 27, 154, 0.25); --text-color: #EDE7F6; --text-secondary: #B39DDB; --btn-start-bg: linear-gradient(135deg, #6A1B9A, #1A237E); --btn-start-color: #FFFFFF; --btn-start-shadow: rgba(106, 27, 154, 0.4); --btn-start-hover-bg: linear-gradient(135deg, #6A1B9A, #1A237E); --gold: #B39DDB; --neon-glow: 0 0 30px rgba(106, 27, 154, 0.15), 0 0 60px rgba(106, 27, 154, 0.1); --border-glow: rgba(106, 27, 154, 0.15); --header-border: rgba(106, 27, 154, 0.25); --game-card-border: rgba(106, 27, 154, 0.2); --card-bg: rgba(106, 27, 154, 0.1); --countdown-color: #B39DDB; }
+body.theme-jangal-jadooy { --primary: #FFD54F; --secondary: #7B1FA2; --btn-primary-bg: linear-gradient(135deg, #FFD54F, #7B1FA2); --btn-primary-shadow: rgba(255, 213, 79, 0.4); --glass-bg: rgba(255, 213, 79, 0.15); --glass-border: rgba(255, 213, 79, 0.25); --text-color: #FFFDE7; --text-secondary: #FFE082; --btn-start-bg: linear-gradient(135deg, #FFD54F, #7B1FA2); --btn-start-color: #0a0a1a; --btn-start-shadow: rgba(255, 213, 79, 0.4); --btn-start-hover-bg: linear-gradient(135deg, #FFD54F, #7B1FA2); --gold: #FFE082; --neon-glow: 0 0 30px rgba(255, 213, 79, 0.15), 0 0 60px rgba(255, 213, 79, 0.1); --border-glow: rgba(255, 213, 79, 0.15); --header-border: rgba(255, 213, 79, 0.25); --game-card-border: rgba(255, 213, 79, 0.2); --card-bg: rgba(255, 213, 79, 0.1); --countdown-color: #FFE082; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; font-family: var(--font-family); outline: none; }
+html, body { width: 100%; height: 100%; overflow: hidden; background-color: var(--dark); }
+body { color: var(--text-color); position: relative; background-image: var(--body-bg); background-size: cover !important; background-position: center center !important; background-repeat: no-repeat !important; background-attachment: fixed; transition: background 0.6s ease, color 0.6s ease; }
+
+.neon-orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; opacity: 0.4; }
+.neon-orb-1 { width: 300px; height: 300px; top: -100px; right: -100px; background: rgba(108, 92, 231, 0.3); animation: orbFloat 8s ease-in-out infinite; }
+.neon-orb-2 { width: 400px; height: 400px; bottom: -150px; left: -150px; background: rgba(0, 210, 255, 0.2); animation: orbFloat 10s ease-in-out infinite reverse; }
+.neon-orb-3 { width: 200px; height: 200px; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 0, 160, 0.1); animation: orbFloat 12s ease-in-out infinite; }
+@keyframes orbFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -30px) scale(1.1); } 66% { transform: translate(-20px, 20px) scale(0.9); } }
+
+.stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+.star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; animation: twinkle 2s ease-in-out infinite alternate; }
+@keyframes twinkle { 0% { opacity: 0.2; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
+
+.effect-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; overflow: hidden; }
+.effect-particle { position: absolute; animation: effectFall linear forwards; }
+@keyframes effectFall { 0% { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg) scale(0.3); opacity: 0; } }
+
+.screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 12px; z-index: 1; overflow-y: auto; }
+.screen.active { display: flex; animation: screenFadeIn 0.4s ease; }
+@keyframes screenFadeIn { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+.glass-card { background: var(--card-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: 1px solid var(--glass-border); border-top: 1px solid rgba(255, 255, 255, 0.05); border-left: 1px solid rgba(255, 255, 255, 0.05); border-radius: var(--radius); box-shadow: var(--shadow-xl), var(--neon-glow), inset 0 1px 1px rgba(255,255,255,0.02); color: var(--text-color); position: relative; z-index: 2; transition: all 0.5s ease; }
+
+.btn { padding: 14px 24px; border: none; border-radius: 16px; font-size: 1rem; font-family: var(--font-family); cursor: pointer; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 700; position: relative; overflow: hidden; width: 100%; min-height: 56px; }
+.btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent); transition: left 0.6s; }
+.btn:hover::before { left: 100%; }
+.btn:active { transform: scale(0.96); }
+.btn-primary { background: var(--btn-primary-bg); color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 4px 25px var(--btn-primary-shadow), 0 0 40px var(--secondary); }
+.btn-primary:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 8px 35px var(--btn-primary-shadow), 0 0 60px var(--secondary); border-color: var(--secondary); }
+.btn-secondary { background: var(--btn-secondary-bg); backdrop-filter: blur(12px); color: var(--text-color); border: 1px solid var(--glass-border); }
+.btn-secondary:hover { transform: translateY(-4px) scale(1.02); background: var(--btn-secondary-hover); border-color: var(--secondary); box-shadow: 0 0 25px var(--secondary); }
+.btn-gold { background: var(--btn-gold-bg); color: #0a0a1a; border: 1px solid rgba(255, 255, 255, 0.25); box-shadow: 0 4px 25px rgba(255, 201, 60, 0.3); }
+.btn-gold:hover { transform: translateY(-4px); box-shadow: 0 8px 35px rgba(255, 201, 60, 0.4); }
+.btn-start { background: var(--btn-start-bg) !important; color: var(--btn-start-color) !important; border: 1px solid rgba(255, 255, 255, 0.15) !important; box-shadow: 0 4px 25px var(--btn-start-shadow) !important; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important; }
+.btn-start:hover { background: var(--btn-start-hover-bg) !important; transform: translateY(-6px) scale(1.03) !important; box-shadow: 0 8px 35px var(--btn-start-shadow), 0 0 50px var(--secondary) !important; border-color: var(--secondary) !important; }
+.btn-start:active { transform: scale(0.95) !important; }
+
+.back-btn { width: 44px; height: 44px; border: 2px solid rgba(255, 118, 117, 0.3); background: rgba(255, 118, 117, 0.08); border-radius: 50%; cursor: pointer; color: var(--danger); display: flex; align-items: center; justify-content: center; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); flex-shrink: 0; backdrop-filter: blur(10px); }
+.back-btn:hover { border-color: var(--danger); box-shadow: 0 0 30px rgba(255, 118, 117, 0.4); background: rgba(255, 118, 117, 0.2); transform: rotate(180deg) scale(1.05); }
+.back-btn:active { transform: rotate(180deg) scale(0.95); }
+.back-btn svg { width: 22px; height: 22px; }
+
+.menu-container { padding: 30px 20px 25px; text-align: center; max-width: 400px; width: 100%; position: relative; overflow: hidden; transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.coin-display { position: absolute; top: 15px; left: 15px; display: flex; align-items: center; gap: 8px; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px); padding: 6px 16px 6px 12px; border-radius: 30px; border: 2px solid var(--gold); box-shadow: 0 0 30px rgba(255, 201, 60, 0.2), inset 0 0 20px rgba(255, 201, 60, 0.05); z-index: 10; }
+.coin-display img { width: 28px; height: 28px; object-fit: contain; animation: coinSpin 3s ease-in-out infinite; }
+.coin-amount { color: var(--gold); font-weight: 800; font-size: 1.1rem; text-shadow: 0 0 20px var(--gold); font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+@keyframes coinSpin { 0%, 100% { transform: rotateY(0deg); } 50% { transform: rotateY(180deg); } }
+
+.menu-title { font-size: 2.4rem; font-weight: 900; margin-bottom: 4px; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; background: linear-gradient(135deg, var(--text-color), var(--gold), var(--neon-blue)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; text-shadow: 0 0 40px rgba(0, 210, 255, 0.1); }
+.menu-subtitle { color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; margin-bottom: 15px; }
+.menu-character { width: 150px; height: 150px; margin: 10px auto 15px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.4) 100%); border: 3px solid var(--gold); box-shadow: 0 0 60px rgba(255, 201, 60, 0.25), inset 0 0 60px rgba(255,201,60,0.05); display: flex; align-items: center; justify-content: center; overflow: hidden; animation: framePulse 3s ease-in-out infinite; }
+@keyframes framePulse { 0%, 100% { box-shadow: 0 0 40px rgba(255, 201, 60, 0.2), 0 0 80px var(--neon-blue); } 50% { box-shadow: 0 0 80px rgba(255, 201, 60, 0.4), 0 0 120px var(--secondary); } }
+.menu-character img { width: 85%; height: 85%; object-fit: contain; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+.menu-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
+.menu-buttons .row { display: flex; gap: 10px; }
+.menu-buttons .row .btn { flex: 1; }
+
+.shop-container { max-width: 420px; width: 100%; padding: 20px 15px 15px; max-height: 92vh; display: flex; flex-direction: column; }
+.shop-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; flex-shrink: 0; gap: 10px; }
+.shop-header h2 { font-size: 1.3rem; font-weight: 800; color: var(--text-color); font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+.shop-coin { display: flex; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.4); padding: 5px 14px 5px 10px; border-radius: 20px; border: 2px solid var(--gold); box-shadow: 0 0 20px rgba(255, 201, 60, 0.1); }
+.shop-coin img { width: 22px; height: 22px; object-fit: contain; }
+.shop-coin span { color: var(--gold); font-weight: 800; font-size: 0.9rem; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+
+.shop-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-shrink: 0; overflow-x: auto; padding: 2px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid var(--glass-border); }
+.shop-tabs::-webkit-scrollbar { height: 3px; }
+.shop-tabs::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+.shop-tab { flex: 1; padding: 10px 6px; border: none; border-radius: 10px; background: transparent; color: var(--text-secondary); font-size: 0.7rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; font-family: var(--font-family); text-align: center; }
+.shop-tab:hover { color: var(--text-color); }
+.shop-tab.active { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; box-shadow: 0 0 20px var(--btn-primary-shadow); }
+
+.shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; overflow-y: auto; padding: 5px 2px 10px; flex: 1; }
+.shop-grid::-webkit-scrollbar { width: 4px; }
+.shop-grid::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+
+.shop-item { background: var(--card-bg); backdrop-filter: blur(10px); border: 2px solid var(--glass-border); border-radius: 16px; padding: 10px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: var(--transition); color: var(--text-color); justify-content: space-between; cursor: pointer; min-height: 160px; }
+.shop-item:hover { transform: translateY(-4px); border-color: var(--secondary); box-shadow: 0 0 30px var(--secondary); }
+.shop-item.active-item { border-color: var(--gold); box-shadow: 0 0 30px rgba(255, 201, 60, 0.2); background: rgba(255, 201, 60, 0.05); }
+.shop-item .shop-preview { width: 100%; height: 90px; display: flex; align-items: center; justify-content: center; font-size: 3rem; background: rgba(0,0,0,0.2); border-radius: 10px; border: 2px solid rgba(255,255,255,0.06); margin-bottom: 4px; overflow: hidden; }
+.shop-item .shop-preview img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+.shop-item .name { font-size: 0.75rem; font-weight: 700; color: var(--text-color); margin-top: 2px; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+.shop-item .price { font-size: 0.7rem; color: var(--gold); font-weight: 700; display: flex; align-items: center; gap: 4px; }
+.shop-item .price img { width: 16px; height: 16px; object-fit: contain; }
+.shop-btn-sm { padding: 5px 10px; border: none; border-radius: 8px; font-family: var(--font-family); font-weight: 700; font-size: 0.65rem; cursor: pointer; transition: var(--transition); width: 100%; margin-top: auto; min-height: 28px; }
+.shop-btn-sm.buy { background: var(--btn-gold-bg); color: #0a0a1a; }
+.shop-btn-sm.select { background: var(--secondary); color: #fff; }
+.shop-btn-sm.active { background: var(--success); color: #fff; cursor: default; }
+.shop-btn-sm.locked { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); cursor: not-allowed; }
+
+.levels-container { max-width: 420px; width: 100%; padding: 25px 20px; text-align: center; max-height: 92vh; display: flex; flex-direction: column; }
+.levels-container h2 { color: var(--gold); font-size: 1.8rem; font-family: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif; font-weight: 900; margin-bottom: 15px; text-shadow: 0 0 30px rgba(255, 201, 60, 0.2); flex-shrink: 0; }
+.level-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 10px 0; flex: 1; align-content: start; overflow-y: auto; }
+.level-grid::-webkit-scrollbar { width: 4px; }
+.level-grid::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+.level-box { aspect-ratio: 1/1; background: var(--card-bg); backdrop-filter: blur(10px); border: 2px solid var(--glass-border); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; color: var(--text-color); position: relative; min-height: 50px; font-size: 1.2rem; font-weight: 700; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease; }
+.level-box:hover { border-color: var(--secondary); box-shadow: 0 0 40px var(--secondary); z-index: 2; background: rgba(0, 210, 255, 0.1); }
+.level-box:hover .level-number { font-weight: 900; color: var(--secondary); text-shadow: 0 0 20px var(--secondary); font-size: 1.6rem; }
+.level-number { transition: all 0.3s ease; display: inline-block; }
+.level-box.completed { border-color: var(--success); background: rgba(0, 184, 148, 0.1); box-shadow: 0 0 20px rgba(0, 184, 148, 0.15); }
+.level-box.completed .level-number { color: var(--success); }
+.level-box.locked { opacity: 0.4; cursor: not-allowed; filter: grayscale(0.6); }
+.level-box.current { border-color: var(--gold); box-shadow: 0 0 40px rgba(255, 201, 60, 0.25); background: rgba(255, 201, 60, 0.05); }
+.level-box .lock-icon { position: absolute; top: 4px; right: 6px; font-size: 0.7rem; }
+.level-box .check-icon { position: absolute; top: 4px; left: 6px; font-size: 0.7rem; }
+
+#gameScreen { padding: 12px; justify-content: flex-start; padding-top: 14px; }
+.game-card { max-width: 480px; width: 100%; margin: 0 auto; padding: 15px 14px; text-align: center; position: relative; background: var(--card-bg); backdrop-filter: blur(25px) saturate(200%); -webkit-backdrop-filter: blur(25px) saturate(200%); border: 1px solid var(--game-card-border); border-radius: 24px; box-shadow: var(--shadow-xl), var(--neon-glow), inset 0 1px 1px rgba(255,255,255,0.02); transition: all 0.5s ease; min-height: 92vh; display: flex; flex-direction: column; }
+
+.game-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; margin-bottom: 12px; background: var(--card-bg); backdrop-filter: blur(10px); border-radius: 14px; border: 1px solid var(--header-border); box-shadow: 0 0 30px var(--border-glow); flex-shrink: 0; transition: all 0.5s ease; gap: 8px; }
+.game-header .game-title { font-size: 0.85rem; font-weight: 700; color: var(--neon-blue); text-shadow: 0 0 20px var(--secondary); font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+.game-header .game-level { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); background: rgba(255,255,255,0.03); padding: 4px 12px; border-radius: 20px; border: 1px solid var(--header-border); font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+.game-header .target-box { font-size: 0.75rem; font-weight: 700; color: var(--gold); background: rgba(255,255,255,0.03); padding: 4px 12px; border-radius: 20px; border: 1px solid var(--header-border); font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+
+.stop-btn { width: 38px; height: 38px; border-radius: 50%; border: 2px solid rgba(255, 118, 117, 0.3); background: rgba(255, 118, 117, 0.08); color: var(--danger); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); flex-shrink: 0; position: relative; }
+.stop-btn:hover { transform: rotate(180deg) scale(1.1); border-color: var(--danger); box-shadow: 0 0 40px rgba(255, 118, 117, 0.4); background: rgba(255, 118, 117, 0.15); }
+.stop-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+.instruction-msg { background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 14px; padding: 10px; text-align: center; color: var(--text-secondary); font-weight: 700; margin: 8px 0; font-size: 0.9rem; box-shadow: 0 0 15px var(--border-glow); transition: all 0.5s ease; min-height: 50px; display: flex; align-items: center; justify-content: center; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+
+.game-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 12px; padding: 10px 0; position: relative; }
+
+.shop-visual { width: 100%; max-width: 220px; margin: 0 auto; display: flex; align-items: center; justify-content: center; min-height: 70px; }
+.shop-visual img { max-width: 100%; max-height: 70px; object-fit: contain; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.3)); }
+
+/* ============================================================
+   ⭐ Drag & Drop
+   ============================================================ */
+
+.customer-stage {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.customer-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--card-bg);
+    border-radius: 18px;
+    border: 2px solid var(--glass-border);
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 0 25px var(--border-glow);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.customer-area.drop-hover {
+    border-color: var(--gold);
+    box-shadow: 0 0 45px rgba(255, 201, 60, 0.5);
+    background: rgba(255, 201, 60, 0.08);
+    transform: scale(1.02);
+}
+
+.customer-avatar {
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+}
+
+.customer-avatar > img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 3px solid var(--gold);
+    object-fit: contain;
+    background: rgba(0,0,0,0.3);
+    padding: 4px;
+    box-shadow: 0 0 20px rgba(255, 201, 60, 0.3);
+    animation: float 3s ease-in-out infinite;
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.customer-area.drop-hover .customer-avatar > img {
+    transform: scale(1.1);
+}
+
+.speech-bubble {
+    flex: 1;
+    text-align: right;
+}
+
+.speech-bubble p {
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif;
+    line-height: 1.7;
+}
+
+.speech-bubble strong {
+    color: var(--gold);
+    font-size: 1.3rem;
+}
+
+.progress-info {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+
+.progress-info strong {
+    color: var(--secondary);
+    font-size: 1rem;
+}
+
+.tray-section {
+    width: 100%;
+    max-width: 400px;
+    flex-shrink: 0;
+}
+
+.tray-label {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 700;
+    font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif;
+    margin-bottom: 8px;
+}
+
+.chocolate-tray {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: linear-gradient(180deg, rgba(121, 85, 72, 0.15) 0%, rgba(93, 64, 55, 0.3) 100%);
+    border-radius: 16px;
+    border: 2px solid rgba(121, 85, 72, 0.4);
+    min-height: 70px;
+    box-shadow: inset 0 4px 15px rgba(0,0,0,0.3);
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.tray-choco {
+    width: 42px;
+    height: 42px;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #A1887F, #6D4C41);
+    border-radius: 8px;
+    border: 2px solid #4E342E;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.1);
+    font-size: 22px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+    touch-action: none;
+    -webkit-user-drag: none;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.tray-choco img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.tray-choco::before {
+    content: '';
+    position: absolute;
+    top: 4px; left: 4px; right: 4px; bottom: 4px;
+    border: 1px dashed rgba(255,255,255,0.15);
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+.tray-choco:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(255, 201, 60, 0.3);
+    border-color: var(--gold);
+}
+
+.tray-choco.dragging {
+    opacity: 0.25;
+    transform: scale(0.85);
+}
+
+.customer-avatar.happy > img {
+    animation: happyBounce 0.6s ease;
+}
+
+@keyframes happyBounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    25% { transform: translateY(-15px) scale(1.1); }
+    50% { transform: translateY(0) scale(1.15); }
+    75% { transform: translateY(-8px) scale(1.1); }
+}
+
+.tray-choco.vanishing {
+    animation: chocoVanish 0.4s ease forwards;
+}
+
+@keyframes chocoVanish {
+    0%   { transform: scale(1) rotate(0deg); opacity: 1; }
+    50%  { transform: scale(1.2) rotate(10deg); opacity: 0.7; }
+    100% { transform: scale(0) rotate(180deg); opacity: 0; }
+}
+
+/* ============================================================
+   کارت نتیجه
+   ============================================================ */
+
+.result-card { width: 100%; text-align: center; }
+.chocolates-sold { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 16px; }
+.choco-display { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; min-height: 60px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 14px; border: 1px solid var(--glass-border); }
+.choco-item { animation: popIn 0.3s ease backwards; }
+@keyframes popIn { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+.choco-count { font-size: 1rem; color: var(--text-secondary); font-weight: 700; }
+.choco-count span { font-weight: 900; color: var(--gold); font-size: 1.3rem; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+
+.profit-display { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 18px; background: var(--card-bg); border-radius: 16px; border: 2px solid var(--gold); margin-bottom: 16px; box-shadow: 0 0 30px rgba(255, 201, 60, 0.15); }
+.profit-icon { width: 50px; height: 50px; background: var(--btn-gold-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.profit-info { text-align: right; }
+.profit-label { display: block; color: var(--text-secondary); font-size: 0.85rem; font-weight: 700; }
+.profit-amount { font-size: 2rem; font-weight: 900; color: var(--gold); font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; text-shadow: 0 0 20px var(--gold); }
+.profit-amount small { font-size: 0.9rem; font-weight: 500; color: var(--text-secondary); }
+
+.question-card { width: 100%; text-align: center; }
+.question-step { margin-bottom: 12px; }
+.step-badge { display: inline-block; padding: 6px 16px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border-radius: 20px; font-size: 0.8rem; font-weight: 700; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; box-shadow: 0 0 20px var(--btn-primary-shadow); }
+.question-title { color: var(--text-color); font-size: 1.15rem; font-weight: 900; margin-bottom: 8px; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+.question-text { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 18px; font-weight: 700; }
+.question-text strong { color: var(--gold); font-size: 1.1rem; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+
+.answer-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.option-btn { padding: 16px 10px; border: 3px solid transparent; border-radius: 14px; background: var(--card-bg); color: var(--text-color); font-size: 1.1rem; font-weight: 900; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; cursor: pointer; transition: var(--transition); min-height: 55px; }
+.option-btn:hover:not(:disabled) { border-color: var(--secondary); box-shadow: 0 0 30px var(--secondary); transform: translateY(-2px); }
+.option-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+.option-btn.correct { border-color: var(--success); background: rgba(0, 184, 148, 0.3); color: #fff; box-shadow: 0 0 30px var(--success); animation: correctPulse 0.5s ease; }
+.option-btn.wrong { border-color: var(--danger); background: rgba(255, 118, 117, 0.3); color: #fff; animation: shake 0.5s ease; }
+@keyframes correctPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+.feedback-box { margin-top: 16px; padding: 16px; border-radius: 14px; border: 2px solid var(--glass-border); }
+.feedback-box.success { background: rgba(0, 184, 148, 0.15); border-color: var(--success); }
+.feedback-box.error { background: rgba(255, 118, 117, 0.15); border-color: var(--danger); }
+.feedback-icon { font-size: 2rem; margin-bottom: 6px; }
+.feedback-text { font-size: 1rem; font-weight: 700; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+.feedback-box.success .feedback-text { color: var(--success); }
+.feedback-box.error .feedback-text { color: var(--danger); }
+
+.stop-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 6000; display: none; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); }
+.stop-modal.show { display: flex; animation: screenFadeIn 0.3s ease; }
+.stop-modal-box { background: var(--card-bg); backdrop-filter: blur(25px); border: 2px solid var(--danger); border-radius: 24px; padding: 30px 24px; max-width: 320px; width: 100%; text-align: center; box-shadow: 0 0 80px rgba(255, 118, 117, 0.15); color: var(--text-color); }
+.stop-modal-box h2 { color: var(--danger); font-size: 1.4rem; font-family: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif; font-weight: 900; margin-bottom: 8px; text-shadow: 0 0 30px rgba(255, 118, 117, 0.2); }
+.stop-modal-box p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 18px; }
+.stop-modal-box .stop-btns { display: flex; flex-direction: column; gap: 10px; }
+
+.countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 8000; display: none; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(20px); flex-direction: column; }
+.countdown-overlay.show { display: flex; animation: countdownFadeIn 0.3s ease; }
+@keyframes countdownFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.countdown-number { font-size: 14rem; font-weight: 900; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; text-shadow: 0 0 100px var(--countdown-color), 0 0 200px var(--countdown-color); animation: countdownPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); line-height: 1; transition: color 0.3s ease; letter-spacing: 8px; color: var(--countdown-color); }
+.countdown-number.go-text { font-size: 8rem; animation: countdownGo 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); letter-spacing: 4px; }
+@keyframes countdownPop { 0% { transform: scale(0.2) rotate(-15deg); opacity: 0; } 50% { transform: scale(1.3) rotate(3deg); opacity: 1; } 70% { transform: scale(0.95); } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+@keyframes countdownGo { 0% { transform: scale(0.3) translateY(30px); opacity: 0; } 40% { transform: scale(1.2) translateY(-5px); opacity: 1; } 70% { transform: scale(0.95); } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+.countdown-label { font-size: 1.8rem; font-weight: 700; color: var(--text-secondary); margin-top: 15px; opacity: 0.7; font-family: var(--font-family); letter-spacing: 2px; }
+
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); z-index: 5000; display: none; align-items: center; justify-content: center; padding: 20px; }
+.modal.open { display: flex; animation: screenFadeIn 0.3s ease; }
+.modal-card { background: var(--card-bg); backdrop-filter: blur(25px); border: 2px solid var(--gold); border-radius: 24px; padding: 30px 24px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 0 80px rgba(255, 201, 60, 0.15); color: var(--text-color); transition: all 0.5s ease; }
+.modal-card.fail { border-color: var(--danger); box-shadow: 0 0 80px rgba(255, 118, 117, 0.15); }
+.modal-card h3 { font-size: 2rem; font-weight: 800; color: var(--gold); font-family: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif; margin-bottom: 8px; text-shadow: 0 0 30px rgba(255, 201, 60, 0.3); letter-spacing: 2px; }
+.modal-card.fail h3 { color: var(--danger); text-shadow: 0 0 30px rgba(255, 118, 117, 0.2); }
+.modal-card p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; margin-bottom: 15px; }
+.modal-card .btn { margin-top: 8px; }
+.modal-card .result-char { width: 120px; height: 120px; margin: 0 auto 15px; border-radius: 50%; border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center; overflow: hidden; background: radial-gradient(circle, rgba(255,255,255,0.05), transparent); box-shadow: 0 0 50px rgba(255, 201, 60, 0.2); animation: celebFloat 2s ease-in-out infinite; }
+.modal-card .result-char img { width: 85%; height: 85%; object-fit: contain; }
+@keyframes celebFloat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.05); } }
+.modal-card .win-coin { font-size: 2.5rem; color: var(--gold); display: flex; align-items: center; justify-content: center; gap: 10px; margin: 10px 0; }
+.modal-card .win-coin img { width: 40px; height: 40px; object-fit: contain; }
+.modal-card .win-level { font-size: 1.3rem; color: var(--text-secondary); margin-bottom: 10px; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; }
+.result-buttons { display: flex; flex-direction: column; gap: 10px; }
+
+.toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: var(--card-bg); backdrop-filter: blur(25px); border: 2px solid var(--gold); border-radius: 20px; padding: 18px 30px; z-index: 7000; box-shadow: 0 0 80px rgba(255, 201, 60, 0.25); color: var(--text-color); font-weight: 700; font-size: 1.1rem; display: none; align-items: center; gap: 16px; max-width: 90%; animation: toastSlideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), toastGlow 2s ease-in-out infinite; }
+.toast.show { display: flex; }
+.toast .toast-emoji { font-size: 2.5rem; animation: toastEmoji 1.5s ease-in-out infinite; }
+@keyframes toastEmoji { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.2) rotate(10deg); } }
+@keyframes toastSlideUp { from { opacity: 0; transform: translateX(-50%) translateY(30px) scale(0.9); } to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } }
+@keyframes toastGlow { 0%, 100% { box-shadow: 0 0 60px rgba(255, 201, 60, 0.2); } 50% { box-shadow: 0 0 100px rgba(255, 201, 60, 0.4); } }
+.toast .toast-close { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; padding: 0 6px; transition: transform 0.3s ease; }
+.toast .toast-close:hover { transform: rotate(90deg); }
+.toast .toast-text { font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; background: linear-gradient(135deg, var(--gold), var(--neon-blue)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+#guideScreen { background: var(--guide-bg); backdrop-filter: blur(20px); padding: 20px; justify-content: center; align-items: center; }
+.guide-container { max-width: 450px; width: 100%; background: var(--card-bg); backdrop-filter: blur(30px); border: 2px solid var(--glass-border); border-radius: 24px; padding: 30px 25px; box-shadow: var(--shadow-xl), var(--neon-glow); text-align: center; position: relative; min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+.guide-container .guide-char { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center; overflow: hidden; background: radial-gradient(circle, rgba(255,255,255,0.05), transparent); box-shadow: 0 0 60px rgba(255, 201, 60, 0.2); flex-shrink: 0; animation: celebFloat 2s ease-in-out infinite; }
+.guide-container .guide-char img { width: 85%; height: 85%; object-fit: contain; }
+.guide-container .guide-text { font-size: 1.1rem; font-weight: 700; color: var(--text-color); line-height: 2.2; text-align: center; min-height: 120px; display: flex; align-items: center; justify-content: center; font-family: 'Shoor Black', 'Shoor', Tahoma, sans-serif; background: rgba(255,255,255,0.03); padding: 15px 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); width: 100%; transition: all 0.3s ease; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+.guide-container .guide-progress { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; margin-top: 10px; }
+.guide-container .guide-progress-bar { height: 100%; background: linear-gradient(90deg, var(--gold), var(--neon-blue)); width: 0%; border-radius: 2px; transition: width 0.1s linear; }
+.guide-container .guide-skip { background: none; border: none; color: var(--text-secondary); font-size: 0.85rem; cursor: pointer; font-family: var(--font-family); padding: 8px 16px; border-radius: 12px; transition: all 0.3s ease; }
+.guide-container .guide-skip:hover { color: var(--text-color); background: rgba(255,255,255,0.05); }
+
+@keyframes guideTextPop { 0% { opacity: 0; transform: translateY(30px) scale(0.9); filter: blur(5px); } 100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+
+.celebration-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9000; display: none; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(25px); }
+.celebration-overlay.show { display: flex; animation: screenFadeIn 0.4s ease; }
+.celebration-box { background: var(--card-bg); backdrop-filter: blur(30px); border: 3px solid var(--gold); border-radius: 40px; padding: 40px 30px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 0 120px rgba(255, 201, 60, 0.2); animation: celebPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes celebPop { 0% { transform: scale(0.3) rotate(-10deg); opacity: 0; } 50% { transform: scale(1.1) rotate(3deg); } 70% { transform: scale(0.95); } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+.celebration-box .celeb-char { width: 130px; height: 130px; margin: 0 auto 15px; border-radius: 50%; border: 4px solid var(--gold); display: flex; align-items: center; justify-content: center; overflow: hidden; background: radial-gradient(circle, rgba(255,255,255,0.05), transparent); box-shadow: 0 0 80px rgba(255, 201, 60, 0.25); animation: celebFloat 2s ease-in-out infinite; }
+.celebration-box .celeb-char img { width: 85%; height: 85%; object-fit: contain; }
+.celebration-box h2 { font-size: 2rem; font-weight: 900; color: var(--gold); font-family: 'Shoor Rounded', Tahoma, sans-serif; margin-bottom: 8px; text-shadow: 0 0 50px rgba(255, 201, 60, 0.3); }
+.celebration-box .celeb-message { color: var(--text-color); font-size: 1.1rem; font-weight: 500; line-height: 2; margin-bottom: 20px; }
+.celebration-box .celeb-message strong { color: var(--gold); }
+.celebration-box .btn { min-height: 48px; }
+
+.hidden { display: none !important; }
+
+@media (max-width: 480px) {
+.menu-title { font-size: 1.8rem; } .menu-character { width: 120px; height: 120px; } .levels-container h2 { font-size: 1.5rem; } .level-grid { gap: 6px; } .level-box { min-height: 40px; font-size: 1rem; } .level-box:hover .level-number { font-size: 1.4rem; } .game-card { padding: 12px 10px; } .game-header .game-title { font-size: 0.65rem; } .game-header .game-level { font-size: 0.6rem; padding: 2px 8px; } .game-header .target-box { font-size: 0.6rem; padding: 2px 8px; } .stop-btn { width: 34px; height: 34px; font-size: 1rem; } .modal-card { padding: 24px 18px; } .modal-card h3 { font-size: 1.6rem; } .modal-card p { font-size: 0.85rem; } .modal-card .result-char { width: 90px; height: 90px; } .shop-item { min-height: 140px; padding: 10px 6px; } .shop-item .shop-preview { height: 70px; font-size: 2.5rem; } .countdown-number { font-size: 9rem; } .countdown-number.go-text { font-size: 5rem; } .toast { padding: 14px 20px; font-size: 0.9rem; } .toast .toast-emoji { font-size: 2rem; } .guide-container .guide-text { font-size: 0.95rem; padding: 12px 16px; min-height: 100px; } .guide-container .guide-char { width: 90px; height: 90px; } .celebration-box { padding: 30px 20px; } .celebration-box .celeb-char { width: 100px; height: 100px; } .celebration-box h2 { font-size: 1.6rem; } .back-btn { width: 38px; height: 38px; } .coin-display { padding: 4px 12px 4px 8px; } .coin-display img { width: 22px; height: 22px; } .coin-amount { font-size: 0.9rem; } .shop-coin img { width: 18px; height: 18px; } .modal-card .win-coin img { width: 32px; height: 32px; } .shop-item .price img { width: 14px; height: 14px; }
+.option-btn { padding: 12px 8px; font-size: 0.9rem; min-height: 48px; }
+.question-title { font-size: 1rem; }
+.question-text { font-size: 0.85rem; }
+.profit-amount { font-size: 1.6rem; }
+.customer-area { padding: 10px 12px; gap: 10px; }
+.customer-avatar { width: 65px; height: 65px; }
+.customer-avatar > img { width: 55px; height: 55px; }
+.speech-bubble p { font-size: 0.85rem; }
+.speech-bubble strong { font-size: 1.1rem; }
+.tray-choco { width: 36px; height: 36px; font-size: 18px; }
+.shop-tab { font-size: 0.6rem; padding: 8px 4px; }
+}
+</style>
+</head>
+<body class="theme-default">
+
+<div class="neon-orb neon-orb-1"></div>
+<div class="neon-orb neon-orb-2"></div>
+<div class="neon-orb neon-orb-3"></div>
+<div class="stars" id="stars"></div>
+
+<div class="countdown-overlay" id="countdownOverlay">
+<div class="countdown-number" id="countdownNumber">۳</div>
+<div class="countdown-label" id="countdownLabel">آماده‌ای؟</div>
+</div>
+
+<div class="effect-container" id="effectContainer"></div>
+
+<div class="toast" id="themeToast">
+<span class="toast-emoji">🎨</span>
+<span class="toast-text" id="themeToastMessage">پوسته فعال شد!</span>
+<button class="toast-close" onclick="document.getElementById('themeToast').classList.remove('show')">✕</button>
+</div>
+
+<div class="celebration-overlay" id="celebrationOverlay">
+<div class="celebration-box">
+<div class="celeb-char">
+<img src="icons/happy gamer.png" alt="تبریک" onerror="this.textContent='🎉'">
+</div>
+<h2>🎉 تبریک!</h2>
+<div class="celeb-message" id="celebMessage">
+<strong>خرید با موفقیت انجام شد!</strong><br>
+حالا می‌تونی از این محصول جدید لذت ببری! 😍</div>
+<button class="btn btn-gold" id="celebCloseBtn">🚀 عالیه!</button>
+</div>
+</div>
+
+<div id="winModal" class="modal">
+<div class="modal-card">
+<div class="result-char">
+<img src="icons/happy gamer.png" alt="تبریک" onerror="this.textContent='🏆'">
+</div>
+<h3 id="winTitle">🎉 آفرین!</h3>
+<div class="win-level" id="winLevel">مرحله رو بردی!</div>
+<div class="win-coin" id="winCoin">
+<span>+</span>
+<img src="icons/coin.png" alt="سکه" onerror="this.textContent='🪙'">
+<span id="winCoinAmount">10</span>
+</div>
+<p id="winMsg">عالی بود! 😍</p>
+<div class="result-buttons">
+<button class="btn btn-primary" id="winNextBtn">➡️ مرحله بعد</button>
+<button class="btn btn-secondary" id="winRestartBtn">🔄 شروع دوباره</button>
+<button class="btn btn-secondary" id="winHomeBtn" style="margin-top:8px;">🏠 خروج به منو</button>
+</div>
+</div>
+</div>
+
+<div id="resultModal" class="modal">
+<div class="modal-card fail">
+<div class="result-char" style="border-color:var(--danger);box-shadow:0 0 50px rgba(255,118,117,0.2);">
+<img src="icons/sad gamer.png" alt="ناراحت" onerror="this.textContent='😢'">
+</div>
+<h3 id="resultTitle">❌ اشتباه شد!</h3>
+<p id="resultMsg">دوباره تلاش کن، می‌تونی! 💪</p>
+<div class="result-buttons">
+<button class="btn btn-primary" id="resultRetryBtn">🔄 تلاش دوباره</button>
+<button class="btn btn-secondary" id="resultHomeBtn" style="margin-top:8px;">🏠 خروج به منو</button>
+</div>
+</div>
+</div>
+
+<div class="stop-modal" id="stopModal">
+<div class="stop-modal-box">
+<h2>⏹ توقف بازی</h2>
+<p>می‌خواهی چکار کنی؟</p>
+<div class="stop-btns">
+<button class="btn btn-primary" id="stopRestartBtn">🔄 شروع دوباره</button>
+<button class="btn btn-secondary" id="stopExitBtn">🏠 خروج به منو</button>
+<button class="btn btn-secondary" id="stopCancelBtn" style="background:rgba(255,255,255,0.05);">↩️ ادامه بازی</button>
+</div>
+</div>
+</div>
+
+<div id="homeScreen" class="screen active">
+<div class="menu-container glass-card">
+<div class="coin-display">
+<img src="icons/coin.png" alt="سکه" onerror="this.textContent='🪙'">
+<span class="coin-amount" id="menu-coin-amount">0</span>
+</div>
+<div class="menu-character">
+<img src="icons/gamerhi.png" alt="گیمر" onerror="this.textContent='🏪'">
+</div>
+<h1 class="menu-title">مغازه‌دار باهوش</h1>
+<p class="menu-subtitle">شکلات‌ها رو بکش و به مشتری بده!</p>
+<div class="menu-buttons">
+<button class="btn btn-start" id="startGameBtn">🚀 شروع بازی</button>
+<div class="row">
+<button class="btn btn-secondary" id="guideBtn">📘 راهنما</button>
+<button class="btn btn-secondary" id="shopBtn">🛍️ فروشگاه</button>
+</div>
+</div>
+</div>
+</div>
+
+<div id="guideScreen" class="screen">
+<div class="guide-container">
+<div class="guide-char">
+<img src="icons/gamer.png" alt="راهنما" onerror="this.textContent='🏪'">
+</div>
+<div class="guide-text" id="guideText">سلام مغازه‌دار باهوش! 🏪</div>
+<div class="guide-progress">
+<div class="guide-progress-bar" id="guideProgressBar"></div>
+</div>
+<button class="guide-skip" id="guideSkipBtn">⏭️ رد کردن</button>
+</div>
+</div>
+
+<div id="shopScreen" class="screen">
+<div class="shop-container glass-card">
+<div class="shop-header">
+<button class="back-btn" onclick="showScreen('homeScreen')">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+</button>
+<h2>🛍️ فروشگاه</h2>
+<div class="shop-coin">
+<img src="icons/coin.png" alt="سکه" onerror="this.textContent='🪙'">
+<span id="shop-coin-amount">0</span>
+</div>
+</div>
+<div class="shop-tabs" id="shopTabs">
+<button class="shop-tab active" data-tab="themes">🎨 پوسته‌ها</button>
+<button class="shop-tab" data-tab="effects">✨ افکت‌ها</button>
+<button class="shop-tab" data-tab="houses">🏪 شکلات‌فروشی</button>
+<button class="shop-tab" data-tab="chocolates">🍫 نوع شکلات</button>
+</div>
+<div class="shop-grid" id="shop-grid"></div>
+</div>
+</div>
+
+<div id="levelScreen" class="screen">
+<div class="levels-container glass-card">
+<h2>📚 مراحل</h2>
+<div class="level-grid" id="levelGrid"></div>
+<button class="btn btn-secondary" id="backHomeBtn" style="background: rgba(255, 118, 117, 0.1); border-color: rgba(255, 118, 117, 0.3); color: var(--danger); margin-top: 10px;">
+بازگشت
+</button>
+</div>
+</div>
+
+<div id="gameScreen" class="screen">
+<div class="game-card">
+<div class="game-header">
+<span class="game-title">🏪 مغازه‌دار باهوش</span>
+<span class="game-level" id="gameLevelDisplay">مرحله ۱</span>
+<span class="target-box" id="targetDisplay">🕒 ۰۰:۰۰</span>
+<button class="stop-btn" id="stopGameBtn">
+<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+</button>
+</div>
+
+<div class="instruction-msg" id="gameFeedback">مشتری میاد و شکلات می‌خواد!</div>
+
+<div class="game-area" id="shop-area">
+    <div class="customer-stage">
+        <div class="shop-visual">
+            <img id="shop-house-img" src="icons/khoone sade.png" alt="شکلات‌فروشی" onerror="this.src='icons/khoone sade.png'">
+        </div>
+
+        <div class="customer-area" id="customer-area">
+            <div class="customer-avatar" id="customer-avatar-box">
+                <img id="customer-avatar-img" src="icons/ashpaz.png" alt="مشتری" onerror="this.src='icons/gamerhi.png'">
+            </div>
+            <div class="speech-bubble">
+                <p>سلام! می‌خوام <strong id="wanted-count">۳</strong> تا شکلات بخرم.</p>
+                <div class="progress-info">
+                    <span>دریافت کرده: <strong id="received-count">۰</strong> از <strong id="wanted-count-2">۳</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tray-section">
+        <div class="tray-label">🍫 شکلات‌ها رو بکش و بنداز روی مشتری</div>
+        <div class="chocolate-tray" id="chocolate-tray"></div>
+    </div>
+
+    <button class="btn btn-gold hidden" id="sellBtn">
+        ✅ فروش و ادامه
+    </button>
+</div>
+
+<div class="game-area hidden" id="result-area">
+<div class="result-card">
+<div class="chocolates-sold">
+<div class="choco-display" id="choco-display"></div>
+<span class="choco-count"><span id="sold-count">۳</span> عدد شکلات فروخته شد</span>
+</div>
+
+<div class="profit-display">
+<div class="profit-icon">
+<svg viewBox="0 0 24 24" width="28" height="28"><path fill="#fff" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>
+</div>
+<div class="profit-info">
+<span class="profit-label">سود کل شما:</span>
+<span class="profit-amount"><span id="total-profit">۱۵۰</span> <small>ریال</small></span>
+</div>
+</div>
+
+<button class="btn btn-primary" id="continueBtn" style="margin-top:15px;">
+ادامه و پاسخ به سوالات
+</button>
+</div>
+</div>
+
+<div class="game-area hidden" id="question-area">
+<div class="question-card">
+<div class="question-step">
+<span class="step-badge" id="question-step-badge">سوال ۱ از ۵</span>
+</div>
+
+<h3 class="question-title" id="question-title">سوال</h3>
+<p class="question-text" id="question-text">متن سوال</p>
+
+<div class="answer-options" id="answer-options"></div>
+
+<div class="feedback-box hidden" id="feedback-box">
+<div class="feedback-icon" id="feedback-icon">🎉</div>
+<p class="feedback-text" id="feedback-text">آفرین! درست بود!</p>
+</div>
+
+<button class="btn btn-primary hidden" id="btn-next" style="margin-top:15px;">
+سوال بعدی
+</button>
+</div>
+</div>
+</div>
+</div>
+
+<audio id="bgMusic" loop></audio>
+<audio id="guideAudio" src="musics/pixel23.mp3" preload="auto"></audio>
+
+<script>
+var currentLevel = 1;
+var totalLevels = 20;
+var isResultShowing = false;
+var levelUnlocked = {};
+var levelCompleted = {};
+var soundEnabled = true;
+
+var currentWanted = 0;
+var currentProfit = 0;
+var currentReceived = 0;
+var currentQuestionIndex = 0;
+var totalQuestions = 5;
+var correctCount = 0;
+var wrongAttempts = 0;
+var levelStartTime = 0;
+var timerInterval = null;
+
+// ⭐ Drag & Drop
+var isDraggingChoco = false;
+var draggingTrayElement = null;
+var currentDragX = 0;
+var currentDragY = 0;
+
+var PRICE_PER_CHOCO = 50;
+
+// ⭐ انواع شکلات
+var CHOCOLATE_TYPES = [
+    {id:'mamooli', name:'شکلات معمولی', price:0,  file:'sh mamooli.png', emoji:'🍫'},
+    {id:'talayi',  name:'شکلات طلایی',  price:10, file:'sh talayi.png',  emoji:'🥇'},
+    {id:'abi',     name:'شکلات آبی',    price:12, file:'sh abi.png',     emoji:'💙'},
+    {id:'qhermez', name:'شکلات قرمز',   price:14, file:'sh qhermez.png', emoji:'❤️'},
+    {id:'almasi',  name:'شکلات الماسی', price:16, file:'sh almasi.png',  emoji:'💎'},
+    {id:'ajili',   name:'شکلات آجیلی',  price:18, file:'sh ajili.png',   emoji:'🌰'}
+];
+
+var ownedChocolates = ['mamooli'];
+var activeChocolate = 'mamooli';
+
+function loadChocolateData() {
+    try {
+        var saved = localStorage.getItem('shopkeeperChocolates');
+        if (saved) {
+            var data = JSON.parse(saved);
+            ownedChocolates = data.owned || ['mamooli'];
+            activeChocolate = data.active || 'mamooli';
+        }
+    } catch(e) {}
+}
+
+function saveChocolateData() {
+    try {
+        localStorage.setItem('shopkeeperChocolates', JSON.stringify({
+            owned: ownedChocolates,
+            active: activeChocolate
+        }));
+    } catch(e) {}
+}
+
+function getActiveChocolate() {
+    return CHOCOLATE_TYPES.find(function(c){ return c.id === activeChocolate; }) || CHOCOLATE_TYPES[0];
+}
+
+function applyChocolateType(chocId, showToastMsg) {
+    if (showToastMsg === undefined) showToastMsg = true;
+    var choc = CHOCOLATE_TYPES.find(function(c){ return c.id === chocId; });
+    if (!choc) return;
+    if (ownedChocolates.indexOf(chocId) === -1) { 
+        showToast('این شکلات رو نداری!', 'error'); 
+        return; 
+    }
+    activeChocolate = chocId;
+    saveChocolateData();
+    renderShop();
+    if (showToastMsg) showToast('🍫 شکلات ' + choc.name + ' فعال شد!', 'success');
+}
+
+function buyChocolate(chocId) {
+    var choc = CHOCOLATE_TYPES.find(function(c){ return c.id === chocId; });
+    if (!choc) return;
+    var coins = parseInt(localStorage.getItem('shopkeeperCoins')) || 0;
+    if (coins < choc.price) { showToast('سکه کافی نداری! 😢', 'error'); return; }
+    if (ownedChocolates.indexOf(chocId) !== -1) { showToast('این شکلات رو قبلاً خریدی!', 'warning'); return; }
+    localStorage.setItem('shopkeeperCoins', (coins - choc.price).toString());
+    ownedChocolates.push(chocId);
+    saveChocolateData();
+    renderShop();
+    updateCoinDisplay();
+    applyChocolateType(chocId, true);
+    var overlay = document.getElementById('celebrationOverlay');
+    document.getElementById('celebMessage').innerHTML = '<strong>' + choc.name + '</strong> خریداری شد!<br>حالا با شکلات‌های جدیدت بازی کن! 😍';
+    overlay.classList.add('show');
+    fireEffect(activeEffect);
+}
+
+// ⭐ لیست کاراکترهای مشتری
+var CUSTOMER_ICONS = [
+'ashpaz.png',
+'atashneshan.png',
+'baqhdar.png',
+'daneshmand.png',
+'doctor.png',
+'dozd daryaiy.png',
+'ezdaha.png',
+'fazanavard.png',
+'jadoogar.png',
+'kadoo.png',
+'keshavarz.png',
+'khalaban.png',
+'khoon asham.png',
+'moalem.png',
+'nahqash.png',
+'najar.png',
+'pary.png',
+'police.png',
+'robat.png',
+'shazde kocholo.png',
+'shovalie.png',
+'sooperman.png'
+];
+
+function getRandomCustomerIcon() {
+    return CUSTOMER_ICONS[Math.floor(Math.random() * CUSTOMER_ICONS.length)];
+}
+
+var EFFECTS = [
+{id:'confetti', name:'کاغذ رنگی', price:0, emoji:'🎊', type:'confetti'},
+{id:'snow', name:'بارش برف', price:8, emoji:'❄️', type:'snow'},
+{id:'flowers', name:'بارش گل', price:10, emoji:'🌸', type:'flower'},
+{id:'stars', name:'ستاره‌های رنگین', price:12, emoji:'⭐', type:'star'},
+{id:'hearts', name:'قلب‌های عاشقانه', price:14, emoji:'❤️', type:'heart'},
+{id:'fireworks', name:'آتش‌بازی', price:16, emoji:'🎆', type:'firework'}
+];
+
+var HOUSES = [
+{id:'khoone_sade', name:'شکلات‌فروشی ساده', price:0, file:'khoone sade.png'},
+{id:'khoone_abnabati', name:'شکلات‌فروشی آب‌نباتی', price:10, file:'khoone abnabati.png'},
+{id:'khoone_padeshahi', name:'شکلات‌فروشی پادشاهی', price:12, file:'khoone padeshahi.png'},
+{id:'khoone_qhasr', name:'شکلات‌فروشی قصر', price:13, file:'khoone qhasr.png'},
+{id:'khoone_yakhi', name:'شکلات‌فروشی یخی', price:15, file:'khoone yakhi.png'}
+];
+
+var THEMES = [
+{id:'default', name:'ساده', price:0, themeClass:'theme-default', file:'m sade.jpg'},
+{id:'jangal', name:'جنگل بارانی', price:12, themeClass:'theme-jangal', file:'m jangali.jpg'},
+{id:'oqhianoos', name:'اقیانوس عمیق', price:11, themeClass:'theme-oqhianoos', file:'m oqhianoos.jpg'},
+{id:'mahtabi', name:'مهتابی', price:10, themeClass:'theme-mahtabi', file:'m mahtabi.jpg'},
+{id:'atashfeshani', name:'آتشفشانی', price:14, themeClass:'theme-atashfeshani', file:'m atashfeshani.jpg'},
+{id:'barfi', name:'برفی', price:10, themeClass:'theme-barfi', file:'m barfi.jpg'},
+{id:'jangal-sami', name:'جنگل سمی', price:15, themeClass:'theme-jangal-sami', file:'m jangal sami.jpg'},
+{id:'kahkeshani', name:'کهکشانی', price:16, themeClass:'theme-kahkeshani', file:'m kahkeshani.jpg'},
+{id:'jangal-jadooy', name:'جنگل جادویی', price:18, themeClass:'theme-jangal-jadooy', file:'m jadooi.jpg'}
+];
+
+var THEME_SONGS = {
+'default':'piano.mp3', 'jangal':'forest.mp3', 'oqhianoos':'space.mp3', 'mahtabi':'Abnabat.mp3',
+'atashfeshani':'volcano.mp3', 'barfi':'snowy.mp3', 'jangal-sami':'jadooyi forest.mp3',
+'kahkeshani':'first1.mp3', 'jangal-jadooy':'jadooyi forest.mp3'
+};
+
+var ownedThemes = ['default'];
+var activeTheme = 'default';
+var ownedEffects = ['confetti'];
+var activeEffect = 'confetti';
+var ownedHouses = ['khoone_sade'];
+var activeHouse = 'khoone_sade';
+var musicStarted = false;
+
+function toPersianNum(num) {
+var persianDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+return String(num).replace(/[0-9]/g, function(d){ return persianDigits[d]; });
+}
+
+function shuffle(array) {
+var shuffled = array.slice();
+for (var i = shuffled.length - 1; i > 0; i--) {
+var j = Math.floor(Math.random() * (i + 1));
+var temp = shuffled[i];
+shuffled[i] = shuffled[j];
+shuffled[j] = temp;
+}
+return shuffled;
+}
+
+function formatTime(seconds) {
+var mins = Math.floor(seconds / 60);
+var secs = seconds % 60;
+return toPersianNum(String(mins).padStart(2, '0')) + ':' + toPersianNum(String(secs).padStart(2, '0'));
+}
+
+function createStars() {
+var container = document.getElementById('stars');
+for (var i = 0; i < 80; i++) {
+var star = document.createElement('div');
+star.className = 'star';
+star.style.left = Math.random() * 100 + '%';
+star.style.top = Math.random() * 100 + '%';
+star.style.width = (Math.random() * 2 + 1) + 'px';
+star.style.height = star.style.width;
+star.style.animationDelay = (Math.random() * 3) + 's';
+container.appendChild(star);
+}
+}
+
+function showScreen(id) {
+document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+document.getElementById(id).classList.add('active');
+}
+
+function showArea(id) {
+document.querySelectorAll('.game-area').forEach(function(a){ a.classList.add('hidden'); });
+document.getElementById(id).classList.remove('hidden');
+}
+
+function loadShopData() {
+try {
+var saved = localStorage.getItem('shopkeeperThemes');
+if (saved) {
+var data = JSON.parse(saved);
+ownedThemes = data.owned || ['default'];
+activeTheme = data.active || 'default';
+}
+} catch(e) {}
+}
+
+function saveThemeData() {
+try { localStorage.setItem('shopkeeperThemes', JSON.stringify({owned:ownedThemes, active:activeTheme})); } catch(e) {}
+}
+
+function loadEffectData() {
+try {
+var saved = localStorage.getItem('shopkeeperEffects');
+if (saved) {
+var data = JSON.parse(saved);
+ownedEffects = data.owned || ['confetti'];
+activeEffect = data.active || 'confetti';
+}
+} catch(e) {}
+}
+
+function saveEffectData() {
+try { localStorage.setItem('shopkeeperEffects', JSON.stringify({owned:ownedEffects, active:activeEffect})); } catch(e) {}
+}
+
+function loadHouseData() {
+try {
+var saved = localStorage.getItem('shopkeeperHouses');
+if (saved) {
+var data = JSON.parse(saved);
+ownedHouses = data.owned || ['khoone_sade'];
+activeHouse = data.active || 'khoone_sade';
+}
+} catch(e) {}
+}
+
+function saveHouseData() {
+try { localStorage.setItem('shopkeeperHouses', JSON.stringify({owned:ownedHouses, active:activeHouse})); } catch(e) {}
+}
+
+function loadLevelStatus() {
+levelUnlocked = {};
+levelCompleted = {};
+try {
+var saved = localStorage.getItem('shopkeeperLevelStatus');
+if (saved) {
+var data = JSON.parse(saved);
+levelUnlocked = data.unlocked || {};
+levelCompleted = data.completed || {};
+}
+} catch(e) {}
+for (var i = 1; i <= totalLevels; i++) {
+if (!(i in levelUnlocked)) levelUnlocked[i] = (i === 1);
+if (!(i in levelCompleted)) levelCompleted[i] = false;
+}
+levelUnlocked[1] = true;
+saveLevelStatus();
+}
+
+function saveLevelStatus() {
+try { localStorage.setItem('shopkeeperLevelStatus', JSON.stringify({unlocked:levelUnlocked, completed:levelCompleted})); } catch(e) {}
+}
+
+function applyTheme(themeId, showToastMsg) {
+if (showToastMsg === undefined) showToastMsg = true;
+var theme = THEMES.find(function(t){ return t.id === themeId; });
+if (!theme) return;
+if (ownedThemes.indexOf(themeId) === -1 && themeId !== 'default') { showToast('این پوسته رو نداری!', 'error'); return; }
+document.body.className = '';
+if (theme.themeClass) document.body.classList.add(theme.themeClass);
+if (theme.file) {
+    document.body.style.backgroundImage = 'url("icons/' + theme.file + '")';
+} else {
+    document.body.style.backgroundImage = 'linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 30%, #0d1b2a 60%, #0a0a1a 100%)';
+}
+var bgMusic = document.getElementById('bgMusic');
+if (bgMusic && musicStarted) {
+var song = THEME_SONGS[theme.id] || 'piano.mp3';
+bgMusic.src = 'musics/' + song;
+bgMusic.play().catch(function(){});
+}
+activeTheme = themeId;
+saveThemeData();
+renderShop();
+updateCoinDisplay();
+if (showToastMsg) showToast('🎨 پوسته ' + theme.name + ' فعال شد!', 'success');
+}
+
+function applyHouse(houseId, showToastMsg) {
+if (showToastMsg === undefined) showToastMsg = true;
+var house = HOUSES.find(function(h){ return h.id === houseId; });
+if (!house) return;
+if (ownedHouses.indexOf(houseId) === -1) { showToast('این خونه رو نداری!', 'error'); return; }
+activeHouse = houseId;
+saveHouseData();
+renderShop();
+updateHouseDisplay();
+if (showToastMsg) showToast('🏪 ' + house.name + ' فعال شد!', 'success');
+}
+
+function updateHouseDisplay() {
+var house = HOUSES.find(function(h){ return h.id === activeHouse; });
+if (!house) house = HOUSES[0];
+var img = document.getElementById('shop-house-img');
+if (img) {
+img.src = 'icons/' + house.file;
+img.alt = house.name;
+}
+}
+
+function renderShop() {
+var grid = document.getElementById('shop-grid');
+grid.innerHTML = '';
+var coins = parseInt(localStorage.getItem('shopkeeperCoins')) || 0;
+document.getElementById('shop-coin-amount').textContent = coins;
+var activeTab = document.querySelector('.shop-tab.active');
+var tab = activeTab ? activeTab.dataset.tab : 'themes';
+
+if (tab === 'themes') {
+THEMES.forEach(function(theme) {
+var isOwned = ownedThemes.indexOf(theme.id) !== -1;
+var isActive = activeTheme === theme.id;
+var card = document.createElement('div');
+card.className = 'shop-item' + (isActive ? ' active-item' : '');
+var btnHtml = '';
+if (isActive) btnHtml = '<button class="shop-btn-sm active">✓ فعال</button>';
+else if (isOwned) btnHtml = '<button class="shop-btn-sm select" onclick="applyTheme(\'' + theme.id + '\')">✨ انتخاب</button>';
+else {
+var canAfford = coins >= theme.price;
+if (theme.id === 'default') btnHtml = '<button class="shop-btn-sm select" onclick="applyTheme(\'default\')">✨ انتخاب</button>';
+else btnHtml = '<button class="shop-btn-sm ' + (canAfford ? 'buy' : 'locked') + '" ' + (canAfford ? 'onclick="buyTheme(\'' + theme.id + '\')"' : 'disabled') + '>' + (canAfford ? '🛒 خرید' : '🔒 قفل') + '</button>';
+}
+var previewHtml = '<img src="icons/' + theme.file + '" alt="' + theme.name + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.textContent=\'🎨\'">';
+card.innerHTML = '<div class="shop-preview">' + previewHtml + '</div><div class="name">' + theme.name + '</div><div class="price">' + (theme.price > 0 ? '<img src="icons/coin.png" alt="سکه" onerror="this.textContent=\'🪙\'"> ' + theme.price : '🎁 رایگان') + '</div>' + btnHtml;
+grid.appendChild(card);
+});
+} else if (tab === 'effects') {
+EFFECTS.forEach(function(effect) {
+var isOwned = ownedEffects.indexOf(effect.id) !== -1;
+var isActive = activeEffect === effect.id;
+var card = document.createElement('div');
+card.className = 'shop-item' + (isActive ? ' active-item' : '');
+var btnHtml = '';
+if (isActive) btnHtml = '<button class="shop-btn-sm active">✓ فعال</button>';
+else if (isOwned) btnHtml = '<button class="shop-btn-sm select" onclick="applyEffect(\'' + effect.id + '\')">✨ انتخاب</button>';
+else {
+var canAfford = coins >= effect.price;
+if (effect.id === 'confetti') btnHtml = '<button class="shop-btn-sm select" onclick="applyEffect(\'confetti\')">✨ انتخاب</button>';
+else btnHtml = '<button class="shop-btn-sm ' + (canAfford ? 'buy' : 'locked') + '" ' + (canAfford ? 'onclick="buyEffect(\'' + effect.id + '\')"' : 'disabled') + '>' + (canAfford ? '🛒 خرید' : '🔒 قفل') + '</button>';
+}
+card.innerHTML = '<div class="shop-preview">' + effect.emoji + '</div><div class="name">' + effect.name + '</div><div class="price">' + (effect.price > 0 ? '<img src="icons/coin.png" alt="سکه" onerror="this.textContent=\'🪙\'"> ' + effect.price : '🎁 رایگان') + '</div>' + btnHtml;
+grid.appendChild(card);
+});
+} else if (tab === 'houses') {
+HOUSES.forEach(function(house) {
+var isOwned = ownedHouses.indexOf(house.id) !== -1;
+var isActive = activeHouse === house.id;
+var card = document.createElement('div');
+card.className = 'shop-item' + (isActive ? ' active-item' : '');
+var btnHtml = '';
+if (isActive) btnHtml = '<button class="shop-btn-sm active">✓ فعال</button>';
+else if (isOwned) btnHtml = '<button class="shop-btn-sm select" onclick="applyHouse(\'' + house.id + '\')">✨ انتخاب</button>';
+else {
+var canAfford = coins >= house.price;
+if (house.id === 'khoone_sade') btnHtml = '<button class="shop-btn-sm select" onclick="applyHouse(\'khoone_sade\')">✨ انتخاب</button>';
+else btnHtml = '<button class="shop-btn-sm ' + (canAfford ? 'buy' : 'locked') + '" ' + (canAfford ? 'onclick="buyHouse(\'' + house.id + '\')"' : 'disabled') + '>' + (canAfford ? '🛒 خرید' : '🔒 قفل') + '</button>';
+}
+var previewHtml = '<img src="icons/' + house.file + '" alt="' + house.name + '" style="width:100%;height:100%;object-fit:contain;" onerror="this.parentElement.textContent=\'🏪\'">';
+card.innerHTML = '<div class="shop-preview">' + previewHtml + '</div><div class="name">' + house.name + '</div><div class="price">' + (house.price > 0 ? '<img src="icons/coin.png" alt="سکه" onerror="this.textContent=\'🪙\'"> ' + house.price : '🎁 رایگان') + '</div>' + btnHtml;
+grid.appendChild(card);
+});
+} else if (tab === 'chocolates') {
+CHOCOLATE_TYPES.forEach(function(choc) {
+var isOwned = ownedChocolates.indexOf(choc.id) !== -1;
+var isActive = activeChocolate === choc.id;
+var card = document.createElement('div');
+card.className = 'shop-item' + (isActive ? ' active-item' : '');
+var btnHtml = '';
+if (isActive) btnHtml = '<button class="shop-btn-sm active">✓ فعال</button>';
+else if (isOwned) btnHtml = '<button class="shop-btn-sm select" onclick="applyChocolateType(\'' + choc.id + '\')">✨ انتخاب</button>';
+else {
+var canAfford = coins >= choc.price;
+if (choc.id === 'mamooli') btnHtml = '<button class="shop-btn-sm select" onclick="applyChocolateType(\'mamooli\')">✨ انتخاب</button>';
+else btnHtml = '<button class="shop-btn-sm ' + (canAfford ? 'buy' : 'locked') + '" ' + (canAfford ? 'onclick="buyChocolate(\'' + choc.id + '\')"' : 'disabled') + '>' + (canAfford ? '🛒 خرید' : '🔒 قفل') + '</button>';
+}
+var previewHtml = '<img src="icons/' + choc.file + '" alt="' + choc.name + '" style="width:100%;height:100%;object-fit:contain;" onerror="this.parentElement.textContent=\'' + choc.emoji + '\'">';
+card.innerHTML = '<div class="shop-preview">' + previewHtml + '</div><div class="name">' + choc.name + '</div><div class="price">' + (choc.price > 0 ? '<img src="icons/coin.png" alt="سکه" onerror="this.textContent=\'🪙\'"> ' + choc.price : '🎁 رایگان') + '</div>' + btnHtml;
+grid.appendChild(card);
+});
+}
+}
+
+function buyTheme(themeId) {
+var theme = THEMES.find(function(t){ return t.id === themeId; });
+if (!theme) return;
+var coins = parseInt(localStorage.getItem('shopkeeperCoins')) || 0;
+if (coins < theme.price) { showToast('سکه کافی نداری! 😢', 'error'); return; }
+if (ownedThemes.indexOf(themeId) !== -1) { showToast('این پوسته رو قبلاً خریدی!', 'warning'); return; }
+localStorage.setItem('shopkeeperCoins', (coins - theme.price).toString());
+ownedThemes.push(themeId);
+saveThemeData(); renderShop(); updateCoinDisplay(); applyTheme(themeId, true);
+var overlay = document.getElementById('celebrationOverlay');
+document.getElementById('celebMessage').innerHTML = '<strong>' + theme.name + '</strong> خریداری شد!<br>حالا با استایل جدیدت بدرخش! 😍';
+overlay.classList.add('show'); fireEffect(activeEffect);
+}
+
+function buyHouse(houseId) {
+var house = HOUSES.find(function(h){ return h.id === houseId; });
+if (!house) return;
+var coins = parseInt(localStorage.getItem('shopkeeperCoins')) || 0;
+if (coins < house.price) { showToast('سکه کافی نداری! 😢', 'error'); return; }
+if (ownedHouses.indexOf(houseId) !== -1) { showToast('این خونه رو قبلاً خریدی!', 'warning'); return; }
+localStorage.setItem('shopkeeperCoins', (coins - house.price).toString());
+ownedHouses.push(houseId);
+saveHouseData(); renderShop(); updateCoinDisplay(); applyHouse(houseId, true);
+var overlay = document.getElementById('celebrationOverlay');
+document.getElementById('celebMessage').innerHTML = '<strong>' + house.name + '</strong> خریداری شد!<br>حالا شکلات‌فروشیت رو با این خونه ببین! 🏪😍';
+overlay.classList.add('show'); fireEffect(activeEffect);
+}
+
+function applyEffect(effectId, showToastMsg) {
+if (showToastMsg === undefined) showToastMsg = true;
+var effect = EFFECTS.find(function(e){ return e.id === effectId; });
+if (!effect) return;
+if (ownedEffects.indexOf(effectId) === -1 && effectId !== 'confetti') { showToast('این افکت رو نداری!', 'error'); return; }
+activeEffect = effectId; saveEffectData(); renderShop();
+if (showToastMsg) showToast('✨ افکت ' + effect.name + ' فعال شد!', 'success');
+}
+
+function buyEffect(effectId) {
+var effect = EFFECTS.find(function(e){ return e.id === effectId; });
+if (!effect) return;
+var coins = parseInt(localStorage.getItem('shopkeeperCoins')) || 0;
+if (coins < effect.price) { showToast('سکه کافی نداری! 😢', 'error'); return; }
+if (ownedEffects.indexOf(effectId) !== -1) { showToast('این افکت رو قبلاً خریدی!', 'warning'); return; }
+localStorage.setItem('shopkeeperCoins', (coins - effect.price).toString());
+ownedEffects.push(effectId); saveEffectData(); renderShop(); updateCoinDisplay(); applyEffect(effectId, true);
+var overlay = document.getElementById('celebrationOverlay');
+document.getElementById('celebMessage').innerHTML = '<strong>' + effect.name + '</strong> خریداری شد!<br>حالا با افکت جدیدت جشن بگیر! 😍';
+overlay.classList.add('show'); fireEffect(effectId);
+}
+
+function fireEffect(effectId) {
+var container = document.getElementById('effectContainer');
+container.innerHTML = '';
+var effect = EFFECTS.find(function(e){ return e.id === effectId; });
+if (!effect) return;
+var emojis = { 'confetti':['🎊','🎉','⭐','🌈'], 'snow':['❄️','❄️','❄️'], 'flowers':['🌸','🌺','🌷'], 'stars':['⭐','🌟','✨'], 'hearts':['❤️','🧡','💛'], 'fireworks':['🎆','🎇','✨'] };
+var colors = ['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#9B59B6','#FF6BB5','#FFB347','#00D2FF'];
+var count = effectId === 'fireworks' ? 50 : 80;
+for (var i = 0; i < count; i++) {
+var piece = document.createElement('div');
+piece.className = 'effect-particle';
+if (effect.type === 'confetti') {
+piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+piece.style.width = (Math.random() * 10 + 6) + 'px';
+piece.style.height = piece.style.width;
+piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+} else if (effect.type === 'snow') {
+piece.style.background = 'white';
+piece.style.boxShadow = '0 0 6px rgba(255,255,255,0.5)';
+piece.style.width = (Math.random() * 8 + 4) + 'px';
+piece.style.height = piece.style.width;
+piece.style.borderRadius = '50%';
+} else {
+var emojiList = emojis[effect.type] || ['✨'];
+piece.textContent = emojiList[Math.floor(Math.random() * emojiList.length)];
+piece.style.fontSize = (Math.random() * 18 + 16) + 'px';
+if (effect.type === 'firework') {
+piece.style.color = colors[Math.floor(Math.random() * colors.length)];
+piece.style.textShadow = '0 0 10px currentColor';
+}
+}
+piece.style.left = Math.random() * 100 + '%';
+piece.style.top = '-10px';
+piece.style.animation = 'effectFall ' + (Math.random() * 2 + 1.5) + 's linear forwards';
+piece.style.animationDelay = (Math.random() * 1.5) + 's';
+container.appendChild(piece);
+}
+setTimeout(function(){ container.innerHTML = ''; }, 4500);
+}
+
+function startMusic() {
+if (musicStarted) return;
+musicStarted = true;
+var bgMusic = document.getElementById('bgMusic');
+var theme = THEMES.find(function(t){ return t.id === activeTheme; });
+if (theme) {
+var song = THEME_SONGS[theme.id] || 'piano.mp3';
+bgMusic.src = 'musics/' + song;
+bgMusic.play().catch(function(e){ console.log('Audio play prevented'); });
+}
+}
+
+function showToast(message, type) {
+var toast = document.getElementById('themeToast');
+document.getElementById('themeToastMessage').textContent = message;
+toast.className = 'toast show';
+if (type === 'error') toast.style.borderColor = 'var(--danger)';
+else if (type === 'warning') toast.style.borderColor = '#FFD93D';
+else toast.style.borderColor = 'var(--gold)';
+setTimeout(function(){ toast.classList.remove('show'); }, 4000);
+}
+
+function updateCoinDisplay() {
+var coins = parseInt(localStorage.getItem('shopkeeperCoins')) || 0;
+document.getElementById('menu-coin-amount').textContent = toPersianNum(coins);
+document.getElementById('shop-coin-amount').textContent = toPersianNum(coins);
+}
+
+function playBeep(freq, duration) {
+try {
+var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+var oscillator = audioCtx.createOscillator();
+var gainNode = audioCtx.createGain();
+oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
+oscillator.frequency.value = freq; oscillator.type = 'sine';
+gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+oscillator.start(); oscillator.stop(audioCtx.currentTime + duration);
+} catch(e) {}
+}
+
+function playWinSound() {
+playBeep(523, 0.15);
+setTimeout(function(){ playBeep(659, 0.15); }, 150);
+setTimeout(function(){ playBeep(784, 0.2); }, 300);
+}
+
+function playLoseSound() {
+playBeep(300, 0.3);
+setTimeout(function(){ playBeep(250, 0.3); }, 350);
+}
+
+// ============================================================
+// GUIDE
+// ============================================================
+const GUIDE_SCRIPTS = [
+    { start: 0, end: 6, text: 'سلام مغازه‌دار باهوش! 🏪<br>به بازی مغازه‌دار باهوش خوش اومدی!<br>من پیکسل هستم.' },
+    { start: 6, end: 12, text: 'مشتری‌ها میان و شکلات می‌خوان.<br>باید شکلات‌ها رو بکشی و بندازی روی مشتری!' },
+    { start: 12, end: 18, text: 'هر شکلات ۵۰ ریال سود داره!<br>باید تعداد شکلات × ۵۰ رو حساب کنی.' },
+    { start: 18, end: 24, text: 'اگه ۳ تا از ۵ سوال رو درست جواب بدی،<br>مرحله بعد باز می‌ شه!' },
+    { start: 24, end: 999, text: 'موفق باشی مغازه‌دارِ قهرمان ! 💰' }
+];
+
+let isGuidePlaying = false;
+let guideInterval = null;
+let guideStartTime = 0;
+let guideCallbackForFirstLevel = null;
+
+function startGuide(callback, fromMenu = false) {
+    if (isGuidePlaying) return;
+    isGuidePlaying = true;
+    
+    const guideText = document.getElementById('guideText');
+    const progressBar = document.getElementById('guideProgressBar');
+    const skipBtn = document.getElementById('guideSkipBtn');
+    
+    if (fromMenu) {
+        skipBtn.style.display = 'block';
+        guideCallbackForFirstLevel = null;
+    } else {
+        skipBtn.style.display = 'none';
+        guideCallbackForFirstLevel = callback;
+    }
+    
+    showScreen('guideScreen');
+    
+    window.guideAudio = document.getElementById('guideAudio');
+    if (window.guideAudio) {
+        window.guideAudio.currentTime = 0;
+        window.guideAudio.play().catch(e => console.log("Guide audio play failed", e));
+    }
+    
+    guideStartTime = Date.now();
+    let lastIndex = -1;
+    
+    guideInterval = setInterval(() => {
+        const elapsed = (Date.now() - guideStartTime) / 1000;
+        let progress = Math.min((elapsed / 28) * 100, 100); 
+        progressBar.style.width = progress + '%';
+        
+        let currentText = GUIDE_SCRIPTS[0].text, currentIndex = 0;
+        for (let i = GUIDE_SCRIPTS.length - 1; i >= 0; i--) {
+            if (elapsed >= GUIDE_SCRIPTS[i].start) {
+                currentText = GUIDE_SCRIPTS[i].text;
+                currentIndex = i;
+                break;
+            }
+        }
+        
+        if (currentIndex !== lastIndex) {
+            guideText.innerHTML = currentText;
+            guideText.style.animation = 'none';
+            requestAnimationFrame(() => {
+                guideText.style.animation = 'guideTextPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
+            });
+            lastIndex = currentIndex;
+        }
+        
+        const isAudioEnded = window.guideAudio && window.guideAudio.ended;
+        if (isAudioEnded || elapsed >= 28) {
+            endGuide();
+        }
+    }, 100);
+}
+
+function endGuide() {
+    if (guideInterval) {
+        clearInterval(guideInterval);
+        guideInterval = null;
+    }
+    if (window.guideAudio) {
+        window.guideAudio.pause();
+        window.guideAudio.currentTime = 0;
+    }
+    isGuidePlaying = false;
+    
+    if (guideCallbackForFirstLevel) {
+        const cb = guideCallbackForFirstLevel;
+        guideCallbackForFirstLevel = null;
+        cb();
+    } else {
+        showScreen('homeScreen');
+    }
+}
+
+function skipGuide() {
+    if (guideInterval) {
+        clearInterval(guideInterval);
+        guideInterval = null;
+    }
+    if (window.guideAudio) {
+        window.guideAudio.pause();
+        window.guideAudio.currentTime = 0;
+    }
+    isGuidePlaying = false;
+    showScreen('homeScreen');
+}
+
+function showCountdown(callback) {
+var overlay = document.getElementById('countdownOverlay');
+var numberEl = document.getElementById('countdownNumber');
+var labelEl = document.getElementById('countdownLabel');
+var color = getComputedStyle(document.body).getPropertyValue('--countdown-color').trim() || '#FFC93C';
+numberEl.style.color = color;
+overlay.classList.add('show');
+var steps = ['۳', '۲', '۱', 'بریم!'];
+var index = 0;
+function showNext() {
+if (index >= steps.length) {
+overlay.classList.remove('show');
+if (callback) callback();
+return;
+}
+numberEl.textContent = steps[index];
+numberEl.className = 'countdown-number';
+if (steps[index] === 'بریم!') {
+numberEl.classList.add('go-text');
+labelEl.textContent = 'شروع! 🚀';
+playBeep(880, 0.4);
+} else {
+labelEl.textContent = index === 0 ? 'آماده‌ای؟' : '';
+playBeep(440 + (3 - index) * 80, 0.3);
+}
+numberEl.style.animation = 'none';
+void numberEl.offsetWidth;
+numberEl.style.animation = '';
+index++;
+setTimeout(showNext, 700);
+}
+showNext();
+}
+
+function startGameFromLevel(level) {
+if (!levelUnlocked[level]) {
+showToast('🔒 این مرحله قفل است!', 'error');
+return;
+}
+currentLevel = level;
+isResultShowing = false;
+currentQuestionIndex = 0;
+correctCount = 0;
+wrongAttempts = 0;
+document.getElementById('gameLevelDisplay').textContent = 'مرحله ' + toPersianNum(level);
+document.getElementById('gameFeedback').textContent = 'مشتری میاد و شکلات می‌خواد!';
+updateHouseDisplay();
+
+const setupGame = () => {
+    showScreen('gameScreen');
+    showCountdown(function() {
+        startLevel();
+    });
+};
+
+if (level === 1 && !localStorage.getItem('shopkeeperGuideSeen')) {
+    localStorage.setItem('shopkeeperGuideSeen', 'true');
+    startGuide(setupGame, false);
+} else {
+    setupGame();
+}
+}
+
+function startLevel() {
+levelStartTime = Date.now();
+startTimer();
+generateCustomer();
+}
+
+function startTimer() {
+var targetDisplay = document.getElementById('targetDisplay');
+if (timerInterval) clearInterval(timerInterval);
+timerInterval = setInterval(function() {
+var elapsed = Math.floor((Date.now() - levelStartTime) / 1000);
+targetDisplay.textContent = '🕒 ' + formatTime(elapsed);
+}, 1000);
+}
+
+// ⭐ ساخت مشتری جدید
+function generateCustomer() {
+    var minQ = Math.min(2 + Math.floor(currentLevel / 3), 8);
+    var maxQ = Math.min(5 + Math.floor(currentLevel / 2), 15);
+    var wanted = Math.floor(Math.random() * (maxQ - minQ + 1)) + minQ;
+    currentWanted = wanted;
+    currentProfit = wanted * PRICE_PER_CHOCO;
+    currentReceived = 0;
+
+    document.getElementById('wanted-count').textContent = toPersianNum(wanted);
+    document.getElementById('wanted-count-2').textContent = toPersianNum(wanted);
+    document.getElementById('received-count').textContent = toPersianNum(0);
+    
+    var avatarBox = document.getElementById('customer-avatar-box');
+    avatarBox.classList.remove('happy');
+
+    var iconFile = getRandomCustomerIcon();
+    var avatarImg = document.getElementById('customer-avatar-img');
+    avatarImg.src = 'icons/' + iconFile;
+    avatarImg.alt = 'مشتری';
+    avatarImg.onerror = function() { this.src = 'icons/gamerhi.png'; };
+
+    buildChocolateTray();
+
+    document.getElementById('gameFeedback').textContent = 'مشتری ' + toPersianNum(wanted) + ' تا شکلات می‌خواد!';
+    document.getElementById('sellBtn').classList.add('hidden');
+    showArea('shop-area');
+}
+
+// ⭐ ساخت سینی شکلات با نوع انتخابی کاربر
+function buildChocolateTray() {
+    var tray = document.getElementById('chocolate-tray');
+    tray.innerHTML = '';
+    
+    var choc = getActiveChocolate();
+    
+    // تعداد تصادفی بین ۵ تا ۱۵
+    var randomCount = Math.floor(Math.random() * 11) + 5;
+    
+    for (var i = 0; i < randomCount; i++) {
+        var chocoEl = document.createElement('div');
+        chocoEl.className = 'tray-choco';
+        chocoEl.dataset.id = 'choco-' + i;
+        chocoEl.setAttribute('draggable', 'false');
+        
+        if (choc.file) {
+            chocoEl.innerHTML = '<img src="icons/' + choc.file + '" alt="شکلات" onerror="this.parentElement.textContent=\'' + choc.emoji + '\'">';
+        } else {
+            chocoEl.textContent = choc.emoji;
+        }
+        
+        tray.appendChild(chocoEl);
+    }
+}
+
+// ============================================================
+// ⭐ DRAG & DROP — بدون آیکون شبح
+// ============================================================
+function initDragAndDrop() {
+    var tray = document.getElementById('chocolate-tray');
+    if (!tray) return;
+
+    function getCoords(e) {
+        if (e.touches && e.touches.length) {
+            return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+        if (e.changedTouches && e.changedTouches.length) {
+            return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+        }
+        return { x: e.clientX, y: e.clientY };
+    }
+
+    function isOverCustomer(x, y) {
+        var customerArea = document.getElementById('customer-area');
+        if (!customerArea) return false;
+        var rect = customerArea.getBoundingClientRect();
+        return x >= rect.left && x <= rect.right &&
+               y >= rect.top  && y <= rect.bottom;
+    }
+
+    function setDropHover(on) {
+        var customerArea = document.getElementById('customer-area');
+        if (!customerArea) return;
+        if (on) customerArea.classList.add('drop-hover');
+        else    customerArea.classList.remove('drop-hover');
+    }
+
+    function startDrag(e) {
+        var choco = e.target.closest('.tray-choco');
+        if (!choco) return;
+        if (currentReceived >= currentWanted) return;
+        if (isDraggingChoco) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        var coords = getCoords(e);
+        currentDragX = coords.x;
+        currentDragY = coords.y;
+
+        isDraggingChoco = true;
+        draggingTrayElement = choco;
+        choco.classList.add('dragging');
+
+        setDropHover(isOverCustomer(currentDragX, currentDragY));
+
+        playBeep(700, 0.08);
+    }
+
+    function moveDrag(e) {
+        if (!isDraggingChoco) return;
+        e.preventDefault();
+
+        var coords = getCoords(e);
+        currentDragX = coords.x;
+        currentDragY = coords.y;
+
+        setDropHover(isOverCustomer(currentDragX, currentDragY));
+    }
+
+    function endDrag(e) {
+        if (!isDraggingChoco) return;
+
+        var coords = getCoords(e);
+        var endX = coords.x;
+        var endY = coords.y;
+
+        isDraggingChoco = false;
+
+        if (draggingTrayElement) draggingTrayElement.classList.remove('dragging');
+
+        var dropped = isOverCustomer(endX, endY);
+        setDropHover(false);
+
+        if (dropped && draggingTrayElement) {
+            dropChocolateToCustomer(draggingTrayElement);
+        }
+
+        draggingTrayElement = null;
+    }
+
+    function preventScroll(e) {
+        if (isDraggingChoco) e.preventDefault();
+    }
+
+    // Mouse
+    tray.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', moveDrag);
+    document.addEventListener('mouseup', endDrag);
+
+    // Touch
+    tray.addEventListener('touchstart', startDrag, { passive: false });
+    document.addEventListener('touchmove', moveDrag, { passive: false });
+    document.addEventListener('touchend', endDrag);
+    document.addEventListener('touchcancel', endDrag);
+
+    document.addEventListener('touchmove', preventScroll, { passive: false });
+}
+
+// ⭐ انداختن شکلات روی مشتری — با محو شدن
+function dropChocolateToCustomer(trayChoco) {
+    if (currentReceived >= currentWanted) return;
+    if (!trayChoco) return;
+
+    currentReceived++;
+
+    trayChoco.classList.add('vanishing');
+    setTimeout(function () {
+        if (trayChoco.parentNode) trayChoco.parentNode.removeChild(trayChoco);
+    }, 400);
+
+    playBeep(600 + currentReceived * 40, 0.1);
+
+    document.getElementById('received-count').textContent = toPersianNum(currentReceived);
+
+    if (currentReceived >= currentWanted) {
+        var avatarBox = document.getElementById('customer-avatar-box');
+        avatarBox.classList.add('happy');
+        
+        document.getElementById('sellBtn').classList.remove('hidden');
+        document.getElementById('gameFeedback').textContent = '🎉 عالیه! مشتری راضی شد!';
+        
+        playWinSound();
+        fireEffect(activeEffect);
+    }
+}
+
+// ⭐ دکمه فروش
+function sellToCustomer() {
+    var profit = currentWanted * PRICE_PER_CHOCO;
+    currentProfit = profit;
+    document.getElementById('sold-count').textContent = toPersianNum(currentWanted);
+    document.getElementById('total-profit').textContent = toPersianNum(profit);
+
+    var choc = getActiveChocolate();
+    var display = document.getElementById('choco-display');
+    display.innerHTML = '';
+    for (var i = 0; i < currentWanted; i++) {
+        var choco = document.createElement('div');
+        choco.className = 'choco-item';
+        choco.style.animationDelay = (i * 0.05) + 's';
+        if (choc.file) {
+            choco.innerHTML = '<img src="icons/' + choc.file + '" alt="شکلات" style="width:30px;height:30px;object-fit:contain;" onerror="this.parentElement.innerHTML=\'<svg viewBox=&quot;0 0 40 40&quot; width=&quot;30&quot; height=&quot;30&quot;><rect x=&quot;4&quot; y=&quot;8&quot; width=&quot;32&quot; height=&quot;24&quot; rx=&quot;4&quot; fill=&quot;#795548&quot;/><rect x=&quot;7&quot; y=&quot;11&quot; width=&quot;26&quot; height=&quot;18&quot; rx=&quot;3&quot; fill=&quot;#8D6E63&quot;/></svg>\'">';
+        } else {
+            choco.innerHTML = '<svg viewBox="0 0 40 40" width="30" height="30"><rect x="4" y="8" width="32" height="24" rx="4" fill="#795548"/><rect x="7" y="11" width="26" height="18" rx="3" fill="#8D6E63"/></svg>';
+        }
+        display.appendChild(choco);
+    }
+
+    showArea('result-area');
+    document.getElementById('gameFeedback').textContent = 'آفرین! سودت رو حساب کن!';
+}
+
+function continueToQuestions() {
+    currentQuestionIndex = 0;
+    correctCount = 0;
+    showQuestion(0);
+}
+
+function getQuestions() {
+    var q = currentWanted;
+    var p = currentProfit;
+    return [
+        {
+            title: 'سود کل چقدره؟',
+            text: 'مشتری <strong>' + toPersianNum(q) + '</strong> تا شکلات خرید. سود تو چقدر شد؟',
+            correct: p,
+            options: [p - 50, p, p + 50, p + 100]
+        },
+        {
+            title: 'سود هر شکلات',
+            text: 'تو <strong>' + toPersianNum(p) + '</strong> ریال سود کردی. سود هر شکلات چقدره؟',
+            correct: 50,
+            options: [30, 40, 50, 60]
+        },
+        {
+            title: 'چند شکلات کشیدی؟',
+            text: 'تو <strong>' + toPersianNum(currentReceived) + '</strong> شکلات کشیدی و انداختی. اگه هر شکلات ۵۰ ریال باشه، سودت چقدره؟',
+            correct: currentReceived * 50,
+            options: [currentReceived * 30, currentReceived * 40, currentReceived * 50, currentReceived * 60]
+        },
+        {
+            title: 'محاسبه کن!',
+            text: 'اگر <strong>۷</strong> تا شکلات بفروشی، سودت چقدر میشه؟',
+            correct: 350,
+            options: [300, 350, 400, 450]
+        },
+        {
+            title: 'چالش نهایی',
+            text: 'اگر <strong>۱۰</strong> تا شکلات بفروشی، سودت چقدر میشه؟',
+            correct: 500,
+            options: [400, 450, 500, 550]
+        }
+    ];
+}
+
+function showQuestion(index) {
+    var questions = getQuestions();
+    var question = questions[index];
+    if (!question) { finishLevel(); return; }
+
+    currentQuestionIndex = index;
+    document.getElementById('question-step-badge').textContent = 'سوال ' + toPersianNum(index + 1) + ' از ' + toPersianNum(totalQuestions);
+    document.getElementById('question-title').textContent = question.title;
+    document.getElementById('question-text').innerHTML = question.text;
+
+    var container = document.getElementById('answer-options');
+    container.innerHTML = '';
+    var shuffled = shuffle(question.options);
+
+    shuffled.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = toPersianNum(opt);
+        btn.dataset.value = opt;
+        btn.onclick = function() { selectAnswer(btn, opt, question.correct); };
+        container.appendChild(btn);
+    });
+
+    document.getElementById('feedback-box').classList.add('hidden');
+    document.getElementById('btn-next').classList.add('hidden');
+    showArea('question-area');
+    document.getElementById('gameFeedback').textContent = 'سوال ' + toPersianNum(index + 1) + ' از ' + toPersianNum(totalQuestions);
+}
+
+function selectAnswer(btn, value, correct) {
+    if (isResultShowing) return;
+    var buttons = document.querySelectorAll('#answer-options .option-btn');
+    buttons.forEach(function(b) { b.disabled = true; });
+
+    var isCorrect = value === correct;
+
+    buttons.forEach(function(b) {
+        var val = parseInt(b.dataset.value);
+        if (val === correct) b.classList.add('correct');
+        else if (val === value && !isCorrect) b.classList.add('wrong');
+    });
+
+    var feedback = document.getElementById('feedback-box');
+    feedback.classList.remove('hidden', 'success', 'error');
+    feedback.classList.add(isCorrect ? 'success' : 'error');
+    document.getElementById('feedback-icon').textContent = isCorrect ? '🎉' : '🤔';
+    document.getElementById('feedback-text').textContent = isCorrect ? 'آفرین! درست بود!' : 'اشتباه! جواب درست ' + toPersianNum(correct) + ' بود.';
+
+    if (isCorrect) {
+        playWinSound();
+        correctCount++;
+    } else {
+        playLoseSound();
+    }
+    
+    document.getElementById('btn-next').classList.remove('hidden');
+    document.getElementById('btn-next').textContent = (currentQuestionIndex + 1 >= totalQuestions) ? 'پایان مرحله' : 'سوال بعدی';
+}
+
+function nextQuestion() {
+    var nextIdx = currentQuestionIndex + 1;
+    if (nextIdx >= totalQuestions) {
+        finishLevel();
+    } else {
+        showQuestion(nextIdx);
+    }
+}
+
+function finishLevel() {
+    if (timerInterval) clearInterval(timerInterval);
+
+    if (correctCount >= 3) {
+        if (!levelCompleted[currentLevel]) levelCompleted[currentLevel] = true;
+        if (currentLevel < totalLevels && !levelUnlocked[currentLevel + 1]) levelUnlocked[currentLevel + 1] = true;
+        saveLevelStatus();
+
+        var coins = parseInt(localStorage.getItem('shopkeeperCoins')) || 0;
+        var reward = (coins === 0) ? 10 : 1;
+        coins += reward;
+        localStorage.setItem('shopkeeperCoins', coins.toString());
+        updateCoinDisplay();
+
+        fireEffect(activeEffect);
+        isResultShowing = true;
+        showWinModal('🎉 آفرین!', 'مرحله ' + toPersianNum(currentLevel) + ' رو بردی!', reward);
+    } else {
+        isResultShowing = true;
+        showResultModal('❌ اشتباه شد!', 'دوباره تلاش کن، می‌تونی! 💪');
+    }
+}
+
+function showWinModal(title, msg, coinReward) {
+var modal = document.getElementById('winModal');
+document.getElementById('winTitle').textContent = title;
+document.getElementById('winLevel').textContent = msg;
+document.getElementById('winCoinAmount').textContent = '+' + toPersianNum(coinReward);
+var next = currentLevel + 1;
+var nextBtn = document.getElementById('winNextBtn');
+if (next <= totalLevels && levelUnlocked[next]) {
+nextBtn.textContent = '➡️ مرحله بعد';
+nextBtn.style.display = 'block';
+} else if (next > totalLevels) {
+nextBtn.textContent = '🏆 همه مراحل کامل شد!';
+nextBtn.style.display = 'block';
+} else {
+nextBtn.style.display = 'none';
+}
+document.getElementById('winNextBtn').onclick = function() {
+modal.classList.remove('open');
+isResultShowing = false;
+if (currentLevel < totalLevels && levelUnlocked[currentLevel + 1]) {
+startGameFromLevel(currentLevel + 1);
+} else if (currentLevel >= totalLevels) {
+showToast('🏆 همه مراحل رو کامل کردی!', 'success');
+showScreen('homeScreen');
+} else {
+startGameFromLevel(currentLevel);
+}
+};
+document.getElementById('winRestartBtn').onclick = function() {
+modal.classList.remove('open');
+isResultShowing = false;
+startGameFromLevel(currentLevel);
+};
+document.getElementById('winHomeBtn').onclick = function() {
+modal.classList.remove('open');
+isResultShowing = false;
+showScreen('homeScreen');
+};
+modal.classList.add('open');
+}
+
+function showResultModal(title, msg) {
+var modal = document.getElementById('resultModal');
+document.getElementById('resultTitle').textContent = title;
+document.getElementById('resultMsg').textContent = msg;
+modal.classList.add('open');
+}
+
+function renderLevels() {
+levelUnlocked[1] = true;
+saveLevelStatus();
+var grid = document.getElementById('levelGrid');
+grid.innerHTML = '';
+for (var i = 1; i <= totalLevels; i++) {
+var box = document.createElement('div');
+box.className = 'level-box';
+if (levelCompleted[i]) {
+box.classList.add('completed');
+box.innerHTML = '<span class="level-number">' + toPersianNum(i) + '</span><span class="check-icon">✅</span>';
+} else if (!levelUnlocked[i]) {
+box.classList.add('locked');
+box.innerHTML = '<span class="level-number">' + toPersianNum(i) + '</span><span class="lock-icon">🔒</span>';
+} else {
+box.classList.add('current');
+box.innerHTML = '<span class="level-number">' + toPersianNum(i) + '</span>';
+}
+(function(levelNum) {
+box.addEventListener('click', function() {
+if (levelUnlocked[levelNum]) {
+startGameFromLevel(levelNum);
+} else {
+showToast('🔒 این مرحله قفل است!', 'error');
+}
+});
+})(i);
+grid.appendChild(box);
+}
+}
+
+document.addEventListener('click', startMusic, {once:true});
+document.addEventListener('touchstart', startMusic, {once:true});
+
+document.addEventListener('DOMContentLoaded', function() {
+loadShopData();
+loadEffectData();
+loadHouseData();
+loadChocolateData();
+loadLevelStatus();
+createStars();
+initDragAndDrop();
+
+if (!localStorage.getItem('shopkeeperCoins')) localStorage.setItem('shopkeeperCoins', '0');
+updateCoinDisplay();
+applyTheme(activeTheme, false);
+applyEffect(activeEffect, false);
+updateHouseDisplay();
+
+document.getElementById('startGameBtn').addEventListener('click', function() {
+renderLevels();
+showScreen('levelScreen');
+});
+document.getElementById('guideBtn').addEventListener('click', function() { startGuide(null, true); });
+document.getElementById('guideSkipBtn').addEventListener('click', skipGuide);
+document.getElementById('shopBtn').addEventListener('click', function() { renderShop(); showScreen('shopScreen'); });
+document.getElementById('backHomeBtn').addEventListener('click', function() { showScreen('homeScreen'); });
+document.getElementById('celebCloseBtn').addEventListener('click', function() { document.getElementById('celebrationOverlay').classList.remove('show'); });
+
+document.getElementById('sellBtn').addEventListener('click', sellToCustomer);
+document.getElementById('continueBtn').addEventListener('click', continueToQuestions);
+document.getElementById('btn-next').addEventListener('click', nextQuestion);
+
+document.getElementById('stopGameBtn').addEventListener('click', function() {
+if (!isResultShowing) document.getElementById('stopModal').classList.add('show');
+});
+document.getElementById('stopCancelBtn').addEventListener('click', function() { document.getElementById('stopModal').classList.remove('show'); });
+document.getElementById('stopRestartBtn').addEventListener('click', function() {
+document.getElementById('stopModal').classList.remove('show');
+isResultShowing = false;
+startGameFromLevel(currentLevel);
+});
+document.getElementById('stopExitBtn').addEventListener('click', function() {
+document.getElementById('stopModal').classList.remove('show');
+isResultShowing = false;
+showScreen('homeScreen');
+});
+document.getElementById('stopModal').addEventListener('click', function(e) {
+if (e.target === this) this.classList.remove('show');
+});
+
+document.getElementById('resultRetryBtn').addEventListener('click', function() {
+document.getElementById('resultModal').classList.remove('open');
+isResultShowing = false;
+startGameFromLevel(currentLevel);
+});
+document.getElementById('resultHomeBtn').addEventListener('click', function() {
+document.getElementById('resultModal').classList.remove('open');
+isResultShowing = false;
+showScreen('homeScreen');
+});
+
+document.querySelectorAll('.shop-tab').forEach(function(tab) {
+tab.addEventListener('click', function() {
+document.querySelectorAll('.shop-tab').forEach(function(t) { t.classList.remove('active'); });
+this.classList.add('active');
+renderShop();
+});
+});
+
+renderLevels();
+showScreen('homeScreen');
+});
+
+window.showScreen = showScreen;
+window.applyTheme = applyTheme;
+window.buyTheme = buyTheme;
+window.applyEffect = applyEffect;
+window.buyEffect = buyEffect;
+window.applyHouse = applyHouse;
+window.buyHouse = buyHouse;
+window.applyChocolateType = applyChocolateType;
+window.buyChocolate = buyChocolate;
+window.renderShop = renderShop;
+window.startGameFromLevel = startGameFromLevel;
+window.renderLevels = renderLevels;
+window.showToast = showToast;
+window.fireEffect = fireEffect;
+window.startMusic = startMusic;
+window.startGuide = startGuide;
+window.skipGuide = skipGuide;
+</script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#celebrationOverlay", "#winModal", "#resultModal", "#result-area"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

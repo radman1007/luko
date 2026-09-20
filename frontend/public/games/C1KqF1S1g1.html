@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a14">
+<title>نعمت‌یاب | LOKO System</title>
+<style>
+:root {
+  --primary: #6C5CE7; --neon-blue: #00D2FF; --neon-pink: #FF00A0;
+  --neon-green: #00FF9D; --accent: #FFEAA7; --success: #00B894;
+  --danger: #FF7675; --dark: #1E1E2F; --gold: #FFC93C;
+  --gold-dark: #B96F00; --text: #FFFFFF; --text-soft: #E0E0E0;
+  --text-muted: #A0A0B0; --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+}
+
+@font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Regular.ttf") format("truetype"); font-weight: 400; }
+@font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Black.ttf") format("truetype"); font-weight: 900; }
+@font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Regular.ttf") format("truetype"); font-weight: 400; }
+@font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Black.ttf") format("truetype"); font-weight: 900; }
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+html, body { width: 100%; height: 100%; overflow: hidden; font-family: var(--font); background: #0c0a14; color: var(--text); overscroll-behavior: none; touch-action: manipulation; }
+#app { position: relative; width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; background: linear-gradient(135deg, #0c0a14, #181225); display: flex; justify-content: center; }
+.app-wrapper { width: 100%; max-width: 480px; height: 100%; position: relative; overflow: hidden; background: radial-gradient(circle at 10% 20%, rgba(108, 92, 231, 0.2) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(0, 210, 255, 0.15) 0%, transparent 40%), linear-gradient(135deg, #0c0a14, #181225); }
+
+/* === Animations & Effects === */
+.bg-particles { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.particle { position: absolute; bottom: -10px; width: 6px; height: 6px; background: var(--primary); border-radius: 50%; opacity: 0.3; animation: float-up linear infinite; }
+@keyframes float-up { 0% { transform: translateY(0) scale(1); opacity: 0; } 10% { opacity: 0.4; } 90% { opacity: 0.4; } 100% { transform: translateY(-100vh) scale(0.5); opacity: 0; } }
+
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; transform: scale(0.98); z-index: 1; overflow-y: auto; }
+.screen.active { opacity: 1; pointer-events: auto; transform: scale(1); }
+.glass { background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow-soft); }
+
+/* === Coin Display === */
+.coin-display { position: fixed; top: 20px; left: 20px; display: flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px 16px 8px 12px; border-radius: 50px; box-shadow: 0 4px 15px rgba(255, 201, 60, 0.3); z-index: 100; }
+.coin-display.pulse { animation: coin-pulse 0.4s ease; }
+@keyframes coin-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); box-shadow: 0 0 20px var(--gold); } }
+.coin-icon-img { width: 24px; height: 24px; }
+.coin-amount { font-weight: 800; color: var(--gold); font-size: 18px; }
+.game-screen .coin-display.hide { display: none; }
+
+/* === Main Menu === */
+.menu-screen { align-items: center; justify-content: center; text-align: center; }
+.game-title { background: linear-gradient(180deg, #FFFFFF 0%, var(--neon-blue) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-size: 42px; font-weight: 900; margin-bottom: 30px; filter: drop-shadow(0 4px 10px rgba(0, 210, 255, 0.3)); }
+.speech-bubble { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px 20px 20px 4px; padding: 12px 20px; color: var(--text); font-size: 15px; margin-bottom: 15px; box-shadow: var(--shadow-soft); animation: pop-in 0.5s ease; }
+@keyframes pop-in { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.pixel-character { width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle, rgba(108, 92, 231, 0.3) 0%, transparent 70%); display: flex; align-items: center; justify-content: center; margin-bottom: 40px; animation: float-char 3s ease-in-out infinite; }
+@keyframes float-char { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.pixel-character img, .pixel-character svg { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 15px rgba(108, 92, 231, 0.5)); }
+
+/* === Buttons === */
+.btn { border: none; outline: none; cursor: pointer; font-family: inherit; font-weight: 800; transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text); border-radius: 16px; }
+.btn:active { transform: translateY(4px); }
+.btn-primary { background: linear-gradient(180deg, #FFE68A 0%, var(--gold) 45%, var(--gold-dark) 100%); color: var(--dark); padding: 16px 36px; font-size: 18px; font-weight: 900; border-radius: 16px; box-shadow: 0 6px 0 #8a5200, 0 10px 20px rgba(255, 201, 60, 0.4); width: 100%; max-width: 320px; }
+.btn-primary:active { box-shadow: 0 2px 0 #8a5200, 0 3px 5px rgba(255, 201, 60, 0.4); }
+.btn-row { display: flex; gap: 12px; margin-top: 14px; width: 100%; max-width: 320px; }
+.btn-secondary { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 12px 18px; font-size: 14px; font-weight: 700; flex: 1; color: var(--gold); box-shadow: 0 4px 0 rgba(0,0,0,0.3); border-radius: 12px; }
+.btn-secondary:active { box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
+.btn-back { position: absolute; top: 20px; right: 20px; background: rgba(255, 118, 117, 0.2); border: 1px solid var(--danger); color: var(--danger); padding: 8px 16px; border-radius: 50px; font-size: 13px; z-index: 50; box-shadow: 0 3px 0 rgba(0,0,0,0.3); }
+.btn-success { background: linear-gradient(180deg, #00FF9D 0%, #00B894 100%); color: var(--dark); box-shadow: 0 6px 0 #00705a; width: 100%; max-width: 320px; padding: 16px; font-size: 18px; font-weight: 900; border-radius: 16px; margin-bottom: 10px; }
+.btn-danger { background: rgba(255, 118, 117, 0.15); border: 2px solid var(--danger); color: var(--danger); box-shadow: 0 4px 0 rgba(0,0,0,0.3); width: 100%; max-width: 320px; padding: 12px; font-weight: 800; border-radius: 16px; }
+
+/* === Level Screen === */
+.level-screen { padding-top: 80px; }
+.level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 10px; }
+.level-card { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; border-radius: 16px; position: relative; transition: transform 0.2s; }
+.level-card:active { transform: scale(0.95); }
+.level-card.locked { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.05); }
+.level-card.unlocked { background: var(--glass-bg); border: 2px solid var(--gold); color: var(--gold); box-shadow: 0 0 15px rgba(255, 201, 60, 0.2); animation: pulse-glow 3s infinite; }
+.level-card.current { border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: 0 0 20px var(--neon-blue); }
+@keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 10px rgba(255, 201, 60, 0.2); } 50% { box-shadow: 0 0 25px rgba(255, 201, 60, 0.6); } }
+.level-card.completed::after { content: '✓'; position: absolute; top: 5px; left: 5px; background: var(--neon-green); color: #000; width: 20px; height: 20px; border-radius: 50%; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+
+/* === Shop Screen === */
+.shop-screen { padding-top: 80px; }
+.shop-tabs { display: flex; background: var(--glass-bg); border-radius: 50px; padding: 5px; margin-bottom: 18px; border: 1px solid var(--glass-border); gap: 4px; }
+.shop-tab { flex: 1; background: transparent; border: none; color: var(--text-soft); padding: 10px; border-radius: 50px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.25s ease; }
+.shop-tab.active { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--dark); box-shadow: 0 4px 12px rgba(255, 201, 60, 0.3); }
+.shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding-bottom: 20px; }
+.shop-item { background: var(--glass-bg); border: 1.5px solid var(--glass-border); border-radius: 16px; padding: 16px 12px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.shop-item.active { border-color: var(--gold); box-shadow: 0 0 20px rgba(255, 201, 60, 0.4); }
+.shop-item-preview { width: 50px; height: 50px; border-radius: 12px; background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
+.shop-item-name { font-size: 13px; color: var(--text); font-weight: 700; text-align: center; }
+.shop-item-price { color: var(--gold-light); font-weight: 800; font-size: 13px; }
+.shop-item-btn { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--dark); border: none; padding: 8px 16px; border-radius: 50px; font-family: inherit; font-weight: 800; font-size: 12px; cursor: pointer; width: 100%; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+
+/* === Game UI === */
+.game-screen { padding: 0; }
+.game-top-bar { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 50; }
+.game-timer { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 8px 16px; border-radius: 50px; font-weight: 800; color: var(--neon-blue); display: flex; align-items: center; gap: 6px; font-size: 16px; transition: all 0.3s; }
+.game-timer.urgent { color: var(--danger); border-color: var(--danger); animation: shake 0.5s infinite; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+.stop-btn { background: rgba(255, 118, 117, 0.2); border: 1px solid var(--danger); color: var(--danger); padding: 8px 16px; border-radius: 50px; font-weight: 700; box-shadow: 0 3px 0 rgba(0,0,0,0.3); display: flex; align-items: center; gap: 6px; }
+
+.factory-area { position: absolute; inset: 0; overflow: hidden; }
+.conveyor-belt { position: absolute; bottom: 80px; left: 0; right: 0; height: 60px; background: linear-gradient(180deg, #1E1E2F 0%, #111118 100%); border-top: 4px solid var(--primary); box-shadow: 0 -5px 20px rgba(108, 92, 231, 0.3); overflow: hidden; }
+.conveyor-belt::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0, transparent 30px, rgba(108, 92, 231, 0.2) 30px, rgba(108, 92, 231, 0.2) 60px); animation: belt-scroll 1s linear infinite; }
+@keyframes belt-scroll { from { transform: translateX(0); } to { transform: translateX(-60px); } }
+
+#gameArea { position: absolute; bottom: 140px; left: 0; right: 0; height: 100px; pointer-events: none; z-index: 10; }
+.emoji-item { position: absolute; right: -100px; bottom: 10px; width: 80px; height: 80px; background: var(--glass-bg); backdrop-filter: blur(10px); border-radius: 16px; border: 2px solid var(--glass-border); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-soft); pointer-events: auto; will-change: transform; animation: spawn-in 0.3s ease-out; }
+@keyframes spawn-in { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.emoji-inner { display: flex; flex-direction: column; align-items: center; animation: bob 1.2s ease-in-out infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.emoji-item:active .emoji-inner { transform: scale(0.9); }
+.emoji-item.correct .emoji-inner { animation: correct-pop 0.5s forwards; }
+.emoji-item.wrong .emoji-inner { animation: wrong-shake 0.4s forwards; }
+@keyframes correct-pop { 0% { transform: scale(1); } 40% { transform: scale(1.3); box-shadow: 0 0 30px var(--success); } 100% { transform: scale(0); opacity: 0; } }
+@keyframes wrong-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+.emoji-char { font-size: 36px; }
+.emoji-name { font-size: 11px; color: var(--text-soft); text-align: center; margin-top: 2px; }
+
+/* === Modals & Toast === */
+.modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+.modal-card { padding: 30px; width: 100%; max-width: 340px; text-align: center; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.modal-overlay.active .modal-card { transform: scale(1); }
+.tutorial-card { max-width: 320px; }
+.tutorial-char { width: 80px; height: 80px; margin: 0 auto 16px; border-radius: 50%; overflow: hidden; }
+.tutorial-message { margin-bottom: 14px; line-height: 1.6; font-weight: 500; font-size: 15px; }
+.tutorial-hint { font-size: 22px; margin-bottom: 24px; }
+.tutorial-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
+.tutorial-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: all 0.3s; }
+.tutorial-dot.active { background: var(--neon-green); width: 24px; border-radius: 4px; }
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(30, 30, 47, 0.95); border: 1px solid var(--primary); padding: 12px 24px; border-radius: 50px; z-index: 10001; transition: transform 0.3s; box-shadow: 0 0 20px rgba(108, 92, 231, 0.3); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="app-wrapper">
+    
+    <div class="bg-particles" id="particles"></div>
+    
+    <div class="coin-display" id="coinCounter">
+      <img src="./icons/coin.png" class="coin-icon-img" alt="coin" onerror="this.style.display='none'; document.getElementById('svgCoin').style.display='block';">
+      <svg id="svgCoin" style="display:none;width:24px;height:24px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#FFC93C"/><circle cx="12" cy="12" r="8" fill="none" stroke="#B96F00" stroke-width="2"/></svg>
+      <div class="coin-amount" id="coinCount">0</div>
+    </div>
+    
+    <!-- Main Menu -->
+    <div class="screen menu-screen active" id="menuScreen">
+      <h1 class="game-title">نعمت‌یاب</h1>
+      <div class="speech-bubble">سلام! آماده‌ای نعمت‌های خدا رو پیدا کنیم؟</div>
+      <div class="pixel-character">
+        <img src="./icons/gamer.png" alt="Character" onerror="this.style.display='none'; document.getElementById('charSvg').style.display='block';">
+        <svg id="charSvg" style="display:none;width:100%;height:100%;" viewBox="0 0 100 100"><rect x="25" y="50" width="50" height="40" rx="10" fill="#6C5CE7"/><circle cx="50" cy="30" r="20" fill="#FFEAA7"/></svg>
+      </div>
+      <button class="btn btn-primary" id="startBtn" onclick="showScreen('level')">شروع بازی</button>
+      <button class="btn btn-primary" id="continueBtn" style="display:none; background:linear-gradient(180deg, #00FF9D 0%, #00B894 100%); box-shadow: 0 6px 0 #00705a;" onclick="continueGame()">ادامه بازی</button>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="showScreen('shop')">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1z"/></svg>
+          فروشگاه
+        </button>
+        <button class="btn btn-secondary" onclick="showScreen('help')">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
+          راهنما
+        </button>
+      </div>
+    </div>
+
+    <!-- Level Select Screen -->
+    <div class="screen level-screen" id="levelScreen">
+      <button class="btn btn-back" onclick="showScreen('menu')">بازگشت</button>
+      <h2 style="color:var(--gold); margin-bottom:20px; text-align:center;">مراحل بازی</h2>
+      <div class="level-grid" id="levelGrid"></div>
+    </div>
+
+    <!-- Shop Screen -->
+    <div class="screen shop-screen" id="shopScreen">
+      <button class="btn btn-back" onclick="showScreen('menu')">بازگشت</button>
+      <h2 style="color:var(--gold); margin-bottom:18px; text-align:center;">فروشگاه</h2>
+      <div class="shop-tabs">
+        <button class="shop-tab active" data-tab="skins" onclick="switchShopTab('skins')">پوسته‌ها</button>
+        <button class="shop-tab" data-tab="characters" onclick="switchShopTab('characters')">کاراکترها</button>
+        <button class="shop-tab" data-tab="custom" onclick="switchShopTab('custom')">شخصی‌سازی</button>
+      </div>
+      <div class="shop-grid" id="shopGrid"></div>
+    </div>
+
+    <!-- Help Screen -->
+    <div class="screen help-screen" id="helpScreen" style="padding-top:80px; align-items:center;">
+      <button class="btn btn-back" onclick="showScreen('menu')">بازگشت</button>
+      <h2 style="color:var(--neon-blue); margin-bottom:20px;">راهنما</h2>
+      <div class="glass" style="padding:20px; width:100%; max-width:360px;">
+        <p style="color:var(--text-soft); line-height:1.6;">در این کارخانه، اشیاء حرکت می‌کنند. روی نعمت‌های خدا (آب، خورشید، میوه) کلیک کن. مراقب باش روی اشیاء غیرنعمت کلیک نکنی! در پایان هر مرحله پاداش بگیر.</p>
+      </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="screen game-screen" id="gameScreen">
+      <div class="game-top-bar">
+        <div class="game-timer" id="gameTimer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>
+          <span id="timerText">60</span>
+        </div>
+        <button class="btn stop-btn" onclick="stopGame()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z"/></svg> توقف
+        </button>
+      </div>
+      <div class="factory-area">
+        <div id="gameArea"></div>
+        <div class="conveyor-belt"></div>
+      </div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div class="modal-overlay" id="tutorialOverlay">
+      <div class="modal-card glass tutorial-card">
+        <div class="tutorial-char"><img src="./icons/gamerhi.png" style="width:100%;object-fit:contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><svg style="display:none;width:100%;height:100%;background:#6C5CE7;border-radius:50%;"></svg></div>
+        <div class="tutorial-message" id="tutorialMessage"></div>
+        <div class="tutorial-hint" id="tutorialHint"></div>
+        <div class="tutorial-dots" id="tutorialDots"></div>
+        <button class="btn btn-primary" id="tutorialBtn" onclick="nextTutorialStep()">بعدی</button>
+      </div>
+    </div>
+
+    <!-- Pause Modal -->
+    <div class="modal-overlay" id="pauseModal">
+      <div class="modal-card glass">
+        <h2 style="color:var(--neon-blue); margin-bottom:24px; font-size:24px;">بازی متوقف شد</h2>
+        <button class="btn btn-success" onclick="resumeGame()">ادامه بازی</button>
+        <button class="btn btn-secondary" style="margin-bottom:10px; width:100%; color:var(--neon-blue); border-color:var(--neon-blue);" onclick="goToLevelSelect()">انتخاب مرحله جدید</button>
+        <button class="btn btn-danger" onclick="goToMenu()">رفتن به منو</button>
+      </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal-overlay" id="gameOverModal">
+      <div class="modal-card glass">
+        <div class="tutorial-char"><img src="./icons/gamer.png" style="width:100%;object-fit:contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><svg style="display:none;width:100%;height:100%;background:#6C5CE7;border-radius:50%;"></svg></div>
+        <h2 id="gameOverTitle" style="color:var(--neon-green); margin-bottom:10px;">آفرین!</h2>
+        <div class="tutorial-hint" id="gameOverStars">⭐⭐⭐</div>
+        <div class="reward-box glass" style="display:flex; align-items:center; justify-content:center; gap:10px; padding:12px; margin-bottom:24px; background:rgba(255, 201, 60, 0.1); border-color:var(--gold);">
+          <span style="color:var(--text-soft);">پاداش:</span>
+          <div class="coin-display" style="position:relative; top:0; left:0; box-shadow:none; background:transparent; border:none; padding:0;">
+            <img src="./icons/coin.png" class="coin-icon-img">
+            <div class="coin-amount" id="finalReward">+0</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="gameOverBtn" onclick="closeGameOver()">ادامه</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script>
+const LOKO_CACHE_KEY = 'loko_neemat_yab_v2';
+let lokoCache = { coins: 0, shopData: null, unlockedLevels: 1, pendingSync: false };
+
+let coins = 0;
+let initialCoins = 0;
+let unlockedLevels = 1;
+let currentLevel = 1;
+let gameState = 'menu';
+let gameItems = [];
+let metrics = { responseTimes: [], correct: 0, wrong: 0, total: 0, target: 5 };
+let lastSpawn = 0;
+let spawnInterval = 1600;
+let gameSeconds = 60;
+let timerInterval;
+let animationFrameId;
+
+const shopData = {
+    skins: [
+        { id: 'skin_gold', name: 'طلایی', price: 0, owned: true, active: true, color: '#FFC93C' },
+        { id: 'skin_purple', name: 'بنفش', price: 10, owned: false, active: false, color: '#6C5CE7' },
+        { id: 'skin_blue', name: 'آبی', price: 12, owned: false, active: false, color: '#00D2FF' }
+    ],
+    characters: [
+        { id: 'char_default', name: 'گیمر پایه', price: 0, owned: true, active: true }
+    ],
+    custom: [
+        { id: 'custom_none', name: 'بدون افکت', price: 0, owned: true, active: true }
+    ]
+};
+
+const items = [
+    { char: '💧', name: 'باران', isBlessing: true }, { char: '☀️', name: 'آفتاب', isBlessing: true },
+    { char: '👩', name: 'مامان', isBlessing: true }, { char: '👨', name: 'بابا', isBlessing: true },
+    { char: '👁️', name: 'چشم', isBlessing: true }, { char: '👂', name: 'گوش', isBlessing: true },
+    { char: '👅', name: 'زبان', isBlessing: true }, { char: '🍎', name: 'میوه', isBlessing: true },
+    { char: '🧸', name: 'عروسک', isBlessing: true }, { char: '🍞', name: 'نان', isBlessing: true },
+    { char: '💣', name: 'بمب', isBlessing: false }, { char: '💩', name: 'زباله', isBlessing: false },
+    { char: '👹', name: 'دیو', isBlessing: false }, { char: '🔥', name: 'آتش', isBlessing: false }
+];
+
+const tutorialConfig = {
+  characterIcon: "./icons/gamerhi.png",
+  steps: [
+    { message: "سلام رفیق! به کارخانه نعمت‌یاب خوش اومدی.", hint: "💧 ☀️ 👩 👨 🍎" },
+    { message: "روی نعمت‌ها کلیک کن تا امتیاز بگیری!", hint: "✅ کلیک کن! ✅" },
+    { message: "مراقب باش روی چیزهای بد کلیک نکنی!", hint: "❌ 💣 👹 🔥 ❌" }
+  ]
+};
+let currentTutorialStep = 0;
+
+// Background Particles
+function createParticles() {
+    const c = document.getElementById('particles');
+    for(let i=0; i<20; i++) {
+        let p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.animationDuration = (Math.random() * 10 + 5) + 's';
+        p.style.animationDelay = Math.random() * 5 + 's';
+        c.appendChild(p);
+    }
+}
+
+function loadLokoData() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(LOKO_CACHE_KEY));
+        if (saved) {
+            coins = saved.coins || 0;
+            unlockedLevels = saved.unlockedLevels || 1;
+            if (saved.shopData) {
+                Object.keys(shopData).forEach(function(cat) {
+                    saved.shopData[cat].forEach(function(s, i) { if(shopData[cat][i]) shopData[cat][i] = Object.assign(shopData[cat][i], s); });
+                });
+            }
+        }
+    } catch(e) { console.warn("Cache load error", e); }
+}
+function saveLokoData() {
+    try {
+        lokoCache.coins = coins;
+        lokoCache.unlockedLevels = unlockedLevels;
+        lokoCache.shopData = shopData;
+        localStorage.setItem(LOKO_CACHE_KEY, JSON.stringify(lokoCache));
+    } catch(e) { console.warn("Cache save error", e); }
+}
+window.addEventListener('online', syncLokoData);
+function syncLokoData() {
+    if (lokoCache.pendingSync) {
+        console.log("Back online. Syncing LOKO data...");
+        lokoCache.pendingSync = false;
+        showToast("اطلاعات همگام‌سازی شد!");
+    }
+}
+
+let audioCtx;
+function playSound(type) {
+    try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        if (type === 'click') { osc.type = 'sine'; osc.frequency.value = 800; }
+        else if (type === 'success') { osc.type = 'triangle'; osc.frequency.value = 1000; }
+        else if (type === 'error') { osc.type = 'sawtooth'; osc.frequency.value = 200; }
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+    } catch(e) {}
+}
+
+function showScreen(screenName) {
+    try { playSound('click'); } catch(e){}
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+    document.getElementById(screenName + 'Screen').classList.add('active');
+    document.getElementById('coinCounter').classList.toggle('hide', screenName === 'game');
+    
+    if (screenName === 'level') renderLevels();
+    if (screenName === 'shop') renderShop('skins');
+    if (screenName === 'menu') {
+        document.getElementById('startBtn').style.display = 'flex';
+        document.getElementById('continueBtn').style.display = 'none';
+    }
+}
+
+function renderLevels() {
+    const grid = document.getElementById('levelGrid');
+    grid.innerHTML = '';
+    const totalLevels = 12;
+    for (let i = 1; i <= totalLevels; i++) {
+        const el = document.createElement('div');
+        let cls = 'level-card ';
+        if (i < unlockedLevels) cls += 'unlocked completed';
+        else if (i === unlockedLevels) cls += 'unlocked current';
+        else cls += 'locked';
+        
+        el.className = cls;
+        if (i > unlockedLevels) {
+            el.innerHTML = '<div style="font-size:24px;">🔒</div>';
+        } else {
+            el.innerHTML = '<div>' + i + '</div>';
+            el.onclick = function() {
+                currentLevel = i;
+                if (currentLevel === 1 && unlockedLevels === 1) startTutorial();
+                else startGame();
+            };
+        }
+        grid.appendChild(el);
+    }
+}
+
+function startTutorial() {
+    currentTutorialStep = 0;
+    showTutorialStep();
+    document.getElementById('tutorialOverlay').classList.add('active');
+}
+function showTutorialStep() {
+    const step = tutorialConfig.steps[currentTutorialStep];
+    document.getElementById('tutorialMessage').innerText = step.message;
+    document.getElementById('tutorialHint').innerText = step.hint;
+    const dots = document.getElementById('tutorialDots'); dots.innerHTML = '';
+    tutorialConfig.steps.forEach(function(_, i) {
+        let d = document.createElement('div'); d.className = 'tutorial-dot' + (i === currentTutorialStep ? ' active' : ''); dots.appendChild(d);
+    });
+    document.getElementById('tutorialBtn').innerText = (currentTutorialStep === tutorialConfig.steps.length - 1) ? 'شروع کن!' : 'بعدی';
+}
+function nextTutorialStep() {
+    try { playSound('click'); } catch(e){}
+    currentTutorialStep++;
+    if (currentTutorialStep >= tutorialConfig.steps.length) {
+        document.getElementById('tutorialOverlay').classList.remove('active');
+        startGame();
+    } else { showTutorialStep(); }
+}
+
+function updateCoins() {
+    document.getElementById('coinCount').textContent = coins;
+    const c = document.getElementById('coinCounter');
+    c.classList.remove('pulse'); void c.offsetWidth; c.classList.add('pulse');
+    saveLokoData();
+}
+
+function startGame() {
+    initialCoins = coins; 
+    gameState = 'playing';
+    metrics = { responseTimes: [], correct: 0, wrong: 0, total: 0, target: 3 + currentLevel };
+    gameSeconds = 45 - (currentLevel * 2);
+    if (gameSeconds < 20) gameSeconds = 20;
+    spawnInterval = 1600 - (currentLevel * 80);
+    if (spawnInterval < 800) spawnInterval = 800;
+    
+    gameItems = [];
+    document.getElementById('gameArea').innerHTML = '';
+    document.getElementById('timerText').textContent = gameSeconds;
+    document.getElementById('gameTimer').classList.remove('urgent');
+    
+    showScreen('game');
+    startTimer();
+    lastSpawn = 0;
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = requestAnimationFrame(gameLoop);
+}
+
+function stopGame() {
+    try { playSound('click'); } catch(e){}
+    gameState = 'paused';
+    clearInterval(timerInterval);
+    cancelAnimationFrame(animationFrameId);
+    document.getElementById('pauseModal').classList.add('active');
+}
+function resumeGame() {
+    try { playSound('click'); } catch(e){}
+    document.getElementById('pauseModal').classList.remove('active');
+    gameState = 'playing';
+    startTimer();
+    lastSpawn = 0;
+    animationFrameId = requestAnimationFrame(gameLoop);
+}
+function goToLevelSelect() {
+    try { playSound('click'); } catch(e){}
+    document.getElementById('pauseModal').classList.remove('active');
+    showScreen('level');
+}
+function goToMenu() {
+    try { playSound('click'); } catch(e){}
+    document.getElementById('pauseModal').classList.remove('active');
+    showScreen('menu');
+}
+
+function continueGame() {
+    try { playSound('click'); } catch(e){}
+    gameState = 'playing';
+    showScreen('game');
+    startTimer();
+    lastSpawn = 0;
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = requestAnimationFrame(gameLoop);
+}
+
+function endGame(win) {
+    gameState = 'gameover';
+    clearInterval(timerInterval);
+    cancelAnimationFrame(animationFrameId);
+    document.getElementById('gameArea').innerHTML = '';
+    
+    let reward = 0;
+    var titleEl = document.getElementById('gameOverTitle');
+    var btnEl = document.getElementById('gameOverBtn');
+    
+    if (win) {
+        if (currentLevel === unlockedLevels) unlockedLevels++;
+        reward = (initialCoins === 0) ? 10 : 1;
+        coins += reward;
+        updateCoins();
+        titleEl.innerText = "آفرین! بردی";
+        titleEl.style.color = "var(--neon-green)";
+        btnEl.innerText = "مرحله بعد";
+    } else {
+        titleEl.innerText = "باخت متاسفم";
+        titleEl.style.color = "var(--danger)";
+        btnEl.innerText = "تلاش مجدد";
+    }
+    
+    document.getElementById('finalReward').innerText = '+' + reward;
+    document.getElementById('gameOverModal').classList.add('active');
+    
+    lokoCache.pendingSync = true;
+    if (navigator.onLine) syncLokoData();
+    console.log("Internal Metrics (Hidden):", metrics);
+}
+
+function closeGameOver() {
+    document.getElementById('gameOverModal').classList.remove('active');
+    if (metrics.correct >= metrics.target) {
+        currentLevel++;
+        startGame();
+    } else {
+        startGame();
+    }
+}
+
+function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(function() {
+        if (gameState !== 'playing') return;
+        gameSeconds--;
+        document.getElementById('timerText').textContent = gameSeconds;
+        if (gameSeconds <= 10) {
+            document.getElementById('gameTimer').classList.add('urgent');
+        }
+        if (gameSeconds <= 0) {
+            endGame(metrics.correct >= metrics.target);
+        }
+    }, 1000);
+}
+
+function gameLoop(timestamp) {
+    if (gameState !== 'playing') return;
+    if (!lastSpawn) lastSpawn = timestamp;
+    if (timestamp - lastSpawn > spawnInterval) {
+        spawnEmoji();
+        lastSpawn = timestamp;
+    }
+    for (let i = gameItems.length - 1; i >= 0; i--) {
+        const item = gameItems[i];
+        item.x += item.speed;
+        item.el.style.transform = 'translateX(' + (-item.x) + 'px)';
+        if (item.x > window.innerWidth + 100) {
+            item.el.remove();
+            gameItems.splice(i, 1);
+        }
+    }
+    animationFrameId = requestAnimationFrame(gameLoop);
+}
+
+function spawnEmoji() {
+    if (metrics.total >= metrics.target + 5) { 
+        return;
+    }
+    const itemData = items[Math.floor(Math.random() * items.length)];
+    const el = document.createElement('div');
+    el.className = 'emoji-item';
+    el.innerHTML = '<div class="emoji-inner"><span class="emoji-char">' + itemData.char + '</span><span class="emoji-name">' + itemData.name + '</span></div>';
+    
+    el.onclick = function(e) {
+        if (el.classList.contains('correct') || el.classList.contains('wrong')) return;
+        const responseTime = Date.now() - el.startTime;
+        metrics.responseTimes.push(responseTime);
+        metrics.total++;
+        
+        if (itemData.isBlessing) {
+            metrics.correct++;
+            el.classList.add('correct');
+            try { playSound('success'); } catch(e){}
+        } else {
+            metrics.wrong++;
+            el.classList.add('wrong');
+            try { playSound('error'); } catch(e){}
+        }
+        
+        if (metrics.correct >= metrics.target) {
+            endGame(true);
+        }
+        
+        setTimeout(function() { el.remove(); }, 500);
+    };
+    
+    document.getElementById('gameArea').appendChild(el);
+    el.startTime = Date.now();
+    gameItems.push({ el: el, x: 0, speed: 1.5 + Math.random() * 1.5 });
+}
+
+function switchShopTab(category) {
+    try { playSound('click'); } catch(e){}
+    document.querySelectorAll('.shop-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelector('.shop-tab[data-tab="' + category + '"]').classList.add('active');
+    renderShop(category);
+}
+
+function renderShop(category) {
+    const grid = document.getElementById('shopGrid');
+    grid.innerHTML = '';
+    if (!shopData[category]) return;
+    
+    shopData[category].forEach(function(item) {
+        const el = document.createElement('div');
+        el.className = 'shop-item' + (item.active ? ' active' : '');
+        
+        let preview = '';
+        if (category === 'skins') preview = '<div style="width:30px;height:30px;background:' + item.color + ';border-radius:50%;"></div>';
+        else if (category === 'characters') preview = '<svg viewBox="0 0 24 24" width="30" height="30" fill="' + (item.color || '#6C5CE7') + '"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+        else preview = '<svg viewBox="0 0 24 24" width="30" height="30" fill="' + (item.color || '#FFC93C') + '"><path d="M12 2L9.19 8.63L2 9.24l5.46 4.73L5.82 21L12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg>';
+        
+        let btnText = item.active ? 'فعال' : (item.owned ? 'انتخاب' : (item.price === 0 ? 'رایگان' : item.price + ' سکه'));
+        
+        el.innerHTML = '<div class="shop-item-preview">' + preview + '</div><div class="shop-item-name">' + item.name + '</div><div class="shop-item-price">' + btnText + '</div><button class="shop-item-btn" onclick="handleShopClick(\'' + category + '\', \'' + item.id + '\')">' + (item.active ? 'فعال' : 'خرید') + '</button>';
+        grid.appendChild(el);
+    });
+}
+
+function handleShopClick(category, id) {
+    try { playSound('click'); } catch(e){}
+    const item = shopData[category].find(function(i) { return i.id === id; });
+    if (!item) return;
+    
+    if (item.owned) {
+        shopData[category].forEach(function(i) { i.active = false; });
+        item.active = true;
+        if (category === 'skins') document.documentElement.style.setProperty('--gold', item.color);
+        showToast('آیتم انتخاب شد!');
+    } else {
+        if (coins >= item.price) {
+            coins -= item.price; item.owned = true;
+            shopData[category].forEach(function(i) { i.active = false; });
+            item.active = true;
+            if (category === 'skins') document.documentElement.style.setProperty('--gold', item.color);
+            updateCoins();
+            showToast('خرید موفق بود!');
+        } else { showToast('سکه کافی ندارید!'); }
+    }
+    saveLokoData();
+    renderShop(category);
+}
+
+function showToast(text) {
+    const t = document.getElementById('toast');
+    t.innerText = text; t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2000);
+}
+
+// Init
+createParticles();
+loadLokoData();
+document.getElementById('coinCount').textContent = coins;
+document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+</script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#gameOverModal", "#finalReward"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

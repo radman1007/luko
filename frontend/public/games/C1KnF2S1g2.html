@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>ماجراهای حروف</title>
+<style>
+@font-face{font-family:"Shoor";src:url("./fonts/Shoor-Regular.ttf") format("truetype");font-weight:400}
+@font-face{font-family:"Shoor";src:url("./fonts/Shoor-Medium.ttf") format("truetype");font-weight:500}
+@font-face{font-family:"Shoor";src:url("./fonts/Shoor-Black.ttf") format("truetype");font-weight:900}
+@font-face{font-family:"Shoor";src:url("./fonts/Shoor-ExtraBold.ttf") format("truetype");font-weight:800}
+@font-face{font-family:"Shoor Rounded";src:url("./fonts/ShoorRounded-Regular.ttf") format("truetype");font-weight:400}
+@font-face{font-family:"Shoor Rounded";src:url("./fonts/ShoorRounded-Medium.ttf") format("truetype");font-weight:500}
+@font-face{font-family:"Shoor Rounded";src:url("./fonts/ShoorRounded-Black.ttf") format("truetype");font-weight:900}
+@font-face{font-family:"Shoor Rounded";src:url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype");font-weight:800}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+
+:root{
+  --primary:#6C5CE7;--neon-blue:#00D2FF;--neon-pink:#FF00A0;--neon-green:#00FF9D;
+  --accent:#FFEAA7;--success:#00B894;--danger:#FF7675;--dark:#2a2055;
+  --gold:#FFC93C;--gold-dark:#B96F00;--gold-light:#FFE68A;
+  --cyan:#00D2FF;--pink:#FF00A0;--green:#00FF9D;--red:#FF7675;--purple:#6C5CE7;--orange:#FFA800;
+  --text:#ffffff;--text-dim:rgba(255,255,255,.7);
+  --glass:rgba(255,255,255,.18);--glass-2:rgba(255,255,255,.12);
+  --border:rgba(255,255,255,.25);
+  --shadow:0 10px 40px rgba(0,0,0,.3);
+  --shadow-cyan:0 0 30px rgba(0,210,255,.45);
+  --shadow-pink:0 0 30px rgba(255,0,160,.35);
+  --radius:16px;--radius-sm:10px;--radius-lg:24px;
+  --font:'Shoor Rounded','Shoor',Tahoma,sans-serif;
+}
+
+html,body{height:100%;overflow:hidden;font-family:var(--font)}
+body{display:flex;justify-content:center;align-items:center;background:#0c0a14}
+
+.app-wrapper{
+  width:100%;max-width:480px;height:100vh;height:100dvh;
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#1e1b3a,#2d2659);
+  box-shadow:0 0 60px rgba(0,0,0,.4);
+}
+
+.stars{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;width:3px;height:3px;background:#fff;border-radius:50%;animation:twinkle 3s infinite;opacity:.6}
+@keyframes twinkle{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:.9;transform:scale(1.2)}}
+
+.screen{position:absolute;inset:0;display:none;flex-direction:column;z-index:1;animation:fadeIn .35s ease;overflow:hidden}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.top-bar{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;padding-top:max(16px,env(safe-area-inset-top));z-index:10;flex-shrink:0}
+
+.coins-display{display:flex;align-items:center;gap:8px;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);padding:8px 16px;border-radius:100px;box-shadow:var(--shadow)}
+.coin-icon{width:28px;height:28px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(255,201,60,.4));animation:coinSpin 4s linear infinite}
+@keyframes coinSpin{0%,100%{transform:rotateY(0)}50%{transform:rotateY(180deg)}}
+.coin-count{font-size:18px;font-weight:900;color:var(--gold);text-shadow:0 0 10px rgba(255,201,60,.5);min-width:24px;display:inline-block}
+
+.icon-btn{background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);color:var(--text);width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn svg{width:22px;height:22px}
+
+.main-content{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 20px;gap:16px;position:relative;z-index:1;overflow-y:auto}
+
+.game-title{font-size:clamp(32px,8vw,48px);font-weight:900;text-align:center;background:linear-gradient(135deg,var(--neon-blue),var(--neon-pink),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px;animation:titleGlow 3s ease-in-out infinite alternate}
+@keyframes titleGlow{from{filter:drop-shadow(0 0 10px rgba(0,210,255,.4))}to{filter:drop-shadow(0 0 25px rgba(255,0,160,.5))}}
+.game-subtitle{font-size:clamp(13px,3.5vw,17px);color:var(--text-dim);margin-top:-8px}
+
+.guide-section{display:flex;flex-direction:column;align-items:center;width:100%;max-width:360px;flex:1;justify-content:center}
+.speech-bubble{background:linear-gradient(135deg,rgba(0,210,255,.15),rgba(108,92,231,.15));backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1.5px solid rgba(0,210,255,.4);border-radius:20px;padding:16px 20px 14px;position:relative;width:100%;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 8px 30px rgba(0,210,255,.2),inset 0 1px 0 rgba(255,255,255,.15);margin-bottom:14px;cursor:pointer;transition:all .2s;animation:bubblePop .4s ease}
+@keyframes bubblePop{from{opacity:0;transform:scale(.85) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.speech-bubble:active{transform:scale(.97)}
+.speech-bubble::after{content:'';position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:12px solid rgba(0,210,255,.4)}
+.speech-bubble::before{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid rgba(30,27,58,.9);z-index:1}
+.speech-text{font-size:clamp(14px,3.5vw,16px);line-height:1.6;color:var(--text);font-weight:600;min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center}
+.speech-next-hint{display:flex;align-items:center;gap:4px;margin-top:8px;font-size:11px;color:var(--neon-blue);opacity:.8;animation:nextBlink 1.5s infinite}
+@keyframes nextBlink{0%,100%{opacity:.5}50%{opacity:1}}
+.speech-next-hint svg{width:14px;height:14px;transform:scaleX(-1)}
+.tip-dots{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.tip-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);transition:all .3s}
+.tip-dot.active{background:var(--neon-blue);width:20px;border-radius:3px;box-shadow:0 0 8px rgba(0,210,255,.5)}
+
+.character-wrapper{position:relative;cursor:pointer;display:flex;flex-direction:column;align-items:center}
+.character-img{max-width:clamp(160px,42vw,240px);max-height:clamp(180px,40vh,260px);width:auto;height:auto;object-fit:contain;filter:drop-shadow(0 10px 30px rgba(0,210,255,.3));animation:float 4s ease-in-out infinite;transition:transform .2s;border-radius:20px}
+.character-wrapper.talking .character-img{animation:float 4s ease-in-out infinite,talkBounce .3s ease infinite}
+@keyframes talkBounce{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-3px) rotate(1deg)}}
+.character-wrapper:active .character-img{transform:scale(.95)}
+.character-fallback{display:flex;align-items:center;justify-content:center}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+
+.menu-buttons{display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;flex-shrink:0}
+.btn{padding:14px 28px;border:none;border-radius:var(--radius);font-size:16px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text);font-family:inherit;position:relative;overflow:hidden}
+.btn:active{transform:translateY(2px)}
+.btn-primary{background:linear-gradient(180deg,var(--gold-light) 0%,var(--gold) 45%,var(--orange) 100%);color:#5D2900;border:2px solid var(--gold-dark);font-size:18px;font-weight:900;padding:16px 32px;box-shadow:0 6px 0 var(--gold-dark),0 8px 20px rgba(255,168,0,.4)}
+.btn-primary:active{transform:translateY(4px);box-shadow:0 2px 0 var(--gold-dark),0 4px 10px rgba(255,168,0,.4)}
+.btn-primary.pulse{animation:btnPulse 1.5s infinite}
+@keyframes btnPulse{0%,100%{box-shadow:0 6px 0 var(--gold-dark),0 8px 20px rgba(255,168,0,.4),0 0 0 0 rgba(255,201,60,.4)}50%{box-shadow:0 6px 0 var(--gold-dark),0 8px 20px rgba(255,168,0,.4),0 0 0 12px rgba(255,201,60,0)}}
+.btn-secondary{background:linear-gradient(180deg,rgba(255,255,255,.25),rgba(255,255,255,.12));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1.5px solid rgba(255,201,60,.5);color:var(--gold);box-shadow:0 4px 0 rgba(185,111,0,.3),0 6px 15px rgba(0,0,0,.2)}
+.btn-secondary:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(185,111,0,.3),0 3px 10px rgba(0,0,0,.2)}
+.btn-row{display:flex;gap:12px}
+.btn-row .btn{flex:1}
+
+/* ===== صفحه انتخاب مرحله ===== */
+.levels-screen-content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.levels-grid{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 20px 20px;overflow-y:auto;align-content:start;max-width:440px;margin:0 auto;width:100%;scrollbar-width:thin}
+.levels-grid::-webkit-scrollbar{width:4px}
+.levels-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+
+.level-cell{
+  aspect-ratio:1;border-radius:var(--radius);
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(20px,6vw,28px);font-weight:900;
+  cursor:pointer;position:relative;transition:all .2s;
+  border:2px solid transparent;overflow:hidden;
+}
+.level-cell:active{transform:scale(.95)}
+.level-cell.unlocked{background:linear-gradient(135deg,var(--primary),var(--neon-blue));color:#fff;border-color:rgba(255,255,255,.3);box-shadow:0 4px 15px rgba(108,92,231,.4),inset 0 1px 0 rgba(255,255,255,.2)}
+.level-cell.unlocked.current{animation:levelPulse 1.8s infinite;border-color:rgba(255,255,255,.5)}
+@keyframes levelPulse{0%,100%{box-shadow:0 4px 15px rgba(108,92,231,.4),inset 0 1px 0 rgba(255,255,255,.2),0 0 0 0 rgba(0,210,255,.5)}50%{box-shadow:0 4px 15px rgba(108,92,231,.4),inset 0 1px 0 rgba(255,255,255,.2),0 0 0 10px rgba(0,210,255,0)}}
+.level-cell.completed{background:linear-gradient(135deg,var(--gold),var(--orange));color:#5D2900;border-color:rgba(255,255,255,.3);box-shadow:0 4px 15px rgba(255,201,60,.4),inset 0 1px 0 rgba(255,255,255,.2)}
+.level-cell.locked{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.3);cursor:not-allowed}
+.level-cell.locked svg{width:28px;height:28px}
+.level-check-badge{position:absolute;top:5px;right:5px;width:20px;height:20px;background:var(--neon-green);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,255,157,.4)}
+.level-check-badge svg{width:12px;height:12px;color:#fff}
+.level-stars-mini{position:absolute;bottom:3px;left:0;right:0;display:flex;gap:2px;justify-content:center}
+.level-star-mini{width:8px;height:8px}
+.level-star-mini.filled{color:var(--gold)}
+.level-star-mini.empty{color:rgba(0,0,0,.2)}
+
+/* ===== صفحه بازی ===== */
+.game-top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));flex-shrink:0}
+.game-progress{display:flex;gap:6px;align-items:center}
+.progress-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);transition:all .3s}
+.progress-dot.active{background:var(--neon-blue);box-shadow:0 0 10px var(--neon-blue);transform:scale(1.3)}
+.progress-dot.done{background:var(--neon-green);box-shadow:0 0 8px rgba(0,255,157,.5)}
+.level-badge{background:var(--glass);border:1px solid var(--border);padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;color:var(--neon-blue);margin-bottom:4px}
+
+.game-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:8px 16px 16px;gap:12px;overflow:hidden}
+.cards-container{display:flex;align-items:center;justify-content:center;gap:clamp(8px,3vw,24px);width:100%;flex:1;direction:ltr;min-height:0}
+.card{width:clamp(110px,30vw,170px);height:clamp(150px,38vw,210px);background:linear-gradient(160deg,rgba(255,255,255,.2),rgba(255,255,255,.06));backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:2px solid rgba(255,255,255,.2);border-radius:var(--radius-lg);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;box-shadow:var(--shadow);transition:all .3s;animation:cardAppear .4s ease;flex-shrink:0}
+@keyframes cardAppear{from{opacity:0;transform:scale(.9) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.card.target-card{border-color:rgba(0,210,255,.5);box-shadow:var(--shadow),var(--shadow-cyan)}
+.card.user-card{border-color:rgba(255,0,160,.5);box-shadow:var(--shadow),var(--shadow-pink);border-style:dashed}
+.card-label{position:absolute;top:-10px;font-size:11px;font-weight:700;background:#2a2055;padding:3px 12px;border-radius:100px;border:1px solid var(--border);white-space:nowrap;z-index:2}
+.card.target-card .card-label{color:var(--neon-blue);border-color:rgba(0,210,255,.5)}
+.card.user-card .card-label{color:var(--neon-pink);border-color:rgba(255,0,160,.5)}
+.card-content{position:relative;display:flex;align-items:center;justify-content:center;height:100%;width:100%}
+.letter-display{font-size:clamp(60px,18vw,100px);font-weight:900;line-height:1;position:relative;color:var(--text);display:flex;align-items:center;justify-content:center}
+.card-separator{display:flex;align-items:center;justify-content:center;color:var(--text-dim);flex-shrink:0}
+.card-separator svg{width:clamp(24px,7vw,36px);height:clamp(24px,7vw,36px)}
+.placeholder-text{color:rgba(255,255,255,.35);font-size:13px;text-align:center;line-height:1.5}
+
+.options-area{width:100%;display:flex;flex-direction:column;gap:8px;max-width:480px;flex-shrink:0}
+.options-label{font-size:11px;color:var(--text-dim);text-align:center;margin-bottom:-2px;font-weight:600}
+.option-row{display:flex;gap:8px;justify-content:center}
+.option-btn{width:clamp(58px,17vw,76px);height:clamp(58px,17vw,76px);background:linear-gradient(160deg,rgba(255,255,255,.2),rgba(255,255,255,.06));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:2px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:clamp(26px,8vw,40px);font-weight:700;cursor:pointer;transition:all .15s;color:var(--text);font-family:inherit;position:relative;overflow:hidden;animation:optionAppear .3s ease backwards}
+@keyframes optionAppear{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+.option-btn:nth-child(1){animation-delay:.05s}.option-btn:nth-child(2){animation-delay:.1s}.option-btn:nth-child(3){animation-delay:.15s}
+.option-btn:active{transform:scale(.92)}
+.option-btn.haraka-btn{border-color:rgba(255,201,60,.4);color:var(--gold)}
+.option-btn.letter-btn{border-color:rgba(0,210,255,.4);color:var(--neon-blue)}
+.option-btn.selected{opacity:.35;transform:scale(.88)}
+.option-btn.wrong-flash{animation:wrongShake .4s;border-color:var(--danger)!important;box-shadow:0 0 20px rgba(255,118,117,.5)}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.card.success{animation:successPop .5s;border-color:var(--success)!important;box-shadow:var(--shadow),0 0 40px rgba(0,255,157,.5)!important}
+@keyframes successPop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+.success-overlay-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60px;height:60px;opacity:0;pointer-events:none}
+.card.success .success-overlay-icon{opacity:1;animation:checkPop .5s}
+@keyframes checkPop{0%{transform:translate(-50%,-50%) scale(0)}60%{transform:translate(-50%,-50%) scale(1.3)}100%{transform:translate(-50%,-50%) scale(1)}}
+
+/* ===== صفحه راهنما ===== */
+.help-content{flex:1;display:flex;flex-direction:column;padding:20px;overflow-y:auto;gap:20px;align-items:center}
+.help-character-img{max-width:clamp(140px,35vw,200px);max-height:clamp(160px,35vh,220px);width:auto;height:auto;object-fit:contain;animation:float 4s ease-in-out infinite;flex-shrink:0;border-radius:20px;filter:drop-shadow(0 10px 30px rgba(0,210,255,.3))}
+.help-card{background:linear-gradient(160deg,rgba(255,255,255,.2),rgba(255,255,255,.05));backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;max-width:500px;width:100%;box-shadow:var(--shadow)}
+.help-card h2{font-size:20px;margin-bottom:16px;color:var(--neon-blue);display:flex;align-items:center;gap:8px}
+.help-step{display:flex;gap:12px;margin-bottom:16px;align-items:flex-start}
+.help-step:last-child{margin-bottom:0}
+.step-number{flex-shrink:0;width:28px;height:28px;background:linear-gradient(135deg,var(--neon-blue),var(--primary));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;box-shadow:0 4px 12px rgba(0,210,255,.3)}
+.step-text{flex:1;font-size:14px;line-height:1.7;color:var(--text-dim)}
+.step-text strong{color:var(--text)}
+
+/* ===== فروشگاه ===== */
+.shop-content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.shop-tabs{display:flex;gap:10px;padding:4px 20px 16px;justify-content:center;flex-shrink:0;flex-wrap:wrap}
+.tab-btn{padding:10px 18px;background:var(--glass);border:1px solid var(--border);border-radius:100px;color:var(--text-dim);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .25s;font-family:inherit;display:flex;align-items:center;gap:6px}
+.tab-btn svg{width:16px;height:16px;transition:transform .25s}
+.tab-btn.active{background:linear-gradient(135deg,var(--gold-light),var(--gold));color:#5D2900;border-color:transparent;box-shadow:0 4px 18px rgba(255,201,60,.35);transform:translateY(-2px)}
+.tab-btn.active svg{transform:scale(1.15)}
+.shop-items{flex:1;display:none;flex-wrap:wrap;gap:14px;padding:0 20px 20px;overflow-y:auto;justify-content:center;align-content:flex-start;scrollbar-width:thin}
+.shop-items.active{display:flex}
+.shop-items::-webkit-scrollbar{width:6px}
+.shop-items::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px}
+.shop-item{width:clamp(130px,40vw,170px);background:linear-gradient(160deg,rgba(255,255,255,.2),rgba(255,255,255,.05));backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px;transition:all .2s;position:relative}
+.shop-item.owned{border-color:rgba(0,255,157,.4)}
+.shop-item.equipped{border-color:var(--neon-blue);box-shadow:0 0 20px rgba(0,210,255,.3)}
+.item-preview{width:72px;height:72px;border-radius:var(--radius-sm);background:var(--glass);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.item-name{font-size:13px;font-weight:700;text-align:center}
+.item-price{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--gold)}
+.item-price .coin-icon{width:18px;height:18px;animation:none}
+.buy-btn{width:100%;padding:8px;border:none;border-radius:var(--radius-sm);background:linear-gradient(180deg,var(--gold-light),var(--gold));color:#5D2900;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;font-family:inherit}
+.buy-btn:disabled{opacity:.35;cursor:not-allowed}
+.buy-btn.owned-btn{background:var(--glass);border:1px solid var(--success);color:var(--success)}
+.buy-btn.equipped-btn{background:linear-gradient(135deg,var(--success),#00b860);color:#fff}
+
+/* ===== Overlayها ===== */
+.overlay{position:fixed;inset:0;background:rgba(12,10,20,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.overlay.active{display:flex;animation:fadeIn .3s}
+.overlay-content{background:linear-gradient(160deg,rgba(42,32,85,.95),rgba(30,27,58,.98));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px 24px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px;align-items:center;box-shadow:var(--shadow)}
+.overlay-title{font-size:24px;font-weight:900;margin-bottom:8px;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.overlay-buttons{display:flex;flex-direction:column;gap:10px;width:100%}
+
+.game-complete-content{gap:16px;text-align:center}
+.game-complete-character{max-width:100px;max-height:120px;width:auto;height:auto;object-fit:contain;animation:float 4s ease-in-out infinite;filter:drop-shadow(0 8px 20px rgba(255,201,60,.3))}
+.stars-display{display:flex;gap:8px;justify-content:center}
+.star-icon{width:36px;height:36px;animation:starPop .5s ease backwards}
+.star-icon.filled{color:var(--gold);filter:drop-shadow(0 0 12px rgba(255,201,60,.6))}
+.star-icon.empty{color:rgba(255,255,255,.2)}
+.star-icon:nth-child(1){animation-delay:.1s}.star-icon:nth-child(2){animation-delay:.2s}.star-icon:nth-child(3){animation-delay:.3s}
+@keyframes starPop{from{opacity:0;transform:scale(0) rotate(-30deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+.coin-reward-box{display:flex;align-items:center;gap:10px;justify-content:center;background:rgba(255,201,60,.15);border:1.5px solid rgba(255,201,60,.4);border-radius:var(--radius);padding:10px 20px;margin:4px 0}
+.coin-reward-box .coin-icon{width:32px;height:32px;animation:none}
+.coin-reward-amount{font-size:28px;font-weight:900;color:var(--gold);text-shadow:0 0 15px rgba(255,201,60,.4)}
+
+.tutorial-overlay{position:fixed;inset:0;background:rgba(12,10,20,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;z-index:110;padding:20px}
+.tutorial-overlay.active{display:flex;animation:fadeIn .3s}
+.tutorial-card{background:linear-gradient(160deg,rgba(42,32,85,.95),rgba(30,27,58,.98));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1.5px solid rgba(0,210,255,.4);border-radius:var(--radius-lg);padding:28px 24px 20px;width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 40px rgba(0,210,255,.15);animation:tutCardPop .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes tutCardPop{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.tutorial-skip{position:absolute;top:14px;left:14px;background:var(--glass);border:1px solid var(--border);color:var(--text-dim);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;z-index:5}
+.tutorial-skip:active{transform:scale(.94)}
+.tutorial-character-area{width:clamp(110px,28vw,150px);height:clamp(130px,32vh,170px);display:flex;align-items:flex-end;justify-content:center;position:relative}
+.tutorial-character-area img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;animation:float 4s ease-in-out infinite;filter:drop-shadow(0 8px 20px rgba(0,210,255,.3))}
+.tutorial-character-area .tut-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.tutorial-character-area.talking img,.tutorial-character-area.talking .tut-fallback{animation:float 4s ease-in-out infinite,talkBounce .3s ease infinite}
+.tutorial-bubble{background:linear-gradient(135deg,rgba(0,210,255,.12),rgba(108,92,231,.12));border:1.5px solid rgba(0,210,255,.4);border-radius:16px;padding:16px 18px;width:100%;text-align:center;position:relative;animation:stepSlideIn .35s ease;min-height:60px}
+@keyframes stepSlideIn{from{opacity:0;transform:scale(.92) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.tutorial-bubble::after{content:'';position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:12px solid rgba(0,210,255,.4)}
+.tutorial-bubble::before{content:'';position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:10px solid rgba(30,27,58,.9);z-index:1}
+.tutorial-message{font-size:clamp(14px,3.5vw,16px);font-weight:700;line-height:1.6;color:var(--text);min-height:40px;display:flex;align-items:center;justify-content:center}
+.tutorial-hint-box{display:flex;align-items:center;gap:8px;background:rgba(255,201,60,.12);border:1px solid rgba(255,201,60,.3);border-radius:10px;padding:8px 14px;margin-top:10px;animation:hintFadeIn .4s ease .3s backwards}
+@keyframes hintFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.tutorial-hint-box svg{width:18px;height:18px;color:var(--gold);flex-shrink:0}
+.tutorial-hint-text{font-size:13px;color:var(--gold);font-weight:600;line-height:1.5;text-align:right}
+.tutorial-dots{display:flex;gap:6px;margin-top:4px}
+.tutorial-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25);transition:all .3s}
+.tutorial-dot.active{background:var(--neon-blue);width:24px;border-radius:4px;box-shadow:0 0 8px rgba(0,210,255,.5)}
+.tutorial-dot.done{background:rgba(0,210,255,.4)}
+.tutorial-buttons{display:flex;gap:10px;width:100%;margin-top:4px}
+.tutorial-buttons .btn{flex:1}
+
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(120px);background:#2a2055;border:1px solid var(--border);color:var(--text);padding:12px 24px;border-radius:100px;font-size:14px;font-weight:700;z-index:200;transition:transform .3s;box-shadow:var(--shadow);white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:var(--success);color:var(--success)}
+.toast.error{border-color:var(--danger);color:var(--danger)}
+
+.back-btn{background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:100px;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.back-btn:active{transform:scale(.95)}
+.back-btn svg{width:18px;height:18px}
+
+.coin-particle{position:fixed;pointer-events:none;z-index:150;animation:coinFly .9s ease-out forwards}
+.coin-particle img{width:28px;height:28px;object-fit:contain}
+@keyframes coinFly{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.4) translateY(-120px)}}
+.confetti{position:fixed;width:8px;height:8px;pointer-events:none;z-index:150;animation:confettiFall 2s linear forwards}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+@media (max-height:640px){
+  .guide-section{gap:8px}.speech-bubble{padding:10px 16px;min-height:56px;margin-bottom:10px}
+  .speech-text{font-size:13px;min-height:36px}.character-img{max-height:160px}
+  .help-character-img{max-height:140px}.main-content{gap:10px;padding:8px 16px}
+  .game-title{font-size:clamp(26px,7vw,36px)}.tip-dots{margin-top:6px}
+  .tutorial-card{padding:20px 20px 16px;gap:10px}.tutorial-character-area{height:110px}
+  .tutorial-message{font-size:13px;min-height:32px}
+  .levels-grid{gap:8px;padding:12px 16px 16px}
+}
+</style>
+</head>
+<body>
+
+<div class="app-wrapper">
+<div class="stars" id="stars"></div>
+
+<!-- ===== صفحه اصلی ===== -->
+<div id="screen-main" class="screen active">
+  <header class="top-bar">
+    <div class="coins-display">
+      <img src="./icons/coin.png" class="coin-icon" alt="" onerror="this.style.display='none'">
+      <span class="coin-count" id="coinCount">۰</span>
+    </div>
+    <button class="icon-btn" id="soundToggle">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+    </button>
+  </header>
+  <main class="main-content">
+    <h1 class="game-title">ماجراهای حروف</h1>
+    <p class="game-subtitle">با نشانه‌ها آشنا شو</p>
+    <div class="guide-section">
+      <div class="speech-bubble" id="speechBubble" onclick="nextTip()">
+        <span class="speech-text" id="speechText"></span>
+        <div class="speech-next-hint" id="nextHint">
+          <span>برای ادامه بزن</span>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </div>
+      </div>
+      <div class="character-wrapper" id="characterWrapper" onclick="nextTip()">
+        <img src="./icons/gamer.png" class="character-img" alt="" id="mainCharacterImg" onerror="handleCharFallback(this,'#6C5CE7')">
+      </div>
+      <div class="tip-dots" id="tipDots"></div>
+    </div>
+    <div class="menu-buttons">
+      <button class="btn btn-primary" id="btnStart">شروع بازی</button>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="btnShop">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.36 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+          فروشگاه
+        </button>
+        <button class="btn btn-secondary" id="btnHelp">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
+          راهنما
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ===== صفحه انتخاب مرحله ===== -->
+<div id="screen-levels" class="screen">
+  <header class="top-bar">
+    <button class="back-btn" id="btnLevelsBack">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      بازگشت
+    </button>
+    <h2 style="font-size:20px;color:var(--gold)">مراحل</h2>
+    <div class="coins-display">
+      <img src="./icons/coin.png" class="coin-icon" alt="" onerror="this.style.display='none'">
+      <span class="coin-count" id="coinCountLevels">۰</span>
+    </div>
+  </header>
+  <div class="levels-grid" id="levelsGrid"></div>
+</div>
+
+<!-- ===== صفحه بازی ===== -->
+<div id="screen-game" class="screen">
+  <header class="game-top">
+    <button class="icon-btn" id="btnStop">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+    </button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+      <span class="level-badge" id="levelBadge">مرحله ۱</span>
+      <div class="game-progress" id="gameProgress"></div>
+    </div>
+    <div class="coins-display">
+      <img src="./icons/coin.png" class="coin-icon" alt="" onerror="this.style.display='none'">
+      <span class="coin-count" id="coinCountGame">۰</span>
+    </div>
+  </header>
+  <div class="game-area">
+    <div class="cards-container">
+      <div class="card target-card">
+        <span class="card-label">هدف</span>
+        <div class="card-content" id="targetCard"></div>
+        <svg class="success-overlay-icon" viewBox="0 0 24 24" fill="none" stroke="#00FF9D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <div class="card-separator">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 11h12.17l-5.59-5.59L12 4l8 8-8 8-1.41-1.41L16.17 13H4z"/></svg>
+      </div>
+      <div class="card user-card">
+        <span class="card-label">ساخت تو</span>
+        <div class="card-content" id="userCard">
+          <span class="placeholder-text">حرف و نشانه را<br>انتخاب کن</span>
+        </div>
+      </div>
+    </div>
+    <div class="options-area">
+      <div class="options-label">نشانه‌ها</div>
+      <div class="option-row" id="harakaOptions"></div>
+      <div class="options-label">حروف</div>
+      <div class="option-row" id="letterOptions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== صفحه راهنما ===== -->
+<div id="screen-help" class="screen">
+  <header class="top-bar">
+    <button class="back-btn" id="btnHelpBack">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      بازگشت
+    </button>
+    <h2 style="font-size:20px;color:var(--neon-blue)">راهنما</h2>
+    <div style="width:60px"></div>
+  </header>
+  <div class="help-content">
+    <img src="./icons/gamerhi.png" class="help-character-img" alt="" onerror="handleCharFallback(this,'#00D2FF')">
+    <div class="help-card">
+      <h2><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>چطور بازی کنیم؟</h2>
+      <div class="help-step"><div class="step-number">۱</div><div class="step-text">یک <strong>کارت هدف</strong> سمت چپ می‌بینی که یک حرف با نشانه دارد. مثلاً «بُ».</div></div>
+      <div class="help-step"><div class="step-number">۲</div><div class="step-text">سمت راست یک <strong>کارت خالی</strong> هست. تو باید مثل کارت هدف پرش کنی.</div></div>
+      <div class="help-step"><div class="step-number">۳</div><div class="step-text">از سطر بالا، <strong>نشانه درست</strong> (اَ، اِ، اُ) را انتخاب کن.</div></div>
+      <div class="help-step"><div class="step-number">۴</div><div class="step-text">از سطر پایین، <strong>حرف درست</strong> را انتخاب کن.</div></div>
+      <div class="help-step"><div class="step-number">۵</div><div class="step-text">اگه خوب بازی کنی، <strong>سکه لوکو</strong> می‌گیری!</div></div>
+    </div>
+    <div class="help-card">
+      <h2><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>نکته صوتی</h2>
+      <div class="step-text">وقتی روی هر گزینه کلیک کنی، <strong>صدای آن</strong> پخش می‌شود. به صداها گوش بده.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== صفحه فروشگاه ===== -->
+<div id="screen-shop" class="screen">
+  <header class="top-bar">
+    <button class="back-btn" id="btnShopBack">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      بازگشت
+    </button>
+    <h2 style="font-size:20px;color:var(--gold)">فروشگاه</h2>
+    <div class="coins-display">
+      <img src="./icons/coin.png" class="coin-icon" alt="" onerror="this.style.display='none'">
+      <span class="coin-count" id="coinCountShop">۰</span>
+    </div>
+  </header>
+  <div class="shop-content">
+    <div class="shop-tabs" id="shopTabs">
+      <button class="tab-btn active" data-tab="skins">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c3.31 0 6-2.69 6-6 0-4.96-4.49-8-10-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 8 6.5 8s1.5.67 1.5 1.5S7.33 11 6.5 11zm3-4C8.67 7 8 6.33 8 5.5S8.67 4 9.5 4s1.5.67 1.5 1.5S10.33 7 9.5 7zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 4 14.5 4s1.5.67 1.5 1.5S15.33 7 14.5 7zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 8 17.5 8s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+        پوسته‌ها
+      </button>
+      <button class="tab-btn" data-tab="customization">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg>
+        شخصی‌سازی
+      </button>
+    </div>
+    <div class="shop-items active" id="shopItems-skins"></div>
+    <div class="shop-items" id="shopItems-customization"></div>
+  </div>
+</div>
+</div>
+
+<!-- ===== Overlay توقف ===== -->
+<div class="overlay" id="overlayPause">
+  <div class="overlay-content">
+    <h2 class="overlay-title" id="pauseTitle">توقف</h2>
+    <p style="color:var(--text-dim);font-size:14px;text-align:center" id="pauseDesc">می‌خوای ادامه بدی یا از اول شروع کنی؟</p>
+    <div class="overlay-buttons">
+      <button class="btn btn-primary" id="btnContinue">ادامه بازی</button>
+      <button class="btn btn-secondary" id="btnRestart">شروع مجدد</button>
+      <button class="btn btn-secondary" id="btnLevelSelect">انتخاب مرحله</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Overlay تکمیل مرحله ===== -->
+<div class="overlay" id="overlayLevelComplete">
+  <div class="overlay-content">
+    <h2 class="overlay-title">آفرین!</h2>
+    <p style="color:var(--text-dim);font-size:14px;text-align:center" id="levelCompleteText">مرحله رو کامل کردی!</p>
+    <div class="overlay-buttons">
+      <button class="btn btn-primary" id="btnNextLevel">مرحله بعد</button>
+      <button class="btn btn-secondary" id="btnLevelCompleteSelect">انتخاب مرحله</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Overlay پایان کل بازی ===== -->
+<div class="overlay" id="overlayGameComplete">
+  <div class="overlay-content game-complete-content">
+    <img src="./icons/gamerhi.png" class="game-complete-character" alt="" onerror="this.style.display='none'">
+    <h2 class="overlay-title">تمام شد!</h2>
+    <p style="color:var(--text-dim);font-size:14px;text-align:center">همه مرحله‌ها رو کامل کردی!</p>
+    <div class="stars-display" id="gameCompleteStars"></div>
+    <div class="coin-reward-box" id="gameCompleteReward"></div>
+    <div class="overlay-buttons">
+      <button class="btn btn-primary" id="btnGameCompleteMenu">منوی اصلی</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Overlay آموزش ===== -->
+<div class="tutorial-overlay" id="overlayTutorial">
+  <div class="tutorial-card">
+    <button class="tutorial-skip" id="btnTutorialSkip">رد کردن</button>
+    <div class="tutorial-character-area" id="tutorialCharArea">
+      <img id="tutorialCharImg" alt="" style="display:none">
+    </div>
+    <div class="tutorial-bubble" id="tutorialBubble">
+      <p class="tutorial-message" id="tutorialMessage"></p>
+      <div class="tutorial-hint-box" id="tutorialHintBox">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
+        <span class="tutorial-hint-text" id="tutorialHint"></span>
+      </div>
+    </div>
+    <div class="tutorial-dots" id="tutorialDots"></div>
+    <div class="tutorial-buttons">
+      <button class="btn btn-secondary" id="btnTutorialPrev">قبلی</button>
+      <button class="btn btn-primary" id="btnTutorialNext">بعدی</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== پیکربندی آموزش =====
+const tutorialConfig={
+  characterIcon:"./icons/gamerhi.png",
+  steps:[
+    {message:"سلام! من ربات هم‌کلاسی تو هستم. بیا با هم بازی کنیم!",hint:"هدف: با نشانه‌های اَ، اِ، اُ آشنا بشی"},
+    {message:"یه کارت هدف سمت چپ می‌بینی. مثلاً «بُ»",hint:"بُ = حرف «ب» + نشانه «اُ»"},
+    {message:"حالا تو باید مثل اون کارت رو بسازی!",hint:"سمت راست، کارت خالی تو قرار داره"},
+    {message:"از سطر بالا، نشانه درست رو انتخاب کن",hint:"اَ یا اِ یا اُ؟ به صداش گوش بده!"},
+    {message:"از سطر پایین، حرف درست رو انتخاب کن",hint:"اگه خوب بازی کنی، سکه لوکو می‌گیری!"}
+  ]
+};
+
+// ===== داده‌ها =====
+const letters=[
+  {char:'ب',sound:'ب'},{char:'پ',sound:'پ'},{char:'ت',sound:'ت'},{char:'د',sound:'د'},
+  {char:'ر',sound:'ر'},{char:'س',sound:'س'},{char:'م',sound:'م'},{char:'ن',sound:'ن'},
+  {char:'ل',sound:'ل'},{char:'ک',sound:'ک'},{char:'گ',sound:'گ'},{char:'و',sound:'و'}
+];
+const harakat=[
+  {char:'َ',display:'اَ',name:'fatha',sound:'اَ',syllable:'a'},
+  {char:'ِ',display:'اِ',name:'kasra',sound:'اِ',syllable:'i'},
+  {char:'ُ',display:'اُ',name:'damma',sound:'اُ',syllable:'u'}
+];
+const combinedSounds={
+  a:{'ب':'با','پ':'پا','ت':'تا','د':'دا','ر':'را','س':'سا','م':'ما','ن':'نا','ل':'لا','ک':'کا','گ':'گا','و':'وا'},
+  i:{'ب':'بی','پ':'پی','ت':'تی','د':'دی','ر':'ری','س':'سی','م':'می','ن':'نی','ل':'لی','ک':'کی','گ':'گی','و':'وی'},
+  u:{'ب':'بو','پ':'پو','ت':'تو','د':'دو','ر':'رو','س':'سو','م':'مو','ن':'نو','ل':'لو','ک':'کو','گ':'گو','و':'وو'}
+};
+const shopItems={
+  skins:[
+    {id:'skin-default',name:'پوسته پیش‌فرض',price:0,color1:'#00D2FF',color2:'#6C5CE7'},
+    {id:'skin-sunset',name:'غروب',price:10,color1:'#FFA800',color2:'#FF00A0'},
+    {id:'skin-forest',name:'جنگل',price:8,color1:'#00FF9D',color2:'#00D2FF'},
+    {id:'skin-gold',name:'طلایی',price:15,color1:'#FFC93C',color2:'#FFA800'},
+    {id:'skin-ocean',name:'اقیانوس',price:12,color1:'#00D2FF',color2:'#6C5CE7'}
+  ],
+  customization:[
+    {id:'cust-glow',name:'درخشش',price:8,type:'glow'},
+    {id:'cust-particles',name:'ذرات',price:12,type:'particles'},
+    {id:'cust-rainbow',name:'رنگین‌کمان',price:15,type:'rainbow'},
+    {id:'cust-stars',name:'ستاره',price:10,type:'stars'}
+  ]
+};
+const guideTips=[
+  "سلام! من ربات هم‌کلاسی تو هستم!",
+  "تو این بازی با نشانه‌های اَ، اِ، اُ آشنا میشی",
+  "یه کارت هدف می‌بینی... باید مثل اون رو بسازی!",
+  "اول از سطر بالا، نشانه درست رو انتخاب کن",
+  "بعد از سطر پایین، حرف درست رو انتخاب کن",
+  "اگه خوب بازی کنی، سکه لوکو می‌گیری! آماده‌ای؟"
+];
+
+// ===== وضعیت بازی =====
+const state={
+  coins:0,soundEnabled:true,currentScreen:'main',
+  currentLevel:1,currentCardIndex:0,cardsPerLevel:5,
+  currentTarget:null,userCard:{letter:null,haraka:null},
+  hasActiveGame:false,currentTip:0,tutorialStep:0,tutorialSeen:false,
+  // سیستم مرحله‌ای
+  totalLevels:20,unlockedLevels:1,completedLevels:0,levelStars:{},
+  // سیستم سکه LOKO
+  initialCoins:0,gameSessionActive:false,
+  // فروشگاه
+  ownedItems:{skins:['skin-default'],customization:[]},
+  equippedItems:{skin:'skin-default',customization:null},
+  // معیارهای پنهان
+  metrics:{responseTimes:[],correctCount:0,wrongCount:0,totalAttempts:0,sessionStartTime:null,cardStartTime:null,levelStartTime:null}
+};
+
+// ===== ذخیره‌سازی =====
+const storage={data:{},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){this.data[k]=v}},get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return this.data[k]||d}}};
+function loadState(){
+  state.coins=storage.get('hg_coins',0);
+  state.soundEnabled=storage.get('hg_sound',true);
+  state.ownedItems=storage.get('hg_owned',state.ownedItems);
+  state.equippedItems=storage.get('hg_equipped',state.equippedItems);
+  state.unlockedLevels=storage.get('hg_unlocked',1);
+  state.completedLevels=storage.get('hg_completed',0);
+  state.levelStars=storage.get('hg_stars',{});
+  state.tutorialSeen=storage.get('hg_tutorial_seen',false);
+}
+function saveState(){
+  storage.set('hg_coins',state.coins);
+  storage.set('hg_sound',state.soundEnabled);
+  storage.set('hg_owned',state.ownedItems);
+  storage.set('hg_equipped',state.equippedItems);
+  storage.set('hg_unlocked',state.unlockedLevels);
+  storage.set('hg_completed',state.completedLevels);
+  storage.set('hg_stars',state.levelStars);
+  storage.set('hg_tutorial_seen',state.tutorialSeen);
+}
+
+// ===== صدا =====
+let audioCtx=null;
+function initAudio(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}}
+function resumeAudio(){if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume()}
+function playClick(){if(!state.soundEnabled||!audioCtx)return;try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.frequency.setValueAtTime(880,audioCtx.currentTime);o.frequency.exponentialRampToValueAtTime(440,audioCtx.currentTime+.05);g.gain.setValueAtTime(.12,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.1);o.start();o.stop(audioCtx.currentTime+.1)}catch(e){}}
+function playSuccess(){if(!state.soundEnabled||!audioCtx)return;try{[523,659,784,1047].forEach((f,i)=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.frequency.setValueAtTime(f,audioCtx.currentTime+i*.08);g.gain.setValueAtTime(0,audioCtx.currentTime+i*.08);g.gain.linearRampToValueAtTime(.12,audioCtx.currentTime+i*.08+.02);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+i*.08+.2);o.start(audioCtx.currentTime+i*.08);o.stop(audioCtx.currentTime+i*.08+.2)})}catch(e){}}
+function playError(){if(!state.soundEnabled||!audioCtx)return;try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='square';o.frequency.setValueAtTime(220,audioCtx.currentTime);o.frequency.exponentialRampToValueAtTime(110,audioCtx.currentTime+.15);g.gain.setValueAtTime(.1,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.2);o.start();o.stop(audioCtx.currentTime+.2)}catch(e){}}
+function playCoinSound(){if(!state.soundEnabled||!audioCtx)return;try{const o1=audioCtx.createOscillator(),o2=audioCtx.createOscillator(),g=audioCtx.createGain();o1.connect(g);o2.connect(g);g.connect(audioCtx.destination);o1.frequency.setValueAtTime(988,audioCtx.currentTime);o2.frequency.setValueAtTime(1319,audioCtx.currentTime);g.gain.setValueAtTime(.08,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.3);o1.start();o2.start();o1.stop(audioCtx.currentTime+.3);o2.stop(audioCtx.currentTime+.3)}catch(e){}}
+function speak(text){if(!state.soundEnabled)return;try{if('speechSynthesis'in window){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='fa-IR';u.rate=.8;u.pitch=1.15;u.volume=1;const vs=window.speechSynthesis.getVoices();const fv=vs.find(v=>v.lang.startsWith('fa'));if(fv)u.voice=fv;window.speechSynthesis.speak(u)}}catch(e){}}
+
+// ===== جایگزین SVG =====
+function hexToRgb(h){return{r:parseInt(h.slice(1,3),16),g:parseInt(h.slice(3,5),16),b:parseInt(h.slice(5,7),16)}}
+function lighten(h,a){const c=hexToRgb(h);return`rgb(${Math.min(255,c.r+a*2.55)|0},${Math.min(255,c.g+a*2.55)|0},${Math.min(255,c.b+a*2.55)|0})`}
+function darken(h,a){const c=hexToRgb(h);return`rgb(${Math.max(0,c.r-a*2.55)|0},${Math.max(0,c.g-a*2.55)|0},${Math.max(0,c.b-a*2.55)|0})`}
+function getGamerSVG(color){color=color||'#6C5CE7';const id=Math.random().toString(36).substr(2,7);return`<svg viewBox="0 0 200 240" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${lighten(color,20)}"/><stop offset="100%" stop-color="${darken(color,20)}"/></linearGradient><linearGradient id="hg${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${lighten(color,30)}"/><stop offset="100%" stop-color="${color}"/></linearGradient></defs><ellipse cx="100" cy="225" rx="50" ry="6" fill="rgba(0,0,0,0.3)"/><line x1="100" y1="30" x2="100" y2="12" stroke="${lighten(color,30)}" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="8" r="6" fill="#FFC93C"><animate attributeName="opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite"/></circle><rect x="55" y="115" width="90" height="95" rx="18" fill="url(#bg${id})" stroke="${lighten(color,40)}" stroke-width="2"/><rect x="65" y="160" width="70" height="35" rx="8" fill="rgba(0,0,0,0.3)"/><circle cx="78" cy="177" r="5" fill="#FF00A0"/><circle cx="100" cy="177" r="5" fill="#00FF9D"/><circle cx="122" cy="177" r="5" fill="#FFC93C"/><circle cx="100" cy="135" r="8" fill="#00D2FF"><animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/></circle><rect x="30" y="130" width="22" height="55" rx="11" fill="url(#bg${id})" stroke="${lighten(color,40)}" stroke-width="2"/><rect x="148" y="130" width="22" height="55" rx="11" fill="url(#bg${id})" stroke="${lighten(color,40)}" stroke-width="2"/><circle cx="41" cy="190" r="10" fill="${lighten(color,20)}" stroke="${lighten(color,40)}" stroke-width="2"/><circle cx="159" cy="190" r="10" fill="${lighten(color,20)}" stroke="${lighten(color,40)}" stroke-width="2"/><circle cx="100" cy="75" r="45" fill="url(#hg${id})" stroke="${lighten(color,40)}" stroke-width="2"/><rect x="65" y="55" width="70" height="40" rx="10" fill="#1e1b3a" stroke="#00D2FF" stroke-width="1.5"/><circle cx="82" cy="75" r="7" fill="#00D2FF"><animate attributeName="r" values="7;3;7" dur="3s" repeatCount="indefinite"/></circle><circle cx="118" cy="75" r="7" fill="#00D2FF"><animate attributeName="r" values="7;3;7" dur="3s" repeatCount="indefinite"/></circle><circle cx="84" cy="73" r="2" fill="white"/><circle cx="120" cy="73" r="2" fill="white"/><path d="M 85 88 Q 100 96 115 88" stroke="#00D2FF" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="55" cy="75" r="6" fill="${darken(color,10)}" stroke="${lighten(color,40)}" stroke-width="2"/><circle cx="145" cy="75" r="6" fill="${darken(color,10)}" stroke="${lighten(color,40)}" stroke-width="2"/><circle cx="55" cy="75" r="3" fill="#00D2FF"/><circle cx="145" cy="75" r="3" fill="#00D2FF"/><ellipse cx="75" cy="218" rx="14" ry="8" fill="${darken(color,20)}" stroke="${lighten(color,40)}" stroke-width="2"/><ellipse cx="125" cy="218" rx="14" ry="8" fill="${darken(color,20)}" stroke="${lighten(color,40)}" stroke-width="2"/></svg>`}
+function handleCharFallback(img,color){img.onerror=null;img.style.display='none';const wrapper=img.parentElement;const div=document.createElement('div');div.className='character-fallback';const w=img.offsetWidth||200,h=img.offsetHeight||240;div.style.width=w+'px';div.style.height=h+'px';div.innerHTML=getGamerSVG(color);wrapper.insertBefore(div,img)}
+
+// ===== مدیریت صفحه‌ها =====
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');state.currentScreen=id}
+function showOverlay(id){document.getElementById(id).classList.add('active')}
+function hideOverlay(id){document.getElementById(id).classList.remove('active')}
+function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(type||'');setTimeout(()=>t.classList.remove('show'),2000)}
+
+// ===== راهنمای صفحه اصلی =====
+let typewriterTimer=null;let autoAdvanceTimer=null;
+function initTipSystem(){const dots=document.getElementById('tipDots');dots.innerHTML='';guideTips.forEach((_,i)=>{const d=document.createElement('div');d.className='tip-dot'+(i===0?' active':'');dots.appendChild(d)});showTip(0)}
+function showTip(index){state.currentTip=index;const text=guideTips[index];const el=document.getElementById('speechText');const wrapper=document.getElementById('characterWrapper');wrapper.classList.add('talking');el.textContent='';let i=0;clearInterval(typewriterTimer);typewriterTimer=setInterval(()=>{if(i<text.length){el.textContent+=text[i];i++}else{clearInterval(typewriterTimer);wrapper.classList.remove('talking')}},35);document.querySelectorAll('.tip-dot').forEach((d,i)=>d.classList.toggle('active',i===index));speak(text);clearTimeout(autoAdvanceTimer);autoAdvanceTimer=setTimeout(()=>{if(state.currentScreen==='main')nextTip()},text.length*35+5000);const sb=document.getElementById('btnStart');if(index===guideTips.length-1)sb.classList.add('pulse');else sb.classList.remove('pulse')}
+function nextTip(){if(state.currentScreen!=='main')return;playClick();showTip((state.currentTip+1)%guideTips.length)}
+
+// ===== سیستم آموزش =====
+function startTutorial(){state.tutorialStep=0;const area=document.getElementById('tutorialCharArea');const old=area.querySelector('.tut-fallback');if(old)old.remove();const img=document.getElementById('tutorialCharImg');img.style.display='';img.onerror=function(){this.onerror=null;this.style.display='none';const div=document.createElement('div');div.className='tut-fallback';div.innerHTML=getGamerSVG('#00D2FF');area.appendChild(div)};img.src=tutorialConfig.characterIcon;const dotsEl=document.getElementById('tutorialDots');dotsEl.innerHTML='';tutorialConfig.steps.forEach((_,i)=>{const d=document.createElement('div');d.className='tutorial-dot'+(i===0?' active':'');dotsEl.appendChild(d)});showTutorialStep(0);showOverlay('overlayTutorial')}
+function showTutorialStep(index){state.tutorialStep=index;const step=tutorialConfig.steps[index];if(!step)return;const msgEl=document.getElementById('tutorialMessage');const hintEl=document.getElementById('tutorialHint');const bubbleEl=document.getElementById('tutorialBubble');const charArea=document.getElementById('tutorialCharArea');bubbleEl.style.animation='none';void bubbleEl.offsetWidth;bubbleEl.style.animation='stepSlideIn .35s ease';charArea.classList.add('talking');msgEl.textContent='';let i=0;clearInterval(typewriterTimer);typewriterTimer=setInterval(()=>{if(i<step.message.length){msgEl.textContent+=step.message[i];i++}else{clearInterval(typewriterTimer);charArea.classList.remove('talking')}},35);hintEl.textContent=step.hint;document.querySelectorAll('.tutorial-dot').forEach((d,i)=>{d.className='tutorial-dot';if(i<index)d.classList.add('done');if(i===index)d.classList.add('active')});const prevBtn=document.getElementById('btnTutorialPrev');const nextBtn=document.getElementById('btnTutorialNext');prevBtn.style.opacity=index>0?'1':'.3';prevBtn.style.pointerEvents=index>0?'auto':'none';if(index===tutorialConfig.steps.length-1)nextBtn.textContent='شروع بازی';else nextBtn.textContent='بعدی';speak(step.message)}
+function tutorialNext(){playClick();resumeAudio();if(state.tutorialStep<tutorialConfig.steps.length-1){showTutorialStep(state.tutorialStep+1)}else{hideOverlay('overlayTutorial');state.tutorialSeen=true;saveState();goToLevels()}}
+function tutorialPrev(){playClick();if(state.tutorialStep>0)showTutorialStep(state.tutorialStep-1)}
+function tutorialSkip(){playClick();hideOverlay('overlayTutorial');state.tutorialSeen=true;saveState();goToLevels()}
+
+// ===== صفحه انتخاب مرحله =====
+function goToLevels(){playClick();showScreen('levels');renderLevels();updateCoinDisplays()}
+
+function renderLevels(){
+  const grid=document.getElementById('levelsGrid');
+  grid.innerHTML='';
+  for(let i=1;i<=state.totalLevels;i++){
+    const cell=document.createElement('div');
+    cell.className='level-cell';
+    const isCompleted=i<=state.completedLevels;
+    const isUnlocked=i<=state.unlockedLevels;
+    const isCurrent=i===state.unlockedLevels&&!isCompleted;
+
+    if(isCompleted){
+      cell.classList.add('completed');
+      cell.innerHTML=`<span>${toPersianNum(i)}</span>`;
+      const badge=document.createElement('div');
+      badge.className='level-check-badge';
+      badge.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
+      cell.appendChild(badge);
+      const stars=state.levelStars[i]||0;
+      if(stars>0){
+        const starsEl=document.createElement('div');
+        starsEl.className='level-stars-mini';
+        for(let s=0;s<3;s++){
+          const st=document.createElement('div');
+          st.className='level-star-mini '+(s<stars?'filled':'empty');
+          st.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg>';
+          starsEl.appendChild(st);
+        }
+        cell.appendChild(starsEl);
+      }
+      cell.onclick=()=>startLevel(i);
+    }else if(isUnlocked){
+      cell.classList.add('unlocked');
+      if(isCurrent)cell.classList.add('current');
+      cell.innerHTML=`<span>${toPersianNum(i)}</span>`;
+      cell.onclick=()=>startLevel(i);
+    }else{
+      cell.classList.add('locked');
+      cell.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6z"/></svg>';
+    }
+    grid.appendChild(cell);
+  }
+}
+
+function startLevel(levelNum){
+  playClick();resumeAudio();
+  state.currentLevel=levelNum;
+  state.currentCardIndex=0;
+  state.initialCoins=state.coins;
+  state.gameSessionActive=true;
+  state.hasActiveGame=true;
+  state.metrics={responseTimes:[],correctCount:0,wrongCount:0,totalAttempts:0,sessionStartTime:Date.now(),cardStartTime:null,levelStartTime:Date.now()};
+  showScreen('game');
+  setupCard();
+  updateProgress();
+  updateLevelBadge();
+}
+
+// ===== افکت‌ها =====
+function spawnCoinParticle(x,y){const p=document.createElement('div');p.className='coin-particle';p.style.left=x+'px';p.style.top=y+'px';p.innerHTML='<img src="./icons/coin.png" alt="" onerror="this.style.display=\'none\'">';document.body.appendChild(p);setTimeout(()=>p.remove(),900)}
+function spawnConfetti(){const colors=['#00D2FF','#FF00A0','#FFC93C','#00FF9D','#6C5CE7','#FFA800'];for(let i=0;i<35;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.top='-10px';c.style.background=colors[Math.floor(Math.random()*colors.length)];c.style.borderRadius=Math.random()>.5?'50%':'2px';c.style.animationDelay=Math.random()*.5+'s';c.style.animationDuration=(1.5+Math.random())+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),2500)}}
+
+// ===== منطق بازی =====
+function generateCard(){const l=letters[Math.floor(Math.random()*letters.length)];const h=harakat[Math.floor(Math.random()*harakat.length)];return{letter:l,haraka:h}}
+function generateOptions(target){const ho=[...harakat];shuffleArray(ho);const others=letters.filter(l=>l.char!==target.letter.char);shuffleArray(others);const lo=[target.letter,others[0],others[1]];shuffleArray(lo);return{harakaOptions:ho,letterOptions:lo}}
+function shuffleArray(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
+
+function setupCard(){
+  state.currentTarget=generateCard();state.userCard={letter:null,haraka:null};state.metrics.cardStartTime=Date.now();
+  const opts=generateOptions(state.currentTarget);
+  const tc=document.getElementById('targetCard');
+  tc.innerHTML=renderCardContent(state.currentTarget.letter,state.currentTarget.haraka);
+  tc.parentElement.classList.remove('success');
+  const uc=document.getElementById('userCard');
+  uc.innerHTML='<span class="placeholder-text">حرف و نشانه را<br>انتخاب کن</span>';
+  uc.parentElement.classList.remove('success','wrong-flash');
+  const ho=document.getElementById('harakaOptions');ho.innerHTML='';
+  opts.harakaOptions.forEach(h=>{const b=document.createElement('button');b.className='option-btn haraka-btn';b.textContent=h.display;b.onclick=()=>selectHaraka(h,b);ho.appendChild(b)});
+  const lo=document.getElementById('letterOptions');lo.innerHTML='';
+  opts.letterOptions.forEach(l=>{const b=document.createElement('button');b.className='option-btn letter-btn';b.textContent=l.char;b.onclick=()=>selectLetter(l,b);lo.appendChild(b)});
+  setTimeout(()=>playTargetSound(),400);
+}
+function renderCardContent(letter,haraka){if(!letter||!haraka)return'';return`<div class="letter-display">${letter.char}${haraka.char}</div>`}
+function playTargetSound(){const l=state.currentTarget.letter,h=state.currentTarget.haraka;const s=combinedSounds[h.syllable][l.char];if(s)speak(s)}
+function selectHaraka(haraka,btn){if(state.userCard.haraka)return;playClick();resumeAudio();state.userCard.haraka=haraka;btn.classList.add('selected');speak(haraka.sound);updateUserCard();checkAnswer()}
+function selectLetter(letter,btn){if(state.userCard.letter)return;playClick();resumeAudio();state.userCard.letter=letter;btn.classList.add('selected');speak(letter.sound);updateUserCard();checkAnswer()}
+function updateUserCard(){const uc=document.getElementById('userCard');const u=state.userCard;if(!u.letter&&!u.haraka){uc.innerHTML='<span class="placeholder-text">حرف و نشانه را<br>انتخاب کن</span>'}else if(u.letter&&u.haraka){uc.innerHTML=renderCardContent(u.letter,u.haraka)}else if(u.letter){uc.innerHTML=`<div class="letter-display">${u.letter.char}</div>`}else if(u.haraka){uc.innerHTML=`<div class="letter-display"><span style="opacity:.25">؟</span></div>`}}
+function checkAnswer(){const u=state.userCard;if(!u.letter||!u.haraka)return;state.metrics.totalAttempts++;const rt=Date.now()-state.metrics.cardStartTime;state.metrics.responseTimes.push(rt);const correct=u.letter.char===state.currentTarget.letter.char&&u.haraka.name===state.currentTarget.haraka.name;if(correct){state.metrics.correctCount++;handleCorrect()}else{state.metrics.wrongCount++;handleWrong()}}
+
+function handleCorrect(){
+  playSuccess();
+  const uc=document.getElementById('userCard');
+  uc.parentElement.classList.add('success');
+  const rect=uc.getBoundingClientRect();
+  for(let i=0;i<5;i++){setTimeout(()=>spawnCoinParticle(rect.left+Math.random()*rect.width,rect.top+Math.random()*rect.height),i*80)}
+  setTimeout(()=>{
+    state.currentCardIndex++;
+    if(state.currentCardIndex>=state.cardsPerLevel){levelComplete()}
+    else{setupCard();updateProgress()}
+  },1300);
+}
+function handleWrong(){
+  playError();
+  const uc=document.getElementById('userCard');
+  uc.parentElement.classList.add('wrong-flash');
+  showToast('دوباره تلاش کن!','error');
+  setTimeout(()=>{
+    state.userCard={letter:null,haraka:null};
+    state.metrics.cardStartTime=Date.now();
+    updateUserCard();
+    uc.parentElement.classList.remove('wrong-flash');
+    document.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));
+  },1000);
+}
+
+function levelComplete(){
+  // ثبت تکمیل مرحله
+  state.completedLevels=Math.max(state.completedLevels,state.currentLevel);
+  state.unlockedLevels=Math.max(state.unlockedLevels,state.currentLevel+1);
+  // ثبت ستاره‌ها
+  const stars=calculateStars();
+  state.levelStars[state.currentLevel]=Math.max(state.levelStars[state.currentLevel]||0,stars);
+  saveState();
+  spawnConfetti();
+  playSuccess();
+
+  // اگر همه مراحل تمام شد
+  if(state.completedLevels>=state.totalLevels){
+    setTimeout(()=>showGameComplete(),500);
+  }else{
+    document.getElementById('levelCompleteText').textContent=`مرحله ${toPersianNum(state.currentLevel)} رو کامل کردی!`;
+    setTimeout(()=>showOverlay('overlayLevelComplete'),500);
+  }
+}
+
+function showGameComplete(){
+  // قانون LOKO: اگر سکه اولیه ۰ → ۱۰، در غیر این صورت → ۱
+  const reward=state.initialCoins===0?10:1;
+  state.coins+=reward;
+
+  const starsEl=document.getElementById('gameCompleteStars');
+  starsEl.innerHTML='';
+  // محاسبه میانگین ستاره‌ها
+  let totalStars=0,count=0;
+  for(let i=1;i<=state.totalLevels;i++){
+    if(state.levelStars[i]){totalStars+=state.levelStars[i];count++}
+  }
+  const avgStars=count>0?Math.round(totalStars/count):0;
+  for(let i=0;i<3;i++){
+    const star=document.createElement('div');
+    star.className='star-icon '+(i<avgStars?'filled':'empty');
+    star.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg>';
+    starsEl.appendChild(star);
+  }
+
+  document.getElementById('gameCompleteReward').innerHTML=`<img src="./icons/coin.png" class="coin-icon" alt="" onerror="this.style.display='none'"><span class="coin-reward-amount">+${toPersianNum(reward)}</span>`;
+
+  updateCoinDisplays();
+  saveState();
+  state.gameSessionActive=false;
+  state.hasActiveGame=false;
+  playCoinSound();
+  spawnConfetti();
+  showOverlay('overlayGameComplete');
+}
+
+function calculateStars(){
+  const total=state.metrics.correctCount+state.metrics.wrongCount;
+  if(total===0)return 0;
+  const ratio=state.metrics.correctCount/total;
+  if(ratio>=.9)return 3;
+  if(ratio>=.7)return 2;
+  if(ratio>=.5)return 1;
+  return 0;
+}
+
+function updateProgress(){const p=document.getElementById('gameProgress');p.innerHTML='';for(let i=0;i<state.cardsPerLevel;i++){const d=document.createElement('div');d.className='progress-dot';if(i<state.currentCardIndex)d.classList.add('done');else if(i===state.currentCardIndex)d.classList.add('active');p.appendChild(d)}}
+function updateLevelBadge(){document.getElementById('levelBadge').textContent='مرحله '+toPersianNum(state.currentLevel)}
+function toPersianNum(n){const m={'0':'۰','1':'۱','2':'۲','3':'۳','4':'۴','5':'۵','6':'۶','7':'۷','8':'۸','9':'۹'};return String(n).replace(/[0-9]/g,d=>m[d])}
+function updateCoinDisplays(){document.getElementById('coinCount').textContent=toPersianNum(state.coins);document.getElementById('coinCountGame').textContent=toPersianNum(state.coins);document.getElementById('coinCountShop').textContent=toPersianNum(state.coins);const lvl=document.getElementById('coinCountLevels');if(lvl)lvl.textContent=toPersianNum(state.coins)}
+
+// ===== فروشگاه =====
+function renderShop(){['skins','customization'].forEach(cat=>{const el=document.getElementById('shopItems-'+cat);el.innerHTML='';shopItems[cat].forEach(item=>el.appendChild(createShopItem(item,cat)))})}
+function createShopItem(item,cat){
+  const owned=state.ownedItems[cat].includes(item.id);
+  const equipped=cat==='skins'?state.equippedItems.skin===item.id:state.equippedItems.customization===item.id;
+  const div=document.createElement('div');div.className='shop-item'+(owned?' owned':'')+(equipped?' equipped':'');
+  let prev='';
+  if(cat==='skins')prev=`<div class="item-preview" style="background:linear-gradient(135deg,${item.color1},${item.color2})"></div>`;
+  else prev=`<div class="item-preview">${getCustPreview(item.type)}</div>`;
+  let btn;
+  if(equipped)btn=`<button class="buy-btn equipped-btn">فعال شد</button>`;
+  else if(owned)btn=`<button class="buy-btn owned-btn" data-action="equip" data-cat="${cat}" data-id="${item.id}">انتخاب</button>`;
+  else{const can=state.coins>=item.price;btn=`<button class="buy-btn" data-action="buy" data-cat="${cat}" data-id="${item.id}" ${can?'':'disabled'}>خرید</button>`}
+  div.innerHTML=`${prev}<div class="item-name">${item.name}</div><div class="item-price"><img src="./icons/coin.png" class="coin-icon" alt="" onerror="this.style.display='none'">${toPersianNum(item.price)}</div>${btn}`;
+  return div;
+}
+function getCustPreview(type){
+  if(type==='glow')return'<svg width="60" height="60" viewBox="0 0 60 60"><circle cx="30" cy="30" r="20" fill="#00D2FF" opacity=".2"/><circle cx="30" cy="30" r="14" fill="#00D2FF" opacity=".4"/><circle cx="30" cy="30" r="8" fill="#00D2FF"/></svg>';
+  if(type==='particles')return'<svg width="60" height="60" viewBox="0 0 60 60"><circle cx="15" cy="15" r="3" fill="#FF00A0"/><circle cx="45" cy="20" r="2" fill="#00FF9D"/><circle cx="20" cy="40" r="4" fill="#FFC93C"/><circle cx="40" cy="45" r="2" fill="#6C5CE7"/><circle cx="30" cy="30" r="3" fill="#00D2FF"/></svg>';
+  if(type==='rainbow'){const id=Math.random().toString(36).substr(2,6);return`<svg width="60" height="60" viewBox="0 0 60 60"><defs><linearGradient id="rb${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF00A0"/><stop offset="33%" stop-color="#FFC93C"/><stop offset="66%" stop-color="#00FF9D"/><stop offset="100%" stop-color="#00D2FF"/></linearGradient></defs><rect x="10" y="10" width="40" height="40" rx="8" fill="url(#rb${id})"/></svg>`}
+  if(type==='stars')return'<svg width="60" height="60" viewBox="0 0 60 60"><path d="M30 8 L36 24 L52 24 L40 34 L44 50 L30 40 L16 50 L20 34 L8 24 L24 24 Z" fill="#FFC93C" stroke="#FFA800" stroke-width="1"/></svg>';
+  return'';
+}
+function buyOrEquip(cat,id){playClick();const item=shopItems[cat].find(i=>i.id===id);if(!item)return;const owned=state.ownedItems[cat].includes(id);if(owned){if(cat==='skins')state.equippedItems.skin=id;else state.equippedItems.customization=id;applyCustomization();showToast('فعال شد!','success');saveState();renderShop()}else{if(state.coins<item.price){showToast('سکه کافی نیست!','error');playError();return}state.coins-=item.price;state.ownedItems[cat].push(id);if(cat==='skins')state.equippedItems.skin=id;else state.equippedItems.customization=id;applyCustomization();updateCoinDisplays();saveState();playCoinSound();showToast('خرید شد!','success');renderShop()}}
+function applyCustomization(){const s=shopItems.skins.find(s=>s.id===state.equippedItems.skin);if(s){document.documentElement.style.setProperty('--neon-blue',s.color1);document.documentElement.style.setProperty('--primary',s.color2);document.documentElement.style.setProperty('--cyan',s.color1);document.documentElement.style.setProperty('--purple',s.color2)}}
+
+// ===== رویدادها =====
+function setupEvents(){
+  document.getElementById('btnStart').addEventListener('click',()=>{
+    playClick();resumeAudio();
+    if(!state.tutorialSeen){
+      startTutorial();
+    }else{
+      goToLevels();
+    }
+  });
+  document.getElementById('btnShop').addEventListener('click',()=>{playClick();renderShop();showScreen('shop')});
+  document.getElementById('btnHelp').addEventListener('click',()=>{playClick();showScreen('help')});
+  document.getElementById('btnHelpBack').addEventListener('click',()=>{playClick();showScreen('main')});
+  document.getElementById('btnShopBack').addEventListener('click',()=>{playClick();showScreen('main')});
+  document.getElementById('btnLevelsBack').addEventListener('click',()=>{playClick();state.hasActiveGame=false;showScreen('main');showTip(0)});
+
+  document.getElementById('btnStop').addEventListener('click',()=>{playClick();showOverlay('overlayPause');document.getElementById('pauseTitle').textContent='توقف';document.getElementById('pauseDesc').textContent='می‌خوای ادامه بدی یا از اول شروع کنی؟'});
+  document.getElementById('btnContinue').addEventListener('click',()=>{playClick();hideOverlay('overlayPause');state.metrics.cardStartTime=Date.now()});
+  document.getElementById('btnRestart').addEventListener('click',()=>{playClick();hideOverlay('overlayPause');startLevel(state.currentLevel)});
+  document.getElementById('btnLevelSelect').addEventListener('click',()=>{playClick();hideOverlay('overlayPause');state.hasActiveGame=false;goToLevels()});
+
+  document.getElementById('btnNextLevel').addEventListener('click',()=>{playClick();hideOverlay('overlayLevelComplete');startLevel(state.currentLevel+1)});
+  document.getElementById('btnLevelCompleteSelect').addEventListener('click',()=>{playClick();hideOverlay('overlayLevelComplete');state.hasActiveGame=false;goToLevels()});
+  document.getElementById('btnGameCompleteMenu').addEventListener('click',()=>{playClick();hideOverlay('overlayGameComplete');showScreen('main');showTip(0)});
+
+  document.getElementById('soundToggle').addEventListener('click',()=>{state.soundEnabled=!state.soundEnabled;saveState();updateSoundToggle();if(state.soundEnabled){initAudio();resumeAudio();playClick()}});
+  document.querySelectorAll('.tab-btn').forEach(b=>{b.addEventListener('click',()=>{playClick();document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.shop-items').forEach(s=>s.classList.remove('active'));document.getElementById('shopItems-'+b.dataset.tab).classList.add('active')})});
+  document.querySelectorAll('.shop-items').forEach(c=>{c.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;buyOrEquip(b.dataset.cat,b.dataset.id)})});
+  document.getElementById('btnTutorialNext').addEventListener('click',tutorialNext);
+  document.getElementById('btnTutorialPrev').addEventListener('click',tutorialPrev);
+  document.getElementById('btnTutorialSkip').addEventListener('click',tutorialSkip);
+}
+function updateSoundToggle(){const b=document.getElementById('soundToggle');if(state.soundEnabled){b.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>'}else{b.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>'}}
+
+function createStars(){const s=document.getElementById('stars');for(let i=0;i<45;i++){const st=document.createElement('div');st.className='star';st.style.left=Math.random()*100+'%';st.style.top=Math.random()*100+'%';st.style.animationDelay=Math.random()*3+'s';st.style.animationDuration=(2+Math.random()*2)+'s';s.appendChild(st)}}
+
+window.addEventListener('online',()=>{saveState()});
+window.addEventListener('offline',()=>{saveState()});
+window.addEventListener('beforeunload',saveState);
+
+function init(){
+  loadState();createStars();applyCustomization();updateCoinDisplays();updateSoundToggle();setupEvents();initTipSystem();
+  if('speechSynthesis'in window){window.speechSynthesis.onvoiceschanged=()=>{};window.speechSynthesis.getVoices()}
+  const ia=()=>{initAudio();resumeAudio()};
+  document.addEventListener('click',ia,{once:true});
+  document.addEventListener('touchstart',ia,{once:true});
+  document.addEventListener('keydown',ia,{once:true});
+}
+init();
+</script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#overlayGameComplete", "#gameCompleteReward", "#overlayLevelComplete"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>نقطه‌یاب | LOKO System</title>
+<style>
+  /* LOKO Design System - Typography */
+  @font-face {
+    font-family: 'Shoor'; src: url('./fonts/Shoor-Regular.ttf') format('truetype'); font-weight: 400;
+  }
+  @font-face {
+    font-family: 'Shoor'; src: url('./fonts/Shoor-Medium.ttf') format('truetype'); font-weight: 500;
+  }
+  @font-face {
+    font-family: 'Shoor'; src: url('./fonts/Shoor-Black.ttf') format('truetype'); font-weight: 900;
+  }
+  @font-face {
+    font-family: 'Shoor'; src: url('./fonts/Shoor-ExtraBold.ttf') format('truetype'); font-weight: 800;
+  }
+  @font-face {
+    font-family: 'Shoor Rounded'; src: url('./fonts/ShoorRounded-Regular.ttf') format('truetype'); font-weight: 400;
+  }
+  @font-face {
+    font-family: 'Shoor Rounded'; src: url('./fonts/ShoorRounded-Medium.ttf') format('truetype'); font-weight: 500;
+  }
+  @font-face {
+    font-family: 'Shoor Rounded'; src: url('./fonts/ShoorRounded-Black.ttf') format('truetype'); font-weight: 900;
+  }
+  @font-face {
+    font-family: 'Shoor Rounded'; src: url('./fonts/ShoorRounded-ExtraBold.ttf') format('truetype'); font-weight: 800;
+  }
+
+  * {
+    box-sizing: border-box; margin: 0; padding: 0;
+    -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none;
+    user-select: none; -webkit-user-select: none;
+  }
+
+  :root {
+    --primary: #6C5CE7; --neon-blue: #00D2FF; --neon-pink: #FF00A0; --neon-green: #00FF9D;
+    --accent: #FFEAA7; --success: #00B894; --danger: #FF7675; --dark: #1E1E2F;
+    --gold: #FFC93C; --gold-dark: #B96F00;
+    --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.25);
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+  }
+
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: var(--font); 
+    background: #050308; /* Darker background for desktop outside app */
+    color: white; position: relative; touch-action: manipulation;
+  }
+
+  /* Mobile-First App Wrapper */
+  #appWrapper {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh; /* Mobile dynamic viewport */
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0c0a14, #181225);
+    margin: 0 auto;
+  }
+
+  /* Desktop Frame Style */
+  @media (min-width: 481px) {
+    body { display: flex; justify-content: center; align-items: center; }
+    #appWrapper {
+      width: 100%;
+      max-width: 480px;
+      height: 90vh;
+      max-height: 850px;
+      border-radius: 32px;
+      border: 8px solid #1E1E2F;
+      box-shadow: 0 0 50px rgba(108, 92, 231, 0.4);
+    }
+  }
+
+  .bg-decoration { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .bg-orb { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.4; animation: floatOrb 20s ease-in-out infinite; }
+  .bg-orb-1 { width: 300px; height: 300px; background: var(--primary); top: -100px; left: -100px; }
+  .bg-orb-2 { width: 250px; height: 250px; background: var(--neon-pink); bottom: -50px; right: -50px; animation-delay: -5s; }
+  .bg-orb-3 { width: 200px; height: 200px; background: var(--neon-blue); top: 40%; left: 60%; animation-delay: -10s; }
+  @keyframes floatOrb { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -30px) scale(1.1); } 66% { transform: translate(-20px, 20px) scale(0.9); } }
+  .bg-grid {
+    position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  .screen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 1; }
+  .screen.active { display: flex; animation: fadeIn 0.4s ease; }
+  .screen.overlay {
+    background: rgba(12, 10, 20, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    z-index: 100; align-items: center; justify-content: center;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+  .app-header { position: relative; padding: 18px 20px 8px; display: flex; justify-content: flex-end; align-items: center; z-index: 5; }
+  .coin-display {
+    display: flex; align-items: center; gap: 10px; background: var(--glass-bg); padding: 8px 16px 8px 8px;
+    border-radius: 30px; border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }
+  .coin-icon-wrapper { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+  .coin-icon-wrapper img, .coin-icon-wrapper svg { width: 100%; height: 100%; object-fit: contain; }
+  .coin-count { font-size: 18px; font-weight: 900; color: var(--gold); text-shadow: 0 2px 4px rgba(0,0,0,0.3); min-width: 24px; text-align: center; }
+
+  .menu-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 20px 40px; text-align: center; position: relative; }
+  .game-title {
+    font-size: clamp(40px, 12vw, 64px); font-weight: 900;
+    background: linear-gradient(135deg, var(--neon-pink), var(--neon-blue), var(--neon-green));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-bottom: 6px; line-height: 1.1; filter: drop-shadow(0 0 15px rgba(108, 92, 231, 0.6));
+  }
+  .game-subtitle { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 32px; letter-spacing: 2px; font-weight: 500; }
+
+  .welcome-bubble {
+    background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px 20px 20px 4px;
+    padding: 12px 20px; color: white; font-size: 14px; font-weight: 600;
+    margin-bottom: 15px; position: relative; box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); animation: float 4s ease-in-out infinite;
+  }
+  .welcome-bubble::after { content: ''; position: absolute; bottom: -8px; right: 30px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 8px solid var(--glass-bg); }
+
+  .character-container { width: 200px; height: 200px; position: relative; margin-bottom: 28px; display: flex; justify-content: center; align-items: center; }
+  .character-img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 8px 25px rgba(255, 0, 160, 0.45)); animation: float 4s ease-in-out infinite; position: relative; z-index: 2; }
+  .character-shadow { position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 130px; height: 18px; background: radial-gradient(ellipse, rgba(108, 92, 231, 0.6), transparent 70%); filter: blur(10px); animation: shadowPulse 4s ease-in-out infinite; z-index: 1; }
+  @keyframes float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-15px) rotate(2deg); } }
+  @keyframes shadowPulse { 0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.55; } 50% { transform: translateX(-50%) scale(0.65); opacity: 0.3; } }
+
+  .menu-buttons { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 300px; }
+
+  .btn {
+    position: relative; border: none; border-radius: 16px; padding: 16px 24px;
+    font-family: var(--font); font-size: 16px; font-weight: 800; cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    display: flex; align-items: center; justify-content: center; gap: 10px; color: white; overflow: hidden; direction: rtl;
+  }
+  .btn-gold {
+    background: linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%);
+    color: var(--dark); font-size: 18px; padding: 18px 24px;
+    box-shadow: 0 6px 0 var(--gold-dark), 0 10px 20px rgba(255, 201, 60, 0.4); border: 2px solid #FFD700;
+  }
+  .btn-gold:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--gold-dark), 0 4px 8px rgba(255, 201, 60, 0.4); }
+  .btn-gold::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shimmer 3s ease-in-out infinite; }
+  @keyframes shimmer { 0% { left: -100%; } 50%, 100% { left: 100%; } }
+  .btn-glass { background: var(--glass-bg); border: 1px solid var(--glass-border); box-shadow: 0 4px 0 rgba(0,0,0,0.3), var(--shadow-sm); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .btn-glass:active { transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.3); }
+  .btn-row { display: flex; gap: 14px; }
+  .btn-row .btn { flex: 1; }
+  .btn-icon { width: 22px; height: 22px; flex-shrink: 0; }
+
+  .btn-back {
+    position: absolute; top: 16px; left: 16px; width: 46px; height: 46px; border-radius: 50%;
+    background: var(--glass-bg); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 10; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: transform 0.15s; color: white;
+  }
+  .btn-back:active { transform: scale(0.88); }
+
+  .level-select-content { flex: 1; padding: 70px 20px 30px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; }
+  .loko-title { font-size: 28px; font-weight: 900; margin-bottom: 25px; color: var(--neon-blue); text-shadow: 0 0 15px rgba(0, 210, 255, 0.4); }
+  .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; max-width: 400px; }
+  .level-card {
+    aspect-ratio: 1; background: var(--glass-bg); border: 2px solid var(--glass-border); border-radius: 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 36px; font-weight: 900;
+    color: white; cursor: pointer; position: relative; box-shadow: 0 6px 12px rgba(0,0,0,0.3); transition: transform 0.2s, border-color 0.2s;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }
+  .level-card:not(.locked):hover { border-color: var(--neon-blue); box-shadow: 0 6px 20px rgba(0, 210, 255, 0.3); }
+  .level-card:active { transform: scale(0.95); }
+  .level-card .level-num { font-size: 40px; background: linear-gradient(180deg, #fff, #aaa); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .level-card .level-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.6); margin-top: -4px; }
+  .level-card.locked { background: rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.1); cursor: not-allowed; }
+  .level-card.locked .level-num { color: rgba(255,255,255,0.2); }
+  .level-card.locked::after { content: '🔒'; position: absolute; font-size: 24px; opacity: 0.8; }
+  .level-card.completed::before { content: '✓'; position: absolute; top: 5px; right: 10px; color: var(--neon-green); font-size: 16px; font-weight: 900; text-shadow: 0 0 8px var(--neon-green); }
+
+  .content-area { flex: 1; padding: 70px 20px 30px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; -webkit-overflow-scrolling: touch; }
+  .help-character-img { width: 130px; height: 130px; object-fit: contain; margin-bottom: 16px; filter: drop-shadow(0 6px 18px rgba(0, 210, 255, 0.4)); animation: float 4s ease-in-out infinite; }
+  .speech-bubble {
+    background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px;
+    max-width: 420px; width: 100%; margin-bottom: 22px; box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); line-height: 1.9; color: white; font-size: 14.5px; text-align: center;
+  }
+  .speech-bubble.note { background: linear-gradient(135deg, rgba(255, 118, 117, 0.2), rgba(255, 234, 167, 0.2)); border-color: rgba(255, 118, 117, 0.5); }
+
+  .letter-examples { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 10px 0 22px; max-width: 420px; }
+  .letter-example { width: 72px; height: 92px; background: rgba(0,0,0,0.4); border: 2px solid var(--glass-border); border-radius: 16px; position: relative; display: flex; align-items: center; justify-content: center; font-size: 44px; font-weight: 700; color: white; overflow: hidden; line-height: 1; }
+  .letter-example .dot-marker { position: absolute; width: 12px; height: 12px; background: var(--danger); border-radius: 50%; box-shadow: 0 0 14px var(--danger); animation: dotPulse 1.2s ease-in-out infinite; z-index: 2; }
+  @keyframes dotPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: 0.65; } }
+  .letter-example.no-dot { border-color: rgba(0, 184, 148, 0.5); }
+  .letter-example .tag { position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; font-size: 9px; font-weight: 700; }
+  .letter-example.with-dot .tag { color: var(--danger); }
+  .letter-example.no-dot .tag { color: var(--success); }
+
+  .shop-tabs { display: flex; gap: 6px; background: var(--glass-bg); padding: 6px; border-radius: 16px; margin-bottom: 20px; border: 1px solid var(--glass-border); width: 100%; max-width: 420px; }
+  .shop-tab { flex: 1; padding: 12px 8px; border: none; background: transparent; color: rgba(255,255,255,0.7); font-family: var(--font); font-size: 14px; font-weight: 700; border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .shop-tab.active { background: linear-gradient(135deg, var(--primary), var(--neon-pink)); color: white; box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4); }
+  .shop-items { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; width: 100%; max-width: 420px; }
+  .shop-item { background: var(--glass-bg); border: 2px solid var(--glass-border); border-radius: 18px; padding: 14px 10px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: transform 0.2s, border-color 0.2s; }
+  .shop-item.owned { border-color: rgba(0, 255, 157, 0.5); }
+  .shop-item.equipped { border-color: var(--gold); box-shadow: 0 0 22px rgba(255, 201, 60, 0.35); }
+  .shop-item-preview { width: 78px; height: 78px; border-radius: 14px; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 4px; }
+  .shop-item-name { font-size: 13px; font-weight: 700; color: white; text-align: center; }
+  .shop-item-price { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 800; color: var(--gold); }
+  .shop-item-price .coin-icon-wrapper { width: 16px; height: 16px; }
+  .shop-item-btn { width: 100%; padding: 9px; border: none; border-radius: 12px; background: linear-gradient(180deg, #FFE68A, #FFC93C); color: var(--dark); font-family: var(--font); font-size: 13px; font-weight: 800; cursor: pointer; transition: transform 0.15s; }
+  .shop-item-btn:active { transform: scale(0.95); }
+  .shop-item-btn:disabled { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); cursor: not-allowed; }
+  .shop-item-btn.equip { background: linear-gradient(135deg, var(--success), var(--neon-green)); color: var(--dark); }
+  .shop-item-btn.equipped { background: rgba(255, 201, 60, 0.2); color: var(--gold); border: 1px solid var(--gold); cursor: default; }
+
+  #tutorialGameScreen { position: absolute; inset: 0; display: none; flex-direction: column; z-index: 1; }
+  #tutorialGameScreen.active { display: flex; }
+  .tutorial-game-area { flex: 1; position: relative; overflow: hidden; background: linear-gradient(135deg, #0c0a14, #181225); }
+  .tutorial-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 16px; z-index: 50; pointer-events: none; }
+  .tutorial-overlay > * { pointer-events: auto; }
+  .tutorial-guide { display: flex; align-items: flex-end; gap: 12px; max-width: 400px; width: 100%; }
+  .tutorial-guide-img { width: 80px; height: 80px; flex-shrink: 0; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0, 210, 255, 0.4)); }
+  .tutorial-speech { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 14px 18px; color: white; font-size: 14px; line-height: 1.6; flex: 1; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: var(--shadow-sm); min-height: 50px; display: flex; align-items: center; transition: opacity 0.3s; }
+  .tutorial-speech.changing { opacity: 0; }
+  .tutorial-hand { position: absolute; font-size: 40px; z-index: 100; pointer-events: none; opacity: 0; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+  .tutorial-wrong-mark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 50px; color: white; font-weight: 900; text-shadow: 0 0 10px var(--danger); z-index: 10; pointer-events: none; animation: xAppear 0.4s ease; }
+  @keyframes xAppear { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+  /* Game UI Mobile Optimization */
+  .game-header { position: absolute; top: 0; left: 0; right: 0; padding: 14px 16px 10px; display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none; gap: 8px; flex-wrap: nowrap; }
+  .game-header > * { pointer-events: auto; }
+  .stop-btn { width: 46px; height: 46px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: transform 0.15s; color: var(--danger); flex-shrink: 0; }
+  .stop-btn:active { transform: scale(0.88); }
+  .game-coins { display: flex; align-items: center; gap: 8px; background: var(--glass-bg); padding: 8px 14px 8px 8px; border-radius: 24px; border: 1px solid var(--glass-border); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); flex-shrink: 0; }
+  .lives { display: flex; gap: 5px; background: var(--glass-bg); padding: 9px 12px; border-radius: 24px; border: 1px solid var(--glass-border); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); flex-shrink: 0; }
+  .heart { width: 22px; height: 22px; transition: transform 0.3s, opacity 0.3s; }
+  .heart.lost { opacity: 0.2; transform: scale(0.7); }
+  .heart.losing { animation: heartBreak 0.5s ease forwards; }
+  @keyframes heartBreak { 0% { transform: scale(1); } 40% { transform: scale(1.35); filter: hue-rotate(180deg) brightness(1.5); } 100% { transform: scale(0.7); opacity: 0.2; } }
+  .level-info { display: flex; align-items: center; gap: 8px; background: var(--glass-bg); padding: 8px 14px; border-radius: 24px; border: 1px solid var(--glass-border); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); flex-shrink: 0; }
+  .level-name { font-size: 14px; font-weight: 700; color: var(--neon-blue); }
+  .timer-text { font-size: 14px; font-weight: 800; color: var(--gold); min-width: 28px; text-align: center; }
+
+  .game-progress-wrapper { position: absolute; top: 76px; left: 16px; right: 16px; height: 10px; background: rgba(255,255,255,0.1); border-radius: 10px; z-index: 10; overflow: hidden; border: 1px solid var(--glass-border); }
+  .game-progress-bar { height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-green)); width: 0%; border-radius: 10px; transition: width 0.3s ease; box-shadow: 0 0 10px var(--neon-green); }
+
+  .game-area { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(135deg, #0c0a14, #181225); }
+  .parachute { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 88%; max-width: 420px; height: 90px; z-index: 3; pointer-events: none; animation: parachuteSwing 4s ease-in-out infinite; }
+  @keyframes parachuteSwing { 0%, 100% { transform: translateX(-50%) rotate(-3deg); } 50% { transform: translateX(-50%) rotate(3deg); } }
+  
+  .falling-letter {
+    position: absolute; width: 64px; height: 64px; background: var(--glass-bg); border: 2px solid var(--glass-border);
+    border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    font-size: 38px; font-weight: 700; color: white; cursor: pointer; touch-action: none;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.1);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); user-select: none; will-change: transform, top, left; z-index: 5; line-height: 1;
+  }
+  .falling-letter:active { transform: translateX(-50%) scale(0.92) !important; }
+  .falling-letter.correct-pop { animation: correctPop 0.4s ease forwards; }
+  @keyframes correctPop {
+    0% { transform: translateX(-50%) scale(1) rotate(0); opacity: 1; }
+    40% { transform: translateX(-50%) scale(1.4) rotate(10deg); box-shadow: 0 0 35px var(--success); border-color: var(--success); }
+    100% { transform: translateX(-50%) scale(0) rotate(360deg); opacity: 0; }
+  }
+  .falling-letter.wrong-shake { animation: wrongShake 0.5s ease; border-color: var(--danger) !important; box-shadow: 0 0 25px var(--danger) !important; background: rgba(255, 118, 117, 0.3) !important; }
+  @keyframes wrongShake { 0%, 100% { transform: translateX(-50%) rotate(0); } 20% { transform: translateX(calc(-50% - 8px)) rotate(-4deg); } 40% { transform: translateX(calc(-50% + 8px)) rotate(4deg); } 60% { transform: translateX(calc(-50% - 6px)) rotate(-3deg); } 80% { transform: translateX(calc(-50% + 6px)) rotate(3deg); } }
+  .falling-letter .wrong-x { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 50px; font-weight: 900; text-shadow: 0 0 10px var(--danger); opacity: 0; pointer-events: none; }
+  .falling-letter.wrong-shake .wrong-x { animation: xAppear 0.5s ease; }
+  
+  .success-float { position: fixed; color: var(--neon-green); font-weight: 900; font-size: 32px; pointer-events: none; animation: floatUpFade 1s ease forwards; text-shadow: 0 0 14px var(--neon-green); z-index: 200; transform: translateX(-50%); }
+  @keyframes floatUpFade { 0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; } 20% { transform: translate(-50%, -15px) scale(1.3); opacity: 1; } 100% { transform: translate(-50%, -70px) scale(1); opacity: 0; } }
+  .particle { position: fixed; width: 10px; height: 10px; border-radius: 50%; pointer-events: none; z-index: 200; animation: particleFly 0.8s ease-out forwards; }
+  @keyframes particleFly { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
+  .shake-screen { animation: screenShake 0.4s ease; }
+  @keyframes screenShake { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(-5px, 2px); } 40% { transform: translate(5px, -2px); } 60% { transform: translate(-3px, -3px); } 80% { transform: translate(3px, 3px); } }
+  .level-announcement { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 100; pointer-events: none; animation: levelAnnounce 2s ease forwards; }
+  .level-announcement-num { font-size: 120px; font-weight: 900; background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink)); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 30px rgba(0, 210, 255, 0.6)); line-height: 1; }
+  .level-announcement-text { font-size: 24px; font-weight: 700; color: white; margin-top: 8px; letter-spacing: 4px; }
+  @keyframes levelAnnounce { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; } 80% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
+
+  .loko-overlay-content { background: rgba(30, 30, 47, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 32px 24px; max-width: 340px; width: 90%; text-align: center; box-shadow: 0 0 40px rgba(108, 92, 231, 0.4); animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes popIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .loko-overlay-icon { width: 80px; height: 80px; margin: 0 auto 14px; }
+  .loko-overlay-title { font-size: 28px; font-weight: 900; margin-bottom: 8px; }
+  .loko-overlay-subtitle { color: rgba(255,255,255,0.7); margin-bottom: 22px; font-size: 14px; line-height: 1.6; }
+  .loko-overlay-stats { display: flex; justify-content: center; gap: 24px; margin-bottom: 26px; padding: 16px; background: rgba(0,0,0,0.4); border-radius: 16px; border: 1px solid var(--glass-border); flex-wrap: wrap; }
+  .loko-stat { text-align: center; }
+  .loko-stat-value { font-size: 26px; font-weight: 900; color: var(--gold); text-shadow: 0 0 14px rgba(255, 201, 60, 0.4); display: flex; align-items: center; justify-content: center; gap: 4px; }
+  .loko-stat-label { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+  .loko-overlay-buttons { display: flex; flex-direction: column; gap: 10px; }
+  
+  .reward-display { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 14px 0 20px; padding: 16px; background: linear-gradient(135deg, rgba(255, 201, 60, 0.2), rgba(255, 0, 160, 0.2)); border-radius: 16px; border: 1px solid rgba(255, 201, 60, 0.3); }
+  .reward-display .coin-icon-wrapper { width: 32px; height: 32px; }
+  .reward-amount { font-size: 32px; font-weight: 900; color: var(--gold); text-shadow: 0 0 14px rgba(255, 201, 60, 0.5); }
+
+  .stars-container { display: flex; justify-content: center; gap: 8px; margin: 14px 0; }
+  .star { font-size: 36px; color: rgba(255,255,255,0.2); transition: all 0.3s; }
+  .star.active { color: var(--gold); text-shadow: 0 0 15px var(--gold); animation: starPop 0.5s ease forwards; }
+  @keyframes starPop { 0% { transform: scale(0) rotate(0); } 80% { transform: scale(1.3) rotate(15deg); } 100% { transform: scale(1) rotate(0); } }
+
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--glass-bg); color: white; padding: 14px 24px; border-radius: 16px; border: 1px solid var(--glass-border); box-shadow: var(--shadow-sm); z-index: 1000; transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); font-size: 14px; font-weight: 600; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: flex; align-items: center; gap: 8px; max-width: 90%; text-align: center; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .countdown { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 140px; font-weight: 900; color: var(--gold); text-shadow: 0 0 50px rgba(255, 201, 60, 0.7); z-index: 100; animation: countPop 0.9s ease forwards; pointer-events: none; }
+  @keyframes countPop { 0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; } 40% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; } }
+
+  @media (max-width: 380px) { .character-container { width: 170px; height: 170px; } .game-title { font-size: 46px; } .falling-letter { width: 56px; height: 56px; font-size: 34px; } .game-header { padding: 10px 12px; } .lives { padding: 8px 10px; } .heart { width: 18px; height: 18px; } }
+  @media (min-width: 768px) { .menu-buttons { max-width: 340px; } .character-container { width: 240px; height: 240px; } .shop-items { grid-template-columns: repeat(3, 1fr); max-width: 600px; } }
+  @media (max-height: 600px) { .character-container { width: 150px; height: 150px; margin-bottom: 18px; } .game-subtitle { margin-bottom: 18px; } }
+  ::-webkit-scrollbar { display: none; } * { scrollbar-width: none; }
+</style>
+</head>
+<body>
+<div id="appWrapper">
+  <div class="bg-decoration">
+    <div class="bg-orb bg-orb-1"></div><div class="bg-orb bg-orb-2"></div><div class="bg-orb bg-orb-3"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <!-- Main Menu -->
+  <div id="mainMenu" class="screen active">
+    <header class="app-header">
+      <div class="coin-display">
+        <span class="coin-icon-wrapper" id="menuCoinIcon"></span>
+        <span class="coin-count" id="menuCoinCount">0</span>
+      </div>
+    </header>
+    <div class="menu-container">
+      <h1 class="game-title">نقطه‌یاب</h1>
+      <p class="game-subtitle">ماجراجویی حروف و نقطه‌ها</p>
+      <div class="welcome-bubble">سلام! آماده‌ای بریم؟</div>
+      <div class="character-container">
+        <img src="./icons/gamer.png" onerror="this.style.display='none'; document.getElementById('gamerFallback').style.display='block';" class="character-img" alt="کاراکتر">
+        <svg id="gamerFallback" class="character-img" style="display:none;" viewBox="0 0 200 200">
+          <ellipse cx="100" cy="150" rx="60" ry="50" fill="#6C5CE7"/>
+          <circle cx="100" cy="100" r="50" fill="#00D2FF"/>
+          <path d="M 50 100 Q 50 40 100 40 Q 150 40 150 100" stroke="#FF00A0" stroke-width="8" fill="none"/>
+          <circle cx="80" cy="95" r="8" fill="white"/><circle cx="120" cy="95" r="8" fill="white"/>
+          <circle cx="82" cy="97" r="4" fill="#1E1E2F"/><circle cx="122" cy="97" r="4" fill="#1E1E2F"/>
+          <path d="M 80 120 Q 100 135 120 120" stroke="#1E1E2F" stroke-width="4" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="character-shadow"></div>
+      </div>
+      <div class="menu-buttons">
+        <button class="btn btn-gold" id="startBtn">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <span id="startBtnText">شروع بازی</span>
+        </button>
+        <button class="btn btn-glass" id="restartFromMenuBtn" style="display: none;">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+          شروع مجدد
+        </button>
+        <div class="btn-row">
+          <button class="btn btn-glass" id="shopBtn">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l1-5h16l1 5M3 9v10a1 1 0 001 1h16a1 1 0 001-1V9M3 9h18M9 13h6"/></svg>
+            فروشگاه
+          </button>
+          <button class="btn btn-glass" id="helpBtn">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 9a3 3 0 016 0c0 2-3 2-3 4M12 17h.01"/></svg>
+            راهنما
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Level Select -->
+  <div id="levelSelectScreen" class="screen">
+    <button class="btn-back" id="levelSelectBackBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="level-select-content">
+      <h2 class="loko-title">انتخاب مرحله</h2>
+      <div class="level-grid" id="levelGrid"></div>
+    </div>
+  </div>
+
+  <!-- Help -->
+  <div id="helpScreen" class="screen">
+    <button class="btn-back" id="helpBackBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="content-area">
+      <h2 class="loko-title">راهنمای بازی</h2>
+      <img src="./icons/gamerhi.png" onerror="this.style.display='none';" class="help-character-img" alt="راهنما">
+      <div class="speech-bubble">
+        سلام دوست کوچولو! من مجرّدِ نقطه‌یاب هستم. <strong style="color: var(--danger);">نقطه‌ها</strong> چیزهای کوچکی هستند که روی یا زیر بعضی از حروف فارسی قرار می‌گیرند. به این حروف، <strong style="color: var(--gold);">حروف نقطه‌دار</strong> می‌گویند! در بازی، حروف از چتر پایین می‌آیند. تو باید فقط روی حروف نقطه‌دار کلیک کنی.
+      </div>
+      <div class="letter-examples" id="helpLetterExamples"></div>
+      <div class="speech-bubble note">
+        <strong style="color: var(--danger);">نکته مهم:</strong> حروفی مثل «ا»، «د»، «ر» و «و» نقطه ندارند. روی آن‌ها کلیک نکن! هر اشتباه یک قلب از تو می‌گیرد. با ۵ قلب شروع می‌کنی، مراقب باش!
+      </div>
+    </div>
+  </div>
+
+  <!-- Shop -->
+  <div id="shopScreen" class="screen">
+    <button class="btn-back" id="shopBackBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="content-area">
+      <h2 class="loko-title">فروشگاه نقطه‌یاب</h2>
+      <div class="shop-tabs">
+        <button class="shop-tab active" data-tab="skins"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 01-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 000 4h4v-4z"/></svg>پوسته‌ها</button>
+        <button class="shop-tab" data-tab="custom"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>شخصی‌سازی</button>
+      </div>
+      <div class="shop-items" id="shopItems"></div>
+    </div>
+  </div>
+
+  <!-- Interactive Tutorial -->
+  <div id="tutorialGameScreen">
+    <div class="game-area tutorial-game-area" id="tutorialGameArea">
+      <div class="parachute">
+        <svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <defs><linearGradient id="paraGrad1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FF00A0"/><stop offset="100%" stop-color="#6C5CE7"/></linearGradient></defs>
+          <path d="M 30 80 Q 200 0 370 80 L 350 92 Q 200 30 50 92 Z" fill="url(#paraGrad1)"/>
+          <path d="M 90 80 Q 200 5 310 80 L 295 92 Q 200 35 105 92 Z" fill="#00D2FF"/>
+          <path d="M 140 80 Q 200 10 260 80 L 250 92 Q 200 38 150 92 Z" fill="#00FF9D"/>
+          <path d="M 170 80 Q 200 12 230 80 L 225 92 Q 200 40 175 92 Z" fill="#FFEAA7"/>
+          <line x1="50" y1="92" x2="180" y2="100" stroke="rgba(255,255,255,0.7)" stroke-width="2.5"/>
+          <line x1="200" y1="92" x2="200" y2="100" stroke="rgba(255,255,255,0.7)" stroke-width="2.5"/>
+          <line x1="350" y1="92" x2="220" y2="100" stroke="rgba(255,255,255,0.7)" stroke-width="2.5"/>
+          <ellipse cx="200" cy="15" rx="110" ry="6" fill="rgba(255,255,255,0.45)"/>
+        </svg>
+      </div>
+    </div>
+    <div class="tutorial-overlay">
+      <div class="tutorial-guide">
+        <img src="./icons/gamerhi.png" onerror="this.style.display='none';" class="tutorial-guide-img" alt="راهنما">
+        <div class="tutorial-speech" id="tutorialSpeech">سلام!</div>
+      </div>
+      <button class="btn btn-gold" id="tutorialGameStartBtn" style="display:none; max-width: 240px;">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        بزن بریم!
+      </button>
+    </div>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="gameScreen" class="screen">
+    <div class="game-area" id="gameArea">
+      <div class="parachute" id="parachute">
+        <svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <defs><linearGradient id="paraGrad2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FF00A0"/><stop offset="100%" stop-color="#6C5CE7"/></linearGradient></defs>
+          <path d="M 30 80 Q 200 0 370 80 L 350 92 Q 200 30 50 92 Z" fill="url(#paraGrad2)"/>
+          <path d="M 90 80 Q 200 5 310 80 L 295 92 Q 200 35 105 92 Z" fill="#00D2FF"/>
+          <path d="M 140 80 Q 200 10 260 80 L 250 92 Q 200 38 150 92 Z" fill="#00FF9D"/>
+          <path d="M 170 80 Q 200 12 230 80 L 225 92 Q 200 40 175 92 Z" fill="#FFEAA7"/>
+          <line x1="50" y1="92" x2="180" y2="100" stroke="rgba(255,255,255,0.7)" stroke-width="2.5"/>
+          <line x1="200" y1="92" x2="200" y2="100" stroke="rgba(255,255,255,0.7)" stroke-width="2.5"/>
+          <line x1="350" y1="92" x2="220" y2="100" stroke="rgba(255,255,255,0.7)" stroke-width="2.5"/>
+          <ellipse cx="200" cy="15" rx="110" ry="6" fill="rgba(255,255,255,0.45)"/>
+        </svg>
+      </div>
+    </div>
+    <header class="game-header">
+      <button class="stop-btn" id="stopBtn" aria-label="توقف"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></button>
+      <div class="level-info">
+        <span class="level-name" id="levelName">مرحله ۱</span>
+        <span class="timer-text" id="timerText">۳۰</span>
+      </div>
+      <div class="game-coins">
+        <span class="coin-icon-wrapper" id="gameCoinIcon"></span>
+        <span class="coin-count" id="gameCoinCount">0</span>
+      </div>
+      <div class="lives" id="livesDisplay"></div>
+    </header>
+    <div class="game-progress-wrapper">
+      <div class="game-progress-bar" id="gameProgressBar"></div>
+    </div>
+  </div>
+
+  <!-- Level Win -->
+  <div id="levelWinScreen" class="screen overlay">
+    <div class="loko-overlay-content">
+      <svg class="loko-overlay-icon" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="none" stroke="#00FF9D" stroke-width="3" opacity="0.4"/>
+        <path d="M 30 50 L 45 65 L 70 35" stroke="#00FF9D" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h2 class="loko-overlay-title" style="color: var(--success);">بردی!</h2>
+      <p class="loko-overlay-subtitle">هدف مرحله رو کامل کردی!</p>
+      <div class="stars-container" id="levelStars">
+        <span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span>
+      </div>
+      <div class="reward-display">
+        <span class="coin-icon-wrapper" id="levelRewardCoinIcon"></span>
+        <span class="reward-amount" id="levelRewardAmount">+1</span>
+      </div>
+      <div class="loko-overlay-stats">
+        <div class="loko-stat">
+          <div class="loko-stat-value" id="levelWinCorrect">0</div>
+          <div class="loko-stat-label">حروف درست</div>
+        </div>
+        <div class="loko-stat">
+          <div class="loko-stat-value" id="levelWinLevel">1</div>
+          <div class="loko-stat-label">مرحله</div>
+        </div>
+      </div>
+      <div class="loko-overlay-buttons">
+        <button class="btn btn-gold" id="nextLevelBtn">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          مرحله بعد
+        </button>
+        <button class="btn btn-glass" id="levelWinMenuBtn">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l18-9-7 18-2-7-9-2z"/></svg>
+          منوی اصلی
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Level Lose -->
+  <div id="levelLoseScreen" class="screen overlay">
+    <div class="loko-overlay-content">
+      <svg class="loko-overlay-icon" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="none" stroke="#FF7675" stroke-width="3" opacity="0.4"/>
+        <circle cx="35" cy="40" r="5" fill="#FF7675"/>
+        <circle cx="65" cy="40" r="5" fill="#FF7675"/>
+        <path d="M 30 65 Q 50 50 70 65" stroke="#FF7675" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </svg>
+      <h2 class="loko-overlay-title" style="color: var(--danger);">باختی!</h2>
+      <p class="loko-overlay-subtitle">این بار برنده نشدی! دوباره امتحان کن.</p>
+      <div class="loko-overlay-buttons">
+        <button class="btn btn-gold" id="retryLevelBtn">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+          دوباره امتحان کن
+        </button>
+        <button class="btn btn-glass" id="levelLoseMenuBtn">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l18-9-7 18-2-7-9-2z"/></svg>
+          منوی اصلی
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Complete -->
+  <div id="gameCompleteScreen" class="screen overlay">
+    <div class="loko-overlay-content">
+      <img src="./icons/gamer.png" onerror="this.style.display='none';" class="character-img" style="width: 100px; height: 100px; margin: 0 auto 14px; object-fit: contain;">
+      <h2 class="loko-overlay-title" style="background: linear-gradient(135deg, var(--neon-pink), var(--neon-blue)); -webkit-background-clip: text; background-clip: text; color: transparent;">تبریک! برنده شدی</h2>
+      <p class="loko-overlay-subtitle">تو تمام مراحل رو با موفقیت کامل کردی!</p>
+      <div class="stars-container">
+        <span class="star active">⭐</span><span class="star active">⭐</span><span class="star active">⭐</span>
+      </div>
+      <div class="reward-display">
+        <span class="coin-icon-wrapper" id="rewardCoinIcon"></span>
+        <span class="reward-amount" id="finalReward">+10</span>
+      </div>
+      <div class="loko-overlay-buttons">
+        <button class="btn btn-gold" id="gameCompleteMenuBtn">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l18-9-7 18-2-7-9-2z"/></svg>
+          بازگشت به منو
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="bgMusic" src="./musics/forest.mp3" loop preload="auto"></audio>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const dottedLetters = ['ب','پ','ت','ث','ج','چ','ح','خ','ش','ص','ض','ط','ظ','غ','ف','ق','ن','ی','ز','ژ','ذ'];
+const nonDottedLetters = ['ا','د','ر','و','ل','م','ه','ع','ک','گ'];
+
+const tutorialExamples = [
+  { letter: 'ب', hasDot: true, dots: [{x: 50, y: 86}] },
+  { letter: 'ت', hasDot: true, dots: [{x: 38, y: 14}, {x: 62, y: 14}] },
+  { letter: 'ن', hasDot: true, dots: [{x: 50, y: 14}] },
+  { letter: 'ی', hasDot: true, dots: [{x: 38, y: 86}, {x: 62, y: 86}] },
+  { letter: 'ا', hasDot: false, dots: [] },
+  { letter: 'د', hasDot: false, dots: [] },
+  { letter: 'ر', hasDot: false, dots: [] },
+];
+
+const shopData = {
+  skins: [
+    { id: 'default', name: 'پوسته کلاسیک', price: 8, color: '#00D2FF', accent: '#FF00A0' },
+    { id: 'pink', name: 'پوسته صورتی', price: 10, color: '#FF00A0', accent: '#00D2FF' },
+    { id: 'green', name: 'پوسته بهاری', price: 12, color: '#00FF9D', accent: '#6C5CE7' },
+    { id: 'blue', name: 'پوسته آبی', price: 9, color: '#6C5CE7', accent: '#FFEAA7' },
+    { id: 'orange', name: 'پوسته غروب', price: 15, color: '#FFC93C', accent: '#FF00A0' },
+    { id: 'purple', name: 'پوسته بنفش', price: 14, color: '#6C5CE7', accent: '#00FF9D' },
+  ],
+  custom: [
+    { id: 'night', name: 'آسمان شب', price: 8, bg: 'night' },
+    { id: 'park', name: 'شهربازی', price: 12, bg: 'park' },
+    { id: 'forest', name: 'جنگل سبز', price: 10, bg: 'forest' },
+    { id: 'space', name: 'فضای کیهانی', price: 15, bg: 'space' },
+    { id: 'beach', name: 'ساحل آفتابی', price: 14, bg: 'beach' },
+  ]
+};
+
+const state = {
+  coins: 0, initialCoins: 0, lives: 5,
+  gameActive: false, paused: false,
+  gameLoopId: null, spawnTimerId: null, levelTimerId: null,
+  letters: [], spawnInterval: 1200, fallSpeed: 0.3,
+  currentLevel: 1, maxLevel: 7, maxUnlockedLevel: 1,
+  currentLevelConfig: null, levelTimeLeft: 30, sessionCorrect: 0, levelCorrectTarget: 5,
+  owned: { skins: ['default'], custom: ['night'] },
+  equipped: { skin: 'default', custom: 'night' },
+  tutorialActive: false, tutorialDone: false,
+  metrics: { totalClicks: 0, correctClicks: 0, wrongClicks: 0, responseTimes: [], sessionStartTime: 0, progressPercent: 0 },
+};
+
+let currentTutorialLetter = null;
+let ambientMusicState = null;
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('loko_noqteyab_state') || '{}');
+    if (saved.coins !== undefined) state.coins = saved.coins;
+    if (saved.maxUnlockedLevel !== undefined) state.maxUnlockedLevel = saved.maxUnlockedLevel;
+    if (saved.tutorialDone !== undefined) state.tutorialDone = saved.tutorialDone;
+    if (saved.owned) state.owned = { ...state.owned, ...saved.owned };
+    if (saved.equipped) state.equipped = { ...state.equipped, ...saved.equipped };
+  } catch(e) {}
+}
+function saveState() {
+  localStorage.setItem('loko_noqteyab_state', JSON.stringify({
+    coins: state.coins, maxUnlockedLevel: state.maxUnlockedLevel, tutorialDone: state.tutorialDone,
+    owned: state.owned, equipped: state.equipped,
+  }));
+}
+
+let audioCtx;
+function getAudioCtx() {
+  if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; } }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function playSound(type) {
+  const ctx = getAudioCtx(); if (!ctx) return;
+  const now = ctx.currentTime;
+  try {
+    if (type === 'click') {
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(400, now + 0.05);
+      gain.gain.setValueAtTime(0.06, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      osc.type = 'sine'; osc.start(now); osc.stop(now + 0.1);
+    } else if (type === 'success') {
+      [880, 1320].forEach((f, i) => {
+        const osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(f, now + i * 0.06);
+        gain.gain.setValueAtTime(0.06, now + i * 0.06); gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.15);
+        osc.type = 'sine'; osc.start(now + i * 0.06); osc.stop(now + i * 0.06 + 0.2);
+      });
+    } else if (type === 'error') {
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(220, now); osc.frequency.exponentialRampToValueAtTime(90, now + 0.3);
+      gain.gain.setValueAtTime(0.08, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc.type = 'sawtooth'; osc.start(now); osc.stop(now + 0.3);
+    } else if (type === 'coin') {
+      [1320, 1760].forEach((f, i) => {
+        const osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(f, now + i * 0.04);
+        gain.gain.setValueAtTime(0.05, now + i * 0.04); gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.04 + 0.1);
+        osc.type = 'triangle'; osc.start(now + i * 0.04); osc.stop(now + i * 0.04 + 0.12);
+      });
+    } else if (type === 'gameover') {
+      [600, 450, 300, 180].forEach((f, i) => {
+        const osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(f, now + i * 0.12);
+        gain.gain.setValueAtTime(0.08, now + i * 0.12); gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.2);
+        osc.type = 'sine'; osc.start(now + i * 0.12); osc.stop(now + i * 0.12 + 0.25);
+      });
+    } else if (type === 'levelup') {
+      [523, 659, 784, 1047].forEach((f, i) => {
+        const osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(f, now + i * 0.1);
+        gain.gain.setValueAtTime(0.07, now + i * 0.1); gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.2);
+        osc.type = 'sine'; osc.start(now + i * 0.1); osc.stop(now + i * 0.1 + 0.25);
+      });
+    }
+  } catch(e) {}
+}
+
+function startBgMusic() {
+  const music = document.getElementById('bgMusic');
+  if (!music) return;
+  music.volume = 0.3; music.loop = true; music.currentTime = 0;
+  const promise = music.play();
+  if (promise) { promise.catch(() => startAmbientMusic()); }
+}
+function stopBgMusic() {
+  const music = document.getElementById('bgMusic');
+  if (music) music.pause();
+  stopAmbientMusic();
+}
+function startAmbientMusic() {
+  if (ambientMusicState) return;
+  const ctx = getAudioCtx(); if (!ctx) return;
+  ambientMusicState = { oscs: [], gains: [], lfo: null, melodyInterval: null };
+  const padFreqs = [130.81, 196, 261.63, 329.63];
+  padFreqs.forEach(freq => {
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = freq; osc.type = 'sine';
+    gain.gain.value = 0; gain.gain.linearRampToValueAtTime(0.015, ctx.currentTime + 2);
+    osc.start();
+    ambientMusicState.oscs.push(osc); ambientMusicState.gains.push(gain);
+  });
+  const lfo = ctx.createOscillator(), lfoGain = ctx.createGain();
+  lfo.connect(lfoGain); lfo.frequency.value = 0.15; lfoGain.gain.value = 3;
+  ambientMusicState.oscs.forEach(osc => lfoGain.connect(osc.frequency));
+  lfo.start(); ambientMusicState.lfo = lfo;
+  const melody = [523.25, 659.25, 783.99, 659.25, 523.25, 440, 523.25, 587.33];
+  let noteIdx = 0;
+  ambientMusicState.melodyInterval = setInterval(() => {
+    const c = getAudioCtx(); if (!c) return;
+    const osc = c.createOscillator(), gain = c.createGain();
+    osc.connect(gain); gain.connect(c.destination);
+    osc.frequency.value = melody[noteIdx]; osc.type = 'triangle';
+    gain.gain.setValueAtTime(0, c.currentTime);
+    gain.gain.linearRampToValueAtTime(0.02, c.currentTime + 0.1);
+    gain.gain.linearRampToValueAtTime(0, c.currentTime + 0.8);
+    osc.start(c.currentTime); osc.stop(c.currentTime + 1);
+    noteIdx = (noteIdx + 1) % melody.length;
+  }, 1200);
+}
+function stopAmbientMusic() {
+  if (!ambientMusicState) return;
+  const ctx = getAudioCtx();
+  if (ctx) {
+    ambientMusicState.gains.forEach(g => g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5));
+    ambientMusicState.oscs.forEach(o => o.stop(ctx.currentTime + 0.6));
+    if (ambientMusicState.lfo) ambientMusicState.lfo.stop(ctx.currentTime + 0.6);
+  }
+  if (ambientMusicState.melodyInterval) clearInterval(ambientMusicState.melodyInterval);
+  ambientMusicState = null;
+}
+
+function createCoinHTML(size = 26) {
+  return `<img src="./icons/coin.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" style="width:${size}px;height:${size}px;object-fit:contain;" alt="سکه"><svg style="display:none;width:${size}px;height:${size}px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#FFC93C" stroke="#B96F00" stroke-width="2"/><text x="12" y="16" text-anchor="middle" fill="#B96F00" font-size="9" font-weight="900">★</text></svg>`;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showTutorialScreen() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('tutorialGameScreen').classList.add('active');
+}
+function hideTutorialScreen() {
+  document.getElementById('tutorialGameScreen').classList.remove('active');
+}
+
+function updateCoinDisplay() {
+  document.getElementById('menuCoinCount').textContent = state.coins;
+  document.getElementById('gameCoinCount').textContent = state.coins;
+}
+function updateLives() {
+  const container = document.getElementById('livesDisplay');
+  container.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const heart = document.createElement('div');
+    heart.className = 'heart' + (i >= state.lives ? ' lost' : '');
+    heart.innerHTML = `<svg viewBox="0 0 24 24" fill="${i < state.lives ? '#FF7675' : '#3a3a5a'}"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+    container.appendChild(heart);
+  }
+}
+function loseLife() {
+  const hearts = document.querySelectorAll('#livesDisplay .heart:not(.lost)');
+  if (hearts.length > 0) {
+    const last = hearts[hearts.length - 1];
+    last.classList.add('losing');
+    setTimeout(() => { last.classList.add('lost'); last.classList.remove('losing'); }, 480);
+  }
+  state.lives--;
+  const gameScreen = document.getElementById('gameScreen');
+  gameScreen.classList.add('shake-screen');
+  setTimeout(() => gameScreen.classList.remove('shake-screen'), 400);
+  if (state.lives <= 0) {
+    setTimeout(() => levelLose(), 500);
+  }
+}
+
+function showToast(message, icon = '✓') {
+  const toast = document.getElementById('toast');
+  toast.innerHTML = `<span class="toast-icon">${icon}</span> ${message}`;
+  toast.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => toast.classList.remove('show'), 2400);
+}
+
+function createParticles(x, y, color) {
+  for (let i = 0; i < 10; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = x + 'px'; p.style.top = y + 'px';
+    p.style.background = color; p.style.boxShadow = `0 0 10px ${color}`;
+    const angle = (i / 10) * Math.PI * 2;
+    const distance = 30 + Math.random() * 40;
+    p.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+    p.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 800);
+  }
+}
+
+function renderLevelSelect() {
+  const grid = document.getElementById('levelGrid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= state.maxLevel; i++) {
+    const isUnlocked = i <= state.maxUnlockedLevel;
+    const isCompleted = i < state.maxUnlockedLevel;
+    const div = document.createElement('div');
+    div.className = 'level-card' + (isUnlocked ? '' : ' locked') + (isCompleted ? ' completed' : '');
+    div.innerHTML = `<span class="level-num">${i}</span><span class="level-label">مرحله</span>`;
+    if (isUnlocked) {
+      div.addEventListener('click', () => {
+        playSound('click');
+        state.currentLevel = i;
+        startLevel(i);
+      });
+    }
+    grid.appendChild(div);
+  }
+}
+
+function renderShop(tab) {
+  const container = document.getElementById('shopItems');
+  container.innerHTML = '';
+  const items = shopData[tab];
+  items.forEach(item => {
+    const owned = state.owned[tab].includes(item.id);
+    const equipped = state.equipped[tab === 'skins' ? 'skin' : 'custom'] === item.id;
+    const div = document.createElement('div');
+    div.className = 'shop-item' + (owned ? ' owned' : '') + (equipped ? ' equipped' : '');
+    let previewHTML = '';
+    if (tab === 'skins') {
+      previewHTML = `<div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg, ${item.color}, ${item.accent});box-shadow:0 0 15px ${item.color};"></div>`;
+    } else {
+      const gradients = {
+        night: 'linear-gradient(180deg, #0c0a14, #181225)',
+        park: 'linear-gradient(180deg, #ff9a8b, #ffc69e)',
+        forest: 'linear-gradient(180deg, #1a4a2e, #2c7a3a)',
+        space: 'linear-gradient(180deg, #0a0e1a, #2a1f5c)',
+        beach: 'linear-gradient(180deg, #87ceeb, #ffaa5e)',
+      };
+      previewHTML = `<div style="width:100%;height:100%;border-radius:10px;background:${gradients[item.bg] || gradients.night};"></div>`;
+    }
+    const priceHTML = owned ? '' : `<div class="shop-item-price"><span class="coin-icon-wrapper">${createCoinHTML(16)}</span>${item.price}</div>`;
+    const btnClass = equipped ? 'equipped' : (owned ? 'equip' : '');
+    const btnText = equipped ? 'فعال' : (owned ? 'انتخاب' : 'خرید');
+    const disabled = (!owned && state.coins < item.price) || equipped;
+    div.innerHTML = `
+      <div class="shop-item-preview">${previewHTML}</div>
+      <div class="shop-item-name">${item.name}</div>
+      ${priceHTML}
+      <button class="shop-item-btn ${btnClass}" ${disabled ? 'disabled' : ''} data-tab="${tab}" data-id="${item.id}">${btnText}</button>
+    `;
+    container.appendChild(div);
+  });
+  container.querySelectorAll('.shop-item-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab, id = btn.dataset.id;
+      const item = shopData[tab].find(i => i.id === id);
+      const owned = state.owned[tab].includes(id);
+      const equipped = state.equipped[tab === 'skins' ? 'skin' : 'custom'] === id;
+      if (equipped) return;
+      playSound('click');
+      if (!owned) {
+        if (state.coins >= item.price) {
+          state.coins -= item.price;
+          state.owned[tab].push(id);
+          showToast(`«${item.name}» خریداری شد!`, '✓');
+          playSound('coin');
+        } else {
+          showToast('سکه کافی نداری!', '✗');
+          playSound('error'); return;
+        }
+      }
+      if (tab === 'skins') state.equipped.skin = id;
+      else state.equipped.custom = id;
+      saveState(); updateCoinDisplay(); renderShop(tab);
+    });
+  });
+}
+
+function renderLetterExamples(containerId, examples) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  examples.forEach(ex => {
+    const div = document.createElement('div');
+    div.className = 'letter-example ' + (ex.hasDot ? 'with-dot' : 'no-dot');
+    div.textContent = ex.letter;
+    const tag = document.createElement('div');
+    tag.className = 'tag'; tag.textContent = ex.hasDot ? 'نقطه‌دار' : 'بی‌نقطه';
+    div.appendChild(tag);
+    ex.dots.forEach(d => {
+      const dot = document.createElement('div');
+      dot.className = 'dot-marker';
+      dot.style.left = (d.x - 6) + '%'; dot.style.top = (d.y - 6) + '%';
+      dot.style.animationDelay = (Math.random() * 0.5) + 's';
+      div.appendChild(dot);
+    });
+    container.appendChild(div);
+  });
+}
+
+function setTutorialSpeech(text) {
+  const speech = document.getElementById('tutorialSpeech');
+  speech.classList.add('changing');
+  setTimeout(() => { speech.textContent = text; speech.classList.remove('changing'); }, 200);
+}
+
+function spawnTutorialLetter(letter, hasDot, stopAt = 40) {
+  if (currentTutorialLetter) { currentTutorialLetter.remove(); currentTutorialLetter = null; }
+  const el = document.createElement('div');
+  el.className = 'falling-letter tutorial-letter';
+  el.textContent = letter;
+  el.style.left = '50%'; el.style.top = '-15%'; el.style.transform = 'translateX(-50%)';
+  document.getElementById('tutorialGameArea').appendChild(el);
+  currentTutorialLetter = el;
+  let pos = -15;
+  function animate() {
+    if (!state.tutorialActive) return;
+    if (!el.parentNode) return;
+    pos += 0.15; el.style.top = pos + '%';
+    if (pos < stopAt) requestAnimationFrame(animate);
+  }
+  animate();
+  return el;
+}
+
+function showTutorialHand(targetEl, willClick, callback) {
+  const hand = document.createElement('div');
+  hand.className = 'tutorial-hand'; hand.textContent = '👆';
+  const gameArea = document.getElementById('tutorialGameArea');
+  hand.style.right = '30px'; hand.style.bottom = '30px';
+  gameArea.appendChild(hand);
+  requestAnimationFrame(() => { hand.style.opacity = '1'; });
+  setTimeout(() => {
+    const targetRect = targetEl.getBoundingClientRect();
+    const containerRect = gameArea.getBoundingClientRect();
+    const x = targetRect.left - containerRect.left + targetRect.width / 2;
+    const y = targetRect.top - containerRect.top + targetRect.height / 2 - 30;
+    hand.style.right = 'auto'; hand.style.bottom = 'auto';
+    hand.style.left = x + 'px'; hand.style.top = y + 'px';
+    hand.style.transform = 'translate(-50%, -50%)';
+  }, 100);
+  setTimeout(() => {
+    if (willClick) {
+      hand.style.transform = 'translate(-50%, -50%) scale(0.7)';
+      if (callback) callback();
+      setTimeout(() => { hand.style.transform = 'translate(-50%, -50%) scale(1)'; }, 200);
+    } else {
+      if (callback) callback();
+      setTimeout(() => {
+        hand.style.transition = 'all 0.5s ease';
+        hand.style.left = 'auto'; hand.style.top = 'auto';
+        hand.style.right = '30px'; hand.style.bottom = '30px';
+        hand.style.transform = 'none';
+      }, 100);
+    }
+  }, 900);
+  setTimeout(() => { hand.style.opacity = '0'; setTimeout(() => hand.remove(), 300); }, 2200);
+}
+
+function autoClickTutorialLetter(el, isCorrect) {
+  if (!el) return;
+  if (isCorrect) {
+    el.classList.add('correct-pop');
+    playSound('success');
+    const rect = el.getBoundingClientRect();
+    createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '#00FF9D');
+    const float = document.createElement('div');
+    float.className = 'success-float'; float.textContent = '✓';
+    float.style.left = (rect.left + rect.width / 2) + 'px';
+    float.style.top = (rect.top + 10) + 'px';
+    document.body.appendChild(float);
+    setTimeout(() => float.remove(), 1000);
+  } else {
+    el.classList.add('wrong-shake');
+    playSound('error');
+  }
+  setTimeout(() => {
+    if (el.parentNode) el.remove();
+    if (currentTutorialLetter === el) currentTutorialLetter = null;
+  }, 500);
+}
+
+function markTutorialLetterWrong(el) {
+  if (!el) return;
+  const xMark = document.createElement('div');
+  xMark.className = 'tutorial-wrong-mark'; xMark.textContent = '✗';
+  el.appendChild(xMark); playSound('error');
+  setTimeout(() => {
+    if (el.parentNode) {
+      el.style.transition = 'top 1.5s linear'; el.style.top = '120%';
+      setTimeout(() => {
+        if (el.parentNode) el.remove();
+        if (currentTutorialLetter === el) currentTutorialLetter = null;
+      }, 1500);
+    }
+  }, 1500);
+}
+
+function startTutorialDemo() {
+  showTutorialScreen();
+  state.tutorialActive = true;
+  startBgMusic();
+  const steps = [
+    { delay: 500, action: () => setTutorialSpeech("سلام دوست کوچولو! بذار بهت نشون بدم چطور بازی کنی.") },
+    { delay: 3000, action: () => {
+      setTutorialSpeech("این حرف «ب» نقطه داره! نقطه‌اش رو می‌بینی؟");
+      spawnTutorialLetter('ب', true);
+    }},
+    { delay: 6000, action: () => {
+      setTutorialSpeech("حالا روش کلیک می‌کنم...");
+      const el = currentTutorialLetter;
+      if (el) showTutorialHand(el, true, () => autoClickTutorialLetter(el, true));
+    }},
+    { delay: 9500, action: () => setTutorialSpeech("آفرین! درست زدم!") },
+    { delay: 11500, action: () => {
+      setTutorialSpeech("این حرف «ا» نقطه نداره! روش کلیک نکن!");
+      spawnTutorialLetter('ا', false);
+    }},
+    { delay: 14500, action: () => {
+      setTutorialSpeech("اگه روش کلیک کنی، قلبت رو از دست می‌دی!");
+      const el = currentTutorialLetter;
+      if (el) showTutorialHand(el, false, () => markTutorialLetterWrong(el));
+    }},
+    { delay: 18000, action: () => {
+      setTutorialSpeech("حالا نوبت توست! تو منوی بازی می‌تونی مرحله رو انتخاب کنی. موفق باشی!");
+      document.getElementById('tutorialGameStartBtn').style.display = 'flex';
+      playSound('levelup');
+    }},
+  ];
+  steps.forEach(step => setTimeout(step.action, step.delay));
+}
+
+// BALANCED LEVEL CONFIGS FOR MOBILE
+// baseSpeed is % per frame. 0.3 means ~18% per second. It takes ~6 seconds to fall.
+// baseInterval is spawn delay in ms. 1200ms means ~1.2 seconds.
+// This ensures enough letters are generated for the player to hit the target.
+const levelConfigs = [
+  { level: 1, duration: 30, baseSpeed: 0.30, baseInterval: 1400, target: 5 },
+  { level: 2, duration: 30, baseSpeed: 0.35, baseInterval: 1300, target: 7 },
+  { level: 3, duration: 35, baseSpeed: 0.40, baseInterval: 1200, target: 10 },
+  { level: 4, duration: 35, baseSpeed: 0.45, baseInterval: 1100, target: 12 },
+  { level: 5, duration: 40, baseSpeed: 0.50, baseInterval: 1000, target: 15 },
+  { level: 6, duration: 40, baseSpeed: 0.55, baseInterval: 900,  target: 18 },
+  { level: 7, duration: 45, baseSpeed: 0.60, baseInterval: 800,  target: 20 },
+];
+
+function getLevelConfig(level) {
+  if (level <= levelConfigs.length) return levelConfigs[level - 1];
+  const base = levelConfigs[levelConfigs.length - 1];
+  return { level, duration: 45, baseSpeed: Math.min(0.8, base.baseSpeed + (level - 7) * 0.05), baseInterval: Math.max(700, base.baseInterval - (level - 7) * 50), target: base.target + 2 };
+}
+
+function clearGameIntervals() {
+  if (state.spawnTimerId) clearTimeout(state.spawnTimerId);
+  if (state.gameLoopId) cancelAnimationFrame(state.gameLoopId);
+  if (state.levelTimerId) clearInterval(state.levelTimerId);
+}
+
+function updateProgressBar() {
+  if (state.levelCorrectTarget > 0) {
+    const progress = (state.sessionCorrect / state.levelCorrectTarget) * 100;
+    document.getElementById('gameProgressBar').style.width = Math.min(100, progress) + '%';
+  }
+}
+
+function startLevel(levelNum) {
+  state.currentLevel = levelNum;
+  state.currentLevelConfig = getLevelConfig(levelNum);
+  state.fallSpeed = state.currentLevelConfig.baseSpeed;
+  state.spawnInterval = state.currentLevelConfig.baseInterval;
+  state.levelTimeLeft = state.currentLevelConfig.duration;
+  state.levelCorrectTarget = state.currentLevelConfig.target;
+  state.gameActive = true; state.paused = false; state.lives = 5; state.sessionCorrect = 0;
+  state.metrics.sessionStartTime = Date.now();
+  document.querySelectorAll('.falling-letter').forEach(el => el.remove());
+  state.letters = [];
+  updateLives(); updateCoinDisplay(); updateLevelDisplay(); updateProgressBar();
+  showScreen('gameScreen');
+  const announcement = document.createElement('div');
+  announcement.className = 'level-announcement';
+  announcement.innerHTML = `<div class="level-announcement-num">${levelNum}</div><div class="level-announcement-text">مرحله</div>`;
+  document.getElementById('gameArea').appendChild(announcement);
+  playSound('levelup');
+  setTimeout(() => announcement.remove(), 2000);
+  setTimeout(() => {
+    if (state.gameActive) { startLevelTimer(); spawnLoop(); gameLoop(); }
+  }, 1800);
+}
+
+function startLevelTimer() {
+  if (state.levelTimerId) clearInterval(state.levelTimerId);
+  updateLevelDisplay();
+  state.levelTimerId = setInterval(() => {
+    if (state.paused) return;
+    state.levelTimeLeft--; updateLevelDisplay();
+    if (state.levelTimeLeft <= 0) {
+      if (state.sessionCorrect >= state.levelCorrectTarget) {
+        levelWin();
+      } else {
+        levelLose();
+      }
+    }
+  }, 1000);
+}
+function updateLevelDisplay() {
+  document.getElementById('levelName').textContent = `مرحله ${state.currentLevel}`;
+  document.getElementById('timerText').textContent = state.levelTimeLeft;
+}
+
+function levelWin() {
+  if (!state.gameActive) return;
+  state.gameActive = false; state.paused = true;
+  clearGameIntervals();
+  document.querySelectorAll('.falling-letter').forEach(el => el.remove());
+  state.letters = [];
+
+  // LOKO Coin Reward Logic (Per Level Win as requested)
+  let rewardAmount;
+  if (state.coins === 0) {
+    state.coins += 10;
+    rewardAmount = 10;
+  } else {
+    state.coins += 1;
+    rewardAmount = 1;
+  }
+  updateCoinDisplay();
+  saveState();
+
+  // Unlock next level
+  if (state.currentLevel === state.maxUnlockedLevel && state.currentLevel < state.maxLevel) {
+    state.maxUnlockedLevel++;
+  }
+  
+  if (state.currentLevel >= state.maxLevel) {
+    // Show game complete screen
+    document.getElementById('finalReward').textContent = `+${rewardAmount}`;
+    showScreen('gameCompleteScreen');
+    stopBgMusic();
+    playSound('coin');
+    logMetrics();
+  } else {
+    // Show level win screen
+    document.getElementById('levelWinCorrect').textContent = state.sessionCorrect;
+    document.getElementById('levelWinLevel').textContent = state.currentLevel;
+    document.getElementById('levelRewardAmount').textContent = `+${rewardAmount}`;
+    
+    const stars = document.querySelectorAll('#levelStars .star');
+    stars.forEach(s => s.classList.remove('active'));
+    if (state.lives >= 4) stars.forEach((s, i) => setTimeout(() => s.classList.add('active'), i * 200));
+    else if (state.lives >= 2) { stars[0].classList.add('active'); setTimeout(() => stars[1].classList.add('active'), 200); }
+    else stars[0].classList.add('active');
+    
+    showScreen('levelWinScreen');
+    playSound('levelup');
+    logMetrics();
+  }
+}
+
+function levelLose() {
+  if (!state.gameActive) return;
+  state.gameActive = false; state.paused = false;
+  clearGameIntervals();
+  document.querySelectorAll('.falling-letter').forEach(el => el.remove());
+  state.letters = [];
+  stopBgMusic();
+  showScreen('levelLoseScreen');
+  playSound('gameover');
+  logMetrics();
+}
+
+function spawnLoop() {
+  if (!state.gameActive || state.paused) return;
+  spawnLetter();
+  state.spawnTimerId = setTimeout(spawnLoop, state.spawnInterval);
+}
+
+function spawnLetter() {
+  if (!state.gameActive) return;
+  const useDotted = Math.random() < 0.65; // 65% chance for dotted to give player a fair chance
+  const pool = useDotted ? dottedLetters : nonDottedLetters;
+  const letter = pool[Math.floor(Math.random() * pool.length)];
+  const el = document.createElement('div');
+  el.className = 'falling-letter'; el.textContent = letter;
+  el.dataset.hasDot = useDotted; el.dataset.spawnTime = Date.now();
+  const xPercent = 10 + Math.random() * 80; // Wider spread for mobile
+  el.style.left = xPercent + '%'; el.style.top = '-12%'; el.style.transform = 'translateX(-50%)';
+  const xMark = document.createElement('div');
+  xMark.className = 'wrong-x'; xMark.textContent = '✗';
+  el.appendChild(xMark);
+  
+  el.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleLetterClick(el);
+  });
+  
+  document.getElementById('gameArea').appendChild(el);
+  state.letters.push({
+    el, letter, hasDot: useDotted, x: xPercent, y: -12,
+    vy: state.fallSpeed + Math.random() * 0.05,
+    swing: Math.random() * Math.PI * 2,
+    swingSpeed: 0.015 + Math.random() * 0.02,
+    swingAmp: 1.5 + Math.random() * 2.5,
+    rotation: 0, vr: (Math.random() - 0.5) * 1.5, baseX: xPercent,
+  });
+}
+
+function gameLoop() {
+  if (!state.gameActive) return;
+  if (!state.paused) {
+    for (let i = state.letters.length - 1; i >= 0; i--) {
+      const l = state.letters[i];
+      l.y += l.vy; l.swing += l.swingSpeed;
+      l.x = l.baseX + Math.sin(l.swing) * l.swingAmp;
+      l.rotation += l.vr;
+      l.el.style.top = l.y + '%'; l.el.style.left = l.x + '%';
+      l.el.style.transform = `translateX(-50%) rotate(${l.rotation}deg)`;
+      if (l.y > 108) { l.el.remove(); state.letters.splice(i, 1); }
+    }
+    state.metrics.progressPercent = Math.min(100, (state.metrics.correctClicks / 30) * 100);
+  }
+  state.gameLoopId = requestAnimationFrame(gameLoop);
+}
+
+function handleLetterClick(el) {
+  if (state.paused || !state.gameActive) return;
+  if (el.classList.contains('correct-pop') || el.classList.contains('wrong-shake')) return;
+  const hasDot = el.dataset.hasDot === 'true';
+  const spawnTime = parseInt(el.dataset.spawnTime);
+  const responseTime = Date.now() - spawnTime;
+  state.metrics.totalClicks++;
+  if (hasDot) {
+    state.metrics.correctClicks++;
+    state.metrics.responseTimes.push(responseTime);
+    state.sessionCorrect++;
+    updateProgressBar();
+    el.classList.add('correct-pop');
+    const rect = el.getBoundingClientRect();
+    createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, '#00FF9D');
+    const float = document.createElement('div');
+    float.className = 'success-float'; float.textContent = '✓';
+    float.style.left = (rect.left + rect.width / 2) + 'px';
+    float.style.top = (rect.top + 10) + 'px';
+    document.body.appendChild(float);
+    setTimeout(() => float.remove(), 1000);
+    playSound('success');
+    setTimeout(() => { el.remove(); state.letters = state.letters.filter(l => l.el !== el); }, 380);
+    
+    // Win immediately if target reached
+    if (state.sessionCorrect >= state.levelCorrectTarget) {
+      setTimeout(() => { if (state.gameActive) levelWin(); }, 400);
+    }
+  } else {
+    state.metrics.wrongClicks++;
+    loseLife(); playSound('error');
+    el.classList.add('wrong-shake');
+    setTimeout(() => el.classList.remove('wrong-shake'), 500);
+  }
+}
+
+function stopGame() {
+  if (!state.gameActive) return;
+  state.paused = true;
+  clearGameIntervals();
+  stopBgMusic();
+  updateMenuButtons();
+  showScreen('mainMenu');
+  playSound('click');
+}
+
+function continueGame() {
+  if (!state.gameActive || !state.paused) return;
+  state.paused = false;
+  showScreen('gameScreen'); startBgMusic();
+  setTimeout(() => { spawnLoop(); gameLoop(); startLevelTimer(); }, 100);
+  playSound('click');
+}
+
+function logMetrics() {
+  const totalTime = Date.now() - state.metrics.sessionStartTime;
+  const avgResponse = state.metrics.responseTimes.length > 0 ? state.metrics.responseTimes.reduce((a,b) => a+b, 0) / state.metrics.responseTimes.length : 0;
+  const accuracy = state.metrics.totalClicks > 0 ? Math.round((state.metrics.correctClicks / state.metrics.totalClicks) * 100) : 0;
+  console.log('%c=== LOKO NOQTEYAB METRICS ===', 'color:#FFC93C;font-weight:bold;font-size:14px;');
+  console.log('Level:', state.currentLevel);
+  console.log('Total Time (ms):', totalTime);
+  console.log('Avg Response (ms):', Math.round(avgResponse));
+  console.log('Correct:', state.metrics.correctClicks);
+  console.log('Wrong:', state.metrics.wrongClicks);
+  console.log('Progress:', Math.round(state.metrics.progressPercent) + '%');
+  console.log('Accuracy:', accuracy + '%');
+  console.log('Total Coins:', state.coins);
+  console.log('===========================');
+}
+
+function updateMenuButtons() {
+  const startBtnText = document.getElementById('startBtnText');
+  const restartBtn = document.getElementById('restartFromMenuBtn');
+  if (state.gameActive && state.paused) {
+    startBtnText.textContent = 'ادامه بازی';
+    restartBtn.style.display = 'flex';
+  } else {
+    startBtnText.textContent = 'شروع بازی';
+    restartBtn.style.display = 'none';
+  }
+}
+
+document.getElementById('startBtn').addEventListener('click', () => {
+  playSound('click');
+  if (state.gameActive && state.paused) {
+    continueGame();
+  } else {
+    state.gameActive = false; state.paused = false;
+    if (!state.tutorialDone) {
+      state.tutorialDone = true; saveState();
+      startTutorialDemo();
+    } else {
+      showScreen('levelSelectScreen');
+      renderLevelSelect();
+    }
+  }
+});
+
+document.getElementById('restartFromMenuBtn').addEventListener('click', () => {
+  playSound('click');
+  state.gameActive = false; state.paused = false;
+  clearGameIntervals();
+  document.querySelectorAll('.falling-letter').forEach(el => el.remove());
+  state.letters = []; stopBgMusic();
+  showScreen('levelSelectScreen'); renderLevelSelect(); updateMenuButtons();
+});
+
+document.getElementById('tutorialGameStartBtn').addEventListener('click', () => {
+  playSound('click');
+  state.tutorialActive = false;
+  if (currentTutorialLetter) { currentTutorialLetter.remove(); currentTutorialLetter = null; }
+  hideTutorialScreen();
+  showScreen('levelSelectScreen'); renderLevelSelect();
+});
+
+document.getElementById('shopBtn').addEventListener('click', () => {
+  playSound('click'); showScreen('shopScreen'); renderShop('skins');
+  document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.shop-tab[data-tab="skins"]').classList.add('active');
+});
+
+document.getElementById('helpBtn').addEventListener('click', () => {
+  playSound('click'); showScreen('helpScreen');
+  renderLetterExamples('helpLetterExamples', tutorialExamples);
+});
+
+document.getElementById('levelSelectBackBtn').addEventListener('click', () => {
+  playSound('click'); showScreen('mainMenu'); updateMenuButtons();
+});
+document.getElementById('helpBackBtn').addEventListener('click', () => {
+  playSound('click'); showScreen('mainMenu'); updateMenuButtons();
+});
+document.getElementById('shopBackBtn').addEventListener('click', () => {
+  playSound('click'); showScreen('mainMenu'); updateMenuButtons();
+});
+document.getElementById('stopBtn').addEventListener('click', stopGame);
+
+document.getElementById('nextLevelBtn').addEventListener('click', () => {
+  playSound('click'); startLevel(state.currentLevel + 1); startBgMusic();
+});
+document.getElementById('levelWinMenuBtn').addEventListener('click', () => {
+  playSound('click'); state.gameActive = false; state.paused = false; stopBgMusic();
+  showScreen('mainMenu'); updateMenuButtons();
+});
+
+document.getElementById('retryLevelBtn').addEventListener('click', () => {
+  playSound('click'); startLevel(state.currentLevel); startBgMusic();
+});
+document.getElementById('levelLoseMenuBtn').addEventListener('click', () => {
+  playSound('click'); state.gameActive = false; state.paused = false; stopBgMusic();
+  showScreen('mainMenu'); updateMenuButtons();
+});
+
+document.getElementById('gameCompleteMenuBtn').addEventListener('click', () => {
+  playSound('click'); state.gameActive = false; state.paused = false;
+  showScreen('mainMenu'); updateMenuButtons();
+});
+
+document.querySelectorAll('.shop-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    playSound('click');
+    document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active'); renderShop(tab.dataset.tab);
+  });
+});
+
+function init() {
+  loadState();
+  // LOKO Reward System: Capture initial coins state when the game is loaded
+  state.initialCoins = state.coins;
+  
+  document.getElementById('menuCoinIcon').innerHTML = createCoinHTML(28);
+  document.getElementById('gameCoinIcon').innerHTML = createCoinHTML(28);
+  document.getElementById('rewardCoinIcon').innerHTML = createCoinHTML(32);
+  document.getElementById('levelRewardCoinIcon').innerHTML = createCoinHTML(32);
+  updateCoinDisplay(); updateMenuButtons();
+  
+  const enableAudio = () => { getAudioCtx(); };
+  document.addEventListener('click', enableAudio, { once: true });
+  document.addEventListener('touchstart', enableAudio, { once: true });
+  
+  document.addEventListener('touchmove', e => {
+    if (e.target.closest('.content-area, .level-select-content')) return;
+    e.preventDefault();
+  }, { passive: false });
+}
+init();
+</script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#levelWinScreen", "#gameCompleteScreen", "#finalReward", "#levelWinCorrect", "#levelWinLevel"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

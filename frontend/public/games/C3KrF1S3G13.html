@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#0b1416"/>
+<title>ماجرای تقارن | بازی آموزش تقارن</title>
+<script>
+/* آیکون سکه جایگزین (اگر coin.png در دسترس نبود) */
+window.COIN_SVG = "<svg viewBox='0 0 24 24' width='22' height='22' aria-hidden='true'><circle cx='12' cy='12' r='10' fill='#ffc93c' stroke='#b8860b' stroke-width='1.6'/><circle cx='12' cy='12' r='5.4' fill='none' stroke='#b8860b' stroke-width='1.6'/></svg>";
+/* کاراکتر جایگزین — فقط وقتی نمایش داده می‌شود که عکس کاراکتر پیدا نشود (هرگز روی عکس نمی‌افتد) */
+window.HERO_FB = "<svg class='fbs' viewBox='0 0 120 120' aria-hidden='true'><line x1='60' y1='22' x2='60' y2='10' stroke='#2ec4b6' stroke-width='4' stroke-linecap='round'/><circle cx='60' cy='8' r='4.5' fill='#ffb703'/><circle cx='60' cy='62' r='40' fill='#2ec4b6'/><circle cx='46' cy='56' r='6' fill='#12333a'/><circle cx='74' cy='56' r='6' fill='#12333a'/><circle cx='48' cy='54' r='2' fill='#fff'/><circle cx='76' cy='54' r='2' fill='#fff'/><path d='M48 72 Q60 82 72 72' stroke='#12333a' stroke-width='4' fill='none' stroke-linecap='round'/></svg>";
+window.HEROHI_FB = "<svg class='fbs' viewBox='0 0 120 120' aria-hidden='true'><circle cx='60' cy='62' r='40' fill='#ffb703'/><circle cx='46' cy='56' r='7' fill='#12333a'/><circle cx='74' cy='56' r='7' fill='#12333a'/><path d='M50 74 Q60 84 70 74' stroke='#12333a' stroke-width='4' fill='none' stroke-linecap='round'/></svg>";
+</script>
+<style>
+:root{
+  --bg1:#0b1416; --bg2:#122329; --panel:rgba(18,34,40,.72); --border:rgba(255,255,255,.09);
+  --cellA:rgba(255,255,255,.05); --cellB:rgba(255,255,255,.015); --grid:rgba(255,255,255,.10);
+  --shape:#2ec4b6; --accent:#ffb703; --accent2:#f48c06; --ink:#eef6f6; --line-color:#ffd166;
+  --ok:#7ce38b; --err:#ff7b72; --dark-text:#3a2400;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{
+  min-height:100vh;min-height:100dvh;
+  font-family:'Vazirmatn','Vazir','IRANSansX','IRANSans','Shabnam','Segoe UI',Tahoma,sans-serif;
+  color:var(--ink); overflow-x:hidden; touch-action:manipulation;
+  background:
+    radial-gradient(110% 65% at 50% -12%, rgba(255,255,255,.055), transparent 60%),
+    linear-gradient(165deg, var(--bg1) 0%, var(--bg2) 62%, var(--bg1) 100%);
+  background-attachment:fixed;
+}
+#app{max-width:520px;margin:0 auto;position:relative}
+.screen{display:none;min-height:100vh;min-height:100dvh;flex-direction:column;
+  padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 18px)}
+.screen.active{display:flex;animation:screenIn .35s cubic-bezier(.2,.8,.3,1)}
+@keyframes screenIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ---------- اجزای مشترک ---------- */
+.topbar,.pagebar{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%}
+.page-title{font-size:20px;font-weight:800}
+.sp{width:44px;flex:none}
+.icon-btn{width:44px;height:44px;flex:none;border-radius:14px;border:1px solid var(--border);
+  background:var(--panel);color:var(--ink);display:grid;place-items:center;cursor:pointer;
+  box-shadow:0 6px 16px rgba(0,0,0,.28);backdrop-filter:blur(8px);transition:transform .15s}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn svg{width:22px;height:22px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none;border-radius:18px;
+  font-family:inherit;font-weight:800;cursor:pointer;user-select:none;
+  transition:transform .15s,box-shadow .25s,filter .2s;color:var(--ink)}
+.btn:active{transform:scale(.96)}
+.btn svg{width:20px;height:20px;flex:none}
+.btn-primary{background:linear-gradient(180deg,#ffc93c,#f48c06);color:var(--dark-text);
+  font-size:18px;padding:15px 22px;box-shadow:0 12px 28px rgba(244,140,6,.32), inset 0 1px 0 rgba(255,255,255,.55)}
+.btn-primary.sm{font-size:15px;padding:12px 16px;border-radius:15px}
+.btn-soft{background:var(--panel);border:1px solid var(--border);padding:13px 14px;flex:1;font-size:15px;
+  box-shadow:0 8px 20px rgba(0,0,0,.25);backdrop-filter:blur(8px)}
+.btn-soft svg{color:var(--accent)}
+.btn-accent{background:transparent;border:1.5px solid var(--accent);color:var(--accent);padding:13px 14px;flex:1;font-size:15px}
+.btn-accent svg{width:20px;height:20px}
+.row2{display:flex;gap:10px;width:100%}
+.stack{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.stack .btn{flex:none;width:100%}
+.coin-pill{display:flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--border);
+  border-radius:999px;padding:8px 14px;font-weight:800;font-size:15px;
+  box-shadow:0 6px 16px rgba(0,0,0,.28);backdrop-filter:blur(8px)}
+.coin-pill img{width:23px;height:23px;object-fit:contain;display:block}
+.coin-pill.bump{animation:bump .45s}
+@keyframes bump{40%{transform:scale(1.18)}}
+.coin-pill.sm{padding:6px 12px;font-size:14px}
+.coin-pill.sm img{width:19px;height:19px}
+
+/* ---------- صفحه اصلی ---------- */
+#scr-home{align-items:center}
+#scr-home .topbar{width:100%}
+.title{margin-top:14px;font-size:clamp(30px,9vw,44px);font-weight:900;text-align:center;line-height:1.25;
+  background:linear-gradient(180deg,#ffe9ad,#ffb703 55%,#f48c06);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 4px 14px rgba(244,140,6,.22))}
+.tagline{color:rgba(238,246,246,.62);font-size:14.5px;margin-top:2px;text-align:center}
+.hero-wrap{position:relative;width:min(62vw,240px);aspect-ratio:1;margin:18px auto 22px;border-radius:50%;
+  padding:7px;background:conic-gradient(from 210deg,var(--accent),var(--accent2),var(--accent));
+  box-shadow:0 20px 48px rgba(0,0,0,.45);animation:float 3.8s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-9px)}}
+.hero-wrap img{position:absolute;inset:7px;width:calc(100% - 14px);height:calc(100% - 14px);
+  object-fit:contain;border-radius:50%;background:rgba(255,255,255,.045)}
+.fbs{position:absolute}
+.hero-wrap .fbs{inset:7px;width:calc(100% - 14px);height:calc(100% - 14px)}
+.hh-img .fbs{inset:6px;width:calc(100% - 12px);height:calc(100% - 12px)}
+#btnStart{width:min(100%,330px);margin:0 auto}
+#scr-home .row2{max-width:330px;margin-top:12px}
+
+/* ---------- سربرگ صفحات داخلی ---------- */
+.pagebar{margin-bottom:6px}
+
+/* ---------- انتخاب مرحله ---------- */
+.lvl-prog{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px 15px;
+  margin:10px 0 14px;backdrop-filter:blur(8px)}
+.lvl-prog span{font-size:13.5px;font-weight:700;color:rgba(238,246,246,.75)}
+.pbar{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:8px}
+.pbar i{display:block;height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .5s}
+.lvl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.lvl{aspect-ratio:1;border-radius:16px;border:1px solid var(--border);background:var(--panel);
+  display:flex;align-items:center;justify-content:center;position:relative;
+  font-family:inherit;font-weight:800;font-size:19px;color:var(--ink);cursor:pointer;user-select:none;
+  box-shadow:0 6px 14px rgba(0,0,0,.25);backdrop-filter:blur(8px);transition:transform .15s,border-color .2s}
+.lvl:active{transform:scale(.92)}
+.lvl.open{border-color:rgba(255,183,3,.4)}
+.lvl.doneL{border-color:rgba(124,227,139,.45)}
+.lvl.doneL .lnum{color:var(--ok)}
+.lvl .lbadge{position:absolute;top:5px;left:5px;width:18px;height:18px;color:var(--ok);display:grid}
+.lvl .lbadge svg{width:100%;height:100%}
+.lvl.locked{opacity:.42;cursor:not-allowed}
+.lvl .licon{width:22px;height:22px;display:grid;color:rgba(238,246,246,.85)}
+.lvl .licon svg{width:100%;height:100%}
+
+/* ---------- راهنما ---------- */
+.help-hero{display:flex;flex-direction:column;align-items:center;margin:8px 0 14px}
+.hh-img{position:relative;width:132px;height:132px;border-radius:30px;border:1px solid var(--border);
+  background:var(--panel);box-shadow:0 14px 34px rgba(0,0,0,.4);overflow:hidden}
+.hh-img img{position:absolute;inset:6px;width:calc(100% - 12px);height:calc(100% - 12px);object-fit:contain}
+.help-hero h3{margin-top:12px;font-size:17px}
+.help-hero p{font-size:13px;color:rgba(238,246,246,.6);margin-top:3px}
+.step{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--border);
+  border-radius:16px;padding:13px 14px;margin-top:10px;backdrop-filter:blur(8px);
+  box-shadow:0 8px 22px rgba(0,0,0,.22)}
+.step .n{width:38px;height:38px;flex:none;border-radius:12px;display:grid;place-items:center;color:var(--dark-text);
+  background:linear-gradient(180deg,var(--accent),var(--accent2));box-shadow:0 5px 14px rgba(244,140,6,.3)}
+.step .n svg{width:20px;height:20px}
+.step p{font-size:14.5px;line-height:1.9}
+.demo-card{margin-top:14px;background:var(--panel);border:1px solid var(--border);border-radius:18px;
+  padding:14px;text-align:center;backdrop-filter:blur(8px)}
+.demo-card svg{width:min(100%,290px);display:block;margin:0 auto}
+.demo-card p{font-size:13px;color:rgba(238,246,246,.68);margin-top:8px}
+#scr-help .btn-primary{margin:18px auto 0;width:min(100%,330px)}
+
+/* ---------- فروشگاه ---------- */
+.tabs{display:flex;gap:8px;background:var(--panel);border:1px solid var(--border);padding:6px;
+  border-radius:16px;margin:12px 0 14px;backdrop-filter:blur(8px)}
+.tab{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;border:none;background:transparent;
+  border-radius:11px;padding:11px 6px;font-family:inherit;font-weight:800;font-size:14.5px;color:var(--ink);
+  opacity:.68;cursor:pointer;transition:.2s}
+.tab svg{width:18px;height:18px}
+.tab.active{background:linear-gradient(180deg,var(--accent),var(--accent2));color:var(--dark-text);opacity:1;
+  box-shadow:0 6px 16px rgba(244,140,6,.3)}
+.grp{font-size:13px;color:rgba(238,246,246,.55);margin:14px 4px 8px;font-weight:700}
+.item{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;border-radius:16px;cursor:pointer;
+  background:var(--panel);border:1px solid var(--border);margin-bottom:10px;color:var(--ink);
+  font-family:inherit;text-align:right;backdrop-filter:blur(8px);transition:transform .15s,border-color .2s}
+.item:active{transform:scale(.98)}
+.item.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 10px 24px rgba(0,0,0,.3)}
+.sw{width:52px;height:52px;flex:none;border-radius:14px;border:1px solid var(--border);display:grid;
+  place-items:center;background:rgba(0,0,0,.22);position:relative;overflow:hidden}
+.sw svg{width:38px;height:38px}
+.skin-dot{width:100%;height:100%;display:grid;place-items:center;position:relative}
+.skin-dot i{position:absolute;width:14px;height:14px;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.skin-dot i:nth-child(1){top:9px;right:9px}
+.skin-dot i:nth-child(2){bottom:9px;left:9px}
+.iname{flex:1;font-weight:800;font-size:15px}
+.tag{font-size:12px;color:rgba(238,246,246,.55);display:flex;align-items:center;gap:4px}
+.tag svg{width:14px;height:14px}
+.tag.on{color:var(--ok);font-weight:800}
+.price{display:flex;align-items:center;gap:5px;font-weight:800;font-size:14.5px;color:var(--accent)}
+.price .mini{width:18px;height:18px;object-fit:contain}
+
+/* ---------- صفحه بازی ---------- */
+.lvl-chip{background:var(--panel);border:1px solid var(--border);border-radius:999px;padding:9px 16px;
+  font-weight:800;font-size:14.5px;box-shadow:0 6px 16px rgba(0,0,0,.28);backdrop-filter:blur(8px)}
+.board-wrap{position:relative;width:100%;max-width:min(100%,calc(100dvh - 236px));margin:12px auto 10px;
+  aspect-ratio:1;border-radius:20px;overflow:hidden;border:1px solid var(--border);
+  box-shadow:0 18px 44px rgba(0,0,0,.42)}
+#board{width:100%;height:100%;display:block;touch-action:none;cursor:crosshair;border-radius:inherit}
+#board .shape{transition:stroke .3s,fill-opacity .3s}
+#board .shape.done{stroke:var(--ok);fill-opacity:.3;animation:donePop .5s;transform-box:fill-box;transform-origin:center}
+@keyframes donePop{45%{transform:scale(1.05)}}
+#board .pline{animation:drawIn .35s ease-out}
+@keyframes drawIn{from{opacity:0}}
+#board .wline{animation:wFade .75s forwards}
+@keyframes wFade{70%{opacity:.95}to{opacity:0}}
+.game-hint{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+  background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:10px 14px;
+  font-size:13.5px;color:rgba(238,246,246,.78);backdrop-filter:blur(8px)}
+.dots{display:flex;gap:6px}
+.dot{width:11px;height:11px;border-radius:50%;border:2px solid var(--accent);transition:.3s}
+.dot.on{background:var(--accent);box-shadow:0 0 8px rgba(255,183,3,.5)}
+
+/* ---------- توست ---------- */
+#toast{position:fixed;top:calc(env(safe-area-inset-top) + 14px);left:50%;z-index:80;
+  transform:translateX(-50%) translateY(-18px);opacity:0;pointer-events:none;
+  background:rgba(10,18,22,.93);border:1px solid var(--border);color:var(--ink);
+  padding:11px 17px;border-radius:14px;font-weight:700;font-size:14px;display:flex;gap:8px;align-items:center;
+  max-width:88vw;box-shadow:0 12px 34px rgba(0,0,0,.5);transition:.3s}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast svg{width:19px;height:19px;flex:none}
+#toast.ok svg{color:var(--ok)}
+#toast.err svg{color:var(--err)}
+#toast.info svg{color:var(--accent)}
+
+/* ---------- پنجره‌ها ---------- */
+.overlay{position:fixed;inset:0;z-index:70;background:rgba(5,10,12,.66);backdrop-filter:blur(6px);
+  display:grid;place-items:center;padding:22px}
+.overlay[hidden]{display:none}
+.panel{background:linear-gradient(170deg,rgba(30,48,56,.94),rgba(15,27,33,.96));border:1px solid var(--border);
+  border-radius:26px;padding:26px 22px;width:min(100%,360px);text-align:center;
+  box-shadow:0 30px 70px rgba(0,0,0,.55);animation:popIn .45s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes popIn{from{opacity:0;transform:scale(.85)}}
+.medal{width:76px;height:76px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;color:var(--dark-text);
+  background:conic-gradient(from 200deg,var(--accent),var(--accent2),var(--accent));
+  box-shadow:0 12px 30px rgba(244,140,6,.35)}
+.medal svg{width:36px;height:36px}
+.panel h2{font-size:20px}
+.panel p{color:rgba(238,246,246,.65);font-size:14px;margin-top:6px}
+.end-coins{display:flex;align-items:center;justify-content:center;gap:8px;margin:16px 0;
+  font-weight:900;font-size:22px;color:var(--accent)}
+.end-coins img{width:28px;height:28px;object-fit:contain}
+.panel .row2{margin-top:6px}
+#fx{position:fixed;inset:0;z-index:90;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div id="app">
+
+  <!-- ================= صفحه اصلی ================= -->
+  <section id="scr-home" class="screen active">
+    <div class="topbar">
+      <button class="icon-btn" id="btnSound" aria-label="صدا"></button>
+      <div class="coin-pill" id="homeCoin">
+        <img src="./icons/coin.png" alt="سکه" onerror="this.outerHTML=window.COIN_SVG">
+        <b class="coinVal">۰</b>
+      </div>
+    </div>
+    <h1 class="title">ماجرای تقارن</h1>
+    <p class="tagline">خط تقارن را پیدا کن و بکش!</p>
+    <div class="hero-wrap">
+      <img src="./icons/gamer.png" alt="کاراکتر بازی" onerror="this.outerHTML=window.HERO_FB">
+    </div>
+    <button class="btn btn-primary" id="btnStart">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+      شروع بازی
+    </button>
+    <div class="row2">
+      <button class="btn btn-soft" data-go="shop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 7.5h11l-1.2 8.3a2 2 0 0 1-2 1.7H9.7a2 2 0 0 1-2-1.7L6.5 7.5z"/><path d="M9 7.5V6a3 3 0 0 1 6 0v1.5"/></svg>
+        فروشگاه
+      </button>
+      <button class="btn btn-soft" data-go="help">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h13v14H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 0 2 2h13v-3"/></svg>
+        راهنما
+      </button>
+    </div>
+  </section>
+
+  <!-- ================= انتخاب مرحله ================= -->
+  <section id="scr-levels" class="screen">
+    <header class="pagebar">
+      <button class="icon-btn" data-go="home" aria-label="بازگشت">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>
+      </button>
+      <h2 class="page-title">انتخاب مرحله</h2>
+      <div class="coin-pill sm">
+        <img src="./icons/coin.png" alt="سکه" onerror="this.outerHTML=window.COIN_SVG">
+        <b class="coinVal">۰</b>
+      </div>
+    </header>
+    <div class="lvl-prog">
+      <span id="progTxt"></span>
+      <div class="pbar"><i id="progFill"></i></div>
+    </div>
+    <div class="lvl-grid" id="lvlGrid"></div>
+  </section>
+
+  <!-- ================= راهنما ================= -->
+  <section id="scr-help" class="screen">
+    <header class="pagebar">
+      <button class="icon-btn" data-go="home" aria-label="بازگشت">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>
+      </button>
+      <h2 class="page-title">راهنما</h2>
+      <span class="sp"></span>
+    </header>
+    <div class="help-hero">
+      <div class="hh-img">
+        <img src="./icons/gamerhi.png" alt="کاراکتر راهنما" onerror="this.outerHTML=window.HEROHI_FB">
+      </div>
+      <h3>سلام! من راهنمای تویم</h3>
+      <p>با هم یاد می‌گیریم خط تقارن را بکشیم</p>
+    </div>
+    <div class="step">
+      <span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9h17M3.5 15h17M9 3.5v17M15 3.5v17"/></svg></span>
+      <p>در هر مرحله <b>دو شکل هندسی</b> روی یک صفحهٔ شطرنجی می‌بینی: مربع، مستطیل، دایره، مثلث، لوزی و خیلی شکل‌های دیگر.</p>
+    </div>
+    <div class="step">
+      <span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5V5.8a1.5 1.5 0 0 1 3 0V11"/><path d="M11 11V4.8a1.5 1.5 0 0 1 3 0V11"/><path d="M14 11V6.3a1.5 1.5 0 0 1 3 0V13.5c0 4-2.5 6.8-6.4 6.8-3.3 0-5.6-2.4-5.6-5.3v-3a1.5 1.5 0 0 1 3 0"/></svg></span>
+      <p>انگشتت را روی صفحه <b>بکش</b>. خطی که می‌کشی همیشه <b>صاف</b> و <b>خط‌چین</b> است و فقط داخل صفحهٔ شطرنجی رسم می‌شود.</p>
+    </div>
+    <div class="step">
+      <span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="6.5"/><path d="M2.5 12h19" stroke-dasharray="2.4 2.2"/></svg></span>
+      <p>خط تقارن خطی است که شکل را به <b>دو نیمهٔ مثل آینه</b> تقسیم کند؛ انگار شکل را تا می‌زنی و دو نیمه روی هم می‌افتند.</p>
+    </div>
+    <div class="step">
+      <span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 7"/></svg></span>
+      <p>اگر خطّت درست باشد، شکل <b>سبز می‌شود</b> و تیک می‌خورد. اگر اشتباه شد، ناراحت نشو؛ دوباره بکش!</p>
+    </div>
+    <div class="step">
+      <span class="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></svg></span>
+      <p>با تمام‌کردن هر مرحله <b>سکه</b> می‌گیری، مرحلهٔ بعدی <b>باز می‌شود</b> و می‌توانی در فروشگاه، پوستهٔ جدید و رنگ قلم بخری.</p>
+    </div>
+    <div class="demo-card">
+      <svg viewBox="0 0 12 7">
+        <rect x="0" y="0" width="12" height="7" fill="none"/>
+        <rect x="4" y="1.2" width="4.6" height="4.6" rx="0.15" style="fill:var(--cellA);stroke:var(--shape)" stroke-width="0.09"/>
+        <line x1="6.3" y1="0.4" x2="6.3" y2="6.6" style="stroke:var(--line-color)" stroke-width="0.1" stroke-linecap="round" stroke-dasharray="0.42 0.28"/>
+      </svg>
+      <p>مثلاً برای این مربع، خطّچینی که دقیقاً از وسط رد می‌شود، خط تقارن است.</p>
+    </div>
+    <button class="btn btn-primary" data-go="home">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+      فهمیدم، بریم بازی!
+    </button>
+  </section>
+
+  <!-- ================= فروشگاه ================= -->
+  <section id="scr-shop" class="screen">
+    <header class="pagebar">
+      <button class="icon-btn" data-go="home" aria-label="بازگشت">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>
+      </button>
+      <h2 class="page-title">فروشگاه</h2>
+      <div class="coin-pill sm">
+        <img src="./icons/coin.png" alt="سکه" onerror="this.outerHTML=window.COIN_SVG">
+        <b class="coinVal">۰</b>
+      </div>
+    </header>
+    <div class="tabs" role="tablist">
+      <button class="tab active" id="tabSkin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.4 0 2.1-.9 2.1-1.9 0-1.5-1.6-1.8-1.6-3.1 0-1 .9-1.8 2.1-1.8h1.6a4.4 4.4 0 0 0 4.3-4.4C20.3 6 16.6 3.5 12 3.5z"/><circle cx="8" cy="9" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="7" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="9" r="1.1" fill="currentColor" stroke="none"/></svg>
+        پوسته‌ها
+      </button>
+      <button class="tab" id="tabCustom">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 15.5 8.5"/><path d="M15 4.2l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z" fill="currentColor" stroke="none"/></svg>
+        شخصی‌سازی
+      </button>
+    </div>
+    <div id="shopList"></div>
+  </section>
+
+  <!-- ================= بازی ================= -->
+  <section id="scr-game" class="screen">
+    <div class="topbar">
+      <button class="icon-btn" id="btnPause" aria-label="توقف" title="توقف">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 6.5v11M15 6.5v11"/></svg>
+      </button>
+      <div class="lvl-chip" id="lvlTxt">مرحله ۱ از ۲۰</div>
+      <div class="coin-pill sm" id="gameCoin">
+        <img src="./icons/coin.png" alt="سکه" onerror="this.outerHTML=window.COIN_SVG">
+        <b class="coinVal">۰</b>
+      </div>
+    </div>
+    <div class="board-wrap" id="boardWrap">
+      <svg id="board" viewBox="0 0 12 12" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+    <div class="game-hint">
+      <div class="dots"><span class="dot"></span><span class="dot"></span></div>
+      <span id="hintTxt">خط تقارن هر دو شکل را با انگشت بکش</span>
+    </div>
+  </section>
+</div>
+
+<!-- منوی توقف -->
+<div id="pauseOverlay" class="overlay" hidden>
+  <div class="panel">
+    <div class="medal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 7v10M15 7v10"/></svg>
+    </div>
+    <h2>بازی متوقف شد</h2>
+    <p>یکی را انتخاب کن:</p>
+    <div class="stack">
+      <button class="btn btn-primary sm" id="btnResumeGame">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+        ادامه بازی
+      </button>
+      <button class="btn btn-accent" id="btnRetryLevel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12a7.5 7.5 0 0 1 12.8-5.3L20 9.2"/><path d="M20 4.5v4.7h-4.7"/><path d="M19.5 12a7.5 7.5 0 0 1-12.8 5.3L4 14.8"/><path d="M4 19.5v-4.7h4.7"/></svg>
+        شروع مجدد مرحله
+      </button>
+      <button class="btn btn-soft" id="btnPauseLevels">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.8"/><rect x="13" y="4" width="7" height="7" rx="1.8"/><rect x="4" y="13" width="7" height="7" rx="1.8"/><rect x="13" y="13" width="7" height="7" rx="1.8"/></svg>
+        انتخاب مرحله
+      </button>
+      <button class="btn btn-soft" id="btnPauseHome">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11 12 4l7.5 7"/><path d="M6.5 9.5V20h11V9.5"/></svg>
+        منوی اصلی
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- پایان یک مرحله -->
+<div id="clearOverlay" class="overlay" hidden>
+  <div class="panel">
+    <div class="medal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 7"/></svg>
+    </div>
+    <h2 id="clearTitle">مرحله تمام شد!</h2>
+    <p>خط‌های تقارنت عالی بود!</p>
+    <div class="end-coins">
+      <img src="./icons/coin.png" alt="سکه" onerror="this.outerHTML=window.COIN_SVG">
+      <b id="clearCoins">+۳</b>
+    </div>
+    <div class="row2">
+      <button class="btn btn-primary sm" id="btnNext">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+        مرحله بعد
+      </button>
+      <button class="btn btn-soft" id="btnClearLevels">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.8"/><rect x="13" y="4" width="7" height="7" rx="1.8"/><rect x="4" y="13" width="7" height="7" rx="1.8"/><rect x="13" y="13" width="7" height="7" rx="1.8"/></svg>
+        انتخاب مرحله
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- پایان بازی -->
+<div id="endOverlay" class="overlay" hidden>
+  <div class="panel">
+    <div class="medal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4"/><path d="M6 4.5c4-2 8 2 12 0v9c-4 2-8-2-12 0"/></svg>
+    </div>
+    <h2>همهٔ مرحله‌ها تمام شد!</h2>
+    <p>تو یک قهرمان واقعی تقارنی!</p>
+    <div class="end-coins">
+      <img src="./icons/coin.png" alt="سکه" onerror="this.outerHTML=window.COIN_SVG">
+      <b class="coinVal">۰</b>
+    </div>
+    <div class="row2">
+      <button class="btn btn-primary sm" id="btnEndLevels">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.8"/><rect x="13" y="4" width="7" height="7" rx="1.8"/><rect x="4" y="13" width="7" height="7" rx="1.8"/><rect x="13" y="13" width="7" height="7" rx="1.8"/></svg>
+        انتخاب مرحله
+      </button>
+      <button class="btn btn-soft" id="btnEndHome">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11 12 4l7.5 7"/><path d="M6.5 9.5V20h11V9.5"/></svg>
+        منوی اصلی
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status"></div>
+
+<script>
+(()=>{ 'use strict';
+/* ============================================================
+   ابزارهای پایه
+============================================================ */
+const $ = s => document.querySelector(s);
+const D2R = Math.PI/180;
+const faNum = n => Number(n).toLocaleString('fa-IR');
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const store = {
+  get(k,d){ try{const v=localStorage.getItem(k); return v?JSON.parse(v):d}catch(e){return d} },
+  set(k,v){ try{localStorage.setItem(k,JSON.stringify(v))}catch(e){} }
+};
+
+const ICONS = {
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 7"/></svg>',
+  cross:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>',
+  bulb :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 18h5"/><path d="M10 21h4"/><path d="M12 3.5a6 6 0 0 1 3.6 10.8c-.7.5-1.1 1-1.1 1.7h-5c0-.7-.4-1.2-1.1-1.7A6 6 0 0 1 12 3.5z"/></svg>',
+  lock :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>',
+  sndOn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h3l4.5 3.5v-11L7 10z" fill="currentColor" stroke="none"/><path d="M15.5 9.3a4.2 4.2 0 0 1 0 5.4"/><path d="M17.8 7a7.4 7.4 0 0 1 0 10"/></svg>',
+  sndOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h3l4.5 3.5v-11L7 10z" fill="currentColor" stroke="none"/><path d="M16 9.8l4.4 4.4M20.4 9.8 16 14.2"/></svg>'
+};
+
+/* ============================================================
+   صدا (Web Audio — کاملاً آفلاین)
+============================================================ */
+let audioOn = true, actx = null;
+function ac(){
+  if(!actx){ const A = window.AudioContext || window.webkitAudioContext; if(A) actx = new A(); }
+  if(actx && actx.state === 'suspended') actx.resume();
+  return actx;
+}
+function tone(f, t0, dur, type='sine', vol=.16, slide){
+  const c = ac(); if(!c || !audioOn) return;
+  const o = c.createOscillator(), g = c.createGain(), t = c.currentTime + t0;
+  o.type = type; o.frequency.setValueAtTime(f, t);
+  if(slide) o.frequency.exponentialRampToValueAtTime(slide, t + dur);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + .012);
+  g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + .05);
+}
+const SFX = {
+  click(){ tone(640,0,.06,'triangle',.14); tone(960,.03,.05,'sine',.07); },
+  success(){ [523.25,659.25,783.99].forEach((f,i)=>tone(f,i*.09,.17,'triangle',.15)); },
+  error(){ tone(230,0,.2,'sawtooth',.09,150); },
+  coin(){ tone(1046.5,0,.09,'square',.06); tone(1568,.08,.15,'square',.05); },
+  pop(){ tone(880,0,.06,'sine',.11); }
+};
+document.addEventListener('pointerdown', ()=>ac(), {once:true});
+document.addEventListener('click', e=>{
+  const b = e.target.closest('button');
+  if(b && !b.dataset.silent) SFX.click();
+});
+
+/* ============================================================
+   وضعیت و ذخیره‌سازی
+============================================================ */
+const DEF = {
+  coins:0,
+  owned:['skin-night','ink-gold','dash-classic','fill-classic'],
+  skin:'skin-night', ink:'ink-gold', dash:'dash-classic', fill:'fill-classic',
+  unlocked:1, best:0, sound:true
+};
+let save = store.get('tq_save_v2', null);
+if(!save){
+  const old = store.get('tq_save_v1', null); /* انتقال دادهٔ نسخهٔ قبلی */
+  save = old ? Object.assign({}, DEF, {
+    coins:old.coins||0, owned:old.owned||DEF.owned,
+    skin:old.skin||'skin-night', ink:old.ink||'ink-gold',
+    dash:old.dash||'dash-classic', fill:old.fill||'fill-classic',
+    sound:old.sound!==false,
+    unlocked:Math.min(20, Math.max(1, old.lastLevel||1)),
+    best:Math.min(20, Math.max(0, (old.lastLevel||1)-1))
+  }) : JSON.parse(JSON.stringify(DEF));
+}
+audioOn = save.sound !== false;
+const persist = ()=>store.set('tq_save_v2', save);
+function updateCoins(){
+  document.querySelectorAll('.coinVal').forEach(el=>el.textContent = faNum(save.coins));
+}
+function coinBump(){
+  document.querySelectorAll('.coin-pill').forEach(p=>{
+    p.classList.remove('bump'); void p.offsetWidth; p.classList.add('bump');
+  });
+}
+
+/* معیارهای سنجش داخلی (عمداً به کاربر نمایش داده نمی‌شوند؛ فقط در localStorage ثبت می‌شوند) */
+let sid = Date.now();
+const MET = { correct:0, wrong:0 };
+function logAnswer(lv, ok, ms){
+  const arr = store.get('tq_metrics_v1', []);
+  arr.push({ sid, lv, ok, ms:Math.round(ms), t:Date.now() });   // زمان پاسخ‌دهی + درست/غلط
+  if(arr.length > 1000) arr.splice(0, arr.length - 1000);
+  store.set('tq_metrics_v1', arr);
+}
+function progressPct(){ return Math.round((MET.correct + MET.wrong) / 40 * 100); } // داخلی
+
+/* ============================================================
+   پوسته‌ها و شخصی‌سازی
+============================================================ */
+const SKINS = {
+  'skin-night' :{ name:'شب آرام',    price:0,  v:{ bg1:'#0b1416', bg2:'#122329', panel:'rgba(18,34,40,.72)', border:'rgba(255,255,255,.09)', cellA:'rgba(255,255,255,.05)',  cellB:'rgba(255,255,255,.015)', grid:'rgba(255,255,255,.10)', shape:'#2ec4b6', accent:'#ffb703', accent2:'#f48c06' } },
+  'skin-ocean' :{ name:'اقیانوس',    price:10, v:{ bg1:'#06202b', bg2:'#0a3345', panel:'rgba(10,44,58,.72)', border:'rgba(255,255,255,.10)', cellA:'rgba(120,210,235,.06)',  cellB:'rgba(120,210,235,.015)', grid:'rgba(140,215,235,.12)', shape:'#53c7e8', accent:'#48cae4', accent2:'#2a9db5' } },
+  'skin-forest':{ name:'جنگل',       price:10, v:{ bg1:'#0b1d12', bg2:'#122a1a', panel:'rgba(18,42,26,.72)', border:'rgba(255,255,255,.09)', cellA:'rgba(150,220,170,.055)', cellB:'rgba(150,220,170,.012)', grid:'rgba(160,225,180,.11)', shape:'#74c69d', accent:'#95d5b2', accent2:'#5cab84' } },
+  'skin-sunset':{ name:'غروب کویر',  price:12, v:{ bg1:'#1f100a', bg2:'#2e1810', panel:'rgba(48,26,16,.72)', border:'rgba(255,255,255,.10)', cellA:'rgba(255,180,120,.06)',  cellB:'rgba(255,180,120,.015)', grid:'rgba(255,190,130,.12)', shape:'#ffb26b', accent:'#ff9f1c', accent2:'#e07a1f' } },
+  'skin-aurora':{ name:'شفق',        price:15, v:{ bg1:'#140f1c', bg2:'#201636', panel:'rgba(32,22,54,.72)', border:'rgba(255,255,255,.10)', cellA:'rgba(255,120,170,.055)', cellB:'rgba(255,120,170,.012)', grid:'rgba(230,150,190,.11)', shape:'#ff5d8f', accent:'#ff7fae', accent2:'#e0447e' } }
+};
+const INKS = {
+  'ink-gold'  :{ name:'طلایی',    price:0,  color:'#ffd166' },
+  'ink-teal'  :{ name:'فیروزه‌ای', price:8,  color:'#4ecdc4' },
+  'ink-pink'  :{ name:'صورتی',    price:8,  color:'#ff70a6' },
+  'ink-lime'  :{ name:'لیمویی',   price:10, color:'#b5e947' },
+  'ink-orange':{ name:'نارنجی',   price:12, color:'#ff8f3f' }
+};
+const DASHES = {
+  'dash-classic':{ name:'خط‌چین',    price:0,  d:'0.3 0.2',               svg:'7 5' },
+  'dash-dot'    :{ name:'نقطه‌چین',  price:8,  d:'0.03 0.2',              svg:'0.1 7' },
+  'dash-dotdash':{ name:'خط‌ونقطه',  price:10, d:'0.34 0.12 0.03 0.12',   svg:'8 4 1.5 4' }
+};
+const FILLS = {
+  'fill-classic':{ name:'کلاسیک', price:0,  a:.16 },
+  'fill-strong' :{ name:'پررنگ',  price:9,  a:.32 },
+  'fill-faint'  :{ name:'توخالی', price:8,  a:.05 }
+};
+const theme = { shape:'#2ec4b6' };
+function applyTheme(){
+  const v = SKINS[save.skin].v, rs = document.documentElement.style;
+  for(const k in v) rs.setProperty('--'+k, v[k]);
+  rs.setProperty('--line-color', INKS[save.ink].color);
+  theme.shape = v.shape;
+}
+
+/* ============================================================
+   کتابخانهٔ شکل‌ها (همه حول مرکز ۰،۰)
+============================================================ */
+function bReg(n, r, rot=0){
+  const pts = [];
+  for(let i=0;i<n;i++){ const a=(rot+i*360/n)*D2R; pts.push({x:r*Math.cos(a), y:r*Math.sin(a)}); }
+  const lines = [];
+  for(let k=0;k<n;k++){ const a=(rot+180*k/n)*D2R, dx=Math.cos(a), dy=Math.sin(a);
+    lines.push({x1:dx*r, y1:dy*r, x2:-dx*r, y2:-dy*r}); }
+  return {kind:'poly', pts, lines, rr:r};
+}
+const bSquare = a => bReg(4, a*Math.SQRT1_2, 45);
+function bRect(w,h){ const x=w/2,y=h/2;
+  return {kind:'poly', pts:[{x:-x,y:-y},{x,y:-y},{x:x,y:y},{x:-x,y:y}],
+    lines:[{x1:0,y1:-y,x2:0,y2:y},{x1:-x,y1:0,x2:x,y2:0}], rr:Math.hypot(x,y)}; }
+function bCircle(r){ return {kind:'circle', r, rr:r}; }
+function bEllipse(rx,ry){ return {kind:'ellipse', rx, ry,
+    lines:[{x1:0,y1:-ry,x2:0,y2:ry},{x1:-rx,y1:0,x2:rx,y2:0}], rr:Math.max(rx,ry)}; }
+function bTriIsoUp(w,h){ const x=w/2,y=h/2;
+  return {kind:'poly', pts:[{x:-x,y:y},{x:x,y:y},{x:0,y:-y}],
+    lines:[{x1:0,y1:-y,x2:0,y2:y}], rr:Math.hypot(x,y)}; }
+function bTriIsoDown(w,h){ const x=w/2,y=h/2;
+  return {kind:'poly', pts:[{x:-x,y:-y},{x:x,y:-y},{x:0,y:y}],
+    lines:[{x1:0,y1:-y,x2:0,y2:y}], rr:Math.hypot(x,y)}; }
+function bTriRight(a){ const h=a/2;
+  return {kind:'poly', pts:[{x:-h,y:-h},{x:h,y:-h},{x:-h,y:h}],
+    lines:[{x1:-h,y1:-h,x2:h,y2:h}], rr:Math.hypot(h,h)}; }
+function bDiamond(r1,r2){
+  return {kind:'poly', pts:[{x:0,y:-r1},{x:r2,y:0},{x:0,y:r1},{x:-r2,y:0}],
+    lines:[{x1:0,y1:-r1,x2:0,y2:r1},{x1:-r2,y1:0,x2:r2,y2:0}], rr:Math.max(r1,r2)}; }
+function bTrap(bt,bb,h){ const y=h/2;
+  return {kind:'poly', pts:[{x:-bt/2,y:-y},{x:bt/2,y:-y},{x:bb/2,y:y},{x:-bb/2,y:y}],
+    lines:[{x1:0,y1:-y,x2:0,y2:y}], rr:Math.hypot(bb/2,y)}; }
+function bStar(r, rot=0){
+  const pts=[];
+  for(let i=0;i<10;i++){ const a=(rot-90+i*36)*D2R, rad=i%2 ? r*.46 : r;
+    pts.push({x:rad*Math.cos(a), y:rad*Math.sin(a)}); }
+  const lines=[];
+  for(let k=0;k<5;k++){ const a=(rot-90+36*k)*D2R, dx=Math.cos(a), dy=Math.sin(a);
+    lines.push({x1:dx*r,y1:dy*r,x2:-dx*r,y2:-dy*r}); }
+  return {kind:'poly', pts, lines, rr:r};
+}
+const HEART_D = 'M 2,3.7 C 1.1,3.0 0,2.3 0,1.3 C 0,0.55 0.55,0.1 1.15,0.1 C 1.55,0.1 1.85,0.35 2,0.75 C 2.15,0.35 2.45,0.1 2.85,0.1 C 3.45,0.1 4,0.55 4,1.3 C 4,2.3 2.9,3.0 2,3.7 Z';
+function bHeart(){
+  return {kind:'path', d:HEART_D, lines:[{x1:0,y1:-1.85,x2:0,y2:1.85}], rr:2.75};
+}
+function lineT(L, T){
+  const a = T({x:L.x1,y:L.y1}), b = T({x:L.x2,y:L.y2});
+  return {x1:a.x, y1:a.y, x2:b.x, y2:b.y};
+}
+function place(sh, cx, cy, s=1, rot=0){
+  const a = rot*D2R, co = Math.cos(a), si = Math.sin(a);
+  const T = p => ({ x: cx + p.x*s*co - p.y*s*si, y: cy + p.x*s*si + p.y*s*co });
+  const o = { kind:sh.kind, rr:sh.rr*s, cx, cy };
+  if(sh.kind === 'poly'){ o.pts = sh.pts.map(T); o.lines = sh.lines.map(L=>lineT(L,T)); }
+  else if(sh.kind === 'circle'){ o.r = sh.r*s; o.throughCenter = {x:cx, y:cy}; }
+  else if(sh.kind === 'ellipse'){
+    const swap = Math.abs(si) > .7;
+    o.rx = (swap ? sh.ry : sh.rx)*s; o.ry = (swap ? sh.rx : sh.ry)*s;
+    o.lines = sh.lines.map(L=>lineT(L,T));
+  }
+  else if(sh.kind === 'path'){
+    o.d = sh.d; o.sc = s;
+    o.t = `translate(${cx} ${cy}) rotate(${rot}) scale(${s})`;
+    o.lines = sh.lines.map(L=>lineT(L,T));
+  }
+  return o;
+}
+
+/* ============================================================
+   ۲۰ مرحله — هر مرحله دو شکل
+============================================================ */
+const it = (b,cx,cy,rot=0,s=1)=>({b,cx,cy,rot,s});
+const LEVELS = [
+  [ it(()=>bSquare(4.2),3.2,6),        it(()=>bRect(4.4,3),8.8,6) ],
+  [ it(()=>bCircle(2.3),3.2,6),        it(()=>bTriIsoUp(4.4,3.8),8.8,6) ],
+  [ it(()=>bTriIsoDown(4.2,3.8),6,0,3.1), it(()=>bDiamond(2.5,1.9),6,0,8.7) ],
+  [ it(()=>bSquare(4.0),3.3,3.3),      it(()=>bCircle(2.1),8.7,8.7) ],
+  [ it(()=>bTrap(2.8,4.6,3.4),3.2,6),  it(()=>bEllipse(2.5,1.6),8.8,6) ],
+  [ it(()=>bReg(3,2.5,-90),3.3,6.2),   it(()=>bSquare(4.0),8.8,6) ],
+  [ it(()=>bTriRight(4.0),3.2,6),      it(()=>bDiamond(2.8,1.8),8.8,6) ],
+  [ it(()=>bReg(6,2.5,0),6,0,3.2),     it(()=>bRect(3.2,4.6),6,0,8.6) ],
+  [ it(()=>bReg(5,2.6,-90),3.3,3.3),   it(()=>bCircle(2.0),8.7,8.7) ],
+  [ it(()=>bStar(2.8),3.3,6),          it(()=>bHeart(),8.8,6,0,1) ],
+  [ it(()=>bRect(3.2,4.8),3.2,6),      it(()=>bEllipse(1.5,2.5),8.8,6) ],
+  [ it(()=>bReg(4,2.4,0),6,0,3.2),     it(()=>bCircle(2.2),6,0,8.7) ],
+  [ it(()=>bReg(3,2.4,30),3.3,3.3),    it(()=>bTrap(2.6,4.4,3.2),8.7,8.7) ],
+  [ it(()=>bReg(6,2.4,30),3.2,6),      it(()=>bDiamond(2.7,1.7),8.8,6) ],
+  [ it(()=>bHeart(),6,0,3.2,1),        it(()=>bStar(2.5),6,0,8.7) ],
+  [ it(()=>bReg(5,2.5,90),3.3,3.3),    it(()=>bRect(4.4,3.0),8.7,8.7) ],
+  [ it(()=>bTriRight(4.0),3.2,6,-90),  it(()=>bEllipse(2.6,1.5),8.8,6) ],
+  [ it(()=>bCircle(2.1),6,0,3.2),      it(()=>bTrap(2.8,4.6,3.4),6,0,8.7,180) ],
+  [ it(()=>bReg(6,2.4,15),3.2,6),      it(()=>bTriIsoUp(4.4,3.8),8.8,6,90) ],
+  [ it(()=>bHeart(),3.4,3.4,0,1.05),   it(()=>bStar(2.7),8.6,8.6) ]
+];
+
+/* ============================================================
+   ارزیابی خط کشیده‌شده (پنهان از کاربر)
+============================================================ */
+function angDiff(a,b){ let d = Math.abs(a-b) % Math.PI; return d > Math.PI/2 ? Math.PI-d : d; }
+function sdist(q,p,dir){ return dir.x*(p.y-q.y) - dir.y*(p.x-q.x); }
+function distToSeg(p,L){
+  const dx=L.x2-L.x1, dy=L.y2-L.y1, l2=dx*dx+dy*dy || 1e-9;
+  const t = clamp(((p.x-L.x1)*dx + (p.y-L.y1)*dy)/l2, 0, 1);
+  return Math.hypot(p.x-(L.x1+t*dx), p.y-(L.y1+t*dy));
+}
+function evaluateLine(p1,p2,sh){
+  const len = Math.hypot(p2.x-p1.x, p2.y-p1.y);
+  if(len < .9) return {ok:false, short:true};
+  const ang = Math.atan2(p2.y-p1.y, p2.x-p1.x);
+  const mid = {x:(p1.x+p2.x)/2, y:(p1.y+p2.y)/2};
+  const DT = .8, AT = 12*D2R;
+  if(sh.kind === 'circle'){
+    if(len < sh.r*1.2) return {ok:false, short:true};
+    const d = Math.abs(sdist(sh.throughCenter, p1, {x:Math.cos(ang), y:Math.sin(ang)}));
+    return {ok: d < DT, short:false};
+  }
+  let sawShort = false;
+  for(const L of sh.lines){
+    const vx=L.x2-L.x1, vy=L.y2-L.y1, vl=Math.hypot(vx,vy)||1e-6;
+    const dir = {x:vx/vl, y:vy/vl};
+    if(angDiff(ang, Math.atan2(dir.y,dir.x)) > AT) continue;
+    const q = {x:L.x1, y:L.y1};
+    const d1 = Math.abs(sdist(q,p1,dir)), d2 = Math.abs(sdist(q,p2,dir));
+    if(Math.max(d1,d2) > DT) continue;
+    if(distToSeg(mid,L) > 1.6) continue;
+    const minLen = Math.max(1.0, .45*vl);
+    if(len < minLen){ sawShort = true; continue; }
+    return {ok:true, short:false};
+  }
+  return {ok:false, short:sawShort};
+}
+
+/* ============================================================
+   رندر صفحهٔ شطرنجی و شکل‌ها
+============================================================ */
+const board = $('#board'), boardWrap = $('#boardWrap');
+let shapes=[], shapeEls=[], plinesG=null, liveLine=null;
+
+function shapeMarkup(sh,i){
+  const col = theme.shape, fa = FILLS[save.fill].a;
+  const cm = `fill="${col}" fill-opacity="${fa}" stroke="${col}" stroke-width="0.075" stroke-linejoin="round" class="shape" data-i="${i}"`;
+  if(sh.kind==='poly')
+    return `<polygon ${cm} points="${sh.pts.map(p=>(+p.x.toFixed(3))+','+(+p.y.toFixed(3))).join(' ')}"/>`;
+  if(sh.kind==='circle')
+    return `<circle ${cm} cx="${sh.cx}" cy="${sh.cy}" r="${sh.r}"/>`;
+  if(sh.kind==='ellipse')
+    return `<ellipse ${cm} cx="${sh.cx}" cy="${sh.cy}" rx="${sh.rx}" ry="${sh.ry}"/>`;
+  return `<g transform="${sh.t}"><path class="shape" data-i="${i}" d="${sh.d}" fill="${col}" fill-opacity="${fa}" stroke="${col}" stroke-width="${(0.075/sh.sc).toFixed(4)}" stroke-linejoin="round" stroke-linecap="round"/></g>`;
+}
+function renderBoard(){
+  let s = `<defs>
+    <pattern id="chx" width="2" height="2" patternUnits="userSpaceOnUse">
+      <rect width="2" height="2" style="fill:var(--cellA)"/>
+      <rect width="1" height="1" style="fill:var(--cellB)"/>
+      <rect x="1" y="1" width="1" height="1" style="fill:var(--cellB)"/>
+    </pattern>
+    <pattern id="grd" width="1" height="1" patternUnits="userSpaceOnUse">
+      <path d="M0,0 H1 M0,0 V1" style="stroke:var(--grid)" stroke-width="0.022" fill="none"/>
+    </pattern>
+    <filter id="fsh" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0.09" stdDeviation="0.11" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  <rect width="12" height="12" style="fill:url(#chx)"/>
+  <rect width="12" height="12" style="fill:url(#grd)"/>
+  <g filter="url(#fsh)">${shapes.map(shapeMarkup).join('')}</g>
+  <g id="plines"></g>
+  <line id="liveLine" x1="0" y1="0" x2="0" y2="0" stroke="#ffffff" stroke-opacity="0.85"
+        stroke-width="0.07" stroke-linecap="round" stroke-dasharray="0.22 0.16" visibility="hidden"/>`;
+  board.innerHTML = s;
+  shapeEls = [...board.querySelectorAll('.shape')];
+  plinesG  = board.querySelector('#plines');
+  liveLine = board.querySelector('#liveLine');
+}
+
+/* ============================================================
+   جریان بازی
+============================================================ */
+let level=1, state='idle', done=[false,false], wrongInLevel=0, lvlStart=0;
+const dots = ()=>document.querySelectorAll('.dot');
+
+function startLevel(n){
+  level=n; state='play'; done=[false,false]; wrongInLevel=0;
+  shapes = LEVELS[n-1].map(d=>place(d.b(), d.cx, d.cy, d.s, d.rot));
+  $('#lvlTxt').textContent = `مرحله ${faNum(n)} از ${faNum(20)}`;
+  $('#hintTxt').textContent = 'خط تقارن هر دو شکل را با انگشت بکش';
+  dots().forEach(d=>d.classList.remove('on'));
+  renderBoard();
+  lvlStart = performance.now();
+}
+function startGame(n){ go('game'); startLevel(n); }
+
+function addPlayerLine(p1,p2){
+  plinesG.insertAdjacentHTML('beforeend',
+    `<line class="pline" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}"
+       style="stroke:var(--line-color)" stroke-width="0.085" stroke-linecap="round"
+       stroke-dasharray="${DASHES[save.dash].d}"/>`);
+}
+function wrongFlash(p1,p2){
+  plinesG.insertAdjacentHTML('beforeend',
+    `<line class="wline" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}"
+       stroke="var(--err)" stroke-width="0.08" stroke-linecap="round"
+       stroke-dasharray="${DASHES[save.dash].d}"/>`);
+  setTimeout(()=>{ const w=plinesG.querySelector('.wline'); if(w) w.remove(); }, 800);
+}
+function accept(i,p1,p2,ms){
+  done[i]=true; MET.correct++; logAnswer(level,true,ms);
+  addPlayerLine(p1,p2);
+  const el = shapeEls.find(e=>e.dataset.i==String(i)); if(el) el.classList.add('done');
+  dots()[i].classList.add('on');
+  SFX.success();
+  if(done[0] && done[1]) levelComplete();
+  else { $('#hintTxt').textContent = 'آفرین! حالا شکل دوم'; toastMsg('آفرین! یک شکل ماند','ok'); }
+}
+function handleLine(p1,p2){
+  if(state !== 'play') return;
+  const ms = performance.now() - lvlStart;
+  const len = Math.hypot(p2.x-p1.x, p2.y-p1.y);
+  if(len < .9){ toastMsg('خط را بلندتر بکش؛ انگشتت را بیشتر بکش','info'); return; }
+  const r0 = evaluateLine(p1,p2,shapes[0]);
+  const r1 = evaluateLine(p1,p2,shapes[1]);
+  if(!done[0] && r0.ok) return accept(0,p1,p2,ms);
+  if(!done[1] && r1.ok) return accept(1,p1,p2,ms);
+  if((done[0] && r0.ok) || (done[1] && r1.ok)){
+    toastMsg('این شکل قبلاً خط تقارنش کشیده شده!','info'); SFX.pop(); return;
+  }
+  if(r0.short || r1.short){ toastMsg('خط کوتاه است، کمی بلندترش کن','info'); return; }
+  wrongInLevel++; MET.wrong++; logAnswer(level,false,ms);
+  SFX.error(); wrongFlash(p1,p2);
+  toastMsg('این خط، خط تقارن این شکل‌ها نیست! دوباره امتحان کن','err');
+}
+function levelComplete(){
+  state='cleared';
+  const earn = wrongInLevel===0 ? 3 : wrongInLevel===1 ? 2 : 1;
+  save.coins += earn;
+  save.unlocked = Math.max(save.unlocked, Math.min(20, level+1));
+  save.best = Math.max(save.best, level);
+  persist(); updateCoins(); coinBump(); SFX.coin(); burst();
+  toastMsg(`${faNum(earn)} سکه گرفتی!`,'ok');
+  if(level >= 20){
+    setTimeout(()=>{ $('#endOverlay').hidden = false; updateCoins(); }, 1100);
+  } else {
+    $('#clearTitle').textContent = `مرحله ${faNum(level)} تمام شد!`;
+    $('#clearCoins').textContent = '+' + faNum(earn);
+    setTimeout(()=>{ $('#clearOverlay').hidden = false; }, 1100);
+  }
+}
+
+/* ============================================================
+   انتخاب مرحله
+============================================================ */
+function renderLevels(){
+  $('#progTxt').textContent = `${faNum(save.best)} از ${faNum(20)} مرحله انجام شد`;
+  $('#progFill').style.width = (save.best/20*100) + '%';
+  let h='';
+  for(let i=1;i<=20;i++){
+    const unlocked = i <= save.unlocked, doneLvl = i <= save.best;
+    h += `<button class="lvl ${doneLvl?'doneL open':(unlocked?'open':'locked')}" data-lvl="${i}">
+      ${unlocked
+        ? `<span class="lnum">${faNum(i)}</span>${doneLvl?`<span class="lbadge">${ICONS.check}</span>`:''}`
+        : `<span class="licon">${ICONS.lock}</span>`}
+    </button>`;
+  }
+  $('#lvlGrid').innerHTML = h;
+}
+ $('#lvlGrid').addEventListener('click', e=>{
+  const b = e.target.closest('.lvl'); if(!b) return;
+  const n = +b.dataset.lvl;
+  if(n > save.unlocked){
+    SFX.error();
+    toastMsg('اول مرحله‌های قبلی را کامل کن تا این مرحله باز شود!','err');
+    return;
+  }
+  newSession(); startGame(n);
+});
+
+/* ============================================================
+   ورودی لمسی/موس — خط صاف بین نقطهٔ شروع و پایان
+============================================================ */
+let drawing=false, sp=null;
+function toGrid(e){
+  const r = board.getBoundingClientRect();
+  return {
+    x: clamp((e.clientX - r.left)/r.width*12, .12, 11.88),
+    y: clamp((e.clientY - r.top)/r.height*12, .12, 11.88)
+  };
+}
+function updateLive(p2){
+  if(!liveLine) return;
+  liveLine.setAttribute('x1',sp.x); liveLine.setAttribute('y1',sp.y);
+  liveLine.setAttribute('x2',p2.x); liveLine.setAttribute('y2',p2.y);
+  liveLine.setAttribute('visibility','visible');
+}
+board.addEventListener('pointerdown', e=>{
+  if(state!=='play') return;
+  e.preventDefault();
+  drawing = true; sp = toGrid(e); updateLive(sp);
+  try{ board.setPointerCapture(e.pointerId); }catch(_){}
+});
+board.addEventListener('pointermove', e=>{ if(drawing) updateLive(toGrid(e)); });
+function endDraw(e){
+  if(!drawing) return;
+  drawing = false;
+  if(liveLine) liveLine.setAttribute('visibility','hidden');
+  const p2 = toGrid(e);
+  handleLine(sp, p2);
+}
+board.addEventListener('pointerup', endDraw);
+board.addEventListener('pointercancel', ()=>{ drawing=false; if(liveLine) liveLine.setAttribute('visibility','hidden'); });
+
+/* ============================================================
+   کاغذرنگی جشن
+============================================================ */
+const cvs=$('#fx'), fctx=cvs.getContext('2d');
+let parts=[], fxRaf=0;
+function fxResize(){ cvs.width=innerWidth; cvs.height=innerHeight; }
+addEventListener('resize', fxResize); fxResize();
+function burst(){
+  const r=boardWrap.getBoundingClientRect();
+  const cx=r.left+r.width/2, cy=r.top+r.height*.5;
+  const cols=['#ffb703','#f48c06','#7ce38b','#4ecdc4','#ff70a6','#ffd166'];
+  for(let i=0;i<85;i++){
+    const a=Math.random()*Math.PI*2, sp2=3+Math.random()*6.5;
+    parts.push({x:cx,y:cy,vx:Math.cos(a)*sp2,vy:Math.sin(a)*sp2-2.6,g:.16,
+      rot:Math.random()*6.28,vr:(Math.random()-.5)*.35,s:4+Math.random()*5,
+      c:cols[i%cols.length],k:i%3,l:70+Math.random()*35});
+  }
+  if(!fxRaf) fxTick();
+}
+function fxTick(){
+  fctx.clearRect(0,0,cvs.width,cvs.height);
+  parts = parts.filter(p=>p.l>0);
+  for(const p of parts){
+    p.x+=p.vx; p.y+=p.vy; p.vy+=p.g; p.vx*=.99; p.rot+=p.vr; p.l--;
+    fctx.save(); fctx.translate(p.x,p.y); fctx.rotate(p.rot);
+    fctx.globalAlpha=Math.min(1,p.l/30); fctx.fillStyle=p.c;
+    if(p.k===0) fctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);
+    else if(p.k===1){ fctx.beginPath(); fctx.arc(0,0,p.s/2.4,0,6.3); fctx.fill(); }
+    else { fctx.beginPath(); fctx.moveTo(0,-p.s/2); fctx.lineTo(p.s/2,p.s/2); fctx.lineTo(-p.s/2,p.s/2); fctx.closePath(); fctx.fill(); }
+    fctx.restore();
+  }
+  fxRaf = parts.length ? requestAnimationFrame(fxTick) : 0;
+  if(!parts.length) fctx.clearRect(0,0,cvs.width,cvs.height);
+}
+
+/* ============================================================
+   توست
+============================================================ */
+let toastT;
+function toastMsg(txt, kind='info'){
+  const t=$('#toast');
+  const ic = kind==='ok' ? ICONS.check : kind==='err' ? ICONS.cross : ICONS.bulb;
+  t.innerHTML = ic + `<span>${txt}</span>`;
+  t.className = 'toast show ' + kind;
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ============================================================
+   ناوبری صفحات
+============================================================ */
+function go(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $('#scr-'+name).classList.add('active');
+  scrollTo(0,0);
+}
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{
+  if(b.dataset.go==='levels') renderLevels();
+  go(b.dataset.go);
+}));
+
+function newSession(){ sid = Date.now(); MET.correct=0; MET.wrong=0; }
+
+ $('#btnStart').addEventListener('click', ()=>{ renderLevels(); go('levels'); });
+
+/* --- منوی توقف --- */
+ $('#btnPause').addEventListener('click', ()=>{
+  state='paused'; drawing=false;
+  if(liveLine) liveLine.setAttribute('visibility','hidden');
+  $('#pauseOverlay').hidden = false;
+});
+ $('#btnResumeGame').addEventListener('click', ()=>{ $('#pauseOverlay').hidden=true; state='play'; });
+ $('#btnRetryLevel').addEventListener('click', ()=>{ $('#pauseOverlay').hidden=true; startLevel(level); });
+ $('#btnPauseLevels').addEventListener('click', ()=>{ $('#pauseOverlay').hidden=true; renderLevels(); go('levels'); });
+ $('#btnPauseHome').addEventListener('click', ()=>{ $('#pauseOverlay').hidden=true; go('home'); });
+
+/* --- پایان مرحله / پایان بازی --- */
+ $('#btnNext').addEventListener('click', ()=>{ $('#clearOverlay').hidden=true; startLevel(level+1); });
+ $('#btnClearLevels').addEventListener('click', ()=>{ $('#clearOverlay').hidden=true; renderLevels(); go('levels'); });
+ $('#btnEndLevels').addEventListener('click', ()=>{ $('#endOverlay').hidden=true; renderLevels(); go('levels'); });
+ $('#btnEndHome').addEventListener('click', ()=>{ $('#endOverlay').hidden=true; go('home'); });
+
+function renderSoundIcon(){ $('#btnSound').innerHTML = audioOn ? ICONS.sndOn : ICONS.sndOff; }
+ $('#btnSound').addEventListener('click', ()=>{
+  audioOn = !audioOn; save.sound = audioOn; persist(); renderSoundIcon();
+});
+
+/* ============================================================
+   فروشگاه
+============================================================ */
+let shopTab='skin';
+const PROP = { skin:'skin', ink:'ink', dash:'dash', fill:'fill' };
+function shopRow(cat,key,item,sw){
+  const owned = save.owned.includes(key), active = save[PROP[cat]]===key;
+  const side = owned
+    ? (active ? `<span class="tag on">${ICONS.check}<i>فعال</i></span>` : `<span class="tag"><i>دارایش</i></span>`)
+    : `<span class="price"><img class="mini" src="./icons/coin.png" alt="" onerror="this.outerHTML=window.COIN_SVG">${faNum(item.price)}</span>`;
+  return `<button class="item${active?' active':''}" data-cat="${cat}" data-key="${key}">
+    <span class="sw">${sw}</span><span class="iname">${item.name}</span>${side}</button>`;
+}
+function renderShop(){
+  $('#tabSkin').classList.toggle('active', shopTab==='skin');
+  $('#tabCustom').classList.toggle('active', shopTab==='custom');
+  let h='';
+  if(shopTab==='skin'){
+    for(const k in SKINS){
+      const v=SKINS[k];
+      const sw=`<span class="skin-dot" style="background:linear-gradient(140deg,${v.v.bg1},${v.v.bg2})">
+        <i style="background:${v.v.accent}"></i><i style="background:${v.v.shape}"></i></span>`;
+      h+=shopRow('skin',k,v,sw);
+    }
+  } else {
+    h+=`<h4 class="grp">رنگ قلم تقارن</h4>`;
+    for(const k in INKS){ const v=INKS[k];
+      const sw=`<svg viewBox="0 0 40 40"><line x1="7" y1="20" x2="33" y2="20" stroke="${v.color}" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="6.5 4.5"/></svg>`;
+      h+=shopRow('ink',k,v,sw); }
+    h+=`<h4 class="grp">طرح خط‌چین</h4>`;
+    for(const k in DASHES){ const v=DASHES[k];
+      const sw=`<svg viewBox="0 0 40 40"><line x1="6" y1="20" x2="34" y2="20" stroke="var(--line-color)" stroke-width="3.6" stroke-linecap="round" stroke-dasharray="${v.svg}"/></svg>`;
+      h+=shopRow('dash',k,v,sw); }
+    h+=`<h4 class="grp">پُریِ شکل‌ها</h4>`;
+    for(const k in FILLS){ const v=FILLS[k];
+      const sw=`<svg viewBox="0 0 40 40"><rect x="9" y="9" width="22" height="22" rx="6" style="fill:var(--shape);stroke:var(--shape)" stroke-width="2.5" fill-opacity="${v.a}"/></svg>`;
+      h+=shopRow('fill',k,v,sw); }
+  }
+  $('#shopList').innerHTML = h;
+}
+ $('#tabSkin').addEventListener('click', ()=>{ shopTab='skin'; renderShop(); });
+ $('#tabCustom').addEventListener('click', ()=>{ shopTab='custom'; renderShop(); });
+ $('#shopList').addEventListener('click', e=>{
+  const el = e.target.closest('.item'); if(!el) return;
+  const cat=el.dataset.cat, key=el.dataset.key;
+  const table = {skin:SKINS, ink:INKS, dash:DASHES, fill:FILLS}[cat];
+  const item = table[key], prop = PROP[cat];
+  if(save[prop]===key) return;
+  if(save.owned.includes(key)){
+    save[prop]=key; persist(); applyTheme(); renderShop(); SFX.pop();
+    toastMsg('انتخاب شد!','ok'); return;
+  }
+  if(save.coins < item.price){
+    SFX.error(); toastMsg('سکه کافی نداری! با بازیِ مرحله‌ها سکه جمع کن','err'); return;
+  }
+  save.coins -= item.price; save.owned.push(key); save[prop]=key;
+  persist(); updateCoins(); coinBump(); applyTheme(); renderShop(); SFX.coin();
+  toastMsg(`«${item.name}» خریدی و فعال شد!`,'ok');
+});
+
+/* ============================================================
+   شروع
+============================================================ */
+applyTheme(); updateCoins(); renderSoundIcon(); renderLevels(); renderShop(); go('home');
+})();
+</script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#endOverlay"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

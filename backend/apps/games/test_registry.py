@@ -57,10 +57,33 @@ class NamingTests(SimpleTestCase):
         self.assertTrue(r.ok)
         self.assertEqual((r.code.grade, r.code.book, r.code.chapter, r.code.week, r.code.number),
                          (1, "r", 1, 2, 2))
-        self.assertEqual(r.code.slot, (1, 1, 2, 2))
+        self.assertEqual(r.code.slot, (1, 1, 2, 2, "r"))
+        self.assertEqual(r.code.sort_key, (1, 1, 2, 2, 0))
         self.assertEqual(r.code.book_id, "math-1")
         self.assertEqual(str(r.code), "C1-Kr-F1-S2-G2")
         self.assertEqual(r.notes, ())
+
+    def test_compact_names_are_accepted(self):
+        """تیمِ محتوا بی‌خط‌تیره نام می‌گذارد: C1KrF1S2g2 همان C1-Kr-F1-S2-G2 است."""
+        for name in ("C1KrF1S2g2.html", "C1KrF1S2G2.html", "c1krf1s2g2.html",
+                     "C1Kr-F1-S2-G2.html"):
+            r = parse(name)
+            self.assertTrue(r.ok, name)
+            self.assertEqual(r.code.slot, (1, 1, 2, 2, "r"), name)
+            self.assertEqual(r.notes, (), name)
+
+    def test_compact_name_with_a_book_whose_letter_is_also_a_part(self):
+        # «Kf» نباید به K و F شکسته شود
+        r = parse("C1KfF2S2g2.html")
+        self.assertTrue(r.ok)
+        self.assertEqual((r.code.book, r.code.chapter, r.code.week), ("f", 2, 2))
+
+    def test_broken_studio_names(self):
+        """نام‌هایی که واقعاً در مخزنِ استودیو خراب بودند."""
+        self.assertInvalid("C1KrF11Sg1.html", "S")        # هفته عدد ندارد
+        self.assertInvalid("C3KrF1S14.html", "بخشِ G")     # شماره‌ی بازی نیست
+        self.assertInvalid("C1KrK2S1g2.html", "دو بار")    # K دو بار، F نیست
+        self.assertInvalid("g5.html", "قالب")
 
     def test_every_book_code(self):
         for code, book in BOOKS.items():
@@ -71,7 +94,7 @@ class NamingTests(SimpleTestCase):
     def test_case_and_leading_zeros_are_accepted_with_a_note(self):
         r = parse("c1-kR-f01-s02-g010.html")
         self.assertTrue(r.ok)
-        self.assertEqual(r.code.slot, (1, 1, 2, 10))
+        self.assertEqual(r.code.slot, (1, 1, 2, 10, "r"))
         self.assertIn("C1-Kr-F1-S2-G10.html", r.notes[0])
 
     def test_round_trip_for_many_valid_names(self):
@@ -212,25 +235,27 @@ class PlanTests(SimpleTestCase):
 
     def test_rename_keeps_the_identity(self):
         a = gf("C1-Kr-F1-S1-G1.html", content="A")
-        row = Known(slug="game-a", path=a.path, digest=a.digest, status=READY, slot=(1, 1, 1, 1))
+        row = Known(slug="game-a", path=a.path, digest=a.digest, status=READY,
+                    slot=(1, 1, 1, 1, "r"))
         moved = gf("C1-Kr-F2-S3-G4.html", content="A")
         result = plan([moved], [row])
         entry = result.entries[0]
         self.assertEqual((entry.match, entry.slug, entry.status), ("renamed", "game-a", READY))
-        self.assertEqual(entry.code.slot, (1, 2, 3, 4))
+        self.assertEqual(entry.code.slot, (1, 2, 3, 4, "r"))
         self.assertEqual(result.gone, [])
 
     def test_editing_in_place_keeps_the_identity(self):
         old = gf("C1-Kr-F1-S1-G1.html", content="v1")
-        row = Known(slug="game-a", path=old.path, digest=old.digest, status=READY, slot=(1, 1, 1, 1))
+        row = Known(slug="game-a", path=old.path, digest=old.digest, status=READY,
+                    slot=(1, 1, 1, 1, "r"))
         result = plan([gf("C1-Kr-F1-S1-G1.html", content="v2")], [row])
         self.assertEqual((result.entries[0].match, result.entries[0].slug), ("edited", "game-a"))
 
     def test_swapping_two_names_follows_the_content(self):
         a = gf("C1-Kr-F1-S1-G1.html", content="A")
         b = gf("C1-Kr-F1-S1-G2.html", content="B")
-        rows = [Known(slug="a", path=a.path, digest=a.digest, status=READY, slot=(1, 1, 1, 1)),
-                Known(slug="b", path=b.path, digest=b.digest, status=READY, slot=(1, 1, 1, 2))]
+        rows = [Known(slug="a", path=a.path, digest=a.digest, status=READY, slot=(1, 1, 1, 1, "r")),
+                Known(slug="b", path=b.path, digest=b.digest, status=READY, slot=(1, 1, 1, 2, "r"))]
         result = plan([gf("C1-Kr-F1-S1-G1.html", content="B"),
                        gf("C1-Kr-F1-S1-G2.html", content="A")], rows)
         by_slug = {e.slug: e.code.number for e in result.entries}
@@ -264,17 +289,26 @@ class PlanTests(SimpleTestCase):
 
     def test_forgetting_to_make_room_does_not_break_the_old_game(self):
         old = gf("C1-Kr-F1-S1-G2.html", content="old")
-        row = Known(slug="old", path=old.path, digest=old.digest, status=READY, slot=(1, 1, 1, 2))
-        # کتابِ دیگر، همان جایگاه — تازه‌وارد کنار می‌رود
-        result = plan([old, gf("C1-Kq-F1-S1-G2.html", content="new")], [row])
+        row = Known(slug="old", path=old.path, digest=old.digest, status=READY,
+                    slot=(1, 1, 1, 2, "r"))
+        # همان کتاب و همان جایگاه با فایلِ دیگر — تازه‌وارد کنار می‌رود
+        result = plan([old, gf("c1kr-f1-s1-g2.html", content="new")], [row])
         status = {e.file.name: e.status for e in result.entries}
-        self.assertEqual(status, {"C1-Kr-F1-S1-G2.html": READY, "C1-Kq-F1-S1-G2.html": CONFLICT})
+        self.assertEqual(status, {"C1-Kr-F1-S1-G2.html": READY, "c1kr-f1-s1-g2.html": CONFLICT})
         problem = next(e for e in result.entries if e.status == CONFLICT).problems[0]
         self.assertIn("C1-Kr-F1-S1-G2.html", problem)
-        self.assertIn("C1-F1-S1-G2", problem)
+
+    def test_same_number_in_two_books_is_not_a_conflict(self):
+        """شماره‌ی بازی در هر کتاب جدا می‌رود؛ g1ِ ریاضی و g1ِ نگارش کنارِ هم می‌نشینند."""
+        result = plan([gf("C1-Kn-F1-S1-G1.html"), gf("C1-Kr-F1-S1-G1.html"),
+                       gf("C1-Kr-F1-S1-G2.html")], [])
+        self.assertEqual({e.status for e in result.entries}, {READY})
+        # ترتیب: شماره اول، بعد کتاب (ترتیبِ BOOKS: ریاضی پیش از نگارش)
+        self.assertEqual([e.file.name for e in result.ready],
+                         ["C1-Kr-F1-S1-G1.html", "C1-Kn-F1-S1-G1.html", "C1-Kr-F1-S1-G2.html"])
 
     def test_two_new_files_in_one_slot_are_both_held_back(self):
-        result = plan([gf("C1-Kr-F1-S1-G1.html"), gf("C1-Kq-F1-S1-G1.html")], [])
+        result = plan([gf("C1-Kr-F1-S1-G1.html"), gf("c1krf1s1g1.html")], [])
         self.assertEqual({e.status for e in result.entries}, {CONFLICT})
         self.assertEqual(result.ready, [])
 
@@ -404,7 +438,9 @@ class WarningTests(SimpleTestCase):
         self.assertTrue(any("<title>" in x for x in w), w)
 
     def test_non_standard_spelling(self):
-        w = self.warnings(["c1-kr-f1-s1-g1.html"])
+        # حروفِ کوچک و نامِ فشرده عادی‌اند؛ صفرِ اول ولی یادآوری می‌شود
+        self.assertEqual(self.warnings(["c1kr-f1-s1-g1.html"]), [])
+        w = self.warnings(["C1-Kr-F1-S1-G01.html"])
         self.assertTrue(any("C1-Kr-F1-S1-G1.html" in x for x in w), w)
 
 
@@ -569,9 +605,9 @@ class SyncTests(SyncTestBase):
     def test_conflict_is_stored_with_a_reason(self):
         self.put("C1-Kr-F1-S1-G1.html")
         self.sync()
-        self.put("C1-Kq-F1-S1-G1.html", content="<title>q</title>q")
+        self.put("C1KrF1S1g1.html", content="<title>q</title>q")
         self.sync()
-        newcomer = self.game("C1-Kq-F1-S1-G1.html")
+        newcomer = self.game("C1KrF1S1g1.html")
         self.assertEqual(newcomer.status, Game.Status.CONFLICT)
         self.assertIn("C1-Kr-F1-S1-G1.html", newcomer.review_note)
         self.assertEqual(self.game("C1-Kr-F1-S1-G1.html").status, Game.Status.READY)
@@ -665,6 +701,10 @@ class PathApiTests(SyncTestBase):
         kid = User.objects.create(phone="09121117003", role=User.Role.STUDENT, grade=2)
         self.api.force_authenticate(kid)
         self.assertEqual(self.api.get("/api/v1/games/path").json()["data"]["grade"], 2)
+
+    def test_open_grades_lists_each_class_once(self):
+        res = self.api.get("/api/v1/games/grades")
+        self.assertEqual(res.json()["data"]["grades"], [1, 2])
 
     def test_bad_grade(self):
         self.assertEqual(self.path(grade=9).status_code, 400)

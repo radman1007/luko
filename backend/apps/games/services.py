@@ -42,6 +42,14 @@ def is_first_stage(game: Game) -> bool:
     return first == game.pk
 
 
+def grades_with_games() -> list[int]:
+    """کلاس‌هایی که همین حالا بازی دارند — فرمِ ثبت‌نام از همین می‌خواند."""
+    # `order_by()` لازم است: ترتیبِ پیش‌فرضِ مدل ستون‌هایش را به SELECT اضافه
+    # می‌کند و آن‌وقت distinct هر ردیف را جدا می‌شمارد (کلاس‌ها تکراری می‌شدند).
+    return sorted(Game.objects.playable().filter(season_order__gt=0)
+                  .order_by().values_list("grade", flat=True).distinct())
+
+
 def game_path(grade: int) -> list[dict]:
     """
     مسیرِ یک کلاس برای صفحه‌ی بچه — فقط آنچه برای نمایش لازم است.

@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>جزیره جادویی - ماجراجویی پیکسل</title>
+<style>
+  @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Medium.ttf") format("truetype"); font-weight: 500; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-Black.ttf") format("truetype"); font-weight: 900; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Shoor"; src: url("./fonts/Shoor-ExtraBold.ttf") format("truetype"); font-weight: 800; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Medium.ttf") format("truetype"); font-weight: 500; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-Black.ttf") format("truetype"); font-weight: 900; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Shoor Rounded"; src: url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype"); font-weight: 800; font-style: normal; font-display: swap; }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-touch-callout: none; }
+  :root { --primary: #6C5CE7; --neon-blue: #00D2FF; --neon-pink: #FF00A0; --neon-green: #00FF9D; --accent: #FFEAA7; --success: #00B894; --danger: #FF7675; --dark: #1E1E2F; --glass: rgba(255, 255, 255, 0.15); --glass-border: rgba(255, 255, 255, 0.3); --gold: #FFC93C; --gold-dark: #B96F00; --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif; }
+  
+  html, body { width: 100%; height: 100%; overflow: hidden; font-family: var(--font); background: linear-gradient(135deg, #0c0a14, #181225); touch-action: none; color: white; display: flex; align-items: center; justify-content: center; position: fixed; }
+  
+  /* قالب موبایل برای دسکتاپ */
+  .app-wrapper { position: relative; width: 100%; max-width: 480px; height: 100%; max-height: 100vh; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.8); background: #0f0c29; }
+
+  .screen { position: absolute; inset: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; }
+  .screen.active { display: flex; }
+  .scene-bg { position: absolute; inset: 0; overflow: hidden; z-index: 0; background: #0f0c29; }
+  .sky-layer { position: absolute; inset: 0; background-size: cover; background-position: center; background-repeat: no-repeat; transition: background-image 0.8s ease; z-index: 0; }
+  
+  /* ===== Shop Frosted Glass Overlay ===== */
+  #screen-shop .scene-bg { background: #14101f; }
+  #screen-shop .sky-layer, #screen-shop .snow-layer { display: none; }
+  .shop-glass-overlay { position: absolute; inset: 0; background: rgba(20, 16, 31, 0.8); backdrop-filter: blur(12px); z-index: 1; }
+
+  /* ===== Custom Scrollbar ===== */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; margin: 4px; }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--neon-blue), var(--primary)); border-radius: 10px; box-shadow: 0 0 10px rgba(0, 210, 255, 0.5); }
+  ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, var(--neon-pink), var(--primary)); box-shadow: 0 0 10px rgba(255, 0, 160, 0.5); }
+
+  /* ===== Snow weather effect ===== */
+  .snow-layer { position: absolute; inset: 0; z-index: 3; overflow: hidden; pointer-events: none; opacity: 0; transition: opacity 0.6s ease; }
+  .snow-layer.active { opacity: 1; }
+  .snowflake { position: absolute; top: -20px; color: #fff; opacity: 0.9; animation-name: snowFall; animation-timing-function: linear; animation-iteration-count: infinite; text-shadow: 0 0 6px rgba(255,255,255,0.8); }
+  @keyframes snowFall { 0% { transform: translateY(-20px) translateX(0) rotate(0deg); } 100% { transform: translateY(110vh) translateX(30px) rotate(360deg); } }
+
+  /* ===== SVG Icons Base ===== */
+  .svg-icon { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .svg-icon.fill { fill: currentColor; stroke: none; }
+
+  /* ===== Unified Gold Buttons ===== */
+  .btn-gold { 
+    background: linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%); 
+    border: 2px solid #FFE68A; 
+    color: #3b2a06; 
+    box-shadow: 0 4px 0 var(--gold-dark), 0 5px 10px rgba(255,168,0,0.3);
+    text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+    font-weight: 900;
+  }
+  .btn-gold:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--gold-dark), 0 2px 5px rgba(255,168,0,0.2); }
+  .btn-gold .svg-icon { color: #3b2a06; }
+
+  /* ===== Coin display ===== */
+  .menu-top-info { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 10px; padding: 0 10px; z-index: 10; }
+  .coin-display { display: flex; align-items: center; gap: 10px; background: var(--glass); backdrop-filter: blur(10px); border-radius: 16px; padding: 8px 16px; border: 1px solid var(--glass-border); box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3); }
+  .coin-icon-img { width: 28px; height: 28px; filter: drop-shadow(0 0 5px #FFD700); animation: coinSpin 3s linear infinite; }
+  @keyframes coinSpin { 0% { transform: rotateY(0); } 100% { transform: rotateY(360deg); } }
+  .coin-amount { font-size: 18px; font-weight: 900; color: #FFD700; min-width: 20px; text-shadow: 0 0 5px #FFD700; }
+  .float-coin { position: absolute; z-index: 9999; pointer-events: none; font-weight: 800; color: #FFD700; font-size: 18px; text-shadow: 0 0 10px #FFD700; animation: floatUp 1.2s ease forwards; }
+  @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-100px) scale(1.5); opacity: 0; } }
+
+  .offline-badge { display: none; align-items: center; gap: 5px; background: var(--danger); color: white; font-size: 10px; font-weight: 800; padding: 5px 10px; border-radius: 10px; box-shadow: 0 3px 10px rgba(255,118,117,0.4); white-space: nowrap; }
+  .offline-badge.show { display: flex; }
+
+  #screen-menu { z-index: 10; }
+  .menu-container { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 18px; width: 100%; padding: 20px 20px 30px; max-width: 460px; }
+
+  .banner-title { position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; animation: bannerFloat 4s ease-in-out infinite; }
+  @keyframes bannerFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .banner-main { position: relative; background: linear-gradient(180deg, #3a2f7a 0%, #241a55 100%); border: 3px solid var(--gold); border-radius: 16px; padding: 12px 36px; box-shadow: 0 6px 0 rgba(0,0,0,0.35), 0 0 35px rgba(108,92,231,0.55); text-align: center; }
+  .banner-title .title { font-size: 36px; font-weight: 900; color: #ffffff; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+  .banner-title .subtitle { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 3px; font-weight: 700; }
+  .banner-ribbon-left, .banner-ribbon-right { width: 26px; height: 44px; background: var(--gold-dark); margin: 0 -4px; box-shadow: 0 6px 0 rgba(0,0,0,0.25); }
+  .banner-ribbon-left { clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%); }
+  .banner-ribbon-right { clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%); }
+
+  .portrait-frame { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 4px 0; }
+  .pixel-bubble { background: var(--glass); backdrop-filter: blur(10px); padding: 12px 20px; border-radius: 20px 20px 20px 5px; font-size: 15px; font-weight: 700; color: white; border: 1px solid var(--glass-border); box-shadow: 0 10px 25px rgba(0,0,0,0.3); position: relative; max-width: 260px; text-align: center; }
+  .pixel-bubble::after { content: ''; position: absolute; bottom: -10px; left: 20px; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 10px solid var(--glass); }
+  .portrait-ring { width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, #4834d4, #1a1440); border: 5px solid var(--gold); box-shadow: 0 0 0 4px rgba(0,0,0,0.25), 0 0 30px rgba(255,201,60,0.6), inset 0 0 18px rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; }
+  .pixel-img { width: 108px; height: 108px; object-fit: contain; filter: drop-shadow(0 0 15px var(--neon-blue)); animation: pixelFloat 2s ease-in-out infinite; }
+  @keyframes pixelFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+  /* دکمه بزرگ شروع */
+  .btn-cta { position: relative; width: 100%; max-width: 340px; padding: 16px 20px; border-radius: 20px; font-family: var(--font); font-size: 21px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; border-width: 3px; box-shadow: 0 6px 0 var(--gold-dark), 0 12px 25px rgba(255,168,0,0.5); transition: transform 0.12s ease, box-shadow 0.12s ease; }
+  .btn-cta:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--gold-dark), 0 4px 10px rgba(255,168,0,0.4); }
+  .btn-cta .svg-icon { width: 26px; height: 26px; }
+
+  /* دکمه های راهنما و فروشگاه - نصف عرض دکمه شروع */
+  .quick-actions { display: flex; gap: 12px; margin-top: 6px; width: 100%; max-width: 340px; }
+  .btn-secondary { 
+    flex: 1; 
+    padding: 12px 10px; 
+    border-radius: 16px; 
+    font-family: var(--font); 
+    font-size: 16px; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 8px; 
+    transition: transform 0.12s ease, box-shadow 0.12s ease; 
+  }
+  .btn-secondary .svg-icon { width: 22px; height: 22px; }
+
+  #intro-overlay { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 15%; background: rgba(15, 12, 41, 0.86); backdrop-filter: blur(15px); opacity: 1; transition: opacity 0.5s ease; pointer-events: auto; }
+  #intro-overlay.hidden { opacity: 0; pointer-events: none; }
+  .intro-pixel-img { width: 150px; height: 150px; object-fit: contain; filter: drop-shadow(0 0 20px var(--neon-blue)); transform: translateX(400px); transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); margin-bottom: 20px; }
+  .intro-pixel-img.active { transform: translateX(0); animation: pixelFloat 2s ease-in-out infinite 1.5s; }
+  .intro-pixel-img.exit { transform: translateX(400px); transition: transform 0.8s ease-in; animation: none; }
+  .intro-bubble { max-width: 260px; background: var(--glass); backdrop-filter: blur(10px); padding: 15px 20px; border-radius: 20px 20px 20px 5px; font-size: 16px; font-weight: 700; color: white; border: 1px solid var(--glass-border); box-shadow: 0 10px 25px rgba(0,0,0,0.3); opacity: 0; transform: translateY(20px) scale(0.8); transition: all 0.4s ease; text-align: center; margin-bottom: 20px; position: relative; }
+  .intro-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
+
+  .game-wrapper { position: relative; z-index: 2; width: 100%; height: 100%; display: flex; flex-direction: column; padding: 10px; gap: 8px; }
+  .game-header { display: flex; align-items: center; justify-content: space-between; background: var(--glass); backdrop-filter: blur(10px); border-radius: 16px; padding: 10px 16px; flex-shrink: 0; border: 1px solid var(--glass-border); flex-wrap: wrap; gap: 5px; }
+  .btn-back { padding: 8px 14px; border-radius: 12px; font-family: var(--font); cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 15px; transition: transform 0.1s; box-shadow: 0 3px 0 var(--gold-dark), 0 4px 8px rgba(255,168,0,0.2); }
+  .btn-back:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--gold-dark); }
+  .btn-back .svg-icon { width: 18px; height: 18px; }
+  .level-badge { background: linear-gradient(135deg, var(--neon-pink), var(--primary)); border-radius: 20px; padding: 6px 14px; font-size: 15px; font-weight: 800; color: white; box-shadow: 0 0 10px rgba(255, 0, 160, 0.4); }
+  .timer-display, .errors-display { display: flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 800; }
+  .timer-display { color: var(--accent); }
+  .timer-display .svg-icon { width: 18px; height: 18px; color: var(--accent); }
+  .errors-display { color: var(--danger); }
+  .errors-display .svg-icon { width: 18px; height: 18px; color: var(--danger); fill: var(--danger); stroke: none; }
+  .instruction-banner { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 12px; padding: 8px 16px; text-align: center; font-size: 14px; font-weight: 700; color: white; flex-shrink: 0; margin: 0 10px; }
+  .instruction-banner .highlight { color: var(--neon-blue); font-size: 16px; text-shadow: 0 0 5px var(--neon-blue); }
+  .animals-zone { display: flex; align-items: flex-end; justify-content: center; flex: 1; padding: 10px; gap: 5px; min-height: 0; flex-wrap: wrap; }
+  .animal-slot { display: flex; flex-direction: column; align-items: center; flex: 1 1 45%; max-width: 150px; min-width: 100px; }
+  .animal-card { background: var(--glass); backdrop-filter: blur(10px); border-radius: 20px; padding: 15px 10px; display: flex; flex-direction: column; align-items: center; gap: 5px; width: 100%; border: 3px solid var(--glass-border); transition: all 0.2s ease; position: relative; }
+  .animal-card.drop-target-active { border-color: var(--neon-green); transform: scale(1.1); box-shadow: 0 0 25px var(--neon-green), inset 0 0 15px rgba(0,255,157,0.2); background: rgba(0, 255, 157, 0.15); }
+  .animal-card.wrong-drop { border-color: var(--danger); animation: wrongShake 0.5s ease; }
+  @keyframes wrongShake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(6px); } }
+  .animal-card.correct-feed { animation: correctPop 0.6s ease; }
+  @keyframes correctPop { 0% { transform: scale(1); } 40% { transform: scale(1.15); } 70% { transform: scale(0.95); } 100% { transform: scale(1); } }
+  .animal-img { width: clamp(60px, 12vw, 80px); height: clamp(60px, 12vw, 80px); object-fit: contain; transition: transform 0.3s ease; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); animation: animalIdle 3s ease-in-out infinite; pointer-events: none; }
+  @keyframes animalIdle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  .animal-card.fat .animal-img { transform: scale(1.3) rotate(8deg); }
+  .animal-name { font-size: 14px; font-weight: 800; color: white; pointer-events: none; }
+  .food-plate { display: flex; gap: 3px; min-height: 20px; pointer-events: none; }
+  .food-given { width: 20px; height: 20px; animation: foodPop 0.4s ease; }
+  .food-given svg, .food-given img { width: 100%; height: 100%; }
+  @keyframes foodPop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(1); } }
+  .hunger-bar-wrap { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-top: 2px; pointer-events: none; }
+  .hunger-bar { height: 100%; width: 100%; background: linear-gradient(90deg, var(--neon-green), var(--neon-blue)); border-radius: 3px; transition: width 0.1s linear; }
+  .speech-bubble { position: absolute; top: -45px; background: white; border-radius: 10px; padding: 6px 10px; font-size: 11px; font-weight: 700; color: var(--dark); white-space: nowrap; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 100; opacity: 0; animation: bubbleShow 3s ease forwards; pointer-events: none; }
+  .speech-bubble::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid white; }
+  @keyframes bubbleShow { 0% { opacity: 0; transform: translateY(10px) scale(0.8); } 15% { opacity: 1; transform: translateY(0) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
+  .wants-food, .fed-check { position: absolute; top: -8px; right: -8px; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); border: 2px solid white; pointer-events: none; }
+  .wants-food { background: var(--danger); animation: wantsPulse 1.5s infinite; }
+  .wants-food .svg-icon { width: 16px; height: 16px; color: white; }
+  @keyframes wantsPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+  .fed-check { background: var(--neon-green); animation: checkPop 0.4s ease; }
+  .fed-check .svg-icon { width: 16px; height: 16px; color: white; stroke-width: 3; }
+  @keyframes checkPop { 0% { transform: scale(0); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+  .foods-zone { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; padding-bottom: 5px; }
+  .foods-container { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 12px; background: var(--glass); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid var(--glass-border); max-width: 95vw; }
+  .food-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: grab; transition: transform 0.2s ease; touch-action: none; }
+  .food-item:active { cursor: grabbing; }
+  .food-emoji-wrap { width: clamp(55px, 12vw, 70px); height: clamp(55px, 12vw, 70px); background: white; border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.8); transition: all 0.2s ease; box-shadow: 0 5px 10px rgba(0,0,0,0.3); pointer-events: none; }
+  .food-emoji-wrap svg, .food-emoji-wrap img { width: 75%; height: 75%; }
+  .food-item.dragging-active .food-emoji-wrap { transform: scale(1.1); opacity: 0.8; }
+  .food-item.used .food-emoji-wrap { opacity: 0.3; filter: grayscale(1); transform: scale(0.9); }
+  .food-name { font-size: 12px; font-weight: 700; color: white; pointer-events: none; }
+
+  /* بهبود شدت درگ برای موبایل - مهم */
+  #drag-ghost { 
+    position: absolute; 
+    pointer-events: none; 
+    z-index: 9999; 
+    display: none; 
+    width: 60px; 
+    height: 60px; 
+    will-change: transform; 
+    transform: translate3d(0,0,0); 
+    filter: drop-shadow(0 0 15px var(--neon-pink)) drop-shadow(0 5px 5px rgba(0,0,0,0.5)); 
+  }
+  #drag-ghost svg, #drag-ghost img { width: 100%; height: 100%; }
+
+  #screen-complete { z-index: 50; }
+  .complete-card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 30px; padding: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px; max-width: 400px; width: 90%; box-shadow: 0 0 30px rgba(0, 210, 255, 0.3); animation: cardSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; z-index: 2; }
+  @keyframes cardSlideIn { from { transform: scale(0.5) translateY(50px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+  .end-game-img { width: 150px; height: 150px; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); }
+  .complete-title { font-size: 32px; font-weight: 900; background: linear-gradient(to right, var(--neon-blue), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 20px rgba(0,210,255,0.5); }
+  .complete-stars { display: flex; gap: 10px; }
+  .complete-stars svg { width: 40px; height: 40px; filter: drop-shadow(0 0 10px var(--accent)); }
+  .complete-star { animation: starPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; transform: scale(0); opacity: 0; }
+  @keyframes starPop { to { transform: scale(1) rotate(360deg); opacity: 1; } }
+  .complete-stats { display: flex; gap: 10px; width: 100%; }
+  .complete-stat { flex: 1; background: rgba(255,255,255,0.05); border-radius: 16px; padding: 10px; text-align: center; }
+  .complete-stat .val { font-size: 20px; font-weight: 900; color: var(--neon-blue); }
+  .complete-stat .lbl { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+  .complete-coins-earned { display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, var(--neon-pink), var(--primary)); border-radius: 16px; padding: 10px 24px; font-size: 16px; font-weight: 800; color: white; box-shadow: 0 0 20px rgba(255, 0, 160, 0.4); text-align: center; }
+  
+  .btn-complete { width: 100%; padding: 14px; border-radius: 14px; font-family: var(--font); font-size: 18px; cursor: pointer; transition: transform 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-next { box-shadow: 0 5px 0 var(--gold-dark), 0 8px 15px rgba(255,168,0,0.3); margin-bottom: 8px; }
+  .btn-next:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--gold-dark), 0 3px 6px rgba(255,168,0,0.2); }
+  .btn-menu-back { box-shadow: 0 4px 0 var(--gold-dark), 0 5px 10px rgba(255,168,0,0.2); }
+  .btn-menu-back:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--gold-dark); }
+  .btn-complete .svg-icon { width: 20px; height: 20px; color: #3b2a06; }
+
+  .toast { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(15, 12, 41, 0.95); border: 1px solid var(--neon-blue); color: white; border-radius: 12px; padding: 10px 24px; font-size: 14px; font-weight: 700; z-index: 9000; pointer-events: none; opacity: 0; transition: all 0.3s ease; text-align: center; max-width: 90vw; box-shadow: 0 0 20px rgba(0, 210, 255, 0.3); }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #countdown-overlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; z-index: 100; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
+  .countdown-num { font-size: 120px; font-weight: 900; color: var(--neon-blue); text-shadow: 0 0 30px var(--neon-blue); animation: countdownPop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes countdownPop { 0% { transform: scale(2); opacity: 0; } 50% { opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+
+  #shop-items-grid { overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px; width: 100%; max-width: 600px; margin-top: 10px; position: relative; z-index: 2; }
+  .shop-item-card { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 15px; text-align: center; cursor: pointer; transition: transform 0.2s; position: relative; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+  .shop-item-card:active { transform: scale(0.95); }
+  .shop-item-preview { width: 100%; height: 140px; border-radius: 12px; margin-bottom: 10px; position: relative; overflow: hidden; background-size: cover; background-position: center; }
+  .shop-snow-badge { position: absolute; top: 6px; left: 6px; background: rgba(15,12,41,0.7); border: 1px solid rgba(255,255,255,0.4); color: white; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 8px; display: flex; align-items: center; gap: 3px; z-index: 4; }
+  .shop-lock-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; font-size: 32px; border-radius: 12px; z-index: 3; }
+  .shop-lock-overlay .svg-icon { width: 36px; height: 36px; color: white; }
+  .shop-equipped-badge { position: absolute; top: 6px; right: 6px; background: var(--neon-blue); color: white; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 8px; z-index: 4; }
+</style>
+</head>
+<body>
+
+<div class="app-wrapper">
+  <audio id="bg-music" src="./musics/z1.mp3" loop preload="auto"></audio>
+  <audio id="intro-audio" src="./musics/1.mp3"></audio>
+
+  <div id="drag-ghost"></div>
+  <div class="toast" id="toast"></div>
+  <div id="countdown-overlay"><div class="countdown-num" id="countdown-num">3</div></div>
+
+  <!-- MAIN MENU -->
+  <div class="screen active" id="screen-menu">
+    <div class="scene-bg"><div class="sky-layer"></div><div class="snow-layer"></div></div>
+
+    <div class="menu-container">
+      <div class="menu-top-info">
+        <div class="coin-display">
+          <img src="./icons/coin.png" class="coin-icon-img" alt="coin">
+          <div class="coin-amount" id="menu-coin-amount">0</div>
+        </div>
+        <!-- <div class="offline-badge" id="offline-badge"> آفلاین</div> -->
+      </div>
+
+      <div class="banner-title">
+        <div class="banner-ribbon-left"></div>
+        <div class="banner-main">
+          <div class="title">جزیره جادویی</div>
+          <div class="subtitle">ماجراجویی با پیکسل</div>
+        </div>
+        <div class="banner-ribbon-right"></div>
+      </div>
+
+      <div class="portrait-frame">
+        <div class="pixel-bubble" id="menu-bubble">سلام! آماده‌ای بریم؟</div>
+        <div class="portrait-ring"><img src="./icons/gamerhi.png" alt="Pixel" class="pixel-img"></div>
+      </div>
+
+      <button class="btn-cta btn-gold" onclick="startGame(false)">
+        <svg class="svg-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        <span>شروع ماجراجویی</span>
+      </button>
+
+      <div class="quick-actions">
+        <button class="btn-secondary btn-gold" onclick="openShop()" title="فروشگاه">
+          <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          <span>فروشگاه</span>
+        </button>
+        <button class="btn-secondary btn-gold" onclick="startGame(true)" title="راهنما">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          <span>راهنما</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- GAME SCREEN -->
+  <div class="screen" id="screen-game">
+    <div class="scene-bg"><div class="sky-layer"></div><div class="snow-layer"></div></div>
+    <div id="intro-overlay"><div class="intro-bubble" id="intro-text"></div><img src="./icons/gamer.png" alt="Pixel" class="intro-pixel-img" id="intro-pixel"></div>
+    <div class="game-wrapper">
+      <div class="game-header">
+        <button class="btn-back btn-gold" onclick="goToMenu()">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          منو
+        </button>
+        <div class="level-badge" id="level-badge">مرحله ۱</div>
+        <div class="timer-display">
+          <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span id="timer-display">۰۰:۰۰</span>
+        </div>
+        <div class="errors-display">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          <span id="errors-display">۰</span>
+        </div>
+      </div>
+      <div class="instruction-banner" id="instruction-banner">به هر حیوان <span class="highlight">غذای درست</span> بده!</div>
+      <div class="animals-zone" id="animals-zone"></div>
+      <div class="foods-zone"><div class="foods-container" id="foods-container"></div></div>
+    </div>
+  </div>
+
+  <!-- COMPLETE SCREEN -->
+  <div class="screen" id="screen-complete">
+    <div class="scene-bg"><div class="sky-layer"></div><div class="snow-layer"></div></div>
+    <div class="complete-card">
+      <img id="end-game-img" src="./icons/h.png" alt="result" class="end-game-img">
+      <div class="complete-title" id="complete-title">جنگل پیروز شد!</div>
+      <div class="complete-stars" id="complete-stars"></div>
+      <div class="complete-stats">
+        <div class="complete-stat"><div class="val" id="c-time">۰:۰۰</div><div class="lbl">زمان</div></div>
+        <div class="complete-stat"><div class="val" id="c-errors">۰</div><div class="lbl">خطا</div></div>
+        <div class="complete-stat"><div class="val" id="c-level">۱</div><div class="lbl">مرحله</div></div>
+      </div>
+      <div class="complete-coins-earned" id="coins-earned-text">+۱۰ سکه لوکو!</div>
+      <button class="btn-complete btn-next btn-gold" id="btn-next" onclick="handleNextAction()">
+        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        مرحله بعد
+      </button>
+      <button class="btn-complete btn-menu-back btn-gold" onclick="goToMenu()">
+        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        برگشت به منو
+      </button>
+    </div>
+  </div>
+
+  <!-- SHOP SCREEN -->
+  <div class="screen" id="screen-shop">
+    <div class="scene-bg"></div>
+    <div class="shop-glass-overlay"></div>
+    <div class="game-wrapper">
+      <div class="game-header">
+        <button class="btn-back btn-gold" onclick="goToMenu()">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          منو
+        </button>
+        <div class="level-badge">فروشگاه</div>
+        <div class="coin-display" style="border:none;background:transparent;">
+          <img src="./icons/coin.png" class="coin-icon-img" alt="coin">
+          <div class="coin-amount" id="shop-coin-amount">۰</div>
+        </div>
+      </div>
+      <div id="shop-items-grid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== DATABASE & CACHE CONFIG ==========
+const API_URL = "/games/assets/offline";
+const CACHE_KEY = 'luko_active_user_cache';
+const LOCAL_USERS_KEY = 'luko_local_users';
+let currentUser = null;
+let isOfflineMode = false;
+
+function fetchWithTimeout(url, options = {}, timeout = 5000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer));
+}
+
+function setOfflineMode(value) {
+  isOfflineMode = value;
+  const badge = document.getElementById('offline-badge');
+  if (badge) badge.classList.toggle('show', !!value);
+}
+
+async function fetchUserFromDB() {
+  const userId = localStorage.getItem('currentUserId');
+
+  if (!userId) {
+    setOfflineMode(true);
+    const guestId = 'local_guest_' + Date.now();
+    currentUser = {
+      id: guestId,
+      coins: 0,
+      shopOwned: ['default'],
+      equippedTheme: 'default',
+      gameStats: [],
+      isGuest: true
+    };
+    localStorage.setItem('currentUserId', guestId);
+    saveToCache();
+    applyUserData();
+    showToast("حالت بحرانی: بازی به صورت آفلاین فعال است");
+    return true;
+  }
+
+  if (userId.startsWith('local_')) {
+    setOfflineMode(true);
+    let users = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '[]');
+    currentUser = users.find(u => u.id === userId);
+    if (!currentUser) {
+      const cachedUser = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+      if (cachedUser && cachedUser.id === userId) {
+        currentUser = cachedUser;
+      }
+    }
+    if (!currentUser) {
+      currentUser = {
+        id: userId,
+        coins: 0,
+        shopOwned: ['default'],
+        equippedTheme: 'default',
+        gameStats: [],
+        isGuest: true
+      };
+    }
+    applyUserData();
+    saveToCache();
+    trySyncWithServer();
+    return true;
+  }
+
+  const cachedUser = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+  if (cachedUser && cachedUser.id === userId) {
+    currentUser = cachedUser;
+    applyUserData();
+  }
+
+  try {
+    const res = await fetchWithTimeout(`${API_URL}/${userId}`, {}, 5000);
+    if (!res.ok) throw new Error("Network Error");
+    currentUser = await res.json();
+    setOfflineMode(false);
+    localStorage.setItem(CACHE_KEY, JSON.stringify(currentUser));
+    applyUserData();
+    return true;
+  } catch (error) {
+    console.error("ارتباط با سرور برقرار نشد، تلاش برای خواندن از کش...");
+    if (cachedUser && cachedUser.id === userId) {
+      setOfflineMode(true);
+      currentUser = cachedUser;
+      applyUserData();
+      showToast("ارتباط با سرور قطع است. بازی با اطلاعات ذخیره‌شده ادامه می‌یابد.");
+      return true;
+    }
+    setOfflineMode(true);
+    currentUser = {
+      id: userId,
+      coins: 0,
+      shopOwned: ['default'],
+      equippedTheme: 'default',
+      gameStats: [],
+      isGuest: true
+    };
+    saveToCache();
+    applyUserData();
+    showToast("حالت بحرانی: اطلاعات کاربر از کش خوانده شد و بازی ادامه می‌یابد.");
+    return true;
+  }
+}
+
+function applyUserData() {
+  if (!currentUser) return;
+  state.coins = currentUser.coins || 0;
+  state.shopOwned = currentUser.shopOwned || ['default'];
+  state.equippedTheme = currentUser.equippedTheme || 'default';
+  updateCoinDisplays();
+  applyThemeBackground();
+}
+
+function saveToCache() {
+  if (!currentUser) return;
+  localStorage.setItem(CACHE_KEY, JSON.stringify(currentUser));
+  if (currentUser.id.startsWith('local_')) {
+    let users = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '[]');
+    let idx = users.findIndex(u => u.id === currentUser.id);
+    if (idx !== -1) {
+      users[idx] = currentUser;
+    } else {
+      users.push(currentUser);
+    }
+    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+  }
+}
+
+async function saveUserStateToDB() {
+  if (!currentUser) return;
+  currentUser.coins = state.coins;
+  currentUser.shopOwned = state.shopOwned;
+  currentUser.equippedTheme = state.equippedTheme;
+
+  saveToCache();
+
+  if (isOfflineMode || currentUser.id.startsWith('local_')) return;
+
+  try {
+    const res = await fetchWithTimeout(`${API_URL}/${currentUser.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        coins: state.coins,
+        shopOwned: state.shopOwned,
+        equippedTheme: state.equippedTheme
+      })
+    }, 5000);
+    if (!res.ok) throw new Error("Network Error");
+    currentUser = await res.json();
+    saveToCache();
+    setOfflineMode(false);
+  } catch (error) {
+    console.error("خطا در آپدیت سرور، اطلاعات در کش باقی می‌ماند تا اتصال برقرار شود.");
+    setOfflineMode(true);
+  }
+}
+
+async function saveScoreToDB() {
+  if (!currentUser) return;
+  let progress = 0;
+  if (state.isGameOver) progress = Math.round(((state.currentLevel - 1) / MAX_LEVEL) * 100);
+  else if (state.currentLevel >= MAX_LEVEL) progress = 100;
+  else progress = Math.round((state.currentLevel / MAX_LEVEL) * 100);
+
+  const newStat = {
+    totalCoins: state.coins,
+    correctMoves: state.totalCorrectMoves,
+    wrongMoves: state.totalWrongMoves,
+    progressPercent: progress,
+    date: new Date().toISOString()
+  };
+
+  if (!currentUser.gameStats) currentUser.gameStats = [];
+  currentUser.gameStats.push(newStat);
+
+  saveToCache();
+
+  if (isOfflineMode || currentUser.id.startsWith('local_')) return;
+
+  try {
+    const res = await fetchWithTimeout(`${API_URL}/${currentUser.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        gameStats: currentUser.gameStats,
+        coins: state.coins
+      })
+    }, 5000);
+    if (!res.ok) throw new Error("Network Error");
+    currentUser = await res.json();
+    saveToCache();
+    setOfflineMode(false);
+  } catch (error) {
+    console.error("خطا در ارسال آمار به سرور، اطلاعات در کش باقی می‌ماند تا اتصال برقرار شود.");
+    setOfflineMode(true);
+  }
+}
+
+async function trySyncWithServer() {
+  if (!currentUser) return;
+  if (!isOfflineMode) return;
+  
+  if (currentUser.id.startsWith('local_')) {
+    try {
+      const testRes = await fetchWithTimeout(`${API_URL}/${currentUser.id}`, {}, 3000);
+      if (testRes.ok) {
+        currentUser = await testRes.json();
+        setOfflineMode(false);
+        saveToCache();
+        applyUserData();
+        showToast('اتصال برقرار شد، اطلاعات همگام‌سازی شد ✅');
+        return;
+      }
+    } catch (e) {
+      setOfflineMode(true);
+      return;
+    }
+    return;
+  }
+
+  try {
+    const res = await fetchWithTimeout(`${API_URL}/${currentUser.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        coins: state.coins,
+        shopOwned: state.shopOwned,
+        equippedTheme: state.equippedTheme,
+        gameStats: currentUser.gameStats || []
+      })
+    }, 5000);
+    if (!res.ok) throw new Error("sync failed");
+    currentUser = await res.json();
+    saveToCache();
+    setOfflineMode(false);
+    showToast('اتصال برقرار شد، اطلاعات همگام‌سازی شد ✅');
+  } catch (e) {
+    setOfflineMode(true);
+  }
+}
+window.addEventListener('online', trySyncWithServer);
+
+setInterval(() => {
+  if (isOfflineMode && currentUser) {
+    trySyncWithServer();
+  }
+}, 30000);
+
+// ========== SOUND ENGINE ==========
+let audioCtx;
+function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+function playTone(freq, duration, type = 'sine', volume = 0.2) { if (!audioCtx) return; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = type; osc.frequency.value = freq; osc.connect(gain); gain.connect(audioCtx.destination); gain.gain.setValueAtTime(volume, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration); osc.start(); osc.stop(audioCtx.currentTime + duration); }
+function playClick() { playTone(800, 0.05, 'square', 0.1); }
+function playHappy() { playTone(523.25, 0.1); setTimeout(() => playTone(659.25, 0.1), 100); setTimeout(() => playTone(783.99, 0.2), 200); }
+function playSad() { playTone(400, 0.2, 'sawtooth', 0.15); setTimeout(() => playTone(200, 0.4, 'sawtooth', 0.15), 200); }
+function playWin() { [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => playTone(f, 0.2, 'sine', 0.2), i * 100)); }
+
+// ========== DATA & ICONS ==========
+const ICONS = { 
+  honey: `<svg viewBox="0 0 100 100"><path d="M30,40 L70,40 L75,85 Q75,90 70,90 L30,90 Q25,90 25,85 Z" fill="#E17055"/><path d="M35,30 L65,30 L70,50 L30,50 Z" fill="#FDCB6E"/><circle cx="40" cy="70" r="4" fill="#d35400"/><circle cx="55" cy="75" r="4" fill="#d35400"/></svg>`, 
+  carrot: `<svg viewBox="0 0 100 100"><path d="M50,10 L50,70 M40,50 L60,50 M38,60 L62,60 M42,80 L58,80" stroke="#FF6B35" stroke-width="6" stroke-linecap="round"/><path d="M30,80 Q50,90 70,80" stroke="#00B894" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`, 
+  corn: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="18" ry="35" fill="#FDCB6E"/><path d="M45,25 Q35,15 25,25" stroke="#55EFC4" fill="none" stroke-width="8"/><path d="M55,25 Q65,15 75,25" stroke="#55EFC4" fill="none" stroke-width="8"/><path d="M35,45 L65,45" stroke="#E17055" stroke-width="2"/><path d="M35,60 L65,60" stroke="#E17055" stroke-width="2"/><path d="M35,75 L65,75" stroke="#E17055" stroke-width="2"/></svg>`, 
+  grass: `<svg viewBox="0 0 100 100"><path d="M50,90 Q30,80 20,40 Q40,50 50,10 Q60,50 80,40 Q70,80 50,90 Z" fill="#00B894"/><path d="M50,90 Q40,70 30,30 Q45,40 50,0 Q55,40 70,30 Q60,70 50,90 Z" fill="#55EFC4"/></svg>`, 
+  peanut: `<svg viewBox="0 0 100 100"><ellipse cx="45" cy="55" rx="20" ry="15" fill="#D4A574" transform="rotate(-30,45,55)"/><ellipse cx="55" cy="45" rx="20" ry="15" fill="#D4A574" transform="rotate(30,55,45)"/><path d="M50,50 Q55,55 60,52" stroke="#8B6B4A" stroke-width="2" fill="none"/></svg>`, 
+  star: `<svg viewBox="0 0 24 24" fill="#FFEAA7"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`, 
+  starEmpty: `<svg viewBox="0 0 24 24" fill="none" stroke="#7f8c8d" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`, 
+  check: `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`, 
+  question: `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>` 
+};
+
+const ANIMALS = [ { id:'khers', name:'خرس', food:'honey', img:'./icons/khers.png', imgHappy:'./icons/khersh.png', imgSad:'./icons/khersa.png' }, { id:'khargosh', name:'خرگوش', food:'carrot', img:'./icons/khargosh.png', imgHappy:'./icons/khargoshh.png', imgSad:'./icons/khargosha.png' }, { id:'joje', name:'جوجه', food:'corn', img:'./icons/joje.png', imgHappy:'./icons/jojeh.png', imgSad:'./icons/jojea.png' }, { id:'aho', name:'آهو', food:'grass', img:'./icons/aho.png', imgHappy:'./icons/ahoh.png', imgSad:'./icons/ahoa.png' }, { id:'fil', name:'فیل', food:'peanut', img:'./icons/fil.png', imgHappy:'./icons/filh.png', imgSad:'./icons/fila.png' } ];
+const FOODS = { honey: { name:'عسل', svg: ICONS.honey }, carrot: { name:'هویج', svg: ICONS.carrot }, corn: { name:'ذرت', svg: ICONS.corn }, grass: { name:'یونجه', svg: ICONS.grass }, peanut: { name:'بادام', svg: ICONS.peanut } };
+const MAX_LEVEL = 3;
+
+function getLevelConfig(lvl) { if (lvl === 1) return { animalsCount: 2, extraFoods: 1 }; if (lvl === 2) return { animalsCount: 3, extraFoods: 1 }; if (lvl === 3) return { animalsCount: 4, extraFoods: 2 }; return { animalsCount: 2, extraFoods: 1 }; }
+
+let state = { coins: 0, currentLevel: 1, currentErrors: 0, correctMoves: 0, totalCorrectMoves: 0, totalWrongMoves: 0, timerSeconds: 0, timerInterval: null, animalTimers: {}, hungerInterval: null, shopOwned: ['default'], equippedTheme: 'default', currentAnimals: [], animalFedCount: {}, dragItem: null, gameRunning: false, isGameOver: false };
+
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('screen-' + id).classList.add('active'); }
+function updateCoinDisplays() { document.getElementById('menu-coin-amount').textContent = toPersian(state.coins); const shopEl = document.getElementById('shop-coin-amount'); if (shopEl) shopEl.textContent = toPersian(state.coins); }
+function addCoins(amount, x, y) { state.coins += amount; updateCoinDisplays(); saveUserStateToDB(); if (x && y) { const el = document.createElement('div'); el.className = 'float-coin'; el.textContent = `+${toPersian(amount)}`; el.style.left = x + 'px'; el.style.top = y + 'px'; document.querySelector('.app-wrapper').appendChild(el); el.addEventListener('animationend', () => el.remove()); } }
+let toastTimer = null;
+function showToast(msg, duration=2200) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), duration); }
+
+function startTimer() { state.timerSeconds = 0; clearInterval(state.timerInterval); state.timerInterval = setInterval(() => { state.timerSeconds++; const m = Math.floor(state.timerSeconds / 60).toString().padStart(2,'0'); const s = (state.timerSeconds % 60).toString().padStart(2,'0'); document.getElementById('timer-display').textContent = toPersian(m) + ':' + toPersian(s); }, 1000); }
+function stopTimer() { clearInterval(state.timerInterval); }
+function startHungerTimers() { state.animalTimers = {}; state.currentAnimals.forEach(id => { state.animalTimers[id] = { time: 15000, max: 15000, warn50: false, warn20: false }; }); clearInterval(state.hungerInterval); state.hungerInterval = setInterval(() => { if (!state.gameRunning) return; state.currentAnimals.forEach(id => { if (state.animalFedCount[id] >= 1) return; const animal = ANIMALS.find(a => a.id === id); let t = state.animalTimers[id]; t.time -= 100; let pct = (t.time / t.max) * 100; if (pct < 0) pct = 0; const bar = document.getElementById('hunger-' + id); if (bar) { bar.style.width = pct + '%'; if (pct < 20) bar.style.background = 'linear-gradient(90deg, #FF7675, #d63031)'; else if (pct < 50) bar.style.background = 'linear-gradient(90deg, #FDCB6E, #E17055)'; } const imgEl = document.getElementById('img-' + id); if (pct <= 50 && !t.warn50) { t.warn50 = true; showSpeechBubble(id, 'گرسنمه...'); if (imgEl) imgEl.src = animal.imgSad; } if (pct <= 20 && !t.warn20) { t.warn20 = true; showSpeechBubble(id, 'بدو غذا!'); } if (pct <= 0) { gameOver(); } }); }, 100); }
+function stopHungerTimers() { clearInterval(state.hungerInterval); }
+
+// مدیریت پخش راهنما و شروع بازی
+async function startGame(isGuideButton = false) {
+  initAudio(); playClick();
+  const bgMusic = document.getElementById('bg-music'); 
+  if (bgMusic.paused) { bgMusic.volume = 0.3; bgMusic.play().catch(e => console.log("Music play prevented")); }
+  
+  state.currentLevel = 1; state.currentErrors = 0; state.totalCorrectMoves = 0; state.totalWrongMoves = 0; state.isGameOver = false;
+  const cfg = getLevelConfig(state.currentLevel); 
+  buildLevel(cfg); 
+  showScreen('game'); 
+  applyThemeBackground();
+  
+  const overlay = document.getElementById('intro-overlay'); 
+  const audio = document.getElementById('intro-audio'); 
+  const pixelImg = document.getElementById('intro-pixel'); 
+  const bubble = document.getElementById('intro-text');
+  
+  const hasSeenIntro = localStorage.getItem('hasSeenIntro');
+  let playIntro = false;
+  let guideOnly = false;
+  
+  if (isGuideButton) {
+    playIntro = true;
+    guideOnly = true;
+  } else {
+    if (!hasSeenIntro) {
+      playIntro = true;
+      localStorage.setItem('hasSeenIntro', 'true');
+    }
+  }
+  
+  if (playIntro) {
+    overlay.classList.remove('hidden'); pixelImg.classList.remove('active', 'exit'); bubble.classList.remove('show'); bubble.textContent = '';
+    const timeline = [ { time: 0, text: "سلام من پیکسل هستم دوست جدید تو در این بازی" }, { time: 4, text: "در این بازی باید به حیوان‌های گرسنه جنگل غذا بدی" }, { time: 8, text: "هر حیوانی که اومد پیشت و ازت غذا خواست باید بهش یک غذا بدی" }, { time: 13, text: "حواست باشه اگه بیشتر یا کمتر از یه دونه بهشون غذا بدی" }, { time: 18, text: "ممکنه از دستت ناراحت بشن" }, { time: 20, text: "موفق باشی دوست من" } ];
+    try {
+      audio.currentTime = 0; await audio.play();
+      setTimeout(() => { pixelImg.classList.add('active'); bubble.classList.add('show'); bubble.textContent = timeline[0].text; }, 500);
+      const checkTime = setInterval(() => { const t = audio.currentTime; let currentText = ""; if (t >= 20) currentText = timeline[5].text; else if (t >= 18) currentText = timeline[4].text; else if (t >= 13) currentText = timeline[3].text; else if (t >= 8) currentText = timeline[2].text; else if (t >= 4) currentText = timeline[1].text; else currentText = timeline[0].text; if (bubble.textContent !== currentText && currentText !== "") { bubble.classList.remove('show'); setTimeout(() => { bubble.textContent = currentText; bubble.classList.add('show'); }, 300); } }, 200);
+      audio.onended = () => {
+        clearInterval(checkTime); bubble.classList.remove('show'); pixelImg.classList.remove('active'); pixelImg.classList.add('exit');
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+          if (guideOnly) { goToMenu(); } else { proceedToGame(); }
+        }, 1000);
+      };
+    } catch(e) {
+      showToast("پخش صدا ناموفق بود.");
+      setTimeout(() => { overlay.classList.add('hidden'); if (guideOnly) { goToMenu(); } else { proceedToGame(); } }, 2000);
+    }
+  } else { 
+    overlay.classList.add('hidden'); 
+    proceedToGame(); 
+  }
+}
+
+async function proceedToGame() { updateErrorDisplay(); document.getElementById('level-badge').textContent = 'مرحله ' + toPersian(state.currentLevel); document.getElementById('btn-next').textContent = state.currentLevel >= MAX_LEVEL ? 'پایان بازی' : 'مرحله بعد'; await showCountdown(); startTimer(); startHungerTimers(); state.gameRunning = true; }
+function toPersian(n) { const digits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹']; return String(n).split('').map(d => digits[parseInt(d)] || d).join(''); }
+async function showCountdown() { const overlay = document.getElementById('countdown-overlay'); const numEl = document.getElementById('countdown-num'); overlay.style.display = 'flex'; state.gameRunning = false; for (let i = 3; i >= 1; i--) { playTone(500 + i*100, 0.1, 'sine', 0.2); numEl.textContent = toPersian(i); numEl.style.animation = 'none'; void numEl.offsetWidth; numEl.style.animation = 'countdownPop 0.9s cubic-bezier(0.34,1.56,0.64,1)'; await sleep(900); } playTone(800, 0.2, 'sine', 0.2); numEl.textContent = 'شروع!'; numEl.style.animation = 'none'; void numEl.offsetWidth; numEl.style.animation = 'countdownPop 0.9s cubic-bezier(0.34,1.56,0.64,1)'; await sleep(800); overlay.style.display = 'none'; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function buildLevel(cfg) { state.currentAnimals = ANIMALS.slice(0, cfg.animalsCount).map(a => a.id); state.animalFedCount = {}; state.currentAnimals.forEach(id => { state.animalFedCount[id] = 0; }); const zone = document.getElementById('animals-zone'); zone.innerHTML = ''; state.currentAnimals.forEach(animalId => { const animal = ANIMALS.find(a => a.id === animalId); const slot = document.createElement('div'); slot.className = 'animal-slot'; slot.innerHTML = `<div class="animal-card" id="animal-${animalId}" data-animal="${animalId}"><div class="wants-food" id="wants-${animalId}">${ICONS.question}</div><img src="${animal.img}" class="animal-img" id="img-${animalId}"><div class="animal-name">${animal.name}</div><div class="food-plate" id="plate-${animalId}"></div><div class="hunger-bar-wrap"><div class="hunger-bar" id="hunger-${animalId}"></div></div></div>`; zone.appendChild(slot); }); buildFoodItems(cfg); updateInstruction(cfg.animalsCount); }
+function updateInstruction(count) { const banner = document.getElementById('instruction-banner'); if (count <= 2) banner.innerHTML = `به هر حیوان <span class="highlight">غذای درست</span> بده!`; else if (count === 3) banner.innerHTML = `مراقب باش! <span class="highlight">غذای اشتباه</span> هم داریم!`; else banner.innerHTML = `مرحله آخر! <span class="highlight">سریع باش</span> که گرسنه نشن!`; }
+
+function buildFoodItems(cfg) {
+  const container = document.getElementById('foods-container');
+  container.innerHTML = '';
+  let foodsInTray = [];
+  state.currentAnimals.forEach(animalId => {
+    const animal = ANIMALS.find(a => a.id === animalId);
+    foodsInTray.push({ foodId: animal.food, correct: true });
+  });
+  const allFoodIds = Object.keys(FOODS);
+  for (let i = 0; i < cfg.extraFoods; i++) {
+    const rnd = allFoodIds[Math.floor(Math.random() * allFoodIds.length)];
+    foodsInTray.push({ foodId: rnd, correct: false });
+  }
+  foodsInTray = shuffle(foodsInTray);
+  state.currentFoodItems = foodsInTray.map((f, idx) => ({ ...f, id: 'food_' + idx, used: false }));
+
+  state.currentFoodItems.forEach(foodItem => {
+    const food = FOODS[foodItem.foodId];
+    const el = document.createElement('div');
+    el.className = 'food-item';
+    el.id = foodItem.id;
+    el.innerHTML = `<div class="food-emoji-wrap">${food.svg}</div><div class="food-name">${food.name}</div>`;
+    el.addEventListener('pointerdown', (e) => startDrag(e, foodItem), { passive: false });
+    container.appendChild(el);
+  });
+}
+
+function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+// ========== DRAG AND DROP LOGIC (Ultra Robust for Mobile) ==========
+let activeDrag = null;
+
+function startDrag(e, foodItem) {
+  if (!state.gameRunning || foodItem.used) return;
+  e.preventDefault();
+
+  activeDrag = { item: foodItem, element: document.getElementById(foodItem.id) };
+  activeDrag.element.classList.add('dragging-active');
+  
+  const ghost = document.getElementById('drag-ghost');
+  ghost.innerHTML = activeDrag.element.querySelector('.food-emoji-wrap').innerHTML;
+  ghost.style.display = 'block';
+  
+  const wrapperRect = document.querySelector('.app-wrapper').getBoundingClientRect();
+  const x = e.clientX - wrapperRect.left;
+  const y = e.clientY - wrapperRect.top;
+  
+  // حرکت با transform برای روان‌ترین حالت در موبایل
+  ghost.style.transform = `translate3d(${x - 30}px, ${y - 30}px, 0)`;
+  
+  window.addEventListener('pointermove', handleDragMove, { passive: false });
+  window.addEventListener('pointerup', handleDragEnd);
+  window.addEventListener('pointercancel', handleDragEnd);
+}
+
+function handleDragMove(e) {
+  if (!activeDrag) return;
+  e.preventDefault(); // جلوگیری از اسکرول شدن صفحه در موبایل
+
+  const ghost = document.getElementById('drag-ghost');
+  const wrapperRect = document.querySelector('.app-wrapper').getBoundingClientRect();
+  const x = e.clientX - wrapperRect.left;
+  const y = e.clientY - wrapperRect.top;
+  
+  ghost.style.transform = `translate3d(${x - 30}px, ${y - 30}px, 0)`;
+  
+  ghost.style.visibility = 'hidden';
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  ghost.style.visibility = 'visible';
+  
+  document.querySelectorAll('.animal-card').forEach(c => c.classList.remove('drop-target-active'));
+  if (el) { 
+    const card = el.closest('.animal-card'); 
+    if (card) card.classList.add('drop-target-active'); 
+  }
+}
+
+function handleDragEnd(e) {
+  if (!activeDrag) return;
+  const ghost = document.getElementById('drag-ghost');
+  ghost.style.display = 'none';
+  
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  document.querySelectorAll('.animal-card').forEach(c => c.classList.remove('drop-target-active'));
+  activeDrag.element.classList.remove('dragging-active');
+  
+  if (el) { 
+    const card = el.closest('.animal-card'); 
+    if (card) { 
+      const animalId = card.getAttribute('data-animal'); 
+      processFeed(animalId, activeDrag.item.id, e.clientX, e.clientY); 
+    } 
+  }
+  
+  window.removeEventListener('pointermove', handleDragMove);
+  window.removeEventListener('pointerup', handleDragEnd);
+  window.removeEventListener('pointercancel', handleDragEnd);
+  activeDrag = null;
+}
+
+// ========== CORE LOGIC ==========
+function processFeed(animalId, foodItemId, dropX, dropY) {
+  if (!state.gameRunning) return;
+  const foodItem = state.currentFoodItems.find(f => f.id === foodItemId);
+  if (!foodItem || foodItem.used) return;
+  const animal = ANIMALS.find(a => a.id === animalId);
+  const currentFed = state.animalFedCount[animalId] || 0;
+  const isCorrect = foodItem.foodId === animal.food;
+  if (!isCorrect) {
+    state.currentErrors++; state.totalWrongMoves++; updateErrorDisplay();
+    showSpeechBubble(animalId, 'این غذای من نیست!'); shakeCard(animalId); playSad();
+    document.getElementById('img-' + animalId).src = animal.imgSad;
+    return;
+  }
+  foodItem.used = true;
+  const foodEl = document.getElementById(foodItemId);
+  if (foodEl) foodEl.style.opacity = '0.3';
+  state.animalFedCount[animalId] = currentFed + 1;
+  const newCount = state.animalFedCount[animalId];
+  if (newCount === 1) {
+    state.correctMoves++; state.totalCorrectMoves++;
+    feedAnimalCorrect(animalId, foodItem.foodId, dropX, dropY); playHappy();
+    document.getElementById('img-' + animalId).src = animal.imgHappy;
+    if (state.animalTimers[animalId]) {
+      state.animalTimers[animalId].time = state.animalTimers[animalId].max;
+      const bar = document.getElementById('hunger-' + animalId);
+      if (bar) bar.style.width = '100%';
+    }
+  } else {
+    feedAnimalOverfed(animalId); playSad();
+    document.getElementById('img-' + animalId).src = animal.imgSad;
+  }
+  checkWinCondition();
+}
+function feedAnimalCorrect(animalId, foodId, dropX, dropY) { const food = FOODS[foodId]; const card = document.getElementById('animal-' + animalId); const plate = document.getElementById('plate-' + animalId); const wantsEl = document.getElementById('wants-' + animalId); const foodSpan = document.createElement('span'); foodSpan.className = 'food-given'; foodSpan.innerHTML = food.svg; plate.appendChild(foodSpan); if (wantsEl) { wantsEl.className = 'fed-check'; wantsEl.innerHTML = ICONS.check; } card.classList.add('correct-feed'); setTimeout(() => card.classList.remove('correct-feed'), 700); const msgs = ['ممنون!', 'آفرین!', 'خوشمزه!', 'عالی!']; showSpeechBubble(animalId, msgs[Math.floor(Math.random() * msgs.length)]); }
+function feedAnimalOverfed(animalId) { const card = document.getElementById('animal-' + animalId); card.classList.add('fat'); state.currentErrors++; state.totalWrongMoves++; updateErrorDisplay(); const msgs = ['ترکیدم!', 'بسه!', 'خیلی خوردم!']; showSpeechBubble(animalId, msgs[Math.floor(Math.random() * msgs.length)]); card.classList.add('wrong-drop'); setTimeout(() => card.classList.remove('wrong-drop'), 600); showToast('حیوان داره میترکه! یه دونه کافیه!'); }
+function shakeCard(animalId) { const card = document.getElementById('animal-' + animalId); card.classList.add('wrong-drop'); setTimeout(() => card.classList.remove('wrong-drop'), 600); }
+function showSpeechBubble(animalId, text) { const card = document.getElementById('animal-' + animalId); const existing = card.querySelector('.speech-bubble'); if (existing) existing.remove(); const bubble = document.createElement('div'); bubble.className = 'speech-bubble'; bubble.textContent = text; card.appendChild(bubble); bubble.addEventListener('animationend', () => bubble.remove()); }
+function updateErrorDisplay() { const el = document.getElementById('errors-display'); if (el) el.textContent = toPersian(state.currentErrors); }
+
+function checkWinCondition() { const allFed = state.currentAnimals.every(id => state.animalFedCount[id] === 1); if (allFed) setTimeout(() => levelComplete(), 600); }
+function levelComplete() {
+  state.gameRunning = false; stopTimer(); stopHungerTimers(); playWin();
+  const time = state.timerSeconds; const errors = state.currentErrors;
+  let stars = 3; if (errors >= 1) stars = 2; if (errors >= 3) stars = 1; if (errors >= 5) stars = 0;
+  
+  let reward = 0; 
+  let isFinalLevel = state.currentLevel >= MAX_LEVEL;
+  const coinsEarnedText = document.getElementById('coins-earned-text');
+  
+  if (isFinalLevel) {
+    if (state.coins === 0) { 
+      reward = 10; 
+      showToast('پاداش پیروزی: ۱۰ سکه لوکو!'); 
+    } else { 
+      reward = 1; 
+    }
+    coinsEarnedText.innerHTML = `+${toPersian(reward)} سکه لوکو!`;
+  } else {
+    reward = 0;
+    coinsEarnedText.innerHTML = `مرحله بعد رو انجام بده تا سکه بگیری!`;
+  }
+  
+  addCoins(reward);
+  document.getElementById('end-game-img').src = './icons/h.png'; document.getElementById('complete-title').textContent = 'جنگل پیروز شد!';
+  const starsEl = document.getElementById('complete-stars'); starsEl.innerHTML = '';
+  for (let i = 0; i < 3; i++) { const s = document.createElement('span'); s.className = 'complete-star'; s.innerHTML = i < stars ? ICONS.star : ICONS.starEmpty; s.style.animationDelay = (i * 0.2 + 0.3) + 's'; starsEl.appendChild(s); }
+  document.getElementById('c-time').textContent = toPersian(Math.floor(time / 60).toString().padStart(2,'0')) + ':' + toPersian((time % 60).toString().padStart(2,'0'));
+  document.getElementById('c-errors').textContent = toPersian(errors); document.getElementById('c-level').textContent = toPersian(state.currentLevel);
+  document.getElementById('btn-next').textContent = isFinalLevel ? 'پایان بازی' : 'مرحله بعد';
+  state.isGameOver = false;
+  if (isFinalLevel) { saveScoreToDB(); }
+  showScreen('complete'); applyThemeBackground();
+}
+function gameOver() {
+  state.gameRunning = false; stopTimer(); stopHungerTimers(); playSad();
+  state.currentErrors++; updateErrorDisplay();
+  document.getElementById('end-game-img').src = './icons/a.png'; document.getElementById('complete-title').textContent = 'جنگل شکست خورد!';
+  document.getElementById('complete-stars').innerHTML = '';
+  document.getElementById('c-time').textContent = toPersian(Math.floor(state.timerSeconds / 60).toString().padStart(2,'0')) + ':' + toPersian((state.timerSeconds % 60).toString().padStart(2,'0'));
+  document.getElementById('c-errors').textContent = toPersian(state.currentErrors); document.getElementById('c-level').textContent = toPersian(state.currentLevel);
+  document.getElementById('coins-earned-text').innerHTML = `+۰ سکه لوکو!`;
+  document.getElementById('btn-next').textContent = 'بازگشت به منو'; state.isGameOver = true;
+  saveScoreToDB();
+  showScreen('complete'); applyThemeBackground();
+}
+function handleNextAction() { playClick(); if (state.isGameOver) { goToMenu(); } else if (state.currentLevel >= MAX_LEVEL) { state.currentLevel = 1; goToMenu(); } else { state.currentLevel++; nextLevel(); } }
+function nextLevel() { const cfg = getLevelConfig(state.currentLevel); buildLevel(cfg); showScreen('game'); applyThemeBackground(); proceedToGame(); }
+function goToMenu() { playClick(); state.gameRunning = false; stopTimer(); stopHungerTimers(); updateCoinDisplays(); document.getElementById('menu-bubble').textContent = "خوش اومدی!"; showScreen('menu'); applyThemeBackground(); }
+
+// ========== SHOP ==========
+const SHOP_THEMES = [
+  { id:'default',  name:'شب کهکشان',   img:'./icons/kahkeshan.png', price:0,  snow:false },
+  { id:'sunset',   name:'نیونی',        img:'./icons/neoni.png',    price:10, snow:false },
+  { id:'forest',   name:'جنگل سمی',     img:'./icons/sami.png',     price:10, snow:false },
+  { id:'snowy',    name:'کوه برفی',     img:'./icons/kohbarf.png',  price:10, snow:true  },
+  { id:'blizzard', name:'بوران',        img:'./icons/boran.png',    price:10, snow:true  },
+  { id:'aurora',   name:'شفق قطبی',     img:'./icons/shafagh.png',  price:10, snow:true  },
+  { id:'lava',     name:'آتشفشان',      img:'./icons/atashfeshan.png', price:10, snow:false },
+  { id:'candy',    name:'آبنبات',       img:'./icons/abnabat.png',  price:10, snow:false }
+];
+
+const SVG_LOCK = '<svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
+
+function renderSnow(container, count = 35) {
+  if (!container) return;
+  container.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const f = document.createElement('div');
+    f.className = 'snowflake';
+    f.textContent = '❄';
+    f.style.left = Math.random() * 100 + '%';
+    f.style.fontSize = (8 + Math.random() * 14) + 'px';
+    f.style.animationDuration = (4 + Math.random() * 6) + 's';
+    f.style.animationDelay = (Math.random() * 6) + 's';
+    container.appendChild(f);
+  }
+}
+
+function applyThemeBackground() {
+  const theme = SHOP_THEMES.find(t => t.id === state.equippedTheme) || SHOP_THEMES[0];
+  document.querySelectorAll('.scene-bg .sky-layer').forEach(el => {
+    el.style.backgroundImage = `url('${theme.img}')`;
+    el.style.backgroundSize = 'cover';
+    el.style.backgroundPosition = 'center';
+    el.style.backgroundRepeat = 'no-repeat';
+  });
+  document.querySelectorAll('.scene-bg .snow-layer').forEach(el => {
+    if (theme.snow) {
+      el.classList.add('active');
+      if (!el.dataset.rendered) { renderSnow(el); el.dataset.rendered = '1'; }
+    } else {
+      el.classList.remove('active');
+    }
+  });
+}
+
+function openShop() { 
+  playClick(); 
+  renderShopItems(); 
+  updateCoinDisplays(); 
+  showScreen('shop'); 
+}
+function renderShopItems() {
+  const grid = document.getElementById('shop-items-grid');
+  grid.innerHTML = '';
+  SHOP_THEMES.forEach(item => {
+    const owned = state.shopOwned.includes(item.id);
+    const equipped = state.equippedTheme === item.id;
+    const el = document.createElement('div');
+    el.className = 'shop-item-card';
+    el.style.border = equipped ? '2px solid var(--neon-blue)' : '1px solid var(--glass-border)';
+    el.innerHTML = `
+      <div class="shop-item-preview" style="background-image: url('${item.img}'); background-size: cover; background-position: center;">
+        ${item.snow ? '<div class="shop-snow-badge">❄ برفی</div>' : ''}
+        ${equipped ? '<div class="shop-equipped-badge">فعال</div>' : ''}
+        ${!owned ? `<div class="shop-lock-overlay">${SVG_LOCK}</div>` : ''}
+      </div>
+      <div style="font-weight:800; margin-bottom:5px; font-size:14px; color:white;">${item.name}</div>
+      ${owned
+        ? `<div style="color:${equipped ? 'var(--neon-blue)' : 'white'}; font-weight:700; font-size:12px;">${equipped ? 'انتخاب شده' : 'انتخاب کنید'}</div>`
+        : `<div style="color:var(--neon-pink); font-weight:800; font-size:13px;">${toPersian(item.price)} سکه</div>`}
+    `;
+    el.onclick = () => handleShopItemClick(item.id, item.price, owned, equipped);
+    grid.appendChild(el);
+  });
+}
+function handleShopItemClick(itemId, price, owned, equipped) {
+  playClick(); if (equipped) return;
+  if (owned) { 
+    state.equippedTheme = itemId; 
+    renderShopItems(); 
+    applyThemeBackground(); 
+    showToast('زمینه فعال شد!'); 
+    saveUserStateToDB(); 
+    return; 
+  }
+  if (state.coins < price) { showToast('سکه کافی نداری!'); return; }
+  state.coins -= price; state.shopOwned.push(itemId); state.equippedTheme = itemId;
+  updateCoinDisplays(); renderShopItems(); applyThemeBackground(); showToast('خریداری شد!'); saveUserStateToDB();
+}
+
+// INIT
+async function init() {
+  updateCoinDisplays();
+  document.addEventListener('click', function startMusicOnFirstClick() { const bgMusic = document.getElementById('bg-music'); if (bgMusic.paused) { bgMusic.volume = 0.3; bgMusic.play().catch(e => console.log("Autoplay blocked")); } document.removeEventListener('click', startMusicOnFirstClick); });
+  
+  await fetchUserFromDB();
+  showScreen('menu');
+  applyThemeBackground();
+}
+window.addEventListener('DOMContentLoaded', init);
+</script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#screen-complete"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

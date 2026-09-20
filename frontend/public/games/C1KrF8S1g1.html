@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>جنگل ریاضی - LOKO Edition</title>
+<style>
+@font-face {
+  font-family: "Shoor";
+  src: url("./fonts/Shoor-Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Shoor";
+  src: url("./fonts/Shoor-Black.ttf") format("truetype");
+  font-weight: 900;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("./fonts/ShoorRounded-Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Shoor Rounded";
+  src: url("./fonts/ShoorRounded-Black.ttf") format("truetype");
+  font-weight: 900;
+}
+
+:root {
+  --primary: #6C5CE7;
+  --neon-blue: #00D2FF;
+  --neon-pink: #FF00A0;
+  --neon-green: #00FF9D;
+  --accent: #FFEAA7;
+  --success: #00B894;
+  --danger: #FF7675;
+  --dark: #1E1E2F;
+  --gold: #FFC93C;
+  --gold-dark: #B96F00;
+  
+  --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 24px rgba(108, 92, 231, 0.4);
+  --radius: 16px;
+  --radius-lg: 24px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+
+html, body { height: 100%; overflow: hidden; position: fixed; width: 100%; }
+body { font-family: var(--font); background: linear-gradient(135deg, #0c0a14, #181225); color: #fff; line-height: 1.5; font-size: 16px; }
+
+#app { width: 100%; height: 100vh; height: 100dvh; position: relative; overflow: hidden; max-width: 480px; margin: 0 auto; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+
+.ambient-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(108, 92, 231, 0.2), transparent 50%),
+    radial-gradient(ellipse at 85% 80%, rgba(0, 210, 255, 0.15), transparent 50%),
+    linear-gradient(135deg, #0c0a14, #181225);
+}
+
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s; z-index: 1; overflow-y: auto; overflow-x: hidden; }
+.screen.active { opacity: 1; visibility: visible; }
+
+/* ===== Glassmorphism Base ===== */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+
+/* ===== MENU ===== */
+#screen-menu { align-items: center; justify-content: center; padding: 24px 20px; text-align: center; }
+
+.coin-display {
+  position: absolute; top: 20px; left: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  padding: 8px 16px 8px 12px; display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 4px 15px rgba(255, 201, 60, 0.3); z-index: 10;
+}
+.coin-icon { width: 26px; height: 26px; object-fit: contain; filter: drop-shadow(0 0 6px rgba(255, 201, 60, 0.8)); flex-shrink: 0; }
+#coin-count { font-weight: 900; font-size: 20px; color: var(--gold); min-width: 24px; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.3s; }
+
+.game-title {
+  font-size: clamp(32px, 8vw, 48px); font-weight: 900;
+  background: linear-gradient(135deg, #00D2FF 0%, #6C5CE7 60%, #FF00A0 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 24px; letter-spacing: -1px; line-height: 1.1;
+  filter: drop-shadow(0 4px 10px rgba(108, 92, 231, 0.4));
+}
+
+.main-character {
+  width: 160px; height: 160px; position: relative; margin-bottom: 16px;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+}
+.main-character img { width: 100%; height: 100%; object-fit: contain; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+.speech-bubble {
+  position: relative; background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 20px; border-radius: 20px; margin-bottom: 24px;
+  font-weight: 500; color: var(--accent);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+.speech-bubble::after {
+  content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+  border-width: 10px 10px 0; border-style: solid; border-color: rgba(255, 255, 255, 0.15) transparent transparent;
+}
+
+/* ===== Buttons ===== */
+.btn { border: none; background: none; font-family: var(--font); cursor: pointer; font-weight: 900; border-radius: var(--radius); transition: all 0.15s ease; position: relative; overflow: hidden; color: #fff; }
+.btn:active { transform: translateY(4px); }
+
+.btn-primary {
+  background: linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%);
+  color: var(--dark);
+  padding: 16px 40px; font-size: 20px; 
+  box-shadow: 0 6px 0 var(--gold-dark), 0 8px 15px rgba(0,0,0,0.3);
+  min-width: 220px; letter-spacing: 0.5px; margin-bottom: 16px;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+}
+.btn-primary:active { box-shadow: 0 2px 0 var(--gold-dark), 0 3px 8px rgba(0,0,0,0.3); }
+
+.menu-buttons { display: flex; gap: 12px; width: 100%; max-width: 280px; }
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2); padding: 12px 18px; font-size: 16px;
+  color: var(--accent); display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+}
+.btn-secondary:active { box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
+.btn-secondary svg { width: 20px; height: 20px; }
+
+/* ===== HEADER & BACK ===== */
+.guide-header { width: 100%; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; padding: 20px 20px 0; }
+.screen-title { font-size: 28px; font-weight: 900; color: var(--neon-blue); text-shadow: 0 0 15px rgba(0, 210, 255, 0.4); }
+
+.btn-back {
+  position: absolute; right: 16px; top: 16px; background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2); color: var(--danger); padding: 8px 14px;
+  border-radius: var(--radius); display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.3);
+}
+.btn-back:active { transform: translateY(3px); box-shadow: 0 0 0 rgba(0,0,0,0.3); }
+.btn-back svg { width: 16px; height: 16px; }
+
+/* ===== GUIDE & LEVELS ===== */
+#screen-guide, #screen-levels, #screen-shop { padding: 16px 20px; align-items: center; padding-bottom: 40px; }
+.guide-content { padding: 20px; width: 100%; max-width: 440px; }
+.guide-character { width: 120px; height: 120px; margin: 0 auto 20px; animation: float 3s ease-in-out infinite; }
+.guide-character img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.4)); }
+.guide-steps { display: flex; flex-direction: column; gap: 12px; }
+.guide-step { display: flex; gap: 12px; align-items: center; background: rgba(0,0,0,0.2); padding: 12px 14px; border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.1); }
+.step-number {
+  width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary), var(--neon-pink));
+  color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 16px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(108, 92, 231, 0.4);
+}
+.step-text { font-size: 15px; line-height: 1.6; color: #fff; }
+.step-text strong { color: var(--neon-green); }
+
+.levels-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 440px; }
+.level-card {
+  background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; position: relative;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+}
+.level-card.unlocked { border-color: var(--neon-blue); }
+.level-card.locked { opacity: 0.5; filter: grayscale(0.8); cursor: not-allowed; box-shadow: none; }
+.level-card:active.unlocked { transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0.3); }
+.level-card-num { font-size: 28px; font-weight: 900; color: var(--accent); text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.level-card-name { font-size: 16px; font-weight: 700; color: #fff; }
+.level-lock-icon { position: absolute; top: 10px; left: 10px; width: 20px; height: 20px; color: var(--fg-muted); }
+
+/* ===== SHOP ===== */
+.shop-coins-row { display: flex; justify-content: center; margin-bottom: 20px; }
+.shop-coins-row .coin-display { position: static; }
+.shop-items { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 440px; }
+.shop-item {
+  background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; transition: all 0.2s ease;
+  border-radius: var(--radius);
+}
+.shop-item.owned { border-color: var(--success); }
+.shop-item.equipped { border-color: var(--gold); box-shadow: 0 0 16px rgba(255, 201, 60, 0.4); }
+.shop-item-preview { width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden; }
+.shop-item-preview img { width: 100%; height: 100%; object-fit: cover; }
+.shop-item-name { font-size: 14px; font-weight: 700; text-align: center; color: #fff; }
+.shop-item-price { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 900; color: var(--gold); }
+.shop-item-price img { width: 16px; height: 16px; }
+.btn-buy {
+  width: 100%; padding: 8px; border: none; border-radius: 10px;
+  font-family: var(--font); font-weight: 900; font-size: 14px; cursor: pointer;
+  background: linear-gradient(180deg, #FFE68A, #FFA800); color: var(--dark); transition: all 0.15s ease;
+  box-shadow: 0 3px 0 var(--gold-dark);
+}
+.btn-buy:active { transform: translateY(3px); box-shadow: 0 0 0 var(--gold-dark); }
+.btn-buy:disabled { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); cursor: not-allowed; box-shadow: none; }
+.btn-buy.equipped { background: var(--success); color: #fff; box-shadow: 0 3px 0 #009688; }
+.btn-buy.owned { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); box-shadow: none; }
+
+/* ===== GAME ===== */
+#screen-game { padding: 0; overflow: hidden; }
+.game-bg-layer { position: absolute; inset: 0; z-index: 0; pointer-events: none; background-size: cover; background-position: center; }
+.game-bg-overlay { position: absolute; inset: 0; z-index: 1; background: rgba(12, 10, 20, 0.5); pointer-events: none; }
+
+.game-area { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; padding: 64px 14px 14px; height: 100%; }
+
+.level-info {
+  position: absolute; top: 18px; left: 18px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 50px; padding: 6px 14px;
+  font-size: 14px; font-weight: 700; color: var(--accent); z-index: 20; max-width: 60%;
+}
+
+.btn-stop {
+  position: absolute; top: 14px; right: 14px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3); color: var(--danger); padding: 0;
+  border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; z-index: 20;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.btn-stop svg { width: 18px; height: 18px; }
+
+.game-stage {
+  flex: 1; display: flex; align-items: flex-end; justify-content: center; gap: 8px;
+  position: relative; padding: 8px 0; min-height: 180px;
+}
+
+.animal-area { display: flex; flex-direction: column; align-items: center; position: relative; flex: 0 1 auto; max-width: 45%; }
+.animal-container { position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%; }
+.animal-img { width: auto; display: block; object-fit: contain; transition: height 0.3s ease, filter 0.3s ease; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.4)); animation: animalIdle 3s ease-in-out infinite; transform-origin: bottom center; }
+@keyframes animalIdle { 0%, 100% { transform: scaleY(1) translateY(0); } 50% { transform: scaleY(0.98) translateY(-2px); } }
+
+.column-area {
+  position: relative; width: 70px; background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.55));
+  border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 12px 12px 8px 8px;
+  display: flex; flex-direction: column-reverse; align-items: center; padding: 5px 4px;
+  overflow: hidden; box-shadow: inset 0 4px 12px rgba(0,0,0,0.5); transition: all 0.3s ease;
+}
+.column-area.matched { border-color: var(--success); box-shadow: inset 0 4px 12px rgba(0,0,0,0.3), 0 0 20px rgba(0, 255, 157, 0.5); }
+
+.target-line { position: absolute; right: 0; top: 5px; width: 100%; height: 0; border-top: 2px dashed var(--gold); z-index: 5; pointer-events: none; }
+.target-line::before { content: ''; position: absolute; right: -6px; top: -6px; width: 12px; height: 12px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 12px var(--gold); }
+
+.food-item {
+  width: 56px; height: 26px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  cursor: grab; animation: dropIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); touch-action: none; margin: 1px 0;
+}
+.food-item svg { width: 100%; height: 100%; pointer-events: none; }
+@keyframes dropIn { 0% { transform: translateY(-30px) scale(0.5); opacity: 0; } 60% { transform: translateY(4px) scale(1.1); } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+
+.source-box {
+  background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius); padding: 14px 10px 8px; display: flex; align-items: center; justify-content: center;
+  gap: 5px; min-height: 64px; flex-wrap: wrap; position: relative; z-index: 2; margin-top: 10px;
+}
+.source-box-label { position: absolute; top: -10px; right: 12px; background: var(--dark); padding: 0 8px; font-size: 12px; color: var(--accent); border-radius: 10px; }
+.source-food-item { width: 48px; height: 24px; cursor: grab; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; touch-action: none; }
+.source-food-item:active { transform: scale(1.15); }
+.source-food-item svg { width: 100%; height: 100%; pointer-events: none; }
+
+.drag-clone { position: fixed; width: 50px; height: 26px; pointer-events: none; z-index: 1000; transform: scale(1.25); filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
+.drag-clone svg { width: 100%; height: 100%; }
+
+/* ===== QUESTION MODAL ===== */
+.question-modal {
+  position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(30, 30, 47, 0.95);
+  backdrop-filter: blur(15px); border-top: 2px solid var(--primary); border-radius: 28px 28px 0 0; padding: 20px 20px 30px;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.6); z-index: 30; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.question-modal.visible { transform: translateY(0); }
+.question-content { display: flex; align-items: center; gap: 12px; width: 100%; }
+.question-character { width: 80px; height: 80px; flex-shrink: 0; }
+.question-character img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)); }
+.question-text { font-size: 16px; font-weight: 700; line-height: 1.6; color: #fff; }
+.question-text strong { color: var(--neon-green); font-size: 18px; }
+
+.choices-container { display: flex; gap: 10px; justify-content: center; width: 100%; }
+.choice-btn {
+  background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 2px solid rgba(255, 255, 255, 0.3);
+  color: #fff; width: 70px; height: 70px; border-radius: var(--radius); font-size: 28px;
+  font-weight: 900; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center;
+  justify-content: center; box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+}
+.choice-btn:active { transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0.3); }
+.choice-btn.correct { background: var(--success); border-color: var(--success); color: white; animation: pulseGreen 0.6s; }
+.choice-btn.wrong { background: var(--danger); border-color: var(--danger); color: white; animation: shake 0.5s; }
+@keyframes pulseGreen { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); box-shadow: 0 0 30px var(--success); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+/* ===== MODAL ===== */
+.modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal.active { display: flex; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal-content {
+  background: var(--dark); border: 1px solid var(--primary); border-radius: var(--radius-lg);
+  padding: 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: var(--shadow-glow);
+}
+.modal-title { font-size: 22px; font-weight: 900; color: var(--neon-blue); margin-bottom: 8px; }
+.modal-text { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 20px; }
+.modal-buttons { display: flex; flex-direction: column; gap: 10px; }
+.modal-btn { padding: 12px; border: none; border-radius: var(--radius); font-family: var(--font); font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.15s; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
+.modal-btn:active { transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0.3); }
+.modal-btn-primary { background: linear-gradient(180deg, #FFE68A, #FFA800); color: var(--dark); }
+.modal-btn-secondary { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+.modal-btn-danger { background: rgba(255, 118, 117, 0.2); color: var(--danger); border: 1px solid var(--danger); box-shadow: none; }
+
+/* ===== LEVEL & GAME COMPLETE ===== */
+.complete-overlay { position: absolute; inset: 0; background: rgba(12, 10, 20, 0.9); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 50; }
+.complete-overlay.active { display: flex; animation: fadeIn 0.4s ease; }
+.complete-card { background: var(--dark); border: 1px solid var(--primary); border-radius: var(--radius-lg); padding: 30px 24px; text-align: center; max-width: 320px; box-shadow: var(--shadow-glow); width: 90%; }
+.complete-title { font-size: 28px; font-weight: 900; color: var(--gold); margin-bottom: 12px; text-shadow: 0 0 15px rgba(255, 201, 60, 0.5); }
+.complete-stars { font-size: 40px; margin-bottom: 16px; letter-spacing: 5px; }
+.complete-info { font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 20px; line-height: 1.6; }
+.complete-coins { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 32px; font-weight: 900; color: var(--gold); margin: 16px 0; }
+.complete-coins img { width: 36px; height: 36px; }
+.coin-fly { position: fixed; width: 26px; height: 26px; z-index: 500; pointer-events: none; transition: all 0.85s cubic-bezier(0.4, 0, 0.2, 1); }
+.coin-fly img { width: 100%; height: 100%; }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: var(--dark); border: 1px solid var(--primary); border-radius: 50px;
+  padding: 12px 24px; font-weight: 700; font-size: 14px; z-index: 200; opacity: 0;
+  transition: all 0.4s ease; box-shadow: var(--shadow-soft); white-space: nowrap; max-width: 90%; color: #fff;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.success { border-color: var(--success); color: var(--success); }
+.toast.error { border-color: var(--danger); color: var(--danger); }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="ambient-bg"></div>
+  
+  <audio id="bg-music" src="./musics/first1.mp3" loop preload="auto"></audio>
+  
+  <!-- ============ MAIN MENU ============ -->
+  <section id="screen-menu" class="screen active">
+    <div class="coin-display">
+      <img src="./icons/coin.png" class="coin-icon" alt="coin">
+      <span id="coin-count">۰</span>
+    </div>
+    
+    <h1 class="game-title">جنگل ریاضی</h1>
+    
+    <div class="speech-bubble">سلام! آماده‌ای بریم؟</div>
+    
+    <div class="main-character">
+      <img src="./icons/gamerhi.png" alt="Gamer">
+    </div>
+    
+    <button class="btn btn-primary" id="btn-start">شروع بازی</button>
+    
+    <div class="menu-buttons">
+      <button class="btn btn-secondary" id="btn-shop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+          <path d="M3 6h18"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        فروشگاه
+      </button>
+      <button class="btn btn-secondary" id="btn-guide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        راهنما
+      </button>
+    </div>
+  </section>
+  
+  <!-- ============ LEVEL SELECT ============ -->
+  <section id="screen-levels" class="screen">
+    <div class="guide-header">
+      <button class="btn-back" data-back="menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        بازگشت
+      </button>
+      <h2 class="screen-title">انتخاب مرحله</h2>
+    </div>
+    <div class="levels-grid" id="levels-grid"></div>
+  </section>
+  
+  <!-- ============ GUIDE ============ -->
+  <section id="screen-guide" class="screen">
+    <div class="guide-header">
+      <button class="btn-back" data-back="menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        بازگشت
+      </button>
+      <h2 class="screen-title">راهنمای بازی</h2>
+    </div>
+    
+    <div class="guide-content glass">
+      <div class="guide-character">
+        <img src="./icons/gamerhi.png" alt="Guide Character">
+      </div>
+      
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="step-number">۱</div>
+          <div class="step-text">در هر مرحله یک <strong>حیوان</strong> وارد صفحه می‌شود. به قد او دقت کن.</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-number">۲</div>
+          <div class="step-text"><strong>غذاها را از جعبه پایین</strong> بکش و در ستون کنار حیوان رها کن تا قدش را اندازه بگیری.</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-number">۳</div>
+          <div class="step-text">وقتی قد حیوان با ستون غذا برابر شد، کاراکتر اصلی سؤالی می‌پرسد و باید <strong>عدد درست</strong> را انتخاب کنی.</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-number">۴</div>
+          <div class="step-text">تمام مراحل را کامل کن تا در پایان بازی <strong>سکه لوکو</strong> بگیری!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- ============ SHOP ============ -->
+  <section id="screen-shop" class="screen">
+    <div class="guide-header">
+      <button class="btn-back" data-back="menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        بازگشت
+      </button>
+      <h2 class="screen-title">فروشگاه</h2>
+    </div>
+    
+    <div class="shop-coins-row">
+      <div class="coin-display">
+        <img src="./icons/coin.png" class="coin-icon" alt="coin">
+        <span id="shop-coin-count">۰</span>
+      </div>
+    </div>
+    
+    <div class="shop-items" id="shop-items"></div>
+  </section>
+  
+  <!-- ============ GAME ============ -->
+  <section id="screen-game" class="screen">
+    <div class="game-bg-layer" id="game-bg-layer"></div>
+    <div class="game-bg-overlay"></div>
+    
+    <div class="level-info" id="level-info">مرحله ۱</div>
+    <button class="btn-stop" id="btn-stop" aria-label="توقف">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="6" width="12" height="12" rx="2"/>
+      </svg>
+    </button>
+    
+    <div class="game-area">
+      <div class="game-stage">
+        <div class="animal-area">
+          <div class="animal-container">
+            <img src="./icons/khers.png" class="animal-img" id="animal-img" alt="Animal">
+          </div>
+        </div>
+        
+        <div class="column-area" id="column-area">
+          <div class="target-line" id="target-line"></div>
+        </div>
+      </div>
+      
+      <div class="source-box">
+        <span class="source-box-label">جعبه غذا</span>
+      </div>
+    </div>
+    
+    <!-- Question Modal -->
+    <div class="question-modal" id="question-modal">
+      <div class="question-content">
+        <div class="question-character">
+          <img src="./icons/gamerhi.png" alt="Gamer">
+        </div>
+        <div class="question-text" id="question-text"></div>
+      </div>
+      <div class="choices-container" id="choices-container"></div>
+    </div>
+    
+    <!-- Level Complete -->
+    <div class="complete-overlay" id="level-complete">
+      <div class="complete-card">
+        <div class="complete-title">آفرین!</div>
+        <div class="complete-stars">⭐</div>
+        <div class="complete-info">پاسخ درست بود. برای رفتن به مرحله بعد آماده‌ای؟</div>
+        <button class="btn btn-primary" id="btn-next-level">مرحله بعد</button>
+      </div>
+    </div>
+    
+    <!-- Game Complete (All Levels Finished) -->
+    <div class="complete-overlay" id="game-complete">
+      <div class="complete-card">
+        <div class="complete-title">تبریک!</div>
+        <div class="complete-stars">⭐⭐⭐</div>
+        <div class="complete-info">تو تمام مراحل بازی را با موفقیت کامل کردی!</div>
+        <div class="complete-coins">
+          <img src="./icons/coin.png" alt="coin">
+          <span>+<span id="gc-reward">۱۰</span></span>
+        </div>
+        <button class="btn btn-primary" id="btn-finish-game">بازگشت به منو</button>
+      </div>
+    </div>
+  </section>
+  
+  <!-- ============ STOP MODAL ============ -->
+  <div class="modal" id="modal-stop">
+    <div class="modal-content">
+      <div class="modal-title">بازی متوقف شد</div>
+      <div class="modal-text">می‌خواهی چه کار کنی؟</div>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-primary" id="btn-resume">ادامه بازی</button>
+        <button class="modal-btn modal-btn-secondary" id="btn-restart">شروع مجدد مرحله</button>
+        <button class="modal-btn modal-btn-danger" id="btn-exit">خروج به منوی اصلی</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+'use strict';
+
+// ============ STATE ============
+const state = {
+  coins: 0,
+  initialCoins: 0, // For LOKO Reward System
+  currentScreen: 'menu',
+  currentLevel: 0,
+  maxUnlockedLevel: 0,
+  columnItems: [],
+  matched: false,
+  paused: false,
+  ownedBackgrounds: ['default'],
+  equippedBackground: 'default',
+  metrics: {
+    responseTimes: [],
+    correctAnswers: 0,
+    wrongAnswers: 0,
+    totalQuestions: 0,
+    matchStartTime: 0
+  }
+};
+
+// Load Saved State (Offline Mode Support)
+try {
+  const saved = localStorage.getItem('jungleMathLokoV2');
+  if (saved) {
+    const data = JSON.parse(saved);
+    state.coins = data.coins || 0;
+    state.maxUnlockedLevel = data.maxUnlockedLevel || 0;
+    state.ownedBackgrounds = data.ownedBackgrounds || ['default'];
+    state.equippedBackground = data.equippedBackground || 'default';
+  }
+} catch(e) {}
+
+function saveState() {
+  try {
+    localStorage.setItem('jungleMathLokoV2', JSON.stringify({
+      coins: state.coins,
+      maxUnlockedLevel: state.maxUnlockedLevel,
+      ownedBackgrounds: state.ownedBackgrounds,
+      equippedBackground: state.equippedBackground
+    }));
+  } catch(e) {}
+}
+
+// ============ AUDIO ============
+const bgMusic = document.getElementById('bg-music');
+let audioCtx = null;
+
+function initAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  
+  // Play background music on first interaction
+  if (bgMusic.paused) {
+    bgMusic.volume = 0.4;
+    bgMusic.play().catch(e => {});
+  }
+}
+
+function playTone(freq, duration, type='sine', volume=0.12) {
+  if (!audioCtx) return;
+  try {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  } catch(e) {}
+}
+
+function playClickSound() { playTone(880, 0.07, 'sine', 0.1); }
+function playSuccessSound() { playTone(523, 0.1, 'sine', 0.12); setTimeout(() => playTone(659, 0.1, 'sine', 0.12), 70); setTimeout(() => playTone(784, 0.16, 'sine', 0.12), 140); }
+function playErrorSound() { playTone(220, 0.13, 'square', 0.06); }
+function playDropSound() { playTone(440, 0.05, 'triangle', 0.08); }
+function playCoinSound() { playTone(988, 0.07, 'sine', 0.11); setTimeout(() => playTone(1319, 0.1, 'sine', 0.09), 55); }
+
+// ============ DATA ============
+const ANIMALS = [
+  { id:'khers', name:'خرس', food:'honey', target: 5, img:'./icons/khers.png', imgHappy:'./icons/khersh.png', imgSad:'./icons/khersa.png' },
+  { id:'khargosh', name:'خرگوش', food:'carrot', target: 4, img:'./icons/khargosh.png', imgHappy:'./icons/khargoshh.png', imgSad:'./icons/khargosha.png' },
+  { id:'joje', name:'جوجه', food:'corn', target: 3, img:'./icons/joje.png', imgHappy:'./icons/jojeh.png', imgSad:'./icons/jojea.png' },
+  { id:'aho', name:'آهو', food:'grass', target: 6, img:'./icons/aho.png', imgHappy:'./icons/ahoh.png', imgSad:'./icons/ahoa.png' },
+  { id:'fil', name:'فیل', food:'peanut', target: 8, img:'./icons/fil.png', imgHappy:'./icons/filh.png', imgSad:'./icons/fila.png' }
+];
+
+const FOODS = {
+  honey: { name:'عسل', svg: `<svg viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg"><path d="M10 25 Q5 15 25 5 Q45 15 40 25 Z" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/><path d="M15 22 L20 12 L30 12 L35 22 Z" fill="#F59E0B" stroke="#D97706" stroke-width="1"/></svg>` },
+  carrot: { name:'هویج', svg: `<svg viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg"><path d="M25 28 L15 8 L35 8 Z" fill="#FB923C" stroke="#EA580C" stroke-width="1.5"/><path d="M15 10 L8 0 L12 5 L18 0 L22 5 L28 0 L32 5 L35 0 L25 10 Z" fill="#22C55E" stroke="#15803D" stroke-width="1"/></svg>` },
+  corn: { name:'ذرت', svg: `<svg viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg"><path d="M15 28 Q10 15 25 5 Q40 15 35 28 Z" fill="#FACC15" stroke="#CA8A04" stroke-width="1.5"/><path d="M16 10 L18 12 M22 12 L24 14 M14 16 L16 18 M24 16 L26 18 M20 20 L22 22" stroke="#CA8A04" stroke-width="1.5"/></svg>` },
+  grass: { name:'یونجه', svg: `<svg viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg"><path d="M10 28 Q10 10 25 5 Q25 20 10 28" fill="#4ADE80" stroke="#16A34A" stroke-width="1.5"/><path d="M40 28 Q40 10 25 5 Q25 20 40 28" fill="#22C55E" stroke="#16A34A" stroke-width="1.5"/></svg>` },
+  peanut: { name:'بادام زمینی', svg: `<svg viewBox="0 0 50 30" xmlns="http://www.w3.org/2000/svg"><ellipse cx="15" cy="15" rx="8" ry="10" fill="#D4A574" stroke="#8B5E34" stroke-width="1.5"/><ellipse cx="35" cy="15" rx="8" ry="10" fill="#D4A574" stroke="#8B5E34" stroke-width="1.5"/><rect x="22" y="13" width="6" height="4" fill="#8B5E34"/></svg>` }
+};
+
+const BACKGROUNDS = [
+  { id:'default', name:'شب کهکشان', img:'./icons/kahkeshan.png', price:0 },
+  { id:'sunset', name:'نیونی', img:'./icons/neoni.png', price:8 },
+  { id:'forest', name:'جنگل سمی', img:'./icons/sami.png', price:9 },
+  { id:'snowy', name:'کوه برفی', img:'./icons/kohbarf.png', price:10 },
+  { id:'blizzard', name:'بوران', img:'./icons/boran.png', price:11 },
+  { id:'aurora', name:'شفق قطبی', img:'./icons/shafagh.png', price:13 },
+  { id:'lava', name:'آتشفشان', img:'./icons/atashfeshan.png', price:14 },
+  { id:'candy', name:'آبنبات', img:'./icons/abnabat.png', price:15 }
+];
+
+// ============ UTILS ============
+function toPersianNum(n) {
+  const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+  return String(n).split('').map(d => persianDigits[parseInt(d)] || d).join('');
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(`screen-${name}`).classList.add('active');
+  state.currentScreen = name;
+}
+
+function showToast(message, type='info', duration=2000) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = `toast ${type} show`;
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { toast.className = 'toast'; }, duration);
+}
+
+// ============ COINS ============
+function updateCoinDisplay() {
+  document.getElementById('coin-count').textContent = toPersianNum(state.coins);
+  document.getElementById('shop-coin-count').textContent = toPersianNum(state.coins);
+}
+
+function animateCoinToCorner() {
+  const coin = document.createElement('div');
+  coin.className = 'coin-fly';
+  coin.innerHTML = `<img src="./icons/coin.png" alt="coin">`;
+  
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+  coin.style.left = (cx - 13) + 'px';
+  coin.style.top = (cy - 13) + 'px';
+  document.body.appendChild(coin);
+  
+  playCoinSound();
+  
+  setTimeout(() => {
+    coin.style.left = '20px';
+    coin.style.top = '20px';
+    coin.style.transform = 'scale(0.3)';
+    coin.style.opacity = '0';
+  }, 50);
+  
+  setTimeout(() => {
+    coin.remove();
+  }, 900);
+}
+
+// ============ LEVEL SELECT ============
+function renderLevels() {
+  const grid = document.getElementById('levels-grid');
+  grid.innerHTML = '';
+  
+  ANIMALS.forEach((animal, index) => {
+    const unlocked = index <= state.maxUnlockedLevel;
+    const el = document.createElement('div');
+    el.className = `level-card glass ${unlocked ? 'unlocked' : 'locked'}`;
+    
+    let lockHtml = '';
+    if (!unlocked) {
+      lockHtml = `<svg class="level-lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+    }
+    
+    el.innerHTML = `
+      ${lockHtml}
+      <div class="level-card-num">${toPersianNum(index + 1)}</div>
+      <div class="level-card-name">${animal.name}</div>
+    `;
+    
+    if (unlocked) {
+      el.addEventListener('click', () => {
+        initAudio();
+        playClickSound();
+        state.currentLevel = index;
+        loadLevel(index);
+        showScreen('game');
+      });
+    }
+    
+    grid.appendChild(el);
+  });
+}
+
+// ============ GAME ============
+function loadLevel(idx) {
+  const level = ANIMALS[idx];
+  state.columnItems = [];
+  state.matched = false;
+  state.metrics.matchStartTime = Date.now();
+  
+  const bg = BACKGROUNDS.find(b => b.id === state.equippedBackground) || BACKGROUNDS[0];
+  document.getElementById('game-bg-layer').style.backgroundImage = `url('${bg.img}')`;
+  
+  document.getElementById('level-info').textContent = `مرحله ${toPersianNum(idx + 1)} - ${level.name}`;
+  
+  const animalImg = document.getElementById('animal-img');
+  animalImg.src = level.img;
+  
+  const fruitHeight = 30;
+  const padding = 10;
+  const targetHeight = level.target * fruitHeight + padding;
+  animalImg.style.height = targetHeight + 'px';
+  
+  const columnArea = document.getElementById('column-area');
+  columnArea.style.height = targetHeight + 'px';
+  columnArea.classList.remove('matched');
+  columnArea.innerHTML = '<div class="target-line" id="target-line"></div>';
+  
+  document.getElementById('question-modal').classList.remove('visible');
+  document.getElementById('level-complete').classList.remove('active');
+  document.getElementById('game-complete').classList.remove('active');
+  
+  fillSourceBox(level);
+}
+
+function fillSourceBox(level) {
+  const sourceBox = document.querySelector('.source-box');
+  sourceBox.innerHTML = '<span class="source-box-label">جعبه غذا</span>';
+  
+  const itemCount = Math.min(level.target + 4, 10);
+  for (let i = 0; i < itemCount; i++) {
+    const item = document.createElement('div');
+    item.className = 'source-food-item';
+    item.innerHTML = FOODS[level.food].svg;
+    sourceBox.appendChild(item);
+    makeDraggable(item);
+  }
+}
+
+// ============ DRAG AND DROP ============
+let dragData = null;
+
+function makeDraggable(el) {
+  el.addEventListener('pointerdown', startDrag);
+}
+
+function startDrag(e) {
+  if (state.matched && e.currentTarget.classList.contains('source-food-item')) return;
+  e.preventDefault();
+  initAudio();
+  playClickSound();
+  
+  const el = e.currentTarget;
+  const svgEl = el.querySelector('svg');
+  if (!svgEl) return;
+  
+  const clone = document.createElement('div');
+  clone.className = 'drag-clone';
+  clone.innerHTML = svgEl.outerHTML;
+  clone.style.left = (e.clientX - 25) + 'px';
+  clone.style.top = (e.clientY - 13) + 'px';
+  document.body.appendChild(clone);
+  
+  dragData = { element: el, clone: clone, fromSource: el.classList.contains('source-food-item') };
+  el.style.opacity = '0.3';
+  
+  document.addEventListener('pointermove', onDrag);
+  document.addEventListener('pointerup', endDrag);
+  document.addEventListener('pointercancel', endDrag);
+}
+
+function onDrag(e) {
+  if (!dragData) return;
+  e.preventDefault();
+  dragData.clone.style.left = (e.clientX - 25) + 'px';
+  dragData.clone.style.top = (e.clientY - 13) + 'px';
+}
+
+function endDrag(e) {
+  if (!dragData) return;
+  document.removeEventListener('pointermove', onDrag);
+  document.removeEventListener('pointerup', endDrag);
+  document.removeEventListener('pointercancel', endDrag);
+  
+  dragData.element.style.opacity = '';
+  
+  const columnArea = document.getElementById('column-area');
+  const columnRect = columnArea.getBoundingClientRect();
+  const sourceBox = document.querySelector('.source-box');
+  const sourceRect = sourceBox.getBoundingClientRect();
+  
+  const x = e.clientX, y = e.clientY;
+  
+  if (x >= columnRect.left && x <= columnRect.right && y >= columnRect.top && y <= columnRect.bottom) {
+    if (dragData.fromSource) addFoodToColumn();
+  } else if (x >= sourceRect.left && x <= sourceRect.right && y >= sourceRect.top && y <= sourceRect.bottom) {
+    if (!dragData.fromSource) removeFoodFromColumn(dragData.element);
+  }
+  
+  dragData.clone.remove();
+  dragData = null;
+}
+
+function addFoodToColumn() {
+  const level = ANIMALS[state.currentLevel];
+  if (state.columnItems.length >= level.target + 3) {
+    showToast('کافیه! غذاها را کم کن', 'error', 1500);
+    return;
+  }
+  
+  const columnArea = document.getElementById('column-area');
+  const item = document.createElement('div');
+  item.className = 'food-item';
+  item.innerHTML = FOODS[level.food].svg;
+  columnArea.appendChild(item);
+  state.columnItems.push(item);
+  makeDraggable(item);
+  
+  playDropSound();
+  setTimeout(() => checkHeightMatch(), 50);
+}
+
+function removeFoodFromColumn(item) {
+  const index = state.columnItems.indexOf(item);
+  if (index > -1) {
+    state.columnItems.splice(index, 1);
+    item.remove();
+    playDropSound();
+    checkHeightMatch();
+  }
+}
+
+function checkHeightMatch() {
+  const level = ANIMALS[state.currentLevel];
+  const columnArea = document.getElementById('column-area');
+  
+  if (state.columnItems.length === level.target && !state.matched) {
+    state.matched = true;
+    columnArea.classList.add('matched');
+    playSuccessSound();
+    setTimeout(() => showQuestion(level), 500);
+  } else if (state.columnItems.length !== level.target && state.matched) {
+    state.matched = false;
+    columnArea.classList.remove('matched');
+    document.getElementById('question-modal').classList.remove('visible');
+  }
+}
+
+function showQuestion(level) {
+  const questionText = document.getElementById('question-text');
+  questionText.innerHTML = `تو با <strong>${toPersianNum(level.target)}</strong> تا <strong>${FOODS[level.food].name}</strong> قد ${level.name} رو اندازه گرفتی، پس ${level.name} هم‌اندازه با چند تا ${FOODS[level.food].name}ه؟`;
+  
+  const container = document.getElementById('choices-container');
+  container.innerHTML = '';
+  
+  const correctAnswer = level.target;
+  const options = new Set([correctAnswer]);
+  
+  while (options.size < 3) {
+    let wrong = correctAnswer;
+    while (wrong === correctAnswer || options.has(wrong)) {
+      wrong = correctAnswer + (Math.floor(Math.random() * 5) - 2);
+      if (wrong < 1) wrong = correctAnswer + Math.floor(Math.random() * 3) + 1;
+    }
+    options.add(wrong);
+  }
+  
+  const shuffled = Array.from(options).sort(() => Math.random() - 0.5);
+  
+  shuffled.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = toPersianNum(opt);
+    btn.addEventListener('click', () => selectAnswer(opt, correctAnswer, btn));
+    container.appendChild(btn);
+  });
+  
+  document.getElementById('question-modal').classList.add('visible');
+  state.metrics.matchStartTime = Date.now();
+}
+
+function selectAnswer(selected, correct, btn) {
+  const buttons = document.querySelectorAll('.choice-btn');
+  buttons.forEach(b => b.style.pointerEvents = 'none');
+  
+  const timeTaken = (Date.now() - state.metrics.matchStartTime) / 1000;
+  state.metrics.responseTimes.push(timeTaken);
+  state.metrics.totalQuestions++;
+  
+  const level = ANIMALS[state.currentLevel];
+  const animalImg = document.getElementById('animal-img');
+  
+  if (selected === correct) {
+    btn.classList.add('correct');
+    state.metrics.correctAnswers++;
+    animalImg.src = level.imgHappy;
+    playSuccessSound();
+    
+    // Unlock next level
+    if (state.currentLevel + 1 > state.maxUnlockedLevel && state.currentLevel + 1 < ANIMALS.length) {
+      state.maxUnlockedLevel = state.currentLevel + 1;
+    }
+    saveState();
+    
+    setTimeout(() => {
+      if (state.currentLevel + 1 < ANIMALS.length) {
+        document.getElementById('level-complete').classList.add('active');
+      } else {
+        // Game Complete - LOKO Reward System
+        const reward = state.initialCoins === 0 ? 10 : 1;
+        
+        // Give coins immediately to ensure they are received
+        state.coins += reward;
+        saveState();
+        updateCoinDisplay();
+        
+        document.getElementById('gc-reward').textContent = toPersianNum(reward);
+        document.getElementById('game-complete').classList.add('active');
+        animateCoinToCorner(); // Visual effect
+      }
+    }, 1000);
+  } else {
+    btn.classList.add('wrong');
+    state.metrics.wrongAnswers++;
+    animalImg.src = level.imgSad;
+    playErrorSound();
+    
+    buttons.forEach(b => {
+      if (b.textContent === toPersianNum(correct)) b.classList.add('correct');
+    });
+    
+    setTimeout(() => {
+      buttons.forEach(b => b.style.pointerEvents = '');
+      buttons.forEach(b => b.classList.remove('correct', 'wrong'));
+      animalImg.src = level.img;
+    }, 2500);
+  }
+}
+
+// ============ SHOP ============
+function renderShop() {
+  const container = document.getElementById('shop-items');
+  container.innerHTML = '';
+  
+  BACKGROUNDS.forEach(item => {
+    const owned = state.ownedBackgrounds.includes(item.id);
+    const equipped = state.equippedBackground === item.id;
+    
+    const el = document.createElement('div');
+    el.className = `shop-item ${owned ? 'owned' : ''} ${equipped ? 'equipped' : ''}`;
+    
+    let btnHtml = '';
+    if (equipped) {
+      btnHtml = `<button class="btn-buy equipped">فعال شد</button>`;
+    } else if (owned) {
+      btnHtml = `<button class="btn-buy owned" data-equip="${item.id}">انتخاب</button>`;
+    } else {
+      btnHtml = `<button class="btn-buy" data-buy="${item.id}" ${state.coins < item.price ? 'disabled' : ''}>خرید</button>`;
+    }
+    
+    el.innerHTML = `
+      <div class="shop-item-preview"><img src="${item.img}" alt="${item.name}"></div>
+      <div class="shop-item-name">${item.name}</div>
+      <div class="shop-item-price">
+        ${item.price > 0 ? `<img src="./icons/coin.png" alt="coin"> ${toPersianNum(item.price)}` : 'رایگان'}
+      </div>
+      ${btnHtml}
+    `;
+    container.appendChild(el);
+  });
+  
+  container.querySelectorAll('[data-buy]').forEach(btn => btn.addEventListener('click', () => buyItem(btn.dataset.buy)));
+  container.querySelectorAll('[data-equip]').forEach(btn => btn.addEventListener('click', () => equipItem(btn.dataset.equip)));
+}
+
+function buyItem(id) {
+  initAudio();
+  playClickSound();
+  const item = BACKGROUNDS.find(i => i.id === id);
+  if (!item) return;
+  
+  if (state.coins < item.price) {
+    showToast('سکه کافی ندارید!', 'error');
+    playErrorSound();
+    return;
+  }
+  
+  state.coins -= item.price;
+  state.ownedBackgrounds.push(id);
+  state.equippedBackground = id;
+  saveState();
+  updateCoinDisplay();
+  renderShop();
+  showToast('خرید موفقیت‌آمیز بود!', 'success');
+  playCoinSound();
+}
+
+function equipItem(id) {
+  initAudio();
+  playClickSound();
+  state.equippedBackground = id;
+  saveState();
+  renderShop();
+}
+
+// ============ INIT & EVENTS ============
+function init() {
+  updateCoinDisplay();
+  
+  document.getElementById('btn-start').addEventListener('click', () => {
+    initAudio();
+    playClickSound();
+    state.initialCoins = state.coins; // Record initial coins for LOKO reward
+    renderLevels();
+    showScreen('levels');
+  });
+  
+  document.getElementById('btn-shop').addEventListener('click', () => {
+    initAudio();
+    playClickSound();
+    renderShop();
+    showScreen('shop');
+  });
+  
+  document.getElementById('btn-guide').addEventListener('click', () => {
+    initAudio();
+    playClickSound();
+    showScreen('guide');
+  });
+  
+  document.querySelectorAll('.btn-back').forEach(btn => {
+    btn.addEventListener('click', () => {
+      initAudio();
+      playClickSound();
+      showScreen(btn.dataset.back);
+    });
+  });
+  
+  document.getElementById('btn-stop').addEventListener('click', () => {
+    initAudio();
+    playClickSound();
+    state.paused = true;
+    document.getElementById('modal-stop').classList.add('active');
+  });
+  
+  document.getElementById('btn-resume').addEventListener('click', () => {
+    playClickSound();
+    state.paused = false;
+    document.getElementById('modal-stop').classList.remove('active');
+  });
+  
+  document.getElementById('btn-restart').addEventListener('click', () => {
+    playClickSound();
+    state.paused = false;
+    document.getElementById('modal-stop').classList.remove('active');
+    loadLevel(state.currentLevel);
+  });
+  
+  document.getElementById('btn-exit').addEventListener('click', () => {
+    playClickSound();
+    state.paused = false;
+    document.getElementById('modal-stop').classList.remove('active');
+    renderLevels();
+    showScreen('levels');
+  });
+  
+  document.getElementById('btn-next-level').addEventListener('click', () => {
+    playClickSound();
+    state.currentLevel++;
+    loadLevel(state.currentLevel);
+  });
+  
+  document.getElementById('btn-finish-game').addEventListener('click', () => {
+    playClickSound();
+    renderLevels();
+    showScreen('menu');
+  });
+  
+  // Network Sync Simulation
+  window.addEventListener('online', () => {
+    console.log("Back online. Syncing data...");
+    saveState();
+  });
+}
+
+init();
+</script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#game-complete", "#level-complete"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

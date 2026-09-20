@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سفر ریاضی - LOKO System</title>
+    
+    <style>
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Regular.ttf") format("truetype");
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Medium.ttf") format("truetype");
+            font-weight: 500;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Black.ttf") format("truetype");
+            font-weight: 900;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-ExtraBold.ttf") format("truetype");
+            font-weight: 800;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Regular.ttf") format("truetype");
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Medium.ttf") format("truetype");
+            font-weight: 500;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Black.ttf") format("truetype");
+            font-weight: 900;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype");
+            font-weight: 800;
+        }
+    </style>
+
+    <style>
+        :root {
+            --primary: #6C5CE7;
+            --neon-blue: #00D2FF;
+            --neon-pink: #FF00A0;
+            --neon-green: #00FF9D;
+            --accent: #FFEAA7;
+            --success: #00B894;
+            --danger: #FF7675;
+            --dark: #1E1E2F;
+            --gold: #FFC93C;
+            --gold-dark: #B96F00;
+            --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font);
+            overflow: hidden;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+            background: #000;
+            color: white;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        #app-wrapper {
+            max-width: 480px;
+            margin: 0 auto;
+            position: relative;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            transition: background 0.5s ease;
+        }
+
+        /* Theme System - Default is Forest */
+        .theme-default #app-wrapper { background: linear-gradient(135deg, #0c0a14, #181225); }
+        .theme-forest #app-wrapper { background: linear-gradient(135deg, #0f2f1a, #1a4029); }
+        .theme-ocean #app-wrapper { background: linear-gradient(135deg, #0a1a2f, #12253e); }
+        .theme-candy #app-wrapper { background: linear-gradient(135deg, #2f0a1f, #3e1228); }
+
+        .screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: none;
+            flex-direction: column;
+        }
+        .screen.active { display: flex; }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+        }
+
+        /* Intro/Guide Overlay */
+        #intro-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+        #intro-overlay.active { display: flex; }
+        
+        .intro-glow {
+            position: absolute;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(0, 210, 255, 0.2) 0%, rgba(108, 92, 231, 0.1) 40%, transparent 70%);
+            top: 30%; left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+        .intro-char-container { position: relative; margin-bottom: 30px; z-index: 2; }
+        .intro-char {
+            width: 220px; height: auto;
+            filter: drop-shadow(0 15px 30px rgba(0, 210, 255, 0.4));
+            animation: floatChar 3s ease-in-out infinite;
+        }
+        @keyframes floatChar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        
+        .intro-text-box {
+            position: relative; z-index: 2;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            padding: 30px 40px; border-radius: 24px;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(0, 210, 255, 0.05);
+            min-height: 140px; width: 90%; max-width: 400px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #intro-text {
+            font-size: 1.8rem; font-weight: 700; line-height: 1.6;
+            color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            transition: opacity 0.4s ease;
+        }
+        .btn-skip-intro {
+            margin-top: 30px; background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7);
+            padding: 10px 25px; border-radius: 20px; font-family: var(--font);
+            font-size: 1rem; font-weight: 700; cursor: pointer; z-index: 2;
+            transition: all 0.2s;
+        }
+        .btn-skip-intro:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
+
+        /* Main Menu - Glass Dish Style */
+        #start-screen { justify-content: center; align-items: center; padding: 20px; text-align: center; position: relative; }
+        .stars-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(2px 2px at 130px 80px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 160px 30px, #fff, transparent);
+            background-size: 200px 100px;
+            animation: starsMove 20s linear infinite;
+            opacity: 0.5; pointer-events: none;
+        }
+        @keyframes starsMove { from { background-position: 0 0; } to { background-position: 0 100px; } }
+
+        .menu-dish {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 40px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .top-hud { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; width: calc(100% - 40px); max-width: 440px; }
+        .coin-display { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 20px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid var(--gold); box-shadow: 0 0 15px rgba(255, 201, 60, 0.3); }
+        .coin-icon-img { width: 24px; height: 24px; object-fit: contain; }
+        .coin-amount { font-weight: 800; font-size: 1.2rem; color: var(--gold); }
+
+        .game-title { font-size: 3rem; font-weight: 900; color: white; text-shadow: 0 0 20px var(--primary), 4px 4px 0 var(--dark); margin-bottom: 20px; z-index: 2; }
+        .game-title span { color: var(--neon-blue); }
+
+        /* Character Frame */
+        .character-container { position: relative; margin-bottom: 30px; z-index: 2; }
+        .speech-bubble { position: absolute; top: -50px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 20px; padding: 8px 20px; white-space: nowrap; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 3; }
+        .speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border: 10px solid transparent; border-top-color: rgba(255, 255, 255, 0.2); }
+        
+        .menu-char-frame {
+            width: 180px; height: 180px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold), #FF9800);
+            padding: 6px;
+            box-shadow: 0 0 40px rgba(255, 201, 60, 0.4), inset 0 0 10px rgba(0,0,0,0.2);
+            display: flex; justify-content: center; align-items: center;
+        }
+        .menu-char-inner {
+            width: 100%; height: 100%; border-radius: 50%;
+            background: rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: flex-end;
+            border: 4px solid rgba(255,255,255,0.1);
+        }
+        .pixel-character {
+            width: 140px; height: 150px; object-fit: contain;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.4));
+            animation: floatChar 3s ease-in-out infinite;
+        }
+
+        .btn { border: none; cursor: pointer; font-family: var(--font); font-weight: 800; border-radius: 16px; transition: all 0.15s ease; position: relative; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-primary { background: linear-gradient(180deg, #6BCB77 0%, #4CAF50 100%); color: white; padding: 15px 50px; font-size: 1.5rem; box-shadow: 0 6px 0 #2E7D32, 0 12px 25px rgba(76, 175, 80, 0.4); width: 100%; margin-bottom: 15px; }
+        .btn-primary:active { transform: translateY(4px); box-shadow: 0 2px 0 #2E7D32, 0 5px 15px rgba(76, 175, 80, 0.4); }
+        .secondary-buttons { display: flex; gap: 15px; width: 100%; }
+        .btn-secondary { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 12px 20px; font-size: 1.1rem; flex: 1; box-shadow: 0 4px 0 rgba(0,0,0,0.3); margin-bottom: 0; border-radius: 12px; }
+        .btn-secondary:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+
+        /* Game Screen HUD */
+        #game-screen { position: relative; }
+        .game-hud { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 200; pointer-events: none; gap: 10px; }
+        .game-hud > * { pointer-events: all; }
+        
+        .pause-btn { 
+            background: rgba(255,255,255,0.15); 
+            border: 1px solid rgba(255,255,255,0.2); 
+            color: white; width: 44px; height: 44px; 
+            border-radius: 14px; font-size: 1.2rem; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+        .pause-btn svg { width: 20px; height: 20px; fill: white; }
+
+        /* New Progress Indicator in HUD */
+        .hud-progress {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 700;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            text-align: center;
+            flex-grow: 1;
+            max-width: 160px;
+        }
+
+        /* Pause Menu */
+        #pause-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            z-index: 1500; display: none; justify-content: center; align-items: center; padding: 20px;
+        }
+        #pause-overlay.active { display: flex; }
+
+        .pause-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 32px; padding: 40px 30px; text-align: center;
+            width: 100%; max-width: 340px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            position: relative; z-index: 10;
+        }
+        .pause-icon-circle {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, #FFA800, #FF6B6B);
+            border-radius: 50%; margin: 0 auto 20px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.4);
+        }
+        .pause-icon { width: 30px; height: 30px; border-left: 8px solid white; border-right: 8px solid white; }
+        .pause-title { font-size: 1.8rem; font-weight: 800; color: white; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+        .pause-menu-btn { display: block; width: 100%; padding: 15px; border-radius: 14px; font-family: var(--font); font-weight: 800; font-size: 1.2rem; cursor: pointer; margin-bottom: 12px; border: none; transition: transform 0.1s; }
+        .pause-menu-btn:active { transform: scale(0.98); }
+        .pause-btn-primary { background: linear-gradient(180deg, #6BCB77, #4CAF50); color: white; box-shadow: 0 6px 0 #2E7D32, 0 10px 15px rgba(76, 175, 80, 0.3); }
+        .pause-btn-secondary { background: rgba(255, 255, 255, 0.15); color: white; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
+        .pause-btn-danger { background: linear-gradient(180deg, #FF7675, #E53935); color: white; box-shadow: 0 6px 0 #c0392b, 0 10px 15px rgba(229, 57, 53, 0.3); }
+
+        .narrator { position: absolute; top: 70px; left: 10px; right: 10px; z-index: 100; display: flex; align-items: flex-start; gap: 10px; }
+        .narrator-bubble { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 15px 20px; max-width: 75%; box-shadow: 0 5px 20px rgba(0,0,0,0.3); position: relative; animation: bubblePop 0.5s ease-out; }
+        .narrator-bubble::after { content: ''; position: absolute; bottom: -10px; right: 30px; border: 10px solid transparent; border-top-color: rgba(255, 255, 255, 0.15); }
+        @keyframes bubblePop { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+        #narrator-text { font-size: 1.1rem; color: white; line-height: 1.6; margin: 0; transition: opacity 0.3s; }
+        .narrator-character { width: 70px; height: 70px; position: relative; flex-shrink: 0; }
+        .narrator-img { width: 100%; height: 100%; object-fit: contain; border-radius: 15px; filter: drop-shadow(0 0 10px var(--neon-blue)); animation: narratorBob 2s ease-in-out infinite; }
+        @keyframes narratorBob { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-4px) rotate(-2deg); } 75% { transform: translateY(-4px) rotate(2deg); } }
+
+        .game-stage { position: absolute; top: 25%; left: 0; right: 0; height: 45%; display: flex; justify-content: center; align-items: flex-end; gap: 20px; z-index: 50; padding: 0 20px; }
+        .character { display: flex; flex-direction: column; align-items: center; transition: all 0.5s ease; position: relative; }
+        .character.entering { animation: characterEnter 1s ease-out forwards; }
+        @keyframes characterEnter { 0% { transform: translateX(-200px) scale(0); opacity: 0; } 60% { transform: translateX(20px) scale(1.1); } 100% { transform: translateX(0) scale(1); opacity: 1; } }
+        .character.happy { animation: happyBounce 0.5s ease-in-out; }
+        @keyframes happyBounce { 0%, 100% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-20px) rotate(-5deg); } 50% { transform: translateY(0) rotate(5deg); } 75% { transform: translateY(-10px) rotate(-3deg); } }
+        .character.sad { animation: sadShake 0.5s ease-in-out; }
+        @keyframes sadShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+        
+        .char-img, .char-emoji { font-size: 8rem; height: 170px; width: 170px; object-fit: contain; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5)); transition: transform 0.3s; pointer-events: none; }
+        .char-name { background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); padding: 5px 15px; border-radius: 15px; font-size: 1rem; font-weight: 700; color: white; margin-top: 5px; border: 1px solid rgba(255,255,255,0.2); }
+
+        .character.selectable { cursor: pointer; }
+        .character.selectable::after { content: ''; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 80%; height: 20px; background: var(--neon-green); border-radius: 50%; filter: blur(10px); opacity: 0.8; animation: targetPulse 1.5s ease-in-out infinite; }
+        @keyframes targetPulse { 0%, 100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.2); } }
+        .character.selectable .char-img, .character.selectable .char-emoji { animation: targetWiggle 0.5s ease-in-out infinite alternate; }
+        @keyframes targetWiggle { from { transform: scale(1); } to { transform: scale(1.05); } }
+
+        .character.drop-target { cursor: pointer; }
+        .character.drop-target::after { content: ''; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 80%; height: 20px; background: var(--neon-green); border-radius: 50%; filter: blur(10px); opacity: 0; animation: targetPulse 1.5s ease-in-out infinite; }
+        .character.drop-target.active::after { opacity: 0.8; }
+
+        .items-zone { position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 15px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); min-height: 80px; z-index: 60; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; width: 90%; max-width: 400px; }
+        .items-zone.visible { opacity: 1; pointer-events: all; }
+        .draggable-item { width: 60px; height: 60px; cursor: grab; transition: transform 0.2s, filter 0.2s; filter: drop-shadow(2px 3px 4px rgba(0,0,0,0.5)); animation: itemFloat 2s ease-in-out infinite; touch-action: none; }
+        .draggable-item img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+        .draggable-item:hover { transform: scale(1.1) translateY(-5px); }
+        .draggable-item.dragging { cursor: grabbing; transform: scale(1.3) rotate(-10deg); animation: none; z-index: 1000; filter: drop-shadow(0 0 15px var(--neon-blue)); transition: none; }
+        @keyframes itemFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+        .answer-cards { position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%); display: flex; gap: 30px; z-index: 70; opacity: 0; pointer-events: none; transition: all 0.5s ease; }
+        .answer-cards.visible { opacity: 1; pointer-events: all; }
+        
+        .sticker-option { width: 100px; height: 100px; font-size: 4rem; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); cursor: pointer; transition: all 0.3s ease; }
+        .sticker-option:hover { transform: scale(1.1); border-color: var(--gold); box-shadow: 0 0 20px var(--gold); }
+        
+        .answer-card { width: 80px; height: 80px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 900; color: white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); cursor: pointer; transition: all 0.3s ease; font-family: var(--font); }
+        .answer-card:hover { transform: translateY(-10px) scale(1.1); border-color: var(--neon-blue); box-shadow: 0 10px 25px rgba(0, 210, 255, 0.3); }
+        .answer-card.correct { background: linear-gradient(145deg, var(--neon-green), var(--success)); color: var(--dark); border-color: var(--neon-green); }
+        .answer-card.wrong { background: linear-gradient(145deg, var(--danger), #c0392b); color: white; border-color: var(--danger); animation: wrongShake 0.5s ease-out; }
+        @keyframes wrongShake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+
+        .sticker-feedback { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 10rem; z-index: 1000; pointer-events: none; opacity: 0; }
+        .sticker-feedback.show { animation: stickerPop 1.5s ease-out forwards; }
+        @keyframes stickerPop { 0% { transform: translate(-50%, -50%) scale(0) rotate(-20deg); opacity: 0; } 20% { transform: translate(-50%, -50%) scale(1.2) rotate(10deg); opacity: 1; } 80% { transform: translate(-50%, -50%) scale(1) rotate(0); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.2) rotate(0); opacity: 0; } }
+
+        #end-screen { justify-content: center; align-items: center; padding: 20px; }
+        .end-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 24px; padding: 40px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; z-index: 10; }
+        .trophy { font-size: 5rem; animation: trophyBounce 1s ease-in-out infinite; filter: drop-shadow(0 10px 20px var(--gold)); }
+        @keyframes trophyBounce { 0%, 100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-15px) rotate(5deg); } }
+        .end-title { font-size: 2rem; color: white; margin: 15px 0; text-shadow: 2px 2px 0 var(--dark); }
+        .stars-earned { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
+        .earned-star { font-size: 3rem; animation: starEarn 0.5s ease-out forwards; opacity: 0; filter: drop-shadow(0 0 10px var(--gold)); }
+        .es1 { animation-delay: 0.5s; } .es2 { animation-delay: 1s; } .es3 { animation-delay: 1.5s; }
+        @keyframes starEarn { 0% { transform: scale(0) rotate(-180deg); opacity: 0; } 60% { transform: scale(1.5) rotate(20deg); opacity: 1; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+        .game-info { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        .game-info p { color: rgba(255,255,255,0.7); font-size: 1rem; margin-bottom: 5px; }
+        .game-info span { font-size: 2.5rem; font-weight: 900; color: var(--neon-blue); display: block; }
+        .coin-reward { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 25px; font-size: 1.5rem; color: var(--gold); font-weight: 800; }
+        .coin-reward-icon-img { width: 30px; height: 30px; }
+
+        .confetti-container { position: absolute; width: 100%; height: 100%; overflow: hidden; pointer-events: none; z-index: 5; }
+        .confetti { position: absolute; width: 10px; height: 10px; top: -20px; animation: confettiFall 3s ease-out forwards; }
+        @keyframes confettiFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+        #shop-screen { padding: 20px; flex-direction: column; overflow-y: auto; }
+        .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .shop-title { font-size: 1.8rem; font-weight: 900; color: white; }
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-bottom: 20px; }
+        .shop-card { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 15px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .theme-preview { width: 100%; height: 80px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.2); }
+        .theme-name { font-weight: 700; color: white; }
+        .btn-buy { background: linear-gradient(180deg, #FFE68A, #FFC93C); color: var(--dark); border: none; padding: 8px 15px; border-radius: 10px; font-weight: 800; cursor: pointer; width: 100%; box-shadow: 0 3px 0 var(--gold-dark); display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-buy:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--gold-dark); }
+        .btn-buy.selected-theme { background: var(--success); color: white; box-shadow: 0 3px 0 #007e5f; pointer-events: none; }
+        .btn-buy.locked { background: #555; color: #aaa; box-shadow: 0 3px 0 #333; pointer-events: none; }
+
+        .story-cloud { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 500; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+        .story-cloud.visible { opacity: 1; pointer-events: all; }
+        .cloud-shape { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 40px 60px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: cloudBounce 1s ease-out; }
+        @keyframes cloudBounce { 0% { transform: scale(0) translateY(50px); } 60% { transform: scale(1.1) translateY(-10px); } 100% { transform: scale(1) translateY(0); } }
+        .cloud-text { font-size: 1.5rem; font-weight: 700; color: white; }
+
+        .celebration { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 600; pointer-events: none; opacity: 0; }
+        .celebration.visible { animation: celebrationFade 2s ease-out forwards; }
+        @keyframes celebrationFade { 0% { opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+        .celebration-text { font-size: 4rem; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px var(--gold), 4px 4px 0 var(--dark); animation: celebratePop 0.5s ease-out; }
+        @keyframes celebratePop { 0% { transform: scale(0) rotate(-10deg); } 60% { transform: scale(1.3) rotate(5deg); } 100% { transform: scale(1) rotate(0); } }
+
+    </style>
+</head>
+<body class="theme-forest">
+
+<audio id="bg-music" src="./musics/z1.mp3" loop></audio>
+
+<div id="app-wrapper">
+    <!-- Intro/Guide Overlay -->
+    <div id="intro-overlay">
+        <div class="intro-glow"></div>
+        <div class="intro-char-container">
+            <img src="./icons/gamerhi.png" class="intro-char" alt="راهنما">
+        </div>
+        <div class="intro-text-box">
+            <p id="intro-text">سلام من پیکسل هستم، راهنمای تو در این بازی</p>
+        </div>
+        <button class="btn-skip-intro" id="skip-intro-btn">رد کردن </button>
+    </div>
+
+    <!-- Main Menu -->
+    <div id="start-screen" class="screen active">
+        <div class="stars-bg"></div>
+        <div class="top-hud">
+            <div class="coin-display">
+                <img src="./icons/coin.png" class="coin-icon-img">
+                <div class="coin-amount" id="menu-coins">۰</div>
+            </div>
+        </div>
+        
+        <div class="menu-dish">
+            <h1 class="game-title">سفر <span>ریاضی</span></h1>
+            <div class="character-container">
+                <div class="speech-bubble">سلام! آماده‌ای بریم?</div>
+                <div class="menu-char-frame">
+                    <div class="menu-char-inner">
+                        <img src="./icons/gamerhi.png" alt="Character" class="pixel-character">
+                    </div>
+                </div>
+            </div>
+            <button id="start-btn" class="btn btn-primary">شروع بازی</button>
+            <div class="secondary-buttons">
+                <button id="shop-btn" class="btn btn-secondary">🛍️ فروشگاه</button>
+                <button id="help-btn" class="btn btn-secondary">❓ راهنما</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div class="stars-bg"></div>
+        <div class="game-hud">
+            <button class="pause-btn" id="stop-btn">
+                <svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+            </button>
+            <div class="hud-progress" id="hud-progress">داستان ۱ از ۵</div>
+            <div class="coin-display">
+                <img src="./icons/coin.png" class="coin-icon-img">
+                <div class="coin-amount" id="game-coins">۰</div>
+            </div>
+        </div>
+        <div id="narrator" class="narrator">
+            <div class="narrator-bubble">
+                <p id="narrator-text">سلام کوچولو! آماده یک ماجراجویی ریاضی هستی؟</p>
+            </div>
+            <div class="narrator-character">
+                <img src="./icons/gamerhi.png" alt="راوی" class="narrator-img">
+            </div>
+        </div>
+        <div id="game-stage" class="game-stage"></div>
+        <div id="items-zone" class="items-zone"></div>
+        <div id="answer-cards" class="answer-cards"></div>
+    </div>
+
+    <!-- Pause Menu Overlay -->
+    <div id="pause-overlay">
+        <div class="pause-card">
+            <div class="pause-icon-circle">
+                <div class="pause-icon"></div>
+            </div>
+            <h2 class="pause-title">بازی متوقف شد</h2>
+            <button class="pause-menu-btn pause-btn-primary" id="menu-continue-btn">ادامه دادن</button>
+            <button class="pause-menu-btn pause-btn-secondary" id="menu-restart-btn">شروع مجدد</button>
+            <button class="pause-menu-btn pause-btn-danger" id="menu-home-btn">منوی اصلی</button>
+        </div>
+    </div>
+
+    <!-- Shop Screen -->
+    <div id="shop-screen" class="screen">
+        <div class="shop-header">
+            <h2 class="shop-title">فروشگاه فضاها</h2>
+            <div class="coin-display">
+                <img src="./icons/coin.png" class="coin-icon-img">
+                <div class="coin-amount" id="shop-coins">۰</div>
+            </div>
+        </div>
+        <div class="shop-grid" id="shop-grid"></div>
+        <button class="btn btn-primary" id="shop-back-btn" style="margin-top: 20px;">بازگشت</button>
+    </div>
+
+    <!-- End Screen -->
+    <div id="end-screen" class="screen">
+        <div class="stars-bg"></div>
+        <div class="confetti-container" id="confetti"></div>
+        <div class="end-card glass">
+            <div class="trophy">🏆</div>
+            <h2 class="end-title">آفرین! تمومش کردی!</h2>
+            <div class="stars-earned">
+                <div class="earned-star es1">⭐</div>
+                <div class="earned-star es2">⭐</div>
+                <div class="earned-star es3">⭐</div>
+            </div>
+            <div class="game-info">
+                <p>امتیاز نهایی:</p>
+                <span id="final-score">۰</span>
+            </div>
+            <div class="coin-reward">
+                <img src="./icons/coin.png" class="coin-reward-icon-img">
+                <span>+<span id="reward-coins">۱۰</span> سکه لوکو</span>
+            </div>
+            <button id="end-home-btn" class="btn btn-primary">بازگشت به منو</button>
+        </div>
+    </div>
+
+    <!-- Overlays -->
+    <div id="story-cloud" class="story-cloud">
+        <div class="cloud-shape">
+            <p class="cloud-text">بریم داستان بعدی! 🌟</p>
+        </div>
+    </div>
+    <div id="celebration" class="celebration">
+        <div class="celebration-text">آفرین! 🎉</div>
+    </div>
+    <div id="sticker-feedback" class="sticker-feedback"></div>
+</div>
+
+<script>
+    // ============================================
+    // LOKO System & LocalStorage
+    // ============================================
+    function getLS(key, fallback) {
+        try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+        catch(e) { return fallback; }
+    }
+    function setLS(key, val) {
+        try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+    }
+
+    let lokoCoins = parseInt(getLS('loko_coins', 0)) || 0;
+    let initialCoins = 0;
+    let hasSeenIntro = getLS('loko_played_intro', false);
+
+    const themes = [
+        { id: 'default', name: 'فضای تاریک', price: 0, class: 'theme-default', color: 'linear-gradient(135deg, #0c0a14, #181225)' },
+        { id: 'forest', name: 'جنگل سحرآمیز', price: 0, class: 'theme-forest', color: 'linear-gradient(135deg, #0f2f1a, #1a4029)' },
+        { id: 'ocean', name: 'اقیانوس عمیق', price: 15, class: 'theme-ocean', color: 'linear-gradient(135deg, #0a1a2f, #12253e)' },
+        { id: 'candy', name: 'سرزمین کندی', price: 20, class: 'theme-candy', color: 'linear-gradient(135deg, #2f0a1f, #3e1228)' }
+    ];
+    let ownedThemes = getLS('loko_themes', ['default', 'forest']);
+    let activeTheme = getLS('loko_active_theme', 'forest');
+
+    function applyTheme(themeId) {
+        const theme = themes.find(t => t.id === themeId);
+        if (theme) {
+            document.body.className = theme.class;
+            activeTheme = themeId;
+            setLS('loko_active_theme', themeId);
+        }
+    }
+
+    function renderShop() {
+        const grid = document.getElementById('shop-grid');
+        grid.innerHTML = '';
+        themes.forEach(theme => {
+            const isOwned = ownedThemes.includes(theme.id);
+            const isActive = activeTheme === theme.id;
+            const card = document.createElement('div');
+            card.className = 'shop-card glass';
+            card.innerHTML = `
+                <div class="theme-preview" style="background: ${theme.color}"></div>
+                <div class="theme-name">${theme.name}</div>
+                <button class="btn-buy ${isActive ? 'selected-theme' : ''} ${!isOwned && lokoCoins < theme.price ? 'locked' : ''}" data-id="${theme.id}" data-price="${theme.price}">
+                    ${isActive ? '✅ فعال' : isOwned ? 'انتخاب' : `<img src="./icons/coin.png" style="width:20px; height:20px;"> ${toPersianNum(theme.price)}`}
+                </button>
+            `;
+            grid.appendChild(card);
+        });
+
+        document.querySelectorAll('.btn-buy').forEach(btn => {
+            btn.addEventListener('click', () => {
+                playClickSound();
+                const id = btn.dataset.id;
+                const price = parseInt(btn.dataset.price);
+                if (ownedThemes.includes(id)) {
+                    applyTheme(id);
+                    renderShop();
+                } else {
+                    if (lokoCoins >= price) {
+                        lokoCoins -= price;
+                        ownedThemes.push(id);
+                        setLS('loko_coins', lokoCoins);
+                        setLS('loko_themes', ownedThemes);
+                        applyTheme(id);
+                        updateCoinUI();
+                        renderShop();
+                    }
+                }
+            });
+        });
+    }
+
+    function updateCoinUI() {
+        document.querySelectorAll('.coin-amount').forEach(el => {
+            el.textContent = toPersianNum(lokoCoins);
+        });
+    }
+
+    // ============================================
+    // Images & Items
+    // ============================================
+    const itemImages = {
+        "🥕": "./icons/havij.png",
+        "🍎": "./icons/sib.png",
+        "🎋": "./icons/bambo.png",
+        "🍌": "./icons/moz.png",
+        "🐟": "./icons/mahi.png",
+        "🦴": "./icons/ostokhan.png"
+    };
+
+    const charImages = {
+        "🐰": "./icons/khargosh.png",
+        "🐵": "./icons/meimon.png",
+        "🦊": "./icons/robah.png",
+        "🐴": "./icons/asb.png",
+        "🐘": "./icons/fil.png",
+        "🐱": "./icons/gorbeh.png",
+        "🐶": "./icons/sag.png",
+        "🦒": "./icons/zarafe.png",
+        "🐼": "./icons/panda.png"
+    };
+
+    // ============================================
+    // Audio & Sounds
+    // ============================================
+    function toPersianNum(num) {
+        const farsiDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        return num.toString().replace(/\d/g, x => farsiDigits[x]);
+    }
+
+    const audioCache = {};
+    let currentAudio = null;
+    let bgMusic = document.getElementById('bg-music');
+
+    function preloadAudioFiles() {
+        const files = [
+            "./musics/m1.mp3", "./musics/m2.mp3", "./musics/m3.mp3",
+            "./musics/m4.mp3", "./musics/m5.mp3", "./musics/m6.mp3",
+            "./musics/m7.mp3", "./musics/m8.mp3", "./musics/m9.mp3",
+            "./musics/m10.mp3", "./musics/m11.mp3", "./musics/m12.mp3",
+            "./musics/m13.mp3", "./musics/m14.mp3", "./musics/m15.mp3",
+            "./musics/m16.mp3", "./musics/m17.mp3", "./musics/Rahnama.mp3"
+        ];
+        files.forEach(file => {
+            const audio = new Audio(file);
+            audio.preload = 'auto';
+            audio.load();
+            audioCache[file] = audio;
+        });
+    }
+
+    let audioCtx;
+    function playClickSound() {
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.connect(g);
+            g.connect(audioCtx.destination);
+            o.frequency.value = 600;
+            g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            o.start();
+            o.stop(audioCtx.currentTime + 0.1);
+        } catch(e) {}
+    }
+
+    function playAudio(filePath, startTime, endTime) {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.ontimeupdate = null;
+        }
+
+        if (!audioCache[filePath]) {
+            audioCache[filePath] = new Audio(filePath);
+        }
+        currentAudio = audioCache[filePath];
+        currentAudio.currentTime = 0;
+
+        const startPlayback = () => {
+            try {
+                if (startTime && startTime > 0) currentAudio.currentTime = startTime;
+                else currentAudio.currentTime = 0;
+                currentAudio.play().catch(e => {});
+            } catch (e) {}
+        };
+
+        if (currentAudio.readyState >= 1) startPlayback();
+        else {
+            currentAudio.addEventListener('loadedmetadata', startPlayback, { once: true });
+            currentAudio.load();
+        }
+
+        if (endTime) {
+            currentAudio.ontimeupdate = function() {
+                if (currentAudio.currentTime >= endTime) {
+                    currentAudio.pause();
+                    currentAudio.ontimeupdate = null;
+                }
+            };
+        }
+    }
+
+    function stopAudio() {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.ontimeupdate = null;
+        }
+    }
+
+    // ============================================
+    // Intro Logic
+    // ============================================
+    let introTimeouts = [];
+    function playIntro(onComplete) {
+        const overlay = document.getElementById('intro-overlay');
+        const textEl = document.getElementById('intro-text');
+        overlay.classList.add('active');
+        
+        stopAudio();
+        bgMusic.pause();
+        
+        const introAudio = new Audio("./musics/Rahnama.mp3");
+        currentAudio = introAudio;
+        introAudio.play().catch(e => {});
+        
+        const timings = [
+            { time: 0, text: "سلام من پیکسل هستم، راهنمای تو در این بازی" },
+            { time: 4000, text: "۱. گوش کن به راوی که داستان می‌گه و راهنماییت می‌کنه." },
+            { time: 9000, text: "۲. بِکِش و رها کن آیتم‌ها (مثل هویج یا سیب) رو به شخصیت مورد نظر." },
+            { time: 17000, text: "۳ جواب بده به سؤال‌های ریاضی با کلیک روی کارت درست." },
+            { time: 23000, text: "۴. بعد از ۵ داستان، امتیاز نهایی رو ببین و جشن بگیر!" },
+            { time: 28000, text: "موفق باشی دوست من" }
+        ];
+        
+        introTimeouts.forEach(t => clearTimeout(t));
+        introTimeouts = [];
+        
+        timings.forEach(t => {
+            const id = setTimeout(() => {
+                textEl.style.opacity = '0';
+                setTimeout(() => {
+                    textEl.textContent = t.text;
+                    textEl.style.opacity = '1';
+                }, 400);
+            }, t.time);
+            introTimeouts.push(id);
+        });
+        
+        const endId = setTimeout(() => {
+            overlay.classList.remove('active');
+            introAudio.pause();
+            if (onComplete) onComplete();
+        }, 31000);
+        introTimeouts.push(endId);
+    }
+
+    function skipIntro() {
+        introTimeouts.forEach(t => clearTimeout(t));
+        introTimeouts = [];
+        document.getElementById('intro-overlay').classList.remove('active');
+        stopAudio();
+        bgMusic.play().catch(e => {});
+    }
+
+    // ============================================
+    // Game Logic
+    // ============================================
+    let gameState = {
+        currentStory: 0,
+        score: 0,
+        currentStep: 0,
+        draggedElement: null,
+        offsetX: 0,
+        offsetY: 0,
+        itemsDraggedCount: 0,
+        requiredDragCount: 0,
+        stepTimeout: null,
+        answerTimeout: null,
+        celebrationTimeout: null
+    };
+
+    const stories = [
+        {
+            title: "خرگوش و میمون",
+            steps: [
+                {
+                    narrator: "سلام کوچولو! امروز می‌خوایم با هم یه ماجراجویی ریاضی داشته باشیم!",
+                    characters: [{ emoji: "🐰", name: "خرگوش", position: "left" }],
+                    items: [],
+                    action: "intro",
+                    audio: { file: "./musics/m1.mp3", start: 0, end: 6 },
+                    duration: 7000
+                },
+                {
+                    narrator: "یه خرگوش کوچولوی عزیز سه تا هویج  داره! 🥕🥕🥕",
+                    characters: [{ emoji: "🐰", name: "خرگوش", position: "left" }],
+                    items: ["🥕", "🥕", "🥕"],
+                    action: "show_items",
+                    audio: { file: "./musics/m2.mp3", start: 0, end: 4 },
+                    duration: 5000
+                },
+                {
+                    narrator: " او یکی  از دوستاش اومد! یه میمون بامزه! 🐵",
+                    characters: [
+                        { emoji: "🐰", name: "خرگوش", position: "left" },
+                        { emoji: "🐵", name: "میمون", position: "right" }
+                    ],
+                    items: ["🥕", "🥕", "🥕"],
+                    action: "show_items",
+                    audio: { file: "./musics/m3.mp3", start: 0, end: 4 },
+                    duration: 5000
+                },
+                {
+                    narrator: "میمون میگه: «من گرسنه‌ام! دو تا هویج می‌خوام!» میتونی دو تا هویج بهش بدی؟",
+                    characters: [
+                        { emoji: "🐰", name: "خرگوش", position: "left" },
+                        { emoji: "🐵", name: "میمون", position: "right" }
+                    ],
+                    items: ["🥕", "🥕", "🥕"],
+                    action: "drag_items",
+                    targetChar: "🐵",
+                    itemsToDrag: 2,
+                    audio: { file: "./musics/m4.mp3", start: 0, end: 7 },
+                    duration: 8000
+                },
+                {
+                    narrator: "آفرین! حالا بگو ببینم خرگوش چند تا هویج داره؟",
+                    characters: [
+                        { emoji: "🐰", name: "خرگوش", position: "left" },
+                        { emoji: "🐵", name: "میمون", position: "right" }
+                    ],
+                    items: ["🥕"],
+                    action: "count",
+                    answerOptions: [1, 2, 3],
+                    correctAnswer: 1,
+                    audio: { file: "./musics/m5.mp3", start: 0, end: 4 },
+                    duration: 6000
+                }
+            ]
+        },
+        {
+            title: "روباه و اسب",
+            steps: [
+                {
+                    narrator: "وای! یه روباه بامزه اومد! نگاه کن چند تا سیب داره!",
+                    characters: [{ emoji: "🦊", name: "روباه", position: "left" }],
+                    items: ["🍎", "🍎", "🍎", "🍎"],
+                    action: "show_items",
+                    audio: { file: "./musics/m8.mp3", start: 0, end: 5 },
+                    duration: 6000
+                },
+                {
+                    narrator: "یه اسب قوی هم اومد! اسب چند تا سیب داره؟",
+                    characters: [
+                        { emoji: "🦊", name: "روباه", position: "left" },
+                        { emoji: "🐴", name: "اسب", position: "right" }
+                    ],
+                    items: ["🍎", "🍎", "🍎", "🍎", "🍎", "🍎"],
+                    action: "show_items",
+                    audio: { file: "./musics/m9.mp3", start: 0, end: 4 },
+                    duration: 6000
+                },
+                {
+                    narrator: "کدومش بیشتر سیب داره؟ روباه یا اسب؟",
+                    characters: [
+                        { emoji: "🦊", name: "روباه", position: "left" },
+                        { emoji: "🐴", name: "اسب", position: "right" }
+                    ],
+                    items: [],
+                    action: "select_char",
+                    correctAnswer: "🐴",
+                    audio: { file: "./musics/m10.mp3", start: 0, end: 4 },
+                    duration: 5000
+                }
+            ]
+        },
+        {
+            title: "پاندا و کوالا",
+            steps: [
+                {
+                    narrator: "امروز میخوایم جمع کردن یادبگیریم یه پاندای ناز اومد",
+                    characters: [{ emoji: "🐼", name: "پاندا", position: "left" }],
+                    items: [],
+                    action: "intro",
+                    audio: { file: "./musics/m11.mp3", start: 0, end: 4 },
+                    duration: 5000
+                },
+                {
+                    narrator: "پاندا دو بامیم داره مامان پاندا یه بامیم دیگه بهش داد",
+                    characters: [{ emoji: "🐼", name: "پاندا", position: "left" }],
+                    items: ["🎋", "🎋"],
+                    action: "show_items",
+                    audio: { file: "./musics/m11.mp3", start: 4, end: 9 },
+                    duration: 6000
+                },
+                {
+                    narrator: "حالا پاندا چند تا بامیم داره؟",
+                    characters: [{ emoji: "🐼", name: "پاندا", position: "left" }],
+                    items: ["🎋", "🎋", "🎋"],
+                    action: "show_items",
+                    audio: { file: "./musics/m11.mp3", start: 9, end: 13 },
+                    duration: 7000
+                },
+                {
+                    narrator: "عالیه! دو بامیم + یه بامیم = سه بامیم!",
+                    characters: [{ emoji: "🐼", name: "پاندا", position: "left" }],
+                    items: [],
+                    action: "celebrate",
+                    audio: { file: "./musics/m12.mp3", start: 0, end: 7 },
+                    duration: 8000
+                }
+            ]
+        },
+        {
+            title: "فیل و زرافه",
+            steps: [
+                {
+                    narrator: "وای! یه فیل بزرگ اومد! فیل چند تا موز داره؟",
+                    characters: [{ emoji: "🐘", name: "فیل", position: "left" }],
+                    items: ["🍌", "🍌", "🍌", "🍌", "🍌"],
+                    action: "show_items",
+                    audio: { file: "./musics/m13.mp3", start: 0, end: 4 },
+                    duration: 6000
+                },
+                {
+                    narrator: "یه زرافه بلند هم اومد! زرافه چند تا موز داره؟",
+                    characters: [
+                        { emoji: "🐘", name: "فیل", position: "left" },
+                        { emoji: "🦒", name: "زرافه", position: "right" }
+                    ],
+                    items: ["🍌", "🍌", "🍌"],
+                    action: "show_items",
+                    audio: { file: "./musics/m14.mp3", start: 0, end: 4 },
+                    duration: 6000
+                },
+                {
+                    narrator: "کدومش کمتر موز داره؟",
+                    characters: [
+                        { emoji: "🐘", name: "فیل", position: "left" },
+                        { emoji: "🦒", name: "زرافه", position: "right" }
+                    ],
+                    items: [],
+                    action: "select_char",
+                    correctAnswer: "🦒",
+                    audio: { file: "./musics/m15.mp3", start: 0, end: 3 },
+                    duration: 4000
+                }
+            ]
+        },
+        {
+            title: "گربه و سگ",
+            steps: [
+                {
+                    narrator: "بیا یه چیز جالب یاد بگیریم یه گربه اومد",
+                    characters: [{ emoji: "🐱", name: "گربه", position: "left" }],
+                    items: [],
+                    action: "intro",
+                    audio: { file: "./musics/m16.mp3", start: 0, end: 4 },
+                    duration: 5000
+                },
+                {
+                    narrator: "گربه سه تا ماهی داره",
+                    characters: [{ emoji: "🐱", name: "گربه", position: "left" }],
+                    items: ["🐟", "🐟", "🐟"],
+                    action: "show_items",
+                    audio: { file: "./musics/m16.mp3", start: 4, end: 6 },
+                    duration: 4000
+                },
+                {
+                    narrator: "یه سگ هم اومد سگ هم سه تا استخوان داره",
+                    characters: [
+                        { emoji: "🐱", name: "گربه", position: "left" },
+                        { emoji: "🐶", name: "سگ", position: "right" }
+                    ],
+                    items: ["🦴", "🦴", "🦴"],
+                    action: "show_items",
+                    audio: { file: "./musics/m16.mp3", start: 6, end: 10 },
+                    duration: 6000
+                },
+                {
+                    narrator: "آیا تعداد ماهی های گربه با تعداد استخوان های سگ برابر است؟",
+                    characters: [
+                        { emoji: "🐱", name: "گربه", position: "left" },
+                        { emoji: "🐶", name: "سگ", position: "right" }
+                    ],
+                    items: [],
+                    action: "equal_stickers",
+                    answerOptions: ["✅", "❌"],
+                    correctAnswer: "✅",
+                    audio: { file: "./musics/m16.mp3", start: 10, end: 16 },
+                    duration: 7000
+                }
+            ]
+        }
+    ];
+
+    function startGame() {
+        playClickSound();
+        if (!hasSeenIntro) {
+            setLS('loko_played_intro', true);
+            hasSeenIntro = true;
+            playIntro(startActualGame);
+        } else {
+            startActualGame();
+        }
+    }
+
+    function startActualGame() {
+        initialCoins = lokoCoins;
+        bgMusic.volume = 0.15; 
+        bgMusic.play().catch(e => {});
+        document.getElementById('start-screen').classList.remove('active');
+        document.getElementById('game-screen').classList.add('active');
+        gameState.currentStory = 0;
+        gameState.score = 0;
+        loadStory(0);
+    }
+
+    function loadStory(storyIndex) {
+        gameState.currentStory = storyIndex;
+        gameState.currentStep = 0;
+        const story = stories[storyIndex];
+        
+        // Update HUD Progress
+        const progressEl = document.getElementById('hud-progress');
+        if (progressEl) {
+            progressEl.textContent = `داستان ${toPersianNum(storyIndex + 1)} از ${toPersianNum(stories.length)}`;
+        }
+        
+        clearStage();
+        loadStep(storyIndex, 0);
+    }
+
+    function loadStep(storyIndex, stepIndex) {
+        const story = stories[storyIndex];
+        const step = story.steps[stepIndex];
+        
+        if (gameState.stepTimeout) {
+            clearTimeout(gameState.stepTimeout);
+            gameState.stepTimeout = null;
+        }
+        
+        updateNarrator(step.narrator);
+        clearStage();
+
+        if (step.characters) {
+            displayCharacters(step.characters);
+        }
+
+        if (step.audio) {
+            setTimeout(() => {
+                playAudio(step.audio.file, step.audio.start, step.audio.end);
+            }, 100);
+        }
+
+        switch (step.action) {
+            case "intro":
+                setTimeout(() => {
+                    if (step.items && step.items.length > 0) {
+                        displayItems(step.items);
+                    }
+                }, 1000);
+                gameState.stepTimeout = setTimeout(() => nextStep(), step.duration || 5000);
+                break;
+
+            case "show_items":
+                if (step.items && step.items.length > 0) {
+                    displayItems(step.items);
+                }
+                gameState.stepTimeout = setTimeout(() => nextStep(), step.duration || 3000);
+                break;
+
+            case "drag_items":
+                gameState.requiredDragCount = step.itemsToDrag || step.items.length;
+                gameState.itemsDraggedCount = 0;
+                displayItems(step.items);
+                setupDragAndDrop(step);
+                break;
+
+            case "count":
+                showAnswerCards(step);
+                break;
+
+            case "select_char":
+                setupCharacterSelection(step);
+                break;
+
+            case "equal_stickers":
+                showStickerOptions(step);
+                break;
+
+            case "celebrate":
+                gameState.stepTimeout = setTimeout(() => {
+                    showCelebration();
+                    gameState.celebrationTimeout = setTimeout(() => {
+                        if (storyIndex < stories.length - 1) {
+                            showStoryCloud();
+                        } else {
+                            endGame();
+                        }
+                    }, 1500);
+                }, step.duration || 2000);
+                break;
+        }
+    }
+
+    function updateNarrator(text) {
+        const narratorText = document.getElementById('narrator-text');
+        narratorText.style.opacity = '0';
+        setTimeout(() => {
+            narratorText.textContent = text;
+            narratorText.style.opacity = '1';
+        }, 200);
+    }
+
+    function displayCharacters(characters) {
+        const stage = document.getElementById('game-stage');
+        stage.innerHTML = '';
+        characters.forEach((char, index) => {
+            const charElement = document.createElement('div');
+            charElement.className = 'character entering';
+            charElement.id = `char-${index}`;
+            charElement.dataset.emoji = char.emoji;
+            charElement.style.animationDelay = `${index * 0.2}s`;
+            
+            let charVisual = '';
+            if (charImages[char.emoji]) {
+                charVisual = `<img src="${charImages[char.emoji]}" class="char-img" alt="${char.name}">`;
+            } else {
+                charVisual = `<div class="char-emoji">${char.emoji}</div>`;
+            }
+            
+            charElement.innerHTML = `${charVisual}<div class="char-name">${char.name}</div>`;
+            
+            if (char.position === 'left') {
+                charElement.style.order = index;
+            } else {
+                charElement.style.order = 10 + index;
+            }
+            stage.appendChild(charElement);
+            
+            setTimeout(() => {
+                charElement.classList.remove('entering');
+            }, 1000 + index * 200);
+        });
+    }
+
+    function displayItems(items) {
+        const itemsZone = document.getElementById('items-zone');
+        itemsZone.innerHTML = '';
+        itemsZone.classList.add('visible');
+        items.forEach((item, index) => {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'draggable-item';
+            itemElement.dataset.item = item;
+            itemElement.style.animationDelay = `${index * 0.1}s`;
+            
+            if (itemImages[item]) {
+                itemElement.innerHTML = `<img src="${itemImages[item]}" alt="${item}">`;
+            } else {
+                itemElement.textContent = item;
+            }
+            
+            itemsZone.appendChild(itemElement);
+        });
+    }
+
+    function setupDragAndDrop(step) {
+        const targetCharEmoji = step.targetChar;
+        const targetCharElement = document.querySelector(`.character[data-emoji="${targetCharEmoji}"]`);
+
+        if (targetCharElement) {
+            targetCharElement.classList.add('drop-target');
+        }
+
+        const draggableItems = document.querySelectorAll('.draggable-item');
+        draggableItems.forEach(item => {
+            item.addEventListener('mousedown', startDrag);
+            item.addEventListener('touchstart', startDrag, { passive: false });
+        });
+
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchmove', drag, { passive: false });
+        document.addEventListener('touchend', endDrag);
+    }
+
+    function startDrag(e) {
+        e.preventDefault();
+        const target = e.target.closest('.draggable-item');
+        if (!target) return;
+
+        gameState.draggedElement = target;
+        target.classList.add('dragging');
+
+        const rect = target.getBoundingClientRect();
+        const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+
+        gameState.offsetX = clientX - rect.left;
+        gameState.offsetY = clientY - rect.top;
+
+        target.style.position = 'fixed';
+        target.style.left = `${rect.left}px`;
+        target.style.top = `${rect.top}px`;
+        target.style.width = `${rect.width}px`;
+        target.style.height = `${rect.height}px`;
+        target.style.zIndex = '1000';
+        target.style.animation = 'none';
+    }
+
+    function drag(e) {
+        if (!gameState.draggedElement) return;
+        e.preventDefault();
+
+        const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+        gameState.draggedElement.style.left = `${clientX - gameState.offsetX}px`;
+        gameState.draggedElement.style.top = `${clientY - gameState.offsetY}px`;
+
+        const target = document.querySelector('.drop-target');
+        if (target) {
+            const dropRect = target.getBoundingClientRect();
+            const isOver = (
+                clientX > dropRect.left &&
+                clientX < dropRect.right &&
+                clientY > dropRect.top &&
+                clientY < dropRect.bottom
+            );
+            if (isOver) {
+                target.classList.add('active');
+            } else {
+                target.classList.remove('active');
+            }
+        }
+    }
+
+    function endDrag(e) {
+        if (!gameState.draggedElement) return;
+
+        const clientX = e.type === 'touchend' ? e.changedTouches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchend' ? e.changedTouches[0].clientY : e.clientY;
+
+        const target = document.querySelector('.drop-target');
+        let dropped = false;
+
+        if (target) {
+            const dropRect = target.getBoundingClientRect();
+            const isOver = (
+                clientX > dropRect.left &&
+                clientX < dropRect.right &&
+                clientY > dropRect.top &&
+                clientY < dropRect.bottom
+            );
+
+            if (isOver) {
+                dropped = true;
+                const item = gameState.draggedElement;
+                
+                const targetCenterX = dropRect.left + dropRect.width / 2;
+                const targetCenterY = dropRect.top + dropRect.height / 2;
+                
+                item.style.transition = 'all 0.3s ease-out';
+                item.style.left = `${targetCenterX - (item.offsetWidth / 2)}px`;
+                item.style.top = `${targetCenterY - (item.offsetHeight / 2)}px`;
+                item.style.transform = 'scale(0.2)';
+                item.style.opacity = '0';
+
+                target.classList.add('happy');
+                setTimeout(() => target.classList.remove('happy'), 800);
+
+                setTimeout(() => {
+                    item.remove();
+                }, 300);
+
+                gameState.itemsDraggedCount++;
+                target.classList.remove('active');
+
+                if (gameState.itemsDraggedCount >= gameState.requiredDragCount) {
+                    setTimeout(() => {
+                        removeDragListeners();
+                        nextStep();
+                    }, 800);
+                }
+            }
+        }
+
+        if (!dropped) {
+            const item = gameState.draggedElement;
+            item.classList.remove('dragging');
+            item.style.position = '';
+            item.style.left = '';
+            item.style.top = '';
+            item.style.width = '';
+            item.style.height = '';
+            item.style.zIndex = '';
+            item.style.transition = 'transform 0.2s ease';
+            item.style.transform = '';
+            item.style.animation = '';
+            setTimeout(() => { item.style.transition = ''; }, 200);
+        }
+
+        if (target) target.classList.remove('active');
+        gameState.draggedElement = null;
+    }
+
+    function removeDragListeners() {
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('mouseup', endDrag);
+        document.removeEventListener('touchmove', drag);
+        document.removeEventListener('touchend', endDrag);
+    }
+
+    function showAnswerCards(step) {
+        const cardsContainer = document.getElementById('answer-cards');
+        cardsContainer.innerHTML = '';
+        cardsContainer.classList.add('visible');
+
+        step.answerOptions.forEach((option, index) => {
+            const card = document.createElement('div');
+            card.className = 'answer-card';
+            card.textContent = toPersianNum(option);
+            card.dataset.answer = option;
+            card.style.animationDelay = `${index * 0.2}s`;
+            card.addEventListener('click', () => handleCardAnswer(card, step));
+            cardsContainer.appendChild(card);
+        });
+    }
+
+    function handleCardAnswer(card, step) {
+        playClickSound();
+        let selectedAnswer = card.dataset.answer;
+        let correctAnswer = step.correctAnswer;
+
+        if (typeof correctAnswer === 'number') {
+            selectedAnswer = Number(selectedAnswer);
+        }
+
+        const isCorrect = selectedAnswer === correctAnswer;
+        const allCards = document.querySelectorAll('.answer-card');
+        allCards.forEach(c => c.style.pointerEvents = 'none');
+
+        const sticker = document.getElementById('sticker-feedback');
+
+        if (isCorrect) {
+            card.classList.add('correct');
+            gameState.score += 10;
+            makeCharactersHappy();
+            playAudio("./musics/m6.mp3", 0, 3);
+            sticker.textContent = "🎉";
+        } else {
+            card.classList.add('wrong');
+            makeCharactersSad();
+            playAudio("./musics/m7.mp3", 0, 4);
+            sticker.textContent = "😳";
+        }
+        sticker.classList.add('show');
+        
+        gameState.answerTimeout = setTimeout(() => {
+            sticker.classList.remove('show');
+            hideAnswerCards();
+            nextStep();
+        }, 2500);
+    }
+
+    function setupCharacterSelection(step) {
+        const characters = document.querySelectorAll('.character');
+        characters.forEach(charEl => {
+            charEl.classList.add('selectable');
+            charEl.addEventListener('click', function handleSelect() {
+                playClickSound();
+                let selected = charEl.dataset.emoji;
+                let correct = step.correctAnswer;
+                
+                characters.forEach(c => c.style.pointerEvents = 'none'); 
+                
+                const sticker = document.getElementById('sticker-feedback');
+                if (selected === correct) {
+                    gameState.score += 10;
+                    charEl.classList.add('happy');
+                    playAudio("./musics/m6.mp3", 0, 3);
+                    sticker.textContent = "🎉";
+                } else {
+                    charEl.classList.add('sad');
+                    playAudio("./musics/m7.mp3", 0, 4);
+                    sticker.textContent = "😳";
+                }
+                sticker.classList.add('show');
+                
+                gameState.answerTimeout = setTimeout(() => {
+                    sticker.classList.remove('show');
+                    characters.forEach(c => c.classList.remove('selectable'));
+                    nextStep();
+                }, 2500);
+            });
+        });
+    }
+
+    function showStickerOptions(step) {
+        const cardsContainer = document.getElementById('answer-cards');
+        cardsContainer.innerHTML = '';
+        cardsContainer.classList.add('visible');
+
+        step.answerOptions.forEach((option, index) => {
+            const card = document.createElement('div');
+            card.className = 'sticker-option';
+            card.textContent = option;
+            card.dataset.answer = option;
+            card.style.animationDelay = `${index * 0.2}s`;
+            card.addEventListener('click', () => handleStickerAnswer(card, step));
+            cardsContainer.appendChild(card);
+        });
+    }
+
+    function handleStickerAnswer(card, step) {
+        playClickSound();
+        let selectedAnswer = card.dataset.answer;
+        const isCorrect = selectedAnswer === step.correctAnswer;
+        const allCards = document.querySelectorAll('.sticker-option');
+        allCards.forEach(c => c.style.pointerEvents = 'none');
+
+        const sticker = document.getElementById('sticker-feedback');
+        
+        if (isCorrect) {
+            card.style.borderColor = 'var(--neon-green)';
+            gameState.score += 10;
+            makeCharactersHappy();
+            playAudio("./musics/m6.mp3", 0, 3);
+            sticker.textContent = "🎉";
+        } else {
+            card.style.borderColor = 'var(--danger)';
+            makeCharactersSad();
+            playAudio("./musics/m7.mp3", 0, 4);
+            sticker.textContent = "😳";
+        }
+        sticker.classList.add('show');
+        
+        document.getElementById('answer-cards').classList.remove('visible'); 
+
+        gameState.answerTimeout = setTimeout(() => {
+            sticker.classList.remove('show');
+            nextStep();
+        }, 2500);
+    }
+
+    function makeCharactersHappy() {
+        const characters = document.querySelectorAll('.character');
+        characters.forEach(char => {
+            char.classList.add('happy');
+            setTimeout(() => char.classList.remove('happy'), 1000);
+        });
+    }
+
+    function makeCharactersSad() {
+        const characters = document.querySelectorAll('.character');
+        characters.forEach(char => {
+            char.classList.add('sad');
+            setTimeout(() => char.classList.remove('sad'), 1000);
+        });
+    }
+
+    function hideAnswerCards() {
+        const cardsContainer = document.getElementById('answer-cards');
+        cardsContainer.classList.remove('visible');
+    }
+
+    function nextStep() {
+        const story = stories[gameState.currentStory];
+        if (gameState.currentStep < story.steps.length - 1) {
+            gameState.currentStep++;
+            loadStep(gameState.currentStory, gameState.currentStep);
+        } else {
+            if (gameState.currentStory < stories.length - 1) {
+                showStoryCloud();
+            } else {
+                endGame();
+            }
+        }
+    }
+
+    function showStoryCloud() {
+        const cloud = document.getElementById('story-cloud');
+        if (!cloud) return;
+        cloud.classList.add('visible');
+        setTimeout(() => {
+            cloud.classList.remove('visible');
+            gameState.currentStory++;
+            loadStory(gameState.currentStory);
+        }, 2500);
+    }
+
+    function showCelebration() {
+        const celebration = document.getElementById('celebration');
+        if (!celebration) return;
+        celebration.classList.add('visible');
+        setTimeout(() => {
+            celebration.classList.remove('visible');
+        }, 2000);
+    }
+
+    function clearStage() {
+        stopAudio();
+        removeDragListeners();
+        
+        if (gameState.stepTimeout) clearTimeout(gameState.stepTimeout);
+        if (gameState.answerTimeout) clearTimeout(gameState.answerTimeout);
+        if (gameState.celebrationTimeout) clearTimeout(gameState.celebrationTimeout);
+
+        const stage = document.getElementById('game-stage');
+        const itemsZone = document.getElementById('items-zone');
+        const cardsContainer = document.getElementById('answer-cards');
+
+        stage.innerHTML = '';
+        itemsZone.innerHTML = '';
+        itemsZone.classList.remove('visible');
+        cardsContainer.innerHTML = '';
+        cardsContainer.classList.remove('visible');
+    }
+
+    function endGame() {
+        stopAudio();
+        document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('end-screen').classList.add('active');
+        document.getElementById('final-score').textContent = toPersianNum(gameState.score);
+        
+        let reward = (initialCoins === 0) ? 10 : 1;
+        lokoCoins += reward;
+        setLS('loko_coins', lokoCoins);
+        
+        document.getElementById('reward-coins').textContent = toPersianNum(reward);
+        updateCoinUI();
+        
+        createConfetti();
+
+        const stars = document.querySelectorAll('.earned-star');
+        stars.forEach(star => { star.style.opacity = '1'; });
+    }
+
+    function createConfetti() {
+        const container = document.getElementById('confetti');
+        container.innerHTML = '';
+        const colors = ['#6C5CE7', '#00D2FF', '#FF00A0', '#00FF9D', '#FFEAA7', '#FFC93C'];
+
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = `${Math.random() * 100}%`;
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = `${Math.random() * 2}s`;
+            confetti.style.animationDuration = `${2 + Math.random() * 2}s`;
+            if (Math.random() > 0.5) confetti.style.borderRadius = '50%';
+            container.appendChild(confetti);
+        }
+    }
+
+    function backToMenu() {
+        playClickSound();
+        stopAudio();
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+        
+        if (gameState.stepTimeout) clearTimeout(gameState.stepTimeout);
+        if (gameState.answerTimeout) clearTimeout(gameState.answerTimeout);
+        if (gameState.celebrationTimeout) clearTimeout(gameState.celebrationTimeout);
+        
+        document.getElementById('pause-overlay').classList.remove('active');
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('start-screen').classList.add('active');
+        
+        gameState.currentStory = 0;
+        gameState.score = 0;
+        gameState.currentStep = 0;
+        updateCoinUI();
+        clearStage();
+    }
+
+    // ============================================
+    // Initialization & Event Listeners
+    // ============================================
+    document.addEventListener('DOMContentLoaded', () => {
+        applyTheme(activeTheme);
+        updateCoinUI();
+        
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', playClickSound);
+        });
+
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        
+        // 结束屏幕的返回主页按钮
+        document.getElementById('end-home-btn').addEventListener('click', () => {
+            playClickSound();
+            backToMenu();
+        });
+        
+        // 游戏屏幕的停止按钮 -> 显示暂停菜单
+        document.getElementById('stop-btn').addEventListener('click', () => {
+            playClickSound();
+            stopAudio(); 
+            if (gameState.stepTimeout) clearTimeout(gameState.stepTimeout);
+            document.getElementById('pause-overlay').classList.add('active');
+        });
+
+        // 暂停菜单的继续按钮
+        document.getElementById('menu-continue-btn').addEventListener('click', () => {
+            playClickSound();
+            document.getElementById('pause-overlay').classList.remove('active');
+            // Reload current step to resume audio and timers cleanly
+            loadStep(gameState.currentStory, gameState.currentStep);
+        });
+
+        // 暂停菜单的重启按钮
+        document.getElementById('menu-restart-btn').addEventListener('click', () => {
+            playClickSound();
+            document.getElementById('pause-overlay').classList.remove('active');
+            startActualGame();
+        });
+
+        // 暂停菜单的返回主页按钮
+        document.getElementById('menu-home-btn').addEventListener('click', () => {
+            playClickSound();
+            document.getElementById('pause-overlay').classList.remove('active');
+            backToMenu();
+        });
+        
+        document.getElementById('shop-btn').addEventListener('click', () => {
+            playClickSound();
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('shop-screen').classList.add('active');
+            renderShop();
+        });
+        document.getElementById('shop-back-btn').addEventListener('click', () => {
+            playClickSound();
+            document.getElementById('shop-screen').classList.remove('active');
+            document.getElementById('start-screen').classList.add('active');
+        });
+
+        document.getElementById('help-btn').addEventListener('click', () => {
+            playClickSound();
+            playIntro();
+        });
+
+        document.getElementById('skip-intro-btn').addEventListener('click', () => {
+            playClickSound();
+            skipIntro();
+            if (hasSeenIntro && !document.getElementById('game-screen').classList.contains('active') && !document.getElementById('start-screen').classList.contains('active')) {
+                startActualGame();
+            }
+        });
+
+        preloadAudioFiles();
+
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 1) e.preventDefault();
+        }, { passive: false });
+    });
+</script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#end-screen", "#celebration"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

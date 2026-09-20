@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>قطار اعداد فضایی</title>
+    <style>
+        /* === فونت‌ها === */
+        @font-face {
+            font-family: 'Shoor';
+            src: url('./fonts/Shoor-Regular.ttf') format('truetype');
+            font-weight: normal;
+        }
+
+        @font-face {
+            font-family: 'Shoor Rounded';
+            src: url('./fonts/ShoorRounded-Regular.ttf') format('truetype');
+            font-weight: normal;
+        }
+
+        /* === متغیرهای ریشه‌ای === */
+        :root {
+            --bg-start: #0f0c29;
+            --bg-end: #302b63;
+            --neon-blue: #00D2FF;
+            --neon-pink: #FF00A0;
+            --neon-green: #00FF9D;
+            --neon-gold: #FFD700;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        /* === ریست و پایه === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Shoor Rounded', sans-serif;
+            background: linear-gradient(to bottom, var(--bg-start), var(--bg-end));
+            color: #fff;
+            touch-action: manipulation;
+        }
+
+        /* === المان‌های پس‌زمینه ثابت === */
+        .bg-stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background-image:
+                radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+                radial-gradient(2px 2px at 60px 70px, #fff, transparent),
+                radial-gradient(1px 1px at 50px 50px, #fff, transparent),
+                radial-gradient(1px 1px at 130px 80px, #fff, transparent),
+                radial-gradient(2px 2px at 90px 10px, #fff, transparent);
+            background-size: 200px 200px;
+            animation: twinkle 4s infinite ease-in-out;
+            opacity: 0.6;
+        }
+
+        @keyframes twinkle {
+
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .bg-hills {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            z-index: 1;
+            background: var(--neon-pink);
+            clip-path: polygon(0 100%, 0 60%, 15% 40%, 30% 70%, 45% 30%, 60% 60%, 75% 20%, 90% 50%, 100% 30%, 100% 100%);
+            box-shadow: 0 0 20px var(--neon-pink);
+            opacity: 0.8;
+        }
+
+        .bg-water {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            z-index: 2;
+            background: rgba(0, 210, 255, 0.3);
+            backdrop-filter: blur(5px);
+            border-top: 2px solid var(--neon-blue);
+            box-shadow: 0 -5px 15px var(--neon-blue);
+            animation: wave 3s infinite ease-in-out;
+        }
+
+        @keyframes wave {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* === سیستم Screen === */
+        #app {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* === استایل Glassmorphism === */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        /* === هدر و دکمه‌ها === */
+        .btn {
+            position: relative;
+            padding: 12px 24px;
+            font-family: 'Shoor Rounded', sans-serif;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            color: #fff;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            box-shadow: 0 0 20px var(--neon-blue);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+        }
+
+        .btn-success {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+        }
+
+        .btn-gold {
+            border-color: var(--neon-gold);
+            color: var(--neon-gold);
+        }
+
+        .btn-help {
+            border-color: #9B59B6;
+            color: #9B59B6;
+        }
+
+        /* === منوی اصلی === */
+        .menu-title {
+            font-size: clamp(2rem, 8vw, 3.5rem);
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px var(--neon-pink);
+            color: #fff;
+            text-align: center;
+        }
+
+        /* === استایل کاراکتر اصلی در صفحه منو === */
+        .menu-character-wrapper {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 30px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.5), inset 0 0 20px rgba(0, 210, 255, 0.2);
+            background: radial-gradient(circle, rgba(15, 12, 41, 0.8), transparent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .menu-character-img {
+            width: 90%;
+            height: 90%;
+            object-fit: contain;
+            animation: charFloat 3s ease-in-out infinite;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+        }
+
+        @keyframes charFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .menu-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .menu-btns-row {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .menu-btns-row .btn {
+            flex: 1;
+            text-align: center;
+            padding: 12px 10px;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+        }
+
+        /* === سیستم سکه === */
+        .coin-display {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            z-index: 1000;
+        }
+
+        .coin-icon {
+            width: 30px;
+            height: 30px;
+            background: url('./icons/coin.png') no-repeat center center;
+            background-size: contain;
+            animation: spin3d 2s infinite linear;
+        }
+
+        @keyframes spin3d {
+            0% {
+                transform: rotateY(0deg);
+            }
+
+            100% {
+                transform: rotateY(360deg);
+            }
+        }
+
+        .coin-count {
+            font-size: 1.5rem;
+            color: var(--neon-gold);
+            text-shadow: 0 0 10px var(--neon-gold);
+            font-weight: bold;
+        }
+
+        /* === هدر بازی === */
+        .game-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .header-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            font-size: 1rem;
+            color: var(--neon-blue);
+        }
+
+        /* === محیط بازی (قطار) === */
+        .game-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-top: 60px;
+        }
+
+        .train-track {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .wagon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff;
+            cursor: grab;
+            background: var(--glass-bg);
+            border: 2px solid var(--neon-blue);
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
+            backdrop-filter: blur(5px);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .wagon:active {
+            cursor: grabbing;
+        }
+
+        .wagon.dragging {
+            opacity: 0.4;
+            transform: scale(1.1);
+        }
+
+        .wagon.drag-over {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 20px var(--neon-pink);
+            transform: scale(1.05);
+        }
+
+        .wagon.correct {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 15px var(--neon-green);
+        }
+
+        /* === شمارش معکوس === */
+        .countdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            font-size: 8rem;
+            color: var(--neon-blue);
+            text-shadow: 0 0 30px var(--neon-blue);
+            display: none;
+        }
+
+        .countdown-text {
+            animation: pop 0.8s ease-out;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* === صفحه پایان === */
+        .end-card {
+            padding: 30px;
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .star {
+            filter: grayscale(100%);
+        }
+
+        .star.earned {
+            color: var(--neon-gold);
+            filter: none;
+            animation: starGlow 1s ease;
+        }
+
+        @keyframes starGlow {
+            0% {
+                transform: scale(0) rotate(-180deg);
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg);
+                text-shadow: 0 0 20px var(--neon-gold);
+            }
+        }
+
+        .end-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            font-size: 1.1rem;
+            color: #ccc;
+        }
+
+        .end-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .reward-msg {
+            color: var(--neon-gold);
+            margin: 10px 0;
+            font-size: 1.1rem;
+            display: none;
+        }
+
+        .float-coin {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            background: url('./icons/coin.png') no-repeat center center;
+            background-size: contain;
+            z-index: 3000;
+            display: none;
+            animation: floatUp 2s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                bottom: 0;
+                opacity: 1;
+                transform: translateX(-50%) scale(1);
+            }
+
+            100% {
+                bottom: 100%;
+                opacity: 0;
+                transform: translateX(-50%) scale(2);
+            }
+        }
+
+        /* === فروشگاه === */
+        .shop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .shop-item {
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .shop-item:hover {
+            transform: translateY(-5px);
+       
+ }
+
+        .theme-preview {
+            width: 100%;
+            height: 80px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .shop-item.owned {
+            border-color: var(--neon-green);
+        }
+
+        .shop-item.active {
+            border-color: var(--neon-gold);
+            box-shadow: 0 0 15px var(--neon-gold);
+        }
+
+        /* === Toast === */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(255, 0, 160, 0.9);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 30px;
+            box-shadow: 0 0 20px var(--neon-pink);
+            z-index: 4000;
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* === استایل‌های صفحه راهنما === */
+        #helpOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        #helpOverlay.active {
+            display: flex;
+        }
+
+        .help-container {
+            position: relative;
+            max-width: 750px;
+            width: 92%;
+            background: linear-gradient(145deg, rgba(15, 12, 41, 0.95), rgba(48, 43, 99, 0.95));
+            border-radius: 30px;
+            padding: 35px 30px 30px;
+            border: 2px solid rgba(108, 60, 225, 0.4);
+            box-shadow: 0 0 60px rgba(108, 60, 225, 0.3), inset 0 0 60px rgba(108, 60, 225, 0.05);
+            animation: helpFadeIn 0.5s ease;
+        }
+
+        @keyframes helpFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .help-close-btn {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid #E83E8C;
+            color: #E83E8C;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Shoor Rounded', sans-serif;
+        }
+
+        .help-close-btn:hover {
+            background: rgba(232, 62, 140, 0.2);
+            transform: rotate(90deg);
+            box-shadow: 0 0 20px rgba(232, 62, 140, 0.3);
+        }
+
+        .help-image-wrapper {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .help-image-wrapper img {
+            max-width: 180px;
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(108, 60, 225, 0.3);
+            border: 2px solid rgba(108, 60, 225, 0.2);
+            animation: helpImageFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes helpImageFloat {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .help-text-container {
+            text-align: center;
+            padding: 15px 10px;
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .help-text {
+            font-family: 'Shoor Rounded', sans-serif;
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            color: #00F5D4;
+            line-height: 2;
+            text-shadow: 0 0 30px rgba(0, 245, 212, 0.15);
+            transition: opacity 0.3s ease;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .help-progress-wrapper {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .help-progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #6C3CE1, #00F5D4, #FF00A0);
+            background-size: 200% 100%;
+            animation: progressGlow 2s ease-in-out infinite;
+            transition: width 0.15s linear;
+            border-radius: 10px;
+        }
+
+        @keyframes progressGlow {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .help-start-btn {
+            display: none;
+            margin-top: 20px;
+            padding: 14px 45px;
+            background: linear-gradient(135deg, #6C3CE1, #E83E8C);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-family: 'Shoor Rounded', sans-serif;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(108, 60, 225, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .help-start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(108, 60, 225, 0.5);
+        }
+
+        .help-start-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* === رسپانسیو === */
+        @media (max-width: 480px) {
+            .wagon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .shop-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .help-container {
+                padding: 25px 15px 20px;
+            }
+
+            .help-image-wrapper img {
+                max-width: 130px;
+            }
+
+            .help-text {
+                font-size: 0.95rem;
+                line-height: 1.8;
+            }
+
+            .menu-btns-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .menu-character-wrapper {
+                width: 140px;
+                height: 140px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- المان‌های پس‌زمینه -->
+    <div class="bg-stars"></div>
+    <div class="bg-hills"></div>
+    <div class="bg-water"></div>
+
+    <div id="app">
+        <!-- نمایش سکه -->
+        <div class="coin-display glass">
+            <div class="coin-icon"></div>
+            <span class="coin-count" id="coin-count">۰</span>
+        </div>
+
+        <!-- صفحه منو -->
+        <div id="screen-menu" class="screen active">
+            <h1 class="menu-title">قطار اعداد فضایی</h1>
+            
+            <!-- کاراکتر اصلی بازی -->
+            <div class="menu-character-wrapper">
+                <img src="./icons/gamer.png" alt="کاراکتر بازی" class="menu-character-img">
+            </div>
+
+            <div class="menu-btns">
+                <button class="btn btn-primary" onclick="startGame()">🎮 شروع بازی</button>
+                <div class="menu-btns-row">
+                    <button class="btn btn-help" onclick="openHelp()">❓ راهنما</button>
+                    <button class="btn btn-gold" onclick="showScreen('screen-shop')">🏪 فروشگاه</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحه بازی -->
+        <div id="screen-game" class="screen">
+            <div class="game-header">
+                <div class="header-stat glass">
+                    <span>⏱️</span><span id="timer">۰۰:۰۰</span>
+                </div>
+                <div class="header-stat glass">
+                    <span>❌</span><span id="errors">۰</span>
+                </div>
+                <div class="header-stat glass">
+                    <span>مرحله:</span><span id="level">۱</span>
+                </div>
+                <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.9rem;"
+                    onclick="goHome()">منو</button>
+            </div>
+
+            <div class="game-wrapper">
+                <div class="train-track" id="train-track"></div>
+            </div>
+        </div>
+
+        <!-- صفحه پایان -->
+        <div id="screen-complete" class="screen">
+            <div class="end-card glass">
+                <h2 id="end-title">آفرین!</h2>
+                <div class="stars">
+                    <div class="star" id="star1">⭐</div>
+                    <div class="star" id="star2">⭐</div>
+                    <div class="star" id="star3">⭐</div>
+                </div>
+                <div class="end-stats">
+                    <div>زمان: <span id="final-time">۰۰:۰۰</span></div>
+                    <div>خطا: <span id="final-errors">۰</span></div>
+                </div>
+                <div class="reward-msg" id="reward-msg"></div>
+                <div class="end-btns">
+                    <button class="btn btn-success" id="btn-next" onclick="nextLevel()">مرحله بعد</button>
+                    <button class="btn btn-primary" onclick="retryLevel()">تلاش مجدد</button>
+                    <button class="btn" onclick="goHome()">بازگشت به منو</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحه فروشگاه -->
+        <div id="screen-shop" class="screen">
+            <h1 class="menu-title" style="font-size: 2rem;">فروشگاه تم‌ها</h1>
+            <div class="shop-grid" id="shop-grid"></div>
+            <button class="btn" style="margin-top: 20px;" onclick="goHome()">بازگشت</button>
+        </div>
+
+        <!-- اورلی شمارش معکوس -->
+        <div class="countdown-overlay" id="countdown-overlay">
+            <span class="countdown-text" id="countdown-text">۳</span>
+        </div>
+
+        <!-- المان متحرک سکه -->
+        <div class="float-coin" id="float-coin"></div>
+
+        <!-- پیام توست -->
+        <div class="toast" id="toast">سکه کافی نداری!</div>
+
+        <!-- بخش راهنما -->
+        <div id="helpOverlay">
+            <div class="help-container">
+                <button class="help-close-btn" id="helpCloseBtn">✕</button>
+
+                <div class="help-image-wrapper">
+                    <img id="helpImage" src="./icons/gamerhi.png" alt="راهنمای بازی" onerror="this.style.display='none'">
+                </div>
+
+                <div class="help-text-container">
+                    <p class="help-text" id="helpText"></p>
+                </div>
+
+                <div class="help-progress-wrapper">
+                    <div class="help-progress-bar" id="helpProgressBar"></div>
+                </div>
+
+                <div style="text-align: center;">
+                    <button class="help-start-btn" id="helpStartBtn">
+                        🚀 شروع بازی
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === مدیریت صدا (Web Audio API) ===
+        const SoundManager = {
+            audioCtx: null,
+            init() {
+                if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            },
+            playTone(freq, duration, type = 'sine', volume = 0.2) {
+                this.init();
+                const osc = this.audioCtx.createOscillator();
+                const gain = this.audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(this.audioCtx.destination);
+                osc.type = type;
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(volume, this.audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + duration);
+                osc.start();
+                osc.stop(this.audioCtx.currentTime + duration);
+            },
+            playClick() { this.playTone(800, 0.05, 'square', 0.1); },
+            playSuccess() {
+                this.playTone(523.25, 0.1);
+                setTimeout(() => this.playTone(659.25, 0.1), 100);
+                setTimeout(() => this.playTone(783.99, 0.2), 200);
+            },
+            playFail() { this.playTone(150, 0.3, 'sawtooth', 0.2); },
+            playWin() {
+                const notes = [523, 659, 783, 1046];
+                notes.forEach((n, i) => setTimeout(() => this.playTone(n, 0.2, 'triangle', 0.3), i * 150));
+            }
+        };
+
+        // === متغیرهای بازی و State ===
+        let state = {
+            coins: 0,
+            level: 1,
+            maxLevel: 3,
+            errors: 0,
+            correctMoves: 0,
+            totalMoves: 0,
+            startTime: null,
+            timerInterval: null,
+            currentTheme: 'default',
+            shopOwned: ['default'],
+            helpShown: false
+        };
+
+        const themes = {
+            'default': { name: 'فضایی پیش‌فرض', cost: 0, bg: 'linear-gradient(to bottom, #0f0c29, #302b63)' },
+            'neon_pink': { name: 'صورتی نئونی', cost: 5, bg: 'linear-gradient(to bottom, #2b0b3f, #ff00a0)' },
+            'neon_green': { name: 'سبز نئونی', cost: 10, bg: 'linear-gradient(to bottom, #0b3d2b, #00ff9d)' },
+            'sunset': { name: 'غروب نئونی', cost: 15, bg: 'linear-gradient(to bottom, #1a0500, #ff5e00, #ff00a0)' }
+        };
+
+        // === فارسی‌سازی اعداد ===
+        function toPersian(n) {
+            return n.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+        }
+
+        // === مدیریت صفحات ===
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            SoundManager.playClick();
+            if (id === 'screen-menu' || id === 'screen-shop') updateCoinDisplay();
+        }
+
+        function goHome() {
+            clearInterval(state.timerInterval);
+            showScreen('screen-menu');
+        }
+
+        // === سیستم اقتصاد ===
+        function loadState() {
+            const saved = localStorage.getItem('spaceTrainState');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                state.coins = parsed.coins || 0;
+                state.currentTheme = parsed.currentTheme || 'default';
+                state.shopOwned = parsed.shopOwned || ['default'];
+                state.helpShown = parsed.helpShown || false;
+            }
+            applyTheme(state.currentTheme);
+            updateCoinDisplay();
+        }
+
+        function saveState() {
+            localStorage.setItem('spaceTrainState', JSON.stringify({
+                coins: state.coins,
+                currentTheme: state.currentTheme,
+                shopOwned: state.shopOwned,
+                helpShown: state.helpShown
+            }));
+        }
+
+        function updateCoinDisplay() {
+            document.getElementById('coin-count').textContent = toPersian(state.coins);
+        }
+
+        // === فروشگاه ===
+        function renderShop() {
+            const grid = document.getElementById('shop-grid');
+            grid.innerHTML = '';
+            for (const [key, theme] of Object.entries(themes)) {
+                const item = document.createElement('div');
+                item.className = 'shop-item glass';
+                if (state.shopOwned.includes(key)) item.classList.add('owned');
+                if (state.currentTheme === key) item.classList.add('active');
+
+                item.innerHTML = `
+                    <div class="theme-preview" style="background: ${theme.bg}"></div>
+                    <h3>${theme.name}</h3>
+                    ${state.shopOwned.includes(key) ?
+                        `<button class="btn btn-success" style="width:100%; padding:5px;" onclick="selectTheme('${key}')">${state.currentTheme === key ? 'فعال' : 'انتخاب'}</button>` :
+                        `<button class="btn btn-gold" style="width:100%; padding:5px;" onclick="buyTheme('${key}', ${theme.cost})">${toPersian(theme.cost)} سکه</button>`
+                    }
+                `;
+                grid.appendChild(item);
+            }
+        }
+
+        function buyTheme(key, cost) {
+            SoundManager.playClick();
+            if (state.coins < cost) {
+                showToast('سکه کافی نداری!');
+                SoundManager.playFail();
+                return;
+            }
+            state.coins -= cost;
+            state.shopOwned.push(key);
+            state.currentTheme = key;
+            saveState();
+            applyTheme(key);
+            updateCoinDisplay();
+            renderShop();
+            SoundManager.playSuccess();
+        }
+
+        function selectTheme(key) {
+            SoundManager.playClick();
+            state.currentTheme = key;
+            saveState();
+            applyTheme(key);
+            renderShop();
+        }
+
+        function applyTheme(key) {
+            document.body.style.background = themes[key].bg;
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        // === سیستم راهنما ===
+        const HelpManager = {
+            isOpen: false,
+            isComplete: false,
+            audio: null,
+            bgAudio: null,
+            interval: null,
+            startTime: null,
+            totalDuration: 17,
+            helpData: [
+                { start: 0, end: 4, text: 'سلام من پیکسل هستم دوست جدید تو در این بازی' },
+                { start: 4, end: 8, text: 'در این بازی باید واگن های نا مرتب رو مرتب کنی' },
+                { start: 8, end: 15, text: 'از واگن های پایین باید بکشی و به واگن خودش بچسبونی تا واگن ها درست بشن و قطار شروع به کار کنه' },
+                { start: 15, end: 17, text: 'موفق باشی دوست من' }
+            ],
+
+            get elements() {
+                return {
+                    overlay: document.getElementById('helpOverlay'),
+                    text: document.getElementById('helpText'),
+                    progress: document.getElementById('helpProgressBar'),
+                    closeBtn: document.getElementById('helpCloseBtn'),
+                    startBtn: document.getElementById('helpStartBtn'),
+                    image: document.getElementById('helpImage')
+                };
+            },
+
+            playBackgroundMusic() {
+                if (this.bgAudio) {
+                    this.bgAudio.pause();
+                    this.bgAudio.currentTime = 0;
+                }
+                this.bgAudio = new Audio('musics/z1.mp3');
+                this.bgAudio.loop = true;
+                this.bgAudio.volume = 0.4;
+                this.bgAudio.play().catch(err => {
+                    console.log('پخش موسیقی پس‌زمینه با مشکل مواجه شد:', err);
+                });
+            },
+
+            stopBackgroundMusic() {
+                if (this.bgAudio) {
+                    this.bgAudio.pause();
+                    this.bgAudio.currentTime = 0;
+                    this.bgAudio = null;
+                }
+            },
+
+            updateText(currentTime) {
+                const el = this.elements;
+                let found = false;
+
+                for (let i = 0; i < this.helpData.length; i++) {
+                    const item = this.helpData[i];
+                    if (currentTime >= item.start && currentTime < item.end) {
+                        el.text.textContent = item.text;
+                        el.text.style.opacity = '1';
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found && this.helpData.length > 0) {
+                    if (currentTime < this.helpData[0].start) {
+                        el.text.textContent = this.helpData[0].text;
+                    } else if (currentTime >= this.helpData[this.helpData.length - 1].end) {
+                        el.text.textContent = this.helpData[this.helpData.length - 1].text;
+                        if (!this.isComplete) {
+                            this.completeHelp();
+                        }
+                    } else {
+                        for (let i = this.helpData.length - 1; i >= 0; i--) {
+                            if (currentTime >= this.helpData[i].start) {
+                                el.text.textContent = this.helpData[i].text;
+                                break;
+                            }
+                        }
+                    }
+                }
+            },
+
+            completeHelp() {
+                if (this.isComplete) return;
+                this.isComplete = true;
+
+                const el = this.elements;
+                el.startBtn.style.display = 'inline-block';
+                el.closeBtn.style.display = 'flex';
+
+                if (this.audio) {
+                    this.audio.pause();
+                    this.audio.currentTime = 0;
+                    this.audio = null;
+                }
+
+                this.playBackgroundMusic();
+
+                if (this.interval) {
+                    clearInterval(this.interval);
+                    this.interval = null;
+                }
+
+                state.helpShown = true;
+                saveState();
+            },
+
+            closeHelp() {
+                if (!this.isOpen) return;
+
+                this.isOpen = false;
+                const el = this.elements;
+                el.overlay.classList.remove('active');
+
+                if (this.audio) {
+                    this.audio.pause();
+                    this.audio.currentTime = 0;
+                    this.audio = null;
+                }
+                this.stopBackgroundMusic();
+
+                if (this.interval) {
+                    clearInterval(this.interval);
+                    this.interval = null;
+                }
+
+                if (window._startGameAfterHelp) {
+                    window._startGameAfterHelp = false;
+                    state.level = 1;
+                    state.errors = 0;
+                    state.correctMoves = 0;
+                    startLevel();
+                }
+            },
+
+            startHelp(shouldStartGame = false) {
+                if (this.isOpen) return;
+
+                this.isOpen = true;
+                this.isComplete = false;
+                window._startGameAfterHelp = shouldStartGame;
+
+                const el = this.elements;
+
+                el.overlay.classList.add('active');
+                el.text.style.opacity = '1';
+                el.startBtn.style.display = 'none';
+                el.closeBtn.style.display = 'none';
+                el.progress.style.width = '0%';
+                el.text.textContent = 'سلام من پیکسل هستم دوست جدید تو در این بازی';
+
+                this.stopBackgroundMusic();
+
+                if (this.audio) {
+                    this.audio.pause();
+                    this.audio.currentTime = 0;
+                }
+
+                this.audio = new Audio('musics/2.mp3');
+                this.audio.volume = 0.6;
+                this.audio.play().catch(err => {
+                    console.log('پخش موسیقی راهنما با مشکل مواجه شد:', err);
+                });
+
+                this.startTime = Date.now();
+
+                if (this.interval) {
+                    clearInterval(this.interval);
+                }
+
+                this.interval = setInterval(() => {
+                    const elapsed = (Date.now() - this.startTime) / 1000;
+                    const progress = Math.min((elapsed / this.totalDuration) * 100, 100);
+                    el.progress.style.width = progress + '%';
+                    this.updateText(elapsed);
+
+                    if (elapsed >= this.totalDuration) {
+                        if (!this.isComplete) {
+                            this.completeHelp();
+                        }
+                    }
+                }, 100);
+            }
+        };
+
+        window.startGame = function () {
+            if (state.helpShown) {
+                state.level = 1;
+                state.errors = 0;
+                state.correctMoves = 0;
+                startLevel();
+                return;
+            }
+            HelpManager.startHelp(true);
+        };
+
+        window.openHelp = function () {
+            HelpManager.startHelp(false);
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('helpCloseBtn').addEventListener('click', function () {
+                HelpManager.closeHelp();
+            });
+
+            document.getElementById('helpStartBtn').addEventListener('click', function () {
+                window._startGameAfterHelp = true;
+                HelpManager.closeHelp();
+            });
+        });
+
+        function startLevel() {
+            showScreen('screen-game');
+            document.getElementById('level').textContent = toPersian(state.level);
+            document.getElementById('errors').textContent = toPersian(state.errors);
+
+            startCountdown(() => {
+                generateWagons();
+                state.startTime = Date.now();
+                state.timerInterval = setInterval(updateTimer, 1000);
+            });
+        }
+
+        function startCountdown(callback) {
+            const overlay = document.getElementById('countdown-overlay');
+            const text = document.getElementById('countdown-text');
+            overlay.style.display = 'flex';
+            let count = 3;
+
+            const tick = () => {
+                if (count > 0) {
+                    text.textContent = toPersian(count);
+                    text.style.animation = 'none';
+                    void text.offsetWidth;
+                    text.style.animation = 'pop 0.8s ease-out';
+                    SoundManager.playClick();
+                    count--;
+                    setTimeout(tick, 800);
+                } else {
+                    text.textContent = 'شروع!';
+                    SoundManager.playSuccess();
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        callback();
+                    }, 800);
+                }
+            };
+            tick();
+        }
+
+        function generateWagons() {
+            const track = document.getElementById('train-track');
+            track.innerHTML = '';
+
+            const count = state.level === 1 ? 4 : state.level === 2 ? 7 : 10;
+            let numbers = Array.from({ length: count }, (_, i) => i + 1);
+
+            for (let i = numbers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+            }
+
+            if (numbers.every((v, i) => v === i + 1)) {
+                [numbers[0], numbers[1]] = [numbers[1], numbers[0]];
+            }
+
+            numbers.forEach(num => {
+                const w = document.createElement('div');
+                w.className = 'wagon';
+                w.textContent = toPersian(num);
+                w.dataset.number = num;
+                w.draggable = true;
+                track.appendChild(w);
+            });
+
+            setupDragAndDrop();
+        }
+
+        let dragged = null;
+
+        function setupDragAndDrop() {
+            const wagons = document.querySelectorAll('.wagon');
+            wagons.forEach(w => {
+                w.addEventListener('mousedown', handleDragStart);
+                w.addEventListener('touchstart', handleDragStart, { passive: false });
+            });
+            document.addEventListener('mousemove', handleDragMove);
+            document.addEventListener('touchmove', handleDragMove, { passive: false });
+            document.addEventListener('mouseup', handleDragEnd);
+            document.addEventListener('touchend', handleDragEnd);
+        }
+
+        function handleDragStart(e) {
+            e.preventDefault();
+            dragged = e.target.closest('.wagon');
+            dragged.classList.add('dragging');
+            SoundManager.playClick();
+        }
+
+        function handleDragMove(e) {
+            if (!dragged) return;
+            e.preventDefault();
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+
+            document.querySelectorAll('.wagon').forEach(w => {
+                const rect = w.getBoundingClientRect();
+                const isOver = clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+                w.classList.toggle('drag-over', isOver && w !== dragged);
+            });
+        }
+
+        function handleDragEnd(e) {
+            if (!dragged) return;
+            const clientX = e.clientX || e.changedTouches[0].clientX;
+            const clientY = e.clientY || e.changedTouches[0].clientY;
+
+            let target = null;
+            document.querySelectorAll('.wagon').forEach(w => {
+                const rect = w.getBoundingClientRect();
+                if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+                    if (w !== dragged) target = w;
+                }
+                w.classList.remove('drag-over');
+            });
+
+            if (target) {
+                const track = document.getElementById('train-track');
+                const draggedNum = parseInt(dragged.dataset.number);
+                const targetNum = parseInt(target.dataset.number);
+
+                if (draggedNum !== targetNum) {
+                    track.insertBefore(dragged, target);
+                    track.insertBefore(target, dragged.nextSibling);
+                    checkOrder();
+                }
+            }
+
+            dragged.classList.remove('dragging');
+            dragged = null;
+        }
+
+        function checkOrder() {
+            const wagons = document.querySelectorAll('.wagon');
+            let isCorrect = true;
+            let correctCount = 0;
+
+            wagons.forEach((w, i) => {
+                const num = parseInt(w.dataset.number);
+                if (num === i + 1) {
+                    w.classList.add('correct');
+                    correctCount++;
+                } else {
+                    w.classList.remove('correct');
+                    isCorrect = false;
+                }
+            });
+
+            state.totalMoves++;
+            if (isCorrect) {
+                state.correctMoves++;
+                SoundManager.playSuccess();
+                clearInterval(state.timerInterval);
+                setTimeout(() => completeLevel(), 500);
+            } else {
+                state.errors++;
+                document.getElementById('errors').textContent = toPersian(state.errors);
+                SoundManager.playFail();
+            }
+
+            sendGameData({
+                level: state.level,
+                errors: state.errors,
+                correctMoves: state.correctMoves,
+                progressPercent: Math.round((correctCount / wagons.length) * 100),
+                isFinished: isCorrect
+            });
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+            const min = Math.floor(elapsed / 60).toString().padStart(2, '0');
+            const sec = (elapsed % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = toPersian(`${min}:${sec}`);
+        }
+
+        function completeLevel() {
+            showScreen('screen-complete');
+            const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+            const min = Math.floor(elapsed / 60).toString().padStart(2, '0');
+            const sec = (elapsed % 60).toString().padStart(2, '0');
+
+            document.getElementById('final-time').textContent = toPersian(`${min}:${sec}`);
+            document.getElementById('final-errors').textContent = toPersian(state.errors);
+
+            let stars = 1;
+            if (state.errors === 0) stars = 3;
+            else if (state.errors <= 2) stars = 2;
+
+            for (let i = 1; i <= 3; i++) {
+                const s = document.getElementById(`star${i}`);
+                s.classList.remove('earned');
+                if (i <= stars) setTimeout(() => s.classList.add('earned'), i * 300);
+            }
+
+            SoundManager.playWin();
+
+            const btnNext = document.getElementById('btn-next');
+            if (state.level >= state.maxLevel) {
+                btnNext.style.display = 'none';
+                handleCoinReward();
+            } else {
+                btnNext.style.display = 'block';
+                document.getElementById('reward-msg').style.display = 'block';
+                document.getElementById('reward-msg').textContent = 'مراحل بعدی رو تکمیل کن تا سکه بگیری!';
+            }
+        }
+
+        function handleCoinReward() {
+            const msg = document.getElementById('reward-msg');
+            msg.style.display = 'block';
+            const floatCoin = document.getElementById('float-coin');
+
+            let reward = 0;
+            if (state.coins === 0) {
+                reward = 10;
+                msg.textContent = `پاداش ویژه! ${toPersian(reward)} سکه دریافت کردی!`;
+            } else {
+                reward = 1;
+                msg.textContent = `خوش اومدی! ${toPersian(reward)} سکه دریافت کردی!`;
+            }
+
+            state.coins += reward;
+            saveState();
+
+            floatCoin.style.display = 'block';
+            setTimeout(() => {
+                floatCoin.style.display = 'none';
+                updateCoinDisplay();
+            }, 2000);
+        }
+
+        function nextLevel() {
+            state.level++;
+            state.errors = 0;
+            startLevel();
+        }
+
+        function retryLevel() {
+            state.errors = 0;
+            startLevel();
+        }
+
+        function sendGameData(data) {
+            if (!navigator.onLine) {
+                let queue = JSON.parse(localStorage.getItem('pendingStats') || '[]');
+                queue.push(data);
+                localStorage.setItem('pendingStats', JSON.stringify(queue));
+                return;
+            }
+
+            fetch('/games/assets/offline', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).catch(err => {
+                let queue = JSON.parse(localStorage.getItem('pendingStats') || '[]');
+                queue.push(data);
+                localStorage.setItem('pendingStats', JSON.stringify(queue));
+            });
+        }
+
+        function flushPendingStats() {
+            if (!navigator.onLine) return;
+            let queue = JSON.parse(localStorage.getItem('pendingStats') || '[]');
+            if (queue.length === 0) return;
+
+            queue.forEach(data => {
+                fetch('/games/assets/offline', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                }).catch(() => { });
+            });
+
+            localStorage.removeItem('pendingStats');
+        }
+
+        window.addEventListener('online', flushPendingStats);
+
+        window.addEventListener('DOMContentLoaded', function () {
+            loadState();
+            renderShop();
+            flushPendingStats();
+        });
+    </script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#screen-complete", "#final-time"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+
+</html>

@@ -62,8 +62,8 @@ Three families of games, three registries:
 | Cooking recipe | `features/home/recipes.ts` | `/cooking-game/:recipeId` | `hasGame: true` |
 
 Season-path games need **no code change**: C=class, K=book (internal only — never shown to
-the child), F=chapter/month, S=week, G=game number in that week; ordered numerically
-C→F→S→G. Run `python manage.py sync_games --check` to see where the file lands and why a
+the child), F=chapter/month, S=week, G=game number **within that book**; ordered numerically
+C→F→S→G, then book. Dashes are optional (`C1KrF1S2g2.html` is the studio's own style). Run `python manage.py sync_games --check` to see where the file lands and why a
 name is rejected. Rules and the book-code table: [public/games/README.md](../../../frontend/public/games/README.md).
 Game ids are opaque (`g-1a2b3c4d`) and survive renames; completion is stored server-side
 and mirrored in `luko_completed_games`. Keep the `<title>` free of subject words

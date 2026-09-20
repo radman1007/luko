@@ -1,16 +1,17 @@
 """
 نامِ فایلِ بازی — تنها جایی که قالبِ C-K-F-S-G تعریف می‌شود.
 
-    C1-Kr-F1-S2-G2.html
-    │  │  │  │  └─ G  شماره‌ی بازی در همان هفته (از ۱)
+    C1-Kr-F1-S2-G2.html   (یا فشرده و بی‌خط‌تیره: C1KrF1S2g2.html)
+    │  │  │  │  └─ G  شماره‌ی بازی در همان کتاب (از ۱)
     │  │  │  └──── S  سیزن/هفته داخلِ همان فصل (از ۱)
     │  │  └─────── F  فصل/ماهِ آموزشی (از ۱؛ F1 = مهر)
     │  └────────── K  کتاب — فقط برای دسته‌بندیِ داخلی
     └───────────── C  کلاس (پایه)
 
-جایگاهِ بازی روی مسیر فقط (C, F, S, G) است؛ K در ترتیب هیچ نقشی ندارد و
-هیچ‌وقت به بچه نشان داده نمی‌شود. پس در یک هفته دو فایل نمی‌توانند یک G
-داشته باشند، حتی اگر کتابشان فرق کند.
+شماره‌ی بازی (G) **در هر کتاب** جداگانه می‌رود: در یک هفته هم ریاضی g1 دارد
+هم نگارش g1. پس شناسه‌ی یکتای یک بازی (C, K, F, S, G) است و ترتیبِ نمایش
+C ← F ← S ← G ← کتاب؛ یعنی بازی‌های هم‌شماره‌ی کتاب‌های مختلف کنارِ هم و
+درهم می‌آیند و بچه یک‌نواخت یک درس را پشتِ‌سرِ هم بازی نمی‌کند.
 
 این ماژول عمداً به جنگو و دیتابیس وابسته نیست: فقط رشته می‌گیرد و نتیجه
 می‌دهد، تا همه‌ی حالت‌های نام‌گذاری بدونِ هیچ زیرساختی تست شوند.
@@ -61,6 +62,7 @@ BOOKS: dict[str, Book] = {
         Book("q", "quran", "قرآن"),
         Book("n", "writing", "نگارش"),
         Book("h", "art", "هنر"),
+        Book("f", "farsi", "فارسی"),
     )
 }
 
@@ -76,17 +78,25 @@ class GameCode:
     number: int
 
     @property
-    def slot(self) -> tuple[int, int, int, int]:
+    def slot(self) -> tuple[int, int, int, int, str]:
         """
-        جایگاه روی مسیر، و در عینِ حال کلیدِ مرتب‌سازی.
+        جایگاهِ یکتای این بازی: کلاس، فصل، هفته، شماره و کتاب.
+        دو فایل با همین پنج‌تایی یعنی تکراری.
+        """
+        return (self.grade, self.chapter, self.week, self.number, self.book)
+
+    @property
+    def sort_key(self) -> tuple[int, int, int, int, int]:
+        """
+        کلیدِ مرتب‌سازیِ مسیر: C ← F ← S ← G ← جایگاهِ کتاب در `BOOKS`.
         تاپلِ عددی است، پس G2 پیش از G10 می‌آید (نه مثلِ مرتب‌سازیِ رشته‌ای).
         """
-        return (self.grade, self.chapter, self.week, self.number)
+        return (self.grade, self.chapter, self.week, self.number, BOOK_RANK[self.book])
 
     @property
     def slot_label(self) -> str:
-        """جایگاه بدونِ کتاب: `C1-F1-S2-G2`."""
-        return f"C{self.grade}-F{self.chapter}-S{self.week}-G{self.number}"
+        """جایگاه برای پیامِ خطا: `C1-Kr-F1-S2-G2`."""
+        return str(self)
 
     @property
     def book_id(self) -> str:
@@ -124,6 +134,9 @@ class ParseResult:
         return self.code is not None
 
 
+#: ترتیبِ کتاب‌ها وقتی دو بازی شماره‌ی یکسان دارند — همان ترتیبِ `BOOKS`
+BOOK_RANK = {code: i for i, code in enumerate(BOOKS)}
+
 _FA_DIGITS = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "0123456789" * 2)
 _BOOK_LIST = "، ".join(f"K{b.code} {b.name}" for b in BOOKS.values())
 
@@ -155,6 +168,46 @@ def _read_book(raw: str, errors: list[str]) -> str | None:
     return code
 
 
+def _is_part(token: str) -> bool:
+    """آیا این تکه یک بخشِ سالم است؟ (`F12`، `Kr` — نه `final`)"""
+    if len(token) < 2 or token[0].upper() not in PART_LABELS:
+        return False
+    rest = token[1:]
+    return rest.isalpha() and len(rest) == 1 if token[0].upper() == "K" else rest.isdigit()
+
+
+def _split_compact(stem: str) -> list[str]:
+    """`C1KrF1S2g2` → ['C1', 'Kr', 'F1', 'S2', 'g2'] (هرچه نشناسد، تکه‌ی جدا)."""
+    tokens: list[str] = []
+    i = 0
+    while i < len(stem):
+        letter = stem[i]
+        if letter.upper() not in PART_LABELS:
+            # رشته‌ای که بخشِ شناخته‌شده نیست، یک‌جا به‌عنوانِ توکنِ ناشناس می‌ماند
+            j = i
+            while j < len(stem) and stem[j].upper() not in PART_LABELS:
+                j += 1
+            tokens.append(stem[i:j])
+            i = j
+            continue
+        j = i + 1
+        if letter.upper() == "K":
+            # کدِ کتاب یک حرف است و ممکن است خودش حرفِ بخشِ دیگری باشد (Kf)
+            if j < len(stem) and stem[j].isalpha():
+                j += 1
+                while j < len(stem) and stem[j].isalpha() and stem[j].upper() not in PART_LABELS:
+                    j += 1
+            else:                          # Kr نیست؛ مثلاً K2
+                while j < len(stem) and stem[j].isdigit():
+                    j += 1
+        else:
+            while j < len(stem) and stem[j].isdigit():
+                j += 1
+        tokens.append(stem[i:j])
+        i = j
+    return tokens
+
+
 def parse(filename: str) -> ParseResult:
     """`C1-Kr-F1-S2-G2.html` → `GameCode`، یا فهرستِ دقیقِ ایرادها."""
     errors: list[str] = []
@@ -181,9 +234,21 @@ def parse(filename: str) -> ParseResult:
         errors.append("رقم‌ها باید انگلیسی باشند (2 نه ۲).")
         stem = translated
 
-    if "_" in stem:
-        errors.append("بخش‌ها باید با خط‌تیره (-) از هم جدا شوند، نه زیرخط (_).")
-    tokens = [token for token in re.split(r"[-_]", stem)]
+    if re.fullmatch(r"[A-Za-z0-9]+", stem):
+        # قالبِ فشرده و بی‌جداکننده: C1KrF1S2g2. خودِ حرف‌ها جداکننده‌اند، ولی
+        # حرفِ بعد از K نامِ کتاب است نه بخشِ تازه (Kf را نباید به K و F شکست).
+        tokens = _split_compact(stem)
+    else:
+        if "_" in stem:
+            errors.append("بخش‌ها باید با خط‌تیره (-) از هم جدا شوند، نه زیرخط (_).")
+        # نامِ نیمه‌فشرده (C1Kr-F1-S1-G1) هم باید خوانده شود؛ ولی تکه‌ای که
+        # خودش یک بخشِ سالم است یا اصلاً بخش نیست، دست‌نخورده می‌ماند تا
+        # پیامِ خطا همان کلمه‌ی کاربر را نشان دهد («final»، نه «f» و «inal»).
+        tokens = []
+        for part in re.split(r"[-_]", stem):
+            pieces = _split_compact(part) if part else [part]
+            keep = _is_part(part) or len(pieces) < 2 or not all(map(_is_part, pieces))
+            tokens.extend([part] if keep else pieces)
 
     found: dict[str, str] = {}
     order: list[str] = []
@@ -246,6 +311,6 @@ def parse(filename: str) -> ParseResult:
 
     # معتبر است؛ ولی اگر نوشتنش استاندارد نیست (حروفِ بزرگ/کوچک، صفرِ اول)،
     # یک یادداشت می‌ماند تا فهرستِ فایل‌ها یک‌دست بماند.
-    if filename != code.filename:
+    if filename.replace("-", "").lower() != code.filename.replace("-", "").lower():
         notes.append(f"نامِ استاندارد «{code.filename}» است.")
     return ParseResult(code, (), None, tuple(notes))

@@ -1,0 +1,2202 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>جزیره جادویی - ماجراجویی با پیکسل</title>
+    <style>
+        /* ==================== فونت‌ها ==================== */
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Regular.ttf") format("truetype");
+            font-weight: 400;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Medium.ttf") format("truetype");
+            font-weight: 500;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Black.ttf") format("truetype");
+            font-weight: 900;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Regular.ttf") format("truetype");
+            font-weight: 400;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Medium.ttf") format("truetype");
+            font-weight: 500;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Black.ttf") format("truetype");
+            font-weight: 900;
+            font-display: swap;
+        }
+
+        /* ==================== متغیرهای CSS ==================== */
+        :root {
+            --gold: #FFC93C;
+            --gold-light: #FFE68A;
+            --gold-dark: #FFA800;
+            --gold-deep: #B96F00;
+            --bg-dark: #0c0a14;
+            --bg-mid: #181225;
+            --bg-light: #24243e;
+            --text-color: #ffffff;
+            --glass: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --transition: all 0.3s ease;
+            --border-radius: 16px;
+            --border-radius-lg: 20px;
+            --success: #00B894;
+            --danger: #FF7675;
+        }
+
+        /* ==================== تنظیمات پایه ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark), var(--bg-mid), var(--bg-light));
+            touch-action: manipulation;
+            color: var(--text-color);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--gold), var(--gold-dark));
+            border-radius: 3px;
+        }
+
+        /* ==================== صفحات ==================== */
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 1;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* ==================== نوار بالایی ==================== */
+        .top-bar {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 10;
+        }
+
+        .coin-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--gold);
+            font-weight: bold;
+            color: var(--gold);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            animation: glowCoin 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glowCoin {
+            from {
+                box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+            }
+
+            to {
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            }
+        }
+
+        .coin-icon-img {
+            width: 26px;
+            height: 26px;
+            object-fit: contain;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        .coin-icon-small {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .offline-indicator {
+            font-size: 0.8rem;
+            color: var(--danger);
+            background: rgba(255, 107, 107, 0.1);
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            display: none;
+        }
+
+        /* ==================== صفحه خوش‌آمدگویی ==================== */
+        .welcome-content {
+            text-align: center;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-title {
+            font-size: clamp(2.2rem, 8vw, 3rem);
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.6), 2px 2px 0px #000;
+            margin: 0;
+        }
+
+        .welcome-subtitle {
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+        }
+
+        .pixel-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .hunter-character {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 4px solid var(--gold);
+            overflow: hidden;
+            background: var(--glass);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+            animation: floatChar 3s ease-in-out infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes floatChar {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .pixel-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .speech-bubble {
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            color: var(--bg-dark);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            animation: bubblePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes bubblePulse {
+
+            0%,
+            100% {
+                transform: translateX(-50%) scale(1);
+            }
+
+            50% {
+                transform: translateX(-50%) scale(1.05);
+            }
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: rgba(255, 255, 255, 0.95) transparent transparent transparent;
+        }
+
+        /* ==================== دکمه‌های منو ==================== */
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .menu-btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-height: 44px;
+            color: var(--bg-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .primary-btn {
+            background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 45%, var(--gold-dark) 100%);
+            box-shadow: 0 6px 0 var(--gold-deep), 0 8px 15px rgba(0, 0, 0, 0.3);
+            font-size: 1.3rem;
+            font-weight: 900;
+            padding: 16px;
+        }
+
+        .primary-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 var(--gold-deep), 0 3px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .small-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .secondary-btn,
+        .tertiary-btn {
+            flex: 1;
+            background: linear-gradient(to bottom, var(--gold-light), var(--gold-dark));
+            box-shadow: 0 4px 0 var(--gold-deep), 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .secondary-btn:active,
+        .tertiary-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 var(--gold-deep), 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ==================== دکمه بازگشت ==================== */
+        .back-btn {
+            background: transparent !important;
+            border: 2px solid var(--gold) !important;
+            color: var(--gold) !important;
+            border-radius: var(--border-radius) !important;
+            padding: 14px !important;
+            font-family: inherit !important;
+            font-weight: bold !important;
+            font-size: 1rem !important;
+            cursor: pointer !important;
+            width: 100% !important;
+            margin-top: 10px !important;
+            transition: all 0.3s ease !important;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            backdrop-filter: blur(5px);
+            background: rgba(255, 215, 0, 0.05) !important;
+            letter-spacing: 0.5px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 215, 0, 0.15) !important;
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.2);
+        }
+
+        .back-btn:active {
+            transform: scale(0.97);
+            background: rgba(255, 215, 0, 0.25) !important;
+        }
+
+        .back-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: var(--gold);
+            transition: transform 0.3s ease;
+        }
+
+        .back-btn:hover svg {
+            transform: translateX(-5px);
+        }
+
+        /* ==================== صفحه راهنما (Tutorial) ==================== */
+        .tutorial-content {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--gold);
+            border-radius: var(--border-radius-lg);
+            padding: 30px 25px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+            color: #fff;
+            text-align: center;
+            position: relative;
+        }
+
+        .tutorial-content h2 {
+            color: var(--gold);
+            margin-bottom: 20px;
+            font-weight: 900;
+            font-size: 1.8rem;
+        }
+
+        .tutorial-character {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--gold);
+            overflow: hidden;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            animation: floatChar 3s ease-in-out infinite;
+        }
+
+        .tutorial-character img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .tutorial-text-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 15px 0;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tutorial-text {
+            font-size: 1.1rem;
+            line-height: 2;
+            color: #fff;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-text .highlight {
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        .tutorial-progress {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .tutorial-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: var(--transition);
+        }
+
+        .tutorial-dot.active {
+            background: var(--gold);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            transform: scale(1.2);
+        }
+
+        .tutorial-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tutorial-btn {
+            background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 45%, var(--gold-dark) 100%);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 14px 20px;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            min-height: 44px;
+            box-shadow: 0 4px 0 var(--gold-deep);
+            flex: 1;
+        }
+
+        .tutorial-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 var(--gold-deep);
+        }
+
+        .tutorial-btn.hidden {
+            display: none;
+        }
+
+        .tutorial-btn.secondary {
+            background: transparent;
+            box-shadow: none;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+        }
+
+        .tutorial-btn.secondary:active {
+            transform: scale(0.97);
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        /* ==================== صفحه فروشگاه ==================== */
+        .shop-content {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--gold);
+            border-radius: var(--border-radius-lg);
+            padding: 25px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+            color: #fff;
+        }
+
+        .shop-content h2 {
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 900;
+            font-size: 1.8rem;
+        }
+
+        .shop-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .shop-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 15px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--transition);
+        }
+
+        .shop-item:hover {
+            border-color: var(--gold);
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .shop-item-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .shop-item-icon {
+            font-size: 2rem;
+            width: 50px;
+            text-align: center;
+        }
+
+        .shop-item-details {
+            text-align: right;
+        }
+
+        .shop-item-name {
+            font-weight: bold;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .shop-item-desc {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .shop-item-price {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--gold);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .shop-buy-btn {
+            background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 45%, var(--gold-dark) 100%);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            min-width: 60px;
+            box-shadow: 0 3px 0 var(--gold-deep);
+        }
+
+        .shop-buy-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 0px 0 var(--gold-deep);
+        }
+
+        .shop-buy-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .shop-buy-btn.owned {
+            background: var(--success);
+            box-shadow: 0 3px 0 #00856A;
+            color: #fff;
+        }
+
+        .shop-coins {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: var(--gold);
+            background: rgba(255, 215, 0, 0.1);
+            padding: 10px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* ==================== انتخاب مرحله (دو ستونه) ==================== */
+        .level-select-content {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--gold);
+            border-radius: var(--border-radius-lg);
+            padding: 25px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+            color: #fff;
+        }
+
+        .level-select-content h2 {
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 900;
+            font-size: 1.8rem;
+        }
+
+        .levels-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .level-item {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .level-item:hover .level-card {
+            border-color: var(--gold);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .level-item.full-width {
+            grid-column: 1 / -1;
+            text-align: center;
+        }
+
+        .level-card {
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .level-icon {
+            font-size: 2.5rem;
+        }
+
+        .level-name {
+            font-weight: bold;
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        /* ==================== صفحه بازی ==================== */
+        #gameScreen {
+            padding: 0;
+            flex-direction: column;
+        }
+
+        .game-background {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .game-background .bg-sky {
+            background: linear-gradient(to bottom, #1a1a2e, #16213e) !important;
+            width: 100%;
+            height: 100%;
+        }
+
+        .game-header {
+            background: rgba(0, 0, 0, 0.5) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold) !important;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            gap: 8px;
+            flex-wrap: nowrap;
+        }
+
+        .game-header .level-indicator,
+        .game-header .timer-container {
+            background: linear-gradient(180deg, var(--gold-light), var(--gold-dark)) !important;
+            color: var(--bg-dark) !important;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .timer-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .timer-container svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--bg-dark);
+        }
+
+        .timer-container.warning {
+            animation: timerWarning 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes timerWarning {
+            from {
+                background: linear-gradient(180deg, var(--gold-light), var(--gold-dark));
+            }
+
+            to {
+                background: linear-gradient(180deg, #FF6B6B, #FF4444);
+            }
+        }
+
+        .stop-btn {
+            background: var(--glass);
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 3;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .stop-btn:active {
+            transform: scale(0.92);
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .stop-btn svg {
+            fill: var(--gold);
+            width: 20px;
+            height: 20px;
+        }
+
+        .stars-container {
+            display: flex;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+
+        .star {
+            font-size: 1.2rem;
+            filter: grayscale(1);
+            opacity: 0.3;
+            transition: all 0.3s ease;
+        }
+
+        .star.earned {
+            filter: grayscale(0);
+            opacity: 1;
+            animation: starPop 0.5s ease backwards;
+        }
+
+        .game-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 10px 15px;
+            position: relative;
+            z-index: 1;
+            gap: 8px;
+        }
+
+        .game-hint {
+            background: var(--glass) !important;
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--gold) !important;
+            color: var(--gold) !important;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .question-container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .target-number {
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 45%, var(--gold-dark) 100%) !important;
+            color: var(--bg-dark) !important;
+            border: 4px solid var(--gold-deep) !important;
+            border-radius: 50% !important;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4) !important;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            margin: 0 auto;
+            font-family: 'Shoor', Tahoma, sans-serif;
+        }
+
+        .number-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+
+        .number-sticker-img {
+            width: 75px;
+            height: 75px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+        }
+
+        .question-label {
+            background: var(--glass) !important;
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--gold) !important;
+            color: var(--gold) !important;
+            padding: 6px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .items-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 10px 0;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .game-item {
+            background: var(--glass) !important;
+            border: 2px solid var(--glass-border) !important;
+            backdrop-filter: blur(5px);
+            border-radius: var(--border-radius);
+            padding: 12px 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            min-height: 80px;
+            justify-content: center;
+        }
+
+        .game-item:hover {
+            border-color: var(--gold) !important;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .game-item.correct {
+            border-color: var(--success) !important;
+            background: rgba(0, 184, 148, 0.25) !important;
+        }
+
+        .game-item.wrong {
+            border-color: var(--danger) !important;
+            background: rgba(255, 118, 117, 0.25) !important;
+        }
+
+        .item-name {
+            color: #fff !important;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-top: 2px;
+        }
+
+        .item-display {
+            font-size: 1.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2px;
+            line-height: 1.2;
+        }
+
+        .item-emoji-single {
+            display: inline-block;
+            font-size: 1.8rem;
+        }
+
+        /* ==================== منوهای پایان / توقف (بدون آیکون مزخرف) ==================== */
+        .pause-content,
+        .game-over-content,
+        .victory-content,
+        .level-result-content {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--gold);
+            border-radius: var(--border-radius-lg);
+            padding: 30px 25px;
+            max-width: 350px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 215, 0, 0.15);
+            color: #fff;
+            position: relative;
+        }
+
+        .pause-icon,
+        .game-over-icon,
+        .trophy {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .game-over-content h2,
+        .victory-content h2,
+        .level-result-content h2,
+        .pause-content h2 {
+            color: var(--gold);
+            margin-bottom: 10px;
+            font-size: 1.6rem;
+            font-weight: 900;
+        }
+
+        .game-over-content p,
+        .victory-content p,
+        .level-result-content p,
+        .pause-content p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .final-stars,
+        .victory-stars,
+        .result-stars {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .final-star,
+        .victory-star,
+        .result-star {
+            font-size: 2.5rem;
+            filter: grayscale(1);
+            opacity: 0.3;
+        }
+
+        .final-star.earned,
+        .victory-star.earned,
+        .result-star.earned {
+            filter: grayscale(0);
+            opacity: 1;
+            animation: starPop 0.5s ease backwards;
+        }
+
+        .coins-earned {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid var(--gold);
+            border-radius: var(--border-radius);
+            padding: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: var(--gold);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .game-over-buttons,
+        .victory-buttons,
+        .result-buttons,
+        .pause-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .game-over-btn,
+        .victory-btn,
+        .result-btn,
+        .pause-btn {
+            background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 45%, var(--gold-dark) 100%) !important;
+            color: var(--bg-dark) !important;
+            border: none !important;
+            border-radius: var(--border-radius) !important;
+            padding: 14px !important;
+            font-family: inherit !important;
+            font-weight: 800 !important;
+            font-size: 1.05rem !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 0 var(--gold-deep) !important;
+        }
+
+        .game-over-btn:active,
+        .victory-btn:active,
+        .result-btn:active,
+        .pause-btn:active {
+            transform: translateY(4px) !important;
+            box-shadow: 0 0px 0 var(--gold-deep) !important;
+        }
+
+        .game-over-btn.secondary,
+        .victory-btn.secondary,
+        .result-btn.secondary,
+        .pause-btn.secondary {
+            background: transparent !important;
+            border: 2px solid var(--gold) !important;
+            color: var(--gold) !important;
+            box-shadow: none !important;
+        }
+
+        .game-over-btn.secondary:active,
+        .victory-btn.secondary:active,
+        .result-btn.secondary:active,
+        .pause-btn.secondary:active {
+            transform: scale(0.97) !important;
+            background: rgba(255, 215, 0, 0.1) !important;
+        }
+
+        /* انیمیشن‌ها */
+        @keyframes starPop {
+            0% {
+                transform: scale(0) rotate(-180deg);
+            }
+
+            50% {
+                transform: scale(1.3) rotate(10deg);
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .welcome-title {
+                font-size: 2rem;
+            }
+
+            .hunter-character {
+                width: 120px;
+                height: 120px;
+            }
+
+            .game-header {
+                padding: 10px 12px;
+            }
+
+            .game-header .level-indicator,
+            .game-header .timer-container {
+                font-size: 0.75rem;
+                padding: 4px 10px;
+            }
+
+            .timer-container svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            .stop-btn {
+                width: 34px;
+                height: 34px;
+            }
+
+            .stop-btn svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .star {
+                font-size: 1rem;
+            }
+
+            .target-number {
+                width: 85px;
+                height: 85px;
+            }
+
+            .number-sticker-img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .game-hint {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+
+            .question-label {
+                font-size: 0.8rem;
+                padding: 4px 12px;
+            }
+
+            .items-container {
+                gap: 8px;
+                padding: 8px 0;
+            }
+
+            .game-item {
+                padding: 10px 8px;
+                min-height: 65px;
+            }
+
+            .item-display {
+                font-size: 1.4rem;
+            }
+
+            .item-emoji-single {
+                font-size: 1.4rem;
+            }
+
+            .item-name {
+                font-size: 0.75rem;
+            }
+
+            .tutorial-character {
+                width: 100px;
+                height: 100px;
+            }
+
+            .tutorial-text {
+                font-size: 1rem;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- صداها -->
+    <audio id="bgMusic" loop></audio>
+    <audio id="sfxCorrect"></audio>
+    <audio id="sfxWrong"></audio>
+    <audio id="sfxWin"></audio>
+    <audio id="sfxLose"></audio>
+    <audio id="sfxNumber"></audio>
+    <audio id="sfxStar"></audio>
+
+    <!-- صداهای راهنما -->
+    <audio id="tutorialVoice" src="musics/3.mp3"></audio>
+    <audio id="tutorialStartSound" src="musics/z1.mp3"></audio>
+
+    <!-- ==================== صفحه خوش‌آمدگویی ==================== -->
+    <div id="welcomeScreen" class="screen active">
+        <div class="top-bar">
+            <div class="offline-indicator" id="offlineIndicator">ارتباط با سرور قطع است...</div>
+            <div class="coin-display">
+                <img src="./icons/coin.png" class="coin-icon-img" alt="coin">
+                <span id="menuCoinCount">0</span>
+            </div>
+        </div>
+        <div class="welcome-content">
+            <h1 class="welcome-title">جزیره جادویی</h1>
+            <p class="welcome-subtitle">ماجراجویی با پیکسل</p>
+
+            <div class="pixel-container">
+                <div class="speech-bubble">سلام! آماده‌ای بریم؟</div>
+                <div class="hunter-character">
+                    <img src="icons/gamer.png" alt="Pixel" class="pixel-img" id="pixelCharacter">
+                </div>
+            </div>
+
+            <div class="menu-buttons">
+                <button class="menu-btn primary-btn" id="startBtn">
+                    <svg class="btn-icon" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                    </svg>
+                    شروع ماجراجویی
+                </button>
+                <div class="small-buttons">
+                    <button class="menu-btn secondary-btn" id="shopBtn">
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path
+                                d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM7.5 5.5L1 2v2l4.5 2.5L7 13h10l3.5-8H7.5z" />
+                        </svg>
+                        فروشگاه
+                    </button>
+                    <button class="menu-btn tertiary-btn" id="guideBtn">
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
+                        </svg>
+                        راهنما
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه راهنمای بازی (Tutorial) ==================== -->
+    <div id="tutorialScreen" class="screen">
+        <div class="tutorial-content">
+            <h2>🎯 راهنمای بازی</h2>
+            <div class="tutorial-character">
+                <img src="icons/gamerhi.png" alt="Pixel">
+            </div>
+            <div class="tutorial-text-container">
+                <div class="tutorial-text" id="tutorialText">🎵 در حال پخش راهنما...</div>
+            </div>
+            <div class="tutorial-progress" id="tutorialProgress">
+                <span class="tutorial-dot active"></span>
+                <span class="tutorial-dot"></span>
+                <span class="tutorial-dot"></span>
+                <span class="tutorial-dot"></span>
+            </div>
+            <div class="tutorial-buttons">
+                <button class="tutorial-btn hidden" id="tutorialSkipBtn">رد کردن</button>
+                <button class="tutorial-btn hidden" id="tutorialEnterBtn">🚀 ورود به بازی</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه فروشگاه ==================== -->
+    <div id="shopScreen" class="screen">
+        <div class="shop-content">
+            <h2>🏪 فروشگاه</h2>
+            <div class="shop-coins">
+                <img src="./icons/coin.png" class="coin-icon-small" alt="coin">
+                <span>سکه‌های شما: <span id="shopCoinCount">0</span></span>
+            </div>
+            <div class="shop-items" id="shopItemsContainer"></div>
+            <button class="back-btn" id="backFromShop">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+                </svg>
+                بازگشت
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه انتخاب مرحله ==================== -->
+    <div id="levelSelectScreen" class="screen">
+        <div class="level-select-content">
+            <h2>🌟 انتخاب مرحله</h2>
+            <div class="levels-container">
+                <div class="level-item" data-level="1">
+                    <div class="level-card">
+                        <div class="level-icon">🌳</div>
+                        <div class="level-name">طبیعت</div>
+                    </div>
+                </div>
+                <div class="level-item" data-level="2">
+                    <div class="level-card">
+                        <div class="level-icon">🚀</div>
+                        <div class="level-name">فضا</div>
+                    </div>
+                </div>
+                <div class="level-item" data-level="3">
+                    <div class="level-card">
+                        <div class="level-icon">🌊</div>
+                        <div class="level-name">اقیانوس</div>
+                    </div>
+                </div>
+                <div class="level-item" data-level="4">
+                    <div class="level-card">
+                        <div class="level-icon">🌾</div>
+                        <div class="level-name">مزرعه</div>
+                    </div>
+                </div>
+                <div class="level-item full-width" data-level="5">
+                    <div class="level-card">
+                        <div class="level-icon">🌲</div>
+                        <div class="level-name">جنگل</div>
+                    </div>
+                </div>
+            </div>
+            <button class="back-btn" id="backFromLevel">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+                </svg>
+                بازگشت به منو
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه بازی ==================== -->
+    <div id="gameScreen" class="screen">
+        <div class="game-background" id="gameBackground">
+            <div class="bg-layer bg-sky"></div>
+        </div>
+
+        <div class="game-header">
+            <button class="stop-btn" id="stopBtn" title="توقف بازی">
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                </svg>
+            </button>
+            <div class="level-indicator">
+                مرحله <span id="currentLevelNum">1</span>/5
+            </div>
+            <div class="timer-container">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+                </svg>
+                <span id="timerDisplay">2:00</span>
+            </div>
+            <div class="stars-container">
+                <span class="star" id="star1">⭐</span>
+                <span class="star" id="star2">⭐</span>
+                <span class="star" id="star3">⭐</span>
+            </div>
+        </div>
+
+        <div class="game-content">
+            <div class="game-hint" id="gameHint">
+                <span class="hint-text">عدد رو ببین و آیتم درست رو انتخاب کن!</span>
+            </div>
+
+            <div class="question-container">
+                <div class="target-number" id="targetNumber">
+                    <span class="number-inner"></span>
+                </div>
+                <div class="question-label">کدوم آیتم؟</div>
+            </div>
+
+            <div class="items-container" id="itemsContainer"></div>
+        </div>
+
+        <div class="feedback-overlay" id="feedbackOverlay">
+            <div class="feedback-message" id="feedbackMessage">
+                <div class="feedback-icon">🎉</div>
+                <div class="feedback-text">آفرین! درست بود!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه توقف بازی ==================== -->
+    <div id="pauseScreen" class="screen">
+        <div class="pause-content">
+            <div class="pause-icon">⏸️</div>
+            <h2>بازی متوقف شد</h2>
+            <p>آیا می‌خواهی ادامه بدی یا به منو برگردی؟</p>
+            <div class="pause-buttons">
+                <button class="pause-btn primary" id="resumeBtn">ادامه بازی</button>
+                <button class="pause-btn secondary" id="pauseHomeBtn">بازگشت به منو</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه نتیجه بین مراحل ==================== -->
+    <div id="levelResultScreen" class="screen">
+        <div class="level-result-content">
+            <div class="result-stars" id="resultStars">
+                <span class="result-star">⭐</span>
+                <span class="result-star">⭐</span>
+                <span class="result-star">⭐</span>
+            </div>
+            <h2 id="resultTitle">عالی بود!</h2>
+            <p id="resultMessage">به مرحله بعد برویم؟</p>
+            <div class="coins-earned">
+                <img src="./icons/coin.png" class="coin-icon-small" alt="coin">
+                <span>+<span id="resultCoins">0</span> سکه</span>
+            </div>
+            <div class="result-buttons">
+                <button class="result-btn primary" id="nextLevelBtn">مرحله بعد</button>
+                <button class="result-btn secondary" id="resultHomeBtn">بازگشت به منو</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه پایان بازی ==================== -->
+    <div id="gameOverScreen" class="screen">
+        <div class="game-over-content">
+            <div class="game-over-icon" id="gameOverIcon">😢</div>
+            <h2 id="gameOverTitle">وقت تموم شد!</h2>
+            <p id="gameOverMessage">نگران نباش، دوباره تلاش کن!</p>
+            <div class="final-stars" id="finalStars">
+                <span class="final-star">⭐</span>
+                <span class="final-star">⭐</span>
+                <span class="final-star">⭐</span>
+            </div>
+            <div class="coins-earned">
+                <img src="./icons/coin.png" class="coin-icon-small" alt="coin">
+                <span>+<span id="gameOverCoins">0</span> سکه</span>
+            </div>
+            <div class="game-over-buttons">
+                <button class="game-over-btn primary" id="restartBtn">شروع مجدد</button>
+                <button class="game-over-btn secondary" id="gameOverHomeBtn">بازگشت به منو</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== صفحه تبریک پایان بازی ==================== -->
+    <div id="victoryScreen" class="screen">
+        <div class="victory-content">
+            <div class="trophy">🏆</div>
+            <h2>جنگل پیروز شد!</h2>
+            <p>تو همه مراحل رو با موفقیت تموم کردی!</p>
+            <div class="victory-stars">
+                <span class="victory-star">⭐</span>
+                <span class="victory-star">⭐</span>
+                <span class="victory-star">⭐</span>
+            </div>
+            <div class="coins-earned">
+                <img src="./icons/coin.png" class="coin-icon-small" alt="coin">
+                <span>+<span id="victoryCoins">0</span> سکه</span>
+            </div>
+            <div class="victory-buttons">
+                <button class="victory-btn primary" id="playAgainBtn">بازی مجدد</button>
+                <button class="victory-btn secondary" id="victoryHomeBtn">بازگشت به منو</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== داده‌های بازی ====================
+        const themes = [
+            {
+                id: 1, name: 'طبیعت', emoji: '🌳', items: [
+                    { emoji: '🍎', name: 'سیب', count: 1 },
+                    { emoji: '🍉', name: 'هندوانه', count: 2 },
+                    { emoji: '🍌', name: 'موز', count: 3 },
+                    { emoji: '🍇', name: 'انگور', count: 4 },
+                    { emoji: '🍓', name: 'توت‌فرنگی', count: 5 }
+                ]
+            },
+            {
+                id: 2, name: 'فضا', emoji: '🚀', items: [
+                    { emoji: '🌍', name: 'زمین', count: 1 },
+                    { emoji: '🪐', name: 'سیاره', count: 2 },
+                    { emoji: '⭐', name: 'ستاره', count: 3 },
+                    { emoji: '🌙', name: 'ماه', count: 4 },
+                    { emoji: '☄️', name: 'شهاب', count: 5 }
+                ]
+            },
+            {
+                id: 3, name: 'اقیانوس', emoji: '🌊', items: [
+                    { emoji: '🐟', name: 'ماهی', count: 1 },
+                    { emoji: '🐙', name: 'اختاپوس', count: 2 },
+                    { emoji: '🐬', name: 'دلفین', count: 3 },
+                    { emoji: '🦀', name: 'خرچنگ', count: 4 },
+                    { emoji: '🦑', name: 'ماهی مرکب', count: 5 }
+                ]
+            },
+            {
+                id: 4, name: 'مزرعه', emoji: '🌾', items: [
+                    { emoji: '🐄', name: 'گاو', count: 1 },
+                    { emoji: '🐔', name: 'مرغ', count: 2 },
+                    { emoji: '🐑', name: 'گوسفند', count: 3 },
+                    { emoji: '🐴', name: 'اسب', count: 4 },
+                    { emoji: '🐖', name: 'خوک', count: 5 }
+                ]
+            },
+            {
+                id: 5, name: 'جنگل', emoji: '🌲', items: [
+                    { emoji: '🦊', name: 'روباه', count: 1 },
+                    { emoji: '🐻', name: 'خرس', count: 2 },
+                    { emoji: '🦉', name: 'جغد', count: 3 },
+                    { emoji: '🦌', name: 'آهو', count: 4 },
+                    { emoji: '🐿️', name: 'سنجاب', count: 5 }
+                ]
+            }
+        ];
+
+        // ==================== آیتم‌های فروشگاه (قیمت بین ۸ تا ۱۵) ====================
+        const shopItems = [
+            { id: 'theme_nature', name: 'تم طبیعت', desc: 'دنیای سبز و زیبا', icon: '🌳', price: 8 },
+            { id: 'theme_space', name: 'تم فضا', desc: 'سفر به کهکشان‌ها', icon: '🚀', price: 12 },
+            { id: 'theme_ocean', name: 'تم اقیانوس', desc: 'آب‌های عمیق', icon: '🌊', price: 15 },
+            { id: 'power_extra_time', name: 'زمان اضافه', desc: '+۱۰ ثانیه', icon: '⏰', price: 10 },
+            { id: 'power_double_coins', name: 'سکه‌های دوبرابر', desc: '۲ برابر سکه', icon: '💰', price: 15 }
+        ];
+
+        // ==================== وضعیت بازی ====================
+        let gameState = {
+            currentLevel: 1,
+            currentQuestion: 0,
+            correctAnswers: 0,
+            totalQuestions: 5,
+            timeLeft: 120,
+            timerInterval: null,
+            isGameActive: false,
+            isPaused: false,
+            completedLevels: [],
+            levelStars: {},
+            stats: { totalGames: 0, correctMoves: 0, wrongMoves: 0, totalMoves: 0, bestScore: 0, totalStars: 0, maxStarsInOneGame: 0, totalPlayTime: 0 }
+        };
+
+        let currentCoins = parseInt(localStorage.getItem('magicIslandCoins') || '0');
+        let ownedItems = JSON.parse(localStorage.getItem('ownedShopItems') || '[]');
+        let tutorialCompleted = false;
+        let subtitleInterval = null;
+        let isGuideMode = false; // متغیر برای تشخیص حالت راهنما
+
+        const levelTimes = [120, 100, 80, 60, 40];
+
+        // ==================== استیکرهای اعداد (تصاویر) ====================
+        const numberStickers = {
+            1: 'a1.png',
+            2: 'a2.png',
+            3: 'a3.png',
+            4: 'a4.png',
+            5: 'a5.png'
+        };
+
+        function getNumberSticker(num) {
+            return numberStickers[num] ? `<img src="./icons/${numberStickers[num]}" class="number-sticker-img" alt="${num}">` : num.toString();
+        }
+
+        // ==================== زیرنویس‌های راهنما ====================
+        const tutorialSubtitles = [
+            { start: 1, end: 4, text: 'سلام من <span class="highlight">پیکسل</span> هستم!<br>دوست جدید تو در این بازی' },
+            { start: 4, end: 7, text: 'در این بازی باید <span class="highlight">اعداد برابر</span> انتخاب کنی' },
+            { start: 7, end: 15, text: 'یک عدد به تو نشان داده میشه<br>باید از بین آیتم‌هایی که زیر دستت هست<br><span class="highlight">اونی رو انتخاب کنی که تعدادش با اون عدد برابره</span>' },
+            { start: 15, end: 17, text: '<span class="highlight">موفق باشی</span> دوست من! 🎮' }
+        ];
+
+        // ==================== توابع صوتی ====================
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playCorrectSound() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+            osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        function playWrongSound() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function playWinSound() {
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.15);
+                gain.gain.setValueAtTime(0, audioCtx.currentTime + i * 0.15);
+                gain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + i * 0.15 + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.15 + 0.4);
+                osc.start(audioCtx.currentTime + i * 0.15);
+                osc.stop(audioCtx.currentTime + i * 0.15 + 0.4);
+            });
+        }
+
+        function playLoseSound() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.5);
+        }
+
+        function playStarSound() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.2);
+        }
+
+        function playTimerSound() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        // ==================== توابع سکه ====================
+        function updateCoinDisplay() {
+            ['menuCoinCount', 'shopCoinCount'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = currentCoins;
+            });
+        }
+
+        function saveCoins() {
+            localStorage.setItem('magicIslandCoins', currentCoins);
+            localStorage.setItem('ownedShopItems', JSON.stringify(ownedItems));
+            updateCoinDisplay();
+        }
+
+        function addCoins(amount) {
+            currentCoins += amount;
+            saveCoins();
+        }
+
+        function spendCoins(amount) {
+            if (currentCoins < amount) return false;
+            currentCoins -= amount;
+            saveCoins();
+            return true;
+        }
+
+        function isItemOwned(id) { return ownedItems.includes(id); }
+
+        function buyItem(id) {
+            const item = shopItems.find(i => i.id === id);
+            if (!item || isItemOwned(id)) return false;
+            if (!spendCoins(item.price)) return false;
+            ownedItems.push(id);
+            saveCoins();
+            renderShopItems();
+            return true;
+        }
+
+        // ==================== توابع صفحه ====================
+        function showScreen(name) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const el = document.getElementById(name + 'Screen');
+            if (el) el.classList.add('active');
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        // ==================== تایمر ====================
+        function startTimer() {
+            clearInterval(gameState.timerInterval);
+            gameState.timerInterval = setInterval(() => {
+                if (gameState.isPaused) return;
+                gameState.timeLeft--;
+                gameState.stats.totalPlayTime++;
+                document.getElementById('timerDisplay').textContent = formatTime(gameState.timeLeft);
+
+                if (gameState.timeLeft <= 10) {
+                    document.querySelector('.timer-container').classList.add('warning');
+                    playTimerSound();
+                }
+
+                if (gameState.timeLeft <= 0) {
+                    endGame(false);
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(gameState.timerInterval);
+            document.querySelector('.timer-container')?.classList.remove('warning');
+        }
+
+        // ==================== راهنمای توتوریال ====================
+        function startTutorial(isGuide = false) {
+            isGuideMode = isGuide;
+            showScreen('tutorial');
+            document.getElementById('tutorialText').innerHTML = '🎵 در حال پخش راهنما...';
+            document.getElementById('tutorialEnterBtn').classList.add('hidden');
+            document.querySelectorAll('.tutorial-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === 0);
+            });
+
+            // نمایش یا مخفی کردن دکمه رد کردن بر اساس حالت راهنما
+            const skipBtn = document.getElementById('tutorialSkipBtn');
+            if (isGuide) {
+                skipBtn.classList.remove('hidden');
+            } else {
+                skipBtn.classList.add('hidden');
+            }
+
+            const voice = document.getElementById('tutorialVoice');
+            voice.currentTime = 0;
+            voice.play().catch(e => console.log('Audio play error:', e));
+
+            clearInterval(subtitleInterval);
+            let lastIndex = -1;
+            subtitleInterval = setInterval(() => {
+                const t = voice.currentTime;
+                let found = -1;
+                for (let i = 0; i < tutorialSubtitles.length; i++) {
+                    if (t >= tutorialSubtitles[i].start && t < tutorialSubtitles[i].end) {
+                        found = i;
+                        break;
+                    }
+                }
+                if (found !== -1 && found !== lastIndex) {
+                    lastIndex = found;
+                    document.getElementById('tutorialText').innerHTML = tutorialSubtitles[found].text;
+                    document.querySelectorAll('.tutorial-dot').forEach((dot, i) => {
+                        dot.classList.toggle('active', i === found);
+                    });
+                }
+            }, 100);
+
+            voice.onended = function () {
+                clearInterval(subtitleInterval);
+                finishTutorial();
+            };
+        }
+
+        function finishTutorial() {
+            document.getElementById('tutorialText').innerHTML = '🎯 آماده‌ای؟<br><span class="highlight">برو تو بازی!</span>';
+            document.querySelectorAll('.tutorial-dot').forEach(d => d.classList.add('active'));
+            document.getElementById('tutorialSkipBtn').classList.add('hidden');
+            
+            const enterBtn = document.getElementById('tutorialEnterBtn');
+            enterBtn.classList.remove('hidden');
+            
+            // تغییر متن دکمه پایان بر اساس حالت راهنما
+            if (isGuideMode) {
+                enterBtn.textContent = '🏠 بازگشت به منو';
+                tutorialCompleted = true;
+            } else {
+                enterBtn.textContent = '🚀 ورود به بازی';
+                tutorialCompleted = true;
+            }
+
+            const startSound = document.getElementById('tutorialStartSound');
+            startSound.play().catch(e => console.log('Audio play error:', e));
+            startSound.loop = true;
+        }
+
+        function skipTutorial() {
+            clearInterval(subtitleInterval);
+            document.getElementById('tutorialVoice').pause();
+            document.getElementById('tutorialVoice').currentTime = 0;
+            finishTutorial();
+        }
+
+        function enterGame() {
+            document.getElementById('tutorialStartSound').pause();
+            document.getElementById('tutorialStartSound').currentTime = 0;
+            if (isGuideMode) {
+                showScreen('welcome');
+            } else {
+                showScreen('levelSelect');
+            }
+        }
+
+        // ==================== فروشگاه ====================
+        function renderShopItems() {
+            const container = document.getElementById('shopItemsContainer');
+            container.innerHTML = '';
+
+            shopItems.forEach(item => {
+                const owned = isItemOwned(item.id);
+                const div = document.createElement('div');
+                div.className = 'shop-item';
+                div.innerHTML = `
+                <div class="shop-item-info">
+                    <div class="shop-item-icon">${item.icon}</div>
+                    <div class="shop-item-details">
+                        <div class="shop-item-name">${item.name}</div>
+                        <div class="shop-item-desc">${item.desc}</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    ${!owned ? `<div class="shop-item-price"><img src="./icons/coin.png" class="coin-icon-small" alt="coin">${item.price}</div>` : ''}
+                    <button class="shop-buy-btn ${owned ? 'owned' : ''}" data-id="${item.id}" ${owned ? 'disabled' : ''}>
+                        ${owned ? '✅ خریداری شده' : 'خرید'}
+                    </button>
+                </div>
+            `;
+                container.appendChild(div);
+
+                const btn = div.querySelector('.shop-buy-btn');
+                if (!owned) {
+                    btn.addEventListener('click', () => {
+                        if (buyItem(item.id)) {
+                            btn.textContent = '✅ خریداری شده';
+                            btn.classList.add('owned');
+                            btn.disabled = true;
+                            updateCoinDisplay();
+                        } else {
+                            btn.textContent = '❌ سکه کافی نیست!';
+                            setTimeout(() => { btn.textContent = 'خرید'; }, 1500);
+                        }
+                    });
+                }
+            });
+        }
+
+        // ==================== بازی ====================
+        function startGame(level) {
+            gameState.currentLevel = level;
+            gameState.currentQuestion = 0;
+            gameState.correctAnswers = 0;
+            gameState.timeLeft = levelTimes[level - 1];
+            gameState.isGameActive = true;
+            gameState.isPaused = false;
+
+            document.getElementById('currentLevelNum').textContent = level;
+            document.getElementById('timerDisplay').textContent = formatTime(gameState.timeLeft);
+            document.querySelectorAll('.star').forEach(s => s.classList.remove('earned'));
+
+            showScreen('game');
+            generateQuestion();
+            startTimer();
+        }
+
+        function generateQuestion() {
+            const theme = themes[gameState.currentLevel - 1];
+            const targetCount = Math.floor(Math.random() * 5) + 1; // تولید عدد بین 1 تا 5
+
+            const sticker = getNumberSticker(targetCount);
+            document.getElementById('targetNumber').innerHTML = `<span class="number-inner">${sticker}</span>`;
+
+            const shuffled = [...theme.items].sort(() => Math.random() - 0.5);
+            const correct = shuffled.find(i => i.count === targetCount) || theme.items[0];
+            const container = document.getElementById('itemsContainer');
+            container.innerHTML = '';
+
+            const correctIndex = Math.floor(Math.random() * 4);
+            const used = [targetCount];
+
+            for (let i = 0; i < 4; i++) {
+                let data;
+                if (i === correctIndex) {
+                    data = correct;
+                } else {
+                    const avail = shuffled.filter(it => !used.includes(it.count));
+                    data = avail.length > 0 ? avail[Math.floor(Math.random() * avail.length)] : shuffled[i % shuffled.length];
+                    used.push(data.count);
+                }
+
+                const el = document.createElement('div');
+                el.className = `game-item`;
+                el.dataset.count = data.count;
+
+                let emojis = '';
+                for (let j = 0; j < data.count; j++) {
+                    emojis += `<span class="item-emoji-single">${data.emoji}</span>`;
+                }
+
+                el.innerHTML = `<div class="item-display">${emojis}</div><span class="item-name">${data.name}</span>`;
+                el.addEventListener('click', () => handleItemClick(el, data.count, targetCount));
+                container.appendChild(el);
+            }
+
+            document.querySelector('.hint-text').textContent = `عدد رو ببین و آیتم درست رو انتخاب کن!`;
+        }
+
+        function handleItemClick(el, selected, target) {
+            if (!gameState.isGameActive || gameState.isPaused) return;
+
+            gameState.stats.totalMoves++;
+
+            if (selected === target) {
+                playCorrectSound();
+                el.classList.add('correct');
+                gameState.correctAnswers++;
+                gameState.stats.correctMoves++;
+                playStarSound();
+                showFeedback(true);
+
+                setTimeout(() => {
+                    hideFeedback();
+                    gameState.currentQuestion++;
+                    document.getElementById('star' + gameState.correctAnswers)?.classList.add('earned');
+
+                    if (gameState.currentQuestion >= gameState.totalQuestions) {
+                        levelComplete();
+                    } else {
+                        generateQuestion();
+                    }
+                }, 1500);
+            } else {
+                playWrongSound();
+                el.classList.add('wrong');
+                gameState.stats.wrongMoves++;
+                showFeedback(false);
+                setTimeout(hideFeedback, 1500);
+            }
+        }
+
+        function showFeedback(correct) {
+            const overlay = document.getElementById('feedbackOverlay');
+            const msg = document.getElementById('feedbackMessage');
+            msg.className = 'feedback-message ' + (correct ? 'success' : 'error');
+            msg.querySelector('.feedback-icon').textContent = correct ? '🎉' : '😢';
+            msg.querySelector('.feedback-text').textContent = correct ? 'آفرین! درست بود!' : 'اشتباه بود! دوباره تلاش کن!';
+            overlay.classList.add('show');
+        }
+
+        function hideFeedback() {
+            document.getElementById('feedbackOverlay').classList.remove('show');
+        }
+
+        function levelComplete() {
+            stopTimer();
+            gameState.isGameActive = false;
+
+            gameState.levelStars[gameState.currentLevel] = gameState.correctAnswers;
+            if (!gameState.completedLevels.includes(gameState.currentLevel)) {
+                gameState.completedLevels.push(gameState.currentLevel);
+            }
+            playWinSound();
+
+            const stars = document.querySelectorAll('.result-star');
+            stars.forEach((s, i) => {
+                s.classList.remove('earned');
+                if (i < gameState.correctAnswers) {
+                    setTimeout(() => s.classList.add('earned'), (i + 1) * 200);
+                }
+            });
+
+            let coinsEarned = (currentCoins === 0) ? 10 : 1;
+            addCoins(coinsEarned);
+            document.getElementById('resultCoins').textContent = coinsEarned;
+
+            if (gameState.currentLevel >= 5) {
+                finishGame();
+                setTimeout(showVictoryScreen, 2000);
+            } else {
+                document.getElementById('resultTitle').textContent = 'عالی بود!';
+                document.getElementById('resultMessage').textContent = `به مرحله ${gameState.currentLevel + 1} برویم؟`;
+                document.getElementById('nextLevelBtn').textContent = 'مرحله بعد';
+                showScreen('levelResult');
+            }
+        }
+
+        function endGame(win) {
+            stopTimer();
+            gameState.isGameActive = false;
+
+            if (win) {
+                showVictoryScreen();
+            } else {
+                finishGame();
+                playLoseSound();
+
+                document.getElementById('gameOverIcon').textContent = '😢';
+                document.getElementById('gameOverTitle').textContent = 'وقت تموم شد!';
+                document.getElementById('gameOverMessage').textContent = 'نگران نباش، دوباره تلاش کن!';
+
+                const stars = document.querySelectorAll('.final-star');
+                stars.forEach((s, i) => {
+                    s.classList.remove('earned');
+                    if (i < gameState.correctAnswers) {
+                        setTimeout(() => s.classList.add('earned'), (i + 1) * 200);
+                    }
+                });
+
+                let coinsEarned = (currentCoins === 0) ? 10 : 1;
+                addCoins(coinsEarned);
+                document.getElementById('gameOverCoins').textContent = coinsEarned;
+                showScreen('gameOver');
+            }
+        }
+
+        function finishGame() {
+            gameState.stats.totalGames++;
+            gameState.stats.totalStars += gameState.correctAnswers;
+            if (gameState.correctAnswers > gameState.stats.maxStarsInOneGame) {
+                gameState.stats.maxStarsInOneGame = gameState.correctAnswers;
+            }
+            if (gameState.correctAnswers > gameState.stats.bestScore) {
+                gameState.stats.bestScore = gameState.correctAnswers;
+            }
+        }
+
+        function showVictoryScreen() {
+            playWinSound();
+            const stars = document.querySelectorAll('.victory-star');
+            stars.forEach((s, i) => {
+                s.classList.remove('earned');
+                setTimeout(() => s.classList.add('earned'), (i + 1) * 200);
+            });
+
+            let coinsEarned = (currentCoins === 0) ? 10 : 1;
+            addCoins(coinsEarned);
+            document.getElementById('victoryCoins').textContent = coinsEarned;
+            showScreen('victory');
+        }
+
+        function pauseGame() {
+            gameState.isPaused = true;
+            stopTimer();
+            showScreen('pause');
+        }
+
+        function resumeGame() {
+            gameState.isPaused = false;
+            startTimer();
+            showScreen('game');
+        }
+
+        // ==================== رویدادها ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCoinDisplay();
+            showScreen('welcome');
+        });
+
+        document.getElementById('startBtn').addEventListener('click', () => {
+            if (!tutorialCompleted) {
+                startTutorial(false);
+            } else {
+                showScreen('levelSelect');
+            }
+        });
+
+        document.getElementById('shopBtn').addEventListener('click', () => {
+            renderShopItems();
+            updateCoinDisplay();
+            showScreen('shop');
+        });
+
+        document.getElementById('guideBtn').addEventListener('click', () => startTutorial(true));
+        
+        document.getElementById('backFromLevel').addEventListener('click', () => showScreen('welcome'));
+        document.getElementById('backFromShop').addEventListener('click', () => showScreen('welcome'));
+
+        document.getElementById('tutorialSkipBtn').addEventListener('click', skipTutorial);
+        document.getElementById('tutorialEnterBtn').addEventListener('click', enterGame);
+
+        document.querySelectorAll('.level-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const level = parseInt(item.dataset.level);
+                startGame(level);
+            });
+        });
+
+        document.getElementById('stopBtn').addEventListener('click', pauseGame);
+        document.getElementById('resumeBtn').addEventListener('click', resumeGame);
+        document.getElementById('pauseHomeBtn').addEventListener('click', () => {
+            gameState.isGameActive = false;
+            gameState.isPaused = false;
+            stopTimer();
+            showScreen('welcome');
+        });
+
+        document.getElementById('nextLevelBtn').addEventListener('click', () => {
+            if (gameState.currentLevel < 5) {
+                gameState.currentLevel++;
+                startGame(gameState.currentLevel);
+            }
+        });
+
+        document.getElementById('resultHomeBtn').addEventListener('click', () => showScreen('welcome'));
+        document.getElementById('restartBtn').addEventListener('click', () => startGame(gameState.currentLevel));
+        document.getElementById('gameOverHomeBtn').addEventListener('click', () => showScreen('welcome'));
+        document.getElementById('playAgainBtn').addEventListener('click', () => {
+            gameState.currentLevel = 1;
+            startGame(1);
+        });
+        document.getElementById('victoryHomeBtn').addEventListener('click', () => showScreen('welcome'));
+
+        const offlineIndicator = document.getElementById('offlineIndicator');
+        window.addEventListener('online', () => offlineIndicator.style.display = 'none');
+        window.addEventListener('offline', () => offlineIndicator.style.display = 'block');
+        if (!navigator.onLine) offlineIndicator.style.display = 'block';
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && gameState.isGameActive && !gameState.isPaused) {
+                pauseGame();
+            }
+        });
+    </script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#gameOverScreen", "#gameOverMessage", "#victoryScreen", "#levelResultScreen", "#resultMessage"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+
+</html>

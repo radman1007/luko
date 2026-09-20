@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>پُلِ اعداد</title>
+<style>
+/* ================= پایه ================= */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:"Vazirmatn","Vazir","IRANSansX","IRANSans","Shabnam","Sahel","Segoe UI",Tahoma,sans-serif;
+  color:var(--text);overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+  background:
+    radial-gradient(120% 80% at 88% -10%, var(--glow1), transparent 60%),
+    radial-gradient(120% 80% at 8% 112%, var(--glow2), transparent 55%),
+    var(--bg0);
+}
+:root{
+  --bg0:#0a101f; --glow1:rgba(45,212,191,.14); --glow2:rgba(251,191,36,.08);
+  --surface:#121b31; --surface2:#182543; --card:#16223f; --cardBr:rgba(255,255,255,.09);
+  --text:#edf2ff; --muted:#8fa0c2; --accent:#2dd4bf; --accent2:#fbbf24;
+  --accentGlow:rgba(45,212,191,.35); --onAccent:#052a25;
+  --good:#34d399; --bad:#fb7185;
+  --cardR:16px; --shadow:0 12px 30px rgba(0,0,0,.35);
+}
+/* پوسته‌ها */
+[data-theme="jungle"]{--bg0:#07130d;--glow1:rgba(74,222,128,.13);--glow2:rgba(250,204,21,.07);--surface:#0e2417;--surface2:#123020;--card:#143420;--cardBr:rgba(163,230,53,.15);--text:#eafff2;--muted:#8fc7a5;--accent:#4ade80;--accent2:#facc15;--accentGlow:rgba(74,222,128,.32);--onAccent:#052b16}
+[data-theme="sunset"]{--bg0:#190d08;--glow1:rgba(251,146,60,.16);--glow2:rgba(253,224,71,.08);--surface:#2a150c;--surface2:#341b0f;--card:#3a1e11;--cardBr:rgba(253,186,116,.17);--text:#fff3e8;--muted:#d0a58c;--accent:#fb923c;--accent2:#fde047;--accentGlow:rgba(251,146,60,.35);--onAccent:#3a1a05}
+[data-theme="ocean"]{--bg0:#051320;--glow1:rgba(56,189,248,.14);--glow2:rgba(103,232,249,.08);--surface:#0b2337;--surface2:#0e2d47;--card:#103350;--cardBr:rgba(125,211,252,.16);--text:#eaf7ff;--muted:#89b8d4;--accent:#38bdf8;--accent2:#67e8f9;--accentGlow:rgba(56,189,248,.35);--onAccent:#052e42}
+[data-theme="aurora"]{--bg0:#0b0f22;--glow1:rgba(167,139,250,.17);--glow2:rgba(52,211,153,.1);--surface:#151b38;--surface2:#1b2246;--card:#1f2750;--cardBr:rgba(196,181,253,.17);--text:#f1efff;--muted:#a3a7cf;--accent:#a78bfa;--accent2:#34d399;--accentGlow:rgba(167,139,250,.38);--onAccent:#221046}
+[data-theme="day"]{--bg0:#eaf1f9;--glow1:rgba(13,148,136,.12);--glow2:rgba(245,158,11,.1);--surface:#ffffff;--surface2:#eef3fa;--card:#ffffff;--cardBr:rgba(23,35,59,.12);--text:#17233b;--muted:#5d6f92;--accent:#0d9488;--accent2:#d97706;--accentGlow:rgba(13,148,136,.28);--onAccent:#ffffff;--shadow:0 12px 26px rgba(23,35,59,.14)}
+[data-card="sharp"]{--cardR:8px}
+[data-card="round"]{--cardR:26px}
+[data-card="bubble"]{--cardR:34px}
+
+/* ================= صفحات ================= */
+#app{height:100dvh;position:relative}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .28s ease,transform .28s ease}
+.page.active{opacity:1;pointer-events:auto;transform:none}
+
+/* آیکون‌ها و دکمه‌ها */
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.gold{color:var(--accent2)}
+.btn{border:1px solid var(--cardBr);cursor:pointer;font:inherit;color:var(--text);background:var(--surface2);
+  border-radius:15px;padding:12px 18px;display:inline-flex;align-items:center;gap:9px;justify-content:center;
+  font-weight:700;transition:transform .15s,filter .2s,box-shadow .25s}
+.btn:active{transform:scale(.95)}
+.btn-primary{background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,0)),var(--accent);
+  border-color:transparent;color:var(--onAccent);box-shadow:0 12px 26px -8px var(--accentGlow)}
+.btn.big{padding:16px 22px;font-size:18px;border-radius:18px;width:min(270px,82vw);font-weight:800}
+.ibtn{width:42px;height:42px;flex:none;border-radius:13px;background:var(--surface2);border:1px solid var(--cardBr);
+  color:var(--text);display:grid;place-items:center;cursor:pointer;transition:transform .15s}
+.ibtn:active{transform:scale(.92)}
+.hide{display:none!important}
+
+.coinPill{display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--cardBr);
+  padding:7px 13px;border-radius:999px;font-weight:800;font-size:15px;box-shadow:var(--shadow)}
+.coinPill img,.coinPill .imgfb{width:19px;height:19px;border-radius:50%;object-fit:cover}
+.imgfb{display:inline-flex;color:var(--accent2)}
+.imgfb svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2}
+.coinPill.sm{padding:5px 11px;font-size:13.5px}
+.coinPill.sm img,.coinPill.sm .imgfb{width:16px;height:16px}
+
+/* ================= خانه ================= */
+.homeTop{position:absolute;top:12px;left:12px;right:12px;display:flex;align-items:center;gap:8px;direction:ltr;z-index:5}
+.homeTop .sp{flex:1}
+.homeMid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;padding:70px 22px 26px;max-width:430px;margin:0 auto;width:100%;text-align:center}
+.logo{font-size:clamp(30px,9vw,42px);font-weight:900;letter-spacing:-.5px}
+.logo .dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--accent2);margin-inline-start:7px;box-shadow:0 0 12px var(--accent2)}
+.tag{color:var(--muted);font-size:14.5px;margin-top:-8px}
+.mascotWrap{position:relative;width:148px;height:148px;margin:4px 0}
+.mascotWrap .spark{position:absolute;width:24px;height:24px;color:var(--accent2);animation:float 3s ease-in-out infinite}
+.mascotWrap .spark.s2{width:16px;height:16px;animation-delay:1.2s;inset-inline-start:-6px;bottom:14px}
+.mascotWrap .spark.s1{inset-inline-end:-4px;top:2px}
+@keyframes float{50%{transform:translateY(-7px) rotate(12deg)}}
+.mascot{width:100%;height:100%;border-radius:50%;object-fit:cover;background:var(--surface);
+  border:2px solid var(--cardBr);box-shadow:0 0 0 6px var(--glow1),0 20px 45px -10px var(--accentGlow);display:block}
+.mascot.sm{width:86px;height:86px;flex:none}
+.pausedBox{width:min(310px,86vw);display:grid;gap:10px;background:var(--surface);border:1px solid var(--cardBr);
+  border-radius:20px;padding:16px;box-shadow:var(--shadow);animation:pop .35s}
+.ptitle{color:var(--muted);font-size:13px;font-weight:700;margin-bottom:2px}
+.homeRow{display:flex;gap:10px;width:min(310px,86vw)}
+.hbtn{flex:1;font-size:15px}
+#btnBackHome{color:var(--accent)}
+
+/* ================= نوار بالا داخلی ================= */
+.topbar{display:flex;align-items:center;gap:10px;padding:12px 14px;max-width:620px;margin:0 auto;width:100%}
+.tbTitle{flex:1;font-weight:800;font-size:17px}
+.scroll{flex:1;overflow-y:auto;padding:6px 16px 30px;max-width:620px;margin:0 auto;width:100%}
+
+/* ================= راهنما ================= */
+.heroCard{display:flex;gap:14px;align-items:center;background:linear-gradient(135deg,var(--glow1),transparent 65%),var(--surface);
+  border:1px solid var(--cardBr);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
+.heroCard b{font-size:15.5px}
+.heroCard p{color:var(--muted);font-size:13.5px;margin-top:4px;line-height:1.9}
+.gstep{display:flex;gap:12px;background:var(--surface);border:1px solid var(--cardBr);border-radius:17px;padding:14px;margin-top:12px;box-shadow:var(--shadow)}
+.gicon{width:38px;height:38px;border-radius:13px;background:var(--surface2);color:var(--accent);display:grid;place-items:center;flex:none;border:1px solid var(--cardBr)}
+.gstep b{font-size:14.5px;display:block;margin-bottom:4px}
+.gstep p{color:var(--muted);font-size:13px;line-height:1.9}
+.demo{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surface2);border-radius:14px;padding:12px;margin-top:10px}
+.miniCard{min-width:46px;height:54px;border-radius:12px;background:var(--card);border:1px solid var(--cardBr);
+  display:grid;place-items:center;font-weight:800;font-size:21px;box-shadow:var(--shadow)}
+.miniCard.e{display:flex;gap:4px;font-size:15px;padding:0 9px}
+.demoLine{width:64px;height:26px;flex:none}
+
+/* ================= فروشگاه ================= */
+.tabs{display:flex;position:relative;background:var(--surface2);border:1px solid var(--cardBr);border-radius:15px;padding:4px;margin:2px 16px 14px;max-width:588px;width:calc(100% - 32px);direction:ltr;align-self:center}
+.tabs .thumb{position:absolute;top:4px;bottom:4px;width:calc(50% - 4px);left:4px;border-radius:11px;background:var(--surface);
+  box-shadow:0 4px 14px rgba(0,0,0,.3);transition:left .28s cubic-bezier(.4,1.4,.5,1)}
+.tab{flex:1;z-index:1;background:none;border:0;padding:11px 4px;border-radius:11px;color:var(--muted);font:inherit;font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:color .2s}
+.tab.on{color:var(--accent)}
+.tab .ic{width:18px;height:18px}
+.secT{color:var(--muted);font-size:12.5px;font-weight:800;margin:16px 4px 8px}
+.item{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--cardBr);border-radius:17px;padding:11px 12px;margin-bottom:10px;box-shadow:var(--shadow);animation:pop .3s}
+.swatch{width:52px;height:52px;border-radius:16px;flex:none;border:1px solid var(--cardBr);box-shadow:inset 0 2px 8px rgba(0,0,0,.15)}
+.swCard{background:var(--card);border:1.5px solid var(--accent)}
+.item .meta{flex:1;min-width:0}
+.item .meta b{font-size:14.5px;display:block}
+.item .meta span{color:var(--muted);font-size:12px}
+.buy{padding:9px 13px;font-size:13.5px;border-radius:12px;gap:6px;flex:none}
+.buy .ic{width:16px;height:16px}
+.buy.eq{color:var(--good);border-color:transparent;background:transparent}
+
+/* ================= بازی ================= */
+.hud{display:flex;align-items:center;gap:8px;padding:10px 12px;width:min(100%,640px);margin:0 auto}
+.hudMid{flex:1;text-align:center;line-height:1.5;min-width:0}
+.hudMid b{font-size:14.5px;display:block}
+.hudMid span{color:var(--muted);font-size:11.5px}
+.pbar{height:6px;border-radius:99px;background:var(--surface2);margin:0 auto 4px;width:min(100% - 28px,600px);overflow:hidden}
+#pfill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .45s ease}
+#board{flex:1;position:relative;width:min(100%,620px);margin:0 auto;touch-action:none;overflow:hidden}
+.lsvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#lineLo{z-index:1}
+#lineHi{z-index:10}
+#dragPath{fill:none;stroke-width:7;stroke-linecap:round;opacity:.95}
+#dragPath,#dDot,#dStart{filter:drop-shadow(0 2px 5px rgba(0,0,0,.35))}
+.hid{opacity:0}
+
+.card{position:absolute;background:var(--card);border:1.5px solid var(--cardBr);border-radius:var(--cardR);
+  box-shadow:var(--shadow);display:grid;place-items:center;touch-action:none;cursor:pointer;
+  transform:rotate(var(--r,0deg)) scale(var(--s,1));transition:opacity .35s,border-color .2s,box-shadow .2s,transform .25s;
+  animation:pop .45s backwards}
+@keyframes pop{from{opacity:0;transform:rotate(var(--r,0deg)) scale(.4)}}
+.card.sel{--s:1.06;border-color:var(--accent);box-shadow:0 0 0 3px var(--accentGlow),var(--shadow)}
+.card.h-ok{border-color:var(--good);box-shadow:0 0 0 3px rgba(52,211,153,.35),var(--shadow)}
+.card.h-mid{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(251,191,36,.35),var(--shadow)}
+.card.h-no{border-color:var(--bad);box-shadow:0 0 0 3px rgba(251,113,133,.35),var(--shadow)}
+.card.done{--s:.94;opacity:.42;pointer-events:none;border-color:var(--good);box-shadow:none}
+.card.mpop{animation:mpop .5s}
+@keyframes mpop{0%{transform:rotate(var(--r)) scale(1)}45%{transform:rotate(var(--r)) scale(1.1)}100%{transform:rotate(var(--r)) scale(.94)}}
+.card.shake{animation:shake .42s}
+@keyframes shake{20%,60%{translate:6px 0}40%,80%{translate:-6px 0}}
+.digit{font-weight:900;line-height:1}
+.egrid{display:grid;gap:2px;justify-items:center;align-items:center;width:100%;height:100%;padding:9%}
+.egrid span{line-height:1;display:block}
+
+.fab{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:8px;
+  background:var(--surface2);border:1px solid var(--cardBr);color:var(--text);padding:11px 17px;border-radius:999px;
+  z-index:20;box-shadow:var(--shadow);font:inherit;font-weight:800;font-size:13.5px;cursor:pointer;transition:transform .2s}
+.fab:active{transform:translateX(-50%) scale(.94)}
+.fab .ic{width:18px;height:18px;color:var(--accent)}
+.fab .fprice{display:inline-flex;align-items:center;gap:4px;color:var(--accent2);font-weight:800}
+.fab.off{opacity:.62}
+.fab.ready{border-color:var(--accent);animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{50%{transform:translateX(-50%) scale(1.05)}}
+
+#banner{position:absolute;top:76px;left:0;right:0;text-align:center;font-weight:800;font-size:14px;color:var(--text);
+  opacity:0;pointer-events:none;z-index:25}
+#banner.show{animation:ban 2s}
+@keyframes ban{0%{opacity:0;transform:translateY(-10px)}15%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+
+.overlay{position:absolute;inset:0;background:rgba(4,8,18,.68);backdrop-filter:blur(6px);display:grid;place-items:center;
+  z-index:40;opacity:0;pointer-events:none;transition:opacity .3s;padding:20px}
+.overlay.on{opacity:1;pointer-events:auto}
+.panel{background:var(--surface);border:1px solid var(--cardBr);border-radius:24px;padding:26px 24px;width:min(330px,92vw);
+  text-align:center;box-shadow:var(--shadow);display:grid;gap:12px;justify-items:center;animation:pop .4s}
+#ovStars{display:flex;gap:8px}
+.st{width:42px;height:42px;fill:var(--surface2);stroke:var(--muted);stroke-width:1.6}
+.st.on{fill:var(--accent2);stroke:var(--accent2);animation:starPop .5s backwards}
+@keyframes starPop{from{transform:scale(0) rotate(-30deg)}}
+.panel h2{font-size:21px}
+.ovCoins{display:flex;align-items:center;gap:7px;font-size:17px;font-weight:800;color:var(--accent2);background:var(--surface2);border:1px solid var(--cardBr);padding:8px 16px;border-radius:999px}
+.panel .btn{width:100%}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translate(-50%,16px);opacity:0;transition:.3s;z-index:60;
+  background:var(--surface2);border:1px solid var(--cardBr);padding:11px 18px;border-radius:999px;font-size:13.5px;
+  font-weight:700;pointer-events:none;box-shadow:var(--shadow);white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.ghost{animation:ghost .5s forwards}
+@keyframes ghost{to{opacity:0}}
+@media (min-width:700px){ .homeMid{padding-top:56px} .digit{font-size:.95em} }
+</style>
+</head>
+<body>
+
+<!-- اسپرایت آیکون‌های SVG داخلی -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+ <symbol id="i-back" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></symbol>
+ <symbol id="i-next" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></symbol>
+ <symbol id="i-play" viewBox="0 0 24 24"><path d="M7.5 4.5l12 7.5-12 7.5z"/></symbol>
+ <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1.2"/><rect x="14" y="4" width="4" height="16" rx="1.2"/></symbol>
+ <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h3l2.5 12.2a1.8 1.8 0 001.8 1.4h8.6a1.8 1.8 0 001.8-1.4L22 7H6"/></symbol>
+ <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M9.2 9a3 3 0 015.7 1c0 1.9-2.9 2.6-2.9 4"/><line x1="12" y1="17.2" x2="12.01" y2="17.2"/></symbol>
+ <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.6l1.1 2.3 2.5.4-1.8 1.7.4 2.5-2.2-1.2-2.2 1.2.4-2.5-1.8-1.7 2.5-.4z"/></symbol>
+ <symbol id="i-vol" viewBox="0 0 24 24"><path d="M11 5.5L6.5 9H3v6h3.5L11 18.5z"/><path d="M15.5 8.7a4.7 4.7 0 010 6.6"/><path d="M18.4 5.8a8.8 8.8 0 010 12.4"/></symbol>
+ <symbol id="i-voloff" viewBox="0 0 24 24"><path d="M11 5.5L6.5 9H3v6h3.5L11 18.5z"/><line x1="16" y1="9.5" x2="21.5" y2="15"/><line x1="21.5" y1="9.5" x2="16" y2="15"/></symbol>
+ <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9.5 18h5"/><path d="M10.5 21h3"/><path d="M12 2.8a6.4 6.4 0 00-3.7 11.6c.7.5 1.2 1.6 1.2 2.6h5c0-1 .5-2.1 1.2-2.6A6.4 6.4 0 0012 2.8z"/></symbol>
+ <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.8l2.9 5.8 6.4.9-4.6 4.5 1.1 6.4-5.8-3-5.8 3 1.1-6.4L2.7 9.5l6.4-.9z"/></symbol>
+ <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6.5L9.5 17 4 11.5"/></symbol>
+ <symbol id="i-x" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></symbol>
+ <symbol id="i-restart" viewBox="0 0 24 24"><path d="M2.8 4.5v5.6h5.6"/><path d="M4.5 14.5a8.2 8.2 0 102-8.6L2.8 10.1"/></symbol>
+ <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 10.5L12 3.5l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/></symbol>
+ <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17.5V21"/><path d="M7 4h10v6a5 5 0 01-10 0z"/><path d="M7 6H4.5a2 2 0 002 4H7"/><path d="M17 6h2.5a2 2 0 01-2 4H17"/></symbol>
+ <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 2.5A9.5 9.5 0 002.5 12c0 5.2 4.3 9.5 9.5 9.5 1.3 0 2.2-1 2.2-2.2 0-.6-.2-1.1-.6-1.5-.4-.4-.6-.9-.6-1.5 0-1.2 1-2.2 2.2-2.2h2.6a4.2 4.2 0 004.2-4.2C22 6 17.5 2.5 12 2.5z"/><circle cx="7.5" cy="10.5" r="1.1"/><circle cx="12" cy="7.5" r="1.1"/><circle cx="16.5" cy="10.5" r="1.1"/></symbol>
+ <symbol id="i-brush" viewBox="0 0 24 24"><path d="M12.5 20h8.5"/><path d="M17 3.8a2.3 2.3 0 013.2 3.2L8.5 18.7 4 20l1.3-4.5z"/></symbol>
+ <symbol id="i-av" viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="4"/><path d="M4.5 20.5c1.4-3.8 4.3-5.7 7.5-5.7s6.1 1.9 7.5 5.7"/></symbol>
+ <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.9 5.6 5.6 1.9-5.6 1.9L12 18l-1.9-5.6-5.6-1.9 5.6-1.9z"/></symbol>
+ <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 12V5.5a1.5 1.5 0 013 0V11"/><path d="M11 11V4.5a1.5 1.5 0 013 0V11"/><path d="M14 11V6a1.5 1.5 0 013 0v7"/><path d="M17 12.5l1.8-2a1.4 1.4 0 012.1 1.9L16.5 18a6.5 6.5 0 01-5 2.5c-4 0-6-2.5-6-6.5v-4a1.5 1.5 0 013 0"/></symbol>
+</svg>
+
+<div id="app">
+
+ <!-- ============ صفحه اصلی ============ -->
+ <section id="page-home" class="page active">
+   <div class="homeTop">
+     <span class="coinPill"><img src="./icons/coin.png" data-fb="i-coin" alt="سکه"><b class="coinVal">۰</b></span>
+     <span class="sp"></span>
+     <button class="ibtn hide" id="btnBackHome" title="بازگشت به بازی"><svg class="ic"><use href="#i-back"/></svg></button>
+     <button class="ibtn sndBtn" title="صدا"></button>
+   </div>
+   <div class="homeMid">
+     <h1 class="logo">پُلِ اعداد<span class="dot"></span></h1>
+     <p class="tag">هر عدد رو به دوستِ هم‌تاش برسون!</p>
+     <div class="mascotWrap">
+       <svg class="spark s1"><use href="#i-spark"/></svg>
+       <svg class="spark s2"><use href="#i-spark"/></svg>
+       <img class="mascot" src="./icons/gamer.png" data-fb="i-av" alt="کاراکتر بازی">
+     </div>
+     <div id="startArea"></div>
+     <div class="homeRow">
+       <button class="btn hbtn" id="btnShop"><svg class="ic"><use href="#i-cart"/></svg>فروشگاه</button>
+       <button class="btn hbtn" id="btnGuide"><svg class="ic"><use href="#i-help"/></svg>راهنما</button>
+     </div>
+   </div>
+ </section>
+
+ <!-- ============ راهنما ============ -->
+ <section id="page-guide" class="page">
+   <div class="topbar">
+     <button class="ibtn backBtn" data-to="home"><svg class="ic"><use href="#i-back"/></svg></button>
+     <div class="tbTitle">راهنمای بازی</div>
+     <span class="coinPill sm"><img src="./icons/coin.png" data-fb="i-coin" alt=""><b class="coinVal">۰</b></span>
+   </div>
+   <div class="scroll">
+     <div class="heroCard">
+       <img class="mascot sm" src="./icons/gamerhi.png" data-fb="i-av" alt="راهنما">
+       <div>
+         <b>سلام! من «عددو» هستم، همراه تو.</b>
+         <p>می‌خوایم با هم اعداد رو تمرین کنیم و به شکل‌ها برسونیم. قانون‌هاش خیلی ساده‌ست!</p>
+       </div>
+     </div>
+     <div class="gstep"><div class="gicon"><svg class="ic"><use href="#i-spark"/></svg></div>
+       <div><b>هدف چیه؟</b><p>روی هر صفحه ۱۸ کارت هست: ۹ کارتِ عدد و ۹ کارتِ شکل. هر عدد باید به کارتی وصل شه که دقیقاً همون‌قدر شکل داره؛ مثلاً عدد ۳ می‌ره سراغ کارتی که ۳ تا سیب داره.</p>
+       <div class="demo">
+         <div class="miniCard">۳</div>
+         <svg class="demoLine" viewBox="0 0 64 26"><path d="M6 19 C 22 4, 44 4, 58 9" stroke="var(--accent2)" stroke-width="4.5" fill="none" stroke-linecap="round"/><circle cx="6" cy="19" r="3.6" fill="var(--accent2)"/><circle cx="58" cy="9" r="3.6" fill="var(--accent2)"/></svg>
+         <div class="miniCard e"><span>🍎</span><span>🍎</span><span>🍎</span></div>
+       </div></div>
+     </div>
+     <div class="gstep"><div class="gicon"><svg class="ic"><use href="#i-hand"/></svg></div>
+       <div><b>چطوری وصل کنم؟</b><p>انگشتت (یا موس رو) روی یک کارت نگه دار، خطِ رنگی رو بکش و روی کارت هم‌تاش رها کن. مهم نیست اول عدد رو بگیری یا شکل رو؛ از دو طرف کار می‌کنه!</p></div>
+     </div>
+     <div class="gstep"><div class="gicon" style="color:var(--bad)"><svg class="ic"><use href="#i-x"/></svg></div>
+       <div><b>قانون طلایی</b><p>عدد به عدد وصل نمی‌شه و شکل هم به شکل! اگه امتحان کنی، بازی اجازه نمی‌ده و بهت یادآوری می‌کنه.</p></div>
+     </div>
+     <div class="gstep"><div class="gicon"><svg class="ic"><use href="#i-bulb"/></svg></div>
+       <div><b>دکمه‌ی راهنما</b><p>اگه گیج شدی، بعد از ۲ بار اشتباه، دکمه‌ی راهنمای پایین صفحه روشن می‌شه. با ۵ سکه، من خودم یک جفت رو جلوی چشمت وصل می‌کنم!</p></div>
+     </div>
+     <div class="gstep"><div class="gicon gold"><svg class="ic"><use href="#i-coin"/></svg></div>
+       <div><b>سکه‌ها</b><p>هر جفت درست ۱ سکه داره و آخر هر مرحله هم جایزه می‌گیری. سکه‌هات رو تو فروشگاه خرج پوسته و شخصی‌سازی کن.</p></div>
+     </div>
+     <div class="gstep"><div class="gicon"><svg class="ic"><use href="#i-pause"/></svg></div>
+       <div><b>توقف بازی</b><p>وسط بازی با دکمه‌ی توقف بری تو منو؛ بعداً با «ادامه‌ی بازی» همون‌جا که بودی برمی‌گردی.</p></div>
+     </div>
+   </div>
+ </section>
+
+ <!-- ============ فروشگاه ============ -->
+ <section id="page-shop" class="page">
+   <div class="topbar">
+     <button class="ibtn backBtn" data-to="home"><svg class="ic"><use href="#i-back"/></svg></button>
+     <div class="tbTitle">فروشگاه</div>
+     <span class="coinPill sm"><img src="./icons/coin.png" data-fb="i-coin" alt=""><b class="coinVal">۰</b></span>
+   </div>
+   <div class="tabs" id="tabs">
+     <div class="thumb" id="tabThumb"></div>
+     <button class="tab on" id="tabSkins"><svg class="ic"><use href="#i-palette"/></svg>پوسته‌ها</button>
+     <button class="tab" id="tabCustom"><svg class="ic"><use href="#i-brush"/></svg>شخصی‌سازی</button>
+   </div>
+   <div class="scroll" id="shopList"></div>
+ </section>
+
+ <!-- ============ بازی ============ -->
+ <section id="page-game" class="page">
+   <div class="hud">
+     <button class="ibtn" id="btnPause" title="توقف و رفتن به منو"><svg class="ic"><use href="#i-pause"/></svg></button>
+     <div class="hudMid"><b id="hudLevel">مرحله ۱ از ۳۰</b><span id="hudSet">اعداد فارسی</span></div>
+     <span class="coinPill sm"><img src="./icons/coin.png" data-fb="i-coin" alt=""><b class="coinVal">۰</b></span>
+     <button class="ibtn sndBtn" title="صدا"></button>
+   </div>
+   <div class="pbar"><div id="pfill"></div></div>
+   <div id="board">
+     <svg id="lineLo" class="lsvg" viewBox="0 0 100 100"></svg>
+     <svg id="lineHi" class="lsvg" viewBox="0 0 100 100">
+       <path id="dragPath"/><circle id="dStart" class="hid" r="6"/><circle id="dDot" class="hid" r="7"/>
+     </svg>
+   </div>
+   <button id="fabHelp" class="fab off">
+     <svg class="ic"><use href="#i-bulb"/></svg><span id="fabTxt">راهنما</span>
+     <span class="fprice"><svg class="ic"><use href="#i-coin"/></svg>۵</span>
+   </button>
+   <div id="banner"></div>
+   <div id="ov" class="overlay"><div class="panel">
+     <div id="ovStars"></div>
+     <h2 id="ovTitle"></h2>
+     <div class="ovCoins"><svg class="ic"><use href="#i-coin"/></svg><b id="ovCoins"></b><span>سکه گرفتی!</span></div>
+     <button class="btn btn-primary" id="ovNext"></button>
+     <button class="btn" id="ovMenu"><svg class="ic"><use href="#i-home"/></svg>منوی اصلی</button>
+   </div></div>
+ </section>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+'use strict';
+/* ---------- ابزار ---------- */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const FA='۰۱۲۳۴۵۶۷۸۹';
+const toFa=n=>String(n).replace(/\d/g,d=>FA[d]);
+const NS='http://www.w3.org/2000/svg';
+
+/* ---------- ذخیره‌سازی ---------- */
+const LS='pole-number-save-v1';
+const store=Object.assign({
+  coins:12, sound:true, progress:0,
+  skin:'skin_night', line:'line_rainbow', card:'card_soft',
+  owned:['skin_night','line_rainbow','card_soft']
+}, JSON.parse(localStorage.getItem(LS)||'{}'));
+store.owned=store.owned||[];
+const save=()=>localStorage.setItem(LS,JSON.stringify(store));
+
+/* ---------- کاتالوگ فروشگاه (قیمت‌ها ۸ تا ۱۵ سکه) ---------- */
+const SKINS=[
+ {id:'skin_night', name:'نیمه‌شب',      price:0,  theme:null,      sw:['#16223f','#2dd4bf'], desc:'تم پیش‌فرض بازی'},
+ {id:'skin_jungle',name:'جنگل',         price:10, theme:'jungle',  sw:['#143420','#4ade80'], desc:'سبز و تازه'},
+ {id:'skin_sunset',name:'غروب کویر',    price:12, theme:'sunset',  sw:['#3a1e11','#fb923c'], desc:'گرم و رویایی'},
+ {id:'skin_ocean', name:'اقیانوس آرام', price:12, theme:'ocean',   sw:['#103350','#38bdf8'], desc:'آبیِ آرام‌بخش'},
+ {id:'skin_aurora',name:'شفق قطبی',     price:15, theme:'aurora',  sw:['#1f2750','#a78bfa'], desc:'درخشان و رمزآلود'},
+ {id:'skin_day',   name:'صبح روز',      price:14, theme:'day',     sw:['#ffffff','#0d9488'], desc:'روشن و مینیمال'},
+];
+const LINES=[
+ {id:'line_rainbow',name:'رنگین‌کمان', price:0,  colors:['#ff6b6b','#fbbf24','#34d399','#60a5fa','#c084fc','#f472b6','#2dd4bf','#fb923c','#a3e635'], desc:'۹ رنگ شاد (پیش‌فرض)'},
+ {id:'line_candy',  name:'آبنبات',     price:8,  colors:['#ff8fab','#fb6f92','#ffc2d1','#ff4d6d','#f472b6','#fb7185','#e75480','#ff9770','#ffd670'], desc:'صورتی و توت‌فرنگی'},
+ {id:'line_oceanp', name:'موج اقیانوس',price:8,  colors:['#38bdf8','#22d3ee','#2dd4bf','#60a5fa','#818cf8','#34d399','#67e8f9','#0ea5e9','#7dd3fc'], desc:'آبی‌های خنک'},
+ {id:'line_lime',   name:'لیموناد',    price:9,  colors:['#a3e635','#facc15','#4ade80','#fde047','#86efac','#f97316','#bef264','#fbbf24','#22c55e'], desc:'ترش و شیرین'},
+ {id:'line_shafaq', name:'شفق',        price:10, colors:['#f472b6','#a78bfa','#fb923c','#fbbf24','#34d399','#60a5fa','#e879f9','#f97316','#22d3ee'], desc:'ترکیبی و پرانرژی'},
+];
+const CARDS=[
+ {id:'card_soft',  name:'نرم کلاسیک',       price:0,  r:16, desc:'گوشه‌ی استاندارد'},
+ {id:'card_sharp', name:'تیز و مدرن',       price:8,  r:8,  desc:'گوشه‌های تند'},
+ {id:'card_round', name:'گرد و دوست‌داشتنی',price:9,  r:26, desc:'گوشه‌های گرد'},
+ {id:'card_bubble',name:'حبابی',            price:12, r:34, desc:'نرم مثل حباب'},
+];
+const lineColors=()=> (LINES.find(l=>l.id===store.line)||LINES[0]).colors;
+
+/* ---------- صدا (WebAudio - بدون فایل خارجی) ---------- */
+const SFX={
+  ctx:null,
+  init(){ if(this.ctx) return; try{ this.ctx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} },
+  t(f,dur,type,vol,when=0,slideTo){
+    if(!this.ctx||!store.sound) return;
+    const c=this.ctx,o=c.createOscillator(),g=c.createGain(),t0=c.currentTime+when;
+    o.type=type||'sine'; o.frequency.setValueAtTime(f,t0);
+    if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo,t0+dur);
+    g.gain.setValueAtTime(.0001,t0);
+    g.gain.exponentialRampToValueAtTime(vol||.12,t0+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+    o.connect(g).connect(c.destination); o.start(t0); o.stop(t0+dur+.05);
+  },
+  click(){ this.t(1150,.06,'triangle',.055); this.t(1720,.05,'sine',.04,.02); },
+  ok(){ [523,659,784].forEach((f,i)=>this.t(f,.13,'sine',.1,i*.07)); },
+  err(){ this.t(240,.2,'sawtooth',.07,0,110); },
+  coin(){ this.t(1318,.09,'sine',.08); this.t(1760,.16,'sine',.08,.08); },
+  buy(){ [660,880,1320].forEach((f,i)=>this.t(f,.14,'triangle',.08,i*.09)); },
+  win(){ [523,659,784,1046,784,1046].forEach((f,i)=>this.t(f,.16,'sine',.09,i*.11)); },
+};
+document.addEventListener('pointerdown',()=>{ SFX.init(); if(SFX.ctx&&SFX.ctx.state==='suspended')SFX.ctx.resume(); },{passive:true});
+document.addEventListener('click',e=>{ if(e.target.closest('button')) SFX.click(); });
+
+/* ---------- آیکون و تصاویر ---------- */
+const ico=n=>`<svg class="ic"><use href="#i-${n}"/></svg>`;
+function imgFB(img){
+  const sp=document.createElement('span'); sp.className='imgfb';
+  sp.innerHTML=`<svg viewBox="0 0 24 24"><use href="#${img.dataset.fb||'i-coin'}"/></svg>`;
+  img.replaceWith(sp);
+}
+ $$('img[data-fb]').forEach(im=>im.addEventListener('error',()=>imgFB(im)));
+
+/* ---------- اعمال پوسته و شخصی‌سازی ---------- */
+function applyCosmetics(){
+  const s=SKINS.find(x=>x.id===store.skin);
+  if(s&&s.theme) document.documentElement.dataset.theme=s.theme;
+  else document.documentElement.removeAttribute('data-theme');
+  const c=CARDS.find(x=>x.id===store.card);
+  document.documentElement.style.setProperty('--cardR',(c?c.r:16)+'px');
+}
+
+/* ---------- ناوبری صفحات ---------- */
+function showPage(id){ $$('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+id)); }
+function goHome(){ renderHome(); showPage('home'); }
+ $$('.backBtn').forEach(b=>b.onclick=()=>goHome());
+
+/* ---------- سکه و توست ---------- */
+const updateCoins=()=>{ $$('.coinVal').forEach(el=>el.textContent=toFa(store.coins)); };
+let toastT=null;
+function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('on'),2300); }
+
+/* ---------- صدا روشن/خاموش ---------- */
+function toggleSound(){ store.sound=!store.sound; save(); renderSndBtns(); if(store.sound) SFX.coin(); }
+function renderSndBtns(){ $$('.sndBtn').forEach(b=>b.innerHTML=ico(store.sound?'vol':'voloff')); }
+ $$('.sndBtn').forEach(b=>b.onclick=toggleSound);
+
+/* ================= صفحه اصلی ================= */
+let G=null; // وضعیت مرحله جاری
+function renderHome(){
+  updateCoins();
+  const paused=!!G&&!G.finished;
+  $('#btnBackHome').classList.toggle('hide',!paused);
+  const ar=$('#startArea');
+  if(paused){
+    ar.innerHTML=`<div class="pausedBox">
+      <div class="ptitle">بازی متوقف شده — مرحله ${toFa(G.num)}</div>
+      <button class="btn btn-primary big" id="btnResume">${ico('play')} ادامه‌ی بازی</button>
+      <button class="btn big" id="btnRestart">${ico('restart')} شروع مجدد مرحله</button>
+    </div>`;
+    $('#btnResume').onclick=()=>{ resumeGame(); showPage('game'); };
+    $('#btnRestart').onclick=()=>{ startLevel(G.num); showPage('game'); };
+  }else{
+    ar.innerHTML=`<button class="btn btn-primary big" id="btnStart">${ico('play')} شروع بازی</button>`;
+    $('#btnStart').onclick=()=>{ startLevel(store.progress>=30?1:Math.min(store.progress+1,30)); showPage('game'); };
+  }
+}
+ $('#btnBackHome').onclick=()=>{ resumeGame(); showPage('game'); };
+ $('#btnShop').onclick=()=>{ renderShopList(); updateShopTabs(); showPage('shop'); };
+ $('#btnGuide').onclick=()=>showPage('guide');
+
+/* ================= فروشگاه ================= */
+let shopTab='skins';
+function updateShopTabs(){
+  $('#tabSkins').classList.toggle('on',shopTab==='skins');
+  $('#tabCustom').classList.toggle('on',shopTab==='custom');
+  $('#tabThumb').style.left = shopTab==='skins' ? '4px' : 'calc(50% )';
+}
+ $('#tabSkins').onclick=()=>{ shopTab='skins'; updateShopTabs(); renderShopList(); };
+ $('#tabCustom').onclick=()=>{ shopTab='custom'; updateShopTabs(); renderShopList(); };
+
+function itemRow(cat,it,label){
+  const key=cat, owned=store.owned.includes(it.id), eq=store[key]===it.id;
+  const sw= cat==='skin' ? `<span class="swatch" style="background:linear-gradient(135deg,${it.sw[0]} 15%,${it.sw[1]})"></span>`
+      : cat==='line' ? `<span class="swatch" style="background:conic-gradient(from 220deg,${it.colors[0]},${it.colors[3]},${it.colors[6]},${it.colors[0]})"></span>`
+      : `<span class="swatch swCard" style="border-radius:${it.r}px"></span>`;
+  const price= it.price===0 ? 'رایگان' : toFa(it.price);
+  const btn= eq ? `<button class="btn buy eq">${ico('check')}<span>فعال</span></button>`
+      : owned ? `<button class="btn buy" data-cat="${cat}" data-id="${it.id}"><span>انتخاب</span></button>`
+      : `<button class="btn buy" data-cat="${cat}" data-id="${it.id}">${ico('coin')}<span>${price}</span></button>`;
+  return `<div class="item">${sw}<div class="meta"><b>${it.name}</b><span>${it.desc||label}</span></div>${btn}</div>`;
+}
+function renderShopList(){
+  updateCoins();
+  let h='';
+  if(shopTab==='skins'){
+    h+=`<div class="secT">پوسته‌های رنگی بازی</div>`;
+    SKINS.forEach(s=>h+=itemRow('skin',s,'پوسته'));
+  }else{
+    h+=`<div class="secT">رنگ خط اتصال</div>`;
+    LINES.forEach(l=>h+=itemRow('line',l,'پک خط'));
+    h+=`<div class="secT">شکل کارت‌ها</div>`;
+    CARDS.forEach(c=>h+=itemRow('card',c,'شکل کارت'));
+  }
+  $('#shopList').innerHTML=h;
+  $$('#shopList .buy[data-id]').forEach(b=>b.onclick=()=>buyOrEquip(b.dataset.cat,b.dataset.id));
+}
+function buyOrEquip(cat,id){
+  const item=(cat==='skin'?SKINS:cat==='line'?LINES:CARDS).find(x=>x.id===id);
+  if(store.owned.includes(id)){
+    store[cat]=id; save(); applyCosmetics(); renderShopList(); SFX.ok(); toast('انتخاب شد!');
+    return;
+  }
+  if(store.coins<item.price){ toast('سکه کم داری! تو بازی سکه جمع کن'); SFX.err(); return; }
+  store.coins-=item.price; store.owned.push(id); store[cat]=id; save();
+  applyCosmetics(); SFX.buy(); toast('خرید با موفقیت انجام شد!'); renderShopList();
+}
+
+/* ================= موتور بازی ================= */
+const NUMSETS={fa:'۱۲۳۴۵۶۷۸۹',en:'123456789',ar:'١٢٣٤٥٦٧٨٩'};
+const SETNAMES={fa:'اعداد فارسی',en:'اعداد انگلیسی',ar:'اعداد عربی'};
+const EMOJI_POOL=['🍎','🍌','🍇','🍓','🌻','🎈','🐟','🦋','🐞','🚀','🍪','🐸','🌈','🧸','⚽','🎁','🐝','🍉','🍒','🪁','🍍','⭐','🎨','🐥'];
+const GRID={1:[1,1],2:[2,1],3:[3,1],4:[2,2],5:[3,2],6:[3,2],7:[3,3],8:[3,3],9:[3,3]};
+
+const board=$('#board'), svgLo=$('#lineLo'), svgHi=$('#lineHi'),
+      dPath=$('#dragPath'), dDot=$('#dDot'), dStart=$('#dStart');
+let drag=null, rafId=null, colorIdx=0;
+
+const levelInfo=n=>{ const set=n<=10?'fa':n<=20?'en':'ar'; return {set,label:SETNAMES[set]}; };
+
+function startLevel(n){
+  const info=levelInfo(n);
+  G={num:n,set:info.set,label:info.label,cards:[],settled:[],matched:0,mistakes:0,
+     finished:false,paused:false,earned:0,
+     t0:performance.now(),pauseAcc:0,rtBase:performance.now(),
+     m:{correct:0,wrong:0,rt:[],helped:0}};
+  board.querySelectorAll('.card').forEach(el=>el.remove());
+  svgLo.innerHTML='';
+  const pool=[...EMOJI_POOL].sort(()=>Math.random()-.5).slice(0,9);
+  const nums=[1,2,3,4,5,6,7,8,9].sort(()=>Math.random()-.5);
+  const slots=[...Array(18).keys()].sort(()=>Math.random()-.5);
+  const frag=document.createDocumentFragment();
+  for(let i=0;i<9;i++){
+    G.cards.push(makeCard('num',nums[i],null,slots[i*2],frag));
+    G.cards.push(makeCard('emo',nums[i],pool[i],slots[i*2+1],frag));
+  }
+  board.appendChild(frag);
+  $('#hudLevel').textContent=`مرحله ${toFa(n)} از ۳۰`;
+  $('#hudSet').textContent=info.label;
+  $('#pfill').style.width='0%';
+  $('#ov').classList.remove('on');
+  updateFab(); updateCoins(); layoutBoard();
+  banner(`مرحله ${toFa(n)} • ${info.label}`);
+}
+
+function makeCard(type,val,emoji,slot,frag){
+  const el=document.createElement('div');
+  el.className='card '+(type==='num'?'cnum':'cemo');
+  el.style.setProperty('--r',rnd(-9,9).toFixed(1)+'deg');
+  el.style.zIndex=2+Math.floor(Math.random()*3);
+  el.style.animationDelay=(slot*32)+'ms';
+  if(type==='num'){ el.innerHTML=`<span class="digit">${NUMSETS[G.set][val-1]}</span>`; }
+  else{
+    const g=GRID[val]; let inner='';
+    for(let k=0;k<val;k++)
+      inner+=`<span style="transform:rotate(${rnd(-18,18)|0}deg) translate(${rnd(-10,10)|0}%,${rnd(-10,10)|0}%)">${emoji}</span>`;
+    el.innerHTML=`<div class="egrid" style="grid-template-columns:repeat(${g[0]},1fr)">${inner}</div>`;
+  }
+  const c={el,type,val,emoji,slot,done:false,jx:rnd(-1,1),jy:rnd(-1,1),
+           gcols:type==='emo'?GRID[val][0]:1, grows:type==='emo'?GRID[val][1]:1};
+  el._c=c; frag.appendChild(el); return c;
+}
+
+function layoutBoard(){
+  if(!G) return;
+  const W=board.clientWidth,H=board.clientHeight;
+  [svgLo,svgHi].forEach(s=>s.setAttribute('viewBox',`0 0 ${W} ${H}`));
+  const padX=6,padT=6,padB=84, cw=(W-padX*2)/3, ch=(H-padT-padB)/6;
+  G.cards.forEach(c=>{
+    const col=c.slot%3, row=(c.slot/3)|0, isNum=c.type==='num';
+    const w=isNum? Math.min(cw*.62,ch*.66,96) : Math.min(cw*.94,ch*.9,132);
+    const h=isNum? w*1.12 : w;
+    c.el.style.left=(padX+col*cw+cw/2-w/2+c.jx*cw*.09)+'px';
+    c.el.style.top =(padT+row*ch+ch/2-h/2+c.jy*ch*.09)+'px';
+    c.el.style.width=w+'px'; c.el.style.height=h+'px';
+    if(isNum){ c.el.style.fontSize=(h*.56)+'px'; }
+    else{
+      const fs=Math.min(w*.84/c.gcols/1.16, h*.84/c.grows/1.16);
+      c.el.querySelector('.egrid').style.fontSize=fs+'px';
+    }
+  });
+  redrawSettled();
+}
+window.addEventListener('resize',()=>{ if(G&&!G.finished) layoutBoard(); });
+
+/* ----- خطوط نرم (Catmull-Rom → Bezier) ----- */
+function pathD(p){
+  if(p.length<2) return '';
+  if(p.length===2) return `M${p[0][0]},${p[0][1]} L${p[1][0]},${p[1][1]}`;
+  let d=`M${p[0][0]},${p[0][1]}`;
+  for(let i=0;i<p.length-1;i++){
+    const p0=p[Math.max(0,i-1)],p1=p[i],p2=p[i+1],p3=p[Math.min(p.length-1,i+2)];
+    const c1=[p1[0]+(p2[0]-p0[0])/6, p1[1]+(p2[1]-p0[1])/6];
+    const c2=[p2[0]-(p3[0]-p1[0])/6, p2[1]-(p3[1]-p1[1])/6];
+    d+=` C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+  }
+  return d;
+}
+function centerOf(c,br){ const r=c.el.getBoundingClientRect();
+  return [r.left+r.width/2-br.left, r.top+r.height/2-br.top]; }
+
+function drawSettledLine(from,to,color){
+  const br=board.getBoundingClientRect();
+  const A=centerOf(from,br), B=centerOf(to,br);
+  const g=document.createElementNS(NS,'g');
+  g.innerHTML=`<path d="M${A[0]},${A[1]} L${B[0]},${B[1]}" stroke="${color}" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="${A[0]}" cy="${A[1]}" r="5.5" fill="${color}"/><circle cx="${B[0]}" cy="${B[1]}" r="5.5" fill="${color}"/>`;
+  const p=g.querySelector('path'); p.style.opacity='0'; svgLo.appendChild(g);
+  requestAnimationFrame(()=>{ p.style.transition='opacity .45s'; p.style.opacity='.85'; });
+}
+function redrawSettled(){ if(!G) return; svgLo.innerHTML=''; G.settled.forEach(s=>drawSettledLine(s.from,s.to,s.color)); }
+
+/* ----- درگ با Pointer Events ----- */
+board.addEventListener('contextmenu',e=>e.preventDefault());
+board.addEventListener('pointerdown',e=>{
+  if(!G||G.finished||G.paused) return;
+  const t=e.target.closest('.card'); if(!t) return;
+  const c=t._c; if(!c||c.done) return;
+  e.preventDefault();
+  const br=board.getBoundingClientRect();
+  drag={c,br,pts:[centerOf(c,br)],color:lineColors()[colorIdx++%lineColors().length],hover:null,rel:null};
+  c.el.classList.add('sel');
+  dPath.style.stroke=drag.color;
+  dDot.style.fill=drag.color; dStart.style.fill=drag.color;
+  drawDrag();
+  try{ board.setPointerCapture(e.pointerId); }catch(_){}
+  rafId=requestAnimationFrame(dragLoop);
+});
+board.addEventListener('pointermove',e=>{
+  if(!drag) return;
+  const x=e.clientX-drag.br.left, y=e.clientY-drag.br.top;
+  const lp=drag.pts[drag.pts.length-1];
+  if((x-lp[0])**2+(y-lp[1])**2>25) drag.pts.push([x,y]);
+  const el=document.elementFromPoint(e.clientX,e.clientY);
+  const tEl=el&&el.closest?el.closest('.card'):null;
+  let hover=null, rel=null;
+  if(tEl&&tEl!==drag.c.el){
+    const tc=tEl._c;
+    if(tc&&!tc.done){
+      if(tc.type===drag.c.type){ hover=tc; rel='block'; }              // عدد-عدد یا شکل-شکل → ممنوع!
+      else{ hover=tc; rel=(tc.val===drag.c.val)?'ok':'mid'; }
+    }
+  }
+  if(drag.hover!==hover){
+    if(drag.hover) drag.hover.el.classList.remove('h-ok','h-mid','h-no');
+    if(hover) hover.el.classList.add(rel==='ok'?'h-ok':rel==='mid'?'h-mid':'h-no');
+    drag.hover=hover; drag.rel=rel;
+  }
+  dPath.style.stroke = rel==='ok' ? getComputedStyle(document.documentElement).getPropertyValue('--good') : drag.color;
+});
+function dragLoop(){ if(!drag) return; drawDrag(); rafId=requestAnimationFrame(dragLoop); }
+function drawDrag(){
+  const p=drag.pts;
+  dPath.setAttribute('d',pathD(p));
+  dStart.setAttribute('cx',p[0][0]); dStart.setAttribute('cy',p[0][1]); dStart.classList.remove('hid');
+  const l=p[p.length-1];
+  dDot.setAttribute('cx',l[0]); dDot.setAttribute('cy',l[1]); dDot.classList.remove('hid');
+}
+function hideDragUI(){ dPath.removeAttribute('d'); dDot.classList.add('hid'); dStart.classList.add('hid'); }
+function cleanupDrag(d){
+  if(d.c) d.c.el.classList.remove('sel');
+  if(d.hover) d.hover.el.classList.remove('h-ok','h-mid','h-no');
+  hideDragUI();
+}
+function ghostPath(color){
+  const c=document.createElementNS(NS,'path');
+  c.setAttribute('d',dPath.getAttribute('d')||'');
+  c.setAttribute('stroke',color); c.setAttribute('fill','none');
+  c.setAttribute('stroke-width','7'); c.setAttribute('stroke-linecap','round');
+  c.classList.add('ghost'); svgHi.appendChild(c);
+  setTimeout(()=>c.remove(),520);
+}
+board.addEventListener('pointerup',endDrag);
+board.addEventListener('pointercancel',endDrag);
+function endDrag(){
+  if(!drag) return;
+  const d=drag;
+  if(d.rel==='ok'&&d.hover){
+    cancelAnimationFrame(rafId); rafId=null; drag=null;
+    commitDrag(d); return;
+  }
+  cancelAnimationFrame(rafId); rafId=null;
+  if(d.rel==='block'){
+    ghostPath('#fb7185');
+    d.c.el.classList.add('shake'); d.hover.el.classList.add('shake');
+    setTimeout(()=>{ d.c.el.classList.remove('shake'); d.hover.el.classList.remove('shake'); },450);
+    G.mistakes++; G.m.wrong++; SFX.err(); updateFab();
+    toast(d.c.type==='num'?'عدد فقط به کارتِ شکل وصل می‌شه!':'شکل فقط به کارتِ عدد وصل می‌شه!');
+  }else if(d.rel==='mid'){
+    ghostPath('#fb7185');
+    d.c.el.classList.add('shake'); d.hover.el.classList.add('shake');
+    setTimeout(()=>{ d.c.el.classList.remove('shake'); d.hover.el.classList.remove('shake'); },450);
+    G.mistakes++; G.m.wrong++; SFX.err(); updateFab();
+    toast('این جفت درست نیست؛ یکم بشمار!');
+  }else{
+    ghostPath(d.color);
+  }
+  cleanupDrag(d); drag=null;
+}
+function commitDrag(d){
+  const from=d.c, to=d.hover, br=d.br;
+  const A=centerOf(from,br), B=centerOf(to,br);
+  const pts=d.pts.slice(), n=pts.length, t0=performance.now(), dur=170;
+  const step=()=>{
+    const t=ease(Math.min(1,(performance.now()-t0)/dur));
+    const np=pts.map((p,i)=>{
+      const k=n===1?0:i/(n-1);
+      const q=[A[0]+(B[0]-A[0])*k, A[1]+(B[1]-A[1])*k];
+      return [p[0]+(q[0]-p[0])*t, p[1]+(q[1]-p[1])*t];
+    });
+    dPath.setAttribute('d',pathD(np));
+    if(t<1) requestAnimationFrame(step);
+    else{ hideDragUI(); finalize(from,to,A,B,d.color); }
+  };
+  requestAnimationFrame(step);
+}
+function finalize(from,to,A,B,color){
+  from.done=to.done=true;
+  from.el.classList.remove('sel'); to.el.classList.remove('h-ok','h-mid','h-no');
+  from.el.classList.add('done','mpop'); to.el.classList.add('done','mpop');
+  G.settled.push({from,to,color});
+  drawSettledLine(from,to,color);
+  G.matched++; G.m.correct++;
+  G.m.rt.push(performance.now()-G.rtBase); G.rtBase=performance.now();
+  store.coins++; G.earned++; save(); updateCoins(); SFX.ok();
+  $('#pfill').style.width=(G.matched/9*100)+'%';
+  updateFab();
+  if(G.matched===9) setTimeout(levelComplete,620);
+}
+
+/* ----- دکمه راهنما (خرید با سکه) ----- */
+function updateFab(){
+  const ready=G&&!G.finished&&G.mistakes>=2;
+  $('#fabHelp').classList.toggle('ready',ready);
+  $('#fabHelp').classList.toggle('off',!ready);
+  $('#fabTxt').textContent= ready ? 'راهنما' : '۲ اشتباه تا راهنما';
+}
+ $('#fabHelp').onclick=()=>{
+  if(!G||G.finished) return;
+  if(G.mistakes<2){ toast('اول ۲ بار اشتباه کن تا راهنما فعال شه'); return; }
+  if(store.coins<5){ toast('سکه کافی نداری!'); SFX.err(); return; }
+  const from=G.cards.find(c=>c.type==='num'&&!c.done);
+  const to=G.cards.find(c=>c.type==='emo'&&!c.done&&from&&c.val===from.val);
+  if(!from||!to) return;
+  store.coins-=5; save(); updateCoins();
+  G.mistakes=0; G.m.helped++;
+  const br=board.getBoundingClientRect();
+  const A=centerOf(from,br), B=centerOf(to,br);
+  const color=lineColors()[colorIdx++%lineColors().length];
+  dPath.style.stroke=color;
+  const len=Math.hypot(B[0]-A[0],B[1]-A[1]);
+  dPath.setAttribute('d',`M${A[0]},${A[1]} L${B[0]},${B[1]}`);
+  dPath.style.strokeDasharray=len; dPath.style.strokeDashoffset=len;
+  dPath.getBoundingClientRect();
+  dPath.style.transition='stroke-dashoffset .5s ease';
+  dPath.style.strokeDashoffset='0';
+  SFX.coin();
+  setTimeout(()=>{
+    dPath.style.transition=''; dPath.style.strokeDasharray=''; dPath.style.strokeDashoffset='';
+    dPath.removeAttribute('d');
+    finalize(from,to,A,B,color);
+    toast('ببین! این‌طوری وصل می‌شه');
+  },540);
+};
+
+/* ----- توقف / ادامه / شروع مجدد ----- */
+ $('#btnPause').onclick=()=>{ pauseGame(); goHome(); };
+function pauseGame(){ if(!G||G.paused||G.finished) return; G.paused=true; G.pauseAt=performance.now(); }
+function resumeGame(){ if(!G||!G.paused) return;
+  const dt=performance.now()-G.pauseAt;
+  G.t0+=dt; G.rtBase+=dt; G.pauseAcc+=dt; G.paused=false; }
+
+/* ----- بنر و پایان مرحله ----- */
+function banner(txt){ const b=$('#banner'); b.textContent=txt;
+  b.classList.remove('show'); void b.offsetWidth; b.classList.add('show'); }
+function levelComplete(){
+  G.finished=true;
+  const bonus=G.mistakes===0?5:3;
+  store.coins+=bonus;
+  store.progress=Math.max(store.progress,G.num);
+  save(); updateCoins(); SFX.win();
+  /* معیارهای سنجش داخلی — هیچ‌جا به کاربر نمایش داده نمی‌شوند */
+  const tot=G.m.correct+G.m.wrong;
+  window.__analytics=window.__analytics||[];
+  window.__analytics.push({
+    level:G.num,
+    correct:G.m.correct, wrong:G.m.wrong, helped:G.m.helped,
+    avgResponseMs:G.m.rt.length?Math.round(G.m.rt.reduce((a,b)=>a+b,0)/G.m.rt.length):0,
+    durationSec:Math.round((performance.now()-G.t0)/1000),
+    accuracyPct:tot?Math.round(G.m.correct/tot*100):100,
+    progressPct:Math.round(tot/9*100)
+  });
+  const stars=G.mistakes===0?3:G.mistakes<=3?2:1;
+  $('#ovStars').innerHTML=[0,1,2].map(i=>
+    `<svg class="st ${i<stars?'on':''}" style="animation-delay:${.15+i*.18}s"><use href="#i-star"/></svg>`).join('');
+  $('#ovTitle').textContent=G.mistakes===0?'بی‌نقص بود!':G.mistakes<=3?'عالی بود!':'مرحله تموم شد!';
+  $('#ovCoins').textContent='+'+toFa(G.earned+bonus);
+  $('#ovNext').innerHTML=G.num<30?`${ico('next')} مرحله بعد`:`${ico('trophy')} بازی از اول`;
+  $('#ovNext').onclick=()=>{ startLevel(G.num<30?G.num+1:1); };
+  $('#ovMenu').onclick=()=>{ $('#ov').classList.remove('on'); G=null; goHome(); };
+  $('#ov').classList.add('on');
+}
+
+/* ---------- راه‌اندازی ---------- */
+applyCosmetics();
+renderSndBtns();
+renderHome();
+updateShopTabs();
+updateCoins();
+showPage('home');
+</script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = [".overlay"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

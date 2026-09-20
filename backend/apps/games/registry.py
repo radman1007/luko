@@ -19,7 +19,7 @@
     ۴. هیچ‌کدام                       → بازیِ تازه
 
 **فایلِ مشکل‌دار هیچ‌وقت حدسی جا نمی‌گیرد.** نامِ نامعتبر «نامعتبر» می‌ماند و
-دو فایل در یک جایگاه «تکراری»؛ اگر یکی از آن دو از قبل همان‌جا بوده، او
+دو فایل با یک (کلاس، کتاب، فصل، هفته، شماره) «تکراری»؛ اگر یکی از آن دو از قبل همان‌جا بوده، او
 می‌ماند و تازه‌وارد کنار می‌رود — افزودنِ یک فایلِ غلط بازیِ سالمِ قبلی را از
 مسیر بیرون نمی‌اندازد.
 """
@@ -148,8 +148,8 @@ class Known:
     path: str
     digest: str
     status: str
-    #: جایگاهِ فعلی — فقط اگر همین حالا روی مسیر است
-    slot: tuple[int, int, int, int] | None = None
+    #: جایگاهِ فعلی (کلاس، فصل، هفته، شماره، کتاب) — فقط اگر روی مسیر است
+    slot: tuple[int, int, int, int, str] | None = None
     title: str = ""
     #: تاریخچه دارد (تکمیل، رویداد، بازیِ روز)؟ ردیفِ بی‌تاریخچه پاک‌شدنی است.
     referenced: bool = False
@@ -198,7 +198,7 @@ class Plan:
 
     @property
     def ready(self) -> list[Entry]:
-        return sorted(self.by_status(READY), key=lambda e: e.code.slot)
+        return sorted(self.by_status(READY), key=lambda e: e.code.sort_key)
 
     @property
     def removed(self) -> list[Known]:
@@ -299,10 +299,10 @@ def _place(entries: list[Entry]) -> None:
                 entry.status = CONFLICT
                 entry.problems.append(
                     f"چند فایل یک جایگاه ({label}) دارند: {names}. "
-                    "در هر هفته هر شماره‌ی G فقط یک‌بار (بینِ همه‌ی کتاب‌ها)."
+                    "در هر کتاب، هر (فصل، هفته، شماره) فقط یک بازی."
                 )
 
-    ready = sorted((e for e in entries if e.status == READY), key=lambda e: e.code.slot)
+    ready = sorted((e for e in entries if e.status == READY), key=lambda e: e.code.sort_key)
     per_grade: dict[int, int] = defaultdict(int)
     per_book: dict[str, int] = defaultdict(int)
     for entry in ready:
@@ -329,7 +329,7 @@ def title_hint(title: str) -> str | None:
 
 def _warnings(entries: list[Entry]) -> list[str]:
     out: list[str] = []
-    ready = sorted((e for e in entries if e.status == READY), key=lambda e: e.code.slot)
+    ready = sorted((e for e in entries if e.status == READY), key=lambda e: e.code.sort_key)
 
     for entry in ready:
         out.extend(f"{entry.file.name}: {note}" for note in entry.file.parsed.notes)
@@ -349,18 +349,22 @@ def _warnings(entries: list[Entry]) -> list[str]:
             out.append(f"C{grade}-F{chapter}: هفته‌ی "
                        + "، ".join(f"S{n}" for n in gaps) + " بازی ندارد (شماره‌ها پیوسته نیستند).")
 
-    for (grade, chapter, week), group in weeks.items():
-        where = f"C{grade}-F{chapter}-S{week}"
-        numbers = {e.code.number for e in group}
-        gaps = sorted(set(range(1, max(numbers) + 1)) - numbers)
+    # شماره‌ی بازی در هر کتاب و فصل جدا می‌رود؛ شکاف یعنی یک فایل جا مانده
+    numbers: dict[tuple, set[int]] = defaultdict(set)
+    for entry in ready:
+        numbers[(entry.code.grade, entry.code.book, entry.code.chapter)].add(entry.code.number)
+    for (grade, book, chapter), nums in numbers.items():
+        gaps = sorted(set(range(1, max(nums) + 1)) - nums)
         if gaps:
-            out.append(f"{where}: " + "، ".join(f"G{n}" for n in gaps)
+            out.append(f"C{grade}-K{book}-F{chapter}: " + "، ".join(f"G{n}" for n in gaps)
                        + " نیست (شماره‌ها پیوسته نیستند).")
+
+    for (grade, chapter, week), group in weeks.items():
         # قاعده: در هر هفته دست‌کم یک بازی از هر کتابی که این کلاس دارد
         missing = sorted(books_in_grade[grade] - {e.code.book for e in group})
         if missing and len(books_in_grade[grade]) > 1:
-            out.append(f"{where}: از " + "، ".join(f"K{m} ({BOOKS[m].name})" for m in missing)
-                       + " بازی ندارد.")
+            out.append(f"C{grade}-F{chapter}-S{week}: از "
+                       + "، ".join(f"K{m} ({BOOKS[m].name})" for m in missing) + " بازی ندارد.")
 
     for entry in ready:
         if entry.previous is None and not entry.file.title:
@@ -488,7 +492,8 @@ def known_rows() -> list[Known]:
             path=game.game_file,
             digest=game.content_hash,
             status=game.status,
-            slot=(game.grade, game.chapter, game.week, game.number) if placed else None,
+            slot=((game.grade, game.chapter, game.week, game.number, game.book_code)
+                  if placed else None),
             title=game.title,
             referenced=game.slug in referenced,
         ))
@@ -607,6 +612,7 @@ def drop_caches() -> None:
         cache.book_catalog_key(None),
         *(cache.book_catalog_key(g) for g in grades),
         *(cache.game_path_key(g) for g in grades),
+        cache.game_path_key("grades"),
     )
 
 

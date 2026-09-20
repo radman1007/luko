@@ -1,0 +1,2032 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0c0a14">
+    <title>ساعت‌های گمشده در شهر</title>
+    <script>
+        // ===== Fallback در صورت نبود فایل‌های آیکون — ظاهر بازی هرگز خراب نمی‌شود =====
+        function lokocoinFallback(el) {
+            el.outerHTML = '<svg class="coin-icon-img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#FFC93C" stroke="#B96F00" stroke-width="2"/><circle cx="12" cy="12" r="6.2" fill="#FFE68A"/><path d="M12 7.5 L13.4 10.6 L16.8 10.9 L14.2 13.1 L15 16.4 L12 14.6 L9 16.4 L9.8 13.1 L7.2 10.9 L10.6 10.6 Z" fill="#FFA800"/></svg>';
+        }
+        function lokoCharFallback(el) {
+            el.outerHTML = '<svg class="character-img" viewBox="0 0 130 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="65" cy="30" r="20" fill="#d4a574" stroke="#8b5e3c" stroke-width="2.5"/><circle cx="57" cy="26" r="2.8" fill="#3d2b1f"/><circle cx="73" cy="26" r="2.8" fill="#3d2b1f"/><path d="M59 36 Q65 42 71 36" fill="none" stroke="#8b5e3c" stroke-width="2" stroke-linecap="round"/><rect x="55" y="50" width="20" height="38" rx="9" fill="#c4956a" stroke="#8b5e3c" stroke-width="2"/><line x1="46" y1="58" x2="36" y2="78" stroke="#d4a574" stroke-width="6.5" stroke-linecap="round"/><line x1="84" y1="58" x2="94" y2="78" stroke="#d4a574" stroke-width="6.5" stroke-linecap="round"/><line x1="57" y1="88" x2="50" y2="112" stroke="#b8956e" stroke-width="6.5" stroke-linecap="round"/><line x1="73" y1="88" x2="80" y2="112" stroke="#b8956e" stroke-width="6.5" stroke-linecap="round"/><line x1="34" y1="38" x2="24" y2="100" stroke="#8b6914" stroke-width="4.5" stroke-linecap="round"/><circle cx="24" cy="100" r="4.5" fill="#a07818"/></svg>';
+        }
+    </script>
+    <style>
+        /* ==================== فونت‌های LOKO ==================== */
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Regular.ttf") format("truetype");
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Medium.ttf") format("truetype");
+            font-weight: 500;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-Black.ttf") format("truetype");
+            font-weight: 900;
+        }
+        @font-face {
+            font-family: "Shoor";
+            src: url("./fonts/Shoor-ExtraBold.ttf") format("truetype");
+            font-weight: 800;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Regular.ttf") format("truetype");
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Medium.ttf") format("truetype");
+            font-weight: 500;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-Black.ttf") format("truetype");
+            font-weight: 900;
+        }
+        @font-face {
+            font-family: "Shoor Rounded";
+            src: url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype");
+            font-weight: 800;
+        }
+
+        /* ==================== پالت و متغیرهای LOKO ==================== */
+        :root {
+            --primary: #6C5CE7;
+            --neon-blue: #00D2FF;
+            --neon-pink: #FF00A0;
+            --neon-green: #00FF9D;
+            --accent: #FFEAA7;
+            --success: #00B894;
+            --danger: #FF7675;
+            --dark: #1E1E2F;
+            --gold: #FFC93C;
+            --gold-dark: #B96F00;
+            --text: #F5F6FA;
+            --text-dim: #B8B9D1;
+            --glass: rgba(255, 255, 255, 0.10);
+            --glass-strong: rgba(255, 255, 255, 0.17);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --radius: 20px;
+            --shadow: 0 10px 34px rgba(0, 0, 0, 0.45);
+            --glow-correct: 0 0 26px rgba(0, 255, 157, 0.55);
+            --glow-wrong: 0 0 26px rgba(255, 118, 117, 0.6);
+            --font: 'Shoor Rounded', 'Shoor', Tahoma, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font);
+            background:
+                radial-gradient(ellipse at 20% 12%, rgba(108, 92, 231, 0.22) 0%, transparent 50%),
+                radial-gradient(ellipse at 82% 28%, rgba(0, 210, 255, 0.13) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 92%, rgba(255, 0, 160, 0.10) 0%, transparent 45%),
+                linear-gradient(135deg, #0c0a14, #181225);
+            background-attachment: fixed;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            cursor: default;
+        }
+
+        /* ذرات پس‌زمینه متحرک */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: floatUp linear infinite;
+            opacity: 0;
+        }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(105vh) scale(0);
+                opacity: 0;
+            }
+            8% {
+                opacity: 0.65;
+            }
+            88% {
+                opacity: 0.15;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.6);
+                opacity: 0;
+            }
+        }
+
+        /* کانتینر اصلی — Mobile First با قاب 480px در دسکتاپ */
+        .main-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            padding: 18px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* صفحه‌ها */
+        .screen {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            animation: fadeSlideIn 0.5s ease-out;
+        }
+        .screen.active {
+            display: flex;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(28px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* کارت شیشه‌ای (Glassmorphism) */
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 26px 18px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 15%;
+            right: 15%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), var(--gold), var(--neon-pink), transparent);
+            border-radius: 0 0 50% 50%;
+            opacity: 0.8;
+        }
+
+        /* عنوان */
+        .title {
+            font-size: 2em;
+            font-weight: 900;
+            text-align: center;
+            background: linear-gradient(135deg, #FFE68A, #FFC93C 45%, #FFA800);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 3px 10px rgba(255, 201, 60, 0.4));
+            letter-spacing: -0.3px;
+            line-height: 1.25;
+        }
+        .subtitle {
+            font-size: 0.95em;
+            color: var(--text-dim);
+            text-align: center;
+            font-weight: 500;
+            margin-top: -6px;
+        }
+
+        /* ==================== کاراکتر (gamer.png) ==================== */
+        .character-wrapper {
+            position: relative;
+            width: 130px;
+            height: 150px;
+            transition: transform 0.4s ease;
+        }
+        .character-wrapper.bounce-char {
+            animation: charBounce 0.6s ease;
+        }
+        @keyframes charBounce {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-22px);
+            }
+            50% {
+                transform: translateY(0);
+            }
+            70% {
+                transform: translateY(-8px);
+            }
+            85% {
+                transform: translateY(0);
+            }
+        }
+        .character-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 16px rgba(255, 201, 60, 0.28));
+            animation: charFloat 3.4s ease-in-out infinite;
+        }
+        @keyframes charFloat {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-7px);
+            }
+        }
+        .speech-bubble {
+            background: rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: var(--text);
+            border: 1px solid var(--glass-border);
+            padding: 9px 14px;
+            border-radius: 20px 20px 20px 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+            position: relative;
+            max-width: 230px;
+            text-align: center;
+            animation: bubblePop 0.4s ease-out;
+        }
+        @keyframes bubblePop {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* ==================== نمایش سکه لوکو (coin.png) ==================== */
+        .coin-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 40px;
+            padding: 8px 20px 8px 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), inset 0 0 18px rgba(255, 201, 60, 0.06);
+        }
+        .coin-icon-img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+            flex-shrink: 0;
+            animation: coinGlow 2.6s ease-in-out infinite;
+        }
+        .coin-icon-img.small {
+            width: 18px;
+            height: 18px;
+        }
+        @keyframes coinGlow {
+            0%,
+            100% {
+                filter: drop-shadow(0 0 5px rgba(255, 201, 60, 0.55));
+            }
+            50% {
+                filter: drop-shadow(0 0 11px rgba(255, 201, 60, 0.95));
+            }
+        }
+        .coin-amount {
+            font-size: 1.15em;
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 12px rgba(255, 201, 60, 0.45);
+            min-width: 26px;
+            text-align: center;
+        }
+        .coin-pop {
+            animation: coinPop 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes coinPop {
+            0% {
+                transform: scale(1);
+            }
+            40% {
+                transform: scale(1.18);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* دکمه‌ها */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 13px 28px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.05em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            position: relative;
+            overflow: hidden;
+            font-family: var(--font);
+            outline: none;
+            letter-spacing: 0.2px;
+            min-width: 150px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            color: #fff;
+            text-decoration: none;
+        }
+        /* دکمه اصلی طلایی LOKO با افکت 3D Press */
+        .btn-primary {
+            background: linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #FFA800 100%);
+            color: #4A2B00;
+            border: 2px solid rgba(255, 255, 255, 0.55);
+            font-size: 1.2em;
+            font-weight: 900;
+            padding: 15px 36px;
+            box-shadow: 0 6px 0 var(--gold-dark), 0 12px 26px rgba(255, 168, 0, 0.4);
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 9px 0 var(--gold-dark), 0 16px 34px rgba(255, 168, 0, 0.5);
+        }
+        .btn-primary:active {
+            transform: translateY(4px) scale(0.97);
+            box-shadow: 0 2px 0 var(--gold-dark), 0 5px 14px rgba(255, 168, 0, 0.35);
+        }
+        .btn-secondary {
+            background: var(--glass);
+            border: 2px solid var(--glass-border);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .btn-secondary:hover {
+            background: var(--glass-strong);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+        .btn-secondary:active {
+            transform: translateY(2px) scale(0.97);
+        }
+        .btn-small {
+            padding: 9px 18px;
+            font-size: 0.85em;
+            min-width: auto;
+            border-radius: 28px;
+        }
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            min-width: auto;
+            padding: 0;
+            border-radius: 50%;
+            font-size: 1.1em;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+        }
+        .btn-icon:hover {
+            background: var(--glass-strong);
+        }
+        /* ریپل */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.45);
+            transform: scale(0);
+            animation: rippleEffect 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes rippleEffect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* دکمه‌های پاسخ */
+        .answer-btn {
+            width: 100%;
+            max-width: 280px;
+            padding: 16px 20px;
+            font-size: 1.4em;
+            font-weight: 800;
+            border-radius: 18px;
+            border: 3px solid rgba(255, 255, 255, 0.28);
+            background: var(--glass);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            position: relative;
+            overflow: hidden;
+            font-family: var(--font);
+            letter-spacing: 2px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        }
+        .answer-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+            transform: scale(1.04);
+            border-color: var(--gold);
+            box-shadow: 0 6px 22px rgba(255, 201, 60, 0.3);
+        }
+        .answer-btn:active {
+            transform: scale(0.94);
+            transition: transform 0.08s ease;
+        }
+        .answer-btn.correct-flash {
+            background: var(--success) !important;
+            border-color: var(--neon-green) !important;
+            box-shadow: var(--glow-correct) !important;
+            animation: correctPop 0.5s ease;
+        }
+        .answer-btn.wrong-shake {
+            background: var(--danger) !important;
+            border-color: #FFB3B2 !important;
+            box-shadow: var(--glow-wrong) !important;
+            animation: shakeBtn 0.5s ease;
+        }
+        @keyframes correctPop {
+            0% {
+                transform: scale(1);
+            }
+            35% {
+                transform: scale(1.08);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        @keyframes shakeBtn {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            15% {
+                transform: translateX(-7px);
+            }
+            30% {
+                transform: translateX(7px);
+            }
+            45% {
+                transform: translateX(-5px);
+            }
+            60% {
+                transform: translateX(5px);
+            }
+            75% {
+                transform: translateX(-3px);
+            }
+            90% {
+                transform: translateX(3px);
+            }
+        }
+
+        /* کانواس ساعت */
+        .clock-canvas-wrapper {
+            position: relative;
+            display: inline-block;
+            transition: transform 0.35s ease;
+        }
+        .clock-canvas-wrapper.pulse-canvas {
+            animation: canvasPulse 0.45s ease;
+        }
+        @keyframes canvasPulse {
+            0% {
+                transform: scale(1);
+            }
+            35% {
+                transform: scale(1.08);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        canvas.clock-canvas {
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 0 26px rgba(255, 201, 60, 0.3), 0 10px 30px rgba(0, 0, 0, 0.55);
+            background: #fef9f0;
+            max-width: 200px;
+            max-height: 200px;
+        }
+        /* جرقه‌های دور ساعت */
+        .spark-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+        }
+        .spark {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--gold);
+            border-radius: 50%;
+            animation: sparkBurst 0.7s ease-out forwards;
+            box-shadow: 0 0 8px var(--gold);
+        }
+        @keyframes sparkBurst {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--dx), var(--dy)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* هدر بازی — آمار مخفی؛ فقط سکه لوکو و دکمه صدا */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .stat-pill {
+            background: var(--glass);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 7px 13px;
+            font-weight: 700;
+            font-size: 0.82em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--glass-border);
+            white-space: nowrap;
+        }
+        .stat-pill.coin-pill {
+            color: var(--gold);
+        }
+
+        /* نوار پیشرفت */
+        .progress-bar-wrapper {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            height: 16px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--neon-green), var(--neon-blue));
+            border-radius: 20px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0%;
+            position: relative;
+        }
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            right: 3px;
+            top: 2px;
+            bottom: 2px;
+            width: 26px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            animation: progressShine 1.5s ease-in-out infinite;
+        }
+        @keyframes progressShine {
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        /* اعلان Toast */
+        .toast-container {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            pointer-events: none;
+            align-items: center;
+        }
+        .toast {
+            padding: 11px 22px;
+            border-radius: 36px;
+            font-weight: 700;
+            font-size: 0.9em;
+            animation: toastIn 0.35s ease-out, toastOut 0.35s ease-in forwards;
+            animation-delay: 0s, 1.7s;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            pointer-events: auto;
+            white-space: nowrap;
+            text-align: center;
+        }
+        .toast.success {
+            background: var(--success);
+            color: #fff;
+        }
+        .toast.error {
+            background: var(--danger);
+            color: #4A1512;
+        }
+        .toast.info {
+            background: var(--neon-blue);
+            color: #1E1E2F;
+        }
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(-35px) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-25px) scale(0.82);
+            }
+        }
+
+        /* مودال */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 900;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .modal {
+            background: rgba(24, 18, 37, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 26px 20px;
+            max-width: 460px;
+            width: 100%;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 44px rgba(108, 92, 231, 0.18);
+            text-align: center;
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            max-height: 82vh;
+            overflow-y: auto;
+        }
+        @keyframes modalPop {
+            from {
+                opacity: 0;
+                transform: scale(0.78) translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: none;
+            background: var(--glass);
+            color: #fff;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover {
+            background: var(--glass-strong);
+            transform: rotate(90deg);
+        }
+        .modal h2 {
+            font-size: 1.4em;
+            margin-bottom: 10px;
+            color: var(--gold);
+        }
+        .modal p {
+            color: var(--text-dim);
+            line-height: 1.65;
+            margin: 6px 0;
+        }
+
+        /* صفحه پایان بازی — ساختار LOKO */
+        .complete-character {
+            width: 92px;
+            height: 106px;
+            margin: 0 auto 4px;
+        }
+        .stars-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            font-size: 2em;
+            margin: 2px 0 10px;
+        }
+        .star {
+            display: inline-block;
+            animation: starPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
+        }
+        .star.lit {
+            filter: drop-shadow(0 0 10px rgba(255, 201, 60, 0.85));
+        }
+        .star.dim {
+            opacity: 0.25;
+            filter: grayscale(1);
+        }
+        @keyframes starPop {
+            from {
+                transform: scale(0) rotate(-40deg);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) rotate(0);
+                opacity: 1;
+            }
+        }
+        .coin-reward-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(180deg, rgba(255, 230, 138, 0.18), rgba(255, 168, 0, 0.14));
+            border: 2px solid var(--gold);
+            border-radius: 40px;
+            padding: 10px 24px;
+            color: var(--gold);
+            font-weight: 900;
+            font-size: 1.2em;
+            box-shadow: 0 0 22px rgba(255, 201, 60, 0.35);
+            animation: starPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.9s backwards;
+            margin-top: 12px;
+        }
+        .coin-reward-banner .coin-icon-img {
+            width: 26px;
+            height: 26px;
+        }
+
+        /* کانفتی */
+        .confetti-piece {
+            position: fixed;
+            z-index: 950;
+            pointer-events: none;
+            animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100px) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            70% {
+                opacity: 0.85;
+            }
+            100% {
+                transform: translateY(105vh) rotate(720deg) scale(0.25);
+                opacity: 0;
+            }
+        }
+
+        /* جایزه تصادفی */
+        .random-reward {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 800;
+            pointer-events: none;
+            animation: rewardPop 2.4s ease-out forwards;
+        }
+        @keyframes rewardPop {
+            0% {
+                transform: scale(0) rotate(-30deg);
+                opacity: 0;
+            }
+            18% {
+                transform: scale(1.3) rotate(10deg);
+                opacity: 1;
+            }
+            38% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+            78% {
+                opacity: 0.55;
+                transform: scale(1.1) translateY(-8px);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.25) translateY(-55px) rotate(20deg);
+            }
+        }
+
+        /* آیکون SVG */
+        .svg-icon {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+        .svg-icon-sm {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ریسپانسیو */
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.5em;
+            }
+            .btn {
+                padding: 11px 22px;
+                font-size: 0.9em;
+                min-width: 120px;
+            }
+            .btn-primary {
+                padding: 13px 28px;
+                font-size: 1.05em;
+            }
+            .answer-btn {
+                padding: 14px 16px;
+                font-size: 1.2em;
+                max-width: 240px;
+            }
+            .card {
+                padding: 20px 10px;
+            }
+            .character-wrapper {
+                width: 95px;
+                height: 115px;
+            }
+            .speech-bubble {
+                font-size: 0.75em;
+                max-width: 170px;
+                padding: 7px 10px;
+            }
+            canvas.clock-canvas {
+                max-width: 170px;
+                max-height: 170px;
+            }
+            .coin-icon-img {
+                width: 26px;
+                height: 26px;
+            }
+        }
+        @media (max-width: 360px) {
+            .answer-btn {
+                padding: 12px 14px;
+                font-size: 1.05em;
+                max-width: 200px;
+            }
+            canvas.clock-canvas {
+                max-width: 145px;
+                max-height: 145px;
+            }
+            .stat-pill {
+                padding: 5px 10px;
+                font-size: 0.72em;
+            }
+            .coin-display {
+                padding: 6px 14px 6px 12px;
+            }
+            .coin-amount {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ذرات پس‌زمینه -->
+    <div class="bg-particles" id="bgParticles" aria-hidden="true"></div>
+
+    <!-- اعلان‌ها -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <!-- جایزه تصادفی -->
+    <div id="randomRewardContainer" aria-hidden="true"></div>
+
+    <!-- کانتینر اصلی -->
+    <div class="main-container" id="mainContainer">
+
+        <!-- ===== صفحه اصلی (ساختار منوی LOKO) ===== -->
+        <div class="screen active" id="landingScreen">
+
+            <!-- ۱) نمایش سکه لوکو -->
+            <div class="coin-display" id="coinDisplay" title="سکه‌های لوکو">
+                <img src="./icons/coin.png" class="coin-icon-img" alt="سکه لوکو" onerror="lokocoinFallback(this)">
+                <div class="coin-amount" id="coinAmount">۰</div>
+            </div>
+
+            <div class="card">
+                <!-- ۲) عنوان / بنر -->
+                <h1 class="title">ساعت‌های گمشده در شهر</h1>
+                <p class="subtitle">ساعت رو بخون، قبیله رو نجات بده!</p>
+
+                <!-- ۳) کاراکتر gamer.png -->
+                <div class="character-wrapper" id="landingCharacter">
+                    <img src="./icons/gamer.png" alt="کاراکتر بازی" class="character-img" id="gamerCharacter" onerror="lokoCharFallback(this)">
+                </div>
+
+                <!-- ۴) حباب سخن -->
+                <div class="speech-bubble" id="welcomeBubble">
+                    ساعت‌های شهر خراب شدن! می‌تونی به ما کمک کنی؟
+                </div>
+
+                <!-- ۵) دکمه اصلی شروع -->
+                <button class="btn btn-primary" id="btnStart" aria-label="شروع بازی">
+                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none"><polygon points="5,3 20,12 5,21" fill="rgba(74,43,0,0.9)"/></svg>
+                    شروع بازی
+                </button>
+
+                <!-- ۶) دکمه فرعی -->
+                <button class="btn btn-secondary" id="btnHelp" aria-label="راهنما">
+                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="white" stroke-width="2.5" fill="none"/><text x="12" y="17" text-anchor="middle" fill="white" font-size="14" font-weight="bold">؟</text></svg>
+                    راهنما
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== صفحه بازی ===== -->
+        <div class="screen" id="gameScreen">
+            <div class="card">
+                <!-- هدر — آمار و ارقام در پشت‌صحنه محاسبه می‌شوند و نمایش داده نمی‌شوند -->
+                <div class="game-header">
+                    <div class="stat-pill coin-pill" id="coinPillGame" title="سکه‌های لوکو">
+                        <img src="./icons/coin.png" class="coin-icon-img small" alt="سکه لوکو" onerror="lokocoinFallback(this)">
+                        <span id="coinAmountGame">۰</span>
+                    </div>
+                    <button class="btn-icon" id="btnMute" aria-label="قطع/وصل صدا" title="صدا">
+                        <svg class="svg-icon-sm" id="muteIcon" viewBox="0 0 24 24" fill="none"><polygon points="2,8 7,8 13,3 13,21 7,16 2,16" fill="white"/><rect x="17" y="7" width="3" height="10" rx="1.5" fill="white"/></svg>
+                    </button>
+                </div>
+
+                <!-- نوار پیشرفت -->
+                <div class="progress-bar-wrapper">
+                    <div class="progress-bar-fill" id="progressBar" style="width:0%" title="پیشرفت"></div>
+                </div>
+                <p style="font-size:0.78em;color:var(--text-dim);" id="questionCounter">سوال ۱ از ۱۰</p>
+
+                <!-- کانواس ساعت -->
+                <div class="clock-canvas-wrapper" id="clockWrapper">
+                    <canvas class="clock-canvas" id="clockCanvas" width="200" height="200" aria-label="ساعت آنالوگ"></canvas>
+                    <div class="spark-container" id="sparkContainer"></div>
+                </div>
+
+                <!-- گزینه‌های پاسخ -->
+                <div id="answersContainer" style="display:flex;flex-direction:column;gap:10px;align-items:center;width:100%;"></div>
+
+                <!-- دکمه بازگشت -->
+                <button class="btn btn-secondary btn-small" id="btnBackToLanding" style="margin-top:6px;">بازگشت به خانه</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== مودال‌ها ===== -->
+    <div class="modal-overlay" id="modalHelp">
+        <div class="modal" role="dialog" aria-labelledby="helpTitle">
+            <button class="modal-close" data-close="modalHelp" aria-label="بستن">✕</button>
+            <h2 id="helpTitle">📖 راهنما</h2>
+            <p>به <strong>ساعت آنالوگ</strong> نگاه کن و عقربه‌ها رو بخون.</p>
+            <p>👆 سپس از بین گزینه‌ها، <strong>عدد درست</strong> رو انتخاب کن.</p>
+            <p>🎯 سعی کن <strong>کمترین خطا</strong> رو داشته باشی! هر مرحله سخت‌تر می‌شه.</p>
+        </div>
+    </div>
+
+    <!-- مودال پایان بازی — بدون نمایش آمار و ارقام؛ همه داده‌ها پشت‌صحنه ذخیره می‌شوند -->
+    <div class="modal-overlay" id="modalComplete">
+        <div class="modal" role="dialog" aria-labelledby="completeTitle">
+            <div class="complete-character" aria-hidden="true">
+                <img src="./icons/gamer.png" alt="" class="character-img" onerror="lokoCharFallback(this)">
+            </div>
+            <h2 id="completeTitle">🎉 تبریک! شهر نجات یافت!</h2>
+            <div id="completeContent"></div>
+            <button class="btn btn-primary" id="btnPlayAgain" style="margin-top:14px;">بازی دوباره</button>
+            <button class="btn btn-secondary btn-small" id="btnGoHome" style="margin-top:6px;">بازگشت به خانه</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ==================== پیکربندی LOKO ====================
+            // آدرس سرور پروژه — تا زمانی که تنظیم نشود، همه داده‌ها به‌صورت آفلاین در کش (localStorage) امن می‌مانند
+            const LOKO_SYNC_ENDPOINT = null;
+            const LOKO_SYNC_KEY = 'lokoPendingSync';
+            const COINS_KEY = 'lokoCoins';
+
+            // ==================== ثابت‌ها و پیکربندی بازی (دست‌نخورده) ====================
+            const TOTAL_QUESTIONS = 10; // تعداد سوالات هر جلسه
+            const QUESTIONS_PER_LEVEL = [3, 3, 2, 2]; // توزیع سوالات در ۴ سطح دشواری
+            const SCORE_CORRECT = 10; // امتیاز هر پاسخ درست
+            const SCORE_PENALTY = 2; // کسر امتیاز برای خطا
+            const REWARD_PROBABILITY = 0.3; // احتمال ۳۰٪ جایزه تصادفی
+            const CORRECTS_PER_UPGRADE = 5; // هر ۵ پاسخ درست انباشته = ارتقا کاراکتر
+
+            // وضعیت جلسه
+            let currentQuestionIndex = 0;
+            let sessionScore = 0;
+            let sessionErrors = 0;
+            let sessionCorrect = 0;
+            let sessionResponseTimes = [];
+            let questionStartTime = 0;
+            let currentCorrectAnswer = null;
+            let gameActive = false;
+            let soundMuted = false;
+            let questionTimerInterval = null;
+            let questionElapsed = 0;
+            let sessionInitialCoins = 0; // سکه لوکو در لحظه شروع جلسه — مبنای قانون پاداش
+
+            let audioCtx = null;
+
+            // ==================== ارجاعات DOM ====================
+            const $landingScreen = document.getElementById('landingScreen');
+            const $gameScreen = document.getElementById('gameScreen');
+            const $clockCanvas = document.getElementById('clockCanvas');
+            const $clockWrapper = document.getElementById('clockWrapper');
+            const $sparkContainer = document.getElementById('sparkContainer');
+            const $progressBar = document.getElementById('progressBar');
+            const $questionCounter = document.getElementById('questionCounter');
+            const $answersContainer = document.getElementById('answersContainer');
+            const $toastContainer = document.getElementById('toastContainer');
+            const $randomRewardContainer = document.getElementById('randomRewardContainer');
+            const $landingCharacter = document.getElementById('landingCharacter');
+            const $muteIcon = document.getElementById('muteIcon');
+            const $completeContent = document.getElementById('completeContent');
+            const $coinDisplay = document.getElementById('coinDisplay');
+            const $coinAmount = document.getElementById('coinAmount');
+            const $coinPillGame = document.getElementById('coinPillGame');
+            const $coinAmountGame = document.getElementById('coinAmountGame');
+            const ctx = $clockCanvas.getContext('2d');
+
+            // آیکون سکه لوکو (coin.png) برای محتوای تولیدی JS
+            const COIN_IMG = '<img src="./icons/coin.png" class="coin-icon-img" alt="سکه لوکو" onerror="lokocoinFallback(this)">';
+
+            function toPersianDigits(n) {
+                return String(n).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹' [d]);
+            }
+
+            // ==================== ذرات پس‌زمینه ====================
+            function createBgParticles() {
+                const container = document.getElementById('bgParticles');
+                container.innerHTML = '';
+                const colors = ['#FFC93C', '#00D2FF', '#FF00A0', '#6C5CE7', '#00FF9D', '#FFEAA7'];
+                for (let i = 0; i < 30; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'bg-particle';
+                    const s = Math.random() * 5 + 2;
+                    p.style.width = s + 'px';
+                    p.style.height = s + 'px';
+                    p.style.left = Math.random() * 100 + '%';
+                    p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    p.style.animationDuration = (Math.random() * 10 + 9) + 's';
+                    p.style.animationDelay = Math.random() * 13 + 's';
+                    p.style.boxShadow = '0 0 ' + (s * 2.5) + 'px ' + p.style.backgroundColor;
+                    container.appendChild(p);
+                }
+            }
+
+            // ==================== سیستم صدا (Web Audio API) ====================
+            function getAudioContext() {
+                if (!audioCtx) {
+                    try {
+                        audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+                    } catch (e) { return null; }
+                }
+                if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+                return audioCtx;
+            }
+
+            function playTone(freq, dur, type = 'sine', vol = 0.22) {
+                if (soundMuted) return;
+                const actx = getAudioContext();
+                if (!actx) return;
+                try {
+                    const osc = actx.createOscillator();
+                    const gain = actx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, actx.currentTime);
+                    gain.gain.setValueAtTime(vol, actx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + dur);
+                    osc.connect(gain);
+                    gain.connect(actx.destination);
+                    osc.start(actx.currentTime);
+                    osc.stop(actx.currentTime + dur);
+                } catch (e) { /* بی‌صدا */ }
+            }
+
+            function playSound(type) {
+                if (soundMuted) return;
+                getAudioContext();
+                switch (type) {
+                    case 'click':
+                        playTone(784, 0.1, 'sine', 0.18);
+                        break;
+                    case 'correct':
+                        playTone(523, 0.13, 'sine', 0.2);
+                        setTimeout(() => playTone(659, 0.13, 'sine', 0.2), 100);
+                        setTimeout(() => playTone(784, 0.18, 'sine', 0.22), 200);
+                        break;
+                    case 'wrong':
+                        playTone(330, 0.16, 'square', 0.16);
+                        setTimeout(() => playTone(262, 0.2, 'square', 0.16), 130);
+                        break;
+                    case 'complete':
+                        playTone(523, 0.16, 'sine', 0.22);
+                        setTimeout(() => playTone(659, 0.16, 'sine', 0.22), 130);
+                        setTimeout(() => playTone(784, 0.16, 'sine', 0.22), 260);
+                        setTimeout(() => playTone(1047, 0.32, 'triangle', 0.28), 390);
+                        break;
+                    case 'reward':
+                        playTone(1100, 0.08, 'sine', 0.13);
+                        setTimeout(() => playTone(1400, 0.07, 'sine', 0.1), 70);
+                        break;
+                    case 'coin': // صدای سکه لوکو
+                        playTone(988, 0.09, 'triangle', 0.18);
+                        setTimeout(() => playTone(1319, 0.14, 'triangle', 0.18), 90);
+                        break;
+                }
+            }
+
+            // ==================== اعلان Toast ====================
+            function showToast(msg, type = 'info') {
+                const t = document.createElement('div');
+                t.className = 'toast ' + type;
+                t.textContent = msg;
+                $toastContainer.appendChild(t);
+                setTimeout(() => { if (t.parentNode) t.remove(); }, 2100);
+            }
+
+            // ==================== جایزه تصادفی ====================
+            function showRandomReward() {
+                if (Math.random() > REWARD_PROBABILITY) return;
+                const container = $randomRewardContainer;
+                container.innerHTML = '';
+                const reward = document.createElement('div');
+                reward.className = 'random-reward';
+                const isBone = Math.random() > 0.5;
+                reward.innerHTML = isBone ?
+                    `<svg width="46" height="46" viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="11" cy="13" rx="9" ry="7" fill="#f5e6d3" stroke="#c9a87c" stroke-width="2"/>
+                <ellipse cx="11" cy="33" rx="9" ry="7" fill="#f5e6d3" stroke="#c9a87c" stroke-width="2"/>
+                <ellipse cx="35" cy="13" rx="9" ry="7" fill="#f5e6d3" stroke="#c9a87c" stroke-width="2"/>
+                <ellipse cx="35" cy="33" rx="9" ry="7" fill="#f5e6d3" stroke="#c9a87c" stroke-width="2"/>
+                <rect x="9" y="18" width="28" height="10" rx="3" fill="#f5e6d3" stroke="#c9a87c" stroke-width="2"/>
+              </svg>` :
+                    `<svg width="38" height="46" viewBox="0 0 38 46" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 2 L34 17 Q36 28 28 40 L19 45 L10 40 Q2 28 4 17 Z" fill="#fffef5" stroke="#d4c5a0" stroke-width="2.5"/>
+                <path d="M19 7 L28 18 Q30 27 24 35 L19 39 L14 35 Q8 27 10 18 Z" fill="#fefdf8" stroke="#d4c5a0" stroke-width="1"/>
+              </svg>`;
+                reward.style.bottom = (18 + Math.random() * 35) + 'px';
+                reward.style.right = (12 + Math.random() * 35) + 'px';
+                container.appendChild(reward);
+                playSound('reward');
+                setTimeout(() => { if (reward.parentNode) reward.remove(); }, 2500);
+            }
+
+            // ==================== کانفتی ====================
+            function spawnConfetti(count = 45) {
+                const colors = ['#FFC93C', '#00D2FF', '#FF00A0', '#6C5CE7', '#00FF9D', '#FFEAA7', '#FF7675', '#FFA800'];
+                for (let i = 0; i < count; i++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'confetti-piece';
+                    piece.style.left = Math.random() * 100 + '%';
+                    piece.style.top = -(Math.random() * 55 + 8) + 'px';
+                    piece.style.width = (Math.random() * 9 + 5) + 'px';
+                    piece.style.height = (Math.random() * 9 + 5) + 'px';
+                    piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+                    piece.style.animationDuration = (Math.random() * 2 + 2.2) + 's';
+                    piece.style.animationDelay = Math.random() * 0.5 + 's';
+                    document.body.appendChild(piece);
+                    const d = parseFloat(piece.style.animationDuration);
+                    const dl = parseFloat(piece.style.animationDelay);
+                    setTimeout(() => { if (piece.parentNode) piece.remove(); }, (dl + d) * 1000 + 200);
+                }
+            }
+
+            // ==================== جرقه‌های دور ساعت ====================
+            function spawnSparks(count = 16) {
+                $sparkContainer.innerHTML = '';
+                for (let i = 0; i < count; i++) {
+                    const spark = document.createElement('div');
+                    spark.className = 'spark';
+                    const angle = (Math.PI * 2 / count) * i + Math.random() * 0.3;
+                    const dist = 70 + Math.random() * 40;
+                    spark.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+                    spark.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+                    spark.style.left = '50%';
+                    spark.style.top = '50%';
+                    spark.style.marginLeft = '-4px';
+                    spark.style.marginTop = '-4px';
+                    spark.style.animationDuration = (0.5 + Math.random() * 0.4) + 's';
+                    $sparkContainer.appendChild(spark);
+                }
+                setTimeout(() => { $sparkContainer.innerHTML = ''; }, 800);
+            }
+
+            // ==================== افکت ریپل ====================
+            function addRippleEffect(e) {
+                const btn = e.currentTarget;
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                const rect = btn.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = size + 'px';
+                ripple.style.height = size + 'px';
+                ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                btn.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 700);
+            }
+
+            function attachRipples() {
+                document.querySelectorAll('.btn, .answer-btn, .btn-icon').forEach(b => {
+                    b.removeEventListener('click', addRippleEffect);
+                    b.addEventListener('click', addRippleEffect);
+                });
+            }
+
+            // ==================== رسم ساعت روی کانواس (منطق بازی — دست‌نخورده) ====================
+            function drawClock(hour, minute, animProgress = 1.0) {
+                const w = $clockCanvas.width;
+                const h = $clockCanvas.height;
+                const cx = w / 2;
+                const cy = h / 2;
+                const radius = 85;
+
+                ctx.clearRect(0, 0, w, h);
+
+                // صفحه ساعت
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#fef9f0';
+                ctx.fill();
+                ctx.strokeStyle = '#8b5e3c';
+                ctx.lineWidth = 5;
+                ctx.stroke();
+
+                // حلقه تزئینی داخلی
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius - 8, 0, Math.PI * 2);
+                ctx.strokeStyle = '#c9a87c';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // علامت‌های ساعت و اعداد
+                for (let i = 1; i <= 12; i++) {
+                    const angle = (i * 30 - 90) * (Math.PI / 180);
+                    const outerX = cx + Math.cos(angle) * (radius - 12);
+                    const outerY = cy + Math.sin(angle) * (radius - 12);
+                    const innerX = cx + Math.cos(angle) * (radius - 22);
+                    const innerY = cy + Math.sin(angle) * (radius - 22);
+
+                    // علامت ضخیم برای ۱۲، ۳، ۶، ۹
+                    if (i % 3 === 0) {
+                        ctx.beginPath();
+                        ctx.moveTo(outerX, outerY);
+                        ctx.lineTo(innerX, innerY);
+                        ctx.strokeStyle = '#5d3a1a';
+                        ctx.lineWidth = 3;
+                        ctx.stroke();
+                        // عدد
+                        const numX = cx + Math.cos(angle) * (radius - 32);
+                        const numY = cy + Math.sin(angle) * (radius - 32);
+                        ctx.fillStyle = '#3d2b1f';
+                        ctx.font = 'bold 16px "Segoe UI","Tahoma",sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(i.toString(), numX, numY);
+                    } else {
+                        ctx.beginPath();
+                        ctx.moveTo(outerX, outerY);
+                        ctx.lineTo(innerX, innerY);
+                        ctx.strokeStyle = '#a08060';
+                        ctx.lineWidth = 1.8;
+                        ctx.stroke();
+                    }
+                }
+
+                // محاسبه زوایای عقربه‌ها با احتساب انیمیشن
+                const rawMinAngle = (minute / 60) * 360 - 90;
+                const rawHourAngle = ((hour % 12) / 12) * 360 + (minute / 60) * 30 - 90;
+                const minAngle = rawMinAngle * (Math.PI / 180);
+                const hourAngle = rawHourAngle * (Math.PI / 180);
+
+                // عقربه ساعت (کوتاه‌تر و ضخیم‌تر)
+                const hourLen = radius * 0.5;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + Math.cos(hourAngle) * hourLen, cy + Math.sin(hourAngle) * hourLen);
+                ctx.strokeStyle = '#3d2b1f';
+                ctx.lineWidth = 7;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+
+                // عقربه دقیقه (بلندتر و نازک‌تر)
+                const minLen = radius * 0.75;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + Math.cos(minAngle) * minLen, cy + Math.sin(minAngle) * minLen);
+                ctx.strokeStyle = '#5d3a1a';
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+
+                // نقطه مرکزی
+                ctx.beginPath();
+                ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+                ctx.fillStyle = '#3d2b1f';
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#f4a261';
+                ctx.fill();
+            }
+
+            function animateClockTo(hour, minute, duration = 400) {
+                const startTime = performance.now();
+                const startHour = currentCorrectAnswer ? currentCorrectAnswer.h : hour;
+                const startMinute = currentCorrectAnswer ? currentCorrectAnswer.m : minute;
+
+                function step(now) {
+                    const elapsed = now - startTime;
+                    const progress = Math.min(1, elapsed / duration);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    const h = startHour + (hour - startHour) * eased;
+                    const m = startMinute + (minute - startMinute) * eased;
+                    drawClock(Math.round(h), Math.round(m), eased);
+                    if (progress < 1) {
+                        requestAnimationFrame(step);
+                    } else {
+                        drawClock(hour, minute, 1);
+                    }
+                }
+                requestAnimationFrame(step);
+            }
+
+            // ==================== تولید سوال (منطق بازی — دست‌نخورده) ====================
+            function getLevelForQuestion(qIndex) {
+                if (qIndex < 3) return 1;
+                if (qIndex < 6) return 2;
+                if (qIndex < 8) return 3;
+                return 4;
+            }
+
+            function generateQuestion(level) {
+                let hour, minute;
+                switch (level) {
+                    case 1:
+                        hour = Math.floor(Math.random() * 12) + 1;
+                        minute = 0;
+                        break;
+                    case 2:
+                        hour = Math.floor(Math.random() * 12) + 1;
+                        minute = Math.random() > 0.5 ? 30 : 0;
+                        if (minute === 0 && Math.random() > 0.5) minute = 30;
+                        break;
+                    case 3:
+                        hour = Math.floor(Math.random() * 12) + 1;
+                        minute = [0, 15, 30, 45][Math.floor(Math.random() * 4)];
+                        break;
+                    case 4:
+                    default:
+                        hour = Math.floor(Math.random() * 12) + 1;
+                        minute = Math.floor(Math.random() * 12) * 5;
+                        break;
+                }
+                return { h: hour, m: minute };
+            }
+
+            function formatTime(h, m) {
+                const toPersian = (n) => String(n).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹' [d]);
+                return toPersian(h) + ':' + String(m).padStart(2, '0').replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹' [d]);
+            }
+
+            function formatTimeEnglish(h, m) {
+                return h + ':' + String(m).padStart(2, '0');
+            }
+
+            function generateWrongAnswers(correct, level, count = 3) {
+                const wrongs = new Set();
+                const correctKey = correct.h * 60 + correct.m;
+
+                const attempts = [];
+                if (level === 1) {
+                    for (let h = 1; h <= 12; h++) {
+                        if (h !== correct.h) attempts.push({ h, m: 0 });
+                    }
+                } else if (level === 2) {
+                    for (let h = 1; h <= 12; h++) {
+                        for (let m of [0, 30]) {
+                            const key = h * 60 + m;
+                            if (key !== correctKey) attempts.push({ h, m });
+                        }
+                    }
+                } else if (level === 3) {
+                    for (let h = 1; h <= 12; h++) {
+                        for (let m of [0, 15, 30, 45]) {
+                            const key = h * 60 + m;
+                            if (key !== correctKey) attempts.push({ h, m });
+                        }
+                    }
+                } else {
+                    const baseMin = correct.h * 60 + correct.m;
+                    const offsets = [-15, -10, -5, 5, 10, 15, -20, 20, -25, 25];
+                    for (let offset of offsets) {
+                        let newMin = baseMin + offset;
+                        if (newMin < 60) newMin += 12 * 60;
+                        if (newMin >= 13 * 60) newMin -= 12 * 60;
+                        const newH = (Math.floor(newMin / 60)) % 12;
+                        const newM = newMin % 60;
+                        if (newH === 0) continue;
+                        const key = newH * 60 + newM;
+                        if (key !== correctKey && newM >= 0 && newM < 60) {
+                            attempts.push({ h: newH === 0 ? 12 : newH, m: newM });
+                        }
+                    }
+                }
+
+                for (let i = attempts.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [attempts[i], attempts[j]] = [attempts[j], attempts[i]];
+                }
+
+                for (const a of attempts) {
+                    if (wrongs.size >= count) break;
+                    const key = a.h * 60 + a.m;
+                    if (key !== correctKey && a.m >= 0 && a.m < 60 && a.h >= 1 && a.h <= 12) {
+                        wrongs.add(JSON.stringify({ h: a.h, m: a.m }));
+                    }
+                }
+
+                while (wrongs.size < count) {
+                    const rh = Math.floor(Math.random() * 12) + 1;
+                    const rm = Math.floor(Math.random() * 12) * 5;
+                    const key = rh * 60 + rm;
+                    if (key !== correctKey) {
+                        wrongs.add(JSON.stringify({ h: rh, m: rm }));
+                    }
+                }
+
+                return Array.from(wrongs).map(s => JSON.parse(s));
+            }
+
+            function shuffleArray(arr) {
+                const a = [...arr];
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                return a;
+            }
+
+            function displayQuestion() {
+                if (!gameActive || currentQuestionIndex >= TOTAL_QUESTIONS) return;
+
+                const level = getLevelForQuestion(currentQuestionIndex);
+                const correct = generateQuestion(level);
+                currentCorrectAnswer = correct;
+                const wrongs = generateWrongAnswers(correct, level, 3);
+
+                const allOptions = [{ h: correct.h, m: correct.m, isCorrect: true },
+                    ...wrongs.map(w => ({ h: w.h, m: w.m, isCorrect: false }))
+                ];
+                const shuffled = shuffleArray(allOptions);
+
+                animateClockTo(correct.h, correct.m, 400);
+                $clockWrapper.classList.add('pulse-canvas');
+                setTimeout(() => $clockWrapper.classList.remove('pulse-canvas'), 450);
+
+                $answersContainer.innerHTML = '';
+                shuffled.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'answer-btn';
+                    btn.textContent = formatTime(opt.h, opt.m);
+                    btn.setAttribute('data-hour', opt.h);
+                    btn.setAttribute('data-minute', opt.m);
+                    btn.setAttribute('data-correct', opt.isCorrect ? '1' : '0');
+                    btn.addEventListener('click', () => onAnswerClick(btn, opt));
+                    $answersContainer.appendChild(btn);
+                });
+
+                $questionCounter.textContent = 'سوال ' + (currentQuestionIndex + 1) + ' از ' + TOTAL_QUESTIONS;
+                updateAllDisplays();
+
+                // تایمر فقط در پشت‌صحنه محاسبه می‌شود (بدون نمایش به کاربر)
+                questionElapsed = 0;
+                questionStartTime = performance.now();
+                clearInterval(questionTimerInterval);
+                questionTimerInterval = setInterval(() => {
+                    questionElapsed = (performance.now() - questionStartTime) / 1000;
+                }, 80);
+            }
+
+            function onAnswerClick(btn, option) {
+                if (!gameActive) return;
+                clearInterval(questionTimerInterval);
+                const responseTime = (performance.now() - questionStartTime) / 1000;
+                sessionResponseTimes.push(responseTime);
+
+                const allBtns = $answersContainer.querySelectorAll('.answer-btn');
+                allBtns.forEach(b => b.style.pointerEvents = 'none');
+
+                if (option.isCorrect) {
+                    sessionScore += SCORE_CORRECT;
+                    sessionCorrect++;
+                    playSound('correct');
+                    showToast('آفرین! ⭐', 'success');
+                    btn.classList.add('correct-flash');
+                    spawnSparks(14);
+                    showRandomReward();
+                } else {
+                    sessionErrors++;
+                    sessionScore = Math.max(0, sessionScore - SCORE_PENALTY);
+                    playSound('wrong');
+                    showToast('نزدیک بود! دوباره تلاش کن 🤗', 'error');
+                    btn.classList.add('wrong-shake');
+                    allBtns.forEach(b => {
+                        if (b.getAttribute('data-correct') === '1') {
+                            b.classList.add('correct-flash');
+                        }
+                    });
+                }
+
+                updateAllDisplays();
+
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    if (currentQuestionIndex >= TOTAL_QUESTIONS) {
+                        endSession();
+                    } else {
+                        displayQuestion();
+                    }
+                }, 1000);
+            }
+
+            // ==================== پایان جلسه ====================
+            function endSession() {
+                gameActive = false;
+                clearInterval(questionTimerInterval);
+                playSound('complete');
+                spawnConfetti(50);
+
+                // همه محاسبات در پشت‌صحنه انجام می‌شود و ذخیره/ارسال می‌گردد
+                const avgTime = sessionResponseTimes.length > 0 ?
+                    sessionResponseTimes.reduce((a, b) => a + b, 0) / sessionResponseTimes.length :
+                    0;
+
+                let personality;
+                if (avgTime < 3 && sessionErrors < 3) {
+                    personality = 'تیپ سریع و دقیق';
+                } else if (avgTime > 8 && sessionErrors < 3) {
+                    personality = 'تیپ متفکر';
+                } else if (avgTime < 3 && sessionErrors > 5) {
+                    personality = 'تیپ آزمون و خطا';
+                } else {
+                    personality = 'تیپ متعادل';
+                }
+
+                // ذخیره آمار (Data Pipeline فعال — نمایش به کاربر ندارد)
+                saveStats(sessionScore, sessionCorrect, sessionErrors, personality);
+
+                // ===== پاداش سکه لوکو — فقط پس از تکمیل «تمام» مراحل بازی =====
+                // قانون: اگر سکه ابتدای جلسه صفر بود → ‎+۱۰‎ و در غیر این صورت → ‎+۱‎
+                const coinReward = (sessionInitialCoins === 0) ? 10 : 1;
+                addCoins(coinReward);
+                setTimeout(() => playSound('coin'), 350);
+
+                $landingCharacter.classList.add('bounce-char');
+                setTimeout(() => $landingCharacter.classList.remove('bounce-char'), 700);
+
+                showCompletionModal(coinReward);
+                updateAllDisplays();
+            }
+
+            // صفحه پایان — فقط جشن، ستاره و پاداش سکه؛ بدون هیچ آمار و عددی
+            function showCompletionModal(coinReward) {
+                const stars = sessionErrors === 0 ? 3 : (sessionErrors <= 3 ? 2 : 1);
+                let starsHtml = '';
+                for (let i = 0; i < 3; i++) {
+                    starsHtml += '<span class="star ' + (i < stars ? 'lit' : 'dim') + '" style="animation-delay:' + (0.25 + i * 0.22) + 's">⭐</span>';
+                }
+
+                $completeContent.innerHTML = `
+              <div class="stars-row">${starsHtml}</div>
+              <div class="coin-reward-banner">${COIN_IMG}<span>+${toPersianDigits(coinReward)} سکه لوکو</span></div>
+            `;
+                openModal('modalComplete');
+            }
+
+            // ==================== به‌روزرسانی‌های نمایش (بدون آمار) ====================
+            function updateAllDisplays() {
+                const progress = Math.round((currentQuestionIndex / TOTAL_QUESTIONS) * 100);
+                $progressBar.style.width = progress + '%';
+                $questionCounter.textContent = 'سوال ' + (Math.min(currentQuestionIndex + 1, TOTAL_QUESTIONS)) + ' از ' +
+                    TOTAL_QUESTIONS;
+                if (!gameActive && currentQuestionIndex >= TOTAL_QUESTIONS) {
+                    $questionCounter.textContent = 'پایان جلسه!';
+                }
+            }
+
+            // ==================== مدیریت localStorage (آمار — فقط پشت‌صحنه) ====================
+            function getStats() {
+                const def = {
+                    totalGames: 0,
+                    totalCorrect: 0,
+                    totalWrong: 0,
+                    totalScore: 0,
+                    bestScore: 0,
+                    personalityCounts: {
+                        'تیپ سریع و دقیق': 0,
+                        'تیپ متفکر': 0,
+                        'تیپ آزمون و خطا': 0,
+                        'تیپ متعادل': 0,
+                    },
+                    lastPlayDate: null,
+                };
+                try {
+                    const raw = localStorage.getItem('clockGameStats');
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        const merged = { ...def, ...parsed };
+                        if (!merged.personalityCounts) merged.personalityCounts = { ...def.personalityCounts };
+                        for (const k of Object.keys(def.personalityCounts)) {
+                            if (!(k in merged.personalityCounts)) merged.personalityCounts[k] = 0;
+                        }
+                        return merged;
+                    }
+                } catch (e) { /* بی‌صدا */ }
+                return { ...def, personalityCounts: { ...def.personalityCounts } };
+            }
+
+            function stageForCorrect(total) {
+                if (total >= CORRECTS_PER_UPGRADE * 2) return 3;
+                if (total >= CORRECTS_PER_UPGRADE) return 2;
+                return 1;
+            }
+
+            function getCharacterStage() {
+                return stageForCorrect(getStats().totalCorrect);
+            }
+
+            function saveStats(score, correct, errors, personality) {
+                const stats = getStats();
+                stats.totalGames += 1;
+                stats.totalCorrect += correct;
+                stats.totalWrong += errors;
+                stats.totalScore += score;
+                if (score > stats.bestScore) stats.bestScore = score;
+                if (personality in stats.personalityCounts) {
+                    stats.personalityCounts[personality]++;
+                } else {
+                    stats.personalityCounts[personality] = 1;
+                }
+                stats.lastStage = stageForCorrect(stats.totalCorrect); // مرحله رشد کاراکتر — فقط به‌عنوان داده
+                stats.lastPlayDate = new Date().toLocaleDateString('fa-IR');
+                try {
+                    localStorage.setItem('clockGameStats', JSON.stringify(stats));
+                } catch (e) { /* بی‌صدا */ }
+                // آمار برای همگام‌سازی آینده در صف قرار می‌گیرد (هیچ‌کدام به کاربر نمایش داده نمی‌شود)
+                queueForSync('stats', { ...stats });
+            }
+
+            // ==================== سیستم سکه لوکو ====================
+            function getCoins() {
+                try {
+                    const v = parseInt(localStorage.getItem(COINS_KEY), 10);
+                    return (isNaN(v) || v < 0) ? 0 : v;
+                } catch (e) { return 0; }
+            }
+
+            function setCoins(n) {
+                try { localStorage.setItem(COINS_KEY, String(n)); } catch (e) { /* بی‌صدا */ }
+                updateCoinDisplays(true);
+                queueForSync('coins', { coins: n });
+            }
+
+            function addCoins(n) {
+                setCoins(getCoins() + n);
+            }
+
+            function updateCoinDisplays(animate = false) {
+                const txt = toPersianDigits(getCoins());
+                if ($coinAmount) $coinAmount.textContent = txt;
+                if ($coinAmountGame) $coinAmountGame.textContent = txt;
+                if (animate) {
+                    [$coinDisplay, $coinPillGame].forEach(el => {
+                        if (!el) return;
+                        el.classList.remove('coin-pop');
+                        void el.offsetWidth; // ری‌استارت انیمیشن
+                        el.classList.add('coin-pop');
+                        setTimeout(() => el.classList.remove('coin-pop'), 600);
+                    });
+                }
+            }
+
+            // ==================== همگام‌سازی آفلاین LOKO ====================
+            // داده‌ها همیشه بلافاصله در کش (localStorage) ذخیره می‌شوند؛ در صورت وجود سرور،
+            // صف در فرصت مناسب ارسال می‌شود و در غیر این صورت بدون توقف بازی در کش می‌ماند.
+
+            function fetchWithTimeout(url, options = {}, timeout = 8000) {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), timeout);
+                return fetch(url, { ...options, signal: controller.signal })
+                    .finally(() => clearTimeout(timer));
+            }
+
+            function getPendingSync() {
+                try {
+                    const raw = localStorage.getItem(LOKO_SYNC_KEY);
+                    const arr = raw ? JSON.parse(raw) : [];
+                    return Array.isArray(arr) ? arr : [];
+                } catch (e) { return []; }
+            }
+
+            function queueForSync(type, data) {
+                try {
+                    const queue = getPendingSync();
+                    queue.push({ type: type, data: data, ts: Date.now() });
+                    if (queue.length > 50) queue.splice(0, queue.length - 50); // محدودیت امن صف
+                    localStorage.setItem(LOKO_SYNC_KEY, JSON.stringify(queue));
+                } catch (e) { /* بی‌صدا */ }
+                syncData(); // تلاش فوری (اگر آنلاین و سرور تنظیم شده باشد)
+            }
+
+            // ادغام محتاطانه داده سرور با داده محلی — داده‌های آفلاین هرگز نابود نمی‌شوند
+            function mergeServerData(localStats, serverStats) {
+                if (!serverStats || typeof serverStats !== 'object') return localStats;
+                const merged = { ...localStats };
+                ['totalGames', 'totalCorrect', 'totalWrong', 'totalScore', 'bestScore'].forEach(k => {
+                    if (typeof serverStats[k] === 'number') {
+                        merged[k] = Math.max(merged[k] || 0, serverStats[k]);
+                    }
+                });
+                return merged;
+            }
+
+            let syncInProgress = false;
+            async function syncData() {
+                if (syncInProgress) return;
+                if (!LOKO_SYNC_ENDPOINT) return; // بدون سرور: داده‌ها در کش محلی امن می‌مانند
+                if (!navigator.onLine) return;
+                const queue = getPendingSync();
+                if (!queue.length) return;
+                syncInProgress = true;
+                try {
+                    const res = await fetchWithTimeout(LOKO_SYNC_ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ game: 'lost-clocks', payload: queue })
+                    });
+                    if (res.ok) {
+                        // در صورت ارسال داده کاربر از سمت سرور، ادغام محتاطانه انجام می‌شود
+                        try {
+                            const serverData = await res.json();
+                            if (serverData && serverData.stats) {
+                                const merged = mergeServerData(getStats(), serverData.stats);
+                                try { localStorage.setItem('clockGameStats', JSON.stringify(merged)); } catch (e) {}
+                            }
+                        } catch (e) { /* پاسخ JSON نبود؛ نادیده گرفته می‌شود */ }
+                        try { localStorage.setItem(LOKO_SYNC_KEY, JSON.stringify([])); } catch (e) {}
+                    }
+                } catch (e) {
+                    // خطای شبکه / تایم‌اوت: صف دست‌نخورده می‌ماند؛ بازی آفلاین ادامه می‌یابد
+                } finally {
+                    syncInProgress = false;
+                }
+            }
+
+            // ==================== مدیریت مودال‌ها ====================
+            function openModal(id) {
+                const m = document.getElementById(id);
+                if (m) {
+                    m.classList.add('active');
+                    const cb = m.querySelector('.modal-close');
+                    if (cb) setTimeout(() => cb.focus(), 100);
+                }
+            }
+
+            function closeModal(id) {
+                const m = document.getElementById(id);
+                if (m) m.classList.remove('active');
+            }
+
+            // ==================== تغییر صفحات ====================
+            function showScreen(name) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                if (name === 'landing') {
+                    $landingScreen.classList.add('active');
+                    gameActive = false;
+                    clearInterval(questionTimerInterval);
+                    updateCoinDisplays();
+                } else if (name === 'game') {
+                    $gameScreen.classList.add('active');
+                    startNewSession();
+                }
+            }
+
+            function startNewSession() {
+                currentQuestionIndex = 0;
+                sessionScore = 0;
+                sessionErrors = 0;
+                sessionCorrect = 0;
+                sessionResponseTimes = [];
+                currentCorrectAnswer = null;
+                gameActive = true;
+                questionElapsed = 0;
+                sessionInitialCoins = getCoins(); // ثبت سکه ابتدای بازی — مبنای قانون پاداش ۱۰/۱
+                clearInterval(questionTimerInterval);
+                updateAllDisplays();
+                $progressBar.style.width = '0%';
+                $answersContainer.innerHTML = '';
+                drawClock(12, 0, 1);
+                displayQuestion();
+            }
+
+            // ==================== تنظیم صدا ====================
+            function toggleMute() {
+                soundMuted = !soundMuted;
+                updateMuteIcon();
+                try { localStorage.setItem('clockGameMuted', soundMuted ? '1' : '0'); } catch (e) {}
+                if (!soundMuted) getAudioContext();
+            }
+
+            function updateMuteIcon() {
+                if (soundMuted) {
+                    $muteIcon.innerHTML =
+                        '<polygon points="2,8 7,8 13,3 13,21 7,16 2,16" fill="white"/><line x1="17" y1="9" x2="22" y2="15" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="22" y1="9" x2="17" y2="15" stroke="white" stroke-width="2.5" stroke-linecap="round"/>';
+                } else {
+                    $muteIcon.innerHTML =
+                        '<polygon points="2,8 7,8 13,3 13,21 7,16 2,16" fill="white"/><rect x="17" y="7" width="3" height="10" rx="1.5" fill="white"/>';
+                }
+            }
+
+            function loadMuteSetting() {
+                try { soundMuted = localStorage.getItem('clockGameMuted') === '1'; } catch (e) { soundMuted = false; }
+                updateMuteIcon();
+            }
+
+            // ==================== اتصال رویدادها ====================
+            function bindEvents() {
+                document.getElementById('btnStart').addEventListener('click', () => {
+                    playSound('click');
+                    showScreen('game');
+                });
+                document.getElementById('btnHelp').addEventListener('click', () => {
+                    playSound('click');
+                    openModal('modalHelp');
+                });
+                document.getElementById('btnMute').addEventListener('click', () => {
+                    toggleMute();
+                    if (!soundMuted) playSound('click');
+                });
+                document.getElementById('btnBackToLanding').addEventListener('click', () => {
+                    playSound('click');
+                    gameActive = false;
+                    clearInterval(questionTimerInterval);
+                    showScreen('landing');
+                });
+                document.querySelectorAll('.modal-close').forEach(b => {
+                    b.addEventListener('click', () => {
+                        const id = b.getAttribute('data-close');
+                        if (id) closeModal(id);
+                    });
+                });
+                document.querySelectorAll('.modal-overlay').forEach(o => {
+                    o.addEventListener('click', (e) => {
+                        if (e.target === o) o.classList.remove('active');
+                    });
+                });
+                document.getElementById('btnPlayAgain').addEventListener('click', () => {
+                    closeModal('modalComplete');
+                    showScreen('game');
+                });
+                document.getElementById('btnGoHome').addEventListener('click', () => {
+                    closeModal('modalComplete');
+                    showScreen('landing');
+                });
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        const am = document.querySelector('.modal-overlay.active');
+                        if (am) am.classList.remove('active');
+                    }
+                });
+            }
+
+            // ==================== راه‌اندازی ====================
+            function init() {
+                createBgParticles();
+                loadMuteSetting();
+                updateCoinDisplays();
+                bindEvents();
+                attachRipples();
+                showScreen('landing');
+                drawClock(12, 0, 1);
+
+                // فعال‌سازی AudioContext
+                document.addEventListener('click', function initA() { getAudioContext(); }, { once: true });
+                document.addEventListener('touchstart', function initAT() { getAudioContext(); }, { once: true });
+
+                // همگام‌سازی خودکار: پس از برگشت اتصال + هر ۳۰ ثانیه (غیرمسدودکننده)
+                window.addEventListener('online', () => syncData());
+                setInterval(() => syncData(), 30000);
+
+                console.log('🕐 ساعت‌های گمشده در شهر آماده است!');
+                console.log('🎯 آموزش خواندن ساعت آنالوگ برای کودکان ۸ ساله');
+                console.log('📊 آمار به‌صورت پشت‌صحنه محاسبه و ذخیره می‌شود (بدون نمایش به کاربر)');
+                console.log('🪙 سیستم سکه لوکو فعال است: اتمام کل بازی با ۰ سکه = ‎+۱۰‎ / غیر آن = ‎+۱‎');
+                console.log('🖼️ آیکون‌ها: icons/coin.png و icons/gamer.png (با Fallback داخلی)');
+                console.log('🔄 حالت آفلاین: داده‌ها در کش می‌مانند و پس از برگشت اتصال سینک می‌شوند');
+            }
+
+            init();
+        })();
+    </script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_WIN = ["#modalComplete"];</script>
+<script src="/games/assets/luko-sdk.js"></script>
+<script src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>
