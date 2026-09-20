@@ -7,7 +7,7 @@ export interface GamePath {
   stages: PathStage[];
   /** هنوز حتی یک‌بار نرسیده */
   isLoading: boolean;
-  /** نرسید و چیزی هم از قبل نداریم */
+  /** نرسید و چیزی هم از قبل نداریم (خطا، یا اینترنتِ قطع) */
   isError: boolean;
   retry: () => void;
 }
@@ -28,10 +28,14 @@ export function useGamePath(grade: number): GamePath {
     staleTime: 5 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
   });
+  // `isPaused` یعنی مرورگر آفلاین است و درخواست اصلاً فرستاده نشده. بدونِ
+  // این، صفحه نه در حالِ بارگذاری بود نه خطا، و بچه پیامِ «بازی‌های این
+  // کلاس تو راهن» را می‌دید — انگار محتوایی وجود ندارد.
+  const stalled = (query.isError || query.isPaused) && !query.data;
   return {
     stages: query.data ?? EMPTY,
-    isLoading: query.isLoading,
-    isError: query.isError && !query.data,
+    isLoading: query.isLoading && !query.isPaused,
+    isError: stalled,
     retry: () => void query.refetch(),
   };
 }
