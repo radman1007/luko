@@ -1,34 +1,26 @@
-import { useEffect, useRef, useState } from 'react';
-import { HiOutlineCheck, HiOutlineTrash } from 'react-icons/hi2';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { HiOutlineArrowsPointingIn, HiOutlineArrowsPointingOut } from 'react-icons/hi2';
 import { LUKORIANS } from '@/lib/characters';
 import { isGuestMode } from '@/features/auth/guest';
+import { useEscapeKey } from '@/hooks/useEscapeKey';
 import { saveArtEntry } from '../../artLog';
 import { useSaveDrawing } from '../../useDrawings';
+import { useDrawingSurface } from '../../useDrawingSurface';
+import { exportDrawing, FULL, THUMB } from '../../drawingExport';
 import type { Mood } from '../../types';
+import { BRUSH_SIZES, COLORS } from '../../paintingData';
+import { PaintingTools } from './PaintingTools';
 import styles from './PaintingCard.module.css';
-
-const COLORS = [
-  '#e5484d',
-  '#f2994a',
-  '#f2c230',
-  '#2e9e5b',
-  '#4696e5',
-  '#8f6bc9',
-  '#e56fa7',
-  '#1d2128',
-];
-
-const BRUSH_SIZES = [4, 9, 16];
-const CANVAS_HEIGHT = 240;
-/** پهنای بندانگشتیِ گالری */
-const THUMB_WIDTH = 240;
-/** پهنای نسخه‌ی کامل — برای دیدن در گوشی کافی است و حجم را پایین نگه می‌دارد */
-const FULL_WIDTH = 720;
 
 export function PaintingCard() {
   const painter = LUKORIANS.art;
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const surface = useDrawingSurface(expanded);
+  const cardRef = useRef<HTMLElement>(null);
+  const shrinkRef = useRef<HTMLButtonElement>(null);
+  const expandRef = useRef<HTMLButtonElement>(null);
+  /** جای کارت در صفحه وقتی بوم بزرگ است — وگرنه صفحه کوتاه می‌شد و اسکرول می‌پرید */
+  const [placeholder, setPlaceholder] = useState<number | null>(null);
 
   const [color, setColor] = useState(COLORS[4]);
   const [brush, setBrush] = useState(BRUSH_SIZES[1]);
@@ -40,63 +32,44 @@ export function PaintingCard() {
   const last = useRef<{ x: number; y: number } | null>(null);
   const usage = useRef<Record<string, number>>({});
 
-  // بوم به اندازه‌ی ظرف و متناسب با تراکم پیکسل صفحه آماده می‌شود — و
-  // هم‌اندازه‌ی ظرف می‌ماند: وقتی تبلت می‌چرخد ستونِ کارت پهن یا باریک
-  // می‌شود و بومِ ثابت یا نیمه‌خالی می‌ماند یا نیمه‌اش بیرون از کارت می‌افتاد.
+  // بومِ بزرگ روی همه‌چیز می‌نشیند؛ صفحه‌ی پشتش نباید با کشیدنِ انگشت اسکرول شود
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const wrap = wrapRef.current;
-    if (!canvas || !wrap) return undefined;
-    let sized = false;
-
-    const fit = () => {
-      const width = wrap.clientWidth;
-      const dpr = window.devicePixelRatio || 1;
-      if (!width || (sized && canvas.width === Math.round(width * dpr))) return;
-
-      // نقاشیِ تا این‌جا وسطِ بومِ تازه می‌نشیند؛ چرخاندن و برگرداندنِ تبلت
-      // چیزی را پاک نمی‌کند (کناره‌های اضافه فقط سفید می‌مانند)
-      let previous: HTMLCanvasElement | null = null;
-      if (sized) {
-        previous = document.createElement('canvas');
-        previous.width = canvas.width;
-        previous.height = canvas.height;
-        previous.getContext('2d')?.drawImage(canvas, 0, 0);
-      }
-
-      canvas.width = Math.round(width * dpr);
-      canvas.height = CANVAS_HEIGHT * dpr;
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${CANVAS_HEIGHT}px`;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, width, CANVAS_HEIGHT);
-      if (previous) {
-        const oldWidth = previous.width / dpr;
-        ctx.drawImage(previous, (width - oldWidth) / 2, 0, oldWidth, previous.height / dpr);
-      }
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      sized = true;
+    if (!expanded) return undefined;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    shrinkRef.current?.focus();
+    return () => {
+      document.body.style.overflow = previous;
     };
+  }, [expanded]);
 
-    fit();
-    const observer = new ResizeObserver(fit);
-    observer.observe(wrap);
-    return () => observer.disconnect();
+  const open = () => {
+    const card = cardRef.current;
+    if (card)
+      setPlaceholder(card.offsetHeight + (parseFloat(getComputedStyle(card).marginTop) || 0));
+    setExpanded(true);
+  };
+
+  const close = useCallback(() => {
+    setExpanded(false);
+    setPlaceholder(null);
+    // تمرکز به همان دکمه‌ای برمی‌گردد که بوم را بزرگ کرد
+    requestAnimationFrame(() => expandRef.current?.focus({ preventScroll: true }));
   }, []);
 
-  const getPos = (e: React.PointerEvent) => {
-    const rect = canvasRef.current!.getBoundingClientRect();
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  useEscapeKey(close);
+
+  const getPos = (e: React.PointerEvent) => surface.toDoc(e.clientX, e.clientY);
+
+  const drawSegment = (from: { x: number; y: number }, to: { x: number; y: number }) => {
+    surface.stroke(from, to, color, brush);
+    setIsEmpty(false);
   };
 
   const handleDown = (e: React.PointerEvent) => {
     e.preventDefault();
     try {
-      canvasRef.current?.setPointerCapture(e.pointerId);
+      e.currentTarget.setPointerCapture(e.pointerId);
     } catch {
       /* برخی مرورگرها/رویدادهای مصنوعی capture را پشتیبانی نمی‌کنند */
     }
@@ -120,24 +93,8 @@ export function PaintingCard() {
     last.current = null;
   };
 
-  const drawSegment = (from: { x: number; y: number }, to: { x: number; y: number }) => {
-    const ctx = canvasRef.current?.getContext('2d');
-    if (!ctx) return;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = brush;
-    ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
-    ctx.lineTo(to.x, to.y);
-    ctx.stroke();
-    setIsEmpty(false);
-  };
-
   const resetCanvas = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    surface.clear();
     usage.current = {};
     setIsEmpty(true);
   };
@@ -147,38 +104,20 @@ export function PaintingCard() {
     setSavedCount(null);
   };
 
-  /** نسخه‌ی کوچک‌شده‌ی بوم به‌صورت data URL */
-  const scaled = (canvas: HTMLCanvasElement, width: number, quality: number): string => {
-    const out = document.createElement('canvas');
-    out.width = Math.min(width, canvas.width);
-    out.height = Math.round((canvas.height / canvas.width) * out.width);
-    const ctx = out.getContext('2d');
-    if (ctx) {
-      // بومِ نقاشی پس‌زمینه‌ی سفید دارد؛ JPEG شفافیت ندارد و همین درست است
-      ctx.drawImage(canvas, 0, 0, out.width, out.height);
-    }
-    return out.toDataURL('image/jpeg', quality);
-  };
-
   const handleSave = () => {
-    const canvas = canvasRef.current;
+    const canvas = surface.canvasRef.current;
     if (!canvas || isEmpty) return;
 
     const mood = localStorage.getItem('luko_last_mood') as Mood | null;
     const colors = { ...usage.current };
-    const thumbnail = scaled(canvas, THUMB_WIDTH, 0.7);
+    const thumbnail = exportDrawing(canvas, THUMB);
 
     // نسخه‌ی محلی همیشه نوشته می‌شود تا در قطعیِ شبکه چیزی از دست نرود
     const count = saveArtEntry({ at: Date.now(), mood, colors, thumbnail });
 
     // گالریِ پروفایل از سرور می‌آید؛ مهمان حسابِ سروری ندارد
     if (!isGuestMode()) {
-      saveDrawing.mutate({
-        mood,
-        colors,
-        thumbnail,
-        image: scaled(canvas, FULL_WIDTH, 0.82),
-      });
+      saveDrawing.mutate({ mood, colors, thumbnail, image: exportDrawing(canvas, FULL) });
     }
 
     resetCanvas();
@@ -186,83 +125,75 @@ export function PaintingCard() {
   };
 
   return (
-    <section className={styles.card} aria-label="بوم نقاشی رنگو">
-      <div className={styles.head}>
-        <img className={styles.character} src={painter.image} alt={painter.name} />
-        <div className={styles.bubble}>
-          <p className={styles.speaker}>{painter.name}، {painter.role}</p>
-          <p className={styles.text}>امروز دلت چه رنگیه؟ هر چی دوست داری بکش رو بومِ من!</p>
-          <span className={styles.tail} aria-hidden />
-        </div>
-      </div>
-
-      <div ref={wrapRef} className={styles.canvasWrap}>
-        <canvas
-          ref={canvasRef}
-          className={styles.canvas}
-          onPointerDown={handleDown}
-          onPointerMove={handleMove}
-          onPointerUp={handleUp}
-          onPointerCancel={handleUp}
-          aria-label="بوم نقاشی"
-        />
-      </div>
-
-      <div className={styles.palette} role="group" aria-label="انتخاب رنگ">
-        {COLORS.map((c) => (
-          <button
-            key={c}
-            type="button"
-            className={`${styles.swatch} ${c === color ? styles.selected : ''}`}
-            style={{ background: c }}
-            onClick={() => setColor(c)}
-            aria-label={`رنگ ${c}`}
-            aria-pressed={c === color}
-          />
-        ))}
-      </div>
-
-      <div className={styles.toolbar}>
-        <div className={styles.brushes} role="group" aria-label="اندازه قلم">
-          {BRUSH_SIZES.map((size) => (
-            <button
-              key={size}
-              type="button"
-              className={`${styles.brushBtn} ${size === brush ? styles.brushActive : ''}`}
-              onClick={() => setBrush(size)}
-              aria-label={`قلم ${size}`}
-              aria-pressed={size === brush}
-            >
-              <span
-                className={styles.brushDot}
-                style={{ width: size + 4, height: size + 4, background: color }}
-              />
+    <div style={placeholder !== null ? { height: placeholder } : undefined}>
+      <section
+        ref={cardRef}
+        className={`${styles.card} ${expanded ? styles.expanded : ''}`}
+        aria-label={expanded ? 'بومِ بزرگِ نقاشی' : 'بوم نقاشی رنگو'}
+        role={expanded ? 'dialog' : undefined}
+        aria-modal={expanded || undefined}
+      >
+        {/* نوارِ بالای بومِ بزرگ — جای حبابِ رنگو را می‌گیرد */}
+        {expanded && (
+          <div className={styles.studioBar}>
+            <img className={styles.studioChar} src={painter.image} alt="" aria-hidden />
+            <p className={styles.studioTitle}>
+              بومِ بزرگِ {painter.name}
+              <span className={styles.studioHint}>هر چی دلت می‌خواد، بزرگ بکش!</span>
+            </p>
+            <button ref={shrinkRef} type="button" className={styles.shrinkBtn} onClick={close}>
+              <HiOutlineArrowsPointingIn aria-hidden />
+              کوچیکش کن
             </button>
-          ))}
+          </div>
+        )}
+
+        <div className={styles.head}>
+          <img className={styles.character} src={painter.image} alt={painter.name} />
+          <div className={styles.bubble}>
+            <p className={styles.speaker}>
+              {painter.name}، {painter.role}
+            </p>
+            <p className={styles.text}>امروز دلت چه رنگیه؟ هر چی دوست داری بکش رو بومِ من!</p>
+            <span className={styles.tail} aria-hidden />
+          </div>
         </div>
 
-        <button
-          type="button"
-          className={styles.clearBtn}
-          onClick={clearCanvas}
-          disabled={isEmpty}
-          aria-label="پاک کردن بوم"
-        >
-          <HiOutlineTrash />
-        </button>
+        <div ref={surface.wrapRef} className={styles.canvasWrap}>
+          <canvas
+            ref={surface.canvasRef}
+            className={styles.canvas}
+            onPointerDown={handleDown}
+            onPointerMove={handleMove}
+            onPointerUp={handleUp}
+            onPointerCancel={handleUp}
+            aria-label="بوم نقاشی"
+          />
+          {!expanded && (
+            <button ref={expandRef} type="button" className={styles.expandBtn} onClick={open}>
+              <HiOutlineArrowsPointingOut aria-hidden />
+              بزرگش کن
+            </button>
+          )}
+        </div>
 
-        <button type="button" className={styles.saveBtn} onClick={handleSave} disabled={isEmpty}>
-          <HiOutlineCheck aria-hidden />
-          تمومه، نگهش دار!
-        </button>
-      </div>
+        <PaintingTools
+          color={color}
+          brush={brush}
+          isEmpty={isEmpty}
+          onColor={setColor}
+          onBrush={setBrush}
+          onClear={clearCanvas}
+          onSave={handleSave}
+        />
 
-      {savedCount !== null && (
-        <p className={styles.savedMsg}>
-          {painter.name}: چه شاهکاری! گذاشتمش تو گنجینه‌م ({savedCount.toLocaleString('fa-IR')}{' '}
-          نقاشی)
-        </p>
-      )}
-    </section>
+        {savedCount !== null && (
+          <p className={styles.savedMsg} role="status">
+            {painter.name}: چه شاهکاری! گذاشتمش تو گنجینه‌م ({savedCount.toLocaleString('fa-IR')}{' '}
+            نقاشی)
+          </p>
+        )}
+      </section>
+    </div>
   );
 }

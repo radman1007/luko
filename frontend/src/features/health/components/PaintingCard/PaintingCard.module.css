@@ -52,6 +52,7 @@
 }
 
 .canvasWrap {
+  position: relative;
   margin-top: 14px;
   border: 2px dashed var(--health-soft, var(--color-primary-light));
   border-radius: var(--radius-sm);
@@ -60,8 +61,44 @@
 
 .canvas {
   display: block;
+  margin-inline: auto;
   touch-action: none;
   cursor: crosshair;
+}
+
+/* «بزرگش کن» — گوشه‌ی بوم، مثلِ دکمه‌ی تمام‌صفحه‌ی ویدیو */
+.expandBtn {
+  position: absolute;
+  top: 8px;
+  inset-inline-end: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 94%);
+  border: 1.5px solid var(--health-soft, var(--color-primary-light));
+  box-shadow: 0 4px 12px rgb(29 33 40 / 12%);
+  color: var(--health-dark, var(--color-primary-dark));
+  font-size: 12.5px;
+  font-weight: 800;
+  transition: transform 0.12s;
+}
+
+.expandBtn svg {
+  width: 17px;
+  height: 17px;
+}
+
+.expandBtn:active {
+  transform: scale(0.94);
+}
+
+.expandBtn:focus-visible,
+.shrinkBtn:focus-visible {
+  outline: 3px solid var(--health-primary, var(--color-primary));
+  outline-offset: 2px;
 }
 
 .palette {
@@ -160,4 +197,208 @@
   background: var(--health-soft, var(--color-primary-light));
   border-radius: var(--radius-sm);
   padding: 10px 14px;
+}
+
+/* ── بومِ بزرگ ─────────────────────────────────────────────
+   همان کارت، تمام‌صفحه: نوارِ رنگو بالا، بوم هرچه جا هست، ابزارها پایین.
+   بوم همان عنصر است (نه یک بومِ دیگر)، پس نقاشی جابه‌جا نمی‌شود و گم نمی‌شود. */
+.expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: calc(12px + env(safe-area-inset-top)) 16px calc(14px + env(safe-area-inset-bottom));
+  border-radius: 0;
+  box-shadow: none;
+  background: linear-gradient(
+    180deg,
+    var(--health-soft, var(--color-primary-light)) 0%,
+    var(--color-surface) 46%
+  );
+  animation: studioIn 0.22s ease-out;
+}
+
+.expanded .head {
+  display: none;
+}
+
+.studioBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+  flex-shrink: 0;
+}
+
+.studioChar {
+  width: 46px;
+  height: 46px;
+  object-fit: cover;
+  object-position: center 12%;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 2px solid var(--health-primary, var(--color-primary));
+  flex-shrink: 0;
+}
+
+.studioTitle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--health-dark, var(--color-primary-dark));
+}
+
+.studioHint {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.shrinkBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--health-primary, var(--color-primary));
+  color: var(--color-on-primary);
+  font-size: 13px;
+  font-weight: 800;
+  flex-shrink: 0;
+  transition: transform 0.12s;
+}
+
+.shrinkBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.shrinkBtn:active {
+  transform: scale(0.95);
+}
+
+/* بوم هر جایی که مانده را می‌گیرد؛ اندازه‌ی خودِ بوم را useDrawingSurface می‌دهد */
+.expanded .canvasWrap {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  background: color-mix(in srgb, var(--health-soft, var(--color-primary-light)) 70%, transparent);
+}
+
+.expanded .canvas {
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgb(29 33 40 / 12%);
+}
+
+.expanded .tools {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 560px;
+  margin-inline: auto;
+}
+
+.expanded .palette {
+  margin-top: 0;
+}
+
+/* پیامِ «نگهش داشتم» روی بوم شناور است تا جای بوم را نگیرد */
+.expanded .savedMsg {
+  position: absolute;
+  top: calc(70px + env(safe-area-inset-top));
+  inset-inline: 16px;
+  z-index: 1;
+  max-width: 560px;
+  margin: 0 auto;
+  box-shadow: 0 8px 20px rgb(29 33 40 / 14%);
+}
+
+/* گوشیِ خوابیده: جای عمودی کم است؛ ابزارها کنارِ بوم می‌روند */
+@media (max-height: 520px) and (orientation: landscape) {
+  .expanded {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 208px;
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: 14px;
+    row-gap: 8px;
+    padding-top: calc(8px + env(safe-area-inset-top));
+    padding-inline: calc(12px + env(safe-area-inset-left)) calc(12px + env(safe-area-inset-right));
+  }
+
+  .expanded .studioBar {
+    grid-column: 1 / -1;
+    max-width: none;
+  }
+
+  .expanded .studioChar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .expanded .studioHint {
+    display: none;
+  }
+
+  .expanded .canvasWrap {
+    max-width: none;
+    height: 100%;
+  }
+
+  .expanded .tools {
+    align-self: center;
+    max-width: none;
+    overflow-y: auto;
+  }
+
+  .expanded .palette {
+    display: grid;
+    grid-template-columns: repeat(4, 32px);
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .expanded .toolbar {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .expanded .clearBtn {
+    margin-right: 0;
+  }
+
+  .expanded .saveBtn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@keyframes studioIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expanded {
+    animation: none;
+  }
 }
