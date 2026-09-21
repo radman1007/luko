@@ -16,12 +16,31 @@ const CITY_STATS = [
   { value: '∞', label: 'ماجرا' },
 ];
 
-/** یک ردیفِ رژه که بی‌وقفه حرکت می‌کند (لیست دوبار تکرار می‌شود تا حلقه بی‌درز باشد) */
+/** پهنای هر عضوِ رژه با فاصله‌اش (.member: ۵۸ + ۱۴) */
+const MEMBER_PX = 72;
+/** پهن‌ترین کارتِ ممکن: ستونِ ۱۱۲۰پیکسلیِ تبلت منهای حاشیه‌ها */
+const WIDEST_CARD_PX = 1080;
+/** زمانِ عبورِ یک دورِ لیست — سرعتِ رژه با تعدادِ دورها عوض نمی‌شود */
+const SECONDS_PER_ROUND = 30;
+
+/**
+ * یک ردیفِ رژه که بی‌وقفه حرکت می‌کند.
+ *
+ * نوار دو نیمه‌ی یکسان دارد و translateX(-50%) نیمه‌ی دوم را جای اولی
+ * می‌نشاند. حلقه فقط وقتی بی‌درز است که هر نیمه دست‌کم پهنای کارت باشد؛
+ * یک دورِ لیست روی گوشی بس است ولی کارتِ تبلت تا ۱۰۸۰px پهن است، پس هر
+ * نیمه آن‌قدر دور می‌خورد که پهن‌ترین کارت را هم پر کند.
+ */
 function ParadeRow({ residents, reverse }: { residents: Lukorian[]; reverse?: boolean }) {
-  const loop = [...residents, ...residents];
+  const rounds = Math.max(1, Math.ceil(WIDEST_CARD_PX / (residents.length * MEMBER_PX)));
+  const half = Array.from({ length: rounds }, () => residents).flat();
+  const loop = [...half, ...half];
   return (
     <div className={styles.parade}>
-      <div className={`${styles.track} ${reverse ? styles.reverse : ''}`}>
+      <div
+        className={`${styles.track} ${reverse ? styles.reverse : ''}`}
+        style={{ animationDuration: `${rounds * SECONDS_PER_ROUND}s` }}
+      >
         {loop.map((r, i) => (
           <span key={`${r.id}-${i}`} className={styles.member} title={`${r.name} — ${r.role}`}>
             <span className={styles.avatarRing} data-initial={r.name.slice(0, 1)}>

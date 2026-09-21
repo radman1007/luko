@@ -1,4 +1,5 @@
 import { StudentLayout } from '@/components/layout/StudentLayout/StudentLayout';
+import { Board, Column } from '@/components/layout/Board/Board';
 import { CharacterGuide } from '@/components/characters/CharacterGuide/CharacterGuide';
 import { LUKORIANS } from '@/lib/characters';
 import { ClubHero } from '@/features/club/components/ClubHero/ClubHero';
@@ -25,9 +26,15 @@ export default function LukoClub() {
     <StudentLayout className={styles.page}>
       <ClubHero coins={club.coins} />
       <WeekStreak days={club.days} streak={club.streak} />
-      <DailyMissions doneIds={club.doneToday} />
-      <SportsSection doneIds={club.sportDoneToday} />
-      <MedalsSection medals={medals} />
+      <Board>
+        <Column side="start">
+          <DailyMissions doneIds={club.doneToday} />
+          <SportsSection doneIds={club.sportDoneToday} />
+        </Column>
+        <Column side="end">
+          <MedalsSection medals={medals} />
+        </Column>
+      </Board>
       <ShopSection coins={club.coins} ownedIds={club.owned} onBuy={club.buy} />
 
       <CharacterGuide character={LUKORIANS.club} steps={GUIDE_STEPS} storageKey="club-intro" />

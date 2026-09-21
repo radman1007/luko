@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StudentLayout } from '@/components/layout/StudentLayout/StudentLayout';
+import { Board, Column } from '@/components/layout/Board/Board';
 import { CharacterGuide } from '@/components/characters/CharacterGuide/CharacterGuide';
 import { LUKORIANS } from '@/lib/characters';
 import { GardenHero } from '@/features/garden/components/GardenHero/GardenHero';
@@ -74,22 +75,27 @@ export default function Garden() {
         />
       </div>
 
-      <GardenToolbar
-        currentWater={g.currentWater}
-        maxWater={g.maxWater}
-        nextRefillMs={g.nextRefillMs}
-        fertilizer={g.fertilizer}
-        seeds={g.seeds}
-        canWater={g.canWater}
-        canFertilize={g.canFertilize}
-        canPlant={g.canPlant}
-        onWater={handleWater}
-        onFertilize={handleFertilize}
-        onPlant={handlePlant}
-      />
-
-      <DewSources dewLog={g.dewLog} />
-      <GardenShop dew={g.dew} plotLevel={g.plotLevel} decor={g.decor} onBuy={handleBuy} />
+      <Board>
+        <Column side="start">
+          <GardenToolbar
+            currentWater={g.currentWater}
+            maxWater={g.maxWater}
+            nextRefillMs={g.nextRefillMs}
+            fertilizer={g.fertilizer}
+            seeds={g.seeds}
+            canWater={g.canWater}
+            canFertilize={g.canFertilize}
+            canPlant={g.canPlant}
+            onWater={handleWater}
+            onFertilize={handleFertilize}
+            onPlant={handlePlant}
+          />
+          <DewSources dewLog={g.dewLog} />
+        </Column>
+        <Column side="end">
+          <GardenShop dew={g.dew} plotLevel={g.plotLevel} decor={g.decor} onBuy={handleBuy} />
+        </Column>
+      </Board>
 
       {flash && (
         <div className={styles.flash} role="status">

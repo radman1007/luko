@@ -73,6 +73,9 @@ export function CloudGate({ weeks, daysToNextWeek, hint }: Props) {
         <Cloud className={styles.mid} />
         <Cloud className={styles.front} />
         <Cloud className={styles.far} />
+        {/* فقط روی نقشه‌ی پهن (گوشیِ خوابیده، تبلت) پیدا می‌شوند */}
+        <Cloud className={styles.wideLeft} />
+        <Cloud className={styles.wideRight} />
       </div>
 
       <button type="button" className={styles.note} onClick={peek} aria-label="یک نگاه به پشتِ ابرها">

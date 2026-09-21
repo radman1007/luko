@@ -10,6 +10,9 @@
   /* هر دو لبه محو می‌شوند: بالا تا ابرها صاف بریده به‌نظر نرسند،
      پایین تا ابر روی مسیر «بنشیند» نه اینکه ناگهان تمام شود */
   mask-image: linear-gradient(180deg, transparent 0%, #000 15%, #000 76%, transparent 100%);
+  /* ابرها پیکسلی‌اند و برای نقشه‌ی گوشی (تا ~۴۷۰px) چیده شده‌اند؛ روی نقشه‌ی
+     پهن‌تر دو ابرِ اضافه لازم است (پایینِ همین فایل) */
+  container-type: inline-size;
 }
 
 .sky {
@@ -57,6 +60,40 @@
   color: #eef1f8;
   opacity: 0.97;
   animation: drift 23s ease-in-out infinite reverse;
+}
+
+/* ابرهای نقشه‌ی پهن: بی‌آن‌ها سرِ جاده از سمتِ راستِ ابرها بیرون می‌زد و
+   مرحله‌های پنهان پیدا می‌شدند. */
+.wideLeft,
+.wideRight {
+  display: none;
+}
+
+@container (min-width: 470px) {
+  /* نقشه‌ی پهن ستونی وسطِ صفحه است نه تا لبه‌ی گوشی؛ ابرها کنارِ ستون
+     محو می‌شوند تا لبه‌ی تیزِ بریده دیده نشود */
+  .sky {
+    mask-image: linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  }
+
+  .wideLeft {
+    display: block;
+    width: 240px;
+    top: 26px;
+    left: 12%;
+    opacity: 0.62;
+    animation: drift 29s ease-in-out infinite reverse;
+  }
+
+  .wideRight {
+    display: block;
+    width: 290px;
+    top: 70px;
+    left: 58%;
+    color: #eef1f8;
+    opacity: 0.95;
+    animation: drift 21s ease-in-out infinite;
+  }
 }
 
 /* ── آنچه پشتِ ابر است ───────────────────────────────────────

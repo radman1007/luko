@@ -1,4 +1,5 @@
 import { StudentLayout } from '@/components/layout/StudentLayout/StudentLayout';
+import { Board, Column } from '@/components/layout/Board/Board';
 import { CharacterGuide } from '@/components/characters/CharacterGuide/CharacterGuide';
 import { LUKORIANS } from '@/lib/characters';
 import { useAuth } from '@/features/auth/context';
@@ -51,17 +52,23 @@ export default function Home() {
         <StatsBar coins={club.coins} streak={club.streak} xp={MOCK_STATS.xp} />
       </div>
 
-      <DailyGameCard />
-      <GameZoneCard />
-      <TodayPathCard
-        missionsDone={club.doneToday.length > 0}
-        sportDone={club.sportDoneToday.length > 0}
-        moodDone={moodRecordedToday()}
-        gardenDone={isToday(garden.lastWateredAt)}
-        streak={club.streak}
-        onMood={mood.open}
-      />
-      <LatestPodcastCard />
+      <Board>
+        <Column side="start">
+          <DailyGameCard />
+          <GameZoneCard />
+        </Column>
+        <Column side="end">
+          <TodayPathCard
+            missionsDone={club.doneToday.length > 0}
+            sportDone={club.sportDoneToday.length > 0}
+            moodDone={moodRecordedToday()}
+            gardenDone={isToday(garden.lastWateredAt)}
+            streak={club.streak}
+            onMood={mood.open}
+          />
+          <LatestPodcastCard />
+        </Column>
+      </Board>
       <AboutCard />
 
       {mood.show && <MoodModal onSelect={mood.record} onClose={mood.dismiss} />}

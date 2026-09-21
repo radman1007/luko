@@ -65,90 +65,94 @@ export default function GameHall() {
 
   return (
     <StudentLayout className={styles.page}>
-      <header className={styles.hero}>
-        <div className={styles.head}>
-          <img className={styles.character} src={gamer.image} alt={gamer.name} />
-          <div className={styles.bubble}>
-            <p className={styles.speaker}>
-              {gamer.name}، {gamer.role}
-            </p>
-            <p className={styles.text}>
-              {reason ?? tease(state.completedStages, remaining, weekDone)}
-            </p>
-            <span className={styles.tail} aria-hidden />
+      {/* نقشه یک مسیرِ عمودی است؛ روی تبلت ستونِ خودش را دارد تا پیچ‌های جاده
+          تا لبه‌های یک صفحه‌ی پهن کش نیایند */}
+      <div className={styles.column}>
+        <header className={styles.hero}>
+          <div className={styles.head}>
+            <img className={styles.character} src={gamer.image} alt={gamer.name} />
+            <div className={styles.bubble}>
+              <p className={styles.speaker}>
+                {gamer.name}، {gamer.role}
+              </p>
+              <p className={styles.text}>
+                {reason ?? tease(state.completedStages, remaining, weekDone)}
+              </p>
+              <span className={styles.tail} aria-hidden />
+            </div>
           </div>
-        </div>
 
-        <div className={styles.titleRow}>
-          <h1 className={styles.title}>
-            <HiOutlineBolt aria-hidden />
-            تالار بازی‌ها
-          </h1>
-          <span className={styles.gradeBadge}>{gradeName(grade)}</span>
-        </div>
-      </header>
+          <div className={styles.titleRow}>
+            <h1 className={styles.title}>
+              <HiOutlineBolt aria-hidden />
+              تالار بازی‌ها
+            </h1>
+            <span className={styles.gradeBadge}>{gradeName(grade)}</span>
+          </div>
+        </header>
 
-      {/* پایه‌ای که هنوز بازی ندارد نباید نقشه‌ی خالی ببیند — و قطعاً
-          نباید بازی‌های پایه‌ی دیگر را ببیند. */}
-      {path.isLoading ? (
-        <section className={styles.soon} aria-busy="true" aria-label="در حال آماده‌کردنِ مسیر">
-          <p className={styles.soonText}>{gamer.name} داره مسیرت رو آماده می‌کنه…</p>
-        </section>
-      ) : path.isError ? (
-        <section className={styles.soon} aria-label="مسیر باز نشد">
-          <h2 className={styles.soonTitle}>مسیر باز نشد!</h2>
-          <p className={styles.soonText}>اینترنت رو چک کن و یه‌بار دیگه امتحان کن.</p>
-          <button type="button" className={styles.retry} onClick={path.retry}>
-            دوباره امتحان کن
-          </button>
-        </section>
-      ) : state.totalStages === 0 ? (
-        <section className={styles.soon} aria-label="بازی‌های این پایه">
-          <img className={styles.soonChar} src={gamer.image} alt="" aria-hidden />
-          <h2 className={styles.soonTitle}>بازی‌های {gradeName(grade)} تو راهن!</h2>
-          <p className={styles.soonText}>
-            داریم برات می‌سازیمشون. تا اون موقع می‌تونی سراغِ باغچه، کلاب و
-            پادکست بری — اون‌ها همین حالا آماده‌ن.
+        {/* پایه‌ای که هنوز بازی ندارد نباید نقشه‌ی خالی ببیند — و قطعاً
+            نباید بازی‌های پایه‌ی دیگر را ببیند. */}
+        {path.isLoading ? (
+          <section className={styles.soon} aria-busy="true" aria-label="در حال آماده‌کردنِ مسیر">
+            <p className={styles.soonText}>{gamer.name} داره مسیرت رو آماده می‌کنه…</p>
+          </section>
+        ) : path.isError ? (
+          <section className={styles.soon} aria-label="مسیر باز نشد">
+            <h2 className={styles.soonTitle}>مسیر باز نشد!</h2>
+            <p className={styles.soonText}>اینترنت رو چک کن و یه‌بار دیگه امتحان کن.</p>
+            <button type="button" className={styles.retry} onClick={path.retry}>
+              دوباره امتحان کن
+            </button>
+          </section>
+        ) : state.totalStages === 0 ? (
+          <section className={styles.soon} aria-label="بازی‌های این پایه">
+            <img className={styles.soonChar} src={gamer.image} alt="" aria-hidden />
+            <h2 className={styles.soonTitle}>بازی‌های {gradeName(grade)} تو راهن!</h2>
+            <p className={styles.soonText}>
+              داریم برات می‌سازیمشون. تا اون موقع می‌تونی سراغِ باغچه، کلاب و
+              پادکست بری — اون‌ها همین حالا آماده‌ن.
+            </p>
+          </section>
+        ) : (
+          <>
+        <SeasonBanner state={state} />
+
+        {weekDone && (
+          <p className={styles.weekCleared}>
+            مرحله‌های بازشده تمام شد! تا هفته‌ی بعد می‌توانی هرکدام را دوباره بازی کنی.
           </p>
-        </section>
-      ) : (
-        <>
-      <SeasonBanner state={state} />
+        )}
 
-      {weekDone && (
-        <p className={styles.weekCleared}>
-          مرحله‌های بازشده تمام شد! تا هفته‌ی بعد می‌توانی هرکدام را دوباره بازی کنی.
-        </p>
-      )}
+        <SeasonMap
+          openWeeks={state.openWeeks}
+          cloudedWeeks={state.cloudedWeeks}
+          daysToNextWeek={state.daysToNextWeek}
+          done={progress.done}
+          currentStage={state.nextStage}
+          onPlay={(stage) => navigate(`/game/${stage.id}`)}
+          photoSpots={state.photoSpots}
+          memoryThumbs={memoryThumbs}
+          onOpenSpot={(spot) =>
+            // مهمان حسابِ سروری ندارد و ذخیره‌ی عکسش ۴۰۱ می‌گیرد؛ به‌جای
+            // بازکردنِ دوربینی که آخرش شکست می‌خورد، همان‌جا دعوتش می‌کنیم.
+            guest
+              ? navigate('/login', {
+                  state: { reason: 'برای نگه‌داشتنِ عکسِ یادگاری اول وارد شو!' },
+                })
+              : setOpenSpot(spot)
+          }
+          theme={SEASON.theme}
+        />
 
-      <SeasonMap
-        openWeeks={state.openWeeks}
-        cloudedWeeks={state.cloudedWeeks}
-        daysToNextWeek={state.daysToNextWeek}
-        done={progress.done}
-        currentStage={state.nextStage}
-        onPlay={(stage) => navigate(`/game/${stage.id}`)}
-        photoSpots={state.photoSpots}
-        memoryThumbs={memoryThumbs}
-        onOpenSpot={(spot) =>
-          // مهمان حسابِ سروری ندارد و ذخیره‌ی عکسش ۴۰۱ می‌گیرد؛ به‌جای
-          // بازکردنِ دوربینی که آخرش شکست می‌خورد، همان‌جا دعوتش می‌کنیم.
-          guest
-            ? navigate('/login', {
-                state: { reason: 'برای نگه‌داشتنِ عکسِ یادگاری اول وارد شو!' },
-              })
-            : setOpenSpot(spot)
-        }
-        theme={SEASON.theme}
-      />
-
-      {state.seasonFinished && (
-        <p className={styles.seasonEnd}>
-          کلِ سیزن را تمام کردی! سیزنِ بعدی با مرحله‌های تازه در راه است.
-        </p>
-      )}
-        </>
-      )}
+        {state.seasonFinished && (
+          <p className={styles.seasonEnd}>
+            کلِ سیزن را تمام کردی! سیزنِ بعدی با مرحله‌های تازه در راه است.
+          </p>
+        )}
+          </>
+        )}
+      </div>
 
       {openSpot && (
         <MemoryCamera

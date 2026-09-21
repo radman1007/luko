@@ -68,13 +68,24 @@ character's own voice — playful, kid-facing Persian, first-person.
 - Bottom nav has 5 slots only ([components/layout/BottomNav](../../../frontend/src/components/layout/BottomNav)) —
   adding a tab means removing one; ask the user before changing it.
 
-## 6. Persian / RTL details
+## 6. Phones and tablets
+- Every student page must work from 320px phones to 1366px tablets (both orientations).
+  The layout switch is at **720px** (see `src/styles/globals.css`).
+- Put the cards after the hero in `<Board>` with `<Column side="start|end|wide">`
+  ([components/layout/Board](../../../frontend/src/components/layout/Board/Board.tsx)).
+  Columns are plain blocks on phones, so group cards so the phone order stays the same.
+  A tall card beside two short ones gets a page class with `grid-row: span 2`.
+- A card whose layout depends on width uses `container-type: inline-size` +
+  `@container`, never `@media` on the viewport — on tablets the card sits in a column.
+- Check with an overflow sweep at 320, 390, 600, 744, 820, 1024, 1180 and 1366.
+
+## 7. Persian / RTL details
 - All UI text in Persian, mobile-first, RTL.
 - Numbers shown to kids: `value.toLocaleString('fa-IR')`.
 - localStorage keys are prefixed `luko_` (e.g. `luko_coins`, `luko_garden_state`).
 - Comments in source may be Persian — match the surrounding file.
 
-## 7. Economy hooks
+## 8. Economy hooks
 If the section rewards the child, use the existing currencies rather than inventing one:
 coins (`useClub`), dew/شبنم (`features/garden/store.ts` → `grantDew/grantFertilizer/grantSeeds`),
 treasures/گنج (`features/profile/useTreasure`). Reward amounts belong in a `config.ts` /

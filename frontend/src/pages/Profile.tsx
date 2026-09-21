@@ -1,4 +1,5 @@
 import { StudentLayout } from '@/components/layout/StudentLayout/StudentLayout';
+import { Board, Column } from '@/components/layout/Board/Board';
 import { CharacterGuide } from '@/components/characters/CharacterGuide/CharacterGuide';
 import { LUKORIANS } from '@/lib/characters';
 import { useAuth } from '@/features/auth/context';
@@ -54,17 +55,26 @@ export default function Profile() {
         medalsUnlocked={medalsUnlocked}
         treasures={treasures}
       />
-      <BuilderCard
-        stats={{
-          coins: club.coins,
-          totalTasks: club.total,
-          streak: club.streak,
-          gamesCompleted,
-        }}
-        treasures={treasures}
-      />
-      <TrophyHall medals={medals} />
-      <GalleryCard />
+      {/* تبلت: تالار کنارِ کارگاه و گنجینه، دو ردیف می‌گیرد */}
+      <Board>
+        <Column side="start">
+          <BuilderCard
+            stats={{
+              coins: club.coins,
+              totalTasks: club.total,
+              streak: club.streak,
+              gamesCompleted,
+            }}
+            treasures={treasures}
+          />
+        </Column>
+        <Column side="end" className={styles.tallCol}>
+          <TrophyHall medals={medals} />
+        </Column>
+        <Column side="start">
+          <GalleryCard />
+        </Column>
+      </Board>
       <SettingsCard />
 
       <CharacterGuide character={LUKORIANS.maker} steps={GUIDE_STEPS} storageKey="profile-intro" />

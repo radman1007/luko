@@ -40,24 +40,52 @@ export function PaintingCard() {
   const last = useRef<{ x: number; y: number } | null>(null);
   const usage = useRef<Record<string, number>>({});
 
-  // بوم به اندازه‌ی ظرف و متناسب با تراکم پیکسل صفحه آماده می‌شود
+  // بوم به اندازه‌ی ظرف و متناسب با تراکم پیکسل صفحه آماده می‌شود — و
+  // هم‌اندازه‌ی ظرف می‌ماند: وقتی تبلت می‌چرخد ستونِ کارت پهن یا باریک
+  // می‌شود و بومِ ثابت یا نیمه‌خالی می‌ماند یا نیمه‌اش بیرون از کارت می‌افتاد.
   useEffect(() => {
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
-    if (!canvas || !wrap) return;
-    const dpr = window.devicePixelRatio || 1;
-    const width = wrap.clientWidth;
-    canvas.width = width * dpr;
-    canvas.height = CANVAS_HEIGHT * dpr;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${CANVAS_HEIGHT}px`;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.scale(dpr, dpr);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, width, CANVAS_HEIGHT);
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    if (!canvas || !wrap) return undefined;
+    let sized = false;
+
+    const fit = () => {
+      const width = wrap.clientWidth;
+      const dpr = window.devicePixelRatio || 1;
+      if (!width || (sized && canvas.width === Math.round(width * dpr))) return;
+
+      // نقاشیِ تا این‌جا وسطِ بومِ تازه می‌نشیند؛ چرخاندن و برگرداندنِ تبلت
+      // چیزی را پاک نمی‌کند (کناره‌های اضافه فقط سفید می‌مانند)
+      let previous: HTMLCanvasElement | null = null;
+      if (sized) {
+        previous = document.createElement('canvas');
+        previous.width = canvas.width;
+        previous.height = canvas.height;
+        previous.getContext('2d')?.drawImage(canvas, 0, 0);
+      }
+
+      canvas.width = Math.round(width * dpr);
+      canvas.height = CANVAS_HEIGHT * dpr;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${CANVAS_HEIGHT}px`;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, CANVAS_HEIGHT);
+      if (previous) {
+        const oldWidth = previous.width / dpr;
+        ctx.drawImage(previous, (width - oldWidth) / 2, 0, oldWidth, previous.height / dpr);
+      }
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      sized = true;
+    };
+
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(wrap);
+    return () => observer.disconnect();
   }, []);
 
   const getPos = (e: React.PointerEvent) => {

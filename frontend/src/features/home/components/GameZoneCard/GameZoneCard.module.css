@@ -17,6 +17,9 @@
   --zone-ink: #241f31;
 
   position: relative;
+  /* قاعده‌های اندازه با پهنای خودِ کارت می‌سنجند، نه صفحه — روی تبلت کارت
+     در یک ستون است و از صفحه خیلی باریک‌تر (پهنای محتوا = صفحه − ۵۶) */
+  container-type: inline-size;
   margin: 14px 16px 0;
   padding: 12px;
   border-radius: 24px;
@@ -304,8 +307,8 @@
 
 .mapBtn:active { background: rgb(255 255 255 / 20%); }
 
-/* گوشیِ باریک: کاراکتر کمی جمع می‌شود تا اسمِ مرحله جا بگیرد */
-@media (max-width: 359px) {
+/* کارتِ باریک (گوشیِ زیرِ ۳۶۰): کاراکتر کمی جمع می‌شود تا اسمِ مرحله جا بگیرد */
+@container (max-width: 303px) {
   .hero {
     min-height: 138px;
     padding-inline-end: 108px;
@@ -315,8 +318,8 @@
   .heroTitle { font-size: 17px; }
 }
 
-/* ── صفحه‌های پهن‌تر ──────────────────────────────────────── */
-@media (min-width: 420px) {
+/* ── کارتِ پهن‌تر (گوشیِ ۴۲۰ به بالا، یا ستونِ تبلت) ───────── */
+@container (min-width: 364px) {
   .hero {
     min-height: 170px;
     padding-inline-end: 150px;

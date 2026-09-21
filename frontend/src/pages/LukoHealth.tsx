@@ -1,4 +1,5 @@
 import { StudentLayout } from '@/components/layout/StudentLayout/StudentLayout';
+import { Board, Column } from '@/components/layout/Board/Board';
 import { CharacterGuide } from '@/components/characters/CharacterGuide/CharacterGuide';
 import { LUKORIANS } from '@/lib/characters';
 import { HealthHero } from '@/features/health/components/HealthHero/HealthHero';
@@ -23,9 +24,18 @@ export default function LukoHealth() {
     <StudentLayout className={styles.page}>
       <HealthHero />
       <MoodCheckinCard lastMood={mood.lastMood} onOpen={mood.open} />
-      <BreathingCard />
-      <PaintingCard />
-      <SecretsCard />
+      {/* تبلت: نقاشی بلند است و کنارِ تنفس و صندوقچه، دو ردیف می‌گیرد */}
+      <Board>
+        <Column side="start">
+          <BreathingCard />
+        </Column>
+        <Column side="end" className={styles.tallCol}>
+          <PaintingCard />
+        </Column>
+        <Column side="start">
+          <SecretsCard />
+        </Column>
+      </Board>
 
       {mood.show && <MoodModal onSelect={mood.record} onClose={mood.dismiss} />}
       <CharacterGuide character={LUKORIANS.health} steps={GUIDE_STEPS} storageKey="health-intro" />

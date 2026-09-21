@@ -1,4 +1,5 @@
 import { StudentLayout } from '@/components/layout/StudentLayout/StudentLayout';
+import { Board, Column } from '@/components/layout/Board/Board';
 import { CharacterGuide } from '@/components/characters/CharacterGuide/CharacterGuide';
 import { LUKORIANS } from '@/lib/characters';
 import { PodcastHero } from '@/features/podcast/components/PodcastHero/PodcastHero';
@@ -20,20 +21,27 @@ export default function LukoPodcast() {
   return (
     <StudentLayout className={styles.page}>
       <PodcastHero />
-      <PlayerCard
-        episode={player.current}
-        playing={player.playing}
-        elapsed={player.elapsed}
-        progress={player.progress}
-        onToggle={player.toggle}
-      />
-      <EpisodeList
-        episodes={MOCK_EPISODES}
-        currentId={player.current.id}
-        playing={player.playing}
-        listenedIds={player.listened}
-        onSelect={player.select}
-      />
+      <Board>
+        {/* روی تبلت پخش‌کننده کنارِ فهرست می‌ماند و با اسکرول جا نمی‌ماند */}
+        <Column side="start" className={styles.playerCol}>
+          <PlayerCard
+            episode={player.current}
+            playing={player.playing}
+            elapsed={player.elapsed}
+            progress={player.progress}
+            onToggle={player.toggle}
+          />
+        </Column>
+        <Column side="end">
+          <EpisodeList
+            episodes={MOCK_EPISODES}
+            currentId={player.current.id}
+            playing={player.playing}
+            listenedIds={player.listened}
+            onSelect={player.select}
+          />
+        </Column>
+      </Board>
 
       <CharacterGuide character={LUKORIANS.podcast} steps={GUIDE_STEPS} storageKey="podcast-intro" />
     </StudentLayout>
