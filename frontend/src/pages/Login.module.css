@@ -1,11 +1,19 @@
-/* تم اختصاصی ورود — رنگ‌های پری، راهنمای شهر لوکو؛
-   LoginForm از این متغیرها می‌خواند */
+/*
+ * دروازه‌ی شهرِ لوکو — تمِ ورود.
+ * رنگ‌ها از پویا (سبزآبیِ قطب‌نما) و آسمانِ شهر آمده‌اند؛ صورتیِ پری فقط وقتی
+ * خودش حرف می‌زند روی حبابش می‌آید. OtpAuthForm و OtpInput از --gate-* می‌خوانند.
+ */
 .page {
-  --welcome-primary: #e56fa7;
-  --welcome-dark: #c4568b;
-  --welcome-soft: #fdeef5;
-  --welcome-accent: #efb45c;
-  --welcome-accent-soft: #fdf3e2;
+  --gate-primary: #1a8f7f;
+  --gate-dark: #0f6258;
+  --gate-soft: #dff3ee;
+  --gate-accent: #ffcc00;
+  --gate-accent-soft: #fff6d6;
+  --gate-sky-top: #c6e9fa;
+  --gate-sky-bottom: #eef8f4;
+  --gate-hill-back: #cfeadf;
+  --gate-hill-front: #b2dfcd;
+  --gate-city: #b9dcee;
 
   position: relative;
   overflow: hidden;
@@ -14,142 +22,193 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px 24px 32px;
-  background:
-    radial-gradient(120% 70% at 50% 0%, #fff6fa 0%, var(--welcome-soft) 42%, var(--color-bg) 100%);
+  gap: 14px;
+  padding: calc(18px + env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, var(--gate-sky-top) 0%, var(--gate-sky-bottom) 58%, var(--color-bg) 100%);
 }
 
-/* ── آسمانِ شهر ───────────────────────────────────────────── */
+/* ── آسمان و افقِ شهر ─────────────────────────────────────── */
 .sky {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
 
-/* دو هاله‌ی نرم که آرام نفس می‌کشند */
-.glowOne,
-.glowTwo {
+.sun {
   position: absolute;
-  border-radius: 50%;
-  filter: blur(46px);
-}
-
-.glowOne {
   top: -70px;
-  inset-inline-end: -60px;
-  width: 240px;
-  height: 240px;
-  background: color-mix(in srgb, var(--welcome-primary) 30%, transparent);
-  animation: breathe 9s ease-in-out infinite;
+  left: -60px;
+  width: 230px;
+  height: 230px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 214 74 / 75%) 0%, rgb(255 204 0 / 28%) 42%, transparent 70%);
+  animation: glow 8s ease-in-out infinite;
 }
 
-.glowTwo {
-  bottom: 60px;
-  inset-inline-start: -70px;
-  width: 220px;
-  height: 220px;
-  background: color-mix(in srgb, var(--welcome-accent) 34%, transparent);
-  animation: breathe 11s ease-in-out infinite reverse;
-}
-
-.stars {
+.cloud {
   position: absolute;
-  inset-inline: 0;
-  top: 0;
-  height: 220px;
-  color: color-mix(in srgb, var(--welcome-primary) 40%, transparent);
+  color: #fff;
+  filter: drop-shadow(0 6px 10px rgb(29 33 40 / 6%));
+}
+
+.cloudOne {
+  top: 9%;
+  left: -24px;
+  width: 124px;
+  opacity: 0.95;
+  animation: drift 26s ease-in-out infinite;
+}
+
+.cloudTwo {
+  top: 19%;
+  right: -18px;
+  width: 96px;
+  opacity: 0.85;
+  animation: drift 32s ease-in-out infinite reverse;
+}
+
+.cloudThree {
+  top: 4%;
+  right: 34%;
+  width: 66px;
+  opacity: 0.6;
+  animation: drift 38s ease-in-out infinite;
+}
+
+/* درخششِ چهارپر، مثلِ ستاره‌ی قطب‌نمای پویا — هرکدام جدا تا روی صفحه‌ی پهن کش نیاید */
+.spark {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  color: #fff;
   animation: twinkle 4.5s ease-in-out infinite;
 }
 
-/* تپه‌های پایین، مثل خطِ افقِ شهر */
+.sparkOne {
+  top: 64px;
+  left: 13%;
+}
+
+.sparkTwo {
+  top: 118px;
+  right: 12%;
+  width: 14px;
+  height: 14px;
+  animation-delay: 1.4s;
+}
+
+.sparkThree {
+  top: 36px;
+  right: 26%;
+  width: 11px;
+  height: 11px;
+  animation-delay: 2.6s;
+}
+
+/* خطِ آسمانِ شهر: کاشیِ تکرارشونده تا ساختمان‌ها روی تبلت کش نیایند */
+.city {
+  position: absolute;
+  inset-inline: 0;
+  bottom: clamp(62px, 15vw, 112px);
+  height: clamp(64px, 16vw, 116px);
+  background: var(--gate-city);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 100'%3E%3Cpath d='M0 100V58a8 8 0 0 1 8-8h18a8 8 0 0 1 8 8V100ZM40 100V34a9 9 0 0 1 18 0V100ZM64 100V64h48v36ZM64 64a24 24 0 0 1 48 0ZM118 100V50a6 6 0 0 1 6-6h20a6 6 0 0 1 6 6V100ZM156 100V22a8 8 0 0 1 16 0V100ZM178 100V66l17-16 17 16V100ZM216 100V64a6 6 0 0 1 6-6h12a6 6 0 0 1 6 6V100Z'/%3E%3C/svg%3E") repeat-x center bottom / auto 100%;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 100'%3E%3Cpath d='M0 100V58a8 8 0 0 1 8-8h18a8 8 0 0 1 8 8V100ZM40 100V34a9 9 0 0 1 18 0V100ZM64 100V64h48v36ZM64 64a24 24 0 0 1 48 0ZM118 100V50a6 6 0 0 1 6-6h20a6 6 0 0 1 6 6V100ZM156 100V22a8 8 0 0 1 16 0V100ZM178 100V66l17-16 17 16V100ZM216 100V64a6 6 0 0 1 6-6h12a6 6 0 0 1 6 6V100Z'/%3E%3C/svg%3E") repeat-x center bottom / auto 100%;
+  opacity: 0.85;
+}
+
 .hills {
   position: absolute;
   inset-inline: 0;
   bottom: 0;
-  height: 120px;
-  color: color-mix(in srgb, var(--welcome-primary) 16%, transparent);
+  width: 100%;
+  height: clamp(110px, 27vw, 180px);
 }
 
-@keyframes breathe {
-  0%, 100% { transform: scale(1); opacity: 0.85; }
-  50% { transform: scale(1.18); opacity: 1; }
+.hillBack {
+  fill: var(--gate-hill-back);
 }
 
-@keyframes twinkle {
-  0%, 100% { opacity: 0.55; }
-  50% { opacity: 1; }
+.hillFront {
+  fill: var(--gate-hill-front);
 }
 
-.intro {
+.trail {
+  fill: none;
+  stroke: rgb(255 255 255 / 85%);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 2 12;
+}
+
+/* ── محتوا ────────────────────────────────────────────────── */
+.brand {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 72%);
+  box-shadow: 0 4px 14px rgb(29 33 40 / 6%);
+  color: var(--gate-dark);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.gate {
   position: relative;
   z-index: 1;
   display: flex;
-  align-items: flex-end;
-  gap: 4px;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
   max-width: 360px;
 }
 
-.character {
-  width: 126px;
-  height: auto;
-  flex-shrink: 0;
-  filter: drop-shadow(0 8px 16px rgb(29 33 40 / 18%));
-  animation: pop-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  transform-origin: bottom center;
-}
-
-.bubble {
-  position: relative;
-  flex: 1;
-  background: var(--color-surface);
-  border: 3px solid var(--welcome-primary);
-  border-radius: var(--radius-lg);
-  padding: 14px 16px;
-  margin-bottom: 42px;
-  animation: pop-up 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.tail {
-  position: absolute;
-  bottom: -13px;
-  left: 26px;
-  width: 20px;
-  height: 20px;
-  background: var(--color-surface);
-  border-left: 3px solid var(--welcome-primary);
-  border-bottom: 3px solid var(--welcome-primary);
-  transform: rotate(-45deg);
-  border-bottom-left-radius: 6px;
-}
-
-.speaker {
-  font-size: 11.5px;
-  font-weight: 800;
-  color: var(--welcome-primary);
-}
-
-.text {
-  margin-top: 5px;
-  font-size: 14px;
-  line-height: 1.9;
-}
-
-@keyframes pop-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.92);
+/* تبلت: کمی پهن‌تر */
+@media (min-width: 720px) {
+  .gate {
+    max-width: 400px;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+}
+
+/* گوشیِ خوابیده: پری و پویا کنارِ فرم می‌ایستند، نه بالایش */
+@media (orientation: landscape) and (max-height: 560px) and (min-width: 600px) {
+  .page {
+    justify-content: flex-start;
+    gap: 8px;
+    padding-top: calc(10px + env(safe-area-inset-top));
   }
+
+  .gate {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 24px;
+    max-width: 780px;
+  }
+}
+
+@keyframes glow {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+@keyframes drift {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 22px 0; }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .glowOne,
-  .glowTwo,
-  .stars,
-  .character,
-  .bubble { animation: none; }
+  .sun,
+  .cloud,
+  .spark {
+    animation: none;
+  }
 }

@@ -14,7 +14,7 @@ Registry: [frontend/src/lib/characters.ts](../../../frontend/src/lib/characters.
 `LUKORIANS.<key>` gives `{ id, name, role, image, theme: { primary, dark, soft, accent } }`.
 Images live in `frontend/public/characters/`.
 
-Current hosts (key → name): `health` دکتر نیلا, `welcome` پری (ورود), `club` توپا,
+Current hosts (key → name): `health` دکتر نیلا, `welcome` پری (ورود، با نقشه), `navigator` پویا (داداشِ پری با قطب‌نما — ورود، کنارِ پری), `club` توپا,
 `art` رنگو, `sport` چابک, `tv` ویدا, `garden` سبزو, `maker` مکانو (پروفایل/تنظیمات),
 `explorer` کاشف, `podcast` آوا, `science` دانا (کتاب‌ها), `gamer` پیکسل (گیم‌زون/بازی‌ها),
 `traffic` سروان راه, `chef` سرآشپز زعفران, `guard` آهنین (صندوقچه‌ی رازها),

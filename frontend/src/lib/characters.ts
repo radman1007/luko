@@ -56,6 +56,19 @@ export const LUKORIANS = {
       accent: '#efb45c',
     },
   },
+  /** پویا — داداشِ پری؛ پری نقشه دارد و پویا قطب‌نما. با هم دمِ دروازه‌ی شهرند (ورود). */
+  navigator: {
+    id: 'navigator',
+    name: 'پویا',
+    role: 'راه‌یابِ شهر لوکو',
+    image: '/characters/navigator.webp',
+    theme: {
+      primary: '#1a8f7f',
+      dark: '#0f6258',
+      soft: '#e2f5f0',
+      accent: '#4a9fe0',
+    },
+  },
   club: {
     id: 'club',
     name: 'توپا',

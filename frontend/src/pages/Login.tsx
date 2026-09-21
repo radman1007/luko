@@ -1,48 +1,62 @@
-import { LUKORIANS } from '@/lib/characters';
+import { BrandMark } from '@/components/ui/icons';
+import { GateDuo } from '@/features/auth/components/GateDuo/GateDuo';
 import { OtpAuthForm } from '@/features/auth/components/OtpAuthForm/OtpAuthForm';
 import styles from './Login.module.css';
+
+/** شکلِ ابر — همان ابرِ نقشه‌ی بازی‌ها */
+const CLOUD =
+  'M46 88c-19 0-34-13-34-30 0-15 12-27 27-29 4-17 20-29 39-29 16 0 30 9 37 22 5-3 11-5 17-5 17 0 31 13 32 29 15 2 26 14 26 29 0 8-4 13-4 13H46Z';
 
 /**
  * دروازه‌ی شهرِ لوکو — ورود و ثبت‌نام یکی است.
  * بچه فقط شماره می‌زند و کد را تأیید می‌کند؛ بقیه‌اش را خودِ سرور می‌فهمد.
+ *
+ * پری (با نقشه) و داداشش پویا (با قطب‌نما) دمِ دروازه منتظرند. آسمان، تپه‌ها
+ * و جاده‌ی خط‌چینی که به شهر می‌رسد حالِ «سفر» دارد، نه صورتی و نه آبی.
  */
 export default function Login() {
-  const guide = LUKORIANS.welcome;
-
   return (
     <main className={styles.page}>
-      {/* آسمانِ شهر: تپه‌ها، ابرها و ستاره‌های شناور — فقط تزئینی */}
+      {/* آسمان و افقِ شهر — فقط تزئینی */}
       <div className={styles.sky} aria-hidden>
-        <span className={styles.glowOne} />
-        <span className={styles.glowTwo} />
-        <svg className={styles.stars} viewBox="0 0 360 220" preserveAspectRatio="none">
-          <g fill="currentColor">
-            <circle cx="34" cy="46" r="2.6" />
-            <circle cx="300" cy="30" r="3.2" />
-            <circle cx="248" cy="96" r="2" />
-            <circle cx="86" cy="120" r="2.2" />
-            <circle cx="330" cy="150" r="2.6" />
-            <circle cx="150" cy="26" r="1.8" />
-          </g>
+        <span className={styles.sun} />
+        <svg className={`${styles.cloud} ${styles.cloudOne}`} viewBox="0 0 220 90">
+          <path fill="currentColor" d={CLOUD} />
         </svg>
-        <svg className={styles.hills} viewBox="0 0 360 120" preserveAspectRatio="none">
-          <path fill="currentColor" opacity="0.5"
-            d="M0 78c48-26 90 6 138-10s84-34 132-16 90 22 90 22v46H0Z" />
-          <path fill="currentColor"
-            d="M0 96c54-20 102 8 156-6s96-24 144-8 60 12 60 12v26H0Z" />
+        <svg className={`${styles.cloud} ${styles.cloudTwo}`} viewBox="0 0 220 90">
+          <path fill="currentColor" d={CLOUD} />
+        </svg>
+        <svg className={`${styles.cloud} ${styles.cloudThree}`} viewBox="0 0 220 90">
+          <path fill="currentColor" d={CLOUD} />
+        </svg>
+        {/* درخشش‌های چهارپر، مثلِ ستاره‌ی قطب‌نمای پویا */}
+        {[styles.sparkOne, styles.sparkTwo, styles.sparkThree].map((spot) => (
+          <svg key={spot} className={`${styles.spark} ${spot}`} viewBox="0 0 20 20">
+            <path fill="currentColor" d="M10 0l2.6 7.4L20 10l-7.4 2.6L10 20l-2.6-7.4L0 10l7.4-2.6Z" />
+          </svg>
+        ))}
+        <span className={styles.city} />
+        <svg className={styles.hills} viewBox="0 0 360 130" preserveAspectRatio="none">
+          <path className={styles.hillBack} d="M0 70c50-30 104-22 150-6s96 18 138-4 72-14 72-14v84H0Z" />
+          <path className={styles.hillFront} d="M0 92c60-22 118-10 176-2s112 6 184-20v60H0Z" />
+          {/* جاده‌ی خط‌چین — از پایینِ صفحه تا دلِ شهر */}
+          <path
+            className={styles.trail}
+            d="M40 130c30-14 70-18 104-24s62-16 84-30"
+            vectorEffect="non-scaling-stroke"
+          />
         </svg>
       </div>
 
-      <div className={styles.intro}>
-        <div className={styles.bubble}>
-          <p className={styles.speaker}>{guide.name}، {guide.role}</p>
-          <p className={styles.text}>سلام! من پری‌ام. با یه شماره می‌برمت تو شهرِ لوکو.</p>
-          <span className={styles.tail} aria-hidden />
-        </div>
-        <img className={styles.character} src={guide.image} alt={guide.name} />
-      </div>
+      <p className={styles.brand}>
+        <BrandMark size={22} aria-hidden />
+        لوکو
+      </p>
 
-      <OtpAuthForm />
+      <div className={styles.gate}>
+        <GateDuo />
+        <OtpAuthForm />
+      </div>
     </main>
   );
 }
