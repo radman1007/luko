@@ -19,8 +19,12 @@ export function PaintingCard() {
   const cardRef = useRef<HTMLElement>(null);
   const shrinkRef = useRef<HTMLButtonElement>(null);
   const expandRef = useRef<HTMLButtonElement>(null);
-  /** جای کارت در صفحه وقتی بوم بزرگ است — وگرنه صفحه کوتاه می‌شد و اسکرول می‌پرید */
-  const [placeholder, setPlaceholder] = useState<number | null>(null);
+  /**
+   * جای کارت در صفحه وقتی بوم بزرگ است — وگرنه صفحه کوتاه می‌شد و اسکرول می‌پرید.
+   * فاصله‌ی بالای کارت جدا نگه داشته می‌شود تا لبه‌ی بالای این جا دقیقاً همان
+   * لبه‌ی کارت بماند؛ اگر در ارتفاع حساب می‌شد، مرورگر اسکرول را ۱۶px جابه‌جا می‌کرد.
+   */
+  const [placeholder, setPlaceholder] = useState<React.CSSProperties | null>(null);
 
   const [color, setColor] = useState(COLORS[4]);
   const [brush, setBrush] = useState(BRUSH_SIZES[1]);
@@ -37,7 +41,7 @@ export function PaintingCard() {
     if (!expanded) return undefined;
     const previous = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    shrinkRef.current?.focus();
+    shrinkRef.current?.focus({ preventScroll: true });
     return () => {
       document.body.style.overflow = previous;
     };
@@ -45,8 +49,12 @@ export function PaintingCard() {
 
   const open = () => {
     const card = cardRef.current;
-    if (card)
-      setPlaceholder(card.offsetHeight + (parseFloat(getComputedStyle(card).marginTop) || 0));
+    if (card) {
+      setPlaceholder({
+        height: card.offsetHeight,
+        marginTop: parseFloat(getComputedStyle(card).marginTop) || 0,
+      });
+    }
     setExpanded(true);
   };
 
@@ -125,7 +133,7 @@ export function PaintingCard() {
   };
 
   return (
-    <div style={placeholder !== null ? { height: placeholder } : undefined}>
+    <div style={placeholder ?? undefined}>
       <section
         ref={cardRef}
         className={`${styles.card} ${expanded ? styles.expanded : ''}`}
