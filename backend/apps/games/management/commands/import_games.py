@@ -9,6 +9,8 @@
   - نشانیِ صفحه‌ی «بُرد» را از روی کدِ خودش پیدا می‌کند و در `LUKO_WIN`
     (قطعی) یا `LUKO_WIN_MAYBE` (عمومی، نیازمندِ متنِ بُرد) می‌گذارد؛
   - `luko-sdk.js` (تله‌متری) و `luko-bridge.js` (خبرِ پایان) را می‌افزاید؛
+  - `luko-wallet.js` و رابطِ سکه‌ی همان بازی (coin_adapters) را بالای <head>
+    می‌گذارد تا سکه‌ی بازی همان سکه‌ی اصلیِ بچه باشد؛
   - وابستگی‌های بیرونی را که روی اینترنتِ کاربر باز نمی‌شوند محلی می‌کند.
 
 فایلِ بی‌نام یا بدنام وارد نمی‌شود و دلیلش گزارش می‌شود؛ `sync_games`
@@ -21,6 +23,7 @@ from pathlib import Path
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
+from apps.games.coin_adapters import ADAPTERS, GAME_PATCHES
 from apps.games.naming import parse
 
 # عنصرهایی که «پایانِ بازی» را نشان می‌دهند. الگوها از روی خودِ بازی‌های
@@ -60,7 +63,7 @@ PATCHES = [
 GOOGLE_FONTS = re.compile(r"<link[^>]+fonts\.googleapis\.com[^>]*>", re.I)
 
 MARK = "<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->"
-BLOCK = re.compile(re.escape(MARK) + r".*?luko-bridge\.js\"\s*></script>\s*", re.S)
+BLOCK = re.compile(r"\n?" + re.escape(MARK) + r".*?luko-bridge\.js\"\s*></script>\s*", re.S)
 
 # `async` عمدی است: اسکریپتِ معمولی پارسِ صفحه را نگه می‌دارد و چون
 # بیشترِ بازی‌ها `init` را روی DOMContentLoaded صدا می‌زنند، شروعِ خودِ بازی
@@ -71,6 +74,17 @@ INJECT = """
 <script>window.LUKO_WIN = {sure}; window.LUKO_WIN_MAYBE = {maybe};</script>
 <script async src="/games/assets/luko-sdk.js"></script>
 <script async src="/games/assets/luko-bridge.js"></script>
+"""
+
+
+WALLET_MARK = "<!-- لوکو: کیفِ سکه‌ی مشترک (به‌صورتِ خودکار افزوده شد) -->"
+# دقیقاً همان چیزی که افزوده شد برداشته می‌شود تا اجرای دوباره فایل را عوض نکند
+WALLET_BLOCK = re.compile(r"\n?" + re.escape(WALLET_MARK) + r".*?luko-wallet\.js\"\s*></script>\n?", re.S)
+
+# بی‌async و اولِ <head>: باید پیش از کدِ بازی جای سکه‌اش را با سکه‌ی اصلی پر کند
+WALLET = """{mark}
+<script>window.LUKO_COINS = {adapter};</script>
+<script src="/games/assets/luko-wallet.js"></script>
 """
 
 
@@ -104,9 +118,32 @@ def patch(text: str) -> str:
     return GOOGLE_FONTS.sub("<!-- فونتِ گوگل برداشته شد (لوکو) -->", text)
 
 
-def prepare(text: str) -> str:
+def game_patches(text: str, stem: str) -> str:
+    """وصله‌های تک‌بازی؛ روی فایلِ واردشده‌ی قبلی هم بی‌اثر و امن است."""
+    for source, target in GAME_PATCHES.get(stem, []):
+        if target in text:
+            continue
+        if text.count(source) != 1:
+            raise CommandError(f"{stem}: وصله پیدا نشد یا چندتاست: {source[:50]!r}")
+        text = text.replace(source, target)
+    return text
+
+
+def with_wallet(text: str, stem: str) -> str:
+    """رابطِ سکه + luko-wallet.js درست بعد از <head>."""
+    text = WALLET_BLOCK.sub("", text)
+    adapter = ADAPTERS.get(stem)
+    if not adapter:
+        return text
+    block = WALLET.format(mark=WALLET_MARK, adapter=adapter)
+    if re.search(r"<head[^>]*>", text, re.I):
+        return re.sub(r"(<head[^>]*>)", lambda m: m.group(1) + "\n" + block, text, count=1, flags=re.I)
+    return block + text
+
+
+def prepare(text: str, stem: str = "") -> str:
     """فایلِ خام (یا واردشده‌ی قبلی) → فایلِ آماده‌ی لوکو."""
-    text = BLOCK.sub("", patch(text))
+    text = with_wallet(game_patches(BLOCK.sub("", patch(text)), stem), stem)
     sure, maybe = win_hints(text)
     block = INJECT.format(mark=MARK, sure=str(sure).replace("'", '"'),
                           maybe=str(maybe).replace("'", '"'))
@@ -129,14 +166,16 @@ class Command(BaseCommand):
         if not source.is_dir():
             raise CommandError(f"پوشه پیدا نشد: {source}")
 
-        good, bad, blind = [], [], []
+        good, bad, blind, no_wallet = [], [], [], []
         for path in sorted(source.glob("*.html")):
             result = parse(path.name)
             if not result.ok:
                 bad.append((path.name, result.errors))
                 continue
             text = path.read_text(encoding="utf-8", errors="replace")
-            ready = prepare(text)
+            ready = prepare(text, path.stem)
+            if path.stem not in ADAPTERS:
+                no_wallet.append(path.name)
             sure, maybe = win_hints(text)
             if not sure and not maybe:
                 blind.append(path.name)
@@ -151,6 +190,10 @@ class Command(BaseCommand):
         if blind:
             self.stdout.write(f"{len(blind)} بازی نشانیِ صفحه‌ی پایان ندارد "
                               "(پل فقط با حدسِ متن کار می‌کند): " + "، ".join(blind))
+        if no_wallet:
+            self.stdout.write(self.style.WARNING(
+                f"{len(no_wallet)} بازی رابطِ سکه ندارد و سکه‌اش جدا از کیفِ اصلی می‌ماند "
+                "(apps/games/coin_adapters.py): " + "، ".join(no_wallet)))
         if options["apply"]:
             self.stdout.write(self.style.SUCCESS(f"در {dest} نوشته شد — "
                                                  "حالا `manage.py sync_games`"))

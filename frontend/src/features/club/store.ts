@@ -66,6 +66,22 @@ function load(day = todayStr()): ClubState {
 }
 
 let state: ClubState = load();
+
+/**
+ * موجودیِ همین لحظه. بازی‌ها (luko-wallet.js) سکه را مستقیم در localStorage
+ * می‌نویسند و خبرش (رویدادِ storage یا پیامِ «luko-coins») کمی بعد می‌رسد؛ هر
+ * تغییری از عددِ ذخیره‌شده شروع می‌کند تا خرید یا جایزه‌ی همان لحظه‌ی بازی گم نشود.
+ */
+function freshCoins(snapshot: ClubState): number {
+  try {
+    const raw = localStorage.getItem(COINS_KEY);
+    const coins = raw === null ? Number.NaN : Number(raw);
+    if (Number.isInteger(coins) && coins >= 0) return coins;
+  } catch {
+    /* localStorage در دسترس نیست */
+  }
+  return snapshot.coins;
+}
 const listeners = new Set<() => void>();
 
 /**
@@ -114,7 +130,7 @@ function complete(kind: 'daily' | 'sport', taskId: string): boolean {
   const nextDone = [...done, taskId];
   const next: ClubState = {
     ...snapshot,
-    coins: snapshot.coins + task.coinReward,
+    coins: freshCoins(snapshot) + task.coinReward,
     total: snapshot.total + 1,
     days: snapshot.days.includes(day) ? snapshot.days : [...snapshot.days, day],
     doneToday: kind === 'daily' ? nextDone : snapshot.doneToday,
@@ -182,10 +198,11 @@ export function buy(itemId: string, cost: number): BuyResult {
   if (item.kind === 'badge' && snapshot.owned.includes(itemId)) {
     return { ok: false, reason: 'owned' };
   }
-  if (snapshot.coins < cost) return { ok: false, reason: 'poor' };
+  const coins = freshCoins(snapshot);
+  if (coins < cost) return { ok: false, reason: 'poor' };
 
   const owned = snapshot.owned.includes(itemId) ? snapshot.owned : [...snapshot.owned, itemId];
-  const next = { ...snapshot, coins: snapshot.coins - cost, owned };
+  const next = { ...snapshot, coins: coins - cost, owned };
   try {
     localStorage.setItem(COINS_KEY, String(next.coins));
     localStorage.setItem(OWNED_KEY, JSON.stringify(next.owned));
@@ -199,7 +216,10 @@ export function buy(itemId: string, cost: number): BuyResult {
   return { ok: true, reward };
 }
 
-/** سکه‌ها را با مقدارِ سرور هم‌تراز می‌کند (سرور مرجعِ سکه است) */
+/**
+ * سکه‌ها را روی یک عددِ مطلق می‌گذارد — عددی که سرور یا کیفِ مشترکِ بازی‌ها
+ * (luko-wallet.js، بعد از خرید یا جایزه‌ی داخلِ بازی) گزارش کرده است.
+ */
 export function syncCoins(serverCoins: number) {
   const snapshot = getSnapshot();
   if (snapshot.coins === serverCoins) return;
@@ -209,4 +229,31 @@ export function syncCoins(serverCoins: number) {
     /* حافظه پر/غیرفعال */
   }
   set({ ...snapshot, coins: serverCoins });
+}
+
+/** جایزه‌ی سکه (مثلاً پایانِ یک مرحله) — روی همان کیفی که صفحه‌ی اصلی و بازی‌ها نشان می‌دهند */
+export function grantCoins(amount: number) {
+  if (!Number.isFinite(amount) || amount <= 0) return;
+  const snapshot = getSnapshot();
+  const coins = freshCoins(snapshot) + Math.round(amount);
+  try {
+    localStorage.setItem(COINS_KEY, String(coins));
+  } catch {
+    /* حافظه پر/غیرفعال */
+  }
+  set({ ...snapshot, coins });
+}
+
+/**
+ * بازی‌ها داخلِ iframe و هم‌مبدأ با اپ‌اند و کیفِ مشترک (luko-wallet.js) سکه‌ی
+ * اصلی را مستقیم در localStorage می‌نویسند. مرورگر به بقیه‌ی پنجره‌های همان
+ * مبدأ رویدادِ storage می‌دهد؛ این‌جا عددِ تازه خوانده می‌شود تا صفحه‌ی اصلی و
+ * کلاب هم همان را نشان دهند (پیامِ «luko-coins» در BookGame هم همین را می‌کند).
+ */
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key !== COINS_KEY || event.newValue === null) return;
+    const coins = Number(event.newValue);
+    if (Number.isInteger(coins) && coins >= 0) syncCoins(coins);
+  });
 }

@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { HiOutlineChevronRight, HiOutlineMapPin } from 'react-icons/hi2';
 import { CoinIcon, DewIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
-import { markLevelCompleted } from '@/features/games/localProgress';
+import { completedLevelIds, markLevelCompleted } from '@/features/games/localProgress';
 import { SEASON, seasonState } from '@/features/games/seasonData';
 import { useGamePath } from '@/features/games/useGamePath';
 import { useGrade } from '@/features/auth/useGrade';
@@ -15,7 +15,8 @@ import { completeGame, flushEvents, trackEvent } from '@/features/games/telemetr
 import { gamesApi } from '@/features/games/api';
 import { StarRating } from '@/features/games/components/StarRating/StarRating';
 import { SEASON_MAP_PATH } from '@/lib/constants/nav';
-import { completeMission } from '@/features/club/store';
+import { completeMission, grantCoins, syncCoins } from '@/features/club/store';
+import { isGuestMode } from '@/features/auth/guest';
 import styles from './BookGame.module.css';
 
 /**
@@ -99,7 +100,12 @@ export default function BookGame() {
    */
   const [canClaim, setCanClaim] = useState(false);
   const [justWon, setJustWon] = useState(false);
-  const [serverCoins, setServerCoins] = useState<number | null>(null);
+  /**
+   * سکه‌ای که همین مرحله واقعاً به کیف اضافه کرد. تکرارِ مرحله‌ی بُرده‌شده
+   * سکه ندارد و پیامِ «+۱۰ سکه» آن‌جا دروغ بود — حالا که سکه‌ی بازی و اپ یکی
+   * است، عددِ روی کیف باید با همین پیام بخواند.
+   */
+  const [wonCoins, setWonCoins] = useState<number | null>(null);
   const [wonStars, setWonStars] = useState<number>(0);
   const rewardedRef = useRef(false);
 
@@ -114,7 +120,14 @@ export default function BookGame() {
   const finish = (stars?: number) => {
     if (!stage || rewardedRef.current) return;
     rewardedRef.current = true;
+    const firstTime = !completedLevelIds().has(stage.id);
     markLevelCompleted(stage.id);
+    // مهمان حسابِ سروری ندارد؛ سکه‌ی بارِ اولِ مرحله همین‌جا به کیف می‌رود
+    if (isGuestMode()) {
+      const coins = firstTime ? stage.coinReward : 0;
+      grantCoins(coins);
+      setWonCoins(coins);
+    }
     completeMission('game');   // مأموریتِ روزانه‌ی «یه بازی رو کامل کن»
     // پاداشِ محلی بلافاصله نشان داده می‌شود تا بچه منتظرِ شبکه نماند
     grantDew(DEW_REWARD.game, 'game');
@@ -126,7 +139,12 @@ export default function BookGame() {
       await flushEvents();
       try {
         const result = await completeGame(stage.id, stars);
-        if (result && !result.alreadyDone) setServerCoins(result.coins);
+        if (result) {
+          // سکه را سرور می‌دهد؛ همان عدد روی کیفی که صفحه‌ی اصلی و بازی‌ها نشان می‌دهند
+          const coins = result.alreadyDone ? 0 : result.coins;
+          grantCoins(coins);
+          setWonCoins(coins);
+        }
         if (result) setWonStars(result.stars);
         // سرور مرجعِ قفلِ مسیر است؛ بدونِ این، نقشه با فهرستِ کهنه باز می‌شود
         // و مرحله‌ای که همین الان تمام شد «نرفته» نشان داده می‌شود.
@@ -151,8 +169,21 @@ export default function BookGame() {
     const onMessage = (e: MessageEvent) => {
       // فقط پیام‌های هم‌ریشه (بازیِ داخل iframe) پذیرفته می‌شوند
       if (e.origin !== window.location.origin) return;
-      const data = e.data as { type?: string; event?: Record<string, unknown>; summary?: Record<string, unknown> };
+      const data = e.data as {
+        type?: string;
+        event?: Record<string, unknown>;
+        summary?: Record<string, unknown>;
+        coins?: unknown;
+      };
       if (!data?.type) return;
+
+      // کیفِ مشترکِ بازی (luko-wallet.js): خرید یا جایزه‌ی داخلِ بازی روی سکه‌ی اصلی
+      if (data.type === 'luko-coins') {
+        if (typeof data.coins === 'number' && Number.isInteger(data.coins) && data.coins >= 0) {
+          syncCoins(data.coins);
+        }
+        return;
+      }
 
       if (data.type === 'luko-game-event' && data.event) {
         const { type, ...rest } = data.event as { type?: string };
@@ -282,10 +313,13 @@ export default function BookGame() {
                   <StarRating earned={wonStars} max={stage.maxStars} size="md" />
                 </span>
               )}
-              <p className={styles.winCoins}>
-                <CoinIcon size={18} aria-hidden />+
-                {(serverCoins ?? stage.coinReward).toLocaleString('fa-IR')} سکه
-              </p>
+              {/* تا جوابِ سرور نیامده چیزی نمی‌گوییم؛ عدد باید همانی باشد که به کیف رفت */}
+              {wonCoins !== null && wonCoins > 0 && (
+                <p className={styles.winCoins}>
+                  <CoinIcon size={18} aria-hidden />+{wonCoins.toLocaleString('fa-IR')} سکه
+                </p>
+              )}
+              {wonCoins === 0 && <p className={styles.winDew}>سکه‌ی این مرحله رو قبلاً گرفته بودی</p>}
               <p className={styles.winDew}>
                 <DewIcon size={16} aria-hidden />+{DEW_REWARD.game.toLocaleString('fa-IR')} شبنم و یک کود برای باغچه
               </p>

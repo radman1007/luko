@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
+<!-- لوکو: کیفِ سکه‌ی مشترک (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_COINS = {seed:[{key:"tq_save_v2",path:"coins"}],get:function(){return window.LUKO_GAME_COINS.get();},set:function(v){window.LUKO_GAME_COINS.set(v);}};</script>
+<script src="/games/assets/luko-wallet.js"></script>
+
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
 <meta name="theme-color" content="#0b1416"/>
@@ -527,6 +531,7 @@ if(!save){
 }
 audioOn = save.sound !== false;
 const persist = ()=>store.set('tq_save_v2', save);
+/* لوکو: پلِ کیفِ مشترک به سکه‌ی این بازی (کدش بیرون دیده نمی‌شود) */ window.LUKO_GAME_COINS = { get: function () { return save.coins; }, set: function (v) { save.coins = v; persist(); updateCoins(); } };
 function updateCoins(){
   document.querySelectorAll('.coinVal').forEach(el=>el.textContent = faNum(save.coins));
 }
