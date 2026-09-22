@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { User } from '@/types/user';
 
 // تنها نقطه‌ی ورود HTTP در کل اپ — هیچ کامپوننتی مستقیم fetch/axios صدا نمی‌زند.
 // پیش‌فرض نسبی است تا در dev از پروکسی Vite و در production از nginx عبور کند.
@@ -32,6 +33,18 @@ const REFRESH_KEYS: Record<Audience, string> = {
   parent: 'luko_parent_refresh_token',
 };
 
+/**
+ * آخرین کاربرِ شناخته‌شده‌ی هر فضا.
+ *
+ * بازیابیِ نشست با `GET /auth/me` است؛ بدونِ این نسخه، اپی که بی‌اینترنت باز
+ * شود نمی‌داند بچه کیست و ناچار به صفحه‌ی ورود می‌برد — در حالی که توکنِ
+ * دو‌هفته‌ای‌اش هنوز معتبر است. با پاک‌شدنِ نشست این هم پاک می‌شود.
+ */
+const USER_KEYS: Record<Audience, string> = {
+  kid: 'luko_session_user',
+  parent: 'luko_parent_session_user',
+};
+
 /** فضای هر مسیر. فقط پنل و ورودِ والدین فضای والد است. */
 export function audienceForPath(pathname: string): Audience {
   return pathname.startsWith('/parent-panel') || pathname.startsWith('/parent-login')
@@ -51,13 +64,43 @@ export const tokenStorage = {
   clear: (audience: Audience = currentAudience()) => {
     localStorage.removeItem(TOKEN_KEYS[audience]);
     localStorage.removeItem(REFRESH_KEYS[audience]);
+    localStorage.removeItem(USER_KEYS[audience]);
   },
 
   getRefresh: (audience: Audience = currentAudience()) =>
     localStorage.getItem(REFRESH_KEYS[audience]),
   setRefresh: (token: string, audience: Audience = currentAudience()) =>
     localStorage.setItem(REFRESH_KEYS[audience], token),
+
+  getUser: (audience: Audience = currentAudience()): User | null => {
+    try {
+      const raw = localStorage.getItem(USER_KEYS[audience]);
+      const user = raw ? (JSON.parse(raw) as User) : null;
+      return user && typeof user.id === 'string' && user.id ? user : null;
+    } catch {
+      return null;
+    }
+  },
+  setUser: (user: User, audience: Audience = currentAudience()) => {
+    try {
+      localStorage.setItem(USER_KEYS[audience], JSON.stringify(user));
+    } catch {
+      /* حافظه پر — بازیابیِ آفلاین فقط تا بارِ بعد نیست */
+    }
+  },
 };
+
+/**
+ * خطایی که درباره‌ی نشست چیزی نمی‌گوید: اینترنت قطع است، سرور جواب نداد یا
+ * موقتاً از کار افتاده. چنین خطایی هیچ‌وقت نباید بچه را از حسابش بیرون
+ * بیندازد — قبلاً بازکردنِ اپ بی‌اینترنت توکن را پاک می‌کرد.
+ */
+export function isTransientError(error: unknown): boolean {
+  if (!axios.isAxiosError(error)) return false;
+  if ((error as { lukoSessionUnknown?: boolean }).lukoSessionUnknown) return true;
+  const status = error.response?.status;
+  return status === undefined || status >= 500 || status === 408 || status === 429;
+}
 
 export const apiClient = axios.create({
   baseURL: API_URL,
@@ -82,9 +125,13 @@ apiClient.interceptors.request.use((config) => {
  * هم چند بار به سرور می‌رفت و هم توکن‌های نیم‌کاره روی هم می‌نوشتند. پس
  * اولی تمدید می‌کند و بقیه به همان قول می‌چسبند.
  */
-const renewing: Partial<Record<Audience, Promise<string | null>>> = {};
+/** تمدید به سرور نرسید؛ یعنی نمی‌دانیم نشست تمام شده یا نه */
+const UNREACHABLE = 'unreachable';
+type Renewal = string | null | typeof UNREACHABLE;
 
-async function renewAccess(audience: Audience): Promise<string | null> {
+const renewing: Partial<Record<Audience, Promise<Renewal>>> = {};
+
+async function renewAccess(audience: Audience): Promise<Renewal> {
   const refresh = tokenStorage.getRefresh(audience);
   if (!refresh) return null;
 
@@ -99,18 +146,19 @@ async function renewAccess(audience: Audience): Promise<string | null> {
     if (!token) return null;
     tokenStorage.set(token, audience);
     return token;
-  } catch {
-    return null;
+  } catch (error) {
+    // فقط ردِ صریحِ سرور یعنی نشست تمام است؛ قطعیِ شبکه نه
+    return isTransientError(error) ? UNREACHABLE : null;
   }
 }
 
-function renewOnce(audience: Audience): Promise<string | null> {
+function renewOnce(audience: Audience): Promise<Renewal> {
   if (!renewing[audience]) {
     renewing[audience] = renewAccess(audience).finally(() => {
       delete renewing[audience];
     });
   }
-  return renewing[audience] as Promise<string | null>;
+  return renewing[audience] as Promise<Renewal>;
 }
 
 apiClient.interceptors.response.use(
@@ -131,6 +179,10 @@ apiClient.interceptors.response.use(
     const config = error.config ?? {};
     if (!config.__retried && !url.includes('/auth/refresh')) {
       const token = await renewOnce(audience);
+      if (token === UNREACHABLE) {
+        // تمدید به سرور نرسید: نشست سرِ جایش می‌ماند و دفعه‌ی بعد دوباره تمدید می‌شود
+        return Promise.reject(Object.assign(error, { lukoSessionUnknown: true }));
+      }
       if (token) {
         config.__retried = true;
         config.headers = { ...config.headers, Authorization: `Bearer ${token}` };

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import type { AxiosError } from 'axios';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { HiOutlineChevronRight, HiOutlineMapPin } from 'react-icons/hi2';
+import { useQuery } from '@tanstack/react-query';
+import { HiOutlineChevronRight, HiOutlineCloudArrowUp, HiOutlineMapPin } from 'react-icons/hi2';
 import { CoinIcon, DewIcon } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
 import { completedLevelIds, markLevelCompleted } from '@/features/games/localProgress';
@@ -11,7 +11,13 @@ import { useGamePath } from '@/features/games/useGamePath';
 import { useGrade } from '@/features/auth/useGrade';
 import { DEW_REWARD } from '@/features/garden/gardenData';
 import { grantDew, grantFertilizer } from '@/features/garden/store';
-import { completeGame, flushEvents, trackEvent } from '@/features/games/telemetry';
+import { flushEvents, trackEvent } from '@/features/games/telemetry';
+import {
+  flushCompletions,
+  isPendingCompletion,
+  markCompletionGranted,
+  queueCompletion,
+} from '@/features/games/pendingCompletions';
 import { gamesApi } from '@/features/games/api';
 import { StarRating } from '@/features/games/components/StarRating/StarRating';
 import { SEASON_MAP_PATH } from '@/lib/constants/nav';
@@ -32,7 +38,6 @@ const CLAIM_AFTER_MS = 3 * 60 * 1000;
 
 export default function BookGame() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { gameId = '' } = useParams();
   const gamer = LUKORIANS.gamer;
 
@@ -107,6 +112,8 @@ export default function BookGame() {
    */
   const [wonCoins, setWonCoins] = useState<number | null>(null);
   const [wonStars, setWonStars] = useState<number>(0);
+  /** بی‌اینترنت برده شد: در صف است و با برگشتنِ اینترنت ثبت می‌شود */
+  const [savedOffline, setSavedOffline] = useState(false);
   const rewardedRef = useRef(false);
 
   // همیشه به مسیرِ سیزن برمی‌گردیم؛ نقشه‌ی کتابیِ قدیمی دیگر مقصدِ برگشت نیست
@@ -134,24 +141,34 @@ export default function BookGame() {
     grantFertilizer(1);
     setJustWon(true);
 
-    // ثبتِ سرورمحور: سکه و گنج را سرور می‌دهد و گزارشِ والد از همین‌جا ساخته می‌شود
+    if (isGuestMode()) return;
+
+    // ثبتِ سرورمحور: سکه و گنج را سرور می‌دهد و گزارشِ والد از همین‌جا ساخته می‌شود.
+    // از راهِ صف می‌رود تا اگر اینترنت نبود (یا مرحله‌های آفلاینِ قبلی هنوز
+    // نرسیده‌اند) چیزی گم نشود و ترتیبِ پشتِ‌سرهم برای سرور حفظ شود.
+    queueCompletion(stage.id, stars);
     void (async () => {
       await flushEvents();
-      try {
-        const result = await completeGame(stage.id, stars);
-        if (result) {
-          // سکه را سرور می‌دهد؛ همان عدد روی کیفی که صفحه‌ی اصلی و بازی‌ها نشان می‌دهند
-          const coins = result.alreadyDone ? 0 : result.coins;
-          grantCoins(coins);
-          setWonCoins(coins);
-        }
-        if (result) setWonStars(result.stars);
-        // سرور مرجعِ قفلِ مسیر است؛ بدونِ این، نقشه با فهرستِ کهنه باز می‌شود
-        // و مرحله‌ای که همین الان تمام شد «نرفته» نشان داده می‌شود.
-        await queryClient.invalidateQueries({ queryKey: ['games', 'completed'] });
-      } catch {
-        // اگر شبکه قطع بود، تکمیلِ محلی سرِ جایش می‌ماند و دفعهٔ بعد همگام می‌شود
+      const results = await flushCompletions(stage.id);
+      const result = results.get(stage.id);
+      if (result) {
+        // سکه را سرور می‌دهد؛ همان عدد روی کیفی که صفحه‌ی اصلی و بازی‌ها نشان می‌دهند
+        const coins = result.alreadyDone ? 0 : result.coins;
+        grantCoins(coins);
+        setWonCoins(coins);
+        setWonStars(result.stars);
+        return;
       }
+      if (isPendingCompletion(stage.id)) {
+        // اینترنت نیست: جایزه همین حالا، ثبت با برگشتنِ اینترنت (بی‌سکه‌ی دوباره)
+        const coins = firstTime ? stage.coinReward : 0;
+        markCompletionGranted(stage.id, coins);
+        grantCoins(coins);
+        setWonCoins(coins);
+        setWonStars(stars ?? 0);
+        setSavedOffline(true);
+      }
+      // وگرنه سرور صریحاً ردش کرد (مثلاً مرحله‌ی حذف‌شده): سکه‌ای در کار نیست
     })();
   };
 
@@ -320,6 +337,12 @@ export default function BookGame() {
                 </p>
               )}
               {wonCoins === 0 && <p className={styles.winDew}>سکه‌ی این مرحله رو قبلاً گرفته بودی</p>}
+              {savedOffline && (
+                <p className={styles.winDew}>
+                  <HiOutlineCloudArrowUp aria-hidden />
+                  بی‌اینترنت بازی کردی؛ وقتی اینترنت وصل شد خودش ثبت می‌شه
+                </p>
+              )}
               <p className={styles.winDew}>
                 <DewIcon size={16} aria-hidden />+{DEW_REWARD.game.toLocaleString('fa-IR')} شبنم و یک کود برای باغچه
               </p>

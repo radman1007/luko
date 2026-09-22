@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { completedLevelIds, replaceCompletedLevelIds } from './localProgress';
 import { isGuestMode } from '@/features/auth/guest';
 import { gamesApi } from './api';
+import { pendingSlugs } from './pendingCompletions';
 
 export interface SeasonProgress {
   /** شناسه‌ی مرحله‌های تمام‌شده */
@@ -23,6 +24,10 @@ export interface SeasonProgress {
  * دست‌کاریِ localStorage نباید سه‌ستاره‌شان کند.
  *
  * مهمان حسابِ سروری ندارد، پس همان پیشرفتِ محلی‌اش می‌ماند.
+ *
+ * مرحله‌هایی که بی‌اینترنت برده شده‌اند و هنوز در صفِ ارسال‌اند
+ * (`pendingCompletions`) هم «رفته» حساب می‌شوند: سرور هنوز ندیده‌شان ولی
+ * خواهد دید، و بدونِ این بچه‌ی آفلاین پشتِ همان مرحله قفل می‌ماند.
  */
 export function useSeasonProgress(): SeasonProgress {
   const guest = isGuestMode();
@@ -31,7 +36,7 @@ export function useSeasonProgress(): SeasonProgress {
     queryKey: ['games', 'completed'],
     queryFn: async () => {
       const progress = await gamesApi.progress();
-      replaceCompletedLevelIds(progress.completed);
+      replaceCompletedLevelIds([...new Set([...progress.completed, ...pendingSlugs()])]);
       return progress;
     },
     enabled: !guest,
@@ -42,7 +47,7 @@ export function useSeasonProgress(): SeasonProgress {
   // در هر رندر دوباره حساب می‌شوند.
   return useMemo(
     () => ({
-      done: new Set(data?.completed ?? completedLevelIds()),
+      done: new Set([...(data?.completed ?? completedLevelIds()), ...pendingSlugs()]),
       stars: data?.stars ?? {},
     }),
     [data],

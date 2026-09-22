@@ -9,7 +9,7 @@
  * همین رویدادها هستند که گزارشِ پنل والدین از رویشان ساخته می‌شود. بدونِ این،
  * پنل والدین هیچ‌وقت دادهٔ واقعی نمی‌بیند.
  */
-import { apiClient, tokenStorage } from '@/lib/api';
+import { apiClient, isTransientError, tokenStorage } from '@/lib/api';
 import { isGuestMode } from '@/features/auth/guest';
 
 /** بعد از این تعداد رویداد، بدونِ منتظرماندن ارسال می‌شود */
@@ -18,6 +18,13 @@ const BATCH_SIZE = 25;
 const FLUSH_MS = 5000;
 /** سقفِ بافر تا حافظه در بازی‌های طولانی باد نکند */
 const MAX_BUFFER = 200;
+/**
+ * رویدادهایی که بی‌اینترنت نرسیدند تا ارسالِ بعد این‌جا می‌مانند — گزارشِ
+ * والدین از همین‌ها ساخته می‌شود و بچه‌ای که آفلاین بازی کرده نباید در آن
+ * «بی‌فعالیت» دیده شود.
+ */
+const PENDING_KEY = 'luko_pending_events';
+const MAX_PENDING = 400;
 
 export interface GameEventPayload {
   gameSlug: string;
@@ -27,6 +34,45 @@ export interface GameEventPayload {
 
 let buffer: GameEventPayload[] = [];
 let timer: number | null = null;
+
+interface PendingEvents {
+  /** شناسه‌ی بچه؛ رویدادِ یک بچه نباید به حسابِ دیگری برود */
+  owner: string;
+  events: GameEventPayload[];
+}
+
+function eventOwner(): string | null {
+  return tokenStorage.get('kid') ? tokenStorage.getUser('kid')?.id ?? null : null;
+}
+
+/** رویدادهای مانده‌ی همین بچه را برمی‌دارد (و از حافظه پاک می‌کند) */
+function takePending(owner: string | null): GameEventPayload[] {
+  try {
+    const raw = localStorage.getItem(PENDING_KEY);
+    if (!raw) return [];
+    localStorage.removeItem(PENDING_KEY);
+    const stored = JSON.parse(raw) as PendingEvents;
+    return owner && stored.owner === owner && Array.isArray(stored.events) ? stored.events : [];
+  } catch {
+    return [];
+  }
+}
+
+function keepPending(owner: string | null, events: GameEventPayload[]): void {
+  if (!owner || events.length === 0) return;
+  const offlineAt = new Date().toISOString();
+  // زمانِ واقعیِ رویداد را سرور نمی‌داند (created_at زمانِ رسیدن است)؛ این نشان می‌دهد آفلاین بوده
+  const marked = events.map((event) =>
+    event.payload && 'offlineAt' in event.payload
+      ? event
+      : { ...event, payload: { ...(event.payload ?? {}), offlineAt } },
+  );
+  try {
+    localStorage.setItem(PENDING_KEY, JSON.stringify({ owner, events: marked.slice(-MAX_PENDING) }));
+  } catch {
+    /* حافظه پر — همان رفتارِ قبل: این دسته از دست می‌رود */
+  }
+}
 
 function stopTimer() {
   if (timer !== null) {
@@ -38,13 +84,21 @@ function stopTimer() {
 /** ارسالِ بافر. `keepalive` برای لحظه‌ی بستنِ صفحه است. */
 export async function flushEvents(keepalive = false): Promise<void> {
   stopTimer();
-  if (buffer.length === 0 || isGuestMode()) {
+  if (isGuestMode()) {
     buffer = [];
     return;
   }
 
-  const batch = buffer;
+  const owner = eventOwner();
+  const batch = [...takePending(owner), ...buffer];
   buffer = [];
+  if (batch.length === 0) return;
+
+  // موقعِ بستنِ صفحه، بی‌اینترنت، فرصتِ «ارسال و اگر نشد نگه‌داشتن» نیست
+  if (keepalive && typeof navigator !== 'undefined' && navigator.onLine === false) {
+    keepPending(owner, batch);
+    return;
+  }
 
   try {
     if (keepalive) {
@@ -64,9 +118,10 @@ export async function flushEvents(keepalive = false): Promise<void> {
       return;
     }
     await apiClient.post('/games/events', batch);
-  } catch {
-    // شبکه قطع بود: رویدادها را دور می‌ریزیم تا بازی گیر نکند.
-    // (تله‌متری داده‌ی درجه‌دوم است؛ سکه و تکمیل مسیرِ جداگانه و مطمئن دارند.)
+  } catch (error) {
+    // شبکه قطع بود: برای ارسالِ بعد می‌مانند (بازی منتظرشان نمی‌ماند). ردِ
+    // صریحِ سرور (داده‌ی نامعتبر) تکرار نمی‌شود، وگرنه صف هیچ‌وقت خالی نمی‌شد.
+    if (keepalive || isTransientError(error)) keepPending(owner, batch);
   }
 }
 

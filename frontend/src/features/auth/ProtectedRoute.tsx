@@ -5,6 +5,7 @@ import { ROLE_HOME } from '@/types/user';
 import { PageLoader } from '@/components/PageLoader/PageLoader';
 import { audienceForPath } from '@/lib/api';
 import { useAuth } from './context';
+import { SessionOffline } from './components/SessionOffline/SessionOffline';
 
 interface Props {
   children: ReactNode;
@@ -12,10 +13,12 @@ interface Props {
 }
 
 export function ProtectedRoute({ children, allowedRoles = [] }: Props) {
-  const { user, loading } = useAuth();
+  const { user, loading, offline, retry } = useAuth();
   const { pathname } = useLocation();
 
   if (loading) return <PageLoader />;
+  // نشست هست، فقط اینترنت نیست — صفحه‌ی ورود یعنی «حسابت رفت»، که درست نیست
+  if (!user && offline) return <SessionOffline onRetry={retry} />;
   if (!user) {
     // نشستِ هر فضا جداست: بچه‌ای که همین حالا لاگین است دسترسیِ پنل نمی‌دهد،
     // و والد به ورودِ خودش می‌رود نه لاگینِ کودکانه.
