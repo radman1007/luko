@@ -65,6 +65,11 @@ export const tokenStorage = {
     localStorage.removeItem(TOKEN_KEYS[audience]);
     localStorage.removeItem(REFRESH_KEYS[audience]);
     localStorage.removeItem(USER_KEYS[audience]);
+    // نشستِ بچه بسته شد (خروج، یا ورود با گوشیِ دیگر): داده‌ی دستگاهش کنار
+    // گذاشته می‌شود تا مهمان یا بچه‌ی بعدی آن را نبیند — `features/sync`
+    if (audience === 'kid' && typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+      window.dispatchEvent(new Event('luko:session-ended'));
+    }
   },
 
   getRefresh: (audience: Audience = currentAudience()) =>

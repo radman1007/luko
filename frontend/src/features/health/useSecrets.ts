@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useStorageChange } from '@/lib/useStorageChange';
 import { decryptText, encryptText } from '@/lib/crypto';
 import type { SecretEntry } from './types';
 
@@ -20,10 +21,15 @@ function persist(secrets: SecretEntry[]) {
 
 /**
  * صندوقچه‌ی رازها — هر راز با رمز خود بچه AES-GCM رمزنگاری می‌شود؛
- * بدون رمز درست نه خواندن ممکن است نه حذف. (TODO: sync با بک‌اند)
+ * بدون رمز درست نه خواندن ممکن است نه حذف. بینِ دستگاه‌های حساب با
+ * `features/sync` هم‌رسان می‌شود — همان متنِ رمزشده، نه متنِ خام.
  */
+const isSecretsKey = (key: string) => key === SECRETS_KEY;
+
 export function useSecrets() {
   const [secrets, setSecrets] = useState<SecretEntry[]>(load);
+  // رازی که روی دستگاهِ دیگرِ همین حساب گذاشته یا برداشته شده (فقط متنِ رمزشده می‌آید)
+  useStorageChange(isSecretsKey, useCallback(() => setSecrets(load()), []));
 
   const add = useCallback(async (title: string, text: string, password: string) => {
     const payload = await encryptText(text, password);

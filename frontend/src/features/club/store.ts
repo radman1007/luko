@@ -246,14 +246,18 @@ export function grantCoins(amount: number) {
 
 /**
  * بازی‌ها داخلِ iframe و هم‌مبدأ با اپ‌اند و کیفِ مشترک (luko-wallet.js) سکه‌ی
- * اصلی را مستقیم در localStorage می‌نویسند. مرورگر به بقیه‌ی پنجره‌های همان
- * مبدأ رویدادِ storage می‌دهد؛ این‌جا عددِ تازه خوانده می‌شود تا صفحه‌ی اصلی و
- * کلاب هم همان را نشان دهند (پیامِ «luko-coins» در BookGame هم همین را می‌کند).
+ * اصلی را مستقیم در localStorage می‌نویسند؛ هم‌رسانیِ حساب هم داده‌ی دستگاهِ
+ * دیگر را همین‌طور می‌نویسد. مرورگر به بقیه‌ی پنجره‌های همان مبدأ رویدادِ
+ * storage می‌دهد (هم‌رسانی خودش هم همین رویداد را می‌فرستد)؛ این‌جا وضعیت از
+ * نو خوانده می‌شود تا صفحه‌ی اصلی و باشگاه همان را نشان دهند.
  */
+/** کلیدهای باشگاه؛ هم‌رسانیِ حساب (`features/sync`) هم همین‌ها را می‌نویسد */
+const CLUB_KEY = /^luko_(coins|club_days|club_total|club_owned|club_done_.+|sport_done_.+)$/;
+
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', (event) => {
-    if (event.key !== COINS_KEY || event.newValue === null) return;
-    const coins = Number(event.newValue);
-    if (Number.isInteger(coins) && coins >= 0) syncCoins(coins);
+    // key=null یعنی کلِ حافظه پاک شد؛ وگرنه فقط کلیدهای باشگاه
+    if (event.key !== null && !CLUB_KEY.test(event.key)) return;
+    set(load(getSnapshot().day));
   });
 }

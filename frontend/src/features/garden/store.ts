@@ -206,3 +206,15 @@ export function grantSeeds(amount: number) {
   if (amount <= 0) return;
   set({ ...state, seeds: state.seeds + amount });
 }
+
+/**
+ * باغچه‌ای که دستگاهِ دیگرِ همین حساب ساخته (هم‌رسانیِ `features/sync`) یا
+ * تبِ دیگر نوشته: از نو خوانده می‌شود، بی‌آنکه دوباره ذخیره شود.
+ */
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key !== null && event.key !== GARDEN_KEY) return;
+    state = load();
+    listeners.forEach((l) => l());
+  });
+}

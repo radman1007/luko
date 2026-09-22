@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useStorageChange } from '@/lib/useStorageChange';
 
 const SETTINGS_KEY = 'luko_settings';
 const GUIDE_PREFIX = 'luko_guide_';
@@ -24,9 +25,13 @@ function load(): KidSettings {
   return DEFAULTS;
 }
 
+const isSettingsKey = (key: string) => key === SETTINGS_KEY;
+
 /** تنظیمات بچه — رمز و مشخصات فقط از پنل والدین قابل تغییر است */
 export function useSettings() {
   const [settings, setSettings] = useState<KidSettings>(load);
+  // تنظیمی که روی دستگاهِ دیگرِ همین حساب عوض شده
+  useStorageChange(isSettingsKey, useCallback(() => setSettings(load()), []));
 
   const toggle = useCallback((key: keyof KidSettings) => {
     setSettings((prev) => {

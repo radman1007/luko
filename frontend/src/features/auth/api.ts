@@ -3,6 +3,9 @@ import { disableGuestMode, disableParentGuestMode } from './guest';
 import type { Audience } from '@/lib/api';
 import type { User } from '@/types/user';
 
+/** بیشترین صبر برای آخرین هم‌رسانی پیش از بستنِ نشست روی سرور */
+const LOGOUT_WAIT_MS = 4000;
+
 export interface RequestOtpResult {
   /** اعتبارِ کد (ثانیه) */
   expiresIn: number;
@@ -166,11 +169,20 @@ export const authApi = {
    * منتظرِ پاسخ نمی‌مانیم و خطایش را هم می‌بلعیم: کاربر باید خارج شود حتی
    * اگر اینترنت قطع باشد. توکن پیش از پاک شدن برداشته می‌شود چون درخواست
    * از همان حافظه می‌خواندش.
+   *
+   * `before` کاری است که باید پیش از بسته‌شدنِ نشست روی سرور تمام شود (آخرین
+   * هم‌رسانیِ داده‌ی بچه با همان توکن)؛ بیش از چند ثانیه منتظرش نمی‌مانیم.
    */
-  logout(audience?: Audience) {
+  logout(audience?: Audience, before?: Promise<unknown>) {
     const refreshToken = tokenStorage.getRefresh(audience);
     if (refreshToken) {
-      void apiClient.post('/auth/logout', { refreshToken }).catch(() => {});
+      const send = () => void apiClient.post('/auth/logout', { refreshToken }).catch(() => {});
+      if (before) {
+        const timeout = new Promise((resolve) => window.setTimeout(resolve, LOGOUT_WAIT_MS));
+        void Promise.race([before, timeout]).then(send, send);
+      } else {
+        send();
+      }
     }
     tokenStorage.clear(audience);
   },

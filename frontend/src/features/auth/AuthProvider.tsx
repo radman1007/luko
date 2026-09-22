@@ -6,6 +6,7 @@ import type { User } from '@/types/user';
 import { audienceForPath, isTransientError, tokenStorage } from '@/lib/api';
 import type { Audience } from '@/lib/api';
 import { isPersonalQuery } from '@/lib/queryPersist';
+import { leaveAccount } from '@/features/sync/accountSync';
 import { AuthContext } from './context';
 import { authApi } from './api';
 import {
@@ -19,6 +20,11 @@ import {
 
 type Sessions = Record<Audience, User | null>;
 type Flags = Record<Audience, boolean>;
+
+/** بچه‌ی واردشده معلوم شد: هم‌رسانیِ داده‌ی دستگاه با حسابش همین حالا (`features/sync`) */
+function announceKid() {
+  window.dispatchEvent(new Event('luko:session-changed'));
+}
 
 /**
  * دو نشستِ مستقل روی یک مرورگر: بچه و والد.
@@ -73,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         tokenStorage.setUser(user, who);
         setSessions((s) => ({ ...s, [who]: user }));
         setOffline((o) => ({ ...o, [who]: false }));
+        if (who === 'kid') announceKid();
       })
       .catch((error) => {
         if (isTransientError(error)) {
@@ -107,7 +114,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const after = user ? (user.isGuest ? 'guest' : user.id) : null;
         if (before !== after) dropPersonalData();
       }
-      if (user && !user.isGuest && tokenStorage.get(audience)) tokenStorage.setUser(user, audience);
+      if (user && !user.isGuest && tokenStorage.get(audience)) {
+        tokenStorage.setUser(user, audience);
+        if (audience === 'kid') announceKid();
+      }
       setSessions((s) => ({ ...s, [audience]: user }));
       if (user) setOffline((o) => ({ ...o, [audience]: false }));
     },
@@ -115,7 +125,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(() => {
-    authApi.logout(audience);
+    // آخرین تغییراتِ بچه با همان توکن فرستاده و داده‌اش از گوشی کنار گذاشته
+    // می‌شود تا بچه‌ی بعدی (یا مهمان) سکه و باغچه‌ی او را نبیند
+    authApi.logout(audience, audience === 'kid' ? leaveAccount() : undefined);
     if (audience === 'kid') {
       disableGuestMode();
       dropPersonalData();

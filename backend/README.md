@@ -52,6 +52,7 @@ celery -A config beat -l info --scheduler django_celery_beat.schedulers:Database
 | **سلامت (ادامه)** | `GET,POST /breathing/sessions` |
 | **پنل والدین** | `GET,POST /parent/children`, `DELETE /parent/children/{id}`, `GET /parent/children/{id}/report` |
 | **پشتیبانی** | `GET,POST /tickets`, `POST /tickets/{id}/reply` |
+| **هم‌رسانیِ دستگاه‌ها** | `GET /sync?since=` (کلیدهای عوض‌شده)، `POST /sync` (`changes: [{key, value, baseVersion}]` — نوشتن فقط روی نسخه‌ی دیده‌شده، وگرنه `conflicts`). فقط بچه. داده‌ی دستگاه (کیف، باغچه، مأموریت‌های امروز، ذخیره‌ی بازی‌ها) به‌صورتِ متنِ دست‌نخورده؛ سرور از آن چیزی حساب یا اعطا نمی‌کند — `apps/sync` |
 
 ## پنل والدین
 

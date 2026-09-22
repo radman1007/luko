@@ -5,6 +5,7 @@ import { LUKORIANS } from '@/lib/characters';
 import { useAuth } from '@/features/auth/context';
 import { useClub } from '@/features/club/useClub';
 import { useMedals } from '@/features/club/useMedals';
+import { useSeasonProgress } from '@/features/games/useSeasonProgress';
 import { MOCK_STATS } from '@/features/home/mockData';
 import { ProfileHero } from '@/features/profile/components/ProfileHero/ProfileHero';
 import { StatsGrid } from '@/features/profile/components/StatsGrid/StatsGrid';
@@ -23,22 +24,14 @@ const GUIDE_STEPS = [
   'پایین صفحه کارگاهمه؛ رفیقم «کاشف» اونجا از گنج‌های گمشده برات می‌گه!',
 ];
 
-function readGamesCompleted(): number {
-  try {
-    const raw = localStorage.getItem('luko_completed_games');
-    if (raw) return (JSON.parse(raw) as string[]).length;
-  } catch {
-    /* داده‌ی خراب → صفر */
-  }
-  return 0;
-}
-
 export default function Profile() {
   const { user } = useAuth();
   const club = useClub();
   const { treasures } = useTreasure();
   const medals = useMedals();
-  const gamesCompleted = readGamesCompleted();
+  // همان پیشرفتِ سرور که نقشه نشان می‌دهد؛ قبلاً نسخه‌ی محلیِ همین دستگاه خوانده
+  // می‌شد و تا نقشه باز نمی‌شد، بازی‌هایی که روی دستگاهِ دیگر تمام شده بودند شمرده نمی‌شدند
+  const gamesCompleted = useSeasonProgress().done.size;
 
   const medalsUnlocked = medals.filter((m) => m.unlocked).length;
   // TODO: xp بعد از آماده شدن بک‌اند واقعی می‌شود

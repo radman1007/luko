@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     "apps.content",
     "apps.parent",
     "apps.support",
+    "apps.sync",
 ]
 
 MIDDLEWARE = [
@@ -221,7 +222,7 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_CLASSES": (),
     # سقفی که برداشتِ انبوه را می‌بندد ولی جلوی بچه‌ی پرکار را نگیرد:
     # هر بازکردنِ بازی یک درخواست است و ۲۷ مرحله بیشتر نداریم.
-    "DEFAULT_THROTTLE_RATES": {"play_link": "90/hour"},
+    "DEFAULT_THROTTLE_RATES": {"play_link": "90/hour", "sync": "1200/hour"},
 }
 
 # محتوای JSONFieldها (payloadِ رویدادهای بازی، وضعیت باغچه، رنگ‌های نقاشی) نباید

@@ -15,16 +15,16 @@
 | هوک / ماژول | کلید localStorage فعلی | endpoint هدف |
 |---|---|---|
 | `auth/AuthProvider` | `luko_access_token`, `luko_guest` | **متصل شد:** `POST /auth/request-otp`، `POST /auth/verify-otp`، `GET /auth/me` (پیامک واقعی با sms.ir). `POST /auth/refresh` هنوز در `api.ts` وصل نشده. |
-| `health/useMoodReminder` | `luko_last_mood`, `luko_last_mood_time` | `POST /moods/checkin`, `GET /moods/prompt` |
+| `health/useMoodReminder` | `luko_last_mood`, `luko_last_mood_time` | **هم‌رسان با `/sync`** (بینِ دستگاه‌ها). ثبتِ سروریِ حال (`POST /moods/checkin`) هنوز وصل نیست |
 | `health/useBreathing` | — (فقط state) | **آماده شد:** `GET,POST /breathing/sessions` |
-| `health/useGarden` | `luko_garden` | `GET/POST /garden/state`, `POST /garden/water` |
-| `health/useSecrets` | `luko_secrets` | `GET/POST/DELETE /secrets` — payload رمزنگاری‌شده سمت کلاینت بماند (سرور متن خام نبیند) |
-| `health/artLog` | `luko_art_log` | `POST /moods/art` (حال + رنگ‌ها + بندانگشتی برای تحلیل) |
-| `club/useClub` | `luko_coins`, `luko_club_*`, `luko_sport_done_*` | `GET /club/summary`, `GET/POST /club/tasks`, `GET /club/rewards`, `POST /club/rewards/:id/redeem`, `GET /club/badges`, `GET /club/streak` |
+| `garden/store` | `luko_garden_state`, `luko_dew_time_*` | **هم‌رسان با `/sync`** (شبنم و مراقبت جمعِ تغییرها، گیاه‌ها به شناسه). `GET/POST /garden/*` هنوز وصل نیست |
+| `health/useSecrets` | `luko_secrets` | **هم‌رسان با `/sync`** — همان payloadِ رمزشده، سرور متن خام نمی‌بیند. `GET/POST/DELETE /secrets` هنوز وصل نیست |
+| `health/artLog` | `luko_art_log` | **هم‌رسان با `/sync`**؛ گالریِ نقاشی‌ها از `GET/POST /paintings` |
+| `club/useClub` | `luko_coins`, `luko_club_*`, `luko_sport_done_*` | **هم‌رسان با `/sync`** (سکه با ادغامِ جمعِ تغییرها، فهرست‌ها با اجتماع). کیفِ سکه‌ی بازی‌ها سمتِ اپ حساب می‌شود؛ `club/summary` و بقیه هنوز وصل نیستند |
 | ~~لوکو تلویزیون~~ | — | بخشِ فرانت حذف شد (مرداد ۱۴۰۵)؛ `GET /videos` و مدل‌هایش در بک‌اند نگه داشته شد تا اگر برگشت، آماده باشد |
-| `profile/useTreasure` | `luko_treasures` | `GET/POST /treasures` — **مقدار گنج حتماً سمت سرور محاسبه/اعتبارسنجی شود** |
-| `profile/useSettings` | `luko_settings` | `PATCH /users/me/settings` |
-| `profile` بازی‌های تمام‌شده | `luko_completed_games` | `POST /games/:id/complete` (سکه هم سمت سرور داده شود) |
+| `profile/useTreasure` | `luko_treasures` (فقط مهمان) | **متصل شد:** `GET /treasures` — گنج را سرور می‌دهد |
+| `profile/useSettings` | `luko_settings` | **هم‌رسان با `/sync`** (هر فیلد جدا). `PATCH /users/me/settings` هنوز وصل نیست |
+| `profile` بازی‌های تمام‌شده | `luko_completed_games` | **متصل شد:** `GET /games/completed` (همان پیشرفتِ نقشه) و `POST /games/:slug/complete` |
 | `profile/config.ts` | — (ثابت‌ها) | `GET /admin/builder-config` (آستانه‌ها و قیمت‌ها از پنل ادمین) |
 
 ## نکته‌های امنیتی هنگام اتصال (مهم)
@@ -45,3 +45,10 @@
 | `features/games/useGamePath.ts` | `GET /games/path?grade=N` (مسیرِ کلاس — فقط عنوان/ترتیب/هفته/پاداش) |
 | تبِ «پشتیبانی» پنل والدین | `GET,POST /tickets` · `POST /tickets/{id}/reply` |
 | رویدادهای بازی‌ها (تله‌متری) | `POST /games/events` — تک‌رویداد یا آرایه |
+
+## هم‌رسانیِ داده‌ی دستگاه (`features/sync` ↔ `GET/POST /sync`)
+داده‌ای که هنوز سمتِ خودِ اپ حساب می‌شود (کیفِ سکه‌ی بازی‌ها، باغچه، مأموریت‌های امروز، تنظیمات، رازها،
+ذخیره‌ی داخلِ هر بازی) برای هر حساب روی سرور نگه داشته و بینِ سایت و اپِ اندروید هم‌رسان می‌شود.
+فهرستِ کلیدها و قاعده‌ی ادغامِ هرکدام: [syncKeys.ts](../frontend/src/features/sync/syncKeys.ts)؛ ادغامِ سه‌طرفه:
+[merge.ts](../frontend/src/features/sync/merge.ts). وقتی بخشی واقعاً به API خودش وصل شد، کلیدش را از
+`syncKeys.ts` بردار تا دو منبع نداشته باشد.

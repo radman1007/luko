@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useStorageChange } from '@/lib/useStorageChange';
 import type { PodcastEpisode } from './types';
 
 const LISTENED_KEY = 'luko_podcast_listened';
@@ -18,11 +19,15 @@ function loadListened(): string[] {
  * با تمام شدن قسمت، «گوش‌داده‌شده» ثبت می‌شود.
  * TODO: با آماده شدن بک‌اند، فایل صوتی واقعی از podcastService پخش می‌شود.
  */
+const isListenedKey = (key: string) => key === LISTENED_KEY;
+
 export function usePlayer(episodes: PodcastEpisode[]) {
   const [currentId, setCurrentId] = useState(episodes[0]?.id ?? '');
   const [playing, setPlaying] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [listened, setListened] = useState<string[]>(loadListened);
+  // قسمتی که روی دستگاهِ دیگرِ همین حساب گوش داده شده
+  useStorageChange(isListenedKey, useCallback(() => setListened(loadListened()), []));
 
   const current = episodes.find((e) => e.id === currentId) ?? episodes[0];
   const totalSeconds = (current?.durationMinutes ?? 0) * 60;

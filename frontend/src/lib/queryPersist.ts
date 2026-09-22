@@ -25,7 +25,7 @@ export function persistScope(key: QueryKey): Scope | null {
   const [a, b] = key as unknown[];
   if (a === 'games' && (b === 'path' || b === 'grades')) return 'shared';
   if (a === 'games' && (b === 'completed' || b === 'memories')) return 'personal';
-  if (a === 'my-assignment') return 'personal';
+  if (a === 'my-assignment' || a === 'treasures') return 'personal';
   return null;
 }
 
