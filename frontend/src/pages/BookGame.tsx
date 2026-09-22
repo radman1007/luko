@@ -147,8 +147,10 @@ export default function BookGame() {
     // از راهِ صف می‌رود تا اگر اینترنت نبود (یا مرحله‌های آفلاینِ قبلی هنوز
     // نرسیده‌اند) چیزی گم نشود و ترتیبِ پشتِ‌سرهم برای سرور حفظ شود.
     queueCompletion(stage.id, stars);
+    // رویدادها و تکمیل به هم وابسته نیستند؛ روی اینترنتِ کندِ گوشی، منتظرِ
+    // رویدادها ماندن جایزه‌ی مرحله را چند ثانیه دیرتر نشان می‌داد
+    void flushEvents();
     void (async () => {
-      await flushEvents();
       const results = await flushCompletions(stage.id);
       const result = results.get(stage.id);
       if (result) {
@@ -340,7 +342,10 @@ export default function BookGame() {
               {savedOffline && (
                 <p className={styles.winDew}>
                   <HiOutlineCloudArrowUp aria-hidden />
-                  بی‌اینترنت بازی کردی؛ وقتی اینترنت وصل شد خودش ثبت می‌شه
+                  {/* اینترنت هست ولی سرور همین حالا جواب نداد: «بی‌اینترنت» دروغ بود */}
+                  {navigator.onLine === false
+                    ? 'بی‌اینترنت بازی کردی؛ وقتی اینترنت وصل شد خودش ثبت می‌شه'
+                    : 'بُردت ذخیره شد؛ چند لحظه‌ی دیگه خودش ثبت می‌شه'}
                 </p>
               )}
               <p className={styles.winDew}>

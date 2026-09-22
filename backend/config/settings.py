@@ -106,6 +106,14 @@ if env_bool("USE_SQLITE", False):
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
+            # اپ چند نوشتنِ هم‌زمان دارد (رویدادهای بازی، تکمیلِ مرحله، هم‌رسانیِ
+            # دستگاه). SQLite کلِ پایگاه را قفل می‌کند و بی‌این‌ها «database is
+            # locked» (خطای ۵۰۰) می‌داد؛ روی Postgresِ سرور چنین قفلی نیست.
+            "OPTIONS": {
+                "timeout": 20,
+                "transaction_mode": "IMMEDIATE",
+                "init_command": "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL",
+            },
         }
     }
 else:
