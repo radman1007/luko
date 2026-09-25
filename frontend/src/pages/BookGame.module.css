@@ -57,7 +57,8 @@
   color: var(--color-on-primary);
 }
 
-.reward {
+/* موجودیِ بچه: تنها نمایشِ سکه هنگامِ بازی (چیپِ خودِ بازی‌ها پنهان است) */
+.wallet {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -68,6 +69,21 @@
   border-radius: 999px;
   padding: 5px 11px;
   flex-shrink: 0;
+}
+
+/* با هر تغییرِ موجودی (خرید یا جایزه‌ی داخلِ بازی) عدد یک تکانِ کوچک می‌خورد */
+.walletValue {
+  display: inline-block;
+  animation: walletBump 0.45s ease-out;
+}
+
+@keyframes walletBump {
+  0% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .walletValue { animation: none; }
 }
 
 /* صحنه‌ی بازی */

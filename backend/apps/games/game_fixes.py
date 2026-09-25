@@ -115,11 +115,16 @@ FIXES: dict[str, list[tuple[str, str]]] = {
         _css(".h-steps li::before { inset-inline-end: auto !important; inset-inline-start: 0 !important;"
              " content: counter(st, persian) !important; }"),
     ],
-    # آمارِ پنهانِ هر پاسخ بی‌سقف در حافظه‌ی مرورگر جمع می‌شد
     "C1KrF4S1G1": [
+        # آمارِ پنهانِ هر پاسخ بی‌سقف در حافظه‌ی مرورگر جمع می‌شد
         ("stats.answers.push({lv: curLv + 1, q: qIndex + 1, ok, ms});",
          "stats.answers.push({lv: curLv + 1, q: qIndex + 1, ok, ms}); "
          "if (stats.answers.length > 300) stats.answers.splice(0, stats.answers.length - 300);"),
+        # موجودی فقط در سربرگِ سایت دیده می‌شود (coin_display.py)، نه وسطِ پیام
+        ("`هر ۱۰ مرحله رو تمام کردی و ${fa(S.coins)} سکه داری!`", "`هر ۱۰ مرحله رو تمام کردی!`"),
+    ],
+    "C2KrF1S1G8": [
+        ("؛ تو ${fa(S.coins)} سکه داری. با تموم کردن بازی جمعش کن!`", "؛ سکه‌هات کافی نیست. با تموم کردن بازی جمعش کن!`"),
     ],
 }
 

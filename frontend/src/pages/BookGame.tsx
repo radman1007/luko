@@ -22,6 +22,7 @@ import { gamesApi } from '@/features/games/api';
 import { StarRating } from '@/features/games/components/StarRating/StarRating';
 import { SEASON_MAP_PATH } from '@/lib/constants/nav';
 import { completeMission, grantCoins, syncCoins } from '@/features/club/store';
+import { useClub } from '@/features/club/useClub';
 import { isGuestMode } from '@/features/auth/guest';
 import styles from './BookGame.module.css';
 
@@ -59,6 +60,12 @@ export default function BookGame() {
     [path.stages, gameId],
   );
   const locked = stage?.locked ?? false;
+  /**
+   * موجودیِ بچه — تنها جایی که سکه دیده می‌شود؛ چیپِ سکه‌ی خودِ بازی‌ها پنهان است
+   * (`backend/apps/games/coin_display.py`). خرید و جایزه‌ی داخلِ بازی با پیامِ
+   * `luko-coins` همین‌جا زنده عوض می‌شود.
+   */
+  const { coins } = useClub();
 
   /**
    * آدرسِ فایلِ بازی از سرور می‌آید و امضا دارد. مسیرِ ثابتِ فایل دیگر
@@ -314,11 +321,15 @@ export default function BookGame() {
           </span>
           <span className={styles.topWorld}>
             {SEASON.title} · هفته‌ی {stage.week.toLocaleString('fa-IR')}
+            {!completedLevelIds().has(stage.id) &&
+              ` · جایزه: ${stage.coinReward.toLocaleString('fa-IR')} سکه`}
           </span>
         </div>
-        <span className={styles.reward}>
+        <span className={styles.wallet} role="status" aria-label={`سکه‌هات: ${coins.toLocaleString('fa-IR')}`}>
           <CoinIcon size={14} aria-hidden />
-          {stage.coinReward.toLocaleString('fa-IR')}
+          <span key={coins} className={styles.walletValue}>
+            {coins.toLocaleString('fa-IR')}
+          </span>
         </span>
       </header>
 

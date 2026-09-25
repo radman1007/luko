@@ -83,6 +83,8 @@
   seed(main);
 
   var last = null;
+  /** آخرین سکه‌ی اصلی‌ای که بازی با آن هم‌تراز شد؛ تغییرِ بیرونی را از روی این می‌فهمیم */
+  var lastMain = null;
   var settleUntil = 0;
   var started = false;
 
@@ -100,6 +102,7 @@
     seed(v);
     try { cfg.set(v); } catch (e) { /* بازی هنوز آماده نیست؛ دورِ بعد */ }
     last = gameValue();
+    lastMain = v;
   }
 
   function tell(coins, delta) {
@@ -116,19 +119,30 @@
     // چند لحظه‌ی اول بازی ممکن است ذخیره‌ی قدیمیِ خودش را بخواند؛ هم‌ترازش می‌کنیم
     if (Date.now() < settleUntil) {
       if (cur !== m) push(m);
-      else last = cur;
+      else { last = cur; lastMain = m; }
       return;
     }
     if (last === null) {
       last = cur;
+      lastMain = m;
       return;
     }
-    if (cur === last) return;
+    if (cur === last) {
+      // سکه‌ی اصلی بیرون از بازی عوض شد (جایزه‌ی پایانِ مرحله در اپ، فروشگاهِ باشگاه در
+      // تبِ دیگر، هم‌رسانی با دستگاهِ دیگر): بازی همان را بگیرد. بی‌این، بازی با عددِ
+      // کهنه قضاوت می‌کرد — «سکه کافی نداری» در حالی که سربرگِ سایت بیشتر نشان می‌داد.
+      if (m !== lastMain) {
+        if (m !== cur) push(m);
+        else lastMain = m;
+      }
+      return;
+    }
 
     var delta = cur - last;
     var next = Math.max(0, m + delta);
     writeMain(next);
     last = cur;
+    lastMain = next;
     tell(next, delta);
     // اگر کیفِ اصلی جای دیگری عوض شده بود، بازی هم‌تراز می‌شود
     if (next !== cur) push(next);

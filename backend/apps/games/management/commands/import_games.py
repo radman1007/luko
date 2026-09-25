@@ -10,7 +10,8 @@
     (قطعی) یا `LUKO_WIN_MAYBE` (عمومی، نیازمندِ متنِ بُرد) می‌گذارد؛
   - `luko-sdk.js` (تله‌متری) و `luko-bridge.js` (خبرِ پایان) را می‌افزاید؛
   - `luko-wallet.js` و رابطِ سکه‌ی همان بازی (coin_adapters) را بالای <head>
-    می‌گذارد تا سکه‌ی بازی همان سکه‌ی اصلیِ بچه باشد؛
+    می‌گذارد تا سکه‌ی بازی همان سکه‌ی اصلیِ بچه باشد، و چیپِ موجودیِ خودِ بازی
+    را پنهان می‌کند (coin_display) — موجودی فقط در سربرگِ سایت است؛
   - وابستگی‌های بیرونی را که روی اینترنتِ کاربر باز نمی‌شوند محلی می‌کند؛
   - نقطه‌ی پایانِ خودِ بازی (finish_points.py) و رفعِ باگ‌هایش (game_fixes.py)
     را می‌گذارد.
@@ -26,6 +27,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from apps.games.coin_adapters import ADAPTERS, GAME_PATCHES
+from apps.games.coin_display import hide_css
 from apps.games.finish_points import FINISH, FINISH_HELPER
 from apps.games.game_fixes import FIXES
 from apps.games.naming import parse
@@ -91,7 +93,7 @@ WALLET_BLOCK = re.compile(r"\n?" + re.escape(WALLET_MARK) + r".*?luko-wallet\.js
 # بی‌async و اولِ <head>: باید پیش از کدِ بازی جای سکه‌اش را با سکه‌ی اصلی پر کند
 WALLET = """{mark}
 <script>window.LUKO_COINS = {adapter};</script>
-<script src="/games/assets/luko-wallet.js"></script>
+{hide}<script src="/games/assets/luko-wallet.js"></script>
 """
 
 
@@ -157,7 +159,7 @@ def with_wallet(text: str, stem: str) -> str:
     adapter = ADAPTERS.get(stem)
     if not adapter:
         return text
-    block = WALLET.format(mark=WALLET_MARK, adapter=adapter)
+    block = WALLET.format(mark=WALLET_MARK, adapter=adapter, hide=hide_css(stem))
     if re.search(r"<head[^>]*>", text, re.I):
         return re.sub(r"(<head[^>]*>)", lambda m: m.group(1) + "\n" + block, text, count=1, flags=re.I)
     return block + text

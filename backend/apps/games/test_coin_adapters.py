@@ -13,9 +13,22 @@ from django.conf import settings
 from django.test import SimpleTestCase
 
 from apps.games.coin_adapters import ADAPTERS, GAME_PATCHES
+from apps.games.coin_display import HIDE, hide_css
 from apps.games.management.commands.import_games import WALLET_MARK, prepare
 
 GAMES = Path(settings.BASE_DIR).parent / "frontend" / "public" / "games"
+
+
+class CoinDisplayShapeTests(SimpleTestCase):
+    def test_rules_only_hide_and_never_touch_rewards(self):
+        for stem, selectors in HIDE.items():
+            with self.subTest(stem=stem):
+                self.assertTrue(selectors)
+                css = hide_css(stem)
+                self.assertIn("visibility: hidden !important", css)
+                self.assertNotIn("display: none", css)
+                for sel in selectors:
+                    self.assertNotRegex(sel.lower(), r"reward|price|float|fly|earn")
 
 
 class CoinAdapterShapeTests(SimpleTestCase):
@@ -62,6 +75,20 @@ class RepoGamesWalletTests(SimpleTestCase):
             with self.subTest(game=path.name):
                 text = path.read_text(encoding="utf-8")
                 self.assertEqual(prepare(text, path.stem), text)
+
+    def test_every_game_hides_its_own_coin_display(self):
+        # موجودی فقط در سربرگِ سایت؛ بازیِ بی‌ورودی چیپِ سکه‌ی خودش را نشان می‌دهد
+        missing = [p.stem for p in self.games() if not HIDE.get(p.stem)]
+        self.assertEqual(missing, [], "بازیِ بی‌گزینشگرِ پنهان‌کردنِ سکه (apps/games/coin_display.py)")
+
+    def test_hide_rule_is_inside_the_wallet_block_once(self):
+        for path in self.games():
+            with self.subTest(game=path.name):
+                text = path.read_text(encoding="utf-8")
+                rule = hide_css(path.stem)
+                self.assertEqual(text.count(rule), 1)
+                block = text[text.find(WALLET_MARK):text.find('src="/games/assets/luko-wallet.js"')]
+                self.assertIn(rule, block)
 
     def test_game_patches_are_applied(self):
         for stem, patches in GAME_PATCHES.items():
