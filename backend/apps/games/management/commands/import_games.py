@@ -65,6 +65,9 @@ PATCHES = [
 ]
 
 GOOGLE_FONTS = re.compile(r"<link[^>]+fonts\.googleapis\.com[^>]*>", re.I)
+#: فونتِ وزیرمتن از jsDelivr؛ استایلِ مسدودکننده است و اگر CDN باز نشود صفحه
+#: تا تایم‌اوت سفید می‌ماند. بازی‌ها فونتِ «شور» را محلی دارند و وزیرمتن فقط جانشین است.
+CDN_FONTS = re.compile(r"<link[^>]+cdn\.jsdelivr\.net/[^>]*vazirmatn[^>]*>", re.I)
 
 MARK = "<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->"
 BLOCK = re.compile(r"\n?" + re.escape(MARK) + r".*?luko-bridge\.js\"\s*></script>\s*", re.S)
@@ -119,6 +122,7 @@ def win_hints(text: str) -> tuple[list[str], list[str]]:
 def patch(text: str) -> str:
     for source, target in PATCHES:
         text = text.replace(source, target)
+    text = CDN_FONTS.sub("<!-- فونتِ وزیرمتن از CDN برداشته شد (لوکو) -->", text)
     return GOOGLE_FONTS.sub("<!-- فونتِ گوگل برداشته شد (لوکو) -->", text)
 
 

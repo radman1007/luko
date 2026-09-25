@@ -94,6 +94,25 @@ def _levels(signature: str, total: str, need: int, done: str = "levelCompleted")
     return [at_start(signature, f"lukoLevels({done}, {total}, {need});")]
 
 
+def _in_slot(stem: str, anchor: str, level: str, total: int, need: int,
+             when: str = "true") -> list[tuple[str, str]]:
+    """
+    بازی‌ای که استودیو در چند جایگاهِ مسیر گذاشته (همان فایل با چند نام).
+
+    پیشرفتِ خودِ بازی بینِ جایگاه‌ها مشترک است، پس «سه مرحله‌ی بُرده» در
+    جایگاهِ دوم از همان اول پر بود و بازی بی‌بازی تمام می‌شد. این‌جا فقط
+    مرحله‌هایی شمرده می‌شوند که بچه در **همین جایگاه** برده (کلیدِ جدا برای هر
+    نام)؛ چون پیشرفتِ بازی مشترک است، بچه خودش سراغِ مرحله‌های تازه می‌رود.
+    """
+    key = f"lukoFinish:{stem}"
+    call = (f"if ({when}) {{ var lukoKey = '{key}', lukoDone = {{}}; "
+            "try { lukoDone = JSON.parse(localStorage.getItem(lukoKey) || '{}') || {}; } catch (e) {} "
+            f"lukoDone[{level}] = 1; "
+            "try { localStorage.setItem(lukoKey, JSON.stringify(lukoDone)); } catch (e) {} "
+            f"lukoLevels(lukoDone, {total}, {need}); }}")
+    return [after(anchor, call)]
+
+
 FINISH: dict[str, list[tuple[str, str]]] = {
     # ---------------------------------------------------------------------
     # خانواده‌ی Master: هر مرحله یک پرسش/کارِ کوتاه، ۱۰ تا ۳۲ مرحله، مودالِ
@@ -250,4 +269,34 @@ FINISH: dict[str, list[tuple[str, str]]] = {
                           "lukoCount(Object.keys(S.stars).length, 3);")],  # ۳ از ۱۰
     # جزیره‌ی کلمات: بازیِ باز؛ پایان = حدودِ دو دورِ خوبِ نوشتنِ کلمه
     "C4KnF1S1G2": [at_start("function showResult(finalScore) {", "lukoCount(totalScore, 16);")],
+
+    # ---------------------------------------------------------------------
+    # بازی‌های افزوده‌شده در ۲۶ سپتامبر ۲۰۲۶
+    # ---------------------------------------------------------------------
+    # شکارچیِ نشانه‌ی «س» (نسخه‌ی تازه): ۳ از ۱۰ دریا؛ باخت = تمام‌شدنِ وقت
+    "C1KnF2S3G1": [after("this.globalStats.levelStats[this.level].win++;",
+                         "lukoCount(Object.values(this.globalStats.levelStats).filter(function (s) { return s && s.win > 0; }).length, 3);")],
+    # گوشه‌یاب: هر مرحله ۲ یا ۳ شکل و همیشه تمام می‌شود؛ ۴ از ۱۰ با دست‌کم یک غلط (۲ ستاره)
+    "C1KrF4S1G1": [after("S.stars[curLv] = Math.max(S.stars[curLv] || 0, stars);",
+                         "lukoCount(Object.values(S.stars).filter(function (v) { return v >= 2; }).length, 4);")],
+    "C1KrF4S1G2": [at_start("function finishGame(){", "lukoWin('all levels');")],   # سیب‌ستان: ۶ الگو
+    # شمارشِ میوه: مرحله‌ها پشتِ‌سرِ هم (this.level = همین مرحله)؛ ۵ از ۱۰، غلط جریمه ندارد
+    "C2KrF1S1G11": [at_start("  completeLevel() {", "lukoCount(this.level, 5);")],
+    # قصّه‌خانه: ۴ پرسشِ پیش، قصّه‌ی شنیداری، ۸ پرسشِ پس؛ پایان = پیامِ اخلاقیِ آخر
+    "C3KhF1S2G1": [before("S.finished=true;show('moral');", "lukoWin('story');")],
+    # دسته‌دسته: یک دورِ ۱۰ مرحله‌ای (بی‌ذخیره)؛ پایان = ۶ پاسخِ درستِ همین دور
+    "C3KrF1S14g1": [after("b.classList.add('good');sBell();sCoin();gainCoins(d.g);", "lukoCount(M.ok, 6);")],
+    # رازِ الگوها: جلسه‌ی ۱۰ پرسشی؛ دست‌کم ۶ درست (همان ۲ ستاره‌ی خودِ بازی)
+    "C3KrF1S1G10": [at_start("  finish:function(){", "if (this.correct >= 6) lukoWin('session');")],
+    "C3KrF1S1G11": [at_start("function endGame(){",                          # شکارچیِ الگوها
+                             "if (Game.correctCount >= Math.ceil(Game.questions.length * 0.6)) lukoWin('session');")],
+    "C4KfF1S2G1": [at_start("function winGame(){", "lukoWin('all machines');")],  # ۱۰ دستگاه
 }
+
+# نجاتِ قبیله (۱۰ مرحله‌ی شمارش) در سه جایگاه؛ هر جایگاه ۳ مرحله
+for _stem in ("C1KrF1S1G5", "C1KrF1S1G6", "C2KrF1S1G10"):
+    FINISH[_stem] = _in_slot(_stem, "LokoLevels.setStars(this.currentLevel, stars);", "this.currentLevel", 10, 3)
+# پیام‌های آسمانی (۱۰ پیام، هرکدام خواندن + آزمونِ ۵ پرسشی) در چهار جایگاه؛ هر جایگاه ۲ پیام.
+# «قرآن در تابستان» اختیاری است و شمرده نمی‌شود.
+for _stem in ("C3KqF3S2G1", "C3KqF3S2G2", "C3KqF3S5G1", "C3KqF3S11G1"):
+    FINISH[_stem] = _in_slot(_stem, "levelCompleted[key]=true;", "currentMessage.id", 10, 2, when="!isSummerMode")

@@ -206,7 +206,9 @@ async function syncOnce(): Promise<SyncOutcome | null> {
     try {
       const coins = await syncApi.accountCoins();
       if (lost()) return null;
-      if (coins > 0 && localStorage.getItem(COINS_KEY) === null) writeLocal(COINS_KEY, String(coins), changed);
+      // حسابِ تازه هم کیف می‌گیرد (۰): بی‌آن، کیفِ بازی‌ها (luko-wallet.js) خاموش می‌ماند و
+      // هر بازی سکه‌ی پیش‌فرضِ خودش (۵، ۱۲، ۱۵…) را نشان می‌داد و خریدش از جایی کم نمی‌شد
+      if (localStorage.getItem(COINS_KEY) === null) writeLocal(COINS_KEY, String(Math.max(0, coins)), changed);
     } catch {
       /* بی‌اینترنت یا خطا: همین بار بی‌آن؛ کیف از صفر، و دفعه‌ی بعد دوباره امتحان نمی‌شود چون since دارد */
     }

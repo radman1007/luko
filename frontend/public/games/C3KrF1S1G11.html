@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<!-- لوکو: کیفِ سکه‌ی مشترک (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_COINS = {seed:[{key:"ph_coins"}],get:function(){return parseInt(localStorage.getItem("ph_coins"),10)||0;},set:function(v){CoinManager.render();}};</script>
+<script src="/games/assets/luko-wallet.js"></script>
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+<meta name="theme-color" content="#12102b"/>
+<title>شکارچی الگوها — بازی </title>
+<style>
+/* =====================================================
+   ۱) متغیرهای پوسته و پایه
+===================================================== */
+:root{
+  --bg1:#12102b; --bg2:#241b52; --bg3:#0e2140;
+  --accent:#7c5cff; --accent2:#00d4ff; --accent3:#ff6b9d; --gold:#ffd166;
+  --glow1:rgba(124,92,255,.32); --glow2:rgba(0,212,255,.2);
+  --card:rgba(255,255,255,.07); --card-brd:rgba(255,255,255,.14);
+  --text:#f1f2ff; --muted:#a9adde;
+  --ok:#2dd4a7; --bad:#ff5c7a;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{
+  min-height:100vh;min-height:100dvh;
+  font-family:'Segoe UI',Tahoma,'Vazirmatn',sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1100px 700px at 85% -10%, var(--bg2), transparent 70%),
+    radial-gradient(900px 650px at -10% 110%, var(--bg3), transparent 70%),
+    var(--bg1);
+  overflow-x:hidden;
+  user-select:none;-webkit-user-select:none;
+  touch-action:manipulation;
+}
+body::before,body::after{
+  content:'';position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(46px);
+}
+body::before{width:55vmax;height:55vmax;top:-22vmax;right:-18vmax;background:var(--glow1);opacity:.55}
+body::after{width:48vmax;height:48vmax;bottom:-20vmax;left:-16vmax;background:var(--glow2);opacity:.5}
+button{font-family:inherit;touch-action:manipulation;cursor:pointer}
+img{max-width:100%}
+
+/* ستاره‌های شناور (آیتم فروشگاه) */
+#bg-deco{position:fixed;inset:0;pointer-events:none;z-index:0;display:none}
+body.has-stars #bg-deco{display:block}
+#bg-deco svg{position:absolute;animation:floaty 6s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-16px) rotate(8deg)}}
+
+/* =====================================================
+   ۲) صفحه‌ها و ناوبری
+===================================================== */
+.screen{display:none;position:relative;z-index:1;max-width:860px;margin:0 auto;
+  padding:78px 16px 30px;animation:screenIn .4s ease}
+.screen.active{display:block}
+@keyframes screenIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media(min-width:700px){.screen{padding-top:88px}}
+
+/* =====================================================
+   ۳) نوار سکه (گوشه سمت چپ) و توست
+===================================================== */
+#coin-pill{
+  position:fixed;top:12px;left:12px;z-index:60;
+  display:flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  padding:7px 13px 7px 15px;border-radius:999px;
+  font-weight:800;font-size:1.05rem;
+  box-shadow:0 6px 18px rgba(0,0,0,.28);
+}
+#coin-pill img,#coin-pill .coin-fb{width:24px;height:24px}
+.bump{animation:bump .45s ease}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.16)}100%{transform:scale(1)}}
+.shake{animation:shakeX .45s ease}
+@keyframes shakeX{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+#toast{
+  position:fixed;top:66px;left:50%;transform:translateX(-50%) translateY(-12px);
+  background:rgba(22,19,50,.96);border:1px solid rgba(255,255,255,.22);
+  padding:11px 22px;border-radius:14px;font-weight:800;font-size:.95rem;
+  z-index:100;opacity:0;pointer-events:none;transition:.25s;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);white-space:nowrap;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* اندازه‌های آیکون سکه و جایگزین SVG */
+.coin-sm{width:17px;height:17px}.coin-md{width:24px;height:24px}.coin-lg{width:28px;height:28px}
+.coin-fb,.char-fb{display:grid;place-items:center}
+.coin-fb svg,.char-fb svg{width:100%;height:100%;display:block}
+.char-fb{width:100%;height:100%}
+
+/* =====================================================
+   ۴) دکمه‌ها
+===================================================== */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  border:none;border-radius:18px;min-height:56px;padding:12px 24px;
+  font-weight:800;font-size:1.05rem;color:#fff;
+  transition:transform .15s ease,box-shadow .25s ease,filter .2s ease;
+  box-shadow:0 10px 26px rgba(0,0,0,.32);
+  position:relative;overflow:hidden;
+}
+.btn:active{transform:scale(.96)}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 10px 26px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.28)}
+.btn-ghost{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.16);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.btn-danger{background:linear-gradient(135deg,#ff5c7a,#ff8f5c)}
+.btn-owned{background:rgba(255,255,255,.06);color:var(--muted);border:1.5px dashed rgba(255,255,255,.2);box-shadow:none;cursor:default}
+.btn-big{min-height:62px;font-size:1.2rem}
+.btn-start{animation:glowPulse 2.6s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{box-shadow:0 10px 26px rgba(0,0,0,.35)}50%{box-shadow:0 12px 36px rgba(124,92,255,.5)}}
+.icon-btn{
+  width:46px;height:46px;flex:0 0 46px;border-radius:14px;
+  background:rgba(255,255,255,.09);border:1.5px solid rgba(255,255,255,.16);
+  color:var(--text);display:grid;place-items:center;
+  transition:transform .15s ease,background .2s ease;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.icon-btn:active{transform:scale(.92)}
+
+/* =====================================================
+   ۵) صفحه اصلی
+===================================================== */
+.home-inner{min-height:calc(100vh - 112px);min-height:calc(100dvh - 112px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:22px;text-align:center}
+.game-logo{
+  font-size:clamp(2.1rem,9vw,3.4rem);font-weight:900;line-height:1.4;
+  background:linear-gradient(90deg,var(--accent2),var(--accent3),var(--gold));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 4px 20px rgba(124,92,255,.35));
+}
+.tagline{color:var(--muted);font-weight:700;font-size:.95rem;margin-top:2px}
+.char-wrap{position:relative;display:grid;place-items:center;border-radius:50%}
+.char-avatar{
+  width:min(48vw,190px);aspect-ratio:1;padding:10px;
+  background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);
+  box-shadow:0 18px 50px rgba(0,0,0,.35),0 0 0 10px rgba(255,255,255,.03);
+  animation:floaty 5s ease-in-out infinite;
+}
+.char-avatar img,.char-avatar .char-fb{width:100%;height:100%;object-fit:cover;border-radius:50%}
+body.has-frame .char-avatar{box-shadow:0 0 0 4px #ffd166,0 0 26px rgba(255,209,102,.55),0 18px 50px rgba(0,0,0,.35)}
+body.has-frame .char-mini{box-shadow:0 0 0 3px #ffd166,0 0 18px rgba(255,209,102,.5)}
+.hat-slot{display:none;position:absolute;top:-16%;left:50%;transform:translateX(-50%) rotate(12deg);width:48%;z-index:2;pointer-events:none}
+.hat-slot svg{width:100%;display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.3))}
+body.has-hat .hat-slot{display:block}
+.home-actions{display:flex;flex-direction:column;gap:12px;width:min(100%,340px)}
+#home-resume{display:none;flex-direction:column;gap:12px}
+.home-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* =====================================================
+   ۶) صفحه بازی
+===================================================== */
+.game-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.progress-wrap{flex:1;min-width:0}
+.progress-bar{height:12px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+#progress-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent2),var(--accent3));transition:width .5s ease}
+#q-count{font-size:.78rem;color:var(--muted);margin-top:5px;text-align:center;font-weight:700}
+.top-spacer{width:46px;flex:0 0 46px}
+.strip-caption{font-size:.78rem;color:var(--muted);text-align:center;margin-bottom:6px;font-weight:700}
+
+.pattern-strip{display:flex;align-items:stretch;justify-content:center;gap:4px;margin:6px 0 4px}
+.stage-card{
+  flex:1 1 0;min-width:0;max-width:150px;
+  background:var(--card);border:1.5px solid var(--card-brd);border-radius:16px;
+  padding:8px 3px 10px;display:flex;flex-direction:column;align-items:center;gap:7px;
+  box-shadow:0 8px 20px rgba(0,0,0,.18);
+  animation:popIn .5s cubic-bezier(.3,1.5,.5,1) both;
+  animation-delay:calc(var(--i)*.13s);
+  transition:transform .2s ease;
+}
+@media(hover:hover){.stage-card:hover{transform:translateY(-4px)}}
+@keyframes popIn{from{opacity:0;transform:translateY(18px) scale(.7)}to{opacity:1;transform:none}}
+.stage-num{
+  width:20px;height:20px;display:grid;place-items:center;border-radius:50%;
+  background:var(--accent2);color:#06122b;font-size:.72rem;font-weight:900;flex:0 0 auto;
+}
+.stage-shapes{display:flex;flex-wrap:wrap;justify-content:center;align-content:center;gap:3px;width:100%;flex:1;min-height:42px}
+.pshape{display:block}
+.sz-l .pshape{width:20px;height:20px}
+.sz-m .pshape{width:16px;height:16px}
+.sz-s .pshape{width:12px;height:12px}
+.sz-xs .pshape{width:10px;height:10px}
+.p-arrow{align-self:center;flex:0 0 15px;color:var(--accent2);display:grid;place-items:center;animation:popIn .4s both;animation-delay:calc(var(--i)*.13s + .1s)}
+.p-arrow svg{width:15px;height:15px}
+
+.ask-row{display:flex;align-items:center;gap:12px;margin:16px 0 14px;animation:screenIn .4s .4s both}
+.char-mini{width:58px;height:58px;flex:0 0 58px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.16);padding:5px}
+.char-mini img,.char-mini .char-fb{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.char-mini.happy{animation:happyBounce .7s ease}
+@keyframes happyBounce{0%,100%{transform:translateY(0) scale(1)}30%{transform:translateY(-10px) scale(1.08)}60%{transform:translateY(-3px) scale(1.04)}}
+.char-mini.sad{animation:shakeX .5s ease}
+.bubble{
+  position:relative;flex:1;min-width:0;
+  background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.17);
+  border-radius:18px;border-top-right-radius:6px;padding:12px 15px;
+  font-weight:800;font-size:.98rem;line-height:1.9;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  box-shadow:0 8px 22px rgba(0,0,0,.2);
+}
+.bubble::before{
+  content:'';position:absolute;right:-6px;top:20px;width:11px;height:11px;
+  background:rgba(255,255,255,.1);border-left:none;border-bottom:none;
+  border-top:1.5px solid rgba(255,255,255,.17);border-right:1.5px solid rgba(255,255,255,.17);
+  transform:rotate(45deg);
+}
+
+.options{display:grid;gap:10px;margin-top:4px;animation:screenIn .4s .55s both}
+.opt{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:right;
+  background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.15);
+  border-radius:16px;padding:13px 14px;min-height:60px;
+  color:var(--text);font-size:.98rem;font-weight:800;
+  transition:transform .15s ease,border-color .25s ease,background .25s ease;
+  box-shadow:0 6px 16px rgba(0,0,0,.16);
+}
+.opt:not(:disabled):active{transform:scale(.97)}
+.opt-num{width:30px;height:30px;flex:0 0 30px;border-radius:10px;background:rgba(255,255,255,.13);display:grid;place-items:center;font-size:.85rem;font-weight:900}
+.opt-txt{flex:1;min-width:0;line-height:1.8}
+.opt-mark{width:24px;height:24px;flex:0 0 24px;display:none}
+.opt.is-correct{background:rgba(45,212,167,.17);border-color:var(--ok)}
+.opt.is-wrong{background:rgba(255,92,122,.15);border-color:var(--bad);animation:shakeX .45s ease}
+.opt.is-correct .opt-mark,.opt.is-wrong .opt-mark{display:block}
+.opt:disabled{cursor:default}
+.opt:disabled:not(.is-correct):not(.is-wrong){opacity:.55}
+@media(min-width:640px){.options{grid-template-columns:1fr 1fr}}
+
+.feedback{display:none;margin-top:14px;border-radius:18px;padding:14px 16px;animation:screenIn .35s ease}
+.feedback.show{display:block}
+.feedback.ok{background:rgba(45,212,167,.13);border:1.5px solid rgba(45,212,167,.5)}
+.feedback.bad{background:rgba(255,92,122,.12);border:1.5px solid rgba(255,92,122,.45)}
+.fb-title{font-weight:900;display:flex;align-items:center;gap:9px;font-size:1.04rem}
+.fb-explain{margin-top:9px;color:var(--muted);font-size:.92rem;line-height:2;background:rgba(0,0,0,.18);border-radius:12px;padding:10px 13px;font-weight:700}
+.fb-hint{margin-top:8px;font-size:.83rem;color:var(--muted);font-weight:700}
+.coin-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,209,102,.14);border:1px solid rgba(255,209,102,.45);color:var(--gold);border-radius:999px;padding:6px 14px;font-weight:900;font-size:.92rem;margin-top:11px}
+.next-wrap{display:none;margin-top:14px}
+.next-wrap.show{display:block}
+.next-wrap .btn{width:100%}
+
+/* سکه پرنده */
+.fly-coin{position:fixed;z-index:95;width:28px;height:28px;pointer-events:none}
+.fly-coin img,.fly-coin .coin-fb{width:100%;height:100%}
+
+/* بارش جشن */
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:90;overflow:hidden}
+.confetti i{position:absolute;top:-16px;width:9px;height:14px;border-radius:3px;animation:confFall linear forwards}
+@keyframes confFall{to{transform:translateY(112vh) rotate(560deg)}}
+
+/* =====================================================
+   ۷) فروشگاه
+===================================================== */
+.page-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.page-title{font-size:1.45rem;font-weight:900}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:rgba(255,255,255,.07);padding:6px;border-radius:16px;margin-bottom:16px;border:1px solid rgba(255,255,255,.1)}
+.tab{min-height:46px;border:none;border-radius:12px;background:transparent;color:var(--muted);font-weight:800;font-size:.95rem;transition:.2s}
+.tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.shop-grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:560px){.shop-grid{grid-template-columns:1fr 1fr}}
+.item-card{
+  background:var(--card);border:1.5px solid var(--card-brd);border-radius:20px;
+  padding:16px 14px;display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center;
+  animation:screenIn .35s both;box-shadow:0 8px 22px rgba(0,0,0,.18);
+}
+.item-preview{width:76px;height:76px;border-radius:18px;background:rgba(0,0,0,.22);display:grid;place-items:center;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.item-preview svg{width:70%;height:70%}
+.theme-preview{width:76px;height:76px;border-radius:18px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.12);display:grid;place-items:center;gap:0}
+.theme-preview span{width:16px;height:16px;border-radius:50%;margin:3px;box-shadow:0 3px 8px rgba(0,0,0,.3)}
+.item-name{font-weight:900;font-size:.98rem}
+.item-price{display:flex;align-items:center;gap:6px;color:var(--gold);font-weight:900;font-size:.88rem}
+.item-btn{width:100%;min-height:46px;border-radius:14px;font-size:.95rem}
+
+/* =====================================================
+   ۸) راهنما
+===================================================== */
+.help-char{width:130px;height:130px;margin:2px auto 16px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);padding:8px;animation:floaty 5s ease-in-out infinite}
+.help-char img,.help-char .char-fb{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.steps{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.step{
+  display:flex;align-items:center;gap:12px;
+  background:var(--card);border:1.5px solid var(--card-brd);border-radius:16px;padding:13px 14px;
+  animation:screenIn .4s both;animation-delay:calc(var(--i)*.1s);
+}
+.step-num{width:32px;height:32px;flex:0 0 32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:900;font-size:.9rem;color:#fff}
+.step p{flex:1;font-size:.92rem;line-height:2;font-weight:700}
+.step svg.step-ic{width:22px;height:22px;flex:0 0 22px;color:var(--accent2);opacity:.85}
+.coin-hint{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:rgba(255,209,102,.12);border:1.5px solid rgba(255,209,102,.4);color:var(--gold);
+  border-radius:14px;padding:11px;font-weight:900;font-size:.92rem;margin-bottom:16px;
+}
+
+/* =====================================================
+   ۹) صفحه پایان
+===================================================== */
+.end-inner{min-height:calc(100vh - 112px);min-height:calc(100dvh - 112px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center}
+.trophy{width:130px;height:130px;filter:drop-shadow(0 10px 28px rgba(255,209,102,.4));animation:happyBounce 1.2s ease}
+.end-title{font-size:clamp(1.4rem,6vw,2.1rem);font-weight:900;line-height:1.7;background:linear-gradient(90deg,var(--gold),var(--accent3));-webkit-background-clip:text;background-clip:text;color:transparent}
+.end-coins{display:flex;align-items:center;gap:9px;background:rgba(255,209,102,.12);border:1.5px solid rgba(255,209,102,.45);color:var(--gold);border-radius:999px;padding:10px 22px;font-weight:900;font-size:1.1rem}
+.end-actions{display:flex;flex-direction:column;gap:12px;width:min(100%,320px);margin-top:8px}
+
+/* =====================================================
+   ۱۰) مودال توقف
+===================================================== */
+.modal{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(8,6,24,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.modal.show{display:flex}
+.modal-card{
+  background:linear-gradient(160deg,rgba(44,39,86,.97),rgba(24,22,52,.98));
+  border:1.5px solid rgba(255,255,255,.17);border-radius:24px;
+  padding:28px 22px;width:min(100%,360px);text-align:center;
+  box-shadow:0 26px 60px rgba(0,0,0,.5);
+  animation:popIn .3s cubic-bezier(.3,1.4,.5,1) both;
+}
+.modal-card .modal-ic{width:56px;height:56px;margin:0 auto 14px;border-radius:18px;background:rgba(255,255,255,.08);display:grid;place-items:center;color:var(--accent2)}
+.modal-card h3{margin-bottom:20px;font-size:1.18rem;font-weight:900}
+.modal-actions{display:grid;gap:11px}
+
+@media(min-width:700px){
+  .pattern-strip{gap:10px}
+  .stage-card{padding:12px 8px 16px;border-radius:20px}
+  .stage-num{width:26px;height:26px;font-size:.85rem}
+  .stage-shapes{min-height:64px;gap:5px}
+  .sz-l .pshape{width:32px;height:32px}
+  .sz-m .pshape{width:26px;height:26px}
+  .sz-s .pshape{width:20px;height:20px}
+  .sz-xs .pshape{width:15px;height:15px}
+  .p-arrow{flex-basis:26px}.p-arrow svg{width:24px;height:24px}
+  .bubble{font-size:1.08rem}
+  .opt{font-size:1.02rem;min-height:66px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<!-- ستاره‌های تزئینی (آیتم شخصی‌سازی) -->
+<div id="bg-deco" aria-hidden="true">
+  <svg style="top:12%;right:12%;animation-delay:0s" width="26" height="26" viewBox="0 0 24 24" fill="rgba(255,209,102,.4)"><path d="M12 2l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 16.7 6.1 20l1.3-6.6L2.5 8.9l6.6-.8z"/></svg>
+  <svg style="top:26%;left:10%;animation-delay:1.2s" width="18" height="18" viewBox="0 0 24 24" fill="rgba(0,212,255,.35)"><path d="M12 2l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 16.7 6.1 20l1.3-6.6L2.5 8.9l6.6-.8z"/></svg>
+  <svg style="top:60%;right:7%;animation-delay:.6s" width="20" height="20" viewBox="0 0 24 24" fill="rgba(255,107,157,.35)"><path d="M12 2l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 16.7 6.1 20l1.3-6.6L2.5 8.9l6.6-.8z"/></svg>
+  <svg style="top:72%;left:14%;animation-delay:1.8s" width="24" height="24" viewBox="0 0 24 24" fill="rgba(255,209,102,.3)"><path d="M12 2l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 16.7 6.1 20l1.3-6.6L2.5 8.9l6.6-.8z"/></svg>
+  <svg style="top:42%;right:30%;animation-delay:2.4s" width="14" height="14" viewBox="0 0 24 24" fill="rgba(179,136,255,.4)"><path d="M12 2l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 16.7 6.1 20l1.3-6.6L2.5 8.9l6.6-.8z"/></svg>
+  <svg style="top:16%;left:34%;animation-delay:3s" width="16" height="16" viewBox="0 0 24 24" fill="rgba(45,212,167,.35)"><path d="M12 2l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 16.7 6.1 20l1.3-6.6L2.5 8.9l6.6-.8z"/></svg>
+</div>
+
+<!-- نوار سکه (گوشه سمت چپ) -->
+<div id="coin-pill" aria-live="polite"><img class="coin-md" src="./icons/coin.png" alt="سکه" onerror="imgFail(this,'coin')"><span id="coin-count">۰</span></div>
+
+<!-- ================= صفحه اصلی ================= -->
+<section id="screen-home" class="screen active">
+  <div class="home-inner">
+    <div>
+      <h1 class="game-logo">شکارچی الگوها</h1>
+      <p class="tagline">🎯 ماجرای کشف الگوها</p>
+    </div>
+    <div class="char-wrap char-avatar">
+      <img src="./icons/gamer.png" alt="شکارچی الگوها" onerror="imgFail(this,'char')">
+      <span class="hat-slot"></span>
+    </div>
+    <div class="home-actions">
+      <div id="home-start-default">
+        <button class="btn btn-primary btn-big btn-start" id="btn-start">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M8 5.4v13.2c0 .8.9 1.3 1.6.9l10.4-6.6c.6-.4.6-1.4 0-1.8L9.6 4.5c-.7-.4-1.6.1-1.6.9z"/></svg>
+          شروع بازی
+        </button>
+      </div>
+      <div id="home-resume">
+        <button class="btn btn-primary btn-big" id="btn-continue">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M8 5.4v13.2c0 .8.9 1.3 1.6.9l10.4-6.6c.6-.4.6-1.4 0-1.8L9.6 4.5c-.7-.4-1.6.1-1.6.9z"/></svg>
+          ادامه بازی
+        </button>
+        <button class="btn btn-ghost" id="btn-restart">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 3.5V9h-5.5"/></svg>
+          شروع مجدد
+        </button>
+      </div>
+      <div class="home-row">
+        <button class="btn btn-ghost" id="btn-shop">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1.1 11.2a1.8 1.8 0 0 1-1.8 1.6H8.9a1.8 1.8 0 0 1-1.8-1.6L6 8z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg>
+          فروشگاه
+        </button>
+        <button class="btn btn-ghost" id="btn-help">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.3"/><path d="M9.4 9.3a2.7 2.7 0 1 1 3.7 2.9c-.8.4-1.1 1-1.1 1.8"/><path d="M12 17.2h.01"/></svg>
+          راهنما
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= صفحه بازی ================= -->
+<section id="screen-game" class="screen">
+  <div class="game-top">
+    <button class="icon-btn" id="btn-stop" aria-label="توقف بازی">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><rect x="6.4" y="5" width="4" height="14" rx="1.7"/><rect x="13.6" y="5" width="4" height="14" rx="1.7"/></svg>
+    </button>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div id="progress-fill"></div></div>
+      <div id="q-count">سؤال ۱ از ۱۰</div>
+    </div>
+    <span class="top-spacer" aria-hidden="true"></span>
+  </div>
+
+  <p class="strip-caption">مراحل الگو رو با دقت دنبال کن</p>
+  <div class="pattern-strip" id="pattern-strip"></div>
+
+  <div class="ask-row">
+    <div class="char-wrap char-mini" id="char-avatar-mini">
+      <img src="./icons/gamer.png" alt="کاراکتر بازی" onerror="imgFail(this,'char')">
+      <span class="hat-slot"></span>
+    </div>
+    <div class="bubble" id="char-bubble"></div>
+  </div>
+
+  <div class="options" id="options"></div>
+  <div class="feedback" id="feedback"></div>
+  <div class="next-wrap" id="next-wrap"><button class="btn btn-primary" id="btn-next">سؤال بعدی</button></div>
+</section>
+
+<!-- ================= فروشگاه ================= -->
+<section id="screen-shop" class="screen">
+  <div class="page-head">
+    <button class="icon-btn" data-nav="home" aria-label="بازگشت">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+    </button>
+    <h2 class="page-title">فروشگاه</h2>
+  </div>
+  <div class="tabs">
+    <button class="tab active" id="tab-themes">پوسته‌ها</button>
+    <button class="tab" id="tab-custom">شخصی‌سازی</button>
+  </div>
+  <div class="shop-grid" id="shop-grid"></div>
+</section>
+
+<!-- ================= راهنما ================= -->
+<section id="screen-help" class="screen">
+  <div class="page-head">
+    <button class="icon-btn" data-nav="home" aria-label="بازگشت">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/></svg>
+    </button>
+    <h2 class="page-title">راهنما</h2>
+  </div>
+  <div class="char-wrap help-char">
+    <img src="./icons/gamerhi.png" alt="کاراکتر راهنما" onerror="imgFail(this,'char')">
+  </div>
+  <div class="steps">
+    <div class="step" style="--i:0"><span class="step-num">۱</span><p>اول خوب به شکل‌ها نگاه کن.</p>
+      <svg class="step-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="3"/></svg></div>
+    <div class="step" style="--i:1"><span class="step-num">۲</span><p>ببین از هر مرحله به مرحله‌ی بعد چه چیزی عوض شده: تعداد؟ رنگ؟ نوع شکل؟</p>
+      <svg class="step-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.2"/><path d="m20 20-4.2-4.2"/></svg></div>
+    <div class="step" style="--i:2"><span class="step-num">۳</span><p>فلش‌ها رو دنبال کن تا ترتیب مراحل رو گم نکنی.</p>
+      <svg class="step-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H6"/><path d="m11.5 5.5-6.5 6.5 6.5 6.5"/></svg></div>
+    <div class="step" style="--i:3"><span class="step-num">۴</span><p>قانونی که الگو رو توضیح می‌ده پیدا کن.</p>
+      <svg class="step-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 18h5M10.5 21h3"/><path d="M12 3a6 6 0 0 1 3.7 10.7c-.7.6-.7 1.3-.7 2.3h-6c0-1 0-1.7-.7-2.3A6 6 0 0 1 12 3z"/></svg></div>
+    <div class="step" style="--i:4"><span class="step-num">۵</span><p>جواب درست رو انتخاب کن و سکه جمع کن!</p>
+      <svg class="step-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8l1.2 2.6 2.8.3-2.1 1.9.6 2.8-2.5-1.5-2.5 1.5.6-2.8-2.1-1.9 2.8-.3z"/></svg></div>
+  </div>
+  <div class="coin-hint">
+    <img class="coin-md" src="./icons/coin.png" alt="" onerror="imgFail(this,'coin')">
+    هر جواب درست ۲ سکه داره!
+  </div>
+  <button class="btn btn-primary" data-nav="home">فهمیدم، بریم بازی!</button>
+</section>
+
+<!-- ================= صفحه پایان ================= -->
+<section id="screen-end" class="screen">
+  <div class="end-inner">
+    <svg class="trophy" viewBox="0 0 64 64" aria-hidden="true">
+      <path d="M20 8h24v12a12 12 0 0 1-24 0V8z" fill="#ffd166"/>
+      <path d="M20 11h-9a9 9 0 0 0 9 11M44 11h9a9 9 0 0 1-9 11" fill="none" stroke="#ffd166" stroke-width="4" stroke-linecap="round"/>
+      <rect x="28" y="31" width="8" height="9" fill="#e0a92e"/>
+      <path d="M18 40h28v6H18z" fill="#e0a92e"/>
+      <rect x="14" y="46" width="36" height="9" rx="3.5" fill="#ffd166"/>
+      <path d="M32 14l1.7 3.6 4 .5-2.9 2.7.7 3.9-3.5-1.9-3.5 1.9.7-3.9-2.9-2.7 4-.5z" fill="#b3791f"/>
+    </svg>
+    <h2 class="end-title">آفرین! شکارچی الگوها شدی!</h2>
+    <div class="end-coins">
+      <img class="coin-lg" src="./icons/coin.png" alt="" onerror="imgFail(this,'coin')">
+      <span id="end-coins">+۰</span>&nbsp;سکه گرفتی!
+    </div>
+    <div class="end-actions">
+      <button class="btn btn-primary btn-big" id="btn-again">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 3.5V9h-5.5"/></svg>
+        دوباره بازی کن
+      </button>
+      <button class="btn btn-ghost" id="btn-menu">بازگشت به منو</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= مودال توقف ================= -->
+<div class="modal" id="modal-stop" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-ic">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><rect x="6.4" y="5" width="4" height="14" rx="1.7"/><rect x="13.6" y="5" width="4" height="14" rx="1.7"/></svg>
+    </div>
+    <h3>بازی رو متوقف کنیم؟</h3>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="btn-resume">ادامه بازی</button>
+      <button class="btn btn-danger" id="btn-exit">خروج</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status"></div>
+
+<script>
+'use strict';
+
+/* =====================================================
+   ۱) Utils — ابزارهای عمومی
+===================================================== */
+const $  = (sel, el = document) => el.querySelector(sel);
+const $$ = (sel, el = document) => Array.from(el.querySelectorAll(sel));
+const toFa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+function shuffle(arr){
+  const r = arr.slice();
+  for(let i = r.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [r[i], r[j]] = [r[j], r[i]];
+  }
+  return r;
+}
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+/* =====================================================
+   ۲) LocalStorage Manager
+===================================================== */
+const Store = {
+  get(key, def){
+    try{
+      const raw = localStorage.getItem('ph_' + key);
+      return raw === null ? def : JSON.parse(raw);
+    }catch(e){ return def; }
+  },
+  set(key, val){
+    try{ localStorage.setItem('ph_' + key, JSON.stringify(val)); }catch(e){}
+  },
+  remove(key){
+    try{ localStorage.removeItem('ph_' + key); }catch(e){}
+  }
+};
+
+/* =====================================================
+   ۳) Sound Manager — همه‌ی صداها با Web Audio API
+===================================================== */
+const Sound = {
+  ctx: null,
+  ensure(){
+    if(!this.ctx){
+      try{ this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+      catch(e){ this.ctx = null; }
+    }
+    if(this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+    return this.ctx;
+  },
+  tone(freq, dur, type = 'sine', delay = 0, vol = .14, slideTo = null){
+    const ctx = this.ensure();
+    if(!ctx) return;
+    try{
+      const t = ctx.currentTime + delay;
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, t);
+      if(slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + .015);
+      g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + dur + .05);
+    }catch(e){}
+  },
+  click(){ this.tone(480, .07, 'triangle'); },
+  select(){ this.tone(640, .07, 'triangle'); this.tone(860, .09, 'triangle', .06); },
+  correct(){ [523, 659, 784, 1047].forEach((f, i) => this.tone(f, .16, 'triangle', i * .09)); },
+  wrong(){ this.tone(300, .22, 'sawtooth', 0, .09, 170); this.tone(210, .26, 'square', .1, .07, 130); },
+  coin(){ this.tone(1180, .08, 'sine', 0, .13); this.tone(1720, .14, 'sine', .07, .11); },
+  buy(){ [660, 880, 1175, 1568].forEach((f, i) => this.tone(f, .12, 'sine', i * .07)); },
+  win(){ [523, 659, 784, 1047, 1319].forEach((f, i) => this.tone(f, .18, 'triangle', i * .11)); this.tone(1568, .45, 'sine', .58, .09); }
+};
+
+/* =====================================================
+   ۴) آیکون‌های SVG داخلی و جایگزین تصاویر
+===================================================== */
+const ARROW_SVG = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19.5 12H6.5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/><path d="m11.8 5.4-6.6 6.6 6.6 6.6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const NEXT_SVG  = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"/><path d="m11.5 5.5-6.5 6.5 6.5 6.5"/></svg>';
+const ICON_CHECK = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#2dd4a7"/><path d="m7 12.4 3.3 3.3L17.2 9" stroke="#0c3b28" stroke-width="2.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_CROSS = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#ff5c7a"/><path d="M8.4 8.4l7.2 7.2M15.6 8.4l-7.2 7.2" stroke="#4d1122" stroke-width="2.7" stroke-linecap="round"/></svg>';
+const HAT_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 7 52 54H12Z" fill="#ff6b9d"/><path d="M32 7l8 17H24Z" fill="#ffd166"/><path d="M20.5 38h23" stroke="#4cc9f0" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="7" r="5.5" fill="#4cc9f0"/></svg>';
+const BOT_SVG = '<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="18" y="26" width="64" height="56" rx="17" fill="#7c5cff"/><rect x="27" y="40" width="46" height="31" rx="11" fill="#0d0b26"/><circle cx="40" cy="54" r="6" fill="#4cc9f0"/><circle cx="60" cy="54" r="6" fill="#4cc9f0"/><path d="M42 64q8 6 16 0" stroke="#4cc9f0" stroke-width="3.5" fill="none" stroke-linecap="round"/><rect x="46" y="13" width="8" height="12" rx="4" fill="#ff6b9d"/><circle cx="50" cy="10" r="5" fill="#ff6b9d"/></svg>';
+const COIN_FALLBACK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#f6b73c"/><circle cx="12" cy="12" r="8" fill="#ffd970"/><path d="M12 7l1.4 3 3.1.3-2.3 2.1.7 3.1L12 13.9 9.1 15.5l.7-3.1-2.3-2.1 3.1-.3z" fill="#c9861a"/></svg>';
+const coinImg = cls => '<img class="' + cls + '" src="./icons/coin.png" alt="" onerror="imgFail(this,\'coin\')">';
+
+/* اگر فایل تصویر در دسترس نباشد، جایگزین SVG نمایش داده می‌شود */
+window.imgFail = function(el, kind){
+  const d = document.createElement('div');
+  d.className = el.className;
+  d.classList.add(kind === 'coin' ? 'coin-fb' : 'char-fb');
+  d.innerHTML = kind === 'coin' ? COIN_FALLBACK_SVG : BOT_SVG;
+  el.replaceWith(d);
+};
+
+/* =====================================================
+   ۵) Shape Renderer — شکل‌های SVG داخلی
+===================================================== */
+const SHAPE_PATHS = {
+  circle:   c => '<circle cx="50" cy="50" r="40" fill="' + c + '"/>',
+  square:   c => '<rect x="12" y="12" width="76" height="76" rx="18" fill="' + c + '"/>',
+  triangle: c => '<path d="M50 12 88 86H12Z" fill="' + c + '" stroke="' + c + '" stroke-width="13" stroke-linejoin="round"/>',
+  star:     c => '<path d="M50 7 62.9 34.2 92.8 38.1 70.9 58.8 76.5 88.4 50 74 23.5 88.4 29.1 58.8 7.2 38.1 37.1 34.2Z" fill="' + c + '"/>',
+  heart:    c => '<path d="M50 88C20 66 8 48 8 32 8 18 19 10 30 10c9 0 16 5 20 13 4-8 11-13 20-13 11 0 22 8 22 22 0 16-12 34-42 56Z" fill="' + c + '"/>',
+  diamond:  c => '<path d="M50 14 86 50 50 86 14 50Z" fill="' + c + '" stroke="' + c + '" stroke-width="13" stroke-linejoin="round"/>'
+};
+function shapeSVG(token){
+  return '<svg class="pshape" viewBox="0 0 100 100" aria-hidden="true">' + SHAPE_PATHS[token.s](token.c) + '</svg>';
+}
+
+/* =====================================================
+   ۶) Pattern Data — بانک الگوها
+هر سازنده یک شیء برمی‌گرداند:
+  stages  → ۵ مرحله‌ی الگو | correct → قانون درست
+  wrongs  → ۳ گزینه‌ی غلط هوشمند | explain → توضیح آموزشی
+===================================================== */
+const SHAPES = ['circle', 'square', 'triangle', 'star', 'heart', 'diamond'];
+const COLORS = ['#ff6b9d', '#4cc9f0', '#ffd166', '#06d6a0', '#ff9e40', '#b388ff'];
+const row = (n, s, c) => Array.from({ length: n }, () => ({ s, c }));
+
+const BUILDERS = [
+  { id: 'inc1', tier: 've', make(){
+      const sh = pick(SHAPES), c = pick(COLORS);
+      return { stages: [1, 2, 3, 4, 5].map(n => row(n, sh, c)),
+        correct: 'هر بار یک شکل اضافه می‌شود',
+        wrongs: ['هر بار دو شکل اضافه می‌شود', 'هر بار یک شکل کم می‌شود', 'تعداد شکل‌ها ثابت مانده است'],
+        explain: 'هر بار ۱ شکل به مرحله‌ی بعد اضافه شده.' };
+  }},
+  { id: 'inc1from2', tier: 've', make(){
+      const sh = pick(SHAPES), c = pick(COLORS);
+      return { stages: [2, 3, 4, 5, 6].map(n => row(n, sh, c)),
+        correct: 'هر بار یک شکل اضافه می‌شود',
+        wrongs: ['هر بار سه شکل اضافه می‌شود', 'هر بار یک شکل کم می‌شود', 'تعداد شکل‌ها ثابت مانده است'],
+        explain: 'شمارش کن: ۲، ۳، ۴، ۵، ۶ — هر بار ۱ شکل اضافه شده.' };
+  }},
+  { id: 'const3', tier: 've', make(){
+      const sh = pick(SHAPES), c = pick(COLORS);
+      return { stages: [3, 3, 3, 3, 3].map(n => row(n, sh, c)),
+        correct: 'تعداد شکل‌ها ثابت است و تغییری نمی‌کند',
+        wrongs: ['هر بار یک شکل اضافه می‌شود', 'هر بار یک شکل کم می‌شود', 'رنگ شکل‌ها هر بار عوض می‌شود'],
+        explain: 'در همه‌ی مراحل ۳ شکل داریم؛ تعداد شکل‌ها هیچ تغییری نکرده.' };
+  }},
+  { id: 'inc2', tier: 'e', make(){
+      const sh = pick(SHAPES), c = pick(COLORS);
+      return { stages: [2, 4, 6, 8, 10].map(n => row(n, sh, c)),
+        correct: 'هر بار دو شکل اضافه می‌شود',
+        wrongs: ['هر بار یک شکل اضافه می‌شود', 'هر بار دو شکل کم می‌شود', 'تعداد شکل‌ها ثابت مانده است'],
+        explain: 'هر بار ۲ شکل به مرحله‌ی بعد اضافه شده.' };
+  }},
+  { id: 'dec1', tier: 'e', make(){
+      const sh = pick(SHAPES), c = pick(COLORS);
+      return { stages: [5, 4, 3, 2, 1].map(n => row(n, sh, c)),
+        correct: 'هر بار یک شکل کم می‌شود',
+        wrongs: ['هر بار یک شکل اضافه می‌شود', 'هر بار دو شکل کم می‌شود', 'تعداد شکل‌ها ثابت مانده است'],
+        explain: 'شمارش کن: ۵، ۴، ۳، ۲، ۱ — هر بار ۱ شکل کم شده.' };
+  }},
+  { id: 'colorAlt', tier: 'e', make(){
+      const sh = pick(SHAPES), two = shuffle(COLORS).slice(0, 2);
+      return { stages: [0, 1, 2, 3, 4].map(i => row(2, sh, i % 2 ? two[1] : two[0])),
+        correct: 'رنگ شکل‌ها یکی در میان عوض می‌شود',
+        wrongs: ['هر بار یک شکل اضافه می‌شود', 'رنگ‌ها کاملاً تصادفی هستند', 'تعداد شکل‌ها هر بار دو برابر می‌شود'],
+        explain: 'تعداد شکل‌ها ثابته؛ فقط رنگ‌ها یکی در میان عوض می‌شن.' };
+  }},
+  { id: 'odd', tier: 'm', make(){
+      const sh = pick(SHAPES), c = pick(COLORS);
+      return { stages: [1, 3, 5, 7, 9].map(n => row(n, sh, c)),
+        correct: 'تعداد شکل‌ها فرد است و هر بار دو شکل اضافه می‌شود',
+        wrongs: ['هر بار یک شکل اضافه می‌شود', 'هر بار سه شکل اضافه می‌شود', 'تعداد شکل‌ها زوج است'],
+        explain: 'هر بار ۲ شکل اضافه شده؛ پس تعداد شکل‌ها همیشه فرد می‌مونه: ۱، ۳، ۵، ۷، ۹.' };
+  }},
+  { id: 'dec2', tier: 'm', make(){
+      const sh = pick(SHAPES), c = pick(COLORS);
+      return { stages: [9, 7, 5, 3, 1].map(n => row(n, sh, c)),
+        correct: 'هر بار دو شکل کم می‌شود',
+        wrongs: ['هر بار یک شکل کم می‌شود', 'هر بار دو شکل اضافه می‌شود', 'تعداد شکل‌ها ثابت مانده است'],
+        explain: 'شمارش کن: ۹، ۷، ۵، ۳، ۱ — هر بار ۲ شکل کم شده.' };
+  }},
+  { id: 'shapeAlt', tier: 'm', make(){
+      const two = shuffle(SHAPES).slice(0, 2), c = pick(COLORS);
+      return { stages: [0, 1, 2, 3, 4].map(i => row(2, i % 2 ? two[1] : two[0], c)),
+        correct: 'نوع شکل‌ها یکی در میان عوض می‌شود',
+        wrongs: ['شکل‌ها بی‌قاعده عوض می‌شوند', 'هر بار یک شکل اضافه می‌شود', 'تعداد شکل‌ها هر بار دو برابر می‌شود'],
+        explain: 'تعداد شکل‌ها ثابته؛ فقط نوع شکل‌ها یکی در میان عوض می‌شه.' };
+  }},
+  { id: 'comboShape', tier: 'c', make(){
+      const two = shuffle(SHAPES).slice(0, 2), c = pick(COLORS);
+      return { stages: [1, 2, 3, 4, 5].map((n, i) => row(n, i % 2 ? two[1] : two[0], c)),
+        correct: 'شکل‌ها یکی در میان عوض می‌شن و هر بار یک شکل اضافه می‌شه',
+        wrongs: ['فقط تعداد شکل‌ها بیشتر می‌شود', 'شکل‌ها بی‌قاعده عوض می‌شوند', 'هر بار دو شکل اضافه می‌شود'],
+        explain: 'هر بار ۱ شکل اضافه شده و نوع شکل‌ها هم یکی در میان عوض شده.' };
+  }},
+  { id: 'comboColor', tier: 'c', make(){
+      const sh = pick(SHAPES), two = shuffle(COLORS).slice(0, 2);
+      return { stages: [1, 2, 3, 4, 5].map((n, i) => row(n, sh, i % 2 ? two[1] : two[0])),
+        correct: 'رنگ‌ها یکی در میان عوض می‌شن و هر بار یک شکل اضافه می‌شه',
+        wrongs: ['رنگ‌ها تصادفی عوض می‌شوند', 'فقط تعداد شکل‌ها بیشتر می‌شود', 'هر بار دو شکل اضافه می‌شود'],
+        explain: 'هر بار ۱ شکل اضافه شده و رنگ شکل‌ها هم یکی در میان عوض شده.' };
+  }},
+  { id: 'double', tier: 'c', make(){
+      const sh = pick(SHAPES), c = pick(COLORS);
+      return { stages: [1, 2, 4, 8, 16].map(n => row(n, sh, c)),
+        correct: 'هر بار تعداد شکل‌ها دو برابر می‌شود',
+        wrongs: ['هر بار دو شکل اضافه می‌شود', 'هر بار یک شکل اضافه می‌شود', 'تعداد شکل‌ها ثابت مانده است'],
+        explain: 'شمارش کن: ۱، ۲، ۴، ۸، ۱۶ — هر بار تعداد شکل‌ها دو برابر مرحله‌ی قبل شده.' };
+  }}
+];
+
+/* =====================================================
+   ۷) Question Generator — تولید ۱۰ سؤال با سطح‌بندی
+سؤال ۱-۳: بسیار ساده | ۴-۶: ساده | ۷-۸: متوسط | ۹-۱۰: چالشی
+===================================================== */
+const TIER_ORDER = ['ve', 've', 've', 'e', 'e', 'e', 'm', 'm', 'c', 'c'];
+const TIER_FA = { ve: 'بسیار ساده', e: 'ساده', m: 'متوسط', c: 'چالش‌برانگیز' };
+
+function generateQuestions(){
+  const pools = { ve: [], e: [], m: [], c: [] };
+  BUILDERS.forEach((b, i) => pools[b.tier].push(i));
+  const picks = { ve: shuffle(pools.ve), e: shuffle(pools.e), m: shuffle(pools.m), c: shuffle(pools.c) };
+  const cursor = { ve: 0, e: 0, m: 0, c: 0 };
+  let prevId = null;
+  return TIER_ORDER.map((tier, idx) => {
+    let builder = BUILDERS[picks[tier][cursor[tier]++ % picks[tier].length]];
+    if(builder.id === prevId) builder = BUILDERS[picks[tier][cursor[tier]++ % picks[tier].length]];
+    prevId = builder.id;
+    const p = builder.make();
+    const options = shuffle([p.correct].concat(p.wrongs));
+    return {
+      num: idx + 1,
+      patternId: builder.id,
+      difficulty: tier,
+      difficultyFa: TIER_FA[tier],
+      stages: p.stages,
+      correct: p.correct,
+      explain: p.explain,
+      options: options,
+      correctIndex: options.indexOf(p.correct),
+      stat: null
+    };
+  });
+}
+
+/* =====================================================
+   ۸) Game State
+===================================================== */
+const Game = {
+  questions: [], index: 0,
+  correctCount: 0, wrongCount: 0, answeredCount: 0,
+  coinsRun: 0, answered: false, startedAt: null
+};
+const ASKS = ['به نظرت رابطه‌ی بین این شکل‌ها چیه؟', 'فکر می‌کنی این الگو چه قانونی داره؟'];
+
+/* =====================================================
+   ۹) Statistics Manager — آمار داخلی (به کودک نشان داده نمی‌شود)
+ساختار داده‌ها آماده‌ی اتصال به Backend است:
+  StatsManager.report() یک JSON استاندارد برمی‌گرداند.
+===================================================== */
+const StatsManager = {
+  report(){
+    const total = Game.questions.length;
+    const records = Game.questions.filter(q => q.stat).map(q => q.stat);
+    return {
+      sessionId: 'run_' + (Game.startedAt || Date.now()),
+      startedAt: Game.startedAt,
+      endedAt: new Date().toISOString(),
+      summary: {
+        totalQuestions: total,
+        answeredCount: Game.answeredCount,
+        correctCount: Game.correctCount,
+        wrongCount: Game.wrongCount,
+        progressPct: total ? Math.round(Game.answeredCount / total * 100) : 0,
+        currentQuestionNumber: Math.min(Game.index + 1, total || 1),
+        coinsEarned: Game.coinsRun
+      },
+      records: records
+    };
+  },
+  persist(){
+    const log = Store.get('stats', []);
+    log.push(this.report());
+    Store.set('stats', log.slice(-30));
+  }
+};
+
+/* =====================================================
+   ۱۰) Coin Manager
+===================================================== */
+const CoinManager = {
+  get coins(){ return Store.get('coins', 0); },
+  render(){ $('#coin-count').textContent = toFa(this.coins); },
+  add(n, fromEl){
+    const newVal = this.coins + n;
+    Store.set('coins', newVal);
+    flyCoin(fromEl, () => {
+      $('#coin-count').textContent = toFa(newVal);
+      pillBump();
+      Sound.coin();
+    });
+  },
+  spend(n){
+    const cur = this.coins;
+    if(cur < n) return false;
+    Store.set('coins', cur - n);
+    this.render();
+    return true;
+  }
+};
+function pillBump(){
+  const p = $('#coin-pill');
+  p.classList.remove('bump'); void p.offsetWidth; p.classList.add('bump');
+}
+function pillShake(){
+  const p = $('#coin-pill');
+  p.classList.remove('shake'); void p.offsetWidth; p.classList.add('shake');
+}
+function flyCoin(fromEl, onLand){
+  const pill = $('#coin-pill');
+  const f = fromEl ? fromEl.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight / 2, width: 0, height: 0 };
+  const t = pill.getBoundingClientRect();
+  const c = document.createElement('div');
+  c.className = 'fly-coin';
+  c.innerHTML = coinImg('');
+  document.body.appendChild(c);
+  const sx = f.left + f.width / 2 - 14, sy = f.top + f.height / 2 - 14;
+  const ex = t.left + t.width / 2 - 14, ey = t.top + t.height / 2 - 14;
+  c.style.left = sx + 'px'; c.style.top = sy + 'px';
+  /* انیمیشن فقط جنبه‌ی بصری دارد؛ رسیدن سکه با تایمر تضمین می‌شود */
+  let landed = false;
+  function done(){
+    if(landed) return;
+    landed = true;
+    c.remove();
+    if(onLand) onLand();
+  }
+  if(c.animate){
+    try{
+      c.animate(
+        [{ transform: 'translate(0,0) scale(1)', opacity: '1' },
+         { transform: 'translate(' + (ex - sx) + 'px,' + (ey - sy) + 'px) scale(.55)', opacity: '.9' }],
+        { duration: 700, easing: 'cubic-bezier(.3,.7,.4,1)' });
+    }catch(e){}
+  }
+  setTimeout(done, 760);
+}
+
+/* =====================================================
+   ۱۱) Pattern Renderer + Answer Checker + جریان بازی
+===================================================== */
+function renderPattern(q){
+  const strip = $('#pattern-strip');
+  let html = '';
+  q.stages.forEach((st, i) => {
+    if(i > 0) html += '<div class="p-arrow" style="--i:' + (i - .5) + '">' + ARROW_SVG + '</div>';
+    const n = st.length;
+    const sz = n <= 4 ? 'sz-l' : n <= 6 ? 'sz-m' : n <= 9 ? 'sz-s' : 'sz-xs';
+    html += '<div class="stage-card" style="--i:' + i + '">' +
+      '<span class="stage-num">' + toFa(i + 1) + '</span>' +
+      '<div class="stage-shapes ' + sz + '">' + st.map(shapeSVG).join('') + '</div></div>';
+  });
+  strip.innerHTML = html;
+}
+function renderOptions(q){
+  const box = $('#options');
+  box.innerHTML = '';
+  q.options.forEach((txt, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.type = 'button';
+    b.innerHTML = '<span class="opt-num">' + toFa(i + 1) + '</span>' +
+      '<span class="opt-txt">' + txt + '</span>' +
+      '<span class="opt-mark">' + (i === q.correctIndex ? ICON_CHECK : ICON_CROSS) + '</span>';
+    b.addEventListener('click', () => chooseAnswer(q, i, b));
+    box.appendChild(b);
+  });
+}
+function renderQuestion(){
+  const q = Game.questions[Game.index];
+  q.stat = {
+    questionNumber: q.num, patternType: q.patternId, difficulty: q.difficulty,
+    startTime: new Date().toISOString(), answeredTime: null, durationMs: null,
+    isCorrect: null, attempts: 0, chosenIndex: null, chosen: null, optionsShown: q.options
+  };
+  renderPattern(q);
+  $('#char-bubble').textContent = pick(ASKS);
+  renderOptions(q);
+  const fb = $('#feedback');
+  fb.className = 'feedback'; fb.innerHTML = '';
+  $('#next-wrap').classList.remove('show');
+  updateProgress();
+  $('#q-count').textContent = 'سؤال ' + toFa(Game.index + 1) + ' از ' + toFa(Game.questions.length);
+}
+function updateProgress(){
+  const total = Game.questions.length || 1;
+  $('#progress-fill').style.width = (Game.answeredCount / total * 100) + '%';
+}
+function chooseAnswer(q, idx, btn){
+  if(Game.answered) return;
+  Game.answered = true;
+  Sound.select();
+
+  /* --- Answer Checker --- */
+  const isCorrect = idx === q.correctIndex;
+  q.stat.answeredTime = new Date().toISOString();
+  q.stat.durationMs = new Date(q.stat.answeredTime) - new Date(q.stat.startTime);
+  q.stat.isCorrect = isCorrect;
+  q.stat.attempts = 1;
+  q.stat.chosenIndex = idx;
+  q.stat.chosen = q.options[idx];
+
+  $$('#options .opt').forEach((b, i) => {
+    b.disabled = true;
+    if(i === q.correctIndex) b.classList.add('is-correct');
+    else if(i === idx) b.classList.add('is-wrong');
+  });
+
+  Game.answeredCount++;
+  if(isCorrect){
+    Game.correctCount++;
+    Game.coinsRun += 2;
+    Sound.correct();
+    CoinManager.add(2, btn);
+    confettiBurst(false);
+    charReact(true);
+  } else {
+    Game.wrongCount++;
+    Sound.wrong();
+    charReact(false);
+  }
+  showFeedback(isCorrect, q);
+  updateProgress();
+  saveGame();
+  showNext();
+}
+function showFeedback(ok, q){
+  const fb = $('#feedback');
+  fb.className = 'feedback show ' + (ok ? 'ok' : 'bad');
+  if(ok){
+    fb.innerHTML = '<div class="fb-title">' + ICON_CHECK + ' آفرین! الگو رو پیدا کردی!</div>' +
+      '<span class="coin-chip">' + coinImg('coin-sm') + ' +۲ سکه</span>';
+  } else {
+    fb.innerHTML = '<div class="fb-title">' + ICON_CROSS + ' دوباره به تغییر شکل‌ها دقت کن!</div>' +
+      '<div class="fb-explain">' + q.explain + '</div>' +
+      '<div class="fb-hint">گزینه‌ی درست با رنگ سبز مشخص شده.</div>';
+  }
+}
+function charReact(ok){
+  const av = $('#char-avatar-mini');
+  av.classList.remove('happy', 'sad'); void av.offsetWidth;
+  av.classList.add(ok ? 'happy' : 'sad');
+}
+function showNext(){
+  const last = Game.index >= Game.questions.length - 1;
+  $('#btn-next').innerHTML = last ? 'دیدن نتیجه 🏆' : 'سؤال بعدی ' + NEXT_SVG;
+  $('#next-wrap').classList.add('show');
+}
+function onNext(){
+  if(Game.index >= Game.questions.length - 1){ endGame(); return; }
+  Game.index++;
+  Game.answered = false;
+  renderQuestion();
+  window.scrollTo(0, 0);
+}
+function confettiBurst(force){
+  if(!force && !Store.get('owned', {})['confetti']) return;
+  const holder = document.createElement('div');
+  holder.className = 'confetti';
+  const colors = ['#ff6b9d', '#ffd166', '#4cc9f0', '#06d6a0', '#b388ff', '#ff9e40'];
+  for(let i = 0; i < 26; i++){
+    const p = document.createElement('i');
+    p.style.cssText = 'left:' + (Math.random() * 100) + '%;background:' + pick(colors) +
+      ';animation-delay:' + (Math.random() * .35) + 's;animation-duration:' + (1 + Math.random() * .9) + 's;';
+    holder.appendChild(p);
+  }
+  document.body.appendChild(holder);
+  setTimeout(() => holder.remove(), 2400);
+}
+
+/* =====================================================
+   ۱۲) LocalStorage ذخیره/ادامه‌ی بازی
+===================================================== */
+function saveGame(){
+  if(!Game.questions.length) return;
+  Store.set('save', {
+    questions: Game.questions,
+    index: Game.answered ? Game.index + 1 : Game.index,
+    correctCount: Game.correctCount,
+    wrongCount: Game.wrongCount,
+    answeredCount: Game.answeredCount,
+    coinsRun: Game.coinsRun,
+    startedAt: Game.startedAt
+  });
+}
+function startGame(){
+  Game.questions = generateQuestions();
+  Game.index = 0;
+  Game.correctCount = 0; Game.wrongCount = 0; Game.answeredCount = 0;
+  Game.coinsRun = 0; Game.answered = false;
+  Game.startedAt = new Date().toISOString();
+  saveGame();
+  Nav.go('game');
+  renderQuestion();
+}
+function resumeGame(){
+  const s = Store.get('save', null);
+  if(!s || !Array.isArray(s.questions) || !s.questions.length){ startGame(); return; }
+  Game.questions = s.questions;
+  Game.index = clamp(s.index || 0, 0, s.questions.length);
+  Game.correctCount = s.correctCount || 0;
+  Game.wrongCount = s.wrongCount || 0;
+  Game.answeredCount = s.answeredCount || 0;
+  Game.coinsRun = s.coinsRun || 0;
+  Game.answered = false;
+  Game.startedAt = s.startedAt || new Date().toISOString();
+  Nav.go('game');
+  if(Game.index >= Game.questions.length){ endGame(); return; }
+  renderQuestion();
+}
+function endGame(){ /* لوکو */ if (Game.correctCount >= Math.ceil(Game.questions.length * 0.6)) lukoWin('session');
+  StatsManager.persist();
+  Store.remove('save');
+  Sound.win();
+  Nav.go('end');
+  confettiBurst(true);
+  animateEndCoins();
+}
+function animateEndCoins(){
+  const el = $('#end-coins');
+  const target = Game.coinsRun;
+  const t0 = performance.now();
+  (function step(t){
+    const p = clamp((t - t0) / 900, 0, 1);
+    el.textContent = '+' + toFa(Math.round(target * p));
+    if(p < 1) requestAnimationFrame(step);
+  })(t0);
+}
+function refreshHome(){
+  const s = Store.get('save', null);
+  const canResume = !!(s && Array.isArray(s.questions) && s.index < s.questions.length);
+  $('#home-resume').style.display = canResume ? 'flex' : 'none';
+  $('#home-start-default').style.display = canResume ? 'none' : 'block';
+}
+
+/* =====================================================
+   ۱۳) Pause / Resume System
+===================================================== */
+const Pause = {
+  open(){ $('#modal-stop').classList.add('show'); },
+  close(){ $('#modal-stop').classList.remove('show'); },
+  resume(){ this.close(); Sound.select(); },
+  exit(){
+    this.close();
+    saveGame();
+    Nav.go('home');
+    refreshHome();
+    toast('پیشرفتت ذخیره شد!');
+  }
+};
+
+/* =====================================================
+   ۱۴) Shop Manager — فروشگاه (پوسته‌ها و شخصی‌سازی)
+===================================================== */
+const THEME_VARS = {
+  default: { '--bg1': '#12102b', '--bg2': '#241b52', '--bg3': '#0e2140', '--accent': '#7c5cff', '--accent2': '#00d4ff', '--accent3': '#ff6b9d', '--glow1': 'rgba(124,92,255,.32)', '--glow2': 'rgba(0,212,255,.2)' },
+  forest:  { '--bg1': '#07271f', '--bg2': '#0f4a2f', '--bg3': '#032e22', '--accent': '#34d399', '--accent2': '#a3e635', '--accent3': '#ffd166', '--glow1': 'rgba(52,211,153,.3)', '--glow2': 'rgba(163,230,53,.22)' },
+  ocean:   { '--bg1': '#04202f', '--bg2': '#0a4a63', '--bg3': '#012a3e', '--accent': '#38bdf8', '--accent2': '#2dd4bf', '--accent3': '#ffd166', '--glow1': 'rgba(56,189,248,.3)', '--glow2': 'rgba(45,212,191,.24)' },
+  sunset:  { '--bg1': '#331114', '--bg2': '#7c3412', '--bg3': '#23082e', '--accent': '#fb923c', '--accent2': '#f472b6', '--accent3': '#ffd166', '--glow1': 'rgba(251,146,60,.32)', '--glow2': 'rgba(244,114,182,.26)' },
+  galaxy:  { '--bg1': '#1b0f33', '--bg2': '#451b63', '--bg3': '#160b2e', '--accent': '#c084fc', '--accent2': '#f472b6', '--accent3': '#ffd166', '--glow1': 'rgba(192,132,252,.35)', '--glow2': 'rgba(244,114,182,.28)' }
+};
+const SHOP_ITEMS = [
+  { id: 'forest',   tab: 'themes', name: 'جنگل نئون',        price: 8,  type: 'theme', theme: 'forest' },
+  { id: 'ocean',    tab: 'themes', name: 'اقیانوس آرام',     price: 10, type: 'theme', theme: 'ocean' },
+  { id: 'sunset',   tab: 'themes', name: 'غروب کویر',        price: 12, type: 'theme', theme: 'sunset' },
+  { id: 'galaxy',   tab: 'themes', name: 'کهکشان بنفش',      price: 15, type: 'theme', theme: 'galaxy' },
+  { id: 'hat',      tab: 'custom', name: 'کلاه جادویی',      price: 9,  type: 'custom' },
+  { id: 'confetti', tab: 'custom', name: 'بارش جشن',         price: 8,  type: 'custom' },
+  { id: 'frame',    tab: 'custom', name: 'قاب طلایی',        price: 12, type: 'custom' },
+  { id: 'stars',    tab: 'custom', name: 'ستاره‌های شناور', price: 14, type: 'custom' }
+];
+const PREVIEWS = {
+  hat: '<svg viewBox="0 0 64 64">' + HAT_SVG.replace(/^<svg[^>]*>|<\/svg>$/g, '') + '</svg>',
+  frame: '<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="23" fill="none" stroke="#ffd166" stroke-width="7"/><circle cx="32" cy="32" r="15" fill="rgba(255,255,255,.1)"/></svg>',
+  confetti: '<svg viewBox="0 0 64 64"><rect x="12" y="10" width="7" height="13" rx="2.5" fill="#ff6b9d" transform="rotate(24 15 16)"/><rect x="30" y="6" width="7" height="13" rx="2.5" fill="#4cc9f0" transform="rotate(-18 33 12)"/><rect x="46" y="16" width="7" height="13" rx="2.5" fill="#ffd166" transform="rotate(30 49 22)"/><circle cx="20" cy="42" r="4.5" fill="#06d6a0"/><circle cx="36" cy="48" r="4.5" fill="#ff9e40"/><circle cx="50" cy="42" r="4.5" fill="#b388ff"/></svg>',
+  stars: '<svg viewBox="0 0 64 64"><path d="M22 10l3.4 7.2 7.9.9-5.9 5.4 1.6 7.8L22 27.4 15 31.3l1.6-7.8-5.9-5.4 7.9-.9z" fill="#ffd166"/><path d="M44 34l2.6 5.5 6 .7-4.5 4.1 1.2 5.9-5.3-3-5.3 3 1.2-5.9-4.5-4.1 6-.7z" fill="#ffe08a"/></svg>'
+};
+function applyTheme(id){
+  const vars = THEME_VARS[id] || THEME_VARS.default;
+  Object.keys(vars).forEach(k => document.documentElement.style.setProperty(k, vars[k]));
+  Store.set('theme', id);
+}
+function applyCustoms(){
+  const owned = Store.get('owned', {});
+  ['hat', 'frame', 'confetti', 'stars'].forEach(id => {
+    document.body.classList.toggle('has-' + id, !!owned[id]);
+  });
+}
+const Shop = {
+  tab: 'themes',
+  open(){ Nav.go('shop'); this.render(); },
+  setTab(t){ this.tab = t; this.render(); },
+  render(){
+    $('#tab-themes').classList.toggle('active', this.tab === 'themes');
+    $('#tab-custom').classList.toggle('active', this.tab === 'custom');
+    const owned = Store.get('owned', {});
+    const curTheme = Store.get('theme', 'default');
+    const grid = $('#shop-grid');
+    grid.innerHTML = '';
+    SHOP_ITEMS.filter(it => it.tab === this.tab).forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'item-card';
+      let preview = '', action = '';
+      if(item.type === 'theme'){
+        const v = THEME_VARS[item.theme];
+        preview = '<div class="theme-preview" style="background:linear-gradient(135deg,' + v['--bg2'] + ',' + v['--bg3'] + ')">' +
+          '<span style="background:' + v['--accent'] + '"></span><span style="background:' + v['--accent2'] + '"></span></div>';
+        const active = curTheme === item.theme;
+        action = owned[item.id]
+          ? (active ? '<button class="btn btn-owned item-btn" disabled>در حال استفاده</button>'
+                    : '<button class="btn btn-ghost item-btn" data-act="activate">فعال‌سازی</button>')
+          : '<button class="btn btn-primary item-btn" data-act="buy">خرید</button>';
+      } else {
+        preview = '<div class="item-preview">' + (PREVIEWS[item.id] || '') + '</div>';
+        action = owned[item.id]
+          ? '<button class="btn btn-owned item-btn" disabled>خریده شد ✓</button>'
+          : '<button class="btn btn-primary item-btn" data-act="buy">خرید</button>';
+      }
+      card.innerHTML = preview +
+        '<div class="item-name">' + item.name + '</div>' +
+        '<div class="item-price">' + coinImg('coin-sm') + toFa(item.price) + ' سکه</div>' + action;
+      const b = $('button[data-act]', card);
+      if(b) b.addEventListener('click', () => buyItem(item));
+      grid.appendChild(card);
+    });
+  }
+};
+function buyItem(item){
+  const owned = Store.get('owned', {});
+  if(owned[item.id]){
+    if(item.type === 'theme'){
+      applyTheme(item.theme);
+      toast('پوسته فعال شد!');
+      Sound.select();
+      Shop.render();
+    }
+    return;
+  }
+  if(!CoinManager.spend(item.price)){
+    Sound.wrong();
+    pillShake();
+    toast('سکه کافی نداری!');
+    return;
+  }
+  owned[item.id] = true;
+  Store.set('owned', owned);
+  Sound.buy();
+  toast('خرید انجام شد! 🎉');
+  if(item.type === 'theme') applyTheme(item.theme);
+  else applyCustoms();
+  Shop.render();
+}
+
+/* =====================================================
+   ۱۵) Navigation و Toast
+===================================================== */
+const Nav = {
+  go(name){
+    $$('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
+    window.scrollTo(0, 0);
+  }
+};
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* =====================================================
+   ۱۶) Init و اتصال رویدادها
+===================================================== */
+function bindEvents(){
+  $('#btn-start').addEventListener('click', startGame);
+  $('#btn-continue').addEventListener('click', resumeGame);
+  $('#btn-restart').addEventListener('click', () => { Store.remove('save'); startGame(); });
+  $('#btn-shop').addEventListener('click', () => Shop.open());
+  $('#btn-help').addEventListener('click', () => Nav.go('help'));
+  $$('[data-nav]').forEach(b => b.addEventListener('click', () => Nav.go(b.dataset.nav)));
+  $('#btn-stop').addEventListener('click', () => Pause.open());
+  $('#btn-resume').addEventListener('click', () => Pause.resume());
+  $('#btn-exit').addEventListener('click', () => Pause.exit());
+  $('#btn-next').addEventListener('click', onNext);
+  $('#btn-again').addEventListener('click', startGame);
+  $('#btn-menu').addEventListener('click', () => { Nav.go('home'); refreshHome(); });
+  $('#tab-themes').addEventListener('click', () => Shop.setTab('themes'));
+  $('#tab-custom').addEventListener('click', () => Shop.setTab('custom'));
+  /* صدای کلیک برای همه‌ی دکمه‌ها (به‌جز گزینه‌های سؤال که صدای خودشان را دارند) */
+  document.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if(b && !b.classList.contains('opt') && !b.disabled) Sound.click();
+  }, true);
+  /* اگر صفحه وسط بازی بسته شد، پیشرفت ذخیره شود */
+  window.addEventListener('pagehide', () => {
+    if($('#screen-game').classList.contains('active') && Game.questions.length) saveGame();
+  });
+}
+function init(){
+  $$('span.hat-slot').forEach(el => { el.innerHTML = HAT_SVG; });
+  applyTheme(Store.get('theme', 'default'));
+  applyCustoms();
+  CoinManager.render();
+  refreshHome();
+  bindEvents();
+}
+init();
+</script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>
+/* لوکو: بازی خودش پایان را می‌گوید — نقطه‌اش در backend/apps/games/finish_points.py */
+window.LUKO_EXPLICIT_FINISH = true;
+window.lukoWin = function (reason) {
+  if (window.__lukoWon) return;
+  window.__lukoWon = true;
+  // این بازی‌ها امتیازِ خودشان را گزارش نمی‌کنند؛ بی‌این، سرور هر بُرد را «۰ ستاره»
+  // ثبت می‌کرد و مدالِ ستاره‌چین برای هیچ بچه‌ای باز نمی‌شد. بُرد = ستاره‌ی کامل
+  // (سرور به سقفِ همان مرحله می‌بُرد).
+  var extra = { source: 'game', reason: String(reason || 'win'), stars: 3 };
+  // جشنِ خودِ بازی اول دیده شود، بعد صفحه‌ی جایزه‌ی اپ رویش بیاید
+  setTimeout(function () {
+    try {
+      if (window.LUKO && typeof window.LUKO.finish === 'function') { window.LUKO.finish(extra); return; }
+    } catch (e) { /* SDK نبود یا شکست؛ پیامِ مستقیم */ }
+    try {
+      window.parent.postMessage({ type: 'luko-game-complete',
+        game: location.pathname.split('/').pop(), summary: extra }, '*');
+    } catch (e) { /* بازی نباید به‌خاطرِ پایان بشکند */ }
+  }, 1500);
+};
+window.lukoCount = function (count, need) {
+  if (Number(count) >= need) window.lukoWin('count ' + count + '/' + need);
+};
+window.lukoLevels = function (done, total, need) {
+  var count = 0;
+  try {
+    if (Array.isArray(done)) {
+      done.forEach(function (v) { if (v) count += 1; });
+    } else if (done) {
+      Object.keys(done).forEach(function (k) {
+        var n = Number(k);
+        if (done[k] && n >= 1 && n <= total) count += 1;
+      });
+    }
+  } catch (e) { return; }
+  if (count >= Math.min(total, need)) window.lukoWin('levels ' + count + '/' + total);
+};
+</script>
+<script>window.LUKO_WIN = []; window.LUKO_WIN_MAYBE = [];</script>
+<script async src="/games/assets/luko-sdk.js"></script>
+<script async src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

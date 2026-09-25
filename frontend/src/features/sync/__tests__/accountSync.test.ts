@@ -331,11 +331,23 @@ describe('چند بچه روی یک گوشی', () => {
 });
 
 describe('بارِ اولِ ورود', () => {
+  // کیفِ ۰ ساخته می‌شود (نه خالی): کیفِ بازی‌ها فقط با کلیدِ luko_coins روشن می‌شود و
+  // بی‌آن هر بازی سکه‌ی پیش‌فرضِ خودش را نشان می‌داد
   it('حسابِ تازه روی دستگاهِ تازه: صفر سکه', async () => {
     const phone = device('kid-a');
     await sync(phone);
-    expect(coins(phone)).toBeNull();
-    expect(accounts.get('kid-a')?.has('luko_coins') ?? false).toBe(false);
+    expect(coins(phone)).toBe('0');
+    expect(accounts.get('kid-a')?.get('luko_coins')?.value).toBe('0');
+  });
+
+  it('کیفِ ۰ِ دستگاهِ تازه سکه‌ی دستگاهِ دیگر را کم نمی‌کند', async () => {
+    const phone = device('kid-a');
+    await sync(phone);
+    const web = device('kid-a', { luko_coins: '40' });
+    await sync(web);
+    await sync(phone);
+    expect(coins(web)).toBe('40');
+    expect(coins(phone)).toBe('40');
   });
 
   // دستگاهی که پیش از این نسخه باز شده بود کیفِ خالی را با ۱۲۰ پر کرده بود و

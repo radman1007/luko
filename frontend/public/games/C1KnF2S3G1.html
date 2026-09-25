@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<!-- لوکو: کیفِ سکه‌ی مشترک (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_COINS = {seed:[{key:"lokoCoins"}],get:function(){return LokoCoins.coins;},set:function(v){LokoCoins.coins=v;LokoCoins.render();}};</script>
+<script src="/games/assets/luko-wallet.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>شکارچی نشانه س | بازی تقویت توجه و تشخیص الگو</title>
+    <style>
+        /* ═══════════ LOKO Typography ═══════════ */
+        @font-face { font-family:"Shoor"; src:url("./fonts/Shoor-Regular.ttf") format("truetype"); font-weight:400; font-display:swap; }
+        @font-face { font-family:"Shoor"; src:url("./fonts/Shoor-Medium.ttf") format("truetype"); font-weight:500; font-display:swap; }
+        @font-face { font-family:"Shoor"; src:url("./fonts/Shoor-Black.ttf") format("truetype"); font-weight:900; font-display:swap; }
+        @font-face { font-family:"Shoor"; src:url("./fonts/Shoor-ExtraBold.ttf") format("truetype"); font-weight:800; font-display:swap; }
+        @font-face { font-family:"Shoor Rounded"; src:url("./fonts/ShoorRounded-Regular.ttf") format("truetype"); font-weight:400; font-display:swap; }
+        @font-face { font-family:"Shoor Rounded"; src:url("./fonts/ShoorRounded-Medium.ttf") format("truetype"); font-weight:500; font-display:swap; }
+        @font-face { font-family:"Shoor Rounded"; src:url("./fonts/ShoorRounded-Black.ttf") format("truetype"); font-weight:900; font-display:swap; }
+        @font-face { font-family:"Shoor Rounded"; src:url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype"); font-weight:800; font-display:swap; }
+
+        :root {
+            --primary:#6C5CE7; --neon-blue:#00D2FF; --neon-pink:#FF00A0; --neon-green:#00FF9D;
+            --accent:#FFEAA7; --success:#00B894; --danger:#FF7675; --dark:#1E1E2F;
+            --gold:#FFC93C; --gold-dark:#B96F00;
+            --primary-dark:#5A4BD6; --text-main:#1E1E2F; --text-muted:#5A5570;
+            --font:'Shoor Rounded','Shoor',Tahoma,sans-serif;
+            /* متغیرهای تم (پیش‌فرض = کلاسیک) — فروشگاه این‌ها را عوض می‌کند */
+            --t-bg1:#bae6fd; --t-bg2:#a5b4fc; --t-sea:rgba(56,189,248,0.35); --t-sea2:#5A4BD6;
+            --t-stroke:#5A4BD6; --t-card:rgba(255,255,255,0.45); --t-card-border:rgba(255,255,255,0.7);
+            --t-bar:rgba(255,255,255,0.72); --t-bar-text:#1E1E2F;
+        }
+
+        * { box-sizing:border-box; margin:0; padding:0; font-family:var(--font); user-select:none; -webkit-user-select:none; }
+        [hidden] { display:none !important; }
+
+        body {
+            background:linear-gradient(135deg,#0c0a14,#181225);
+            display:flex; justify-content:center; align-items:center;
+            min-height:100vh; padding:10px;
+        }
+        #app {
+            width:100%; max-width:480px; height:calc(100vh - 20px); max-height:850px;
+            background:#eef4ff; position:relative; overflow:hidden;
+            display:flex; flex-direction:column; border-radius:30px;
+            border:1px solid rgba(255,255,255,0.14);
+            box-shadow:0 25px 60px -12px rgba(0,0,0,0.7);
+        }
+
+        .view {
+            position:absolute; top:0; left:0; width:100%; height:100%;
+            display:flex; flex-direction:column; z-index:10;
+            transition:transform 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease;
+        }
+        .view.hidden { transform:scale(0.96); opacity:0; pointer-events:none; }
+        .view.active { transform:scale(1); opacity:1; pointer-events:all; }
+
+        /* ── صحنه‌ها ── */
+        .scene-bg { position:absolute; top:0; left:0; width:100%; height:100%; z-index:0; background:linear-gradient(180deg,#eef0ff,#e0f2fe); }
+        .bg-game { background:linear-gradient(180deg,var(--t-bg1) 0%,var(--t-bg2) 100%); }
+        .animated-sea { position:absolute; bottom:0; width:100%; height:45%; background:linear-gradient(180deg,#38bdf8 0%,#4f6df5 100%); clip-path:ellipse(85% 65% at 50% 100%); }
+        .animated-sea-deep { position:absolute; bottom:0; width:100%; height:85%; background:linear-gradient(180deg,var(--t-sea) 0%,var(--t-sea2) 100%); border-top:4px dashed rgba(255,255,255,0.55); }
+
+        .sun {
+            position:absolute; top:5%; left:8%;
+            width:clamp(50px,15vw,70px); height:clamp(50px,15vw,70px);
+            background:radial-gradient(circle,#fef08a 20%,#facc15 100%);
+            border-radius:50%; box-shadow:0 0 35px #facc15;
+            animation:sunPulse 4s ease-in-out infinite;
+        }
+        @keyframes sunPulse { 0%,100% { transform:scale(1); box-shadow:0 0 35px #facc15; } 50% { transform:scale(1.07); box-shadow:0 0 55px #facc15; } }
+
+        /* حباب‌های صعودی پس‌زمینه */
+        .bg-bubbles { position:absolute; inset:0; pointer-events:none; z-index:1; overflow:hidden; }
+        .bg-bubbles span { position:absolute; bottom:-40px; border-radius:50%; background:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.45); animation:bubbleUp linear infinite; }
+        .bg-bubbles span:nth-child(1){ left:8%;  width:14px; height:14px; animation-duration:9s; }
+        .bg-bubbles span:nth-child(2){ left:26%; width:9px;  height:9px;  animation-duration:12s; animation-delay:2s; }
+        .bg-bubbles span:nth-child(3){ left:45%; width:17px; height:17px; animation-duration:10s; animation-delay:4s; }
+        .bg-bubbles span:nth-child(4){ left:63%; width:8px;  height:8px;  animation-duration:13s; animation-delay:1s; }
+        .bg-bubbles span:nth-child(5){ left:80%; width:13px; height:13px; animation-duration:11s; animation-delay:3s; }
+        .bg-bubbles span:nth-child(6){ left:92%; width:10px; height:10px; animation-duration:14s; animation-delay:5s; }
+        @keyframes bubbleUp { 0% { transform:translateY(0); opacity:0; } 12% { opacity:0.9; } 100% { transform:translateY(-105vh); opacity:0; } }
+
+        /* ═══════════ Coin System (coin.png + fallback) ═══════════ */
+        .coin-wrap { position:relative; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .coin-wrap .coin-fb { font-size:1rem; }
+        .coin-wrap img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 2px 3px rgba(185,111,0,0.45)); animation:coinBob 2.4s ease-in-out infinite; }
+        @keyframes coinBob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-2px); } }
+        .coin-sm { width:27px; height:27px; } .coin-sm .coin-fb { font-size:1.15rem; }
+        .coin-xs { width:19px; height:19px; } .coin-xs .coin-fb { font-size:0.85rem; }
+        .coin-lg { width:36px; height:36px; } .coin-lg .coin-fb { font-size:1.5rem; }
+
+        .coin-display {
+            display:flex; align-items:center; gap:8px; width:max-content; margin:0 auto;
+            background:rgba(255,255,255,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+            border:1.5px solid rgba(255,255,255,0.85); border-radius:50px; padding:6px 16px 6px 10px;
+            box-shadow:0 6px 18px rgba(12,74,110,0.14), 0 0 18px rgba(255,201,60,0.25);
+            animation:fadeUp 0.55s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .coin-amount { font-weight:900; font-size:1.2rem; color:var(--gold-dark); min-width:22px; text-align:center; }
+        .coin-display.bump { animation:coinBump 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes coinBump { 0% { transform:scale(1); } 40% { transform:scale(1.2); } 100% { transform:scale(1); } }
+
+        .coin-chip {
+            display:flex; align-items:center; gap:6px; min-width:44px; justify-content:center;
+            background:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.85);
+            padding:6px 12px; border-radius:50px; font-weight:900; color:var(--gold-dark); font-size:0.95rem;
+        }
+
+        /* ═══════════ Landing ═══════════ */
+        .landing-content {
+            position:relative; z-index:5; display:flex; flex-direction:column;
+            height:100%; justify-content:space-between; gap:8px; overflow-y:auto;
+            padding:clamp(16px,3.5vh,30px) 24px clamp(18px,4vh,34px);
+        }
+        .landing-content > * { animation:fadeUp 0.55s cubic-bezier(0.16,1,0.3,1) both; }
+        .landing-content > *:nth-child(2){ animation-delay:0.05s; } .landing-content > *:nth-child(3){ animation-delay:0.1s; }
+        .landing-content > *:nth-child(4){ animation-delay:0.15s; } .landing-content > *:nth-child(5){ animation-delay:0.2s; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+
+        .header-container { text-align:center; }
+        .badge-top { background:linear-gradient(135deg,#7C6CFF,#5646D6); color:white; padding:6px 16px; border-radius:20px; font-size:0.8rem; font-weight:800; display:inline-block; margin-bottom:10px; box-shadow:0 6px 16px rgba(108,92,231,0.35); }
+        .header-container h1 { font-size:clamp(1.7rem,6vw,2.3rem); color:var(--dark); margin-bottom:8px; font-weight:900; }
+        .header-container p { color:var(--text-muted); font-size:clamp(0.85rem,3.5vw,1rem); font-weight:600; line-height:1.6; }
+
+        /* کاراکتر + حباب گفتگو */
+        .loko-character-zone { display:flex; flex-direction:column; align-items:center; gap:4px; }
+        .speech-bubble {
+            position:relative; max-width:90%; text-align:center;
+            background:rgba(255,255,255,0.6); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+            border:1.5px solid rgba(255,255,255,0.85); border-radius:16px; padding:9px 20px;
+            font-weight:800; font-size:clamp(0.9rem,3.8vw,1.05rem); color:var(--text-main);
+            box-shadow:0 8px 24px rgba(12,74,110,0.14);
+            animation:bubblePop 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.35s both;
+        }
+        .speech-bubble::after { content:''; position:absolute; bottom:-9px; right:50%; margin-right:-8px; border-left:8px solid transparent; border-right:8px solid transparent; border-top:10px solid rgba(255,255,255,0.92); }
+        .speech-bubble.pop-anim { animation:bubblePop 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes bubblePop { from { opacity:0; transform:scale(0.6) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }
+
+        .pixel-character { position:relative; display:flex; justify-content:center; padding:8px 0 2px; }
+        .char-wrap { position:relative; display:inline-flex; align-items:center; justify-content:center; }
+        .char-wrap .char-fb { font-size:2.8rem; }
+        .char-wrap img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 0 14px rgba(108,92,231,0.45)) drop-shadow(0 6px 12px rgba(30,30,47,0.22)); }
+        .char-main { width:clamp(100px,28vw,130px); height:clamp(100px,28vw,130px); animation:charFloat 3s ease-in-out infinite alternate; }
+        .char-modal { width:88px; height:88px; animation:charFloat 2.6s ease-in-out infinite alternate; }
+        .char-modal .char-fb { font-size:2.2rem; }
+        @keyframes charFloat { 0% { transform:translateY(0) rotate(0deg); } 100% { transform:translateY(-7px) rotate(2deg); } }
+        .bubble { position:absolute; border-radius:50%; background:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.95); animation:bubbleRise 3.6s ease-in-out infinite; }
+        .b1 { width:10px; height:10px; top:-2px; right:18%; } .b2 { width:14px; height:14px; top:34%; right:-14px; animation-delay:0.8s; }
+        .b3 { width:8px; height:8px; top:8%; left:14%; animation-delay:1.6s; }
+        @keyframes bubbleRise { 0%,100% { transform:translateY(0); opacity:0.5; } 50% { transform:translateY(-12px); opacity:0.95; } }
+
+        /* ═══════════ Buttons ═══════════ */
+        .menu-buttons { display:flex; flex-direction:column; gap:12px; width:100%; }
+        .btn {
+            padding:clamp(13px,3.8vw,17px); border-radius:18px; border:none;
+            font-size:clamp(0.95rem,4vw,1.08rem); font-weight:800; cursor:pointer;
+            transition:transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s;
+            box-shadow:0 8px 20px rgba(30,30,47,0.18); text-align:center; width:100%;
+            color:white; touch-action:manipulation;
+        }
+        .btn:hover { filter:brightness(1.05); }
+        .btn:active { transform:translateY(3px) scale(0.98); }
+        .btn-start {
+            background:linear-gradient(180deg,#FFE68A 0%,#FFC93C 45%,#FFA800 100%);
+            color:#5B3A00; border:2px solid rgba(255,255,255,0.65);
+            box-shadow:0 10px 26px rgba(255,168,0,0.45), inset 0 -4px 0 rgba(185,111,0,0.35);
+            font-size:clamp(1.1rem,4.8vw,1.3rem); font-weight:900;
+            padding:clamp(16px,4.6vw,20px);
+        }
+        .btn-start:active { transform:translateY(4px) scale(0.98); box-shadow:0 4px 12px rgba(255,168,0,0.4), inset 0 -2px 0 rgba(185,111,0,0.35); }
+        .btn-secondary { background:rgba(255,255,255,0.75); color:var(--primary-dark); border:1.5px solid rgba(108,92,231,0.35); backdrop-filter:blur(8px); box-shadow:0 6px 16px rgba(30,30,47,0.12); }
+        .btn-modal { background:linear-gradient(180deg,#FFE68A 0%,#FFC93C 45%,#FFA800 100%); color:#5B3A00; border:2px solid rgba(255,255,255,0.6); box-shadow:0 8px 20px rgba(255,168,0,0.4); }
+        .btn-row-half { display:flex; gap:10px; }
+        .btn-row-half .btn { flex:1; font-size:0.9rem; padding:12px 6px; }
+
+        /* آمار مخفی (داده همچنان جمع می‌شود) */
+        .stats-summary { background:rgba(255,255,255,0.6); border-radius:20px; padding:12px; margin:6px 0; display:flex; justify-content:space-around; }
+        .stat-summary-value { font-weight:800; color:var(--primary-dark); }
+
+        /* ═══════════ صفحه انتخاب مرحله ═══════════ */
+        .levels-grid {
+            flex:1; position:relative; z-index:10;
+            display:grid; grid-template-columns:repeat(2,1fr); gap:12px;
+            padding:16px; overflow-y:auto; align-content:start;
+        }
+        .level-card {
+            border:none; border-radius:20px; padding:16px 8px 12px; cursor:pointer; text-align:center;
+            font-family:var(--font); touch-action:manipulation; transition:transform 0.15s;
+            animation:cardIn 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+        }
+        .level-card:active { transform:scale(0.93); }
+        .level-card.unlocked { background:linear-gradient(180deg,#FFE68A,#FFC93C 45%,#FFA800); color:#5B3A00; border:2px solid rgba(255,255,255,0.65); box-shadow:0 8px 20px rgba(255,168,0,0.4), inset 0 -3px 0 rgba(185,111,0,0.3); }
+        .level-card.locked { background:rgba(255,255,255,0.4); color:#8b8aa0; border:2px dashed rgba(90,85,112,0.35); }
+        .level-card.next { animation:cardIn 0.45s both, nextPulse 1.6s ease-in-out 0.5s infinite; }
+        @keyframes nextPulse { 0%,100% { box-shadow:0 0 0 4px rgba(108,92,231,0.3), 0 8px 20px rgba(255,168,0,0.4); } 50% { box-shadow:0 0 0 9px rgba(108,92,231,0.12), 0 8px 24px rgba(255,168,0,0.55); } }
+        .level-num { font-size:1.9rem; font-weight:900; line-height:1.15; }
+        .level-name { font-size:0.78rem; font-weight:800; margin-top:4px; }
+        @keyframes cardIn { from { opacity:0; transform:scale(0.6) translateY(10px); } to { opacity:1; transform:none; } }
+
+        /* ═══════════ نوار بالای بازی ═══════════ */
+        .top-bar-ux {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:12px 16px; z-index:15;
+            background:var(--t-bar); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+            border-bottom:1px solid rgba(255,255,255,0.65);
+            box-shadow:0 4px 20px rgba(30,30,47,0.08);
+        }
+        .circle-action-btn {
+            border:none; width:42px; height:42px; border-radius:50%;
+            display:flex; align-items:center; justify-content:center; cursor:pointer;
+            transition:transform 0.15s ease; touch-action:manipulation;
+        }
+        .circle-action-btn:active { transform:scale(0.88); }
+        .stop-btn { background:rgba(108,92,231,0.15); border:1.5px solid rgba(108,92,231,0.4); color:var(--primary); }
+        .back-btn { background:rgba(108,92,231,0.12); border:1.5px solid rgba(108,92,231,0.35); color:var(--primary); }
+        .game-instruction-text { font-size:clamp(0.95rem,4vw,1.1rem); font-weight:800; color:var(--t-bar-text); }
+        .highlight-seen { color:var(--primary-dark); font-size:1.4rem; background:#E9E7FF; padding:2px 10px; border-radius:8px; display:inline-block; margin:0 4px; }
+
+        /* ═══════════ اقیانوس بازی (منطق حفظ شده) ═══════════ */
+        .ocean-container {
+            flex:1; position:relative; margin:16px;
+            background:var(--t-card); border-radius:20px; border:3px solid var(--t-card-border);
+            overflow:hidden; z-index:10;
+            box-shadow:inset 0 4px 12px rgba(30,30,47,0.07), 0 8px 24px rgba(30,30,47,0.08);
+        }
+        .wave-item {
+            position:absolute; width:clamp(55px,16vw,75px); height:clamp(55px,16vw,75px);
+            display:flex; align-items:center; justify-content:center; cursor:pointer;
+            transition:transform 0.3s ease; z-index:20;
+        }
+        .wave-item:active svg { transform:scale(0.9); }
+        .wave-item svg {
+            width:100%; height:100%; fill:none; stroke:var(--t-stroke);
+            stroke-width:5; stroke-linecap:round; stroke-linejoin:round;
+            filter:drop-shadow(0 2px 4px rgba(30,30,47,0.18)); transition:all 0.2s;
+        }
+        .floating-wave { animation:waveFloat 3.2s ease-in-out infinite alternate; }
+        .float-b { animation:waveFloatB 2.6s ease-in-out infinite alternate; }
+        @keyframes waveFloat { 0% { transform:translateY(0) rotate(0deg); } 100% { transform:translateY(6px) rotate(4deg); } }
+        @keyframes waveFloatB { 0% { transform:translateY(0) rotate(0deg); } 100% { transform:translateY(-6px) rotate(-4deg); } }
+        .wave-item.success-pop svg { stroke:var(--success); transform:scale(1.2); animation:successPulse 0.5s ease-out; }
+        .ripple { position:absolute; border:4px solid var(--success); border-radius:50%; pointer-events:none; animation:rippleAnim 0.6s ease-out forwards; }
+        @keyframes rippleAnim { 0% { width:10px; height:10px; opacity:1; transform:translate(-50%,-50%); } 100% { width:80px; height:80px; opacity:0; transform:translate(-50%,-50%); } }
+        .wave-item.error-shake svg { stroke:#E11D48; animation:shakeAnim 0.4s ease-in-out; }
+        @keyframes shakeAnim { 0%,100% { transform:translateX(0); } 20%,60% { transform:translateX(-6px); } 40%,80% { transform:translateX(6px); } }
+
+        /* اسپارکل شکار */
+        .sparkle {
+            position:absolute; left:50%; top:50%; width:9px; height:9px; margin:-4px;
+            border-radius:50%; background:var(--gold); box-shadow:0 0 8px var(--gold);
+            pointer-events:none; z-index:60; animation:sparkleFly 0.65s ease-out forwards;
+        }
+        @keyframes sparkleFly { to { transform:translate(var(--dx),var(--dy)) scale(0); opacity:0; } }
+
+        /* ═══════════ Toast ═══════════ */
+        .toast {
+            position:absolute; top:75px; left:50%; transform:translateX(-50%) translateY(-100px);
+            background:rgba(30,30,47,0.92); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.15);
+            color:white; padding:12px 20px; border-radius:50px;
+            display:flex; align-items:center; gap:10px; z-index:300; opacity:0;
+            transition:transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.2s;
+            font-size:clamp(0.85rem,3.5vw,0.95rem); font-weight:700; width:max-content; max-width:85%; text-align:center;
+            box-shadow:0 12px 30px rgba(0,0,0,0.35);
+        }
+        .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+
+        /* ═══════════ مودال‌ها ═══════════ */
+        .modal {
+            position:absolute; top:0; left:0; width:100%; height:100%;
+            background:rgba(15,15,35,0.6); backdrop-filter:blur(6px); z-index:200;
+            display:flex; justify-content:center; align-items:center; opacity:0; pointer-events:none; transition:opacity 0.3s ease;
+        }
+        .modal.active { opacity:1; pointer-events:all; }
+        .modal-content {
+            position:relative; background:rgba(255,255,255,0.96); border:1px solid rgba(255,255,255,0.75);
+            width:88%; padding:26px 20px 22px; border-radius:24px; text-align:center;
+            transform:scale(0.85); transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow:0 30px 60px rgba(10,8,30,0.45);
+        }
+        .modal.active .modal-content { transform:scale(1); }
+        #success-modal .modal-content { overflow:hidden; }
+        .modal-tall { max-height:86%; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+        .modal-close {
+            position:absolute; top:12px; left:12px; width:34px; height:34px; border-radius:50%;
+            background:rgba(30,30,47,0.08); color:var(--text-muted); border:none; font-size:1rem;
+            font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:5;
+        }
+        .modal-char { display:flex; justify-content:center; margin-bottom:6px; }
+        .modal-title { color:var(--dark); font-size:1.35rem; margin-bottom:8px; font-weight:900; }
+        .modal-desc { color:var(--text-muted); font-size:0.92rem; margin-bottom:16px; font-weight:600; line-height:1.6; }
+        .modal-btns { display:flex; flex-direction:column; gap:10px; }
+
+        /* پاداش سکه */
+        .coin-reward-row { margin-bottom:14px; min-height:0; }
+        .coin-reward-pill {
+            display:flex; align-items:center; justify-content:center; gap:12px;
+            background:linear-gradient(180deg,#FFE68A 0%,#FFC93C 45%,#FFA800 100%);
+            color:#5B3A00; font-weight:900; border-radius:18px; padding:10px 18px;
+            border:2px solid rgba(255,255,255,0.65); box-shadow:0 8px 20px rgba(255,168,0,0.45), inset 0 -3px 0 rgba(185,111,0,0.3);
+            animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+        }
+        .coin-reward-pill .crp-texts { display:flex; flex-direction:column; align-items:flex-start; line-height:1.35; }
+        .coin-reward-pill small { font-size:0.72rem; font-weight:700; opacity:0.85; }
+        .coin-progress-pill {
+            display:inline-block; background:rgba(108,92,231,0.12); color:var(--primary-dark);
+            border:1.5px dashed rgba(108,92,231,0.5); border-radius:50px;
+            padding:8px 16px; font-weight:800; font-size:0.85rem;
+            animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+        }
+        @keyframes popIn { from { transform:scale(0.6); opacity:0; } to { transform:scale(1); opacity:1; } }
+
+        /* کانفتی برد */
+        .confetti { position:absolute; top:-12px; width:8px; height:14px; border-radius:2px; animation:confFall 1.7s ease-in forwards; z-index:5; pointer-events:none; }
+        @keyframes confFall { to { transform:translateY(340px) rotate(560deg); opacity:0; } }
+
+        /* ═══════════ راهنما ═══════════ */
+        .help-steps { text-align:right; margin:14px 0 18px; display:flex; flex-direction:column; gap:14px; }
+        .help-step { position:relative; padding-right:48px; }
+        .help-step:not(:last-child)::after { content:''; position:absolute; right:17px; top:42px; bottom:-12px; border-right:2px dashed rgba(108,92,231,0.35); }
+        .help-num {
+            position:absolute; right:0; top:0; width:35px; height:35px; border-radius:50%;
+            background:linear-gradient(180deg,#FFE68A,#FFC93C 45%,#FFA800); color:#5B3A00;
+            font-weight:900; font-size:1rem; display:flex; align-items:center; justify-content:center;
+            border:2px solid rgba(255,255,255,0.7); box-shadow:0 4px 10px rgba(255,168,0,0.4);
+        }
+        .help-step-title { font-weight:900; color:var(--dark); font-size:0.98rem; margin-bottom:3px; }
+        .help-step-text { font-weight:600; color:var(--text-muted); font-size:0.85rem; line-height:1.7; }
+
+        /* ═══════════ فروشگاه ═══════════ */
+        .shop-balance {
+            display:inline-flex; align-items:center; gap:8px; margin-bottom:14px;
+            background:rgba(255,201,60,0.15); border:1.5px dashed rgba(185,111,0,0.4);
+            border-radius:50px; padding:7px 16px; font-weight:900; color:var(--gold-dark);
+        }
+        .shop-list { text-align:right; margin-bottom:6px; }
+        .shop-card {
+            display:flex; align-items:center; gap:12px;
+            background:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.85);
+            border-radius:18px; padding:12px; margin-bottom:10px;
+            animation:cardIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+        }
+        .shop-card.shake { animation:shakeAnim 0.4s ease-in-out; }
+        .shop-preview {
+            width:52px; height:52px; border-radius:16px; flex-shrink:0;
+            display:flex; align-items:center; justify-content:center; font-size:1.7rem;
+            box-shadow:inset 0 0 0 2px rgba(255,255,255,0.6), 0 4px 10px rgba(30,30,47,0.12);
+        }
+        .shop-info { flex:1; min-width:0; }
+        .shop-name { font-weight:900; font-size:0.95rem; color:var(--dark); }
+        .shop-desc { font-size:0.72rem; color:var(--text-muted); font-weight:600; margin-top:2px; }
+        .shop-btn {
+            border:none; border-radius:14px; padding:9px 14px; font-family:var(--font);
+            font-weight:900; font-size:0.88rem; cursor:pointer; flex-shrink:0;
+            display:flex; align-items:center; gap:6px; touch-action:manipulation; transition:transform 0.15s;
+        }
+        .shop-btn:active { transform:scale(0.93); }
+        .shop-btn.buy { background:linear-gradient(180deg,#FFE68A,#FFC93C 45%,#FFA800); color:#5B3A00; border:2px solid rgba(255,255,255,0.6); box-shadow:0 5px 14px rgba(255,168,0,0.4); }
+        .shop-btn.poor { filter:grayscale(0.4); opacity:0.75; }
+        .shop-btn.use { background:linear-gradient(135deg,#8E7CFF,#6C5CE7); color:white; box-shadow:0 5px 14px rgba(108,92,231,0.4); }
+        .shop-btn.equipped { background:rgba(0,184,148,0.14); color:var(--success); border:1.5px dashed rgba(0,184,148,0.5); cursor:default; }
+
+        /* مودال آمار کامل (مخفی — Data Pipeline فعال) */
+        .stats-detail-list { text-align:right; margin:15px 0; }
+        .stats-detail-item { display:flex; justify-content:space-between; padding:10px 8px; border-bottom:1px solid #e2e8f0; font-weight:600; }
+        .stats-detail-label { color:var(--text-muted); }
+        .stats-detail-value { color:var(--primary-dark); font-size:1.05rem; }
+    </style>
+<style>/* لوکو: رفعِ باگ (apps/games/game_fixes.py) */
+.toast { pointer-events: none; }
+</style>
+</head>
+<body>
+    <div id="app">
+
+        <div id="toast" class="toast hidden">🧜‍♀️ <span id="toast-text">پیام فرشته‌ی دریا</span></div>
+
+        <!-- ═══ مودال برد ═══ -->
+        <div id="success-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-char"><span class="char-wrap char-modal"><span class="char-fb">🎉</span><img src="./icons/gamer.png" alt="لوکی" onerror="this.remove()"></span></div>
+                <h2 class="modal-title" id="win-title">هورااا!</h2>
+                <p class="modal-desc" id="win-desc"></p>
+                <div class="coin-reward-row" id="coin-reward-row"></div>
+                <div class="modal-btns" id="win-btns"></div>
+            </div>
+        </div>
+
+        <!-- ═══ مودال باخت ═══ -->
+        <div id="lose-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-char"><span class="char-wrap char-modal"><span class="char-fb">💪</span><img src="./icons/gamer.png" alt="لوکی" onerror="this.remove()"></span></div>
+                <h2 class="modal-title">آخ آخ! این‌بار نشد 😅</h2>
+                <p class="modal-desc">اشکالی نداره! قهرمان‌ها هم گاهی می‌بازن.<br>یه نفس عمیق بکش و دوباره امتحان کن — تو می‌تونی! 💪</p>
+                <div class="modal-btns">
+                    <button onclick="oceanGame.retryLevel()" class="btn btn-modal">🔁 تلاش دوباره</button>
+                    <div class="btn-row-half">
+                        <button onclick="oceanGame.stopToLevels()" class="btn btn-secondary">🎯 انتخاب مرحله</button>
+                        <button onclick="oceanGame.goHome()" class="btn btn-secondary">🏠 صفحه اصلی</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ مودال استوپ (با کاراکتر بالای مودال) ═══ -->
+        <div id="stop-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-char"><span class="char-wrap char-modal"><span class="char-fb">🐙</span><img src="./icons/gamer.png" alt="لوکی" onerror="this.remove()"></span></div>
+                <h2 class="modal-title">وقت استراحت! ⏸</h2>
+                <p class="modal-desc">هر وقت آماده بودی، از همین‌جا ادامه بده!</p>
+                <div class="modal-btns">
+                    <button onclick="oceanGame.resumeGame()" class="btn btn-modal">▶ ادامه بازی</button>
+                    <button onclick="oceanGame.restartLevel()" class="btn btn-secondary">🔁 شروع مجدد این مرحله</button>
+                    <div class="btn-row-half">
+                        <button onclick="oceanGame.stopToLevels()" class="btn btn-secondary">🎯 انتخاب مرحله</button>
+                        <button onclick="oceanGame.goHome()" class="btn btn-secondary">🏠 صفحه اصلی</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ مودال راهنما ═══ -->
+        <div id="help-modal" class="modal">
+            <div class="modal-content modal-tall">
+                <button class="modal-close" onclick="oceanGame.closeHelp()">✕</button>
+                <div class="modal-char"><span class="char-wrap char-modal" style="width:80px;height:80px"><span class="char-fb">🐙</span><img src="./icons/gamerhi.png" alt="راهنما" onerror="this.remove()"></span></div>
+                <h2 class="modal-title">راهنمای بازی 📖</h2>
+                <p class="modal-desc">با لوکی همراه شو؛ قدم‌به‌قدم!</p>
+                <div class="help-steps">
+                    <div class="help-step"><div class="help-num">1</div><div><div class="help-step-title">🎯 هدف بازی چیه؟</div><div class="help-step-text">توی دریا کلی موج قایم شده! تو باید موج‌هایی رو پیدا کنی که شکل حرف «س» دارن.</div></div></div>
+                    <div class="help-step"><div class="help-num">2</div><div><div class="help-step-title">▶️ چطور شروع کنم؟</div><div class="help-step-text">توی صفحه اصلی، دکمه بزرگ طلایی «شروع بازی» رو بزن. بعد مرحله‌ات رو انتخاب کن.</div></div></div>
+                    <div class="help-step"><div class="help-num">3</div><div><div class="help-step-title">🔓 مراحل چطور باز می‌شن؟</div><div class="help-step-text">۱۰ تا مرحله داریم. مرحله ۱ از اول بازه؛ هر مرحله رو که ببری، مرحله بعدی باز می‌شه و هر کدوم کمی سخت‌تر از قبلیه!</div></div></div>
+                    <div class="help-step"><div class="help-num">4</div><div><div class="help-step-title">👆 چطور بازی کنم؟</div><div class="help-step-text">خوب به موج‌ها نگاه کن. هر کدوم رو که شکل «س» داشت، آروم با انگشت روش بزن. صدای قشنگ و ستاره‌های طلایی می‌گیری! ✨</div></div></div>
+                    <div class="help-step"><div class="help-num">5</div><div><div class="help-step-title">🌊 مواظب باش!</div><div class="help-step-text">بعضی موج‌ها شبیه «م» یا «ل» هستن و بعضی‌ها فقط موج معمولی دریا هستن. اونا موج «س» نیستن!</div></div></div>
+                    <div class="help-step"><div class="help-num">6</div><div><div class="help-step-title">😅 اگه اشتباه زدم چی؟</div><div class="help-step-text">هیچی! اشتباه کردن تو این بازی عالیه، چون دار یاد می‌گیری. نگران نباش و آروم ادامه بده.</div></div></div>
+                    <div class="help-step"><div class="help-num">7</div><div><div class="help-step-title">🏁 کِی برنده می‌شم؟</div><div class="help-step-text">وقتی همه «س»های مرحله رو پیدا کنی، برنده‌ای و می‌تونی بری مرحله بعد!</div></div></div>
+                    <div class="help-step"><div class="help-num">8</div><div><div class="help-step-title">🪙 سکه و فروشگاه</div><div class="help-step-text">اگه هر ۱۰ مرحله رو کامل کنی، جایزه سکه لوکو می‌گیری! با سکه‌هات توی فروشگاه، تم‌های قشنگ دریا بخر.</div></div></div>
+                </div>
+                <button onclick="oceanGame.closeHelp()" class="btn btn-modal">فهمیدم! بزن بریم 🚀</button>
+            </div>
+        </div>
+
+        <!-- ═══ مودال فروشگاه ═══ -->
+        <div id="shop-modal" class="modal">
+            <div class="modal-content modal-tall">
+                <button class="modal-close" onclick="oceanGame.closeShop()">✕</button>
+                <h2 class="modal-title">فروشگاه لوکو 🛍</h2>
+                <div class="shop-balance"><span class="coin-wrap coin-sm"><span class="coin-fb">🪙</span><img src="./icons/coin.png" alt="سکه" onerror="this.remove()"></span>سکه‌های تو: <span id="shop-coins">0</span></div>
+                <div class="shop-list" id="shop-grid"></div>
+            </div>
+        </div>
+
+        <!-- ═══ مودال آمار کامل (مخفی از کاربر — داده فعال) ═══ -->
+        <div id="full-stats-modal" class="modal">
+            <div class="modal-content modal-tall">
+                <h2 class="modal-title">کارنامه شکارچی نشانه س</h2>
+                <div class="stats-detail-list" id="full-stats-list"></div>
+                <button onclick="oceanGame.closeFullStats()" class="btn btn-modal">بستن</button>
+            </div>
+        </div>
+
+        <!-- ═══════════ صفحه اصلی ═══════════ -->
+        <section id="landing-view" class="view active">
+            <div class="scene-bg">
+                <div class="animated-sea"></div><div class="sun"></div>
+                <div class="bg-bubbles"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            </div>
+            <div class="landing-content">
+
+                <!-- ۱) نمایش سکه -->
+                <div class="coin-display" id="coin-display" aria-live="polite">
+                    <span class="coin-wrap coin-sm"><span class="coin-fb">🪙</span><img src="./icons/coin.png" alt="سکه لوکو" onerror="this.remove()"></span>
+                    <div class="coin-amount" id="coin-amount">0</div>
+                </div>
+
+                <!-- ۲) عنوان -->
+                <div class="header-container">
+                    <span class="badge-top">بازی جادویی • تقویت دقت و توجه</span>
+                    <h1>شکارچی نشانه‌ی «س»</h1>
+                    <p>موج‌هایی که شکل «س» هستن رو پیدا کن و آروم روشون دست بزن.</p>
+                </div>
+
+                <!-- ۳ و ۴) حباب گفتگو + کاراکتر -->
+                <div class="loko-character-zone">
+                    <div class="speech-bubble" id="speech-bubble">سلام! آماده‌ای بریم؟ 🌊</div>
+                    <div class="pixel-character">
+                        <span class="char-wrap char-main"><span class="char-fb">🐙</span><img src="./icons/gamer.png" alt="لوکی" onerror="this.remove()"></span>
+                        <span class="bubble b1"></span><span class="bubble b2"></span><span class="bubble b3"></span>
+                    </div>
+                </div>
+
+                <!-- ۵ و ۶) شروع بازی + راهنما/فروشگاه -->
+                <div class="menu-buttons">
+                    <button onclick="oceanGame.openLevels()" class="btn btn-start">▶️ شروع بازی</button>
+                    <div class="btn-row-half">
+                        <button onclick="oceanGame.openHelp()" class="btn btn-secondary">📖 راهنما</button>
+                        <button onclick="oceanGame.openShop()" class="btn btn-secondary">🛍 فروشگاه</button>
+                    </div>
+                </div>
+
+                <!-- آمار مخفی: IDs برای Data Pipeline حفظ شده‌اند -->
+                <div class="stats-summary" id="stats-summary" hidden>
+                    <div><div id="sum-total-play">0</div></div>
+                    <div><div id="sum-total-win">0</div></div>
+                    <div><div id="sum-avg-acc">0</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════ صفحه انتخاب مرحله ═══════════ -->
+        <section id="levels-view" class="view hidden">
+            <div class="scene-bg bg-game"><div class="animated-sea-deep"></div>
+                <div class="bg-bubbles"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            </div>
+            <div class="top-bar-ux">
+                <button onclick="oceanGame.goHome()" class="circle-action-btn back-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width:20px;height:20px"><path d="M9 6l6 6-6 6"/></svg>
+                </button>
+                <div class="game-instruction-text">مرحله‌ات رو انتخاب کن! 🎯</div>
+                <div class="coin-chip"><span class="coin-wrap coin-xs"><span class="coin-fb">🪙</span><img src="./icons/coin.png" alt="" onerror="this.remove()"></span><span id="coin-amount-levels">0</span></div>
+            </div>
+            <div class="levels-grid" id="levels-grid"></div>
+        </section>
+
+        <!-- ═══════════ صفحه بازی ═══════════ -->
+        <section id="game-view" class="view hidden">
+            <div class="scene-bg bg-game"><div class="animated-sea-deep"></div>
+                <div class="bg-bubbles"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            </div>
+            <div class="top-bar-ux">
+                <!-- دکمه استوپ -->
+                <button onclick="oceanGame.openStop()" class="circle-action-btn stop-btn" aria-label="استوپ">
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><rect x="6" y="5" width="4" height="14" rx="1.5"/><rect x="14" y="5" width="4" height="14" rx="1.5"/></svg>
+                </button>
+                <div class="game-instruction-text">نشانه‌ی <span class="highlight-seen">س</span> رو پیدا کن!</div>
+                <div style="width:42px;"></div>
+            </div>
+            <div class="ocean-container" id="ocean-grid"></div>
+        </section>
+    </div>
+
+    <script>
+        /* ═══════════ LOKO Shared: Store امن (Offline-First) ═══════════ */
+        const LokoStore = {
+            get(key, fallback) { try { const v = localStorage.getItem(key); return v === null ? fallback : JSON.parse(v); } catch (e) { return fallback; } },
+            set(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+        };
+
+        const ALL_LEVELS = Array.from({ length: 10 }, (_, i) => i + 1);
+
+        /* ── ۱۰ مرحله: هر مرحله سخت‌تر (تعداد بیشتر، گمراه‌کننده بیشتر، زمان کمتر) ── */
+        const LEVELS = {
+            1:  { total: 12, targets: 4, dist1: 2, dist2: 1, dist3: 0, time: 45 },
+            2:  { total: 14, targets: 4, dist1: 3, dist2: 1, dist3: 1, time: 42 },
+            3:  { total: 16, targets: 4, dist1: 3, dist2: 2, dist3: 2, time: 40 },
+            4:  { total: 18, targets: 5, dist1: 4, dist2: 2, dist3: 2, time: 38 },
+            5:  { total: 20, targets: 5, dist1: 4, dist2: 3, dist3: 3, time: 36 },
+            6:  { total: 22, targets: 5, dist1: 5, dist2: 3, dist3: 3, time: 33 },
+            7:  { total: 24, targets: 5, dist1: 5, dist2: 4, dist3: 4, time: 30 },
+            8:  { total: 26, targets: 6, dist1: 6, dist2: 4, dist3: 4, time: 28 },
+            9:  { total: 28, targets: 6, dist1: 6, dist2: 5, dist3: 5, time: 26 },
+            10: { total: 30, targets: 6, dist1: 7, dist2: 5, dist3: 6, time: 24 }
+        };
+        const LEVEL_NAMES = { 1:'ساحل آروم', 2:'موج‌های ملایم', 3:'دریای بازیگوش', 4:'توفان کوچولو', 5:'گرداب شنی', 6:'دریای عمیق', 7:'تنگه نهنگ', 8:'طوفان صدفی', 9:'اعماق مرموز', 10:'قصر دزد دریا' };
+
+        /* ── تم‌های فروشگاه (فقط ظاهر — بدون تغییر Gameplay) ── */
+        const THEMES = [
+            { id:'classic', name:'اقیانوس کلاسیک', price:0,  emoji:'🌊', desc:'همون دریای دوست‌داشتنی!', bg1:'#bae6fd', bg2:'#a5b4fc', sea:'rgba(56,189,248,0.35)', sea2:'#5A4BD6', stroke:'#5A4BD6', card:'rgba(255,255,255,0.45)', cardBorder:'rgba(255,255,255,0.7)', bar:'rgba(255,255,255,0.72)', barText:'#1E1E2F' },
+            { id:'sunset',  name:'غروب صورتی',    price:15, emoji:'🌅', desc:'موج‌های صورتی رؤیایی!',  bg1:'#ffe0f0', bg2:'#ffb8d9', sea:'rgba(255,138,212,0.45)', sea2:'#FF00A0', stroke:'#C40D84', card:'rgba(255,255,255,0.5)',  cardBorder:'rgba(255,255,255,0.85)', bar:'rgba(255,255,255,0.72)', barText:'#1E1E2F' },
+            { id:'neon',    name:'دریای نئون',    price:30, emoji:'🌌', desc:'شبِ نئونی اعماق دریا!',  bg1:'#322B52', bg2:'#1E1E2F', sea:'rgba(0,210,255,0.22)',  sea2:'#6C5CE7', stroke:'#00D2FF', card:'rgba(30,30,47,0.55)',    cardBorder:'rgba(0,210,255,0.35)',   bar:'rgba(24,20,40,0.72)',    barText:'#ffffff' },
+            { id:'coral',   name:'جنگل مرجانی',   price:45, emoji:'🪸', desc:'سبز و تازه مثل جنگل زیر دریا!', bg1:'#dcffe9', bg2:'#a7f3d0', sea:'rgba(0,255,157,0.3)', sea2:'#00B894', stroke:'#047857', card:'rgba(255,255,255,0.5)', cardBorder:'rgba(255,255,255,0.85)', bar:'rgba(255,255,255,0.72)', barText:'#1E1E2F' },
+            { id:'gold',    name:'جزیره طلایی',   price:60, emoji:'🏝', desc:'همه‌چیز از طلاست!',      bg1:'#fff6d8', bg2:'#ffe9a8', sea:'rgba(255,201,60,0.45)', sea2:'#FFA800', stroke:'#B96F00', card:'rgba(255,255,255,0.55)', cardBorder:'rgba(255,201,60,0.8)',  bar:'rgba(255,255,255,0.72)', barText:'#1E1E2F' }
+        ];
+
+        const COIN_IMG = (cls) => `<span class="coin-wrap ${cls || 'coin-xs'}"><span class="coin-fb">🪙</span><img src="./icons/coin.png" alt="" onerror="this.remove()"></span>`;
+
+        /* ═══════════ LOKO Coin System — قانون پاداش ═══════════
+           Snapshot در «شروع دور»؛ پاداش فقط بعد از بردِ «هر ۱۰ مرحله»:
+           runStartCoins === 0 → +10 ، وگرنه → +1 */
+        const LokoCoins = {
+            coins: 0, completedLevels: [], runStartCoins: null,
+            KEY_COINS: 'lokoCoins', KEY_PROGRESS: 'lokoLevelProgress', KEY_RUN: 'lokoRunStartCoins',
+            load() {
+                this.coins = LokoStore.get(this.KEY_COINS, 0);
+                this.completedLevels = LokoStore.get(this.KEY_PROGRESS, []);
+                this.runStartCoins = LokoStore.get(this.KEY_RUN, null);
+                this.render();
+            },
+            save() {
+                LokoStore.set(this.KEY_COINS, this.coins);
+                LokoStore.set(this.KEY_PROGRESS, this.completedLevels);
+                LokoStore.set(this.KEY_RUN, this.runStartCoins);
+            },
+            onLevelStart() { if (this.runStartCoins === null) { this.runStartCoins = this.coins; this.save(); } },
+            registerWin(level) {
+                if (!this.completedLevels.includes(level)) this.completedLevels.push(level);
+                const allDone = ALL_LEVELS.every(l => this.completedLevels.includes(l));
+                if (!allDone) { this.save(); return 0; }
+                const reward = (this.runStartCoins === 0) ? 10 : 1;
+                this.coins += reward;
+                this.completedLevels = []; this.runStartCoins = null;
+                this.save(); this.render(true);
+                return reward;
+            },
+            render(bump) {
+                ['coin-amount', 'coin-amount-levels', 'shop-coins'].forEach(id => {
+                    const el = document.getElementById(id); if (el) el.innerText = this.coins;
+                });
+                if (bump) { const d = document.getElementById('coin-display'); if (d) { d.classList.remove('bump'); void d.offsetWidth; d.classList.add('bump'); } }
+            }
+        };
+
+        /* ═══════════ فروشگاه ═══════════ */
+        const LokoShop = {
+            owned: ['classic'], equipped: 'classic',
+            load() {
+                this.owned = LokoStore.get('lokoOwnedThemes', ['classic']);
+                if (!this.owned.includes('classic')) this.owned.push('classic');
+                this.equipped = LokoStore.get('lokoTheme', 'classic');
+                this.apply();
+            },
+            save() { LokoStore.set('lokoOwnedThemes', this.owned); LokoStore.set('lokoTheme', this.equipped); },
+            apply() {
+                const t = THEMES.find(x => x.id === this.equipped) || THEMES[0];
+                const app = document.getElementById('app');
+                app.style.setProperty('--t-bg1', t.bg1); app.style.setProperty('--t-bg2', t.bg2);
+                app.style.setProperty('--t-sea', t.sea); app.style.setProperty('--t-sea2', t.sea2);
+                app.style.setProperty('--t-stroke', t.stroke); app.style.setProperty('--t-card', t.card);
+                app.style.setProperty('--t-card-border', t.cardBorder);
+                app.style.setProperty('--t-bar', t.bar); app.style.setProperty('--t-bar-text', t.barText);
+            },
+            equip(id) { this.equipped = id; this.save(); this.apply(); this.render(); },
+            buy(id) {
+                const t = THEMES.find(x => x.id === id); if (!t) return;
+                if (this.owned.includes(id)) { this.equip(id); return; }
+                if (LokoCoins.coins < t.price) {
+                    const card = document.querySelector(`.shop-card[data-id="${id}"]`);
+                    if (card) { card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); }
+                    oceanGame.showToast('سکه کافی نداری! مرحله ببر تا سکه لوکو بگیری 🪙');
+                    return;
+                }
+                LokoCoins.coins -= t.price; LokoCoins.save(); LokoCoins.render(true);
+                this.owned.push(id); this.save(); this.equip(id);
+                oceanGame.showToast('خریدی! تم جدید فعاله 🎉');
+            },
+            render() {
+                const grid = document.getElementById('shop-grid'); if (!grid) return;
+                grid.innerHTML = THEMES.map((t, i) => {
+                    const isOwned = this.owned.includes(t.id);
+                    const isEq = this.equipped === t.id;
+                    const btn = isEq
+                        ? `<button class="shop-btn equipped">✓ فعاله</button>`
+                        : isOwned
+                            ? `<button class="shop-btn use" onclick="LokoShop.equip('${t.id}')">استفاده</button>`
+                            : `<button class="shop-btn buy ${LokoCoins.coins < t.price ? 'poor' : ''}" onclick="LokoShop.buy('${t.id}')">${COIN_IMG('coin-xs')} ${t.price}</button>`;
+                    return `<div class="shop-card ${isEq ? 'equipped' : ''}" data-id="${t.id}" style="animation-delay:${i * 0.06}s">
+                        <div class="shop-preview" style="background:linear-gradient(135deg,${t.bg1},${t.sea2})">${t.emoji}</div>
+                        <div class="shop-info"><div class="shop-name">${t.name}</div><div class="shop-desc">${t.desc}</div></div>
+                        ${btn}</div>`;
+                }).join('');
+            }
+        };
+
+        /* ═══════════ بازی اصلی (منطق هسته حفظ شده) ═══════════ */
+        const oceanGame = {
+            level: 1, totalTargets: 0, foundTargets: 0, mistakes: 0, startTime: 0,
+            timerInterval: null, timeLeft: 30, isGameOver: false, unlockedLevel: 1,
+
+            // آمار پشت‌صحنه (Data Pipeline — دست‌نخورده)
+            globalStats: {
+                totalGames: 0, totalWins: 0, totalMistakes: 0, totalCorrect: 0, totalTimePlayed: 0,
+                levelStats: {}
+            },
+
+            vectors: {
+                seen: `<path d="M 65 30 C 65 42, 55 42, 55 30 C 55 42, 45 42, 45 30 C 45 65, 15 65, 15 30"></path>`,
+                distractor1: `<path d="M 65 45 C 65 25, 45 25, 45 45 C 45 65, 15 65, 15 45 M 55 25 A 3 3 0 1 1 55 24"></path>`,
+                distractor2: `<path d="M 60 25 C 60 65, 20 65, 20 35 M 20 35 C 35 35, 45 20, 60 20"></path>`,
+                distractor3: `<path d="M 25 50 Q 45 30, 65 50 T 85 30"></path>`,
+                normalWave: `<path d="M 15 50 Q 35 25, 55 50 T 95 50"></path>`
+            },
+
+            audio: {
+                ctx: null,
+                init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+                playSuccess() { this.init(); const now = this.ctx.currentTime; const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now + 0.08);
+                    gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.connect(gain); gain.connect(this.ctx.destination); osc.start(now); osc.stop(now + 0.3);
+                },
+                playFail() { this.init(); const now = this.ctx.currentTime; const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(130, now);
+                    gain.gain.setValueAtTime(0.18, now); gain.gain.linearRampToValueAtTime(0, now + 0.15);
+                    osc.connect(gain); gain.connect(this.ctx.destination); osc.start(now); osc.stop(now + 0.15);
+                },
+                playWinArpeggio() { this.init(); const now = this.ctx.currentTime; const scale = [523.25, 587.33, 659.25, 783.99, 1046.50];
+                    scale.forEach((freq, idx) => { const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                        osc.type = 'sine'; osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+                        gain.gain.setValueAtTime(0.1, now + idx * 0.07); gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.25);
+                        osc.connect(gain); gain.connect(this.ctx.destination); osc.start(now + idx * 0.07); osc.stop(now + idx * 0.07 + 0.25);
+                    });
+                }
+            },
+
+            loadStats() {
+                const saved = localStorage.getItem('letterSGameStats_C1KnF2S3G1');
+                if (saved) { try { const s = JSON.parse(saved); Object.assign(this.globalStats, s); } catch (e) {} }
+                for (let i = 1; i <= 10; i++) if (!this.globalStats.levelStats[i]) this.globalStats.levelStats[i] = { play: 0, win: 0, bestTime: null };
+                this.unlockedLevel = Math.min(10, Math.max(1, LokoStore.get('lokoUnlockedLevel', 1)));
+                this.updateStatsUI();
+            },
+
+            saveStats() { try { localStorage.setItem('letterSGameStats_C1KnF2S3G1', JSON.stringify(this.globalStats)); } catch (e) {} this.updateStatsUI(); },
+
+            updateStatsUI() { // عناصر مخفی — فقط Data Pipeline
+                const p = document.getElementById('sum-total-play'); if (p) p.innerText = this.globalStats.totalGames;
+                const w = document.getElementById('sum-total-win'); if (w) w.innerText = this.globalStats.totalWins;
+                const a = document.getElementById('sum-avg-acc');
+                if (a) { const t = this.globalStats.totalCorrect + this.globalStats.totalMistakes;
+                    a.innerText = (t > 0 ? Math.round((this.globalStats.totalCorrect / t) * 100) : 0) + '%'; }
+            },
+
+            showView(viewId) {
+                document.querySelectorAll('.view').forEach(el => el.classList.replace('active', 'hidden'));
+                document.getElementById(viewId).classList.replace('hidden', 'active');
+            },
+
+            showToast(msg) {
+                const toast = document.getElementById('toast'); document.getElementById('toast-text').textContent = msg;
+                toast.className = 'toast show'; setTimeout(() => toast.classList.remove('show'), 3200);
+            },
+
+            closeAllModals() { document.querySelectorAll('.modal.active').forEach(m => m.classList.remove('active')); },
+
+            /* ── ناوبری ── */
+            openLevels() { this.closeAllModals(); clearInterval(this.timerInterval); this.showView('levels-view'); this.renderLevels(); },
+            goHome() { this.closeAllModals(); clearInterval(this.timerInterval); this.showView('landing-view'); },
+            quitGame() { this.goHome(); },
+
+            renderLevels() {
+                const grid = document.getElementById('levels-grid'); grid.innerHTML = '';
+                for (let i = 1; i <= 10; i++) {
+                    const unlocked = i <= this.unlockedLevel;
+                    const card = document.createElement('button');
+                    card.className = 'level-card ' + (unlocked ? 'unlocked' : 'locked') + (i === this.unlockedLevel ? ' next' : '');
+                    card.style.animationDelay = (i * 0.05) + 's';
+                    card.innerHTML = unlocked
+                        ? `<div class="level-num">${i}</div><div class="level-name">${LEVEL_NAMES[i]}</div>`
+                        : `<div class="level-num">🔒</div><div class="level-name">قفله!</div>`;
+                    card.onclick = () => this.pickLevel(i);
+                    grid.appendChild(card);
+                }
+            },
+            pickLevel(i) {
+                if (i > this.unlockedLevel) { this.showToast('اول مرحله قبلی رو ببر تا این باز بشه! 🔒'); return; }
+                this.startGame(i);
+            },
+
+            /* ── شروع بازی (منطق حفظ شده) ── */
+            startGame(lvl) {
+                this.closeAllModals();
+                this.level = lvl; this.foundTargets = 0; this.mistakes = 0; this.isGameOver = false;
+                LokoCoins.onLevelStart(); // Snapshot سکه‌های ابتدای دور
+                this.showView('game-view'); this.setupOceanFloor(); this.startTime = Date.now();
+                this.timeLeft = LEVELS[lvl].time;
+                this.startTimer(); // تایمر نامرئی — فقط در پس‌زمینه
+                this.showToast(`مرحله ${lvl} — ${LEVEL_NAMES[lvl]}! «س»ها رو پیدا کن 🌊`);
+            },
+
+            /* تایمر نامرئی: منطق اصلی حفظ شده؛ نمایش به کاربر حذف شد */
+            startTimer() {
+                clearInterval(this.timerInterval);
+                this.timerInterval = setInterval(() => {
+                    this.timeLeft--;
+                    if (this.timeLeft <= 0) this.endGame(false);
+                }, 1000);
+            },
+
+            setupOceanFloor() {
+                const container = document.getElementById('ocean-grid'); container.innerHTML = '';
+                const cfg = LEVELS[this.level];
+                this.totalTargets = cfg.targets;
+
+                let pool = [];
+                for (let i = 0; i < cfg.targets; i++) pool.push({ type: 'target', svg: this.vectors.seen });
+                for (let i = 0; i < cfg.dist1; i++) pool.push({ type: 'distractor', svg: this.vectors.distractor1 });
+                for (let i = 0; i < cfg.dist2; i++) pool.push({ type: 'distractor', svg: this.vectors.distractor2 });
+                for (let i = 0; i < cfg.dist3; i++) pool.push({ type: 'distractor', svg: this.vectors.distractor3 });
+                while (pool.length < cfg.total) pool.push({ type: 'normal', svg: this.vectors.normalWave });
+                pool.sort(() => Math.random() - 0.5);
+
+                const cols = 4;
+                pool.forEach((item, index) => {
+                    const waveEl = document.createElement('div');
+                    waveEl.className = 'wave-item floating-wave' + (index % 2 ? ' float-b' : '');
+                    waveEl.innerHTML = `<svg viewBox="0 0 100 100">${item.svg}</svg>`;
+                    const row = Math.floor(index / cols); const col = index % cols;
+                    const leftPercent = (col * 22) + (Math.random() * 5); const topPercent = (row * 18) + (Math.random() * 4);
+                    waveEl.style.left = `${Math.min(leftPercent, 78)}%`; waveEl.style.top = `${Math.min(topPercent, 80)}%`;
+                    waveEl.style.animationDelay = `${Math.random() * 2}s`;
+                    waveEl.onclick = (e) => this.handleWaveClick(waveEl, item, e);
+                    container.appendChild(waveEl);
+                });
+            },
+
+            handleWaveClick(element, item, event) {
+                if (this.isGameOver || element.classList.contains('discovered')) return;
+                if (item.type === 'target') {
+                    element.classList.remove('floating-wave', 'float-b'); element.classList.add('success-pop', 'discovered');
+                    this.audio.playSuccess(); this.createRipple(event, element); this.createSparkles(element);
+                    this.foundTargets++;
+                    if (this.foundTargets === this.totalTargets) this.endGame(true);
+                } else {
+                    // اشتباه: بازی متوقف نمی‌شود — کاربر آزادانه ادامه می‌دهد
+                    element.classList.add('error-shake'); this.audio.playFail(); this.mistakes++;
+                    setTimeout(() => element.classList.remove('error-shake'), 400);
+                }
+            },
+
+            createRipple(e, parent) {
+                const ripple = document.createElement('div'); ripple.className = 'ripple';
+                ripple.style.left = `50%`; ripple.style.top = `50%`; parent.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            },
+
+            createSparkles(parent) {
+                for (let i = 0; i < 6; i++) {
+                    const s = document.createElement('span'); s.className = 'sparkle';
+                    const angle = (Math.PI * 2 * i / 6) + Math.random() * 0.6;
+                    const dist = 30 + Math.random() * 26;
+                    s.style.setProperty('--dx', (Math.cos(angle) * dist) + 'px');
+                    s.style.setProperty('--dy', (Math.sin(angle) * dist) + 'px');
+                    s.style.animationDelay = (i * 0.03) + 's';
+                    parent.appendChild(s); setTimeout(() => s.remove(), 850);
+                }
+            },
+
+            /* ── استوپ (تایمر pause می‌شود) ── */
+            openStop() {
+                if (this.isGameOver) return;
+                clearInterval(this.timerInterval);
+                document.getElementById('stop-modal').classList.add('active');
+            },
+            resumeGame() {
+                this.closeAllModals();
+                if (!this.isGameOver) this.startTimer();
+            },
+            restartLevel() { this.startGame(this.level); },
+            stopToLevels() { this.openLevels(); },
+            nextLevel() { this.startGame(this.level + 1); },
+            retryLevel() { this.startGame(this.level); },
+
+            /* ── پایان بازی: مودال برد/باخت + آمار پشت‌صحنه ── */
+            endGame(isWin) {
+                this.isGameOver = true; clearInterval(this.timerInterval);
+                const duration = Math.floor((Date.now() - this.startTime) / 1000);
+                const taps = this.foundTargets + this.mistakes;
+
+                /* معیارها فقط پشت‌صحنه ثبت می‌شوند */
+                this.globalStats.totalGames++;
+                this.globalStats.totalTimePlayed += duration;
+                this.globalStats.totalCorrect += this.foundTargets;
+                this.globalStats.totalMistakes += this.mistakes;
+                this.globalStats.lastAccuracy = taps > 0 ? Math.round((this.foundTargets / taps) * 100) : 100;
+                this.globalStats.lastProgress = Math.round((this.foundTargets / this.totalTargets) * 100);
+                this.globalStats.lastDuration = duration;
+                this.globalStats.levelStats[this.level].play++;
+
+                if (isWin) {
+                    this.globalStats.totalWins++;
+                    this.globalStats.levelStats[this.level].win++; /* لوکو */ lukoCount(Object.values(this.globalStats.levelStats).filter(function (s) { return s && s.win > 0; }).length, 3);
+                    const ls = this.globalStats.levelStats[this.level];
+                    if (!ls.bestTime || duration < ls.bestTime) ls.bestTime = duration;
+
+                    /* باز کردن مرحله بعد */
+                    if (this.level < 10 && this.unlockedLevel < this.level + 1) {
+                        this.unlockedLevel = this.level + 1;
+                        LokoStore.set('lokoUnlockedLevel', this.unlockedLevel);
+                    }
+
+                    /* پاداش سکه — فقط بعد از اتمام همه ۱۰ مرحله */
+                    const reward = LokoCoins.registerWin(this.level);
+
+                    const praises = ['چشم‌های تیزبین داری! 👀✨', 'عالی بود قهرمان! 🏆', 'دیگه معلم موج‌ها شدی! 🌊', 'بی‌نظیر بود! 🌟'];
+                    document.getElementById('win-title').innerText = `هورااا! مرحله ${this.level} تموم شد!`;
+                    document.getElementById('win-desc').innerText = praises[Math.floor(Math.random() * praises.length)];
+
+                    const rewardRow = document.getElementById('coin-reward-row');
+                    if (reward > 0) {
+                        rewardRow.innerHTML = `<div class="coin-reward-pill">${COIN_IMG('coin-lg')}<div class="crp-texts"><span>+${reward} سکه لوکو!</span><small>هر ۱۰ مرحله رو کامل کردی! 🎉</small></div></div>`;
+                    } else {
+                        rewardRow.innerHTML = `<div class="coin-progress-pill">🪙 جایزه سکه: ${LokoCoins.completedLevels.length}/10 مرحله</div>`;
+                    }
+
+                    let btns = '';
+                    if (this.level < 10) btns += `<button onclick="oceanGame.nextLevel()" class="btn btn-modal">مرحله بعد 🚀</button>`;
+                    btns += `<div class="btn-row-half">
+                        <button onclick="oceanGame.stopToLevels()" class="btn btn-secondary">🎯 انتخاب مرحله</button>
+                        <button onclick="oceanGame.goHome()" class="btn btn-secondary">🏠 صفحه اصلی</button></div>`;
+                    document.getElementById('win-btns').innerHTML = btns;
+
+                    this.audio.playWinArpeggio();
+                    setTimeout(() => {
+                        document.getElementById('success-modal').classList.add('active');
+                        this.showConfetti();
+                    }, 500);
+                } else {
+                    this.audio.playFail();
+                    setTimeout(() => { document.getElementById('lose-modal').classList.add('active'); }, 450);
+                }
+                this.saveStats();
+            },
+
+            showConfetti() {
+                const m = document.querySelector('#success-modal .modal-content');
+                const colors = ['#6C5CE7', '#00D2FF', '#FF00A0', '#FFC93C', '#00FF9D'];
+                for (let i = 0; i < 12; i++) {
+                    const c = document.createElement('span'); c.className = 'confetti';
+                    c.style.left = (8 + Math.random() * 84) + '%';
+                    c.style.background = colors[i % colors.length];
+                    c.style.animationDelay = (Math.random() * 0.35) + 's';
+                    m.appendChild(c); setTimeout(() => c.remove(), 2300);
+                }
+            },
+
+            /* ── راهنما / فروشگاه ── */
+            openHelp() { document.getElementById('help-modal').classList.add('active'); },
+            closeHelp() { document.getElementById('help-modal').classList.remove('active'); },
+            openShop() { LokoCoins.render(); LokoShop.render(); document.getElementById('shop-modal').classList.add('active'); },
+            closeShop() { document.getElementById('shop-modal').classList.remove('active'); },
+
+            /* ── آمار کامل (مخفی — حفظ برای Data Pipeline) ── */
+            showFullStats() {
+                const container = document.getElementById('full-stats-list');
+                const t = this.globalStats.totalCorrect + this.globalStats.totalMistakes;
+                let html = `
+                    <div class="stats-detail-item"><span class="stats-detail-label">🎮 کل بازی‌ها:</span><span class="stats-detail-value">${this.globalStats.totalGames}</span></div>
+                    <div class="stats-detail-item"><span class="stats-detail-label">🏆 پیروزی‌ها:</span><span class="stats-detail-value">${this.globalStats.totalWins}</span></div>
+                    <div class="stats-detail-item"><span class="stats-detail-label">🎯 دقت کلی:</span><span class="stats-detail-value">${t > 0 ? Math.round((this.globalStats.totalCorrect / t) * 100) : 0}%</span></div>
+                    <div class="stats-detail-item"><span class="stats-detail-label">⏱️ زمان کل:</span><span class="stats-detail-value">${Math.floor(this.globalStats.totalTimePlayed / 60)} دقیقه ${this.globalStats.totalTimePlayed % 60} ثانیه</span></div>
+                    <div style="height:1px; background:#ddd; margin:12px 0;"></div>`;
+                for (let i = 1; i <= 10; i++) {
+                    const l = this.globalStats.levelStats[i];
+                    html += `<div class="stats-detail-item"><span class="stats-detail-label">مرحله ${i}:</span><span class="stats-detail-value">${l.play} بازی | ${l.win} برد | ${l.bestTime ? l.bestTime + ' ثانیه' : '---'}</span></div>`;
+                }
+                container.innerHTML = html;
+                document.getElementById('full-stats-modal').classList.add('active');
+            },
+            closeFullStats() { document.getElementById('full-stats-modal').classList.remove('active'); },
+            clearAllStats() {
+                if (confirm('آیا از پاک کردن همه آمار مطمئنی؟')) {
+                    this.globalStats = { totalGames: 0, totalWins: 0, totalMistakes: 0, totalCorrect: 0, totalTimePlayed: 0, levelStats: {} };
+                    for (let i = 1; i <= 10; i++) this.globalStats.levelStats[i] = { play: 0, win: 0, bestTime: null };
+                    this.saveStats();
+                }
+            },
+
+            /* ── پیام‌های چرخشی لوکی ── */
+            initSpeech() {
+                const SPEECHES = ['سلام! آماده‌ای بریم؟ 🌊', 'من لوکی‌ام! بیا «س» شکار کنیم! 🐙', 'هر ۱۰ مرحله = سکه لوکو! 🪙', 'اشتباه کردن اشکال نداره! 😄'];
+                let idx = 0;
+                setInterval(() => {
+                    const b = document.getElementById('speech-bubble'); if (!b) return;
+                    idx = (idx + 1) % SPEECHES.length;
+                    b.classList.remove('pop-anim'); void b.offsetWidth;
+                    b.textContent = SPEECHES[idx];
+                    b.classList.add('pop-anim');
+                }, 4500);
+            }
+        };
+
+        /* ── Init (Offline Persistence) ── */
+        oceanGame.loadStats();
+        LokoCoins.load();
+        LokoShop.load();
+        oceanGame.initSpeech();
+    </script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>
+/* لوکو: بازی خودش پایان را می‌گوید — نقطه‌اش در backend/apps/games/finish_points.py */
+window.LUKO_EXPLICIT_FINISH = true;
+window.lukoWin = function (reason) {
+  if (window.__lukoWon) return;
+  window.__lukoWon = true;
+  // این بازی‌ها امتیازِ خودشان را گزارش نمی‌کنند؛ بی‌این، سرور هر بُرد را «۰ ستاره»
+  // ثبت می‌کرد و مدالِ ستاره‌چین برای هیچ بچه‌ای باز نمی‌شد. بُرد = ستاره‌ی کامل
+  // (سرور به سقفِ همان مرحله می‌بُرد).
+  var extra = { source: 'game', reason: String(reason || 'win'), stars: 3 };
+  // جشنِ خودِ بازی اول دیده شود، بعد صفحه‌ی جایزه‌ی اپ رویش بیاید
+  setTimeout(function () {
+    try {
+      if (window.LUKO && typeof window.LUKO.finish === 'function') { window.LUKO.finish(extra); return; }
+    } catch (e) { /* SDK نبود یا شکست؛ پیامِ مستقیم */ }
+    try {
+      window.parent.postMessage({ type: 'luko-game-complete',
+        game: location.pathname.split('/').pop(), summary: extra }, '*');
+    } catch (e) { /* بازی نباید به‌خاطرِ پایان بشکند */ }
+  }, 1500);
+};
+window.lukoCount = function (count, need) {
+  if (Number(count) >= need) window.lukoWin('count ' + count + '/' + need);
+};
+window.lukoLevels = function (done, total, need) {
+  var count = 0;
+  try {
+    if (Array.isArray(done)) {
+      done.forEach(function (v) { if (v) count += 1; });
+    } else if (done) {
+      Object.keys(done).forEach(function (k) {
+        var n = Number(k);
+        if (done[k] && n >= 1 && n <= total) count += 1;
+      });
+    }
+  } catch (e) { return; }
+  if (count >= Math.min(total, need)) window.lukoWin('levels ' + count + '/' + total);
+};
+</script>
+<script>window.LUKO_WIN = []; window.LUKO_WIN_MAYBE = [];</script>
+<script async src="/games/assets/luko-sdk.js"></script>
+<script async src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

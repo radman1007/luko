@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="classic">
+<head>
+<!-- لوکو: کیفِ سکه‌ی مشترک (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_COINS = {seed:[{key:"fh_coins"}],get:function(){return wallet;},set:function(v){wallet=v;DB.set('coins',wallet);renderCoins();}};</script>
+<script src="/games/assets/luko-wallet.js"></script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a14">
+<title>کارخانه‌ی صداها — درس دوم: بی‌آموز</title>
+<script>
+/* جایگزین‌های امن تصویر (قبل از لود تصاویر باید تعریف شده باشند) */
+function monFallback(img){
+  if(!img.dataset.f1){
+    img.dataset.f1 = '1';
+    img.src = './icons/' + (img.dataset.start === 'h1' ? 'h2' : 'h1') + '.png';
+    return;
+  }
+  img.style.display = 'none';
+  var ph = img.parentElement ? img.parentElement.querySelector('.img-ph') : null;
+  if(ph) ph.style.display = 'block';
+}
+function coinFallback(img){
+  if(!img.dataset.f1){ img.dataset.f1 = '1'; img.src = './icon/coin.png'; return; }
+  img.style.display = 'none';
+  var s = img.nextElementSibling;
+  if(s) s.style.display = 'block';
+}
+</script>
+<style>
+/* ================= فونت‌های محلی بازی (کاملاً آفلاین) ================= */
+@font-face{font-family:"Shoor";src:url("./fonts/Shoor-Regular.ttf") format("truetype");font-weight:400;font-display:swap}
+@font-face{font-family:"Shoor";src:url("./fonts/Shoor-Medium.ttf") format("truetype");font-weight:500;font-display:swap}
+@font-face{font-family:"Shoor";src:url("./fonts/Shoor-Black.ttf") format("truetype");font-weight:900;font-display:swap}
+@font-face{font-family:"Shoor";src:url("./fonts/Shoor-ExtraBold.ttf") format("truetype");font-weight:800;font-display:swap}
+@font-face{font-family:"Shoor Rounded";src:url("./fonts/ShoorRounded-Regular.ttf") format("truetype");font-weight:400;font-display:swap}
+@font-face{font-family:"Shoor Rounded";src:url("./fonts/ShoorRounded-Medium.ttf") format("truetype");font-weight:500;font-display:swap}
+@font-face{font-family:"Shoor Rounded";src:url("./fonts/ShoorRounded-Black.ttf") format("truetype");font-weight:900;font-display:swap}
+@font-face{font-family:"Shoor Rounded";src:url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype");font-weight:800;font-display:swap}
+
+/* ================= پالت LOKO ================= */
+:root{
+  --primary:#6C5CE7; --neon-blue:#00D2FF; --neon-pink:#FF00A0; --neon-green:#00FF9D;
+  --accent:#FFEAA7; --success:#00B894; --danger:#FF7675; --dark:#1E1E2F;
+  --gold:#FFC93C; --gold-dark:#B96F00;
+  --font:'Shoor Rounded','Shoor',Tahoma,'Segoe UI',sans-serif;
+  --glass:rgba(255,255,255,.1); --glass-brd:rgba(255,255,255,.22);
+  --txt:#f5f2ff; --mut:#a89fce; --line:rgba(255,255,255,.12);
+}
+html[data-theme="classic"]{--bg0:#0c0a14;--bg1:#181225;--glow:#221a3d;--tint:#FFC93C}
+html[data-theme="sunset"]{--bg0:#190d0b;--bg1:#2b1512;--glow:#3d1f16;--tint:#FF7675}
+html[data-theme="candy"]{--bg0:#160b1c;--bg1:#26102e;--glow:#3a1650;--tint:#FF00A0}
+html[data-theme="ocean"]{--bg0:#081018;--bg1:#0d1e30;--glow:#103050;--tint:#00D2FF}
+html[data-theme="jungle"]{--bg0:#0a140c;--bg1:#122418;--glow:#1b3d22;--tint:#00FF9D}
+
+/* ================= پایه ================= */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html{font-size:16px}
+body{
+  font-family:var(--font);
+  background:linear-gradient(135deg,var(--bg0),var(--bg1)) fixed;
+  color:var(--txt); min-height:100dvh; direction:rtl; overflow-x:hidden;
+}
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1.4px);
+  background-size:24px 24px; opacity:.55;
+}
+button{font-family:var(--font);border:none;background:none;color:inherit;cursor:pointer;user-select:none}
+b,strong{font-weight:800}
+
+.app{width:100%;max-width:480px;margin:0 auto;min-height:100dvh;position:relative;padding:0 16px}
+.screen{display:none;flex-direction:column;min-height:100dvh;padding:18px 0 26px;position:relative}
+.screen.active{display:flex;animation:scrIn .38s cubic-bezier(.2,.9,.3,1.1)}
+@keyframes scrIn{from{opacity:0;transform:translateY(14px) scale(.985)} to{opacity:1;transform:none}}
+@keyframes float{0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)}}
+
+/* ================= تصاویر هیولا ================= */
+.mon-img{width:100%;display:block}
+.img-ph{line-height:0}
+.img-ph svg{width:100%;height:auto;display:block}
+
+/* ================= دکمه‌های LOKO ================= */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  min-height:54px;padding:12px 20px;border-radius:18px;
+  font-family:var(--font);font-size:1.02rem;font-weight:800;letter-spacing:.2px;
+  transition:transform .12s, box-shadow .12s, filter .15s;touch-action:manipulation;
+}
+.btn svg{width:20px;height:20px;flex:none}
+.btn-gold{
+  background:linear-gradient(180deg,#FFE68A 0%,#FFC93C 45%,#FFA800 100%);
+  color:#4a2c00;border:2px solid rgba(255,255,255,.5);
+  box-shadow:0 6px 0 var(--gold-dark),0 16px 30px rgba(0,0,0,.42),0 0 22px rgba(255,201,60,.3);
+}
+.btn-gold:active{transform:translateY(5px);box-shadow:0 1px 0 var(--gold-dark),0 6px 14px rgba(0,0,0,.3),0 0 12px rgba(255,201,60,.25)}
+.btn-glass{
+  background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--glass-brd);color:var(--txt);
+  box-shadow:0 5px 0 rgba(0,0,0,.32),0 12px 24px rgba(0,0,0,.28);
+}
+.btn-glass:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.32)}
+.btn-glass svg{color:var(--gold)}
+.btn-success{
+  background:linear-gradient(180deg,#2ef0b5,#00B894);color:#02352c;
+  border:1px solid rgba(255,255,255,.3);
+  box-shadow:0 5px 0 #00806b,0 12px 22px rgba(0,0,0,.3);
+}
+.btn-success:active{transform:translateY(3px);box-shadow:0 2px 0 #00806b}
+.btn-danger{
+  background:linear-gradient(180deg,#ff9d9c,#FF7675);color:#3d0808;
+  border:1px solid rgba(255,255,255,.3);
+  box-shadow:0 5px 0 #a94544,0 12px 22px rgba(0,0,0,.3);
+}
+.btn-danger:active{transform:translateY(3px);box-shadow:0 2px 0 #a94544}
+.btn-lg{min-height:62px;font-size:1.15rem;width:100%}
+.icon-btn{
+  width:44px;height:44px;border-radius:14px;display:grid;place-items:center;
+  background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--glass-brd);color:var(--txt);
+  box-shadow:0 4px 0 rgba(0,0,0,.3);transition:transform .12s;
+}
+.icon-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.3)}
+.icon-btn svg{width:22px;height:22px}
+
+/* ================= سیستم سکه لوکو (سایز ثابت — رفع باگ بزرگ‌نمایی) ================= */
+.coin-display{
+  display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;
+  background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,201,60,.4);
+  box-shadow:0 6px 18px rgba(0,0,0,.35),0 0 14px rgba(255,201,60,.18),inset 0 1px 0 rgba(255,255,255,.12);
+}
+.coin-ic{width:24px;height:24px;display:grid;place-items:center;flex:none}
+.coin-ic img,.coin-ic svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 6px rgba(255,201,60,.55))}
+.coin-amount{font-weight:900;color:var(--gold);font-size:1.02rem;min-width:20px;text-align:center}
+.coin-display.bump{animation:coinBump .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes coinBump{40%{transform:scale(1.14)}}
+
+/* ================= منوی اصلی ================= */
+#menuBack{position:absolute;top:14px;right:0;z-index:5}
+.corner-left{position:absolute;top:14px;left:0;z-index:5}
+.menu-head{text-align:center;margin-top:60px}
+.chip{
+  display:inline-flex;align-items:center;gap:7px;font-size:.8rem;font-weight:800;
+  color:var(--tint);background:var(--glass);border:1px solid var(--glass-brd);
+  padding:6px 13px;border-radius:999px;backdrop-filter:blur(10px);
+}
+.chip svg{width:15px;height:15px}
+.title{font-size:2.15rem;font-weight:900;margin-top:12px;line-height:1.25;text-shadow:0 4px 18px rgba(0,0,0,.5)}
+.title em{font-style:normal;color:var(--gold);text-shadow:0 4px 22px rgba(255,201,60,.4)}
+.tagline{color:var(--mut);font-size:.92rem;margin-top:6px}
+
+.speech{
+  position:relative;max-width:310px;margin:14px auto 18px;padding:12px 18px;border-radius:16px;
+  background:rgba(255,255,255,.13);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.28);box-shadow:0 10px 26px rgba(0,0,0,.38);
+  font-weight:800;font-size:.95rem;text-align:center;animation:float 3.6s ease-in-out infinite;
+}
+.speech::after{
+  content:'';position:absolute;bottom:-9px;left:50%;transform:translateX(-50%) rotate(45deg);
+  width:16px;height:16px;background:rgba(255,255,255,.13);
+  border-right:1px solid rgba(255,255,255,.28);border-bottom:1px solid rgba(255,255,255,.28);
+}
+
+.hero{position:relative;width:min(56vw,225px);margin:4px auto 2px;animation:float 3.6s ease-in-out infinite}
+.hero::before{
+  content:'';position:absolute;inset:6% 2% 14%;border-radius:50%;z-index:0;
+  background:radial-gradient(ellipse at center,rgba(108,92,231,.5),rgba(0,210,255,.14) 55%,transparent 78%);
+  filter:blur(16px);
+}
+.hero .mon-img,.hero .img-ph{width:100%;display:block;position:relative;z-index:1;filter:drop-shadow(0 14px 26px rgba(0,0,0,.45))}
+.hero::after{
+  content:'';position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);
+  width:64%;height:16px;border-radius:50%;z-index:0;
+  background:radial-gradient(ellipse at center,rgba(0,0,0,.5),transparent 70%);
+}
+.acc-item{position:absolute;left:50%;transform:translateX(-50%);z-index:2;pointer-events:none}
+.acc-item svg{width:100%;display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,.35))}
+
+.menu-actions{display:flex;flex-direction:column;gap:13px;margin-top:18px}
+#btnStart{position:relative;overflow:hidden}
+#btnStart::after{
+  content:'';position:absolute;top:0;bottom:0;width:46px;transform:skewX(-18deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+  inset-inline-start:-70px;animation:sheen 4.2s ease-in-out infinite;
+}
+@keyframes sheen{0%,62%{inset-inline-start:-70px} 88%,100%{inset-inline-start:115%}}
+.resume{
+  background:rgba(0,255,157,.06);border:1px dashed rgba(0,255,157,.45);
+  border-radius:20px;padding:14px;animation:scrIn .35s;
+}
+.resume-label{display:block;font-size:.85rem;font-weight:800;color:var(--neon-green);margin-bottom:10px;text-align:center}
+.resume-row{display:flex;gap:10px}
+.resume-row .btn{flex:1;min-height:50px;font-size:.95rem;padding:10px 8px}
+.menu-row{display:flex;gap:12px}
+.menu-row .btn{flex:1}
+.foot{text-align:center;color:var(--mut);font-size:.75rem;margin-top:auto;padding-top:22px}
+
+/* ================= سربرگ صفحات ================= */
+.page-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.page-head h2{font-size:1.25rem;font-weight:900;flex:1}
+.page-head .ph-side{width:44px;display:flex;justify-content:flex-start}
+.page-head .coin-display{padding:5px 11px}
+.page-head .coin-ic{width:20px;height:20px}
+.page-head .coin-amount{font-size:.9rem}
+
+/* ================= راهنما ================= */
+.help-hero{display:flex;align-items:center;gap:12px;margin:4px 0 18px}
+.help-hero .h-img{width:104px;flex:none;animation:float 3.6s ease-in-out infinite}
+.bubble{
+  position:relative;flex:1;background:rgba(255,255,255,.12);backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.25);
+  border-radius:16px;padding:12px 15px;font-size:.92rem;font-weight:700;
+  box-shadow:0 10px 24px rgba(0,0,0,.32);
+}
+.bubble::before{
+  content:'';position:absolute;inset-inline-start:-7px;top:42%;
+  width:14px;height:14px;background:rgba(255,255,255,.12);
+  border-inline-start:1px solid rgba(255,255,255,.25);border-bottom:1px solid rgba(255,255,255,.25);
+  transform:rotate(45deg);
+}
+.h-card{
+  display:flex;gap:14px;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--glass-brd);border-radius:20px;padding:16px;margin-bottom:12px;
+  box-shadow:0 10px 24px rgba(0,0,0,.28);
+}
+.h-ic{
+  width:46px;height:46px;flex:none;border-radius:15px;display:grid;place-items:center;
+  background:rgba(255,255,255,.08);color:var(--tint);border:1px solid var(--glass-brd);
+}
+.h-ic svg{width:23px;height:23px}
+.h-tx b{display:block;font-size:.98rem;margin-bottom:5px}
+.h-tx p{color:var(--mut);font-size:.86rem;line-height:1.85}
+.h-steps{list-style:none;margin-top:4px;counter-reset:st}
+.h-steps li{
+  counter-increment:st;position:relative;padding:4px 32px 4px 0;margin:6px 0;
+  color:var(--mut);font-size:.86rem;line-height:1.8;
+}
+.h-steps li::before{
+  content:counter(st, decimal);position:absolute;inset-inline-end:0;top:5px;
+  width:23px;height:23px;border-radius:50%;background:rgba(0,210,255,.14);
+  color:var(--neon-blue);font-size:.78rem;font-weight:800;display:grid;place-items:center;
+}
+
+/* ================= فروشگاه ================= */
+.tabs{
+  display:flex;gap:8px;background:var(--glass);backdrop-filter:blur(10px);
+  border:1px solid var(--glass-brd);border-radius:16px;padding:6px;margin-bottom:14px;
+}
+.tab{
+  flex:1;min-height:44px;border-radius:11px;font-weight:800;font-size:.95rem;
+  color:var(--mut);display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:background .2s,color .2s;
+}
+.tab svg{width:18px;height:18px}
+.tab.on{
+  background:linear-gradient(180deg,#FFE68A,#FFC93C 60%,#FFA800);color:#4a2c00;
+  box-shadow:0 4px 12px rgba(255,201,60,.4);
+}
+.shop-list{display:flex;flex-direction:column;gap:11px}
+.shop-item{
+  display:flex;align-items:center;gap:13px;background:var(--glass);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--glass-brd);border-radius:20px;padding:13px 14px;
+  box-shadow:0 8px 20px rgba(0,0,0,.26);transition:transform .15s;
+}
+.shop-item:active{transform:scale(.985)}
+.shop-item.is-active{border-color:rgba(0,255,157,.6);background:rgba(0,255,157,.07)}
+.sw{width:60px;height:60px;flex:none;border-radius:17px;display:grid;place-items:center;background:rgba(255,255,255,.07);border:1px solid var(--line);overflow:hidden}
+.sw-dots{display:flex;gap:5px}
+.sw-dots i{width:15px;height:15px;border-radius:50%;box-shadow:inset 0 -3px 5px rgba(0,0,0,.3)}
+.sw-acc{width:44px}
+.sw-acc svg{width:100%;display:block}
+.si-tx{flex:1;min-width:0}
+.si-tx b{display:block;font-size:.97rem}
+.si-tx span{display:block;color:var(--mut);font-size:.78rem;margin-top:3px}
+.buy{
+  flex:none;min-height:42px;padding:8px 13px;border-radius:13px;font-weight:800;font-size:.88rem;
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,201,60,.15);color:var(--gold);border:1px solid rgba(255,201,60,.45);
+  transition:transform .12s;
+}
+.buy:active{transform:translateY(2px)}
+.buy svg{width:17px;height:17px}
+.buy.poor{opacity:.5}
+.owned-tag{
+  flex:none;display:inline-flex;align-items:center;gap:5px;font-size:.85rem;font-weight:800;
+  color:var(--neon-green);padding:8px 12px;
+}
+.owned-tag svg{width:16px;height:16px}
+.shop-note{color:var(--mut);font-size:.78rem;text-align:center;margin-top:14px;line-height:1.9}
+
+/* ================= نوار بالای بازی ================= */
+.game-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.game-top .icon-btn.stop{color:var(--danger);border-color:rgba(255,118,117,.45)}
+.game-top .coin-display{padding:5px 11px}
+.game-top .coin-ic{width:20px;height:20px}
+.game-top .coin-amount{font-size:.9rem}
+.lights{flex:1;display:flex;justify-content:center;gap:5px}
+.lights i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid var(--line);transition:all .3s}
+.lights i.done{background:var(--success);border-color:transparent;box-shadow:0 0 8px rgba(0,184,148,.8)}
+.lights i.cur{background:var(--gold);border-color:transparent;animation:curPulse 1.2s infinite}
+@keyframes curPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,201,60,.5)} 50%{box-shadow:0 0 0 5px transparent}}
+
+/* ================= دستگاه (UI گیم‌پلی — دست‌نخورده) ================= */
+.machine{position:relative;width:min(330px,88%);margin:4px auto 8px}
+.pipe{width:28px;height:30px;margin:0 auto;background:linear-gradient(90deg,#39325e,#4b4380,#39325e);border-radius:10px 10px 0 0;border:1px solid #5a4f92;border-bottom:none;position:relative;z-index:0}
+.m-body{
+  position:relative;z-index:1;
+  background:linear-gradient(180deg,#3d3563,#272148);
+  border:1px solid #5a4f92;border-radius:24px;padding:16px 14px 12px;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.14),0 18px 34px rgba(0,0,0,.5);
+}
+.rivet{position:absolute;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.22);box-shadow:inset 0 -2px 2px rgba(0,0,0,.4)}
+.rivet.r1{top:10px;right:11px}.rivet.r2{top:10px;left:11px}
+.rivet.r3{bottom:10px;right:11px}.rivet.r4{bottom:10px;left:11px}
+.m-tag{
+  position:absolute;top:13px;inset-inline-end:28px;font-size:.7rem;font-weight:800;
+  color:rgba(255,255,255,.75);background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.14);
+  padding:4px 9px;border-radius:999px;
+}
+.lamp{position:absolute;top:14px;inset-inline-start:26px;width:15px;height:15px;border-radius:50%}
+.machine.broken .lamp{background:#ff5d5d;box-shadow:0 0 12px #ff5d5d;animation:blink .7s steps(2) infinite}
+.machine.fixed .lamp{background:var(--neon-green);box-shadow:0 0 14px var(--neon-green)}
+@keyframes blink{50%{opacity:.25}}
+.m-screen{
+  background:#0d0b1a;border:3px solid #2c2650;border-radius:16px;
+  min-height:92px;display:grid;place-items:center;padding:10px;
+  position:relative;overflow:hidden;box-shadow:inset 0 0 20px rgba(0,0,0,.65);
+  transition:border-color .4s;
+}
+.m-screen::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.025) 3px 4px);
+}
+.machine.broken .m-screen{border-color:#5b2733;animation:scrFlick 1.5s infinite}
+@keyframes scrFlick{0%,100%{box-shadow:inset 0 0 20px rgba(0,0,0,.65),inset 0 0 34px rgba(255,60,60,.12)}
+  46%{box-shadow:inset 0 0 20px rgba(0,0,0,.65),inset 0 0 46px rgba(255,60,60,.34)}
+  52%{box-shadow:inset 0 0 20px rgba(0,0,0,.65),inset 0 0 10px rgba(255,60,60,.04)}}
+.machine.fixed .m-screen{border-color:#1f5c48;box-shadow:inset 0 0 20px rgba(0,0,0,.6),inset 0 0 30px rgba(0,255,157,.14)}
+.word{font-size:2.45rem;font-weight:900;color:#f3f0ff;letter-spacing:.5px;text-shadow:0 3px 0 rgba(0,0,0,.45);z-index:1}
+.machine.broken .word{color:#ffd9d9}
+.blank{
+  display:inline-grid;place-items:center;min-width:56px;height:60px;margin:0 5px;
+  border:3px dashed #8b83c4;border-radius:14px;color:#b0a9e0;font-size:1.9rem;
+  vertical-align:-6px;transition:all .25s;background:rgba(255,255,255,.04);
+}
+.blank.filled{border:3px solid var(--neon-green);color:var(--neon-green);animation:pop .4s cubic-bezier(.3,1.6,.5,1)}
+.blank.flash{border-color:var(--danger);color:var(--danger);animation:shakeX .45s}
+@keyframes pop{0%{transform:scale(.4)} 100%{transform:scale(1)}}
+@keyframes shakeX{0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 50%{transform:translateX(7px)} 75%{transform:translateX(-4px)}}
+.m-gears{display:flex;justify-content:center;align-items:flex-end;gap:30px;padding:12px 0 3px}
+.m-gears span{display:block;line-height:0}
+.m-gears svg{display:block}
+.machine.broken .g1{animation:jerk 1.15s infinite}
+.machine.broken .g2{animation:jerk 1.15s infinite reverse}
+.machine.fixed .g1{animation:spin 3.4s linear infinite}
+.machine.fixed .g2{animation:spin 2.5s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes jerk{0%,100%{transform:rotate(-9deg)} 50%{transform:rotate(13deg)}}
+.smoke{position:absolute;top:-26px;left:50%;transform:translateX(-50%);width:60px;height:34px;pointer-events:none}
+.smoke i{position:absolute;bottom:0;width:13px;height:13px;border-radius:50%;background:rgba(200,205,225,.4);opacity:0;left:12px}
+.machine.broken .smoke i{animation:rise 1.9s infinite}
+.machine.broken .smoke i:nth-child(2){animation-delay:.6s;left:26px}
+.machine.broken .smoke i:nth-child(3){animation-delay:1.2s;left:4px}
+@keyframes rise{0%{transform:translateY(6px) scale(.5);opacity:0} 25%{opacity:.75} 100%{transform:translateY(-26px) scale(1.5);opacity:0}}
+
+/* ================= مراحل و کارت‌ها ================= */
+.steps{display:flex;gap:7px;justify-content:center;margin:4px 0 12px}
+.steps span{
+  display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:800;
+  color:var(--mut);background:var(--glass);border:1px solid var(--glass-brd);
+  border-radius:999px;padding:5px 10px;transition:all .3s;opacity:.55;
+}
+.steps span svg{width:13px;height:13px}
+.steps span.on{opacity:1;color:var(--tint);border-color:currentColor}
+.steps span.ok{opacity:1;color:var(--neon-green);border-color:currentColor}
+.stage-card{
+  display:flex;align-items:center;gap:12px;background:var(--glass);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--glass-brd);border-radius:20px;padding:14px;margin:6px 0 12px;
+  box-shadow:0 12px 26px rgba(0,0,0,.3);animation:scrIn .3s;
+}
+.sc-ic{width:44px;height:44px;flex:none;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.08);color:var(--tint);border:1px solid var(--glass-brd)}
+.sc-ic svg{width:22px;height:22px}
+.sc-tx{flex:1}
+.sc-tx b{display:block;font-size:.95rem;margin-bottom:3px}
+.sc-tx span{color:var(--mut);font-size:.8rem;line-height:1.75;display:block}
+.sc-tx .prompt{color:var(--txt);font-size:.95rem;font-weight:800;line-height:1.9}
+.spk{
+  width:62px;height:62px;flex:none;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(180deg,#2ef0b5,#00B894);color:#02352c;
+  box-shadow:0 5px 0 #00806b,0 14px 24px rgba(0,0,0,.35);
+  transition:transform .12s;animation:spkPulse 2.2s infinite;
+}
+@keyframes spkPulse{0%,100%{box-shadow:0 5px 0 #00806b,0 0 0 0 rgba(0,184,148,.45)} 55%{box-shadow:0 5px 0 #00806b,0 0 0 12px transparent}}
+.spk:active{transform:translateY(4px)}
+.spk svg{width:28px;height:28px}
+.spk:disabled{filter:grayscale(.6);animation:none;opacity:.6}
+
+/* ================= بلوک‌های قطعه (رنگ‌ها عملکردی — دست‌نخورده) ================= */
+.blocks-title{text-align:center;color:var(--mut);font-size:.8rem;font-weight:700;margin:10px 0 9px}
+.blocks{display:flex;flex-wrap:wrap;justify-content:center;gap:11px}
+.block{
+  min-width:73px;height:73px;padding:6px 10px;border-radius:19px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--bc) 62%,#fff) 0%,var(--bc) 70%);
+  color:#201505;font-size:1.55rem;font-weight:900;
+  box-shadow:0 6px 0 rgba(0,0,0,.4),inset 0 2px 0 rgba(255,255,255,.35),0 14px 22px rgba(0,0,0,.3);
+  transition:transform .12s,box-shadow .12s;animation:blkIn .4s cubic-bezier(.3,1.5,.5,1) backwards;
+  touch-action:manipulation;
+}
+@keyframes blkIn{from{opacity:0;transform:translateY(16px) scale(.7)}}
+.block:active{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.4),inset 0 2px 0 rgba(255,255,255,.35)}
+.block.is-ok{animation:okPop .55s cubic-bezier(.3,1.7,.5,1);box-shadow:0 6px 0 rgba(0,0,0,.4),0 0 0 4px rgba(0,255,157,.75)}
+@keyframes okPop{0%{transform:scale(1)} 45%{transform:scale(1.22)} 100%{transform:scale(1)}}
+.block.is-bad{animation:blkBad .5s}
+@keyframes blkBad{0%,100%{transform:translateX(0)} 20%{transform:translateX(-9px) rotate(-3deg)} 45%{transform:translateX(9px) rotate(3deg)} 70%{transform:translateX(-5px)}}
+
+/* ================= کانفتی ================= */
+.cf-zone{position:relative}
+.cf{position:absolute;top:-6px;border-radius:3px;pointer-events:none;z-index:9;animation:cfFall forwards cubic-bezier(.3,.6,.6,1)}
+@keyframes cfFall{to{transform:translateY(150px) rotate(560deg);opacity:0}}
+
+/* ================= کات‌سین ================= */
+.cine{
+  position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;gap:18px;padding:26px;
+  background:rgba(12,10,20,.82);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);animation:scrIn .3s;
+}
+.cine-bubble{
+  max-width:420px;min-height:96px;background:rgba(255,255,255,.12);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:18px 20px;
+  font-size:1.02rem;font-weight:700;line-height:2;text-align:center;
+  box-shadow:0 18px 40px rgba(0,0,0,.45);
+}
+.cine-stage{display:flex;align-items:flex-end;gap:44px}
+.cine-char{width:108px;transition:all .3s;opacity:.42;filter:grayscale(.5);transform:translateY(6px)}
+.cine-char.on{opacity:1;filter:none;transform:translateY(0) scale(1.06)}
+.cine-char svg{width:100%;display:block}
+.cine-name{display:block;text-align:center;font-size:.75rem;font-weight:800;color:var(--mut);margin-top:6px}
+.cine-dots{display:flex;gap:7px}
+.cine-dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid var(--line)}
+.cine-dots i.on{background:var(--gold);border-color:transparent}
+#cineNext{min-width:220px}
+
+/* ================= صفحه‌ی پایان (LOKO) ================= */
+.win-card{
+  margin:auto 0;text-align:center;position:relative;overflow:hidden;animation:scrIn .45s;
+  background:rgba(255,255,255,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--glass-brd);border-radius:24px;padding:26px 20px;
+  box-shadow:0 24px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12);
+}
+.win-mon{width:118px;margin:0 auto 6px;position:relative;animation:float 3.6s ease-in-out infinite}
+.win-mon::before{
+  content:'';position:absolute;inset:4% 0 12%;border-radius:50%;z-index:0;
+  background:radial-gradient(ellipse at center,rgba(108,92,231,.55),rgba(0,210,255,.15) 55%,transparent 78%);
+  filter:blur(14px);
+}
+.win-mon .mon-img,.win-mon .img-ph{width:100%;display:block;position:relative;z-index:1;filter:drop-shadow(0 10px 20px rgba(0,0,0,.45))}
+.win-card h2{font-size:1.6rem;font-weight:900;margin-bottom:4px}
+.win-stars{display:flex;justify-content:center;gap:10px;margin:8px 0 6px}
+.win-stars .star{width:46px;height:46px;opacity:0;transform:scale(.3) rotate(-20deg);animation:starPop .5s cubic-bezier(.3,1.6,.5,1) forwards}
+.win-stars .star svg{width:100%;height:100%}
+.win-stars .star.lit svg path{fill:var(--gold);stroke:var(--gold-dark);filter:drop-shadow(0 0 9px rgba(255,201,60,.75))}
+.win-stars .star:not(.lit) svg path{fill:#2b2545;stroke:#3d3563}
+@keyframes starPop{to{opacity:1;transform:scale(1) rotate(0)}}
+.win-info{color:var(--mut);font-size:.9rem;line-height:2;margin-bottom:12px}
+/* قرارداد پاداش — سایز ثابت و خوانا */
+.reward-pill{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(255,201,60,.12);border:1.5px dashed rgba(255,201,60,.5);
+  border-radius:999px;padding:10px 20px;margin:2px 0 18px;
+}
+.reward-pill .coin-ic{width:30px;height:30px}
+.reward-pill b{font-size:1.6rem;font-weight:900;color:var(--gold);line-height:1}
+.reward-label{color:var(--txt);font-size:.9rem;font-weight:800}
+.win-row{display:flex;gap:11px}
+.win-row .btn{flex:1}
+
+/* ================= مودال و توست ================= */
+.overlay{
+  position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:24px;
+  background:rgba(12,10,20,.78);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);animation:scrIn .25s;
+}
+.modal{
+  width:min(360px,100%);border-radius:24px;padding:24px 20px;text-align:center;
+  background:linear-gradient(180deg,rgba(42,37,72,.96),rgba(26,22,48,.96));
+  border:1px solid var(--glass-brd);box-shadow:0 26px 60px rgba(0,0,0,.55);animation:scrIn .3s;
+}
+.modal .m-ic{width:58px;height:58px;margin:0 auto 12px;border-radius:18px;display:grid;place-items:center;background:rgba(0,255,157,.12);color:var(--neon-green)}
+.modal .m-ic svg{width:27px;height:27px}
+.modal h3{font-size:1.1rem;font-weight:900;margin-bottom:7px}
+.modal p{color:var(--mut);font-size:.87rem;line-height:1.95;margin-bottom:18px}
+.modal-row{display:flex;gap:10px}
+.modal-row .btn{flex:1;min-height:48px;font-size:.92rem;padding:10px}
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translate(-50%,90px);
+  z-index:90;max-width:min(420px,88vw);
+  background:rgba(30,30,47,.96);color:var(--txt);border:1px solid var(--line);
+  border-radius:16px;padding:12px 18px;font-size:.88rem;font-weight:700;line-height:1.9;
+  box-shadow:0 16px 38px rgba(0,0,0,.5);text-align:center;
+  transition:transform .35s cubic-bezier(.3,1.3,.5,1);pointer-events:none;
+}
+#toast.show{transform:translate(-50%,0)}
+
+@media (min-width:600px){
+  .word{font-size:2.9rem}
+  .title{font-size:2.5rem}
+}
+</style>
+<style>/* لوکو: رفعِ باگ (apps/games/game_fixes.py) */
+.h-steps li::before { inset-inline-end: auto !important; inset-inline-start: 0 !important; content: counter(st, persian) !important; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= منوی اصلی (ساختار LOKO) ================= -->
+  <section id="scr-menu" class="screen active">
+    <button class="icon-btn" id="menuBack" aria-label="بازگشت / خروج"><span data-icon="back"></span></button>
+    <div class="coin-display corner-left"><span data-coin></span><span class="coin-amount" data-coin-n></span></div>
+
+    <div class="menu-head">
+      <span class="chip"><span data-icon="book"></span> درس دوم • بی‌آموز</span>
+      <h1 class="title">کارخانه‌ی <em>صداها</em></h1>
+      <p class="tagline">مأموریت هیولای کوچولو: تعمیر دستگاه‌های صدا!</p>
+    </div>
+
+    <!-- حباب گفتگو (بالای کاراکتر) -->
+    <div class="speech">سلام! آماده‌ای دستگاه‌ها رو تعمیر کنیم؟</div>
+
+    <!-- کاراکتر هیولا: h1.png -->
+    <div class="hero cf-zone" id="menuHero">
+      <img class="mon-img" src="./icons/h1.png" data-start="h1" alt="کاراکتر اصلی بازی" onerror="monFallback(this)">
+      <div class="img-ph" style="display:none" data-monster></div>
+      <div id="menuAcc"></div>
+    </div>
+
+    <div class="menu-actions">
+      <button class="btn btn-gold btn-lg" id="btnStart"><span data-icon="play"></span> شروع بازی</button>
+      <div class="resume" id="resumeBox" hidden>
+        <span class="resume-label">یک تعمیر نیمه‌کاره داری!</span>
+        <div class="resume-row">
+          <button class="btn btn-gold" id="btnContinue"><span data-icon="continue"></span> ادامه‌ی بازی</button>
+          <button class="btn btn-glass" id="btnRestart"><span data-icon="restart"></span> شروع مجدد</button>
+        </div>
+      </div>
+      <div class="menu-row">
+        <button class="btn btn-glass" id="btnShop"><span data-icon="shop"></span> فروشگاه</button>
+        <button class="btn btn-glass" id="btnHelp"><span data-icon="help"></span> راهنما</button>
+      </div>
+    </div>
+
+    <p class="foot">نسخه ۲٫۰ — کاملاً آفلاین، بدون نیاز به اینترنت</p>
+  </section>
+
+  <!-- ================= راهنما ================= -->
+  <section id="scr-help" class="screen">
+    <header class="page-head">
+      <button class="icon-btn" data-nav="scr-menu" aria-label="بازگشت"><span data-icon="back"></span></button>
+      <h2>راهنمای بازی</h2>
+      <span class="ph-side"></span>
+    </header>
+
+    <div class="help-hero">
+      <div class="h-img">
+        <!-- هیولای راهنما: h2.png -->
+        <img class="mon-img" src="./icons/h2.png" data-start="h2" alt="هیولای راهنما" onerror="monFallback(this)">
+        <div class="img-ph" style="display:none" data-monster></div>
+      </div>
+      <div class="bubble">سلام! من هیولای کارخانه‌ام. با هم همه‌ی دستگاه‌ها رو تعمیر می‌کنیم!</div>
+    </div>
+
+    <div class="h-card">
+      <div class="h-ic"><span data-icon="play"></span></div>
+      <div class="h-tx">
+        <b>قدم‌به‌قدم بازی کن</b>
+        <ol class="h-steps">
+          <li>کلمه روی نمایشگر دستگاه رو با دقت نگاه کن و خودت بلند بخون.</li>
+          <li>دکمه‌ی «خودم خواندم» رو بزن تا بلندگوی دستگاه، کلمه رو برات بخونه.</li>
+          <li>خوب گوش کن و تشخیص بده کدوم صدا یا حرف توی اون کلمه پنهانه.</li>
+          <li>قطعه‌ی درست رو بزن تا دستگاه با صدای درست تعمیر بشه!</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="h-card">
+      <div class="h-ic"><span data-icon="coin2"></span></div>
+      <div class="h-tx">
+        <b>سکه لوکو جمع کن</b>
+        <p>هر بار که همه‌ی ۱۰ دستگاه رو تعمیر کنی، سکه لوکو می‌گیری: اگه بازی رو با ۰ سکه شروع کرده باشی <b>۱۰ سکه</b> و اگه سکه داشتی <b>۱ سکه</b> می‌گیری. سکه‌هات همیشه گوشه‌ی صفحه‌ی اصلی دیده می‌شه.</p>
+      </div>
+    </div>
+
+    <div class="h-card">
+      <div class="h-ic"><span data-icon="shop"></span></div>
+      <div class="h-tx">
+        <b>فروشگاه</b>
+        <p>با سکه‌هات پوسته‌ی رنگی کارخانه بخر، یا به هیولا کلاه ایمنی و عینک بزن! هر چیزی که بخری همیشه مال خودت می‌مونه و می‌تونی هر وقت خواستی فعالش کنی.</p>
+      </div>
+    </div>
+
+    <div class="h-card">
+      <div class="h-ic"><span data-icon="stop"></span></div>
+      <div class="h-tx">
+        <b>استراحت لازم داری؟</b>
+        <p>دکمه‌ی قرمز توقف، بازی رو می‌بره به منوی اصلی. نگران نباش! بعداً با دکمه‌ی «ادامه‌ی بازی» از همون دستگاهی که بودی برمی‌گردی.</p>
+      </div>
+    </div>
+
+    <div class="h-card">
+      <div class="h-ic"><span data-icon="wrench"></span></div>
+      <div class="h-tx">
+        <b>مأموریت تو</b>
+        <p>مدیر الفبا منتظره! ۱۰ دستگاه صدا رو تعمیر کن تا کارخانه دوباره راه بیفته و صداهای «آ»، «او»، «ای» و دوستانش برگردن.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= فروشگاه ================= -->
+  <section id="scr-shop" class="screen">
+    <header class="page-head">
+      <button class="icon-btn" data-nav="scr-menu" aria-label="بازگشت"><span data-icon="back"></span></button>
+      <h2>فروشگاه</h2>
+      <span class="ph-side"><span class="coin-display"><span data-coin></span><span class="coin-amount" data-coin-n></span></span></span>
+    </header>
+
+    <div class="tabs" role="tablist">
+      <button class="tab on" id="tabTheme" role="tab"><span data-icon="palette"></span> پوسته‌ها</button>
+      <button class="tab" id="tabAcc" role="tab"><span data-icon="shirt"></span> شخصی‌سازی</button>
+    </div>
+
+    <div class="shop-list" id="shopList"></div>
+    <p class="shop-note">بازی رو کامل کن، سکه لوکو بگیر و کارخونه‌ت رو شخصی‌سازی کن!<br>هر تکمیلِ کامل با ۰ سکه = ۱۰ سکه لوکو.</p>
+  </section>
+
+  <!-- ================= بازی ================= -->
+  <section id="scr-game" class="screen">
+    <div class="game-top">
+      <button class="icon-btn stop" id="btnStop" aria-label="توقف بازی"><span data-icon="stop"></span></button>
+      <div class="lights" id="lights"></div>
+      <span class="coin-display"><span data-coin></span><span class="coin-amount" data-coin-n></span></span>
+    </div>
+
+    <div class="machine broken cf-zone" id="machine">
+      <div class="smoke"><i></i><i></i><i></i></div>
+      <div class="pipe"></div>
+      <div class="m-body">
+        <span class="rivet r1"></span><span class="rivet r2"></span>
+        <span class="rivet r3"></span><span class="rivet r4"></span>
+        <span class="lamp"></span>
+        <span class="m-tag" id="devTag"></span>
+        <div class="m-screen"><div class="word" id="wordBox"></div></div>
+        <div class="m-gears"><span class="g1" id="gear1"></span><span class="g2" id="gear2"></span></div>
+      </div>
+    </div>
+
+    <div class="steps" id="steps">
+      <span id="st1"><span data-icon="book"></span> خواندن</span>
+      <span id="st2"><span data-icon="speaker"></span> گوش دادن</span>
+      <span id="st3"><span data-icon="wrench"></span> قطعه‌ی درست</span>
+    </div>
+
+    <div class="stage-card" id="readCard">
+      <div class="sc-ic"><span data-icon="book"></span></div>
+      <div class="sc-tx"><b>قدم اول — خودت بخون!</b><span>کلمه روی دستگاه رو بلند بخون، بعد دکمه رو بزن.</span></div>
+      <button class="btn btn-success" id="btnRead" data-silent style="min-height:46px;padding:10px 14px;font-size:.9rem"><span data-icon="check"></span>خودم خواندم</button>
+    </div>
+
+    <div class="stage-card" id="listenRow" hidden>
+      <button class="spk" id="btnSpeak" data-silent aria-label="تکرار صدا"><span data-icon="speaker"></span></button>
+      <div class="sc-tx"><b>گوش کن!</b><span class="prompt" id="promptTx"></span></div>
+    </div>
+
+    <p class="blocks-title" id="blocksTitle" hidden>— قطعه‌های یدکی: یکیش رو بزن —</p>
+    <div class="blocks" id="blocks" hidden></div>
+
+    <button class="btn btn-gold btn-lg" id="btnNext" hidden style="margin-top:16px"><span data-icon="wrench"></span> دستگاه بعدی</button>
+
+    <!-- کات‌سین شروع -->
+    <div class="cine" id="cine" hidden>
+      <div class="cine-bubble" id="cineText"></div>
+      <div class="cine-stage">
+        <div class="cine-char" id="cineBoss"><span id="cineBossSvg"></span><span class="cine-name">مدیر الفبا</span></div>
+        <div class="cine-char" id="cineMon"><span id="cineMonSvg"></span><span class="cine-name">هیولا</span></div>
+      </div>
+      <div class="cine-dots" id="cineDots"></div>
+      <button class="btn btn-gold" id="cineNext"><span data-icon="play"></span> بزن بریم!</button>
+    </div>
+  </section>
+
+  <!-- ================= صفحه‌ی پایان (ساختار LOKO) ================= -->
+  <section id="scr-win" class="screen">
+    <div class="win-card cf-zone" id="winZone">
+      <!-- هیولا: h2.png -->
+      <div class="win-mon">
+        <img class="mon-img" src="./icons/h2.png" data-start="h2" alt="هیولا" onerror="monFallback(this)">
+        <div class="img-ph" style="display:none" data-monster></div>
+      </div>
+      <h2>کارخانه راه افتاد!</h2>
+      <div class="win-stars" id="winStars"></div>
+      <p class="win-info">هر ۱۰ دستگاه با صداهای درست تعمیر شد و صدای «آ»، «او»، «ای»<br>و دوستانشون به کارخانه برگشت!</p>
+      <div class="reward-pill">
+        <span data-coin></span>
+        <b id="winCoins">+۱۰</b>
+        <span class="reward-label">سکه لوکو گرفتی!</span>
+      </div>
+      <div class="win-row">
+        <button class="btn btn-gold" id="winAgain"><span data-icon="restart"></span> بازی از اول</button>
+        <button class="btn btn-glass" id="winMenu"><span data-icon="home"></span> منوی اصلی</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- مودال خروج -->
+<div class="overlay" id="exitModal" hidden>
+  <div class="modal">
+    <div class="m-ic"><span data-icon="home"></span></div>
+    <h3>می‌خوای از بازی بری بیرون؟</h3>
+    <p>تو الان توی صفحه‌ی اصلی هستی. اگه بازی نیمه‌کاره داشته باشی، دفعه‌ی بعد از همون‌جا ادامه می‌دی.</p>
+    <div class="modal-row">
+      <button class="btn btn-glass" id="exitStay">نه، می‌مونم</button>
+      <button class="btn btn-danger" id="exitYes"><span data-icon="back"></span> خروج</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status"></div>
+
+<script>
+'use strict';
+/* ================= ابزارهای کوچک ================= */
+const $  = (s, c=document) => c.querySelector(s);
+const $$ = (s, c=document) => [...c.querySelectorAll(s)];
+const fa = n => Number(n).toLocaleString('fa-IR');
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const vibrate = p => { try{ navigator.vibrate && navigator.vibrate(p); }catch(e){} };
+
+/* ================= ذخیره‌سازی محلی (Offline Cache) ================= */
+const DB = {
+  get(k, d){ try{ const v = localStorage.getItem('fh_'+k); return v==null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem('fh_'+k, JSON.stringify(v)); }catch(e){} }
+};
+let wallet = DB.get('coins', 0);   // شروع با ۰ سکه = مسیر پاداش ۱۰ سکه‌ای LOKO
+let owned  = DB.get('owned', []);
+let curTheme = DB.get('theme', 'classic');
+let curAcc   = DB.get('acc', null);
+let S = DB.get('state', {qi:0, won:false});   // وضعیت «ادامه‌ی بازی»
+
+/* ================= معیارهای سنجش داخلی (پنهان از کاربر — همیشه فعال) ================= */
+const M = {
+  sessionStart: new Date().toISOString(),
+  items: [], correct: 0, wrong: 0, answered: 0, solved: 0
+};
+function track(ok, ms){
+  const q = QUESTIONS[G.qi];
+  M.items.push({ q: G.qi, word: q.word, ok, ms, attempt: G.attempt, t: Date.now() });
+  M.answered++; ok ? M.correct++ : M.wrong++;
+  persistStats();
+}
+function persistStats(){
+  DB.set('stats', {
+    sessionStart: M.sessionStart,
+    answered: M.answered, correct: M.correct, wrong: M.wrong,
+    progress: Math.round(M.answered / QUESTIONS.length * 100),
+    items: M.items.slice(-80)
+  });
+}
+function mReset(){ M.items=[]; M.correct=0; M.wrong=0; M.answered=0; M.solved=0; }
+/* فقط برای تحلیل داخلی — در هیچ بخشی از UI نمایش داده نمی‌شود */
+window.__metrics = M;
+window.__dumpMetrics = () => console.table(M.items);
+
+/* ================= لایه‌ی همگام‌سازی آفلاین (Fetch + Timeout + صف) ================= */
+const NET = {
+  endpoint: DB.get('endpoint', null),   // آدرس سرور؛ خالی = حالت آفلاین کامل
+  queue: DB.get('pendingSync', [])
+};
+function fetchWithTimeout(url, opts = {}, ms = 6000){
+  return new Promise((resolve, reject) => {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => { ctl.abort(); reject(new Error('timeout')); }, ms);
+    fetch(url, Object.assign({}, opts, { signal: ctl.signal }))
+      .then(r => { clearTimeout(timer); resolve(r); })
+      .catch(e => { clearTimeout(timer); reject(e); });
+  });
+}
+function collectPayload(){
+  return {
+    coins: wallet, owned, theme: curTheme, acc: curAcc,
+    progress: S, stats: DB.get('stats', {}),
+    pending: NET.queue, updatedAt: new Date().toISOString()
+  };
+}
+async function syncData(){
+  if(!NET.endpoint || !navigator.onLine) return;   // بدون سرور: بازی ادامه می‌یابد
+  try{
+    await fetchWithTimeout(NET.endpoint, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(collectPayload())
+    });
+    NET.queue = []; DB.set('pendingSync', []);
+  }catch(e){
+    NET.queue.push(collectPayload());
+    NET.queue = NET.queue.slice(-10);
+    DB.set('pendingSync', NET.queue);   // داده‌ی آفلاین گم نمی‌شود
+  }
+}
+/* ادغام امن: داده‌ی محلی هرگز با داده‌ی سرور نابود نمی‌شود (Merge، نه جایگزینی) */
+function mergeServerUser(serverUser){
+  if(!serverUser || typeof serverUser !== 'object') return;
+  if(typeof serverUser.coins === 'number') wallet = Math.max(wallet, serverUser.coins);
+  if(Array.isArray(serverUser.owned)) serverUser.owned.forEach(id => { if(!owned.includes(id)) owned.push(id); });
+  DB.set('coins', wallet); DB.set('owned', owned); renderCoins();
+}
+window.addEventListener('online', syncData);
+setInterval(syncData, 30000);
+setTimeout(syncData, 1500);
+
+/* ================= آیکون‌های SVG داخلی ================= */
+const ICONS = {
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5l7 7-7 7"/></svg>',
+  stop:'<svg viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5" fill="currentColor"/></svg>',
+  play:'<svg viewBox="0 0 24 24"><path d="M8.5 5.5v13l11-6.5z" fill="currentColor"/></svg>',
+  speaker:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L13 19V5L7.5 9.5H4z" fill="currentColor"/><path d="M16.3 9.2a4 4 0 0 1 0 5.6"/><path d="M18.8 6.9a7.4 7.4 0 0 1 0 10.2"/></svg>',
+  shop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1.1 12H7.1L6 8z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg>',
+  help:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.6 2.3c-.8.4-1.2 1-1.2 1.9v.4"/><circle cx="12" cy="17" r="1.15" fill="currentColor" stroke="none"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6.5 9.5V20h11V9.5"/></svg>',
+  restart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 3.5V7.3h-3.8"/></svg>',
+  continue:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z" fill="currentColor" stroke="none"/></svg>',
+  wrench:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4.2 4.2 0 0 0-5.8 5L4 16.2 7.8 20l4.9-4.9a4.2 4.2 0 0 0 5-5.8l-2.9 2.9-2.6-.5-.5-2.6z"/></svg>',
+  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>',
+  palette:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 1.5-2s0-2 1.5-2h2a4 4 0 0 0 4-4c0-5.5-4-10-9-10z"/><circle cx="7.5" cy="11" r="1.2" fill="currentColor" stroke="none"/><circle cx="11" cy="7.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/></svg>',
+  shirt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l4 2 4-2 4.5 3.5L18 11v9H6v-9L3.5 7.5z"/><path d="M8 4a4 3.4 0 0 0 8 0"/></svg>',
+  coin2:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M9.5 9.2c0-1.2 1.1-2 2.5-2s2.5.8 2.5 2-1 1.7-2.5 2-2.5.9-2.5 2 1.1 2 2.5 2 2.5-.8 2.5-2"/></svg>'
+};
+const COIN_SVG = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#FFC93C"/><circle cx="12" cy="12" r="10" fill="none" stroke="#B96F00" stroke-width="1.6"/><circle cx="12" cy="12" r="6.9" fill="none" stroke="#B96F00" stroke-width="1.3" opacity=".65"/><path d="M12 7.2l1.25 2.7 2.9.35-2.15 2 .6 2.9L12 13.7l-2.6 1.45.6-2.9-2.15-2 2.9-.35z" fill="#B96F00"/></svg>';
+const STAR_SVG = '<svg viewBox="0 0 24 24"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.5l-5.8 3.05 1.1-6.5-4.7-4.6 6.5-.95z" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+
+function fillIcons(scope){
+  $$('[data-icon]', scope).forEach(el => { const n = el.dataset.icon; if(ICONS[n]) el.innerHTML = ICONS[n]; });
+  /* سکه لوکو: ./icons/coin.png → ./icon/coin.png → SVG داخلی */
+  $$('[data-coin]', scope).forEach(el => {
+    el.classList.add('coin-ic');
+    el.innerHTML = '<img class="coin-icon-img" src="./icons/coin.png" alt="" onerror="coinFallback(this)">'
+                 + '<span style="display:none;line-height:0">'+COIN_SVG+'</span>';
+  });
+}
+
+/* ================= هیولای داخلی (فقط وقتی h1.png و h2.png موجود نباشند) ================= */
+function monsterSVG(){
+  return '<svg viewBox="0 0 220 230" xmlns="http://www.w3.org/2000/svg">'
+    + '<path d="M80 58 C70 34 78 20 94 15 C89 32 93 44 100 53 Z" fill="#3d8b3d"/>'
+    + '<path d="M140 58 C150 34 142 20 126 15 C131 32 127 44 120 53 Z" fill="#3d8b3d"/>'
+    + '<ellipse cx="88" cy="200" rx="17" ry="10" fill="#3d8b3d"/>'
+    + '<ellipse cx="132" cy="200" rx="17" ry="10" fill="#3d8b3d"/>'
+    + '<ellipse cx="36" cy="128" rx="15" ry="20" fill="#4aa84a" transform="rotate(-24 36 128)"/>'
+    + '<ellipse cx="184" cy="128" rx="15" ry="20" fill="#4aa84a" transform="rotate(24 184 128)"/>'
+    + '<ellipse cx="110" cy="132" rx="66" ry="62" fill="#58b858"/>'
+    + '<ellipse cx="110" cy="152" rx="38" ry="31" fill="#7ed47e"/>'
+    + '<circle cx="68" cy="100" r="7" fill="#3d8b3d" opacity=".5"/>'
+    + '<circle cx="154" cy="94" r="5" fill="#3d8b3d" opacity=".5"/>'
+    + '<circle cx="88" cy="104" r="17" fill="#fff"/><circle cx="132" cy="104" r="17" fill="#fff"/>'
+    + '<circle cx="88" cy="106" r="7.5" fill="#22283a"/><circle cx="132" cy="106" r="7.5" fill="#22283a"/>'
+    + '<circle cx="91" cy="103" r="2.6" fill="#fff"/><circle cx="135" cy="103" r="2.6" fill="#fff"/>'
+    + '<path d="M85 128 Q110 154 135 128 Z" fill="#5b2a3a"/>'
+    + '<rect x="96" y="126" width="10" height="11" rx="2.5" fill="#fff"/>'
+    + '<rect x="114" y="126" width="10" height="11" rx="2.5" fill="#fff"/>'
+    + '<ellipse cx="110" cy="147" rx="12" ry="6" fill="#ff7b8e"/>'
+    + '</svg>';
+}
+/* مدیر الفبا */
+const BOSS_SVG = '<svg viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">'
+  + '<rect x="50" y="6" width="40" height="28" rx="7" fill="#2f3a56"/>'
+  + '<rect x="42" y="32" width="56" height="9" rx="4.5" fill="#242d45"/>'
+  + '<ellipse cx="40" cy="88" rx="10" ry="15" fill="#2aa78d"/>'
+  + '<ellipse cx="100" cy="88" rx="10" ry="15" fill="#2aa78d"/>'
+  + '<rect x="46" y="40" width="48" height="94" rx="22" fill="#3ecfb2"/>'
+  + '<path d="M53 62q7-5 14-1M87 62q-7-5-14-1" stroke="#0f6e59" stroke-width="3" stroke-linecap="round" fill="none"/>'
+  + '<circle cx="61" cy="74" r="9" fill="#fff"/><circle cx="79" cy="74" r="9" fill="#fff"/>'
+  + '<circle cx="61" cy="76" r="4.2" fill="#1c2233"/><circle cx="79" cy="76" r="4.2" fill="#1c2233"/>'
+  + '<path d="M62 95h16" stroke="#0f6e59" stroke-width="4" stroke-linecap="round"/>'
+  + '<path d="M70 120l-11 13h22z" fill="#FF7675"/><circle cx="70" cy="122" r="5.5" fill="#a94544"/>'
+  + '</svg>';
+ $$('[data-monster]').forEach(el => el.innerHTML = monsterSVG());
+
+/* ================= چرخ‌دنده‌ی SVG ================= */
+function gearSVG(r, teeth, color){
+  const cx=r, cy=r, ir=r*.6, or_=r*.94, pts=[];
+  for(let i=0;i<teeth;i++){
+    const a = i*2*Math.PI/teeth, w = 2*Math.PI/teeth;
+    pts.push([cx+ir*Math.cos(a),        cy+ir*Math.sin(a)]);
+    pts.push([cx+or_*Math.cos(a+w*.22), cy+or_*Math.sin(a+w*.22)]);
+    pts.push([cx+or_*Math.cos(a+w*.62), cy+or_*Math.sin(a+w*.62)]);
+    pts.push([cx+ir*Math.cos(a+w*.84),  cy+ir*Math.sin(a+w*.84)]);
+  }
+  return '<svg width="'+r*2+'" height="'+r*2+'" viewBox="0 0 '+r*2+' '+r*2+'">'
+    + '<polygon points="'+pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')+'" fill="'+color+'"/>'
+    + '<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*.32)+'" fill="#221a3d"/></svg>';
+}
+ $('#gear1').innerHTML = gearSVG(23, 9, '#7a6fc0');
+ $('#gear2').innerHTML = gearSVG(15, 8, '#5a4f92');
+
+/* ================= افکت‌های صوتی (وب‌آدیو — آفلاین) ================= */
+let AC = null;
+function ac(){
+  if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+  if(AC.state === 'suspended') AC.resume();
+  return AC;
+}
+function beep(f, dur, type='sine', vol=.14, when=0){
+  try{
+    const c = ac(), t = c.currentTime + when;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + .012);
+    g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(c.destination);
+    o.start(t); o.stop(t + dur + .05);
+  }catch(e){}
+}
+const SFX = {
+  click(){ beep(1150,.07,'triangle',.11); beep(720,.06,'sine',.07,.02); },
+  pop(){ beep(880,.07,'square',.06); },
+  ok(){ [523,659,784,1047].forEach((f,i)=>beep(f,.16,'triangle',.13,i*.09)); },
+  bad(){ beep(238,.2,'sine',.15); beep(196,.26,'sine',.12,.12); },
+  coin(){ beep(1319,.09,'sine',.11); beep(1760,.18,'sine',.11,.08); },
+  win(){ [523,659,784,880,1047,1319].forEach((f,i)=>beep(f,.22,'triangle',.12,i*.11)); }
+};
+/* صدای کلیک برای تمام دکمه‌ها — به‌جز دکمه‌های صدا‌دارِ خاص */
+document.addEventListener('pointerdown', e => {
+  const b = e.target.closest('button');
+  if(b && !b.dataset.silent) SFX.click();
+}, {capture:true});
+
+/* ================= گفتار فارسی ================= */
+let voiceWarned = false;
+function speak(text, stretch){
+  try{
+    if(!('speechSynthesis' in window)) return voiceFallback(stretch);
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'fa-IR'; u.rate = .78; u.pitch = 1.05;
+    const vs = speechSynthesis.getVoices() || [];
+    const fv = vs.find(v => /^fa/i.test(v.lang || ''));
+    if(fv) u.voice = fv;
+    else if(vs.length) voiceFallback(stretch);
+    speechSynthesis.speak(u);
+  }catch(e){ voiceFallback(stretch); }
+}
+function voiceFallback(stretch){
+  if(!voiceWarned && stretch){
+    voiceWarned = true;
+    toast('صدای فارسی روی این دستگاه فعّال نیست — با هم بخونیم: «' + stretch + '»');
+  }
+}
+if('speechSynthesis' in window) speechSynthesis.getVoices();
+
+/* ================= داده‌های آموزشی (محتوای بازی — دست‌نخورده) ================= */
+const QUESTIONS = [
+  {word:'آب',  stretch:'آآب',   type:'sound', target:'آ',  opts:['آ','اَ','اُ','ای']},
+  {word:'مو',  stretch:'مــو',  type:'build', target:'و',  pre:'م', post:'',   opts:['و','ا','ب','م']},
+  {word:'مور', stretch:'مـــور',type:'sound', target:'او', opts:['او','آ','اُ','ای']},
+  {word:'آموزگار', stretch:'آموزگــار', type:'letter', target:'و', ask:'او', opts:['و','آ','ز','گ']},
+  {word:'شیر', stretch:'شــیر', type:'sound', target:'ای', opts:['ای','اَ','آ','او']},
+  {word:'آرد', stretch:'آارد',  type:'build', target:'آ',  pre:'',  post:'رد', opts:['آ','ا','ل','ی']},
+  {word:'اَبر', stretch:'اَبــر',type:'sound', target:'اَ', opts:['اَ','اُ','آ','ای']},
+  {word:'کوه', stretch:'کــوه', type:'letter',target:'و',  ask:'او', opts:['و','ک','ه','ا']},
+  {word:'سوزن',stretch:'ســوزن',type:'sound', target:'او', opts:['او','اُ','آ','اَ']},
+  {word:'توپ', stretch:'تــوپ', type:'build', target:'و',  pre:'ت', post:'پ',  opts:['و','ت','پ','ا']}
+];
+const VOWEL_COLORS = {'آ':'#FF7675','اَ':'#FFEAA7','اُ':'#00D2FF','او':'#00FF9D','ای':'#FF00A0'};
+const BLOCK_PALETTE = ['#FFC93C','#00D2FF','#FF7675','#00FF9D','#FF00A0','#FFEAA7'];
+const RIGHT_MSGS = ['آفرین! دستگاه تعمیر شد!','عالی بود! قطعه درست جا خوش شد.','چه گوش تیزی! دستگاه روشن شد!','دمت گرم! صدای درست برگشت!'];
+const WRONG_MSGS = ['نزدیک بود! یک بار دیگه گوش بده.','اشکالی نداره! هیولا باهات دوباره امتحان می‌کنه.','هوم… بلندگو دوباره می‌خونه، دقت کن!'];
+const DIALOG = [
+  {who:'boss',    text:'هیولا! دیدی چی شد؟ دستگاهِ صدا از کار افتاده و کارخانه ساکت شده!'},
+  {who:'boss',    text:'تو باید درستش کنی! صداهای حروف رو که یادته؟ «آ»، «او»، «ای» و…'},
+  {who:'monster', text:'با کمک دوست باهوشم که کنارمه، همه‌ی دستگاه‌ها رو تعمیر می‌کنم!'},
+  {who:'boss',    text:'خیلی خوب! اول کلمه رو خودت بخون، بعد گوش بده و قطعه‌ی درست رو بذار. موفق باشی!'}
+];
+
+/* ================= فروشگاه (قیمت‌ها و داده‌ها دست‌نخورده) ================= */
+const THEMES = [
+  {id:'classic', name:'کارخانه‌ی کلاسیک', price:0,  desc:'تم تاریک اصلی LOKO',            sw:['#FFC93C','#6C5CE7','#0c0a14']},
+  {id:'sunset',  name:'غروب کارخانه',    price:8,  desc:'نارنجی گرمِ آخر وقت',            sw:['#FF7675','#FFC93C','#190d0b']},
+  {id:'candy',   name:'کارخانه‌ی آبنباتی',price:10, desc:'صورتی نئونی و بامزه',           sw:['#FF00A0','#FFEAA7','#160b1c']},
+  {id:'ocean',   name:'اقیانوس',         price:12, desc:'آبی نئونیِ عمیق و خنک',          sw:['#00D2FF','#FF7675','#081018']},
+  {id:'jungle',  name:'جنگل هیولاها',    price:15, desc:'سبز نئونی برای هیولای علاقه‌مند', sw:['#00FF9D','#FFC93C','#0a140c']}
+];
+const ACCS = [
+  {id:'helmet',  name:'کلاه ایمنی',   price:12, desc:'کلاه رسمی کارگران کارخانه', pos:'top:-7%;width:50%',
+   svg:'<svg viewBox="0 0 120 74"><path d="M12 60a48 40 0 0 1 96 0z" fill="#FFC93C"/><path d="M12 60h96a6 6 0 0 1-6 8H18a6 6 0 0 1-6-8z" fill="#B96F00"/><rect x="54" y="15" width="12" height="34" rx="6" fill="#B96F00"/></svg>'},
+  {id:'glasses', name:'عینک آفتابی',  price:8,  desc:'استایل خفن هیولا', pos:'top:35%;width:56%',
+   svg:'<svg viewBox="0 0 120 50"><circle cx="34" cy="26" r="19" fill="#1E1E2F" opacity=".93"/><circle cx="86" cy="26" r="19" fill="#1E1E2F" opacity=".93"/><path d="M52 23q8-6 16 0" stroke="#1E1E2F" stroke-width="6" fill="none"/><path d="M15 21l-9-7M105 21l9-7" stroke="#1E1E2F" stroke-width="6" stroke-linecap="round"/><circle cx="28" cy="20" r="5.5" fill="#3d3563"/><circle cx="80" cy="20" r="5.5" fill="#3d3563"/></svg>'},
+  {id:'phones',  name:'هدفون موسیقی', price:10, desc:'برای شنیدن بهتر صداها', pos:'top:3%;width:62%',
+   svg:'<svg viewBox="0 0 120 84"><path d="M15 64v-15a45 39 0 0 1 90 0v15" fill="none" stroke="#FF7675" stroke-width="12" stroke-linecap="round"/><rect x="4" y="47" width="23" height="35" rx="11" fill="#FFC93C"/><rect x="93" y="47" width="23" height="35" rx="11" fill="#FFC93C"/></svg>'},
+  {id:'bowtie',  name:'پاپیون مجلسی', price:9,  desc:'برای جلسات با مدیر الفبا', pos:'top:73%;width:33%',
+   svg:'<svg viewBox="0 0 120 64"><path d="M58 32 16 8v48z" fill="#FF7675"/><path d="M62 32l42-24v48z" fill="#FF7675"/><circle cx="60" cy="32" r="10" fill="#a94544"/></svg>'},
+  {id:'must',    name:'سبیل جنتلمن',  price:15, desc:'هیولای باتجربه و باسلیقه', pos:'top:56%;width:37%',
+   svg:'<svg viewBox="0 0 120 44"><path d="M60 24q-8-14-26-10Q18 18 22 30q14 8 28-2 6-4 10-4t10 4q14 10 28 2 4-12-12-16-18-4-26 10z" fill="#4a3020"/></svg>'}
+];
+
+/* ================= رابط‌های عمومی ================= */
+function renderCoins(){
+  $$('[data-coin-n]').forEach(el => { el.classList.add('coin-amount'); el.textContent = fa(wallet); });
+  $$('.coin-display').forEach(el => { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); });
+}
+function applyTheme(id){
+  document.documentElement.dataset.theme = id;
+  curTheme = id; DB.set('theme', id);
+}
+function applyAcc(id){
+  curAcc = id; DB.set('acc', id);
+  const box = $('#menuAcc');
+  const a = ACCS.find(x => x.id === id);
+  box.innerHTML = a ? '<div class="acc-item" style="'+a.pos+'">'+a.svg+'</div>' : '';
+}
+let toastTimer = null;
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+function show(id){
+  $$('.screen').forEach(s => s.classList.remove('active'));
+  $('#'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function confetti(zone, n=16){
+  const colors = ['#FFC93C','#00D2FF','#FF7675','#00FF9D','#FFEAA7','#FF00A0'];
+  for(let i=0;i<n;i++){
+    const d = document.createElement('i');
+    d.className = 'cf';
+    const w = 6 + Math.random()*7;
+    d.style.cssText = 'right:'+(8+Math.random()*84)+'%;width:'+w+'px;height:'+(w+3)+'px;'
+      + 'background:'+pick(colors)+';animation-duration:'+(0.75+Math.random()*0.6)+'s;'
+      + 'animation-delay:'+(Math.random()*0.25)+'s;';
+    zone.appendChild(d);
+    d.addEventListener('animationend', () => d.remove());
+  }
+}
+
+/* ================= منو ================= */
+let cineSeen = false;
+function updateMenu(){
+  renderCoins();
+  const hasUnfinished = S.qi > 0 && !S.won;
+  $('#resumeBox').hidden = !hasUnfinished;
+  $('#btnStart').style.display = hasUnfinished ? 'none' : '';
+}
+
+/* ================= فروشگاه ================= */
+let shopTab = 'theme';
+function renderShop(){
+  renderCoins();
+  $('#tabTheme').classList.toggle('on', shopTab === 'theme');
+  $('#tabAcc').classList.toggle('on', shopTab === 'acc');
+  const list = $('#shopList');
+  list.innerHTML = '';
+  const items = shopTab === 'theme' ? THEMES : ACCS;
+  items.forEach(it => {
+    const isActive = shopTab === 'theme' ? curTheme === it.id : curAcc === it.id;
+    const hasIt = it.price === 0 || owned.includes(it.id);
+    const row = document.createElement('div');
+    row.className = 'shop-item' + (isActive ? ' is-active' : '');
+    let swatch;
+    if(shopTab === 'theme'){
+      swatch = '<div class="sw"><div class="sw-dots">' + it.sw.map(c => '<i style="background:'+c+'"></i>').join('') + '</div></div>';
+    }else{
+      swatch = '<div class="sw"><div class="sw-acc">'+it.svg+'</div></div>';
+    }
+    let action;
+    if(isActive){
+      action = '<span class="owned-tag"><span data-icon="check"></span> فعّال</span>';
+    }else if(hasIt){
+      action = '<button class="buy" data-act="activate" data-id="'+it.id+'"><span data-icon="check"></span> فعّال‌سازی</button>';
+    }else{
+      action = '<button class="buy'+(wallet < it.price ? ' poor' : '')+'" data-act="buy" data-id="'+it.id+'" data-price="'+it.price+'">'+COIN_SVG+' '+fa(it.price)+'</button>';
+    }
+    row.innerHTML = swatch
+      + '<div class="si-tx"><b>'+it.name+'</b><span>'+it.desc+'</span></div>' + action;
+    list.appendChild(row);
+  });
+  fillIcons(list);
+}
+ $('#shopList').addEventListener('click', e => {
+  const btn = e.target.closest('[data-act]');
+  if(!btn) return;
+  const id = btn.dataset.id, act = btn.dataset.act;
+  if(act === 'buy'){
+    const price = +btn.dataset.price;
+    if(wallet < price){
+      SFX.bad(); vibrate(60);
+      toast('سکه لوکو کافی نداری! بازی رو کامل کن تا سکه بگیری.');
+      return;
+    }
+    wallet -= price; owned.push(id);
+    DB.set('coins', wallet); DB.set('owned', owned);
+    syncData();
+    SFX.coin(); toast('خریدی! الان فعّالش کن.');
+    renderShop();
+  }else if(act === 'activate'){
+    if(shopTab === 'theme'){ applyTheme(id); toast('پوسته‌ی جدید فعّال شد!'); }
+    else{ applyAcc(id); toast('حالا هیولا شیک‌تر شد!'); }
+    SFX.pop(); renderShop();
+  }
+});
+ $('#tabTheme').addEventListener('click', () => { shopTab = 'theme'; renderShop(); });
+ $('#tabAcc').addEventListener('click', () => { shopTab = 'acc'; renderShop(); });
+
+/* ================= منطق بازی (دست‌نخورده) ================= */
+const G = { phase:'idle', qi:0, attempt:0, qStart:0, startCoins:0 };
+
+function startGame(resume){
+  mReset();
+  G.startCoins = wallet;   // اسنپ‌شات سکه در «شروع بازی» — مبنای قانون پاداش LOKO
+  if(resume){
+    G.qi = S.qi || 0;
+  }else{
+    G.qi = 0;
+    S = {qi:0, won:false}; DB.set('state', S);
+  }
+  show('scr-game');
+  if(!resume && !cineSeen) openCine();
+  else beginQuestion();
+}
+
+function beginQuestion(){
+  const q = QUESTIONS[G.qi];
+  G.phase = 'read'; G.attempt = 0;
+  const m = $('#machine');
+  m.classList.add('broken'); m.classList.remove('fixed');
+  $('#devTag').textContent = 'دستگاه ' + fa(G.qi+1) + ' از ' + fa(QUESTIONS.length);
+  $('#wordBox').innerHTML = q.type === 'build'
+    ? '<span class="w">'+ (q.pre||'') +'<span class="blank" id="blank">؟</span>'+(q.post||'')+'</span>'
+    : '<span class="w">'+q.word+'</span>';
+  $('#lights').innerHTML = QUESTIONS.map((_,i) =>
+    '<i class="'+(i<G.qi?'done':i===G.qi?'cur':'')+'"></i>').join('');
+  ['st1','st2','st3'].forEach(id => $('#'+id).className = '');
+  $('#st1').classList.add('on');
+  $('#readCard').hidden = false;
+  $('#listenRow').hidden = true;
+  $('#blocks').hidden = true;
+  $('#blocksTitle').hidden = true;
+  $('#btnNext').hidden = true;
+  $('#promptTx').textContent =
+    q.type === 'sound' ? '«'+q.word+'» — کدوم صدا رو می‌شنوی؟'
+    : q.type === 'letter' ? 'کدوم حرف، صدای «'+q.ask+'» رو توی این کلمه می‌ده؟'
+    : 'حرف جاافتاده رو پیدا کن و بذار سر جاش!';
+}
+
+ $('#btnRead').addEventListener('click', () => {
+  if(G.phase !== 'read') return;
+  const q = QUESTIONS[G.qi];
+  G.phase = 'listen';
+  SFX.pop();
+  $('#st1').classList.remove('on'); $('#st1').classList.add('ok');
+  $('#st2').classList.add('on');
+  $('#readCard').hidden = true;
+  $('#listenRow').hidden = false;
+  speak(q.word, q.stretch);
+  renderBlocks();
+  setTimeout(() => {
+    G.phase = 'answer';
+    G.qStart = performance.now();   // شروع ثبت زمان پاسخ‌دهی (پنهان)
+  }, 700);
+});
+ $('#btnSpeak').addEventListener('click', () => {
+  if(G.phase === 'answer' || G.phase === 'done'){
+    const q = QUESTIONS[G.qi];
+    speak(q.word, q.stretch);
+  }
+});
+
+function renderBlocks(){
+  const q = QUESTIONS[G.qi];
+  const box = $('#blocks');
+  box.innerHTML = q.opts.map((o,i) => {
+    const c = VOWEL_COLORS[o] || BLOCK_PALETTE[i % BLOCK_PALETTE.length];
+    return '<button class="block" data-v="'+o+'" data-silent style="--bc:'+c+';animation-delay:'+(i*70)+'ms">'+o+'</button>';
+  }).join('');
+  box.hidden = false;
+  $('#blocksTitle').hidden = false;
+}
+ $('#blocks').addEventListener('click', e => {
+  const btn = e.target.closest('.block');
+  if(!btn || G.phase !== 'answer') return;
+  const q = QUESTIONS[G.qi];
+  const lab = btn.dataset.v;
+  const ok = lab === q.target;
+  const ms = Math.round(performance.now() - G.qStart);
+  G.attempt++;
+  track(ok, ms);   // ثبت در معیارهای پنهان — بدون نمایش به کاربر
+  if(ok){
+    G.phase = 'done';
+    btn.classList.add('is-ok');
+    SFX.ok(); vibrate([30,40,30]);
+    if(q.type === 'build'){
+      const b = $('#blank');
+      b.textContent = lab; b.classList.add('filled');
+      setTimeout(() => speak(q.word, q.stretch), 550);
+    }
+    $('#machine').classList.remove('broken');
+    $('#machine').classList.add('fixed');
+    confetti($('#machine'));
+    ['st1','st2','st3'].forEach(id => { $('#'+id).classList.remove('on'); $('#'+id).classList.add('ok'); });
+    toast(pick(RIGHT_MSGS));
+    if(G.qi === QUESTIONS.length - 1){ S.won = true; }
+    else{ S.qi = G.qi + 1; }
+    DB.set('state', S);
+    const isLast = G.qi === QUESTIONS.length - 1;
+    $('#btnNext').innerHTML = isLast
+      ? '<span data-icon="play"></span> کارخانه رو راه بنداز!'
+      : '<span data-icon="wrench"></span> دستگاه بعدی';
+    fillIcons($('#btnNext'));
+    setTimeout(() => { $('#btnNext').hidden = false; }, 1150);
+  }else{
+    btn.classList.add('is-bad');
+    setTimeout(() => btn.classList.remove('is-bad'), 520);
+    if(q.type === 'build'){
+      const b = $('#blank');
+      b.classList.remove('flash'); void b.offsetWidth; b.classList.add('flash');
+    }
+    SFX.bad(); vibrate(60);
+    toast(pick(WRONG_MSGS));
+    setTimeout(() => speak(q.word, q.stretch), 750);
+  }
+});
+ $('#btnNext').addEventListener('click', () => {
+  G.qi++;
+  if(G.qi >= QUESTIONS.length) winGame();
+  else beginQuestion();
+});
+
+/* دکمه‌ی توقف → منوی اصلی */
+ $('#btnStop').addEventListener('click', () => {
+  try{ speechSynthesis.cancel(); }catch(e){}
+  S.qi = Math.min(G.qi, QUESTIONS.length - 1);
+  S.won = false;
+  DB.set('state', S);
+  syncData();
+  show('scr-menu');
+  updateMenu();
+  toast('بازی متوقف شد — هر وقت خواستی ادامه بده!');
+});
+
+/* ================= کات‌سین شروع ================= */
+let cineStep = 0;
+function openCine(){
+  cineSeen = true; cineStep = 0;
+  $('#cineBossSvg').innerHTML = BOSS_SVG;
+  /* هیولا در کات‌سین: h1.png با جایگزین SVG */
+  $('#cineMonSvg').innerHTML =
+    '<img class="mon-img" src="./icons/h1.png" data-start="h1" alt="" onerror="monFallback(this)">'
+    + '<div class="img-ph" style="display:none">'+monsterSVG()+'</div>';
+  $('#cineDots').innerHTML = DIALOG.map((_,i) => '<i class="'+(i===0?'on':'')+'"></i>').join('');
+  cineRender();
+  $('#cine').hidden = false;
+}
+function cineRender(){
+  const d = DIALOG[cineStep];
+  $('#cineText').textContent = d.text;
+  $('#cineBoss').classList.toggle('on', d.who === 'boss');
+  $('#cineMon').classList.toggle('on', d.who === 'monster');
+  $$('#cineDots i').forEach((el,i) => el.classList.toggle('on', i === cineStep));
+  $('#cineNext').innerHTML = cineStep === DIALOG.length - 1
+    ? '<span data-icon="wrench"></span> شروع تعمیرات!'
+    : '<span data-icon="play"></span> بزن بریم!';
+  fillIcons($('#cineNext'));
+}
+ $('#cineNext').addEventListener('click', () => {
+  if(cineStep < DIALOG.length - 1){ cineStep++; cineRender(); }
+  else{ $('#cine').hidden = true; beginQuestion(); }
+});
+
+/* ================= صفحه‌ی پایان + قانون پاداش LOKO ================= */
+function renderStars(){
+  /* بر اساس عملکرد واقعی (پاسخ‌های غلطِ ثبت‌شده در متریک‌های پنهان) */
+  const n = M.wrong === 0 ? 3 : (M.wrong <= 2 ? 2 : 1);
+  $('#winStars').innerHTML = [0,1,2].map(i =>
+    '<span class="star'+(i<n?' lit':'')+'" style="animation-delay:'+(0.25+i*0.2)+'s">'+STAR_SVG+'</span>').join('');
+}
+function winGame(){ /* لوکو */ lukoWin('all machines');
+  try{ speechSynthesis.cancel(); }catch(e){}
+  S.won = true; DB.set('state', S);
+  persistStats();
+  /* قانون پاداش LOKO — فقط پس از تکمیل «تمام» مراحل:
+     سکه‌ی اولیه‌ی بازی === 0  →  +10
+     سکه‌ی اولیه‌ی بازی  >  0  →  +1  */
+  const reward = (G.startCoins === 0) ? 10 : 1;
+  wallet += reward;
+  DB.set('coins', wallet);
+  renderCoins();
+  syncData();
+  $('#winCoins').textContent = '+' + fa(reward);
+  renderStars();
+  show('scr-win');
+  SFX.win();
+  setTimeout(SFX.coin, 750);
+  let n = 0;
+  const iv = setInterval(() => { confetti($('#winZone'), 14); if(++n >= 4) clearInterval(iv); }, 650);
+  confetti($('#winZone'), 18);
+}
+ $('#winAgain').addEventListener('click', () => { cineSeen = true; startGame(false); });
+ $('#winMenu').addEventListener('click', () => { show('scr-menu'); updateMenu(); });
+
+/* ================= ناوبری و مودال خروج ================= */
+ $$('[data-nav]').forEach(b => b.addEventListener('click', () => {
+  show(b.dataset.nav); updateMenu();
+}));
+ $('#btnStart').addEventListener('click', () => startGame(false));
+ $('#btnContinue').addEventListener('click', () => { cineSeen = true; startGame(true); });
+ $('#btnRestart').addEventListener('click', () => { cineSeen = true; startGame(false); });
+ $('#btnShop').addEventListener('click', () => { show('scr-shop'); renderShop(); });
+ $('#btnHelp').addEventListener('click', () => { show('scr-help'); });
+ $('#menuBack').addEventListener('click', () => { $('#exitModal').hidden = false; });
+ $('#exitStay').addEventListener('click', () => { $('#exitModal').hidden = true; });
+ $('#exitYes').addEventListener('click', () => {
+  $('#exitModal').hidden = true;
+  let closed = false;
+  try{ window.close(); closed = window.closed; }catch(e){}
+  if(!closed) toast('برای خروج، همین صفحه (تب) مرورگر رو ببند.');
+});
+ $('#exitModal').addEventListener('click', e => {
+  if(e.target === e.currentTarget) e.currentTarget.hidden = true;
+});
+
+/* ================= راه‌اندازی ================= */
+fillIcons();
+applyTheme(THEMES.some(t => t.id === curTheme) ? curTheme : 'classic');
+applyAcc(ACCS.some(a => a.id === curAcc) ? curAcc : null);
+updateMenu();
+</script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>
+/* لوکو: بازی خودش پایان را می‌گوید — نقطه‌اش در backend/apps/games/finish_points.py */
+window.LUKO_EXPLICIT_FINISH = true;
+window.lukoWin = function (reason) {
+  if (window.__lukoWon) return;
+  window.__lukoWon = true;
+  // این بازی‌ها امتیازِ خودشان را گزارش نمی‌کنند؛ بی‌این، سرور هر بُرد را «۰ ستاره»
+  // ثبت می‌کرد و مدالِ ستاره‌چین برای هیچ بچه‌ای باز نمی‌شد. بُرد = ستاره‌ی کامل
+  // (سرور به سقفِ همان مرحله می‌بُرد).
+  var extra = { source: 'game', reason: String(reason || 'win'), stars: 3 };
+  // جشنِ خودِ بازی اول دیده شود، بعد صفحه‌ی جایزه‌ی اپ رویش بیاید
+  setTimeout(function () {
+    try {
+      if (window.LUKO && typeof window.LUKO.finish === 'function') { window.LUKO.finish(extra); return; }
+    } catch (e) { /* SDK نبود یا شکست؛ پیامِ مستقیم */ }
+    try {
+      window.parent.postMessage({ type: 'luko-game-complete',
+        game: location.pathname.split('/').pop(), summary: extra }, '*');
+    } catch (e) { /* بازی نباید به‌خاطرِ پایان بشکند */ }
+  }, 1500);
+};
+window.lukoCount = function (count, need) {
+  if (Number(count) >= need) window.lukoWin('count ' + count + '/' + need);
+};
+window.lukoLevels = function (done, total, need) {
+  var count = 0;
+  try {
+    if (Array.isArray(done)) {
+      done.forEach(function (v) { if (v) count += 1; });
+    } else if (done) {
+      Object.keys(done).forEach(function (k) {
+        var n = Number(k);
+        if (done[k] && n >= 1 && n <= total) count += 1;
+      });
+    }
+  } catch (e) { return; }
+  if (count >= Math.min(total, need)) window.lukoWin('levels ' + count + '/' + total);
+};
+</script>
+<script>window.LUKO_WIN = []; window.LUKO_WIN_MAYBE = [];</script>
+<script async src="/games/assets/luko-sdk.js"></script>
+<script async src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>

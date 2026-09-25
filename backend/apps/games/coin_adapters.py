@@ -137,7 +137,27 @@ ADAPTERS.update({
     "C3KrF1S3G14": memory("S.coins", "renderCoins();", [("taaron_v1", "coins")]),
     "C4KnF1S1G2": memory("coinCount", "updateCoinDisplay();", [("starWriterCoins", None)]),
     "C4KrF1S1G1": memory("lokowallet.coins", "lokowallet._render();", [("lokoCoins", None)]),
+
+    # بازی‌های افزوده‌شده در ۲۶ سپتامبر ۲۰۲۶
+    "C1KnF2S3G1": memory("LokoCoins.coins", "LokoCoins.render();", [("lokoCoins", None)]),
+    "C1KrF4S1G1": memory("S.coins", "save();updateCoins();", [("gy_save_v1", "coins")]),
+    "C1KrF4S1G2": memory("save.coins", "persist();renderHome();renderShop();", [("sibestan_save", "coins")]),
+    "C2KrF1S1G11": memory("Store.data.coins", "Store.save();refreshCoins();", [("fruitcount_v1", "coins")]),
+    "C3KhF1S2G1": memory("coins", "save();renderCoins();", [("qh_coins", None)]),
+    "C3KrF1S14g1": memory("S.coins", "save();renderCoins();", [("dd_save", "coins")]),
+    # کدِ این یکی بسته (IIFE) است؛ نمایش را خودمان تازه می‌کنیم
+    "C3KrF1S1G10": storage("raaz_coins",
+                           f"var f={FA};document.querySelectorAll('.coin-count')"
+                           ".forEach(function(e){e.textContent=f(v);});"),
+    "C3KrF1S1G11": storage("ph_coins", "CoinManager.render();"),
+    "C4KfF1S2G1": memory("wallet", "DB.set('coins',wallet);renderCoins();", [("fh_coins", None)]),
 })
+
+# یک بازی که استودیو در چند جایگاهِ مسیر گذاشته (همان فایل با چند نام)
+for _stem in ("C1KrF1S1G5", "C1KrF1S1G6", "C2KrF1S1G10"):       # نجاتِ قبیله
+    ADAPTERS[_stem] = storage("lokoCoins", "LokoCoins.render();")
+for _stem in ("C3KqF3S2G1", "C3KqF3S2G2", "C3KqF3S5G1", "C3KqF3S11G1"):  # پیام‌های آسمانی
+    ADAPTERS[_stem] = storage("quranMessagesCoins", "updateCoinDisplay();")
 
 #: وصله‌های تک‌بازی. هر (پیدا، جایگزین) باید دقیقاً یک‌بار پیدا شود.
 GAME_PATCHES: dict[str, list[tuple[str, str]]] = {

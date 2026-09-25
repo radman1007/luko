@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<!-- لوکو: کیفِ سکه‌ی مشترک (به‌صورتِ خودکار افزوده شد) -->
+<script>window.LUKO_COINS = {seed:[{key:"lokoCoins"}],get:function(){return parseInt(localStorage.getItem("lokoCoins"),10)||0;},set:function(v){LokoCoins.render();}};</script>
+<script src="/games/assets/luko-wallet.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0c0a14">
+    <title>نجات قبیله از خیلی</title>
+    <!-- فونتِ وزیرمتن از CDN برداشته شد (لوکو) -->
+    <style>
+        /* ============ 🎨 LOKO Design System ============ */
+        @font-face { font-family:"Shoor"; src:url("./fonts/Shoor-Regular.ttf") format("truetype"); font-weight:400; }
+        @font-face { font-family:"Shoor"; src:url("./fonts/Shoor-Medium.ttf") format("truetype"); font-weight:500; }
+        @font-face { font-family:"Shoor"; src:url("./fonts/Shoor-Black.ttf") format("truetype"); font-weight:900; }
+        @font-face { font-family:"Shoor"; src:url("./fonts/Shoor-ExtraBold.ttf") format("truetype"); font-weight:800; }
+        @font-face { font-family:"Shoor Rounded"; src:url("./fonts/ShoorRounded-Regular.ttf") format("truetype"); font-weight:400; }
+        @font-face { font-family:"Shoor Rounded"; src:url("./fonts/ShoorRounded-Medium.ttf") format("truetype"); font-weight:500; }
+        @font-face { font-family:"Shoor Rounded"; src:url("./fonts/ShoorRounded-Black.ttf") format("truetype"); font-weight:900; }
+        @font-face { font-family:"Shoor Rounded"; src:url("./fonts/ShoorRounded-ExtraBold.ttf") format("truetype"); font-weight:800; }
+
+        :root {
+            --primary: #6C5CE7;
+            --neon-blue: #00D2FF;
+            --neon-pink: #FF00A0;
+            --neon-green: #00FF9D;
+            --accent: #FFEAA7;
+            --success: #00B894;
+            --danger: #FF7675;
+            --dark: #1E1E2F;
+            --gold: #FFC93C;
+            --gold-dark: #B96F00;
+            --gold-light: #FFE68A;
+            --text: #F5F3FF;
+            --text-light: #B8B2D9;
+            --glass: rgba(255,255,255,0.10);
+            --glass-soft: rgba(255,255,255,0.06);
+            --glass-border: rgba(255,255,255,0.22);
+            --radius: 20px;
+            --radius-sm: 14px;
+            --font: 'Shoor Rounded', 'Shoor', 'Vazirmatn', Tahoma, sans-serif;
+            --bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: var(--font);
+            background:
+                radial-gradient(1000px 600px at 85% -10%, rgba(108,92,231,.28), transparent 60%),
+                radial-gradient(800px 500px at 10% 110%, rgba(0,210,255,.14), transparent 60%),
+                linear-gradient(135deg, #0c0a14, #181225);
+            color: var(--text);
+            min-height: 100vh; display:flex; align-items:center; justify-content:center;
+            padding:10px; overflow-x:hidden; user-select:none;
+            -webkit-tap-highlight-color: transparent; position:relative;
+        }
+
+        body[data-theme="jungle"] {
+            background:
+                radial-gradient(1000px 600px at 85% -10%, rgba(0,255,157,.22), transparent 60%),
+                radial-gradient(800px 500px at 10% 110%, rgba(0,210,255,.10), transparent 60%),
+                linear-gradient(135deg, #04140d, #0a2418);
+        }
+        body[data-theme="ocean"] {
+            background:
+                radial-gradient(1000px 600px at 85% -10%, rgba(0,210,255,.24), transparent 60%),
+                radial-gradient(800px 500px at 10% 110%, rgba(108,92,231,.16), transparent 60%),
+                linear-gradient(135deg, #020e1a, #07203a);
+        }
+        body[data-theme="sunset"] {
+            background:
+                radial-gradient(1000px 600px at 85% -10%, rgba(255,0,160,.20), transparent 60%),
+                radial-gradient(800px 500px at 10% 110%, rgba(255,201,60,.12), transparent 60%),
+                linear-gradient(135deg, #140a14, #250f22);
+        }
+
+        .bg-particle {
+            position:fixed; border-radius:50%; pointer-events:none; z-index:0;
+            opacity:.16; filter:blur(2px); animation: floatParticle 14s ease-in-out infinite;
+        }
+        .bg-particle:nth-child(1) { width:120px; height:120px; background:var(--primary); top:5%; left:8%; box-shadow:0 0 70px var(--primary); }
+        .bg-particle:nth-child(2) { width:160px; height:160px; background:var(--neon-blue); bottom:12%; right:5%; animation-delay:-6s; box-shadow:0 0 70px var(--neon-blue); }
+        .bg-particle:nth-child(3) { width:90px; height:90px; background:var(--neon-pink); top:55%; left:18%; animation-delay:-11s; box-shadow:0 0 50px var(--neon-pink); }
+        @keyframes floatParticle { 0%,100%{transform:translate(0,0) scale(1);} 33%{transform:translate(20px,-25px) scale(1.15);} 66%{transform:translate(-12px,18px) scale(.9);} }
+
+        .main-container {
+            width:100%; max-width:480px; min-height:520px;
+            background: var(--glass-soft);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border:1px solid var(--glass-border);
+            border-radius: var(--radius);
+            box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 40px rgba(108,92,231,.18), inset 0 1px 0 rgba(255,255,255,.08);
+            position:relative; z-index:1; overflow:hidden;
+        }
+
+        .game-header {
+            background: linear-gradient(135deg, rgba(108,92,231,.30), rgba(0,210,255,.10));
+            border-bottom:1px solid var(--glass-border);
+            padding:12px 14px 10px; display:flex; flex-direction:column; gap:9px;
+        }
+        .header-row { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+        .title-area { display:flex; align-items:center; gap:8px; flex:1; min-width:150px; }
+        .game-header h1 { font-size:1.05em; font-weight:900; color:#fff; line-height:1.35; }
+        .subtitle { font-size:.62em; color:var(--text-light); }
+        .header-actions { display:flex; align-items:center; gap:10px; }
+
+        .coin-display {
+            display:flex; align-items:center; gap:7px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border:1px solid rgba(255,255,255,0.3);
+            border-radius:999px; padding:6px 14px;
+            box-shadow:0 0 16px rgba(255,201,60,.28), inset 0 0 10px rgba(255,201,60,.10);
+            transition:transform .25s var(--bounce);
+        }
+        .coin-display.bump { animation: coinBump .55s var(--bounce); }
+        .coin-display.shake { animation: shakeAnim .5s ease; }
+        @keyframes coinBump { 0%{transform:scale(1);} 40%{transform:scale(1.18);} 100%{transform:scale(1);} }
+        .coin-icon-img {
+            width:26px; height:26px; object-fit:contain; flex-shrink:0;
+            filter:drop-shadow(0 0 6px rgba(255,201,60,.65));
+            animation: coinFloat 3s ease-in-out infinite;
+        }
+        @keyframes coinFloat { 0%,100%{transform:translateY(0) rotate(0deg);} 50%{transform:translateY(-3px) rotate(8deg);} }
+        .coin-amount { font-size:1.05em; font-weight:900; color:var(--gold-light); min-width:2ch; text-align:center; }
+
+        .coin-float {
+            position:fixed; transform:translateX(-50%); z-index:10001;
+            background:linear-gradient(180deg,var(--gold-light),var(--gold));
+            color:#4A2E00; font-weight:900; font-size:.9em;
+            padding:5px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.5);
+            box-shadow:0 6px 18px rgba(255,201,60,.45); pointer-events:none;
+            animation: coinFloatUp 1.5s ease forwards;
+        }
+        @keyframes coinFloatUp { 0%{opacity:0;transform:translate(-50%,8px) scale(.6);} 20%{opacity:1;transform:translate(-50%,-6px) scale(1.1);} 100%{opacity:0;transform:translate(-50%,-52px) scale(1);} }
+
+        .net-status { display:flex; align-items:center; justify-content:center; width:20px; height:20px; }
+        .net-dot { width:9px; height:9px; border-radius:50%; background:var(--neon-green); box-shadow:0 0 10px var(--neon-green); transition:.3s; }
+        body.is-offline .net-dot { background:var(--danger); box-shadow:0 0 10px var(--danger); }
+
+        .mute-btn {
+            background:rgba(255,255,255,.15); border:1px solid var(--glass-border);
+            color:#fff; width:42px; height:42px; border-radius:50%; cursor:pointer;
+            font-size:1.15em; display:flex; align-items:center; justify-content:center;
+            transition:.2s; flex-shrink:0; backdrop-filter:blur(8px);
+        }
+        .mute-btn:active { transform:scale(.9); }
+
+        .progress-bar-wrap { width:100%; height:8px; background:rgba(255,255,255,.12); border-radius:4px; overflow:hidden; }
+        .progress-fill { height:100%; width:0; background:linear-gradient(90deg,var(--gold),#FFA800); border-radius:4px; transition:width .5s; box-shadow:0 0 12px rgba(255,201,60,.7); }
+
+        .game-content { padding:20px 16px 24px; min-height:430px; display:flex; flex-direction:column; align-items:center; gap:16px; position:relative; }
+
+        .landing-screen { display:flex; flex-direction:column; align-items:center; gap:13px; text-align:center; width:100%; }
+        .hero-title {
+            font-size:1.9em; font-weight:900; line-height:1.35;
+            background:linear-gradient(180deg,#FFF6D8,var(--gold-light) 40%,var(--gold) 75%,#FFA800);
+            -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+            filter:drop-shadow(0 4px 14px rgba(255,201,60,.3));
+        }
+        .hero-subtitle { font-size:.9em; color:var(--text-light); margin-top:4px; }
+        .landing-story { color:var(--text-light); font-size:.82em; line-height:1.9; }
+
+        .speech-bubble {
+            position:relative; max-width:86%;
+            background:rgba(255,255,255,.13);
+            backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+            border:1px solid var(--glass-border);
+            border-radius:16px; padding:11px 20px;
+            font-weight:700; font-size:.95em; color:var(--accent);
+            box-shadow:0 10px 26px rgba(0,0,0,.35);
+            animation: floatSoft 3.5s ease-in-out infinite;
+        }
+        .speech-bubble::after {
+            content:''; position:absolute; bottom:-8px; right:50%; margin-right:-8px;
+            width:16px; height:16px; transform:rotate(45deg);
+            background:rgba(255,255,255,.13);
+            border-bottom:1px solid var(--glass-border);
+            border-left:1px solid var(--glass-border);
+            border-radius:0 0 3px 0;
+        }
+        @keyframes floatSoft { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-4px);} }
+
+        .pixel-character {
+            position:relative; width:140px; height:140px;
+            display:flex; align-items:center; justify-content:center;
+            animation: charFloat 3.8s ease-in-out infinite;
+        }
+        .pixel-character::before {
+            content:''; position:absolute; inset:0; border-radius:50%;
+            background:radial-gradient(circle, rgba(108,92,231,.40) 0%, rgba(0,210,255,.12) 45%, transparent 70%);
+            box-shadow:0 0 34px rgba(108,92,231,.5), 0 0 70px rgba(0,210,255,.18);
+            animation: glowPulse 3.8s ease-in-out infinite;
+        }
+        .pixel-character img {
+            position:relative; width:110px; height:110px; object-fit:contain;
+            image-rendering:pixelated;
+            filter:drop-shadow(0 6px 12px rgba(0,0,0,.45));
+        }
+        @keyframes charFloat { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+        @keyframes glowPulse { 0%,100%{opacity:.85;} 50%{opacity:1;} }
+
+        .btn {
+            display:inline-flex; align-items:center; justify-content:center; gap:9px;
+            padding:14px 28px; border-radius:16px;
+            font-size:1.02em; font-weight:800; cursor:pointer; border:none;
+            transition:all .18s; position:relative; overflow:hidden;
+            min-height:56px; min-width:170px; font-family:var(--font);
+        }
+        .btn svg { width:20px; height:20px; flex-shrink:0; }
+        .btn:active { transform:translateY(3px) scale(.985); }
+        .btn-primary {
+            background:linear-gradient(180deg,#FFE68A 0%,#FFC93C 45%,#FFA800 100%);
+            color:#4A2E00; border:2px solid rgba(255,255,255,.45);
+            box-shadow:0 6px 0 var(--gold-dark), 0 14px 30px rgba(255,201,60,.30), inset 0 1px 0 rgba(255,255,255,.6);
+            text-shadow:0 1px 0 rgba(255,255,255,.35);
+        }
+        .btn-primary:active { box-shadow:0 2px 0 var(--gold-dark), 0 8px 18px rgba(255,201,60,.25); }
+        .btn-secondary {
+            background:rgba(255,255,255,.10); color:var(--text);
+            border:1.5px solid var(--glass-border);
+            backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+            box-shadow:0 4px 14px rgba(0,0,0,.25);
+        }
+        .btn-secondary:active { background:rgba(255,255,255,.16); }
+        .btn-start { font-size:1.18em; min-width:240px; }
+        .secondary-row { display:flex; gap:10px; width:100%; max-width:280px; justify-content:center; }
+        .secondary-row .btn { flex:1; min-width:0; min-height:52px; font-size:.95em; padding:10px; }
+
+        .ripple { position:absolute; border-radius:50%; background:rgba(255,255,255,.45); transform:scale(0); animation:rippleAnim .6s ease-out forwards; pointer-events:none; }
+        @keyframes rippleAnim { to { transform:scale(4); opacity:0; } }
+
+        .shake { animation: shakeAnim .5s ease; }
+        @keyframes shakeAnim { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        @keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-6px) rotate(-4deg);} 40%{transform:translateX(6px) rotate(4deg);} 60%{transform:translateX(-5px);} 80%{transform:translateX(5px);} }
+        .bounce-in { animation:bounceIn .6s var(--bounce); }
+        @keyframes bounceIn { 0%{transform:scale(.3);opacity:0;} 60%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
+        .pop-in { animation:popIn .5s var(--bounce); }
+        @keyframes popIn { 0%{transform:scale(.5);opacity:0;} 70%{transform:scale(1.15);} 100%{transform:scale(1);opacity:1;} }
+        .hidden { display:none !important; }
+
+        .level-screen { display:none; flex-direction:column; align-items:center; gap:14px; width:100%; }
+        .level-screen.active { display:flex; }
+        .section-title { font-size:1.2em; font-weight:900; color:var(--gold-light); }
+        .section-sub { font-size:.78em; color:var(--text-light); margin-top:-8px; }
+        .level-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; width:100%; }
+        .level-card {
+            background:var(--glass);
+            backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+            border:1px solid var(--glass-border);
+            border-radius:var(--radius-sm); padding:14px 10px 12px;
+            display:flex; flex-direction:column; align-items:center; gap:6px;
+            cursor:pointer; transition:all .2s; position:relative;
+            box-shadow:0 6px 16px rgba(0,0,0,.25);
+        }
+        .level-card:active { transform:scale(.95); }
+        .level-card:hover { border-color:var(--gold); }
+        .lv-num { font-size:1.7em; font-weight:900; color:var(--gold-light); text-shadow:0 0 12px rgba(255,201,60,.4); line-height:1; }
+        .lv-diff { font-size:.66em; font-weight:800; padding:3px 12px; border-radius:999px; border:1px solid; }
+        .lv-diff.easy   { color:var(--neon-green); border-color:rgba(0,255,157,.4); }
+        .lv-diff.medium { color:var(--gold); border-color:rgba(255,201,60,.4); }
+        .lv-diff.hard   { color:var(--neon-blue); border-color:rgba(0,210,255,.4); }
+        .lv-diff.insane { color:var(--danger); border-color:rgba(255,118,117,.4); }
+        .lv-stars { display:flex; gap:3px; }
+        .lv-stars span { font-size:.85em; color:rgba(255,255,255,.18); }
+        .lv-stars span.on { color:var(--gold); text-shadow:0 0 8px rgba(255,201,60,.6); }
+        .level-card.locked { opacity:.45; filter:grayscale(.5); }
+        .lv-lock { position:absolute; top:8px; left:8px; width:18px; height:18px; color:var(--text-light); }
+
+        .game-screen { display:none; flex-direction:column; align-items:center; gap:14px; width:100%; }
+        .game-screen.active { display:flex; }
+        .topbar { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; flex-wrap:wrap; }
+        .hearts { display:flex; gap:4px; }
+        .heart { width:26px; height:26px; fill:var(--danger); filter:drop-shadow(0 0 6px rgba(255,118,117,.55)); transition:all .35s var(--bounce); }
+        .heart.lost { fill:rgba(255,255,255,.14); filter:none; transform:scale(.75); }
+        .chip {
+            display:inline-flex; align-items:center; gap:6px;
+            background:var(--glass); border:1px solid var(--glass-border);
+            backdrop-filter:blur(8px); border-radius:999px;
+            padding:7px 14px; font-weight:800; font-size:.85em; color:var(--text);
+        }
+        .chip svg { width:15px; height:15px; }
+        .timer-chip { color:var(--neon-blue); }
+        .timer-chip.urgent { color:var(--danger); border-color:rgba(255,118,117,.6); animation:urgentPulse 1s infinite; }
+        @keyframes urgentPulse { 0%,100%{box-shadow:0 0 0 rgba(255,118,117,0);} 50%{box-shadow:0 0 14px rgba(255,118,117,.55);} }
+        .stop-btn {
+            width:46px; height:46px; border-radius:14px; cursor:pointer;
+            background:rgba(255,118,117,.16); border:1.5px solid rgba(255,118,117,.5);
+            display:flex; align-items:center; justify-content:center;
+            backdrop-filter:blur(8px); transition:.2s; flex-shrink:0;
+        }
+        .stop-btn svg { width:17px; height:17px; fill:var(--danger); filter:drop-shadow(0 0 5px rgba(255,118,117,.5)); }
+        .stop-btn:active { transform:scale(.9); }
+
+        .character-message {
+            background:rgba(255,255,255,.10);
+            backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+            border:1px solid var(--glass-border);
+            border-radius:var(--radius-sm);
+            padding:12px 18px; font-weight:700; color:var(--accent);
+            text-align:center; font-size:.92em; max-width:94%; line-height:1.9;
+            box-shadow:0 8px 20px rgba(0,0,0,.25); transition:all .3s;
+        }
+
+        .fruits-area {
+            position:relative; width:100%; min-height:280px;
+            border:2px dashed rgba(255,255,255,.20);
+            border-radius:var(--radius-sm);
+            background:rgba(255,255,255,.05);
+            box-shadow:inset 0 0 40px rgba(108,92,231,.10);
+            display:flex; flex-wrap:wrap; gap:12px; justify-content:center; align-items:center;
+            padding:16px; transition:all .3s;
+        }
+        .fruits-area.grid-layout { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; justify-items:center; }
+        .fruits-area.scattered { display:block; overflow:hidden; }
+        .fruits-area.shake { animation:shake .5s ease; }
+
+        .fruits-overlay {
+            position:absolute; inset:0; z-index:5;
+            display:flex; align-items:center; justify-content:center;
+            background:rgba(12,10,20,.72); backdrop-filter:blur(6px);
+            border-radius:inherit;
+            font-size:4em; font-weight:900; color:var(--gold);
+            text-shadow:0 0 30px rgba(255,201,60,.6);
+        }
+        .fruits-area.hidden-fruits .fruit-item { visibility:hidden; }
+
+        .fruit-item { cursor:pointer; transition:transform .25s var(--bounce), filter .3s; display:flex; flex-direction:column; align-items:center; gap:4px; position:relative; z-index:2; }
+        .fruit-item:hover { transform:scale(1.12); filter:brightness(1.12) drop-shadow(0 0 10px rgba(255,234,167,.35)); }
+        .fruit-item:active { transform:scale(.92); }
+        .fruit-item.counted { opacity:.45; pointer-events:none; filter:grayscale(.4); }
+        .fruit-item.counted::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,.35); border-radius:50%; }
+        .fruit-item.double-click-warn { animation:shake .5s; }
+        .fruit-svg { width:60px; height:60px; transition:.3s; pointer-events:none; filter:drop-shadow(0 4px 8px rgba(0,0,0,.35)); }
+        .fruit-label {
+            font-size:.72em; font-weight:900; color:#4A2E00; pointer-events:none;
+            background:linear-gradient(180deg,var(--gold-light),var(--gold));
+            border:1px solid rgba(255,255,255,.5);
+            border-radius:999px; padding:2px 10px; display:none;
+            box-shadow:0 3px 8px rgba(255,201,60,.35);
+        }
+        .fruit-item.counted .fruit-label { display:block; animation:popIn .4s var(--bounce); }
+
+        .fruit-item.swaying { animation:sway 3s ease-in-out infinite; }
+        .fruit-item.swaying:nth-child(odd) { animation-delay:-1.5s; }
+        @keyframes sway { 0%,100%{transform:translate(0,0);} 25%{transform:translate(8px,-6px);} 50%{transform:translate(-5px,8px);} 75%{transform:translate(-8px,-4px);} }
+
+        .counter-panel {
+            display:flex; gap:12px; align-items:center;
+            background:var(--glass); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+            padding:10px 22px; border-radius:999px;
+            border:1px solid var(--glass-border);
+            font-weight:700; font-size:.95em; color:var(--text-light);
+            box-shadow:0 8px 20px rgba(0,0,0,.25);
+        }
+        .counter-number { font-size:1.4em; color:var(--gold-light); font-weight:900; min-width:1.6ch; text-align:center; text-shadow:0 0 12px rgba(255,201,60,.4); }
+
+        .pro-mode-input { display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center; }
+        .pro-input {
+            width:84px; height:56px; border-radius:14px;
+            border:2px solid var(--gold);
+            background:rgba(255,255,255,.10); color:var(--text);
+            font-size:1.7em; text-align:center; font-weight:900; font-family:var(--font);
+            box-shadow:inset 0 2px 8px rgba(0,0,0,.3);
+        }
+        .pro-input:focus { outline:none; border-color:var(--gold-light); box-shadow:0 0 0 3px rgba(255,201,60,.25), inset 0 2px 8px rgba(0,0,0,.3); }
+
+        .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:8px; pointer-events:none; width:90%; max-width:480px; }
+        .toast {
+            padding:13px 20px; border-radius:999px; font-weight:800; font-size:.92em; text-align:center;
+            animation:toastIn .4s var(--bounce), toastOut .4s ease 2.5s forwards;
+            box-shadow:0 10px 28px rgba(0,0,0,.4);
+            border:1px solid rgba(255,255,255,.25);
+            backdrop-filter:blur(8px); pointer-events:auto;
+        }
+        .toast-success { background:linear-gradient(180deg,#0FD3A8,var(--success)); color:#03302A; }
+        .toast-warning { background:linear-gradient(180deg,var(--gold-light),var(--gold)); color:#4A2E00; }
+        .toast-info { background:linear-gradient(180deg,#8B7CF0,var(--primary)); color:#fff; }
+        @keyframes toastIn { from{transform:translateY(-40px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+        @keyframes toastOut { from{transform:translateY(0);opacity:1;} to{transform:translateY(-30px);opacity:0;} }
+
+        .modal-overlay {
+            position:fixed; inset:0; background:rgba(10,8,20,.65);
+            backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+            z-index:1000; display:flex; align-items:center; justify-content:center;
+            animation:fadeIn .3s; padding:14px;
+        }
+        .modal {
+            background:rgba(30,30,47,.94);
+            backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+            border:1px solid var(--glass-border);
+            border-radius:var(--radius);
+            padding:24px 20px; width:100%; max-width:440px; max-height:84vh; overflow-y:auto;
+            box-shadow:0 24px 60px rgba(0,0,0,.6), 0 0 40px rgba(108,92,231,.2);
+            animation:modalPop .4s var(--bounce); color:var(--text);
+        }
+        .modal h2 { color:var(--gold-light); margin-bottom:12px; font-size:1.25em; text-align:center; }
+        .modal p { line-height:2; font-size:.92em; color:var(--text-light); }
+        .modal p strong { color:var(--accent); }
+        .modal .close-btn {
+            float:left; background:rgba(255,255,255,.10); border:1px solid var(--glass-border);
+            width:36px; height:36px; border-radius:50%; cursor:pointer; font-size:1.05em; color:var(--text); transition:.2s;
+        }
+        .modal .close-btn:active { transform:scale(.9); }
+        .center-modal { display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; }
+        .center-modal .btn { width:100%; min-width:0; }
+
+        .modal-char { position:relative; width:110px; height:110px; display:flex; align-items:center; justify-content:center; margin-bottom:2px; }
+        .modal-char::before {
+            content:''; position:absolute; inset:0; border-radius:50%;
+            background:radial-gradient(circle, rgba(108,92,231,.45), transparent 70%);
+            box-shadow:0 0 30px rgba(108,92,231,.5);
+        }
+        .modal-char img {
+            position:relative; width:88px; height:88px; object-fit:contain;
+            image-rendering:pixelated;
+            filter:drop-shadow(0 6px 10px rgba(0,0,0,.4));
+            animation:charFloat 3.5s ease-in-out infinite;
+        }
+        .guide-char img { width:96px; height:96px; }
+
+        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+        @keyframes modalPop { from{transform:scale(.8);opacity:0;} to{transform:scale(1);opacity:1;} }
+
+        .guide-steps { display:flex; flex-direction:column; gap:10px; margin-top:6px; }
+        .guide-step {
+            display:flex; gap:12px; align-items:flex-start;
+            background:rgba(255,255,255,.06);
+            border:1px solid rgba(255,255,255,.10);
+            border-radius:var(--radius-sm); padding:12px 14px;
+        }
+        .guide-step-num {
+            flex-shrink:0; width:32px; height:32px; border-radius:50%;
+            background:linear-gradient(180deg,var(--gold-light),var(--gold));
+            color:#4A2E00; font-weight:900; font-size:.95em;
+            display:flex; align-items:center; justify-content:center;
+            box-shadow:0 3px 10px rgba(255,201,60,.35);
+        }
+        .guide-step-body { text-align:right; }
+        .guide-step-title { font-weight:900; color:var(--accent); font-size:.95em; margin-bottom:3px; }
+        .guide-step-text { font-size:.82em; color:var(--text-light); line-height:1.9; }
+        .guide-tip {
+            background:rgba(0,255,157,.08); border:1px solid rgba(0,255,157,.3);
+            border-radius:var(--radius-sm); padding:12px 14px;
+            font-size:.85em; color:var(--neon-green); line-height:2; margin-top:10px;
+        }
+
+        .shop-balance {
+            display:flex; align-items:center; gap:8px; justify-content:center;
+            background:rgba(255,201,60,.12); border:1px solid rgba(255,201,60,.4);
+            border-radius:999px; padding:8px 20px; font-weight:900; color:var(--gold-light);
+            margin-bottom:4px;
+        }
+        .shop-balance img { width:22px; height:22px; object-fit:contain; }
+        .shop-items { display:flex; flex-direction:column; gap:10px; margin-top:8px; }
+        .shop-card {
+            display:flex; align-items:center; gap:12px;
+            background:rgba(255,255,255,.06);
+            border:1px solid rgba(255,255,255,.10);
+            border-radius:var(--radius-sm); padding:12px;
+        }
+        .shop-card.equipped { border-color:rgba(255,201,60,.5); box-shadow:0 0 16px rgba(255,201,60,.15); }
+        .swatch { width:58px; height:58px; border-radius:12px; border:1px solid rgba(255,255,255,.3); flex-shrink:0; box-shadow:inset 0 0 14px rgba(0,0,0,.3); }
+        .shop-info { flex:1; text-align:right; min-width:0; }
+        .shop-name { font-weight:900; font-size:.95em; color:var(--text); }
+        .shop-desc { font-size:.72em; color:var(--text-light); margin-top:2px; }
+        .shop-price { display:inline-flex; align-items:center; gap:5px; font-size:.78em; color:var(--gold-light); font-weight:800; margin-top:5px; }
+        .shop-price img { width:15px; height:15px; object-fit:contain; }
+        .shop-action .btn { min-height:42px; min-width:86px; padding:8px 14px; font-size:.85em; border-radius:12px; }
+        .btn-equipped { background:rgba(0,255,157,.14) !important; color:var(--neon-green) !important; border:1.5px solid rgba(0,255,157,.4); cursor:default; }
+        .btn-owned { background:rgba(0,210,255,.14) !important; color:var(--neon-blue) !important; border:1.5px solid rgba(0,210,255,.4); }
+
+        .stars-row { display:flex; gap:10px; }
+        .star { width:44px; height:44px; fill:rgba(255,255,255,.14); stroke:rgba(255,255,255,.25); stroke-width:1.5; transition:.3s; }
+        .star.earned {
+            fill:var(--gold); stroke:var(--gold-dark);
+            filter:drop-shadow(0 0 12px rgba(255,201,60,.75));
+            animation:starPop .55s var(--bounce) backwards;
+        }
+        @keyframes starPop { 0%{transform:scale(0) rotate(-40deg);} 70%{transform:scale(1.35) rotate(10deg);} 100%{transform:scale(1) rotate(0);} }
+        .result-msg { font-size:.9em; color:var(--text-light); line-height:2; }
+        .result-score { font-size:1.1em; font-weight:900; color:var(--accent); }
+        .result-score span { color:var(--gold-light); }
+        .coin-reward-chip {
+            display:inline-flex; align-items:center; gap:8px;
+            background:rgba(255,201,60,.14);
+            border:1px solid rgba(255,201,60,.45);
+            color:var(--gold-light); font-weight:900; font-size:1.02em;
+            padding:9px 22px; border-radius:999px;
+            box-shadow:0 0 20px rgba(255,201,60,.30), inset 0 0 14px rgba(255,201,60,.10);
+        }
+        .coin-reward-chip img { width:24px; height:24px; object-fit:contain; filter:drop-shadow(0 0 6px rgba(255,201,60,.6)); }
+        .coin-reward-chip.reward-anim { animation:coinBump .6s var(--bounce); }
+
+        .confetti-piece { position:fixed; width:12px; height:12px; border-radius:50%; pointer-events:none; z-index:9998; animation:confettiFall 2.5s ease forwards; }
+        @keyframes confettiFall { 0%{transform:translateY(-60px) rotate(0deg) scale(1);opacity:1;} 100%{transform:translateY(105vh) rotate(720deg) scale(.2);opacity:0;} }
+        .irregular-reward { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0); z-index:9997; pointer-events:none; animation:rewardPop 2s ease forwards; }
+        @keyframes rewardPop { 0%{transform:translate(-50%,-50%) scale(0) rotate(-30deg);opacity:0;} 30%{transform:translate(-50%,-50%) scale(1.8) rotate(10deg);opacity:1;} 100%{transform:translate(-50%,-60%) scale(.4) rotate(20deg);opacity:0;} }
+
+        @media (max-width:480px) {
+            .fruit-svg { width:48px; height:48px; }
+            .btn { padding:12px 16px; font-size:.95em; min-width:140px; }
+            .btn-start { min-width:200px; font-size:1.08em; }
+            .hero-title { font-size:1.5em; }
+            .game-header h1 { font-size:.95em; }
+            .title-area svg { width:26px; height:26px; }
+            .heart { width:22px; height:22px; }
+            .chip { font-size:.78em; padding:6px 11px; }
+        }
+    </style>
+</head>
+<body data-theme="default">
+
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ============ 📖 راهنما ============ -->
+    <div class="modal-overlay hidden" id="guideModal">
+        <div class="modal">
+            <button class="close-btn" id="closeGuide">✕</button>
+            <div class="modal-char guide-char" style="margin:0 auto 8px;">
+                <img src="./icons/gamerhi.png" alt="راهنمای بازی">
+            </div>
+            <h2>📖 راهنمای قدم‌به‌قدم</h2>
+            <div class="guide-steps">
+                <div class="guide-step">
+                    <div class="guide-step-num">۱</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">هدف بازی چیست؟</div>
+                        <div class="guide-step-text">قبیله نمی‌داند «خیلی» یعنی چندتا! تو باید با شمردن میوه‌ها به آن‌ها شمارش را یاد بدهی.</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-step-num">۲</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">شروع کن</div>
+                        <div class="guide-step-text">در صفحه اصلی روی دکمه طلایی «شروع بازی» بزن تا لیست ۱۰ مرحله باز شود.</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-step-num">۳</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">مرحله را انتخاب کن</div>
+                        <div class="guide-step-text">مرحله ۱ آزاد است؛ با بردن هر مرحله، مرحله بعدی باز می‌شود. هرچه جلوتر بروی، سخت‌تر می‌شود!</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-step-num">۴</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">مراحل منظم (کلیک ترتیبی)</div>
+                        <div class="guide-step-text">در مراحل اول، میوه‌ها مرتب‌اند. <strong>از راست به چپ</strong> و به ترتیب روی هر میوه یک بار کلیک کن؛ عدد روی میوه می‌نشیند.</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-step-num">۵</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">مراحل پراکنده و متحرک</div>
+                        <div class="guide-step-text">در مراحل سخت‌تر میوه‌ها پراکنده و در حال تکان‌خوردن‌اند. اینجا هر ترتیبی مجاز است، ولی هر میوه را فقط <strong>یک بار</strong> لمس کن!</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-step-num">۶</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">مراحل زمان‌دار ⏱</div>
+                        <div class="guide-step-text">بعضی مراحل تایمر دارند. قبل از تمام‌شدن زمان، همه میوه‌ها را بشمار وگرنه می‌بازی.</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-step-num">۷</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">مراحل حدس (حالت حرفه‌ای)</div>
+                        <div class="guide-step-text">میوه‌ها چند ثانیه نشان داده می‌شوند و بعد پنهان! باید حدس بزنی چندتا بودند. هر حدس غلط یک قلب کم می‌کند.</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-step-num">۸</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">قلب‌ها ❤</div>
+                        <div class="guide-step-text">۳ قلب داری. هر اشتباه (دوبار کلیک یا ترتیب غلط) یک قلب کم می‌کند. قلب‌ها تمام شوند، مرحله می‌بازی.</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-step-num">۹</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">دکمه توقف ⏹</div>
+                        <div class="guide-step-text">بالای هر مرحله دکمه توقف هست: از آنجا می‌توانی مرحله را از نو شروع کنی، مرحله عوض کنی یا به صفحه اصلی بروی.</div>
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-step-num">۱۰</div>
+                    <div class="guide-step-body">
+                        <div class="guide-step-title">ستاره و سکه لوکو</div>
+                        <div class="guide-step-text">ستاره‌ها بر اساس قلب‌های باقی‌مانده‌اند. با کامل‌کردن هر ۱۰ مرحله سکه لوکو می‌گیری و می‌توانی در فروشگاه تم ب خر!</div>
+                    </div>
+                </div>
+            </div>
+            <div class="guide-tip">💡 نکته طلایی: در مراحل منظم همیشه از راست‌ترین میوه شروع کن و روی هر میوه فقط یک بار بزن!</div>
+        </div>
+    </div>
+
+    <!-- ============ 🛍️ فروشگاه ============ -->
+    <div class="modal-overlay hidden" id="shopModal">
+        <div class="modal">
+            <button class="close-btn" id="closeShop">✕</button>
+            <h2>🛍️ فروشگاه لوکو</h2>
+            <div class="shop-balance">
+                <img src="./icons/coin.png" alt="سکه لوکو">
+                <span>سکه‌های تو: <span id="shopBalance">0</span></span>
+            </div>
+            <p style="text-align:center;font-size:.78em;">تم‌های بازی را بخر و عوض کن! سکه می‌گیری با کامل‌کردن هر ۱۰ مرحله.</p>
+            <div class="shop-items" id="shopItems"></div>
+        </div>
+    </div>
+
+    <!-- ============ ⏹ مودال توقف ============ -->
+    <div class="modal-overlay hidden" id="stopModal">
+        <div class="modal center-modal">
+            <div class="modal-char"><img src="./icons/gamer.png" alt="شخصیت بازی"></div>
+            <h2>⏸ بازی متوقف شد</h2>
+            <button class="btn btn-primary" id="btnResume">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>
+                ادامه بازی
+            </button>
+            <button class="btn btn-secondary" id="btnRestartLevel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                شروع مجدد مرحله
+            </button>
+            <button class="btn btn-secondary" id="btnStopLevels">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                انتخاب مرحله
+            </button>
+            <button class="btn btn-secondary" id="btnStopMenu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 10v10h14V10"/></svg>
+                رفتن به صفحه اصلی
+            </button>
+        </div>
+    </div>
+
+    <!-- ============ 🎉 مودال برد مرحله ============ -->
+    <div class="modal-overlay hidden" id="winModal">
+        <div class="modal center-modal">
+            <div class="modal-char"><img src="./icons/gamer.png" alt="شخصیت بازی"></div>
+            <h2>🎉 آفرین! مرحله تموم شد</h2>
+            <div class="stars-row" id="winStars">
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            </div>
+            <p class="result-msg" id="winMsg"></p>
+            <p class="result-score">⭐ امتیاز جلسه: <span id="winScore">۰</span></p>
+            <button class="btn btn-primary" id="btnNextLevel">▶️ مرحله بعد</button>
+            <button class="btn btn-secondary" id="btnWinLevels">انتخاب مرحله</button>
+            <button class="btn btn-secondary" id="btnWinMenu">صفحه اصلی</button>
+        </div>
+    </div>
+
+    <!-- ============ 😢 مودال باخت ============ -->
+    <div class="modal-overlay hidden" id="loseModal">
+        <div class="modal center-modal">
+            <div class="modal-char"><img src="./icons/gamer.png" alt="شخصیت بازی"></div>
+            <h2>😢 آه نه! باختی</h2>
+            <p class="result-msg" id="loseReason"></p>
+            <p class="result-msg">اشکالی نداره، دوباره امتحان کن!</p>
+            <button class="btn btn-primary" id="btnRetryLevel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                تلاش دوباره
+            </button>
+            <button class="btn btn-secondary" id="btnLoseLevels">انتخاب مرحله</button>
+            <button class="btn btn-secondary" id="btnLoseMenu">صفحه اصلی</button>
+        </div>
+    </div>
+
+    <!-- ============ 🏆 پایان کامل بازی ============ -->
+    <div class="modal-overlay hidden" id="completeModal">
+        <div class="modal center-modal">
+            <div class="modal-char"><img src="./icons/gamer.png" alt="شخصیت بازی"></div>
+            <h2>🏆 بازی کامل شد!</h2>
+            <div class="stars-row" id="totalStars">
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+            </div>
+            <p class="result-msg">قبیله حالا بلده بشماره! تو قهرمان این ماجرا هستی!</p>
+            <p class="result-score">⭐ امتیاز کل این بازی: <span id="completeScore">۰</span></p>
+            <div class="coin-reward-chip reward-anim" id="completeCoinChip">
+                <img src="./icons/coin.png" alt="سکه لوکو">
+                <span id="completeCoinText">+۱۰ سکه لوکو</span>
+            </div>
+            <button class="btn btn-primary" id="btnPlayFromStart">🔄 بازی از اول</button>
+            <button class="btn btn-secondary" id="btnCompleteMenu">صفحه اصلی</button>
+        </div>
+    </div>
+
+    <!-- آمار: UI مخفی — Data Pipeline فعال -->
+    <div class="modal-overlay hidden" id="statsModal">
+        <div class="modal">
+            <button class="close-btn" id="closeStats">✕</button>
+            <h2>📊 آمار</h2>
+            <div id="statsDisplay"></div>
+        </div>
+    </div>
+
+    <!-- ============ کانتینر اصلی ============ -->
+    <div class="main-container">
+        <div class="game-header">
+            <div class="header-row">
+                <div class="coin-display" id="coinDisplay" title="سکه‌های لوکو">
+                    <img src="./icons/coin.png" class="coin-icon-img" alt="سکه لوکو">
+                    <div class="coin-amount" id="coinAmount">0</div>
+                </div>
+                <div class="title-area">
+                    <svg width="32" height="32" viewBox="0 0 32 32">
+                        <circle cx="10" cy="18" r="7" fill="#fbbf24" stroke="#b45309" stroke-width="2"/>
+                        <circle cx="22" cy="12" r="6" fill="#fcd34d" stroke="#b45309" stroke-width="2"/>
+                        <circle cx="18" cy="24" r="5" fill="#fde68a" stroke="#b45309" stroke-width="2"/>
+                        <rect x="2" y="26" width="28" height="4" rx="2" fill="#d97706"/>
+                    </svg>
+                    <div>
+                        <h1>نجات قبیله از خیلی</h1>
+                        <div class="subtitle">به انسان‌های اولیه کمک کن بشمارند!</div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <div class="net-status" id="netStatus" title="وضعیت اتصال"><span class="net-dot"></span></div>
+                    <button class="mute-btn" id="muteBtn">🔊</button>
+                </div>
+            </div>
+            <div class="progress-bar-wrap">
+                <div class="progress-fill" id="progressBar" style="width:0%;"></div>
+            </div>
+        </div>
+
+        <div class="game-content">
+            <div class="landing-screen" id="landingScreen">
+                <div>
+                    <div class="hero-title">نجات قبیله از خیلی</div>
+                    <div class="hero-subtitle">به انسان‌های اولیه کمک کن درست بشمارند!</div>
+                </div>
+                <div class="speech-bubble">سلام! آماده‌ای بریم؟</div>
+                <div class="pixel-character">
+                    <img src="./icons/gamer.png" alt="شخصیت بازی" class="bounce-in">
+                </div>
+                <p class="landing-story">ما نمی‌دانیم این چند تا است،<br>فقط بهش می‌گوییم "خیلی". می‌توانی کمکمون کنی؟</p>
+                <button class="btn btn-primary btn-start" id="btnStart">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>
+                    شروع بازی
+                </button>
+                <div class="secondary-row">
+                    <button class="btn btn-secondary" id="btnGuide">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        راهنما
+                    </button>
+                    <button class="btn btn-secondary" id="btnShop">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        فروشگاه
+                    </button>
+                </div>
+            </div>
+
+            <!-- انتخاب مرحله -->
+            <div class="level-screen" id="levelScreen">
+                <h2 class="section-title">مرحله‌ات را انتخاب کن</h2>
+                <div class="section-sub">با بردن هر مرحله، مرحله بعد باز می‌شود</div>
+                <div class="level-grid" id="levelGrid"></div>
+                <button class="btn btn-secondary" id="btnLevelsBack" style="min-height:48px;">بازگشت به صفحه اصلی</button>
+            </div>
+
+            <!-- صفحه بازی -->
+            <div class="game-screen" id="gameScreen">
+                <div class="topbar">
+                    <div class="hearts" id="heartsRow"></div>
+                    <div class="chip" id="levelChip">مرحله ۱</div>
+                    <div class="chip timer-chip hidden" id="timerChip">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 2h6"/></svg>
+                        <span id="timerText">۳۰</span>
+                    </div>
+                    <button class="stop-btn" id="btnStop" title="توقف بازی">
+                        <svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/></svg>
+                    </button>
+                </div>
+                <div class="character-message" id="characterMessage">
+                    روی میوه‌ها کلیک کن و به ترتیب بشمار!
+                </div>
+                <div class="fruits-area grid-layout" id="fruitsArea">
+                    <div class="fruits-overlay hidden" id="fruitsOverlay">؟</div>
+                </div>
+                <div class="counter-panel" id="counterPanel">
+                    <span>شمرده:</span>
+                    <span class="counter-number" id="countedDisplay">0</span>
+                    <span>از</span>
+                    <span class="counter-number" id="totalDisplay">0</span>
+                </div>
+                <div class="pro-mode-input hidden" id="proModeInputArea">
+                    <input type="number" class="pro-input" id="proInput" min="1" max="15" placeholder="؟">
+                    <button class="btn btn-primary" id="btnProConfirm" style="min-height:52px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                        تأیید حدس
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 🎮 موتور بازی «نجات قبیله از خیلی» — نسخه ۱۰ مرحله‌ای (اصلاح‌شده)
+        // سیستم‌های مشترک LOKO: Coin / Shop / Offline Cache / Sync
+        // ============================================================
+
+        class AudioEngine {
+            constructor() { this.ctx = null; this.muted = false; }
+            _ensureContext() {
+                if (!this.ctx) { try { this.ctx = new(window.AudioContext || window.webkitAudioContext)(); } catch (e) { this.ctx = null; } }
+                if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+            }
+            _playTone(freq, dur, type = 'sine', vol = 0.12, delay = 0) {
+                if (this.muted || !this.ctx) return;
+                try {
+                    const o = this.ctx.createOscillator();
+                    const g = this.ctx.createGain();
+                    o.type = type;
+                    o.frequency.setValueAtTime(freq, this.ctx.currentTime + delay);
+                    g.gain.setValueAtTime(vol, this.ctx.currentTime + delay);
+                    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + dur);
+                    o.connect(g); g.connect(this.ctx.destination);
+                    o.start(this.ctx.currentTime + delay);
+                    o.stop(this.ctx.currentTime + delay + dur);
+                } catch (e) {}
+            }
+            clickSound()   { this._playTone(784, 0.06, 'sine', 0.1); }
+            successSound() { this._playTone(660, 0.2, 'sine', 0.15, 0); this._playTone(880, 0.25, 'sine', 0.18, 0.15); }
+            errorSound()   { this._playTone(330, 0.18, 'square', 0.08); }
+            rewardSound()  { this._playTone(880, 0.08, 'sine', 0.12, 0); this._playTone(1100, 0.12, 'sine', 0.1, 0.08); }
+            winSound()     { this._playTone(523,0.15,'sine',0.15,0); this._playTone(659,0.15,'sine',0.15,0.12); this._playTone(784,0.2,'sine',0.16,0.24); this._playTone(1047,0.3,'sine',0.16,0.4); }
+            loseSound()    { this._playTone(392,0.2,'sine',0.13,0); this._playTone(311,0.25,'sine',0.13,0.18); this._playTone(233,0.4,'sine',0.14,0.38); }
+            coinSound()    { this._playTone(988,0.07,'sine',0.13,0); this._playTone(1319,0.14,'sine',0.12,0.07); }
+            toggleMute()   { this.muted = !this.muted; return this.muted; }
+        }
+        const audio = new AudioEngine();
+
+        function toFa(n) { return String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]); }
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.textContent = msg;
+            container.appendChild(t);
+            setTimeout(() => { if (t.parentNode) t.remove(); }, 3000);
+        }
+
+        function addRipple(btn) {
+            btn.addEventListener('click', function(e) {
+                const r = document.createElement('span');
+                r.className = 'ripple';
+                const rect = btn.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                r.style.width = r.style.height = size + 'px';
+                r.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                r.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                btn.appendChild(r);
+                r.addEventListener('animationend', () => r.remove());
+            });
+        }
+
+        function spawnConfetti(count = 30) {
+            const colors = ['#FFC93C', '#6C5CE7', '#00D2FF', '#FF00A0', '#00FF9D', '#FFEAA7'];
+            for (let i = 0; i < count; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti-piece';
+                el.style.left = Math.random() * 100 + '%';
+                el.style.top = -(Math.random() * 30 + 10) + 'px';
+                el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                el.style.width = (Math.random() * 10 + 6) + 'px';
+                el.style.height = (Math.random() * 10 + 6) + 'px';
+                el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                document.body.appendChild(el);
+                el.addEventListener('animationend', () => el.remove());
+            }
+        }
+
+        function showIrregularReward() {
+            const reward = document.createElement('div');
+            reward.className = 'irregular-reward';
+            reward.innerHTML = `<svg width="70" height="70" viewBox="0 0 70 70">
+            <polygon points="35,5 42,28 68,28 46,42 52,65 35,50 18,65 24,42 2,28 28,28"
+            fill="#FFC93C" stroke="#B96F00" stroke-width="2"/></svg>`;
+            document.body.appendChild(reward);
+            audio.rewardSound();
+            reward.addEventListener('animationend', () => reward.remove());
+        }
+
+        // ============================================================
+        // 🪙 LOKO Coin System
+        // ============================================================
+        function spawnCoinFloat(text) {
+            const d = document.getElementById('coinDisplay');
+            if (!d) return;
+            const chip = document.createElement('div');
+            chip.className = 'coin-float';
+            chip.textContent = text;
+            const rect = d.getBoundingClientRect();
+            chip.style.left = (rect.left + rect.width / 2) + 'px';
+            chip.style.top = (rect.bottom + 4) + 'px';
+            document.body.appendChild(chip);
+            chip.addEventListener('animationend', () => chip.remove());
+        }
+
+        const LokoCoins = {
+            KEY: 'lokoCoins',
+            get() { try { const v = parseInt(localStorage.getItem(this.KEY), 10); return isNaN(v) ? 0 : v; } catch (e) { return 0; } },
+            set(v) { try { localStorage.setItem(this.KEY, String(Math.max(0, v))); } catch (e) {} this._render(true); },
+            add(n) { this.set(this.get() + n); spawnCoinFloat('+' + toFa(n)); audio.coinSound(); },
+            spend(n) { if (this.get() < n) return false; this.set(this.get() - n); return true; },
+            render() { this._render(false); },
+            _render(animate) {
+                const el = document.getElementById('coinAmount');
+                if (el) el.textContent = toFa(this.get());
+                const sb = document.getElementById('shopBalance');
+                if (sb) sb.textContent = toFa(this.get());
+                if (animate) {
+                    const d = document.getElementById('coinDisplay');
+                    if (d) { d.classList.remove('bump'); void d.offsetWidth; d.classList.add('bump'); }
+                }
+            }
+        };
+
+        // ============================================================
+        // 🌐 LOKO Offline / Sync Layer
+        // ============================================================
+        async function fetchWithTimeout(url, options = {}, timeout = 6000) {
+            const controller = new AbortController();
+            const t = setTimeout(() => controller.abort(), timeout);
+            try { const res = await fetch(url, { ...options, signal: controller.signal }); clearTimeout(t); return res; }
+            catch (err) { clearTimeout(t); throw err; }
+        }
+
+        const LokoSync = {
+            ENDPOINT: null,
+            QUEUE_KEY: 'lokoPendingSync',
+            async sync() {
+                if (!navigator.onLine) { this._setStatus(false); return; }
+                this._setStatus(true);
+                if (!this.ENDPOINT) return;
+                let q = [];
+                try { q = JSON.parse(localStorage.getItem(this.QUEUE_KEY) || '[]'); } catch (e) {}
+                if (!q.length) return;
+                try {
+                    const res = await fetchWithTimeout(this.ENDPOINT, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ events: q, clientCoins: LokoCoins.get() })
+                    }, 7000);
+                    if (res.ok) {
+                        try {
+                            const data = await res.json();
+                            if (data && typeof data.coins === 'number') LokoCoins.set(Math.max(LokoCoins.get(), data.coins));
+                        } catch (e) {}
+                        try { localStorage.setItem(this.QUEUE_KEY, '[]'); } catch (e) {}
+                    }
+                } catch (e) { /* Offline Mode */ }
+            },
+            queue(item) {
+                try {
+                    const q = JSON.parse(localStorage.getItem(this.QUEUE_KEY) || '[]');
+                    q.push(item); if (q.length > 50) q.splice(0, q.length - 50);
+                    localStorage.setItem(this.QUEUE_KEY, JSON.stringify(q));
+                } catch (e) {}
+            },
+            _setStatus(online) { document.body.classList.toggle('is-offline', !online); },
+            init() {
+                window.addEventListener('online', () => { this._setStatus(true); showToast('📡 اتصال برقرار شد — همگام‌سازی...', 'info'); this.sync(); });
+                window.addEventListener('offline', () => { this._setStatus(false); showToast('🔌 اتصال قطع شد — بازی در حالت آفلاین ادامه می‌دهد', 'warning'); });
+                setInterval(() => this.sync(), 30000);
+                this._setStatus(navigator.onLine);
+                this.sync();
+            }
+        };
+
+        // ============================================================
+        // 🛍️ LOKO Shop
+        // ============================================================
+        const THEMES = [
+            { id:'default', name:'شب کهکشانی', desc:'تم پیش‌فرض لوکو', price:0,  swatch:'linear-gradient(135deg,#181225,#6C5CE7)' },
+            { id:'jungle',  name:'جنگل نئونی', desc:'سبزهای درخشان جنگل', price:5,  swatch:'linear-gradient(135deg,#0a2418,#00FF9D)' },
+            { id:'ocean',   name:'اقیانوس',    desc:'آبی عمیق دریا',      price:8,  swatch:'linear-gradient(135deg,#07203a,#00D2FF)' },
+            { id:'sunset',  name:'غروب بنفش',  desc:'صورتیِ غروب بیابان', price:12, swatch:'linear-gradient(135deg,#250f22,#FF00A0)' }
+        ];
+
+        const LokoShop = {
+            KEY: 'lokoShop',
+            data() {
+                try { return JSON.parse(localStorage.getItem(this.KEY)) || { owned:['default'], equipped:'default' }; }
+                catch (e) { return { owned:['default'], equipped:'default' }; }
+            },
+            save(d) { try { localStorage.setItem(this.KEY, JSON.stringify(d)); } catch (e) {} },
+            apply() { document.body.dataset.theme = this.data().equipped; },
+            buy(theme) {
+                const d = this.data();
+                if (d.owned.includes(theme.id)) return;
+                if (LokoCoins.get() < theme.price) {
+                    const cd = document.getElementById('coinDisplay');
+                    if (cd) { cd.classList.remove('shake'); void cd.offsetWidth; cd.classList.add('shake'); }
+                    audio.errorSound();
+                    showToast('سکه کافی نداری! با کامل‌کردن مراحل سکه لوکو بگیر 🪙', 'warning');
+                    return;
+                }
+                LokoCoins.spend(theme.price);
+                d.owned.push(theme.id);
+                d.equipped = theme.id;
+                this.save(d);
+                this.apply();
+                audio.rewardSound();
+                showToast(`🎉 تم «${theme.name}» خریداری و فعال شد!`, 'success');
+                LokoSync.queue({ type:'shop_purchase', item:theme.id, price:theme.price, at:Date.now() });
+                LokoSync.sync();
+                this.render();
+            },
+            equip(theme) {
+                const d = this.data();
+                if (!d.owned.includes(theme.id)) return;
+                d.equipped = theme.id;
+                this.save(d);
+                this.apply();
+                audio.clickSound();
+                showToast(`تم «${theme.name}» فعال شد ✨`, 'info');
+                this.render();
+            },
+            render() {
+                const d = this.data();
+                const box = document.getElementById('shopItems');
+                if (!box) return;
+                box.innerHTML = '';
+                THEMES.forEach(t => {
+                    const owned = d.owned.includes(t.id);
+                    const equipped = d.equipped === t.id;
+                    const card = document.createElement('div');
+                    card.className = 'shop-card' + (equipped ? ' equipped' : '');
+                    card.innerHTML = `
+                        <div class="swatch" style="background:${t.swatch}"></div>
+                        <div class="shop-info">
+                            <div class="shop-name">${t.name}</div>
+                            <div class="shop-desc">${t.desc}</div>
+                            ${!owned ? `<div class="shop-price"><img src="./icons/coin.png" alt="سکه"> ${toFa(t.price)} سکه لوکو</div>` : ''}
+                        </div>
+                        <div class="shop-action"></div>`;
+                    const action = card.querySelector('.shop-action');
+                    const btn = document.createElement('button');
+                    btn.className = 'btn';
+                    if (equipped) { btn.classList.add('btn-equipped'); btn.textContent = '✓ در حال استفاده'; }
+                    else if (owned) { btn.classList.add('btn-secondary', 'btn-owned'); btn.textContent = 'انتخاب'; btn.addEventListener('click', () => this.equip(t)); }
+                    else { btn.classList.add('btn-primary'); btn.textContent = 'خرید'; btn.addEventListener('click', () => this.buy(t)); }
+                    action.appendChild(btn);
+                    box.appendChild(card);
+                });
+                LokoCoins.render();
+            }
+        };
+
+        // ============================================================
+        // 🎯 پیکربندی ۱۰ مرحله
+        // ============================================================
+        const LEVELS = [
+            { n:1,  count:4,  layout:'grid',      sway:false, mode:'click', time:0,  order:true  },
+            { n:2,  count:5,  layout:'grid',      sway:false, mode:'click', time:0,  order:true  },
+            { n:3,  count:6,  layout:'grid',      sway:false, mode:'click', time:0,  order:true  },
+            { n:4,  count:7,  layout:'scattered', sway:false, mode:'click', time:40, order:false },
+            { n:5,  count:8,  layout:'scattered', sway:true,  mode:'click', time:35, order:false },
+            { n:6,  count:7,  layout:'grid',      sway:false, mode:'guess', peek:5,  time:0, order:false },
+            { n:7,  count:9,  layout:'scattered', sway:true,  mode:'click', time:30, order:false },
+            { n:8,  count:10, layout:'scattered', sway:true,  mode:'guess', peek:4,  time:0, order:false },
+            { n:9,  count:10, layout:'scattered', sway:true,  mode:'click', time:25, order:false },
+            { n:10, count:12, layout:'scattered', sway:true,  mode:'guess', peek:4,  time:0, order:false }
+        ];
+        function diffInfo(n) {
+            if (n <= 3) return { label:'آسان', cls:'easy' };
+            if (n <= 5) return { label:'متوسط', cls:'medium' };
+            if (n <= 8) return { label:'سخت', cls:'hard' };
+            return { label:'خیلی سخت', cls:'insane' };
+        }
+
+        const LokoLevels = {
+            KEY: 'lokoLevels',
+            data() {
+                try { return JSON.parse(localStorage.getItem(this.KEY)) || { unlocked:1, stars:{} }; }
+                catch (e) { return { unlocked:1, stars:{} }; }
+            },
+            save(d) { try { localStorage.setItem(this.KEY, JSON.stringify(d)); } catch (e) {} },
+            unlock(n) { const d = this.data(); if (n > d.unlocked) { d.unlocked = n; this.save(d); } },
+            setStars(n, s) {
+                const d = this.data();
+                if (!d.stars[n] || s > d.stars[n]) { d.stars[n] = s; this.save(d); }
+            }
+        };
+
+        // ---------- کلاس بازی ----------
+        class TribeCountingGame {
+            constructor() {
+                this.state = 'landing';
+                this.pausedState = 'playing';
+                this.cfg = LEVELS[0];
+                this.currentLevel = 1;
+                this.hearts = 3;
+                this.timeLeft = 0;
+                this.peekLeft = 0;
+                this.gameTimerId = null;
+                this.peekTimerId = null;
+                this.sessionScore = 0;
+                this.runStarted = false;
+                this.runInitialCoins = 0;
+                this.runCovered = new Set();   // 🪙 مراحل برده‌شده در این اجرا (شرط پاداش کامل)
+                this.sessionDoubleClickErrors = 0;
+                this.sessionOrderErrors = 0;
+                this.sessionProAttempts = 0;
+                this.sessionProCorrect = 0;
+                this.fruits = [];
+                this.fruitTypes = ['apple', 'banana', 'orange'];
+                this.totalFruits = 0;
+                this.countedIndices = [];
+                this.expectedNextIndex = 0;
+
+                this.landingScreen = document.getElementById('landingScreen');
+                this.levelScreen = document.getElementById('levelScreen');
+                this.gameScreen = document.getElementById('gameScreen');
+                this.fruitsArea = document.getElementById('fruitsArea');
+                this.fruitsOverlay = document.getElementById('fruitsOverlay');
+                this.characterMessage = document.getElementById('characterMessage');
+                this.countedDisplay = document.getElementById('countedDisplay');
+                this.totalDisplay = document.getElementById('totalDisplay');
+                this.counterPanel = document.getElementById('counterPanel');
+                this.proModeInputArea = document.getElementById('proModeInputArea');
+                this.progressBar = document.getElementById('progressBar');
+                this.muteBtn = document.getElementById('muteBtn');
+                this.heartsRow = document.getElementById('heartsRow');
+                this.levelChip = document.getElementById('levelChip');
+                this.timerChip = document.getElementById('timerChip');
+                this.timerText = document.getElementById('timerText');
+
+                this._bindEvents();
+                this._restorePrefs();
+                LokoCoins.render();
+                LokoShop.apply();
+            }
+
+            // ✅ FIX: بایند محافظت‌شده — اگر المانی نبود، کرش نمی‌کند
+            _on(id, event, fn) {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener(event, fn);
+            }
+
+            _bindEvents() {
+                this._on('btnStart', 'click', () => this.showLevelSelect());
+                this._on('btnGuide', 'click', () => this.showModal('guideModal'));
+                this._on('btnShop', 'click', () => { LokoShop.render(); this.showModal('shopModal'); });
+                this._on('closeGuide', 'click', () => this.hideModal('guideModal'));
+                this._on('closeShop', 'click', () => this.hideModal('shopModal'));
+                this._on('closeStats', 'click', () => this.hideModal('statsModal'));
+                this._on('btnLevelsBack', 'click', () => this.goToLanding());
+
+                // توقف
+                this._on('btnStop', 'click', () => this._pauseGame());
+                this._on('btnResume', 'click', () => this._resumeGame());
+                this._on('btnRestartLevel', 'click', () => { this.hideModal('stopModal'); this.startLevel(this.currentLevel); });
+                this._on('btnStopLevels', 'click', () => { this.hideModal('stopModal'); this._abortToLevels(); });
+                this._on('btnStopMenu', 'click', () => { this.hideModal('stopModal'); this.goToLanding(); });
+
+                // برد
+                this._on('btnNextLevel', 'click', () => { this.hideModal('winModal'); this.startLevel(Math.min(10, this.currentLevel + 1)); });
+                this._on('btnWinLevels', 'click', () => { this.hideModal('winModal'); this._abortToLevels(); });
+                this._on('btnWinMenu', 'click', () => { this.hideModal('winModal'); this.goToLanding(); });
+
+                // باخت
+                this._on('btnRetryLevel', 'click', () => { this.hideModal('loseModal'); this.startLevel(this.currentLevel); });
+                this._on('btnLoseLevels', 'click', () => { this.hideModal('loseModal'); this._abortToLevels(); });
+                this._on('btnLoseMenu', 'click', () => { this.hideModal('loseModal'); this.goToLanding(); });
+
+                // پایان کامل
+                this._on('btnPlayFromStart', 'click', () => { this.hideModal('completeModal'); this.showLevelSelect(); });
+                this._on('btnCompleteMenu', 'click', () => { this.hideModal('completeModal'); this.goToLanding(); });
+
+                this._on('btnProConfirm', 'click', () => this._confirmProGuess());
+                this._on('proInput', 'keydown', e => { if (e.key === 'Enter') this._confirmProGuess(); });
+
+                this._on('muteBtn', 'click', () => {
+                    this.muteBtn.textContent = audio.toggleMute() ? '🔇' : '🔊';
+                    this._savePrefs();
+                });
+
+                document.querySelectorAll('.modal-overlay').forEach(o => {
+                    o.addEventListener('click', e => {
+                        if (e.target !== o) return;
+                        if (['guideModal','shopModal','statsModal'].includes(o.id)) o.classList.add('hidden');
+                    });
+                });
+                document.addEventListener('click', () => audio._ensureContext(), { once: true });
+            }
+
+            _savePrefs() {
+                try { localStorage.setItem('lokoPrefs', JSON.stringify({ muted: audio.muted })); } catch (e) {}
+            }
+            _restorePrefs() {
+                try {
+                    const prefs = JSON.parse(localStorage.getItem('lokoPrefs') || '{}');
+                    if (prefs.muted) { audio.muted = true; if (this.muteBtn) this.muteBtn.textContent = '🔇'; }
+                } catch (e) {}
+            }
+
+            // ---------- ناوبری ----------
+            _show(screen) {
+                if (this.landingScreen) this.landingScreen.classList.toggle('hidden', screen !== 'landing');
+                if (this.levelScreen) this.levelScreen.classList.toggle('active', screen === 'levels');
+                if (this.gameScreen) this.gameScreen.classList.toggle('active', screen === 'game');
+            }
+            goToLanding() {
+                this._clearTimers();
+                this.state = 'landing';
+                this._show('landing');
+                if (this.progressBar) this.progressBar.style.width = '0%';
+            }
+            _abortToLevels() {
+                this._clearTimers();
+                this.state = 'levels';
+                this._show('levels');
+                this._renderLevelGrid();
+            }
+            showLevelSelect() {
+                this._clearTimers();
+                this.state = 'levels';
+                this._show('levels');
+                this._renderLevelGrid();
+            }
+
+            // ✅ FIX: null-safe — دیگر هرگز روی null کرش نمی‌کند
+            showModal(id) {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('hidden');
+            }
+            hideModal(id) {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            }
+
+            // ---------- انتخاب مرحله ----------
+            _renderLevelGrid() {
+                const grid = document.getElementById('levelGrid');
+                if (!grid) return;
+                const save = LokoLevels.data();
+                grid.innerHTML = '';
+                LEVELS.forEach(lv => {
+                    const info = diffInfo(lv.n);
+                    const locked = lv.n > save.unlocked;
+                    const stars = save.stars[lv.n] || 0;
+                    const card = document.createElement('div');
+                    card.className = 'level-card' + (locked ? ' locked' : '');
+                    card.innerHTML = `
+                        ${locked ? `<svg class="lv-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>` : ''}
+                        <div class="lv-num">${toFa(lv.n)}</div>
+                        <div class="lv-diff ${info.cls}">${info.label}</div>
+                        <div class="lv-stars">
+                            <span class="${stars>=1?'on':''}">★</span>
+                            <span class="${stars>=2?'on':''}">★</span>
+                            <span class="${stars>=3?'on':''}">★</span>
+                        </div>`;
+                    card.addEventListener('click', () => {
+                        if (locked) {
+                            audio.errorSound();
+                            showToast(`🔒 اول مرحله ${toFa(lv.n - 1)} را ببر تا این مرحله باز شود!`, 'warning');
+                            return;
+                        }
+                        this.startLevel(lv.n);
+                    });
+                    grid.appendChild(card);
+                });
+            }
+
+            // ---------- شروع مرحله ----------
+            startLevel(n) {
+                this.currentLevel = n;
+                this.cfg = LEVELS[n - 1];
+                if (!this.cfg) return;
+
+                // 🪙 قانون پاداش LOKO: اسنپ‌شات سکه هنگام شروع بازی (مرحله ۱)
+                if (n === 1) {
+                    this.sessionScore = 0;
+                    this.runInitialCoins = LokoCoins.get();
+                    this.runStarted = true;
+                    this.runCovered = new Set();
+                } else if (!this.runStarted) {
+                    this.runInitialCoins = LokoCoins.get();
+                    this.runCovered = new Set();
+                    this.runStarted = true;
+                }
+
+                this.hearts = 3;
+                this.totalFruits = this.cfg.count;
+                this.fruits = [];
+                this.countedIndices = [];
+                this.expectedNextIndex = 0;
+
+                this._show('game');
+                // ✅ FIX: خط hideModal('endGame') حذف شد — علت کرش قبلی
+
+                if (this.levelChip) this.levelChip.textContent = 'مرحله ' + toFa(n);
+                this._renderHearts();
+                if (this.progressBar) this.progressBar.style.width = ((n - 1) / 10 * 100) + '%';
+
+                if (this.counterPanel) this.counterPanel.classList.remove('hidden');
+                if (this.proModeInputArea) this.proModeInputArea.classList.add('hidden');
+                if (this.timerChip) { this.timerChip.classList.add('hidden'); this.timerChip.classList.remove('urgent'); }
+                if (this.fruitsOverlay) this.fruitsOverlay.classList.add('hidden');
+
+                this._renderFruits();
+                this._updateCounterDisplay();
+
+                if (this.cfg.mode === 'guess') {
+                    if (this.counterPanel) this.counterPanel.classList.add('hidden');
+                    if (this.totalDisplay) this.totalDisplay.textContent = '؟';
+                    this.state = 'peeking';
+                    this.peekLeft = this.cfg.peek;
+                    this._showFruits();
+                    this._startPeekTimer();
+                } else {
+                    this.state = 'playing';
+                    if (this.cfg.order) {
+                        if (this.characterMessage) this.characterMessage.textContent = 'از راست به چپ، به ترتیب روی میوه‌ها کلیک کن!';
+                    } else {
+                        if (this.characterMessage) this.characterMessage.textContent = 'میوه‌ها را بشمار! هر کدام فقط یک بار!';
+                    }
+                    if (this.cfg.time > 0) {
+                        if (this.timerChip) this.timerChip.classList.remove('hidden');
+                        this._startGameTimer(this.cfg.time);
+                    }
+                }
+            }
+
+            _renderHearts() {
+                if (!this.heartsRow) return;
+                this.heartsRow.innerHTML = '';
+                for (let i = 0; i < 3; i++) {
+                    const h = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    h.setAttribute('viewBox', '0 0 24 24');
+                    h.classList.add('heart');
+                    if (i >= this.hearts) h.classList.add('lost');
+                    h.innerHTML = `<path d="M12 21s-7.5-4.7-10-9.3C.4 8.6 2.3 5 5.7 5c2 0 3.4 1.1 4.3 2.5h4c.9-1.4 2.3-2.5 4.3-2.5 3.4 0 5.3 3.6 3.7 6.7C19.5 16.3 12 21 12 21z"/>`;
+                    this.heartsRow.appendChild(h);
+                }
+            }
+
+            // ---------- رندر میوه‌ها ----------
+            _renderFruits() {
+                if (!this.fruitsArea) return;
+                this.fruitsArea.querySelectorAll('.fruit-item').forEach(el => el.remove());
+                const types = [];
+                for (let i = 0; i < this.totalFruits; i++) types.push(this.fruitTypes[i % this.fruitTypes.length]);
+                this._shuffle(types);
+
+                const swayDur = this.currentLevel >= 9 ? '2s' : '3s';
+                if (this.cfg.layout === 'grid') {
+                    this.fruitsArea.className = 'fruits-area grid-layout';
+                    for (let i = 0; i < this.totalFruits; i++) {
+                        const f = this._createFruitElement(i, types[i], false);
+                        this.fruits.push(f);
+                        this.fruitsArea.appendChild(f.element);
+                    }
+                } else {
+                    this.fruitsArea.className = 'fruits-area scattered';
+                    this.fruitsArea.style.minHeight = '300px';
+                    for (let i = 0; i < this.totalFruits; i++) {
+                        const f = this._createFruitElement(i, types[i], true);
+                        f.element.style.position = 'absolute';
+                        f.element.style.left = (8 + Math.random() * 72) + '%';
+                        f.element.style.top = (8 + Math.random() * 70) + '%';
+                        if (this.cfg.sway) {
+                            f.element.classList.add('swaying');
+                            f.element.style.animationDuration = swayDur;
+                        }
+                        this.fruits.push(f);
+                        this.fruitsArea.appendChild(f.element);
+                    }
+                }
+                if (this.fruitsOverlay) this.fruitsArea.appendChild(this.fruitsOverlay);
+                if (this.totalDisplay) this.totalDisplay.textContent = this.cfg.mode === 'guess' ? '؟' : toFa(this.totalFruits);
+            }
+
+            _shuffle(arr) {
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                return arr;
+            }
+
+            _createFruitElement(index, type, scattered) {
+                const container = document.createElement('div');
+                container.className = 'fruit-item';
+                container.dataset.index = index;
+                container.dataset.type = type;
+                container.appendChild(this._createFruitSVG(type));
+                const label = document.createElement('span');
+                label.className = 'fruit-label';
+                container.appendChild(label);
+                container.addEventListener('click', () => this._onFruitClick(index, container));
+                return { id: index, type, element: container, counted: false };
+            }
+
+            _createFruitSVG(type) {
+                const svgNS = 'http://www.w3.org/2000/svg';
+                const svg = document.createElementNS(svgNS, 'svg');
+                svg.setAttribute('viewBox', '0 0 40 40');
+                svg.classList.add('fruit-svg');
+                switch (type) {
+                    case 'apple':
+                        const apple = document.createElementNS(svgNS, 'circle');
+                        apple.setAttribute('cx','20'); apple.setAttribute('cy','22'); apple.setAttribute('r','14');
+                        apple.setAttribute('fill','#ef4444'); apple.setAttribute('stroke','#b91c1c'); apple.setAttribute('stroke-width','2');
+                        svg.appendChild(apple);
+                        const stem = document.createElementNS(svgNS, 'rect');
+                        stem.setAttribute('x','19'); stem.setAttribute('y','5'); stem.setAttribute('width','2'); stem.setAttribute('height','8');
+                        stem.setAttribute('fill','#78350f'); svg.appendChild(stem);
+                        const leaf = document.createElementNS(svgNS, 'ellipse');
+                        leaf.setAttribute('cx','24'); leaf.setAttribute('cy','9'); leaf.setAttribute('rx','6'); leaf.setAttribute('ry','3');
+                        leaf.setAttribute('fill','#22c55e'); leaf.setAttribute('transform','rotate(30,24,9)'); svg.appendChild(leaf);
+                        break;
+                    case 'banana':
+                        const banana = document.createElementNS(svgNS, 'path');
+                        banana.setAttribute('d','M12 28 Q20 8 30 16 Q24 28 12 28');
+                        banana.setAttribute('fill','#fbbf24'); banana.setAttribute('stroke','#b45309'); banana.setAttribute('stroke-width','2');
+                        svg.appendChild(banana);
+                        break;
+                    case 'orange':
+                        const orange = document.createElementNS(svgNS, 'circle');
+                        orange.setAttribute('cx','20'); orange.setAttribute('cy','22'); orange.setAttribute('r','14');
+                        orange.setAttribute('fill','#f97316'); orange.setAttribute('stroke','#c2410c'); orange.setAttribute('stroke-width','2');
+                        svg.appendChild(orange);
+                        const dot = document.createElementNS(svgNS, 'circle');
+                        dot.setAttribute('cx','18'); dot.setAttribute('cy','18'); dot.setAttribute('r','2'); dot.setAttribute('fill','#fff');
+                        svg.appendChild(dot);
+                        break;
+                }
+                return svg;
+            }
+
+            // ---------- کلیک روی میوه ----------
+            _onFruitClick(index, element) {
+                if (this.state !== 'playing') return;
+                audio.clickSound();
+                const fruit = this.fruits[index];
+                if (!fruit) return;
+
+                if (fruit.counted) {
+                    this.sessionDoubleClickErrors++;
+                    showToast('👏 آفرین که دقّت می‌کنی! این یکی را قبلاً شمردی.', 'warning');
+                    element.classList.add('double-click-warn');
+                    setTimeout(() => element.classList.remove('double-click-warn'), 500);
+                    this._mistake();
+                    return;
+                }
+                if (this.cfg.order && index !== this.expectedNextIndex) {
+                    this.sessionOrderErrors++;
+                    showToast('بیا از سمت راست شروع کنیم! بهتره به ترتیب میوه‌ها رو لمس کنی.', 'warning');
+                    this.fruitsArea.classList.add('shake');
+                    setTimeout(() => this.fruitsArea.classList.remove('shake'), 500);
+                    this._mistake();
+                    return;
+                }
+                fruit.counted = true;
+                this.countedIndices.push(index);
+                this.expectedNextIndex++;
+                element.classList.add('counted', 'pop-in');
+                const label = element.querySelector('.fruit-label');
+                if (label) label.textContent = toFa(this.countedIndices.length);
+                const persianNumbers = ['','یک','دو','سه','چهار','پنج','شش','هفت','هشت','نه','ده','یازده','دوازده'];
+                showToast(persianNumbers[this.countedIndices.length] || toFa(this.countedIndices.length), 'success');
+                this._updateCounterDisplay();
+                if (this.countedIndices.length === this.totalFruits) this._winLevel();
+            }
+
+            _mistake() {
+                this.hearts--;
+                this._renderHearts();
+                if (this.hearts <= 0) { this._loseLevel('hearts'); return; }
+                this._resetCounting();
+                if (this.characterMessage) this.characterMessage.textContent = 'دوباره تلاش کن! مراقب باش هر میوه فقط یک بار!';
+            }
+
+            _resetCounting() {
+                this.fruits.forEach(f => { f.counted = false; });
+                this.countedIndices = [];
+                this.expectedNextIndex = 0;
+                this.fruitsArea.querySelectorAll('.fruit-item').forEach(el => {
+                    el.classList.remove('counted', 'pop-in', 'double-click-warn');
+                    const label = el.querySelector('.fruit-label');
+                    if (label) label.textContent = '';
+                });
+                this._updateCounterDisplay();
+            }
+
+            _updateCounterDisplay() {
+                if (this.countedDisplay) this.countedDisplay.textContent = toFa(this.countedIndices.length);
+            }
+
+            // ---------- تایمر مرحله ----------
+            _startGameTimer(seconds) {
+                this._clearGameTimer();
+                this.timeLeft = seconds;
+                this._renderTimer();
+                this.gameTimerId = setInterval(() => {
+                    this.timeLeft--;
+                    this._renderTimer();
+                    if (this.timeLeft <= 0) {
+                        this._clearGameTimer();
+                        this._loseLevel('time');
+                    }
+                }, 1000);
+            }
+            _clearGameTimer() { if (this.gameTimerId) { clearInterval(this.gameTimerId); this.gameTimerId = null; } }
+            _renderTimer() {
+                if (this.timerText) this.timerText.textContent = toFa(Math.max(0, this.timeLeft));
+                if (this.timerChip) this.timerChip.classList.toggle('urgent', this.timeLeft <= 10);
+            }
+
+            // ---------- تایمر نمایش (مراحل حدس) ----------
+            _startPeekTimer() {
+                this._clearPeekTimer();
+                this._renderPeek();
+                this.peekTimerId = setInterval(() => {
+                    this.peekLeft--;
+                    if (this.peekLeft <= 0) {
+                        this._clearPeekTimer();
+                        this._hideFruits();
+                    } else this._renderPeek();
+                }, 1000);
+            }
+            _clearPeekTimer() { if (this.peekTimerId) { clearInterval(this.peekTimerId); this.peekTimerId = null; } }
+            _renderPeek() {
+                if (this.characterMessage) this.characterMessage.textContent = `🧠 خوب نگاه کن و بشمار! میوه‌ها تا ${toFa(this.peekLeft)} ثانیه دیگر پنهان می‌شوند...`;
+            }
+            _showFruits() {
+                this.fruitsArea.classList.remove('hidden-fruits');
+                if (this.fruitsOverlay) this.fruitsOverlay.classList.add('hidden');
+            }
+            _hideFruits() {
+                this.fruitsArea.classList.add('hidden-fruits');
+                if (this.fruitsOverlay) this.fruitsOverlay.classList.remove('hidden');
+                this.state = 'guessing';
+                if (this.characterMessage) this.characterMessage.textContent = 'میوه‌ها پنهان شدند! حالا حدس بزن چندتا بودند؟';
+                if (this.proModeInputArea) this.proModeInputArea.classList.remove('hidden');
+                const input = document.getElementById('proInput');
+                if (input) { input.value = ''; input.focus(); }
+            }
+
+            // ---------- حدس ----------
+            _confirmProGuess() {
+                if (this.state !== 'guessing') return;
+                const input = document.getElementById('proInput');
+                if (!input) return;
+                const guess = parseInt(input.value);
+                if (isNaN(guess) || guess < 1) return;
+                this.sessionProAttempts++;
+                if (guess === this.totalFruits) {
+                    this.sessionProCorrect++;
+                    this._winLevel();
+                } else {
+                    audio.errorSound();
+                    this.hearts--;
+                    this._renderHearts();
+                    if (this.hearts <= 0) { this._loseLevel('hearts'); return; }
+                    showToast(`نه! ${toFa(guess)} تا نیست. یک قلب کم شد — یک بار دیگر نگاه کن!`, 'warning');
+                    this.state = 'peeking';
+                    if (this.proModeInputArea) this.proModeInputArea.classList.add('hidden');
+                    this.peekLeft = 3;
+                    this._showFruits();
+                    this._startPeekTimer();
+                }
+            }
+
+            // ---------- 🎉 برد مرحله ----------
+            _winLevel() {
+                this._clearTimers();
+                this.state = 'ended';
+                audio.winSound();
+                const stars = this.hearts;
+                this.sessionScore += 10;
+                this.runCovered.add(this.currentLevel);
+
+                LokoLevels.setStars(this.currentLevel, stars); /* لوکو */ if (true) { var lukoKey = 'lukoFinish:C1KrF1S1G5', lukoDone = {}; try { lukoDone = JSON.parse(localStorage.getItem(lukoKey) || '{}') || {}; } catch (e) {} lukoDone[this.currentLevel] = 1; try { localStorage.setItem(lukoKey, JSON.stringify(lukoDone)); } catch (e) {} lukoLevels(lukoDone, 10, 3); }
+                if (this.currentLevel < 10) LokoLevels.unlock(this.currentLevel + 1);
+                if (this.progressBar) this.progressBar.style.width = (this.currentLevel / 10 * 100) + '%';
+
+                LokoSync.queue({
+                    type:'level_complete', level:this.currentLevel, stars, score:this.sessionScore,
+                    hearts:this.hearts, mode:this.cfg.mode, at:Date.now()
+                });
+
+                if (Math.random() < 0.3) setTimeout(showIrregularReward, 400);
+
+                if (this.currentLevel >= 10) {
+                    // 🏆 پایان — پاداش فقط وقتی «هر ۱۰ مرحله» در این اجرا کامل شده باشد
+                    const completedAll = this.runCovered.size >= 10;
+                    this.runStarted = false;
+
+                    if (completedAll) {
+                        const reward = (this.runInitialCoins === 0) ? 10 : 1;
+                        LokoCoins.add(reward);
+                        LokoSync.queue({ type:'coin_reward', amount:reward, initialCoins:this.runInitialCoins, game:'tribe-counting-kheyli', at:Date.now() });
+                        document.getElementById('completeCoinText').textContent = '+' + toFa(reward) + ' سکه لوکو';
+                    } else {
+                        document.getElementById('completeCoinText').textContent = 'برای پاداش، هر ۱۰ مرحله را کامل کن';
+                    }
+                    LokoSync.queue({ type:'game_complete', score:this.sessionScore, totalLevels:10, completedAll, at:Date.now() });
+                    LokoSync.sync();
+
+                    spawnConfetti(45);
+                    const cs = document.getElementById('completeScore');
+                    if (cs) cs.textContent = toFa(this.sessionScore);
+                    const chip = document.getElementById('completeCoinChip');
+                    if (chip) { chip.classList.remove('reward-anim'); void chip.offsetWidth; chip.classList.add('reward-anim'); }
+                    this._renderStars('totalStars', 3);
+                    setTimeout(() => this.showModal('completeModal'), 500);
+                } else {
+                    spawnConfetti(20);
+                    const ws = document.getElementById('winScore');
+                    if (ws) ws.textContent = toFa(this.sessionScore);
+                    const wm = document.getElementById('winMsg');
+                    if (wm) wm.textContent = `همه ${toFa(this.totalFruits)} تا میوه شمرده شد! قبیله حالا می‌داند «${toFa(this.totalFruits)}» یعنی چندتا!`;
+                    this._renderStars('winStars', stars);
+                    setTimeout(() => this.showModal('winModal'), 450);
+                }
+                LokoSync.sync();
+            }
+
+            _renderStars(rowId, count) {
+                document.querySelectorAll(`#${rowId} .star`).forEach((s, i) => {
+                    s.classList.remove('earned');
+                    s.style.animationDelay = '';
+                    if (i < count) { s.style.animationDelay = (0.25 + i * 0.22) + 's'; s.classList.add('earned'); }
+                });
+            }
+
+            // ---------- 😢 باخت ----------
+            _loseLevel(reason) {
+                this._clearTimers();
+                this.state = 'ended';
+                audio.loseSound();
+                LokoSync.queue({ type:'level_lose', level:this.currentLevel, reason, at:Date.now() });
+                LokoSync.sync();
+                const lr = document.getElementById('loseReason');
+                if (lr) lr.textContent = reason === 'time'
+                    ? '⏱ زمان تمام شد! میوه‌ها فرصت خواستند.'
+                    : '💔 قلب‌هایت تمام شد!';
+                setTimeout(() => this.showModal('loseModal'), 400);
+            }
+
+            // ---------- ⏹ توقف / ادامه ----------
+            _pauseGame() {
+                if (!['playing', 'peeking', 'guessing'].includes(this.state)) return;
+                this.pausedState = this.state;
+                this._clearTimers();
+                this.state = 'paused';
+                audio.clickSound();
+                this.showModal('stopModal');
+            }
+            _resumeGame() {
+                this.hideModal('stopModal');
+                this.state = this.pausedState;
+                if (this.pausedState === 'playing' && this.cfg.time > 0) this._startGameTimer(this.timeLeft);
+                if (this.pausedState === 'peeking') this._startPeekTimer();
+                if (this.pausedState === 'guessing') {
+                    this.fruitsArea.classList.add('hidden-fruits');
+                    if (this.fruitsOverlay) this.fruitsOverlay.classList.remove('hidden');
+                    if (this.proModeInputArea) this.proModeInputArea.classList.remove('hidden');
+                }
+            }
+            _clearTimers() { this._clearGameTimer(); this._clearPeekTimer(); }
+
+            // ---------- 📊 آمار (Data Pipeline فعال — UI مخفی) ----------
+            _loadStats() {
+                const key = 'tribeCountingStats';
+                const empty = { totalGames:0, totalScore:0, bestScore:0, lastPlayDate:null };
+                try { const raw = localStorage.getItem(key); return raw ? { ...empty, ...JSON.parse(raw) } : empty; }
+                catch (e) { return empty; }
+            }
+            _saveStats() {
+                const key = 'tribeCountingStats';
+                const s = this._loadStats();
+                s.totalGames += 1;
+                s.totalScore += 10;
+                s.bestScore = Math.max(s.bestScore, this.sessionScore);
+                s.lastPlayDate = new Date().toISOString();
+                try { localStorage.setItem(key, JSON.stringify(s)); } catch (e) {}
+                LokoSync.queue({ type:'stats_snapshot', stats:{ score:this.sessionScore, doubleClick:this.sessionDoubleClickErrors, order:this.sessionOrderErrors, proAttempts:this.sessionProAttempts, proCorrect:this.sessionProCorrect }, at:Date.now() });
+            }
+            showStats() {
+                const s = this._loadStats();
+                const sd = document.getElementById('statsDisplay');
+                if (sd) sd.innerHTML = `
+            <p>🎮 جلسات: ${toFa(s.totalGames)}</p>
+            <p>⭐ امتیاز کل: ${toFa(s.totalScore)}</p>
+            <p>🏆 بهترین امتیاز: ${toFa(s.bestScore)}</p>
+            <p>📅 آخرین بازی: ${s.lastPlayDate ? new Date(s.lastPlayDate).toLocaleDateString('fa-IR') : '—'}</p>`;
+                this.showModal('statsModal');
+            }
+        }
+
+        // ---------- راه‌اندازی ----------
+        document.querySelectorAll('.btn, .mute-btn, .stop-btn').forEach(addRipple);
+        const game = new TribeCountingGame();
+        LokoSync.init();
+    </script>
+
+<!-- لوکو: تله‌متری و خبرِ پایانِ بازی (به‌صورتِ خودکار افزوده شد) -->
+<script>
+/* لوکو: بازی خودش پایان را می‌گوید — نقطه‌اش در backend/apps/games/finish_points.py */
+window.LUKO_EXPLICIT_FINISH = true;
+window.lukoWin = function (reason) {
+  if (window.__lukoWon) return;
+  window.__lukoWon = true;
+  // این بازی‌ها امتیازِ خودشان را گزارش نمی‌کنند؛ بی‌این، سرور هر بُرد را «۰ ستاره»
+  // ثبت می‌کرد و مدالِ ستاره‌چین برای هیچ بچه‌ای باز نمی‌شد. بُرد = ستاره‌ی کامل
+  // (سرور به سقفِ همان مرحله می‌بُرد).
+  var extra = { source: 'game', reason: String(reason || 'win'), stars: 3 };
+  // جشنِ خودِ بازی اول دیده شود، بعد صفحه‌ی جایزه‌ی اپ رویش بیاید
+  setTimeout(function () {
+    try {
+      if (window.LUKO && typeof window.LUKO.finish === 'function') { window.LUKO.finish(extra); return; }
+    } catch (e) { /* SDK نبود یا شکست؛ پیامِ مستقیم */ }
+    try {
+      window.parent.postMessage({ type: 'luko-game-complete',
+        game: location.pathname.split('/').pop(), summary: extra }, '*');
+    } catch (e) { /* بازی نباید به‌خاطرِ پایان بشکند */ }
+  }, 1500);
+};
+window.lukoCount = function (count, need) {
+  if (Number(count) >= need) window.lukoWin('count ' + count + '/' + need);
+};
+window.lukoLevels = function (done, total, need) {
+  var count = 0;
+  try {
+    if (Array.isArray(done)) {
+      done.forEach(function (v) { if (v) count += 1; });
+    } else if (done) {
+      Object.keys(done).forEach(function (k) {
+        var n = Number(k);
+        if (done[k] && n >= 1 && n <= total) count += 1;
+      });
+    }
+  } catch (e) { return; }
+  if (count >= Math.min(total, need)) window.lukoWin('levels ' + count + '/' + total);
+};
+</script>
+<script>window.LUKO_WIN = []; window.LUKO_WIN_MAYBE = [];</script>
+<script async src="/games/assets/luko-sdk.js"></script>
+<script async src="/games/assets/luko-bridge.js"></script>
+</body>
+</html>
