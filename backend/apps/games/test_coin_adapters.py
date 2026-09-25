@@ -5,6 +5,7 @@
 بازیِ بی‌رابط سکه‌ی جدای خودش را نشان می‌دهد و خریدش از کیفِ بچه کم
 نمی‌شود؛ این تست جلوی واردکردنِ دوباره‌ای را می‌گیرد که رابط را جا بیندازد.
 """
+import hashlib
 import re
 from pathlib import Path
 from unittest import skipUnless
@@ -14,7 +15,7 @@ from django.test import SimpleTestCase
 
 from apps.games.coin_adapters import ADAPTERS, GAME_PATCHES
 from apps.games.coin_display import HIDE, hide_css
-from apps.games.management.commands.import_games import WALLET_MARK, prepare
+from apps.games.management.commands.import_games import WALLET_MARK, WALLET_VERSION, prepare
 
 GAMES = Path(settings.BASE_DIR).parent / "frontend" / "public" / "games"
 
@@ -63,7 +64,7 @@ class RepoGamesWalletTests(SimpleTestCase):
             with self.subTest(game=path.name):
                 text = path.read_text(encoding="utf-8")
                 self.assertEqual(text.count(WALLET_MARK), 1)
-                self.assertEqual(text.count('src="/games/assets/luko-wallet.js"'), 1)
+                self.assertEqual(text.count(f'src="/games/assets/luko-wallet.js?v={WALLET_VERSION}"'), 1)
                 head = re.search(r"<head[^>]*>", text, re.I)
                 # کیف باید پیش از هر اسکریپتِ خودِ بازی اجرا شود
                 first_script = text.find("<script", head.end())
@@ -87,8 +88,14 @@ class RepoGamesWalletTests(SimpleTestCase):
                 text = path.read_text(encoding="utf-8")
                 rule = hide_css(path.stem)
                 self.assertEqual(text.count(rule), 1)
-                block = text[text.find(WALLET_MARK):text.find('src="/games/assets/luko-wallet.js"')]
+                block = text[text.find(WALLET_MARK):text.find('src="/games/assets/luko-wallet.js')]
                 self.assertIn(rule, block)
+
+    def test_wallet_version_matches_the_script(self):
+        # مرورگر /games/assets/ را هفت روز نگه می‌دارد؛ تغییرِ کیف بی‌نسخه‌ی تازه به بچه نمی‌رسید
+        script = (GAMES / "assets" / "luko-wallet.js").read_bytes()
+        self.assertEqual(WALLET_VERSION, hashlib.sha256(script).hexdigest()[:12],
+                         "luko-wallet.js عوض شده: WALLET_VERSION را تازه کن و import_games را دوباره بزن")
 
     def test_game_patches_are_applied(self):
         for stem, patches in GAME_PATCHES.items():

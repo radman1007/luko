@@ -88,12 +88,18 @@ INJECT = """
 
 WALLET_MARK = "<!-- لوکو: کیفِ سکه‌ی مشترک (به‌صورتِ خودکار افزوده شد) -->"
 # دقیقاً همان چیزی که افزوده شد برداشته می‌شود تا اجرای دوباره فایل را عوض نکند
-WALLET_BLOCK = re.compile(r"\n?" + re.escape(WALLET_MARK) + r".*?luko-wallet\.js\"\s*></script>\n?", re.S)
+WALLET_BLOCK = re.compile(r"\n?" + re.escape(WALLET_MARK) + r".*?luko-wallet\.js(?:\?v=\w+)?\"\s*></script>\n?", re.S)
+
+#: نسخه‌ی luko-wallet.js در نشانیِ اسکریپت (۱۲ نویسه‌ی اولِ sha256ِ خودِ فایل). دارایی‌های
+#: /games/assets/ هفت روز در مرورگر می‌مانند؛ بی‌این، بچه‌ای که بازی را قبلاً باز کرده بود
+#: تا یک هفته کیفِ قدیمی را داشت. با هر تغییرِ فایل این عوض می‌شود (تستش می‌شکند) و
+#: `import_games` دوباره روی همه‌ی بازی‌ها اجرا می‌شود.
+WALLET_VERSION = "fabef1bb95ad"
 
 # بی‌async و اولِ <head>: باید پیش از کدِ بازی جای سکه‌اش را با سکه‌ی اصلی پر کند
 WALLET = """{mark}
 <script>window.LUKO_COINS = {adapter};</script>
-{hide}<script src="/games/assets/luko-wallet.js"></script>
+{hide}<script src="/games/assets/luko-wallet.js?v={version}"></script>
 """
 
 
@@ -159,7 +165,7 @@ def with_wallet(text: str, stem: str) -> str:
     adapter = ADAPTERS.get(stem)
     if not adapter:
         return text
-    block = WALLET.format(mark=WALLET_MARK, adapter=adapter, hide=hide_css(stem))
+    block = WALLET.format(mark=WALLET_MARK, adapter=adapter, hide=hide_css(stem), version=WALLET_VERSION)
     if re.search(r"<head[^>]*>", text, re.I):
         return re.sub(r"(<head[^>]*>)", lambda m: m.group(1) + "\n" + block, text, count=1, flags=re.I)
     return block + text
