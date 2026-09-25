@@ -7,7 +7,8 @@
  * تشخیص می‌دهد و یک‌بار به اپ خبر می‌دهد.
  *
  * ترتیبِ تشخیص:
- *   ۱. اگر خودِ بازی `LUKO.finish()` را صدا بزند، پل کنار می‌کشد.
+ *   ۱. اگر خودِ بازی `LUKO.finish()` را صدا بزند، یا نقطه‌ی پایانش در
+ *      `finish_points.py` ثبت شده باشد (`LUKO_EXPLICIT_FINISH`)، پل کنار می‌کشد.
  *   ۲. `window.LUKO_WIN` — نشانیِ قطعیِ صفحه‌ی پایان (شناسه‌اش خودش می‌گوید).
  *   ۳. `window.LUKO_WIN_MAYBE` — رویه‌ی عمومی؛ فقط اگر متنش هم بُرد باشد.
  *   ۴. حدسِ عمومی: عنصری که شناسه/کلاسش «برد/نتیجه/پایان» است و دیده می‌شود.
@@ -104,6 +105,9 @@
 
   function scan() {
     if (done || Date.now() - started < MIN_MS) return;
+    // بازی نقطه‌ی پایانِ خودش را دارد (apps/games/finish_points.py)؛ حدس
+    // این‌جا فقط ضرر داشت: باخت و خریدِ پوسته را هم «بُرد» می‌گرفت
+    if (window.LUKO_EXPLICIT_FINISH) return;
     var hit = hinted();
     if (hit) { tell('hint ' + hit); return; }
     var nodes = document.querySelectorAll('[id], [class]');

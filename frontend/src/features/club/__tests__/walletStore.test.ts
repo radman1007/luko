@@ -61,3 +61,28 @@ describe('کیفِ مشترکِ سکه', () => {
     expect(localStorage.getItem('luko_coins')).toBe('345');
   });
 });
+
+describe('کیفِ حسابِ تازه', () => {
+  beforeEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  async function emptyStore(guest: boolean) {
+    vi.resetModules();
+    vi.stubGlobal('localStorage', memoryStorage());
+    if (guest) localStorage.setItem('luko_guest', '1');
+    return import('../store');
+  }
+
+  // قبلاً هر ورودِ تازه ۱۲۰ سکه‌ی ساختگی می‌گرفت
+  it('حسابِ واقعی از صفر شروع می‌کند و کیف را برای هم‌رسانی خالی می‌گذارد', async () => {
+    const store = await emptyStore(false);
+    expect(store.getSnapshot().coins).toBe(0);
+    expect(localStorage.getItem('luko_coins')).toBeNull();
+  });
+
+  it('مهمان (دمو) همان موجودیِ نمایشی را دارد', async () => {
+    const store = await emptyStore(true);
+    expect(store.getSnapshot().coins).toBe(120);
+  });
+});

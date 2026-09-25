@@ -6,6 +6,8 @@ const INLINE_HEIGHT = 240;
 const INLINE_MAX_HEIGHT = 420;
 /** سقفِ پیکسل‌های پشتِ بوم — وب‌ویو و سافاری بومِ خیلی بزرگ را سفید نشان می‌دهند */
 const MAX_BACKING_PIXELS = 12_000_000;
+/** رنگِ کاغذ — زمینه‌ی بوم و رنگِ پاک‌کن */
+export const PAPER = '#ffffff';
 
 interface Point {
   x: number;
@@ -79,7 +81,7 @@ export function useDrawingSurface(expanded: boolean) {
       canvas.width = Math.round(w * ratio);
       canvas.height = Math.round(h * ratio);
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = PAPER;
       ctx.fillRect(0, 0, w, h);
       if (previous) {
         if (place === 'stretch') ctx.drawImage(previous, 0, 0, w, h);
@@ -154,8 +156,11 @@ export function useDrawingSurface(expanded: boolean) {
     };
   }, []);
 
-  /** یک تکه خط؛ ضخامتِ قلم روی صفحه همان است که بچه انتخاب کرده، هر قدر هم سند بزرگ باشد */
-  const stroke = useCallback((from: Point, to: Point, color: string, brush: number) => {
+  /**
+   * یک تکه خط؛ ضخامتِ قلم روی صفحه همان است که بچه انتخاب کرده، هر قدر هم سند بزرگ باشد.
+   * پاک‌کن همان خط است به رنگِ کاغذ (`PAPER`)؛ خروجیِ نقاشی هم روی همین کاغذِ سفید است.
+   */
+  const stroke = useCallback((from: Point, to: Point, color: string, brush: number, erase = false) => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
@@ -166,7 +171,8 @@ export function useDrawingSurface(expanded: boolean) {
     ctx.moveTo(from.x, from.y);
     ctx.lineTo(to.x, to.y);
     ctx.stroke();
-    drawn.current = true;
+    // پاک‌کردن روی بومِ خالی آن را «کشیده‌شده» نمی‌کند
+    if (!erase) drawn.current = true;
   }, []);
 
   /** بومِ سفیدِ تازه، هم‌اندازه‌ی جای فعلی‌اش */

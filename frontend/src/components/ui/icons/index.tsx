@@ -215,3 +215,64 @@ export function ScoreRingIcon({ size = 24, ...props }: IconProps) {
     </svg>
   );
 }
+
+/** پاک‌کنِ نقاشی — مکعبِ کج با نوکِ پاک‌کننده. */
+export function EraserIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M14.6 4.6a2 2 0 0 1 2.8 0l2 2a2 2 0 0 1 0 2.8L11 17.8H7.2l-2.6-2.6a2 2 0 0 1 0-2.8z" />
+      <path d="M9.2 10l4.8 4.8" />
+      <path d="M11 17.8h8" />
+    </svg>
+  );
+}
+
+/** پروانه — تزئینِ باغچه. */
+export function ButterflyIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M12 8v10" />
+      <path d="M12 9.5C10.5 6 7 4.5 4.8 5.5 3 6.3 3.5 9.6 6 11c-2.2 1.2-2.4 4.2-.6 5.1 2.1 1.1 5-.6 6.6-3.6" />
+      <path d="M12 9.5c1.5-3.5 5-5 7.2-4 1.8.8 1.3 4.1-1.2 5.5 2.2 1.2 2.4 4.2.6 5.1-2.1 1.1-5-.6-6.6-3.6" />
+      <path d="M10.5 5.5 12 7.5l1.5-2" />
+    </svg>
+  );
+}
+
+/** فانوسِ باغ. */
+export function LanternIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M12 2.5v2" />
+      <path d="M9 4.5h6" />
+      <path d="M8.5 7.5h7l-.8 10h-5.4z" />
+      <path d="M8 7.5 9 4.5M16 7.5 15 4.5" />
+      <path d="M9.3 17.5h5.4v2a1 1 0 0 1-1 1h-3.4a1 1 0 0 1-1-1z" />
+      <path d="M12 10.5c.9 1 .9 2.8 0 3.8-.9-1-.9-2.8 0-3.8z" />
+    </svg>
+  );
+}
+
+/** آبنمای کوچک / برکه. */
+export function PondIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <ellipse cx="12" cy="15.5" rx="8.5" ry="4" />
+      <path d="M8 15.5c1-.7 2-.7 3 0s2 .7 3 0 2-.7 3 0" />
+      <path d="M12 11.5V5" />
+      <path d="M12 6.5c1.2-1.6 2.8-2 4-1.5-.4 1.4-1.9 2.4-4 2.2" />
+    </svg>
+  );
+}
+
+/** بزرگ‌تر کردنِ باغچه — قطعه‌زمینِ حصاردار با فلشِ گسترش. */
+export function PlotIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M4 20V11m5 9v-9m5 9v-9" />
+      <path d="M3 13.5h12M3 17.5h12" />
+      <path d="M17.5 8.5 21 5m0 0h-3.2M21 5v3.2" />
+      <path d="M4 11l0-1.5M9 11l0-1.5M14 11l0-1.5" />
+    </svg>
+  );
+}

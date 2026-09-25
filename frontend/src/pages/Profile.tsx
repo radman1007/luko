@@ -5,8 +5,8 @@ import { LUKORIANS } from '@/lib/characters';
 import { useAuth } from '@/features/auth/context';
 import { useClub } from '@/features/club/useClub';
 import { useMedals } from '@/features/club/useMedals';
-import { useSeasonProgress } from '@/features/games/useSeasonProgress';
-import { MOCK_STATS } from '@/features/home/mockData';
+import { useCompletedStages } from '@/features/games/useSeasonProgress';
+import { usePoints } from '@/features/profile/usePoints';
 import { ProfileHero } from '@/features/profile/components/ProfileHero/ProfileHero';
 import { StatsGrid } from '@/features/profile/components/StatsGrid/StatsGrid';
 import { BuilderCard } from '@/features/profile/components/Builder/BuilderCard';
@@ -29,13 +29,11 @@ export default function Profile() {
   const club = useClub();
   const { treasures } = useTreasure();
   const medals = useMedals();
-  // همان پیشرفتِ سرور که نقشه نشان می‌دهد؛ قبلاً نسخه‌ی محلیِ همین دستگاه خوانده
-  // می‌شد و تا نقشه باز نمی‌شد، بازی‌هایی که روی دستگاهِ دیگر تمام شده بودند شمرده نمی‌شدند
-  const gamesCompleted = useSeasonProgress().done.size;
+  // همان پیشرفتِ سرور که نقشه نشان می‌دهد، و فقط مرحله‌های مسیرِ خودِ بچه
+  const gamesCompleted = useCompletedStages();
 
   const medalsUnlocked = medals.filter((m) => m.unlocked).length;
-  // TODO: xp بعد از آماده شدن بک‌اند واقعی می‌شود
-  const xp = MOCK_STATS.xp;
+  const xp = usePoints();
 
   return (
     <StudentLayout className={styles.page}>

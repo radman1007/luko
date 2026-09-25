@@ -105,3 +105,28 @@ describe('بازیِ تازه', () => {
     expect(state.totalPossibleStars).toBe(2 + 3 + 3);
   });
 });
+
+describe('هفته‌ی خودِ بچه، نه هفته‌ی تقویم', () => {
+  // بچه‌ای که همین امروز حساب ساخته «هفته‌ی ۵» می‌دید، با چهار هفته‌ی جامانده پشتِ سرش
+  it('حسابِ تازه در هفته‌ی ۱ است؛ هفته‌های بازِ جلوتر فقط «باز»ند', () => {
+    const state = seasonState(FIXTURE_PATH, new Set(), dayOfWeek(5));
+    expect(state.currentWeek).toBe(1);
+    expect(state.weeks.map((w) => w.state)).toEqual(['current', 'past', 'past', 'past', 'past']);
+    expect(state.openWeeks).toHaveLength(5); // تقویم همچنان همه را باز کرده
+  });
+
+  it('با تمام‌شدنِ هفته، هفته‌ی بعد جاری می‌شود', () => {
+    const firstWeek = ids(FIXTURE_PATH.slice(0, 3));
+    const state = seasonState(FIXTURE_PATH, new Set(firstWeek), dayOfWeek(5));
+    expect(state.currentWeek).toBe(2);
+    expect(state.weeks.map((w) => w.state).slice(0, 3)).toEqual(['done', 'current', 'past']);
+  });
+
+  it('همه‌ی بازشده‌ها رفته: آخرین هفته‌ی باز، و هفته‌های بعد پشتِ ابر', () => {
+    const firstTwo = ids(FIXTURE_PATH.slice(0, 5));
+    const state = seasonState(FIXTURE_PATH, new Set(firstTwo), dayOfWeek(2));
+    expect(state.currentWeek).toBe(2);
+    expect(state.nextStage).toBeUndefined();
+    expect(state.weeks.map((w) => w.state)).toEqual(['done', 'done', 'locked', 'locked', 'locked']);
+  });
+});

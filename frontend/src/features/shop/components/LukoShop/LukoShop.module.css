@@ -1,0 +1,479 @@
+/*
+ * فروشگاهِ شهرِ لوکو — یک دکه‌ی سایبان‌دار در باشگاهِ توپا.
+ * رنگ‌ها از تمِ صفحه (‎--club-*‎) و رنگِ هر کیف از خودِ آن کیف: سکه نارنجیِ
+ * برند، شبنم سبزِ باغچه، گنج طلاییِ کاشف.
+ */
+.shop {
+  --coin: var(--color-accent);
+  --coin-soft: var(--color-accent-light);
+  --dew: #6f9455;
+  --dew-soft: #eef3e6;
+  --treasure: #c98a12;
+  --treasure-soft: #fbf1d9;
+
+  position: relative;
+  margin: 16px 20px 0;
+  padding: 0 16px 18px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  container-type: inline-size;
+  scroll-margin-top: 12px;
+}
+
+/* ── سایبانِ راه‌راه با لبه‌ی موجی ─────────────────────── */
+.awning {
+  height: 34px;
+  margin: 0 -16px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--club-primary) 0 28px,
+    #fff 28px 56px
+  );
+  -webkit-mask: radial-gradient(14px 10px at 14px 100%, #0000 98%, #000) 0 0 / 28px 100%;
+  mask: radial-gradient(14px 10px at 14px 100%, #0000 98%, #000) 0 0 / 28px 100%;
+  opacity: 0.9;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.keeper {
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgb(29 33 40 / 18%));
+}
+
+.titles {
+  min-width: 0;
+}
+
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--club-dark);
+}
+
+.title svg {
+  width: 20px;
+  height: 20px;
+  color: var(--club-accent);
+}
+
+.sub {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* ── کیف‌ها ─────────────────────────────────────────────── */
+.wallet {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.purse {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--soft);
+  color: var(--ink);
+}
+
+.purse b {
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.purse small {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.coin {
+  --soft: var(--coin-soft);
+  --ink: #c26f00;
+}
+
+.dew {
+  --soft: var(--dew-soft);
+  --ink: var(--dew);
+}
+
+.treasure {
+  --soft: var(--treasure-soft);
+  --ink: var(--treasure);
+}
+
+/* ── کوله‌پشتی ───────────────────────────────────────────── */
+.bag {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px dashed color-mix(in srgb, var(--club-primary) 35%, transparent);
+  background: color-mix(in srgb, var(--club-soft) 55%, transparent);
+}
+
+.bagTitle {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--club-dark);
+}
+
+.bagList {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0;
+  list-style: none;
+}
+
+.bagList li {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.bagList svg {
+  width: 16px;
+  height: 16px;
+  color: var(--club-primary);
+}
+
+/* ── دسته‌ها ─────────────────────────────────────────────── */
+.tabs {
+  margin: 14px -16px 0;
+  padding: 2px 16px 4px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--club-soft);
+  background: var(--color-surface);
+  color: var(--club-dark);
+  font-size: 13px;
+  font-weight: 800;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.tabOn {
+  background: var(--club-primary);
+  border-color: var(--club-primary);
+  color: #fff;
+}
+
+.tabCount {
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 16%, transparent);
+  font-size: 11px;
+}
+
+.hint {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* ── قفسه ───────────────────────────────────────────────── */
+.grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+}
+
+@container (min-width: 520px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
+
+.tile {
+  --tint: var(--club-primary);
+  --tint-soft: var(--club-soft);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--tint-soft);
+  background: linear-gradient(180deg, var(--tint-soft) 0%, var(--color-surface) 58%);
+  text-align: center;
+}
+
+.cat_garden,
+.cat_decor {
+  --tint: var(--dew);
+  --tint-soft: var(--dew-soft);
+}
+
+.cat_badges {
+  --tint: var(--club-primary);
+  --tint-soft: var(--club-soft);
+}
+
+.cat_workshop {
+  --tint: var(--treasure);
+  --tint-soft: var(--treasure-soft);
+}
+
+/* کالای کمیاب: قابِ طلایی */
+.rare {
+  border-color: color-mix(in srgb, var(--club-accent) 70%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--club-accent) 18%, transparent);
+}
+
+.plate {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--tint);
+  box-shadow: inset 0 0 0 2px var(--tint-soft), 0 4px 10px rgb(29 33 40 / 8%);
+}
+
+.plate svg {
+  width: 30px;
+  height: 30px;
+}
+
+.stock {
+  position: absolute;
+  top: 8px;
+  inset-inline-start: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: calc(100% - 16px);
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--tint);
+  font-size: 10.5px;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgb(29 33 40 / 10%);
+}
+
+.stock svg {
+  width: 13px;
+  height: 13px;
+}
+
+.stockOwned {
+  background: var(--color-success);
+  color: #fff;
+}
+
+.stockSoon {
+  background: var(--treasure-soft);
+  color: var(--treasure);
+}
+
+.name {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--color-text);
+}
+
+.desc {
+  flex: 1;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.price {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  min-height: 42px;
+  border-radius: 12px;
+  background: var(--pay);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 900;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--pay) 70%, #000);
+  transition: translate 120ms ease, box-shadow 120ms ease, background 160ms ease;
+}
+
+.price:active:not(:disabled) {
+  translate: 0 2px;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--pay) 70%, #000);
+}
+
+.priceUnit {
+  font-size: 12px;
+  font-weight: 800;
+  opacity: 0.9;
+}
+
+.pay_coin {
+  --pay: #f08c00;
+}
+
+.pay_dew {
+  --pay: var(--dew);
+}
+
+.pay_treasure {
+  --pay: var(--treasure);
+}
+
+/* ضربه‌ی اول: «بخرمش؟» — رنگِ تأکید و کمی تپش */
+.asking {
+  --pay: var(--club-dark);
+  animation: ask 900ms ease-in-out infinite;
+}
+
+.price:disabled {
+  background: color-mix(in srgb, var(--color-text) 8%, var(--color-surface));
+  color: color-mix(in srgb, var(--color-text) 45%, transparent);
+  box-shadow: none;
+  cursor: default;
+}
+
+.missing {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.done {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--tint-soft);
+  color: var(--tint);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.owned .plate {
+  box-shadow: inset 0 0 0 2px var(--color-success), 0 4px 10px rgb(29 33 40 / 8%);
+}
+
+.soon {
+  opacity: 0.72;
+}
+
+/* ── پیامِ بعد از خرید ───────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: calc(84px + env(safe-area-inset-bottom));
+  right: 50%;
+  transform: translateX(50%);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(92vw, 440px);
+  padding: 10px 12px 10px 16px;
+  border-radius: 999px;
+  background: var(--club-dark);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 8px 24px rgb(29 33 40 / 28%);
+  animation: toastIn 200ms ease-out;
+}
+
+.toastBad {
+  background: #5b3a3c;
+}
+
+.toastGo {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--club-dark);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+@keyframes ask {
+  50% {
+    scale: 1.04;
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translate(50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(50%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .asking,
+  .toast {
+    animation: none;
+  }
+}

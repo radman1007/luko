@@ -16,15 +16,13 @@ import {
   WATER,
   WATER_CARE,
 } from './gardenData';
-import type { DewSource, GardenState, GrowthStage, Plant, PlantKind } from './types';
+import type { GardenState, GrowthStage, Plant, PlantKind } from './types';
 
-const DEW_LOG_MAX = 20;
 
 function initial(): GardenState {
   const now = Date.now();
   return {
     dew: 20,
-    dewLog: [],
     fertilizer: 1,
     seeds: 2,
     plants: [{ id: newId(), kind: 'sunflower', plantedAt: now, care: 2 }],
@@ -41,8 +39,9 @@ function load(): GardenState {
   try {
     const raw = localStorage.getItem(GARDEN_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as Partial<GardenState>;
-      // ادغام با پیش‌فرض‌ها تا فیلدهای جدید در نسخه‌های بعدی خراب نشوند
+      const { dewLog: _gone, ...parsed } = JSON.parse(raw) as Partial<GardenState> & { dewLog?: unknown };
+      // ادغام با پیش‌فرض‌ها تا فیلدهای جدید در نسخه‌های بعدی خراب نشوند؛ دفترچه‌ی
+      // شبنمِ نسخه‌های قبل دور ریخته می‌شود
       return { ...initial(), ...parsed, plants: parsed.plants ?? [] };
     }
   } catch {
@@ -159,6 +158,10 @@ export function fertilizeAll(): ActionResult {
 export function buy(itemId: string): ActionResult {
   const item = GARDEN_SHOP.find((i) => i.id === itemId);
   if (!item) return { ok: false, reason: 'unknown' };
+  // «مالِ خودته» و «به آخرین سطح رسیده» پیش از «شبنمت کمه»؛ وگرنه بچه دنبالِ
+  // شبنم برای چیزی می‌رفت که اصلاً خریدنی نبود
+  if (item.kind === 'plot' && state.plotLevel >= MAX_PLOT_LEVEL) return { ok: false, reason: 'maxed' };
+  if (item.kind === 'decor' && state.decor.includes(item.payload ?? item.id)) return { ok: false, reason: 'owned' };
   if (state.dew < item.cost) return { ok: false, reason: 'nodew' };
 
   const next: GardenState = { ...state, dew: state.dew - item.cost };
@@ -189,11 +192,13 @@ export function buy(itemId: string): ActionResult {
 
 // ---------- توابع grant برای بقیه‌ی اپ ----------
 
-/** شبنم می‌دهد و در دفترچه ثبت می‌کند — بازی‌ها، مأموریت‌ها، مدال‌ها و... از این استفاده می‌کنند */
-export function grantDew(amount: number, source: DewSource) {
+/**
+ * شبنم می‌دهد — بازی‌ها، مأموریت‌ها، مدال‌ها و زمانِ حضور از این استفاده می‌کنند.
+ * (دفترچه‌ی «آخرین شبنم‌ها» به خواستِ کاربر کلاً برداشته شد.)
+ */
+export function grantDew(amount: number) {
   if (amount <= 0) return;
-  const entry = { amount, source, at: Date.now() };
-  set({ ...state, dew: state.dew + amount, dewLog: [entry, ...state.dewLog].slice(0, DEW_LOG_MAX) });
+  set({ ...state, dew: state.dew + amount });
 }
 
 /** کود می‌دهد — بعضی بازی‌ها موقع تکمیل کود جایزه می‌دهند */

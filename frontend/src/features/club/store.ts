@@ -7,6 +7,7 @@
  * از یک هوکِ صفحه‌ای بنشیند تا از همه‌جا قابلِ نوشتن و برای همه واکنشی باشد.
  * (همان الگوی `features/garden/store.ts`.)
  */
+import { isGuestMode } from '@/features/auth/guest';
 import { DEW_REWARD } from '@/features/garden/gardenData';
 import { grantDew, grantFertilizer, grantSeeds } from '@/features/garden/store';
 import { DAILY_MISSIONS, SHOP_ITEMS, SPORT_TASKS } from './clubData';
@@ -46,11 +47,21 @@ function readJSON<T>(key: string, fallback: T): T {
   return fallback;
 }
 
+/** موجودیِ نمایشیِ مهمان (دمو و نمایشگاه) — حسابِ واقعی هرگز این را نمی‌گیرد */
+const GUEST_COINS = 120;
+
+/**
+ * کیفِ خالی. حسابِ واقعی از صفر شروع می‌کند و موجودیِ خودش را هم‌رسانی
+ * (`features/sync`) می‌آورد؛ قبلاً هر ورودِ تازه ۱۲۰ سکه‌ی ساختگی می‌گرفت و
+ * ادغامِ بارِ اول («بیشینه‌ی دو طرف») همان را روی حسابِ واقعی هم می‌نشاند.
+ * کلید عمداً نوشته نمی‌شود تا هم‌رسانی بفهمد این دستگاه کیفی ندارد.
+ */
 function readCoins(): number {
   const raw = localStorage.getItem(COINS_KEY);
   if (raw !== null) return Number(raw) || 0;
-  localStorage.setItem(COINS_KEY, '120'); // موجودی اولیه‌ی دمو
-  return 120;
+  if (!isGuestMode()) return 0;
+  localStorage.setItem(COINS_KEY, String(GUEST_COINS));
+  return GUEST_COINS;
 }
 
 function load(day = todayStr()): ClubState {
@@ -146,7 +157,7 @@ function complete(kind: 'daily' | 'sport', taskId: string): boolean {
     /* حافظه پر/غیرفعال — وضعیتِ درون‌حافظه‌ای می‌ماند */
   }
   set(next);
-  grantDew(DEW_REWARD.mission, 'mission');
+  grantDew(DEW_REWARD.mission);
   return true;
 }
 
@@ -171,7 +182,7 @@ function mysteryReward(): ShopReward {
 }
 
 function applyReward(reward: ShopReward) {
-  if (reward.dew) grantDew(reward.dew, 'mission');
+  if (reward.dew) grantDew(reward.dew);
   if (reward.fertilizer) grantFertilizer(reward.fertilizer);
   if (reward.seeds) grantSeeds(reward.seeds);
 }
@@ -214,6 +225,24 @@ export function buy(itemId: string, cost: number): BuyResult {
   const reward = item.random ? mysteryReward() : item.reward;
   if (reward) applyReward(reward);
   return { ok: true, reward };
+}
+
+/**
+ * خریدی که با کیفِ دیگری (شبنمِ باغچه) در همان فروشگاهِ یکپارچه انجام شد.
+ * فقط در فهرستِ خریدها می‌نشیند تا مدالِ «خریدارِ باشگاه» هر خریدی را ببیند،
+ * نه فقط خرید با سکه. شناسه پیشوند دارد تا با کالاهای سکه‌ای قاطی نشود.
+ */
+export function recordPurchase(id: string) {
+  const snapshot = getSnapshot();
+  const key = `garden:${id}`;
+  if (snapshot.owned.includes(key)) return;
+  const owned = [...snapshot.owned, key];
+  try {
+    localStorage.setItem(OWNED_KEY, JSON.stringify(owned));
+  } catch {
+    /* حافظه پر/غیرفعال */
+  }
+  set({ ...snapshot, owned });
 }
 
 /**

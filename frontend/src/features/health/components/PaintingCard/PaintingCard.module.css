@@ -125,11 +125,31 @@
   outline: 3px solid var(--health-primary, var(--color-primary));
 }
 
+.tools {
+  container-type: inline-size;
+}
+
 .toolbar {
   margin-top: 14px;
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* گوشیِ باریک: ابزارها یک ردیف، «نگهش دار» ردیفِ خودش */
+@container (max-width: 400px) {
+  .toolbar {
+    flex-wrap: wrap;
+  }
+
+  .saveBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .eraserLabel {
+    display: none;
+  }
 }
 
 .brushes {
@@ -153,6 +173,77 @@
 
 .brushDot {
   border-radius: 50%;
+}
+
+/* پاک‌کن: روشن که باشد پر رنگ می‌شود تا بچه بداند الان پاک می‌کند نه می‌کشد */
+.eraserBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1.5px solid var(--health-soft, var(--color-primary-light));
+  color: var(--health-dark, var(--color-primary-dark));
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.eraserOn {
+  border-color: var(--health-primary, var(--color-primary));
+  background: var(--health-primary, var(--color-primary));
+  color: var(--color-on-primary);
+}
+
+/* دایره‌ی اندازه‌ی پاک‌کن: توخالی، مثلِ جای خالی‌ای که می‌گذارد */
+.eraserDot {
+  background: #fff;
+  border: 2px dashed color-mix(in srgb, var(--color-text) 45%, transparent);
+}
+
+.erasing {
+  cursor: cell;
+}
+
+.confirmClear {
+  position: absolute;
+  inset-inline: 12px;
+  bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  box-shadow: var(--shadow-card);
+  animation: studioIn 160ms ease-out;
+}
+
+.confirmText {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.confirmYes,
+.confirmNo {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.confirmYes {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.confirmNo {
+  border: 1.5px solid var(--health-soft, var(--color-primary-light));
+  color: var(--health-dark, var(--color-primary-dark));
 }
 
 .clearBtn {

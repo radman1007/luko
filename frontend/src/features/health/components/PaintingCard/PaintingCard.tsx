@@ -8,8 +8,10 @@ import { useSaveDrawing } from '../../useDrawings';
 import { useDrawingSurface } from '../../useDrawingSurface';
 import { exportDrawing, FULL, THUMB } from '../../drawingExport';
 import type { Mood } from '../../types';
-import { BRUSH_SIZES, COLORS } from '../../paintingData';
+import { BRUSH_SIZES, COLORS, eraserWidth } from '../../paintingData';
+import { PAPER } from '../../useDrawingSurface';
 import { PaintingTools } from './PaintingTools';
+import type { PaintTool } from './PaintingTools';
 import styles from './PaintingCard.module.css';
 
 export function PaintingCard() {
@@ -28,6 +30,9 @@ export function PaintingCard() {
 
   const [color, setColor] = useState(COLORS[4]);
   const [brush, setBrush] = useState(BRUSH_SIZES[1]);
+  const [tool, setTool] = useState<PaintTool>('pen');
+  /** سطل کلِ نقاشی را می‌برد؛ یک ضربه‌ی اشتباه نباید کارِ بچه را پاک کند */
+  const [confirmClear, setConfirmClear] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
   const [savedCount, setSavedCount] = useState<number | null>(null);
   const saveDrawing = useSaveDrawing();
@@ -70,6 +75,10 @@ export function PaintingCard() {
   const getPos = (e: React.PointerEvent) => surface.toDoc(e.clientX, e.clientY);
 
   const drawSegment = (from: { x: number; y: number }, to: { x: number; y: number }) => {
+    if (tool === 'eraser') {
+      surface.stroke(from, to, PAPER, eraserWidth(brush), true);
+      return;
+    }
     surface.stroke(from, to, color, brush);
     setIsEmpty(false);
   };
@@ -83,7 +92,7 @@ export function PaintingCard() {
     }
     drawing.current = true;
     last.current = getPos(e);
-    usage.current[color] = (usage.current[color] ?? 0) + 1;
+    if (tool === 'pen') usage.current[color] = (usage.current[color] ?? 0) + 1;
     setSavedCount(null);
     // نقطه‌ی تکی هم ثبت شود
     drawSegment(last.current, last.current);
@@ -110,7 +119,16 @@ export function PaintingCard() {
   const clearCanvas = () => {
     resetCanvas();
     setSavedCount(null);
+    setConfirmClear(false);
+    setTool('pen');
   };
+
+  // پرسشِ «همه‌ش پاک بشه؟» خودش بعد از چند ثانیه می‌رود
+  useEffect(() => {
+    if (!confirmClear) return undefined;
+    const id = window.setTimeout(() => setConfirmClear(false), 5000);
+    return () => window.clearTimeout(id);
+  }, [confirmClear]);
 
   const handleSave = () => {
     const canvas = surface.canvasRef.current;
@@ -130,6 +148,7 @@ export function PaintingCard() {
 
     resetCanvas();
     setSavedCount(count);
+    setTool('pen');
   };
 
   return (
@@ -170,13 +189,24 @@ export function PaintingCard() {
         <div ref={surface.wrapRef} className={styles.canvasWrap}>
           <canvas
             ref={surface.canvasRef}
-            className={styles.canvas}
+            className={`${styles.canvas} ${tool === 'eraser' ? styles.erasing : ''}`}
             onPointerDown={handleDown}
             onPointerMove={handleMove}
             onPointerUp={handleUp}
             onPointerCancel={handleUp}
             aria-label="بوم نقاشی"
           />
+          {confirmClear && (
+            <div className={styles.confirmClear} role="alertdialog" aria-label="پاک کردنِ همه‌ی نقاشی">
+              <span className={styles.confirmText}>کلِ نقاشی پاک بشه؟</span>
+              <button type="button" className={styles.confirmYes} onClick={clearCanvas}>
+                آره، همه‌ش
+              </button>
+              <button type="button" className={styles.confirmNo} onClick={() => setConfirmClear(false)}>
+                نه
+              </button>
+            </div>
+          )}
           {!expanded && (
             <button ref={expandRef} type="button" className={styles.expandBtn} onClick={open}>
               <HiOutlineArrowsPointingOut aria-hidden />
@@ -188,10 +218,12 @@ export function PaintingCard() {
         <PaintingTools
           color={color}
           brush={brush}
+          tool={tool}
           isEmpty={isEmpty}
           onColor={setColor}
           onBrush={setBrush}
-          onClear={clearCanvas}
+          onTool={setTool}
+          onClear={() => setConfirmClear(true)}
           onSave={handleSave}
         />
 

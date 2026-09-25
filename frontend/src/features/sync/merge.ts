@@ -180,10 +180,8 @@ export function mergeGarden(base: Obj | null, local: Obj, server: Obj): Obj {
   }
   const list = <T>(o: Obj, k: string) => (Array.isArray(o[k]) ? (o[k] as T[]) : []);
   out.decor = mergeSet(list<string>(base, 'decor'), list<string>(local, 'decor'), list<string>(server, 'decor'), String);
-  out.dewLog = mergeSet(
-    list<Keyed>(base, 'dewLog'), list<Keyed>(local, 'dewLog'), list<Keyed>(server, 'dewLog'),
-    (e) => `${String(e.at)}:${String(e.source)}:${String(e.amount)}`,
-  ).sort((a, b) => Number(b.at) - Number(a.at)).slice(0, 20);
+  // دفترچه‌ی «آخرین شبنم‌ها» دیگر نیست؛ نسخه‌ی کهنه‌اش هم هم‌رسان نمی‌شود
+  delete out.dewLog;
 
   const basePlants = new Map(list<PlantLike>(base, 'plants').map((p) => [p.id, p]));
   const serverPlants = new Map(list<PlantLike>(server, 'plants').map((p) => [p.id, p]));

@@ -14,6 +14,8 @@ let clock = 1000;
 let offline = false;
 let beforePush: (() => unknown) | null = null;
 const pushTokens: Array<string | undefined> = [];
+/** سکه‌ای که سرور خودش برای هر حساب ثبت کرده (Profile.coins) */
+const profileCoins = new Map<string, number>();
 
 function account(): Map<string, Row> {
   const owner = currentDevice.user;
@@ -25,6 +27,10 @@ const network = () => new AxiosError('Network Error', 'ERR_NETWORK');
 
 vi.mock('../api', () => ({
   syncApi: {
+    async accountCoins(): Promise<number> {
+      if (offline) throw network();
+      return profileCoins.get(currentDevice.user ?? '') ?? 0;
+    },
     async pull(since: string | null): Promise<{ since: string; items: SyncItem[] }> {
       if (offline) throw network();
       const rows = account();
@@ -109,6 +115,7 @@ async function sync(d: Device) {
 beforeEach(() => {
   vi.resetModules();
   accounts.clear();
+  profileCoins.clear();
   offline = false;
   beforePush = null;
   pushTokens.length = 0;
@@ -320,5 +327,48 @@ describe('چند بچه روی یک گوشی', () => {
     await sync(phone);
     expect(coins(phone)).toBe('333');
     expect(accounts.get('7')!.get('luko_coins')!.value).toBe('333');
+  });
+});
+
+describe('بارِ اولِ ورود', () => {
+  it('حسابِ تازه روی دستگاهِ تازه: صفر سکه', async () => {
+    const phone = device('kid-a');
+    await sync(phone);
+    expect(coins(phone)).toBeNull();
+    expect(accounts.get('kid-a')?.has('luko_coins') ?? false).toBe(false);
+  });
+
+  // دستگاهی که پیش از این نسخه باز شده بود کیفِ خالی را با ۱۲۰ پر کرده بود و
+  // ادغامِ بارِ اول (بیشینه) همان را روی حساب می‌نشاند
+  it('۱۲۰ سکه‌ی ساختگیِ نسخه‌ی قبل به حساب نمی‌رسد', async () => {
+    const web = device('kid-a', { luko_coins: '40' });
+    await sync(web);
+    const phone = device('kid-a', { luko_coins: '120' });
+    await sync(phone);
+    expect(coins(phone)).toBe('40');
+    expect(accounts.get('kid-a')?.get('luko_coins')?.value).toBe('40');
+  });
+
+  it('۱۲۰ای که ردِ بازی دارد واقعی است و می‌ماند', async () => {
+    const phone = device('kid-a', { luko_coins: '120', luko_club_total: '3' });
+    await sync(phone);
+    expect(coins(phone)).toBe('120');
+  });
+
+  it('حسابی که پیش از هم‌رسانی بازی کرده: موجودیِ سرور، نه صفر', async () => {
+    profileCoins.set('kid-a', 70);
+    const phone = device('kid-a');
+    await sync(phone);
+    expect(coins(phone)).toBe('70');
+    expect(accounts.get('kid-a')?.get('luko_coins')?.value).toBe('70');
+  });
+
+  it('کیفِ هم‌رسان‌شده‌ی حساب بر عددِ سرور مقدم است', async () => {
+    profileCoins.set('kid-a', 70);
+    const web = device('kid-a', { luko_coins: '25' });
+    await sync(web);
+    const phone = device('kid-a');
+    await sync(phone);
+    expect(coins(phone)).toBe('25');
   });
 });

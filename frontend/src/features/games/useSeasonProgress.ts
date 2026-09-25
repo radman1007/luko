@@ -2,7 +2,9 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { completedLevelIds, replaceCompletedLevelIds } from './localProgress';
 import { isGuestMode } from '@/features/auth/guest';
+import { useGrade } from '@/features/auth/useGrade';
 import { gamesApi } from './api';
+import { useGamePath } from './useGamePath';
 import { pendingSlugs } from './pendingCompletions';
 
 export interface SeasonProgress {
@@ -52,4 +54,17 @@ export function useSeasonProgress(): SeasonProgress {
     }),
     [data],
   );
+}
+
+/**
+ * چند مرحله از مسیرِ کلاسِ خودِ بچه تمام شده — همان عددی که با نقشه می‌خواند.
+ *
+ * `done` هر تکمیلی را دارد که سرور یا صفِ آفلاین می‌شناسد، از جمله مرحله‌ای که
+ * روی مسیرِ این کلاس نیست (کلاسِ قبلی، بازیِ کنارگذاشته). شمردنِ خامش روی
+ * پروفایل «۷ بازیِ تمام‌شده» نشان می‌داد وقتی بچه روی مرحله‌ی ۶ بود.
+ */
+export function useCompletedStages(): number {
+  const { done } = useSeasonProgress();
+  const { stages } = useGamePath(useGrade());
+  return useMemo(() => stages.filter((stage) => done.has(stage.id)).length, [stages, done]);
 }

@@ -89,3 +89,24 @@ describe('نزدیک‌ترین مدال', () => {
     expect(medal?.unlocked).toBe(false);
   });
 });
+
+describe('مدالِ گرفته‌شده پس گرفته نمی‌شود', () => {
+  // «سه روز آتشین» از روزهای پیاپیِ همین حالا می‌آید؛ یک روز جاافتادن قفلش می‌کرد
+  it('با شکستنِ روزهای پیاپی قفل نمی‌شود', () => {
+    const today = buildMedals(stats({ streak: 0 }), new Set(['streak3']));
+    const medal = today.find((m) => m.id === 'streak3')!;
+    expect(medal.unlocked).toBe(true);
+    expect(medal.current).toBe(medal.target);
+  });
+
+  it('با خرج کردنِ سکه «سکه‌دارِ لوکو» می‌ماند', () => {
+    const medal = buildMedals(stats({ coins: 20 }), new Set(['rich'])).find((m) => m.id === 'rich')!;
+    expect(medal.unlocked).toBe(true);
+  });
+
+  it('مدالی که هنوز گرفته نشده همان پیشرفتِ واقعی را نشان می‌دهد', () => {
+    const medal = buildMedals(stats({ streak: 2 }), new Set(['first'])).find((m) => m.id === 'streak3')!;
+    expect(medal.unlocked).toBe(false);
+    expect(medal.current).toBe(2);
+  });
+});

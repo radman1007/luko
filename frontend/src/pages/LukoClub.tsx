@@ -6,21 +6,18 @@ import { ClubHero } from '@/features/club/components/ClubHero/ClubHero';
 import { WeekStreak } from '@/features/club/components/WeekStreak/WeekStreak';
 import { DailyMissions } from '@/features/club/components/DailyMissions/DailyMissions';
 import { SportsSection } from '@/features/club/components/SportsSection/SportsSection';
-import { MedalsSection } from '@/features/club/components/MedalsSection/MedalsSection';
-import { useMedals } from '@/features/club/useMedals';
-import { ShopSection } from '@/features/club/components/ShopSection/ShopSection';
+import { LukoShop } from '@/features/shop/components/LukoShop/LukoShop';
 import { useClub } from '@/features/club/useClub';
 import styles from './LukoClub.module.css';
 
 const GUIDE_STEPS = [
   'سلام قهرمان! من توپام، مربی باشگاه شهر لوکو!',
   'هر روز مأموریت‌های تازه داریم؛ انجامشون بدی ازم سکه می‌گیری!',
-  'با سکه‌هات از فروشگاه جایزه بخر و مدال‌هات رو جمع کن. بزن بریم تمرین!',
+  'پایینِ همین صفحه فروشگاهِ شهره: هر چی برای باغچه و پروفایلت بخوای، همون‌جاست. بزن بریم تمرین!',
 ];
 
 export default function LukoClub() {
   const club = useClub();
-  const medals = useMedals();
 
   return (
     <StudentLayout className={styles.page}>
@@ -29,13 +26,13 @@ export default function LukoClub() {
       <Board>
         <Column side="start">
           <DailyMissions doneIds={club.doneToday} />
-          <SportsSection doneIds={club.sportDoneToday} />
         </Column>
         <Column side="end">
-          <MedalsSection medals={medals} />
+          <SportsSection doneIds={club.sportDoneToday} />
         </Column>
       </Board>
-      <ShopSection coins={club.coins} ownedIds={club.owned} onBuy={club.buy} />
+      {/* تنها فروشگاهِ اپ — باغچه، نشان‌ها و کارگاه همه این‌جا؛ مدال‌ها در تالارِ افتخاراتِ پروفایل‌اند */}
+      <LukoShop />
 
       <CharacterGuide character={LUKORIANS.club} steps={GUIDE_STEPS} storageKey="club-intro" />
     </StudentLayout>

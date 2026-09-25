@@ -51,7 +51,6 @@ export function useGarden() {
 
   return {
     dew: state.dew,
-    dewLog: state.dewLog,
     fertilizer: state.fertilizer,
     seeds: state.seeds,
     plants,

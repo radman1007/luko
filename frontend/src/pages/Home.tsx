@@ -14,7 +14,7 @@ import { GameZoneCard } from '@/features/home/components/GameZoneCard/GameZoneCa
 import { TodayPathCard } from '@/features/home/components/TodayPathCard/TodayPathCard';
 import { LatestPodcastCard } from '@/features/home/components/LatestPodcastCard/LatestPodcastCard';
 import { AboutCard } from '@/features/home/components/AboutCard/AboutCard';
-import { MOCK_STATS } from '@/features/home/mockData';
+import { usePoints } from '@/features/profile/usePoints';
 import styles from './Home.module.css';
 
 const GUIDE_STEPS = [
@@ -44,12 +44,13 @@ export default function Home() {
   const mood = useMoodReminder();
   const club = useClub();
   const garden = useGarden();
+  const points = usePoints();
 
   return (
     <StudentLayout className={styles.page}>
       <HomeHero name={user?.firstName ?? 'دوست لوکو'} />
       <div className={styles.overlap}>
-        <StatsBar coins={club.coins} streak={club.streak} xp={MOCK_STATS.xp} />
+        <StatsBar coins={club.coins} streak={club.streak} xp={points} />
       </div>
 
       <Board>

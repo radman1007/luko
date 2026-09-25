@@ -79,7 +79,12 @@ def game_path(grade: int) -> list[dict]:
 
 
 def completed_count(user) -> int:
-    return GameCompletion.objects.filter(user=user).count()
+    """
+    مرحله‌های تمام‌شده‌ی مسیرِ کلاسِ خودِ بچه — همان عددی که نقشه نشان می‌دهد.
+    تکمیلِ بازی‌ای که روی این مسیر نیست (کلاسِ قبلی، بازیِ کنارگذاشته) شمرده نمی‌شود.
+    """
+    path = Game.objects.playable().filter(grade=user.grade, season_order__gt=0).values("slug")
+    return GameCompletion.objects.filter(user=user, game_slug__in=path).count()
 
 
 def completed_slugs(user) -> list[str]:

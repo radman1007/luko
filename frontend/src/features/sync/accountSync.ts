@@ -25,6 +25,22 @@ import { mergeValue } from './merge';
 import { strategyFor } from './syncKeys';
 
 const META_KEY = 'luko_sync_meta';
+const COINS_KEY = 'luko_coins';
+/** کیفِ خالیِ نسخه‌های قبل پیش از هر ورودی خودش را با این عدد پر می‌کرد */
+const OLD_DEMO_COINS = '120';
+
+/**
+ * همان ۱۲۰ سکه‌ی ساختگیِ نسخه‌های قبل، دست‌نخورده: بچه‌ای که واقعاً بازی
+ * کرده یا خریده ردی از خودش گذاشته (مأموریت، خرید، مرحله‌ی تمام‌شده).
+ */
+function oldDemoWallet(): boolean {
+  if (localStorage.getItem(COINS_KEY) !== OLD_DEMO_COINS) return false;
+  const none = (key: string) => {
+    const raw = localStorage.getItem(key);
+    return raw === null || raw === '0' || raw === '[]';
+  };
+  return none('luko_club_total') && none('luko_club_owned') && none('luko_completed_games');
+}
 const STASH_PREFIX = 'luko_sync_stash_';
 /** ذخیره‌ای بزرگ‌تر از این (بازیِ خاص) هم‌رسان نمی‌شود؛ سقفِ سرور ۲۵۶ کیلوبایت است */
 const MAX_VALUE = 200 * 1024;
@@ -176,6 +192,25 @@ async function syncOnce(): Promise<SyncOutcome | null> {
 
   const now = new Date();
   const serverItems = new Map(pulled.items.map((item) => [item.key, item]));
+
+  /**
+   * بارِ اولِ این دستگاه با حسابی که کیفِ هم‌رسان‌شده ندارد (پیش از هم‌رسانی
+   * بازی کرده، یا تازه ساخته شده) و این دستگاه هم کیفی برایش ندارد: موجودیِ
+   * خودِ سرور نقطه‌ی شروع است — نه صفر برای بچه‌ای که سکه برده، و نه عددی ساختگی.
+   */
+  if (meta.since === null && oldDemoWallet()) {
+    // وگرنه ادغامِ بارِ اول (بیشینه‌ی دو طرف) ۱۲۰ سکه‌ی ساختگی را روی حسابِ واقعی می‌نشاند
+    writeLocal(COINS_KEY, null, changed);
+  }
+  if (meta.since === null && !serverItems.has(COINS_KEY) && localStorage.getItem(COINS_KEY) === null) {
+    try {
+      const coins = await syncApi.accountCoins();
+      if (lost()) return null;
+      if (coins > 0 && localStorage.getItem(COINS_KEY) === null) writeLocal(COINS_KEY, String(coins), changed);
+    } catch {
+      /* بی‌اینترنت یا خطا: همین بار بی‌آن؛ کیف از صفر، و دفعه‌ی بعد دوباره امتحان نمی‌شود چون since دارد */
+    }
+  }
   const keys = new Set([...serverItems.keys(), ...syncedLocalKeys(now), ...Object.keys(meta.base)]);
   let pending: SyncChange[] = [];
   const pendingValues = new Map<string, string | null>();

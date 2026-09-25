@@ -92,6 +92,7 @@ export interface SeasonState {
   openWeeks: SeasonWeek[];
   /** هفته‌های هنوز نرسیده — پشتِ ابر */
   cloudedWeeks: SeasonWeek[];
+  /** هفته‌ای که خودِ بچه در آن است (هفته‌ی مرحله‌ی بعدی‌اش)، نه هفته‌ی تقویم */
   currentWeek: number;
   totalWeeks: number;
   /** مرحله‌ی بعدی که باید بازی شود (اولین کامل‌نشده‌ی هفته‌های باز) */
@@ -207,12 +208,19 @@ export function seasonState(
     (stars instanceof Map ? stars.get(id) : stars[id]) ?? 0;
   const stages = toSeasonStages(path);
   const totalWeeks = Math.max(1, ...stages.map((stage) => stage.week));
-  const currentWeek = releasedWeeks(today, totalWeeks);
+  /** هفته‌هایی که تقویم تا امروز باز کرده */
+  const openedWeeks = releasedWeeks(today, totalWeeks);
 
   // مرحله‌ی جاری = اولین نرفته‌ی هفته‌های بازشده. هرچه بعد از آن است قفل
   // است، مگر خودش قبلاً رفته شده باشد (بازیِ دوباره همیشه آزاد است).
-  const releasedStages = stages.filter((stage) => stage.week <= currentWeek);
+  const releasedStages = stages.filter((stage) => stage.week <= openedWeeks);
   const current = releasedStages.find((stage) => !done.has(stage.id));
+  /**
+   * هفته‌ای که خودِ بچه در آن است: هفته‌ی مرحله‌ی بعدی‌اش. قبلاً هفته‌ی تقویم
+   * بود و بچه‌ای که همین امروز حساب ساخته «هفته‌ی ۷» می‌دید، با شش هفته‌ی
+   * جامانده پشتِ سرش. همه‌ی بازشده‌ها را رفته؟ آخرین هفته‌ی باز.
+   */
+  const currentWeek = current ? current.week : Math.max(1, openedWeeks);
   const withLock = (stage: SeasonStage): SeasonStage => ({
     ...stage,
     locked: !done.has(stage.id) && (current === undefined || stage.order > current.order),
@@ -223,7 +231,7 @@ export function seasonState(
   for (let index = 1; index <= totalWeeks; index += 1) {
     const weekStages = stages.filter((stage) => stage.week === index).map(withLock);
     const completedCount = weekStages.filter((stage) => done.has(stage.id)).length;
-    const released = index <= currentWeek;
+    const released = index <= openedWeeks;
     const allDone = weekStages.length > 0 && completedCount === weekStages.length;
 
     let state: WeekState = 'locked';

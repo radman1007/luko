@@ -13,27 +13,9 @@ export interface Plant {
 }
 
 /** از کجا شبنم به دست آمد — برای دفترچه‌ی شبنم و آینده‌ی sync با بک‌اند */
-export type DewSource =
-  | 'time'
-  | 'game'
-  | 'mission'
-  | 'medal'
-  | 'teacher'
-  | 'parent'
-  | 'shop'
-  | 'seed';
-
-export interface DewEntry {
-  amount: number;
-  source: DewSource;
-  at: number;
-}
-
 export interface GardenState {
   /** شبنم — ارز ویژه‌ی باغچه */
   dew: number;
-  /** دفترچه‌ی آخرین شبنم‌های دریافتی (سقف‌دار) */
-  dewLog: DewEntry[];
   /** کود موجود در انبار */
   fertilizer: number;
   /** دانه‌های آماده‌ی کاشت */

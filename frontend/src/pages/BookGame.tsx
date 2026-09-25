@@ -35,6 +35,13 @@ import styles from './BookGame.module.css';
  */
 /** بعد از این مدت بازی، دکمه‌ی «تموم کردم» ظاهر می‌شود (میلی‌ثانیه) */
 const CLAIM_AFTER_MS = 3 * 60 * 1000;
+/**
+ * بازی‌ای که نقطه‌ی پایانِ خودش را دارد (`LUKO_EXPLICIT_FINISH`، از
+ * `backend/apps/games/finish_points.py`) خودش تمام می‌شود؛ آن‌جا سه دقیقه
+ * یعنی میان‌بُری برای رد شدن از بازی پیش از پایانِ واقعی‌اش. دکمه فقط تورِ
+ * ایمنی برای بچه‌ای است که با باگی در خودِ بازی گیر کرده.
+ */
+const CLAIM_AFTER_MS_EXPLICIT = 12 * 60 * 1000;
 
 export default function BookGame() {
   const navigate = useNavigate();
@@ -115,6 +122,7 @@ export default function BookGame() {
   /** بی‌اینترنت برده شد: در صف است و با برگشتنِ اینترنت ثبت می‌شود */
   const [savedOffline, setSavedOffline] = useState(false);
   const rewardedRef = useRef(false);
+  const frameRef = useRef<HTMLIFrameElement>(null);
 
   // همیشه به مسیرِ سیزن برمی‌گردیم؛ نقشه‌ی کتابیِ قدیمی دیگر مقصدِ برگشت نیست
   const backToMap = () => navigate(SEASON_MAP_PATH);
@@ -137,7 +145,7 @@ export default function BookGame() {
     }
     completeMission('game');   // مأموریتِ روزانه‌ی «یه بازی رو کامل کن»
     // پاداشِ محلی بلافاصله نشان داده می‌شود تا بچه منتظرِ شبکه نماند
-    grantDew(DEW_REWARD.game, 'game');
+    grantDew(DEW_REWARD.game);
     grantFertilizer(1);
     setJustWon(true);
 
@@ -176,8 +184,21 @@ export default function BookGame() {
 
   useEffect(() => {
     if (!play.data || justWon) return undefined;
-    const timer = window.setTimeout(() => setCanClaim(true), CLAIM_AFTER_MS);
-    return () => window.clearTimeout(timer);
+    const explicit = () => {
+      try {
+        return Boolean((frameRef.current?.contentWindow as { LUKO_EXPLICIT_FINISH?: boolean } | null)?.LUKO_EXPLICIT_FINISH);
+      } catch {
+        return false; // iframeِ ناهم‌ریشه: همان رفتارِ قبلی
+      }
+    };
+    const early = window.setTimeout(() => {
+      if (!explicit()) setCanClaim(true);
+    }, CLAIM_AFTER_MS);
+    const late = window.setTimeout(() => setCanClaim(true), CLAIM_AFTER_MS_EXPLICIT);
+    return () => {
+      window.clearTimeout(early);
+      window.clearTimeout(late);
+    };
   }, [play.data, justWon]);
 
   // پلِ بازی ← اپ: پایانِ بازی، و تله‌متری‌ای که گزارشِ والدین از رویش ساخته می‌شود
@@ -304,6 +325,7 @@ export default function BookGame() {
       <div className={styles.stage}>
         {play.data ? (
           <iframe
+            ref={frameRef}
             className={styles.frame}
             src={play.data}
             title={stage.title}

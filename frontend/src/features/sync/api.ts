@@ -21,6 +21,16 @@ export const syncApi = {
     return data.data;
   },
 
+  /**
+   * سکه‌ای که سرور خودش برای این حساب ثبت کرده (از بُردِ مرحله‌ها). فقط برای
+   * حسابی که هنوز کیفِ هم‌رسان‌شده ندارد نقطه‌ی شروع است.
+   */
+  async accountCoins(): Promise<number> {
+    const { data } = await apiClient.get('/users/me/profile');
+    const coins = Number(data.data?.coins);
+    return Number.isInteger(coins) && coins >= 0 ? coins : 0;
+  },
+
   /** `token` برای ارسالِ آخر هنگامِ خروج، وقتی توکنِ نشست دیگر در حافظه نیست */
   async push(
     changes: SyncChange[],

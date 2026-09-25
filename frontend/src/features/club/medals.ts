@@ -162,11 +162,17 @@ export interface Medal {
 /**
  * مدال‌ها برای این آمار. تابعِ خالص است تا هم قابلِ تست باشد هم UI
  * چیزی حساب نکند — همان جدایی‌ای که در نقشه‌ی سیزن هم رعایت شد.
+ *
+ * `earned` مدال‌هایی است که بچه یک‌بار گرفته. مدال پس گرفته نمی‌شود: بعضی
+ * شرط‌ها از عددِ همین حالا می‌آیند (روزهای پیاپیِ فعلی، سکه‌ی فعلی) و قبلاً
+ * با یک روز جاافتادن یا یک خرید، «سه روز آتشین» و «سکه‌دارِ لوکو» دوباره قفل
+ * می‌شدند.
  */
-export function buildMedals(stats: MedalStats): Medal[] {
+export function buildMedals(stats: MedalStats, earned: ReadonlySet<string> = new Set()): Medal[] {
   return DEFS.map((def) => {
     const raw = Math.max(0, def.value(stats));
-    const current = Math.min(raw, def.target);
+    const unlocked = raw >= def.target || earned.has(def.id);
+    const current = unlocked ? def.target : Math.min(raw, def.target);
     return {
       id: def.id,
       title: def.title,
@@ -174,7 +180,7 @@ export function buildMedals(stats: MedalStats): Medal[] {
       icon: def.icon,
       tier: def.tier,
       category: def.category,
-      unlocked: raw >= def.target,
+      unlocked,
       current,
       target: def.target,
       ratio: def.target > 0 ? current / def.target : 0,

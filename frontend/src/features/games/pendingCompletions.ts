@@ -171,7 +171,12 @@ async function send(claimed?: string): Promise<Map<string, CompleteResult>> {
       changed = true;
     }
   }
-  if (changed) await queryClient.invalidateQueries({ queryKey: ['games', 'completed'] });
+  if (changed) {
+    // امتیاز و گنج هم با ثبتِ مرحله روی سرور بالا رفته‌اند
+    void queryClient.invalidateQueries({ queryKey: ['profile'] });
+    void queryClient.invalidateQueries({ queryKey: ['treasures'] });
+    await queryClient.invalidateQueries({ queryKey: ['games', 'completed'] });
+  }
   return results;
 }
 

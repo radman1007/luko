@@ -83,7 +83,7 @@ describe('هر دو عوض شده‌اند', () => {
 describe('باغچه', () => {
   const plant = (id: string, care: number) => ({ id, kind: 'tulip', plantedAt: 1, care });
   const garden = (over: Record<string, unknown>) => ({
-    dew: 20, dewLog: [], fertilizer: 1, seeds: 2, plants: [plant('p1', 2)], plotLevel: 1, decor: [],
+    dew: 20, fertilizer: 1, seeds: 2, plants: [plant('p1', 2)], plotLevel: 1, decor: [],
     waterCharges: 5, lastRefillAt: 100, seasonStartAt: 1, lastWateredAt: null, ...over,
   });
 

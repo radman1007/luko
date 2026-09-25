@@ -30,7 +30,7 @@ export function useSiteTimeDew() {
       while (accMs.current >= TIME_DEW.chunkMs) {
         accMs.current -= TIME_DEW.chunkMs;
         if (givenToday() >= TIME_DEW.dailyCap) continue; // سقف روزانه پر شده
-        grantDew(DEW_REWARD.time, 'time');
+        grantDew(DEW_REWARD.time);
         localStorage.setItem(dayKey(), String(givenToday() + DEW_REWARD.time));
       }
     };

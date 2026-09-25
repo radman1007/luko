@@ -12,3 +12,6 @@ export const COLORS = [
 
 /** ضخامتِ قلم‌ها روی صفحه (px) */
 export const BRUSH_SIZES = [4, 9, 16];
+
+/** پاک‌کن از قلمِ هم‌اندازه‌اش پهن‌تر است تا بچه راحت روی خطِ اشتباه بکشد */
+export const eraserWidth = (brush: number) => brush * 2 + 10;

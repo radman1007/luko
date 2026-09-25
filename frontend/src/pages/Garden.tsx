@@ -6,8 +6,8 @@ import { LUKORIANS } from '@/lib/characters';
 import { GardenHero } from '@/features/garden/components/GardenHero/GardenHero';
 import { GardenScene } from '@/features/garden/components/GardenScene/GardenScene';
 import { GardenToolbar } from '@/features/garden/components/GardenToolbar/GardenToolbar';
-import { GardenShop } from '@/features/garden/components/GardenShop/GardenShop';
-import { DewSources } from '@/features/garden/components/DewSources/DewSources';
+import { ShopShortcut } from '@/features/shop/components/ShopShortcut/ShopShortcut';
+import { useClub } from '@/features/club/useClub';
 import { useGarden } from '@/features/garden/useGarden';
 import type { ActionResult } from '@/features/garden/store';
 import styles from './Garden.module.css';
@@ -15,23 +15,21 @@ import styles from './Garden.module.css';
 const GUIDE_STEPS = [
   'سلام! من سبزو هستم، باغبونِ شهر لوکو. این باغچه‌ی خودته!',
   'به گیاه‌هات آب بده، کود بده و دونه بکار تا توی یه سال تحصیلی قد بکشن و گل بدن.',
-  'با «شبنم» باغچه رو بزرگ‌تر و قشنگ‌تر کن؛ شبنم رو از بازی‌ها، مأموریت‌ها، مدال‌ها و وقتی که اینجا می‌مونی می‌گیری!',
+  'با «شبنم» باغچه رو بزرگ‌تر و قشنگ‌تر کن؛ شبنم رو از بازی‌ها، مأموریت‌ها، مدال‌ها و وقتی که اینجا می‌مونی می‌گیری. خریدش هم از فروشگاهِ باشگاهه!',
 ];
 
 const REASON_MSG: Record<string, string> = {
   full: 'همه‌ی جای کاشت‌ها پره! با شبنم باغچه رو بزرگ‌تر کن.',
-  noseed: 'دانه نداری؛ از فروشگاه دانه بخر.',
+  noseed: 'دانه نداری؛ از فروشگاهِ باشگاه دانه بخر.',
   nowater: 'آب‌پاش خالیه؛ کمی صبر کن تا پر بشه.',
-  nofert: 'کود نداری؛ از بازی‌ها کود بگیر یا از فروشگاه بخر.',
+  nofert: 'کود نداری؛ از بازی‌ها کود بگیر یا از فروشگاهِ باشگاه بخر.',
   noplant: 'اول یه دانه بکار!',
-  nodew: 'شبنم کافی نداری.',
-  maxed: 'باغچه به بزرگ‌ترین اندازه رسیده!',
-  owned: 'این تزئین رو قبلاً گرفتی.',
   unknown: 'یه مشکلی پیش اومد.',
 };
 
 export default function Garden() {
   const g = useGarden();
+  const { coins } = useClub();
   const [watering, setWatering] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
 
@@ -57,7 +55,6 @@ export default function Garden() {
   };
   const handleFertilize = () => after(g.fertilizeAll(), 'کود دادی! گیاه‌ها جون گرفتن.');
   const handlePlant = () => after(g.plantSeed(), 'یه دانه کاشتی! آبش بده تا رشد کنه.');
-  const handleBuy = (id: string) => after(g.buy(id), 'خرید انجام شد!');
 
   return (
     <StudentLayout className={styles.page}>
@@ -90,10 +87,16 @@ export default function Garden() {
             onFertilize={handleFertilize}
             onPlant={handlePlant}
           />
-          <DewSources dewLog={g.dewLog} />
         </Column>
         <Column side="end">
-          <GardenShop dew={g.dew} plotLevel={g.plotLevel} decor={g.decor} onBuy={handleBuy} />
+          {/* فروشگاهِ باغبان رفت به فروشگاهِ یکپارچه‌ی باشگاه */}
+          <ShopShortcut
+            category="garden"
+            title="دانه، کود یا تزئین لازم داری؟"
+            text="همه‌ی خریدهای باغچه حالا توی فروشگاهِ باشگاهه."
+            coins={coins}
+            dew={g.dew}
+          />
         </Column>
       </Board>
 

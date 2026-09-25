@@ -11,7 +11,9 @@
   - `luko-sdk.js` (تله‌متری) و `luko-bridge.js` (خبرِ پایان) را می‌افزاید؛
   - `luko-wallet.js` و رابطِ سکه‌ی همان بازی (coin_adapters) را بالای <head>
     می‌گذارد تا سکه‌ی بازی همان سکه‌ی اصلیِ بچه باشد؛
-  - وابستگی‌های بیرونی را که روی اینترنتِ کاربر باز نمی‌شوند محلی می‌کند.
+  - وابستگی‌های بیرونی را که روی اینترنتِ کاربر باز نمی‌شوند محلی می‌کند؛
+  - نقطه‌ی پایانِ خودِ بازی (finish_points.py) و رفعِ باگ‌هایش (game_fixes.py)
+    را می‌گذارد.
 
 فایلِ بی‌نام یا بدنام وارد نمی‌شود و دلیلش گزارش می‌شود؛ `sync_games`
 جایگاهشان را از روی همان نام می‌سازد. اجرای دوباره روی فایلِ واردشده هم
@@ -24,6 +26,8 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from apps.games.coin_adapters import ADAPTERS, GAME_PATCHES
+from apps.games.finish_points import FINISH, FINISH_HELPER
+from apps.games.game_fixes import FIXES
 from apps.games.naming import parse
 
 # عنصرهایی که «پایانِ بازی» را نشان می‌دهند. الگوها از روی خودِ بازی‌های
@@ -71,7 +75,7 @@ BLOCK = re.compile(r"\n?" + re.escape(MARK) + r".*?luko-bridge\.js\"\s*></script
 # اگر نبود مستقیم پیام می‌فرستد، پس ترتیبشان مهم نیست.
 INJECT = """
 {mark}
-<script>window.LUKO_WIN = {sure}; window.LUKO_WIN_MAYBE = {maybe};</script>
+{helper}<script>window.LUKO_WIN = {sure}; window.LUKO_WIN_MAYBE = {maybe};</script>
 <script async src="/games/assets/luko-sdk.js"></script>
 <script async src="/games/assets/luko-bridge.js"></script>
 """
@@ -118,15 +122,29 @@ def patch(text: str) -> str:
     return GOOGLE_FONTS.sub("<!-- فونتِ گوگل برداشته شد (لوکو) -->", text)
 
 
-def game_patches(text: str, stem: str) -> str:
-    """وصله‌های تک‌بازی؛ روی فایلِ واردشده‌ی قبلی هم بی‌اثر و امن است."""
-    for source, target in GAME_PATCHES.get(stem, []):
+def _apply(text: str, stem: str, patches: list[tuple[str, str]]) -> str:
+    for source, target in patches:
         if target in text:
             continue
         if text.count(source) != 1:
             raise CommandError(f"{stem}: وصله پیدا نشد یا چندتاست: {source[:50]!r}")
         text = text.replace(source, target)
     return text
+
+
+def game_patches(text: str, stem: str) -> str:
+    """وصله‌های تک‌بازی؛ روی فایلِ واردشده‌ی قبلی هم بی‌اثر و امن است."""
+    return _apply(text, stem, GAME_PATCHES.get(stem, []))
+
+
+def finish_patches(text: str, stem: str) -> str:
+    """نقطه‌ی پایانِ خودِ بازی (finish_points.py)"""
+    return _apply(text, stem, FINISH.get(stem, []))
+
+
+def fix_patches(text: str, stem: str) -> str:
+    """رفعِ باگِ خودِ بازی (game_fixes.py)"""
+    return _apply(text, stem, FIXES.get(stem, []))
 
 
 def with_wallet(text: str, stem: str) -> str:
@@ -143,9 +161,15 @@ def with_wallet(text: str, stem: str) -> str:
 
 def prepare(text: str, stem: str = "") -> str:
     """فایلِ خام (یا واردشده‌ی قبلی) → فایلِ آماده‌ی لوکو."""
-    text = with_wallet(game_patches(BLOCK.sub("", patch(text)), stem), stem)
-    sure, maybe = win_hints(text)
-    block = INJECT.format(mark=MARK, sure=str(sure).replace("'", '"'),
+    text = game_patches(BLOCK.sub("", patch(text)), stem)
+    text = with_wallet(finish_patches(fix_patches(text, stem), stem), stem)
+    if stem in FINISH:
+        # بازی خودش پایان را می‌گوید؛ حدسِ پل (که باخت و خرید را هم «بُرد»
+        # می‌گرفت) برای این بازی خاموش است
+        helper, sure, maybe = FINISH_HELPER, [], []
+    else:
+        helper, (sure, maybe) = "", win_hints(text)
+    block = INJECT.format(mark=MARK, helper=helper, sure=str(sure).replace("'", '"'),
                           maybe=str(maybe).replace("'", '"'))
     if re.search(r"</body\s*>", text, re.I):
         return re.sub(r"</body\s*>", block + "</body>", text, count=1, flags=re.I)
