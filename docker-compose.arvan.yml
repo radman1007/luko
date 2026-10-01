@@ -109,9 +109,15 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
+      - "443:443"                                   # آروان با گواهیِ مبدأ به ۴۴۳ وصل می‌شود
     volumes:
       - ./deploy/nginx.arvan.conf:/etc/nginx/conf.d/default.conf:ro
+      # گواهیِ TLSِ مبدأ (fullchain.pem / privkey.pem) — فقط روی سرور، در git نیست
+      - ./deploy/certs:/etc/nginx/certs:ro
       - ./deploy/proxy.conf:/etc/nginx/snippets/proxy.conf:ro
+      # کلیدِ امضای لینکِ بازی‌ها (secure_link). فقط روی سرور است و در git نیست
+      # (نمونه: deploy/game_link_secret.example.conf)؛ بی‌آن nginx بالا نمی‌آید.
+      - ./deploy/game_link_secret.conf:/etc/nginx/snippets/game_link_secret.conf:ro
       - ./frontend/dist:/var/www/luko:ro          # خروجیِ `npm run build`
       - static:/var/www/static:ro
       - media:/var/www/media:ro
