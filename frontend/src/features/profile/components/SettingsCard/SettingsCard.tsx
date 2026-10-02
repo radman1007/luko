@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   HiOutlineArrowRightOnRectangle,
   HiOutlineBellAlert,
-  HiOutlineLockClosed,
   HiOutlineMusicalNote,
   HiOutlineSpeakerWave,
   HiOutlineSparkles,
@@ -84,14 +83,6 @@ export function SettingsCard() {
           >
             {guidesReset ? 'برگشتن!' : 'دوباره نشون بده'}
           </button>
-        </li>
-
-        <li className={`${styles.row} ${styles.lockedRow}`}>
-          <span className={styles.rowIcon} aria-hidden>
-            <HiOutlineLockClosed />
-          </span>
-          <span className={styles.rowLabel}>تغییر رمز و مشخصات</span>
-          <span className={styles.lockedNote}>فقط از پنل والدین</span>
         </li>
       </ul>
 

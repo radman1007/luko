@@ -27,7 +27,7 @@ function load(): KidSettings {
 
 const isSettingsKey = (key: string) => key === SETTINGS_KEY;
 
-/** تنظیمات بچه — رمز و مشخصات فقط از پنل والدین قابل تغییر است */
+/** تنظیمات بچه (صدا، موسیقی، یادآور) */
 export function useSettings() {
   const [settings, setSettings] = useState<KidSettings>(load);
   // تنظیمی که روی دستگاهِ دیگرِ همین حساب عوض شده
