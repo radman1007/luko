@@ -147,10 +147,11 @@ class PlansAndStatusTests(BillingTestBase):
     def test_plans_are_seeded_with_prices_and_saving(self):
         res = self.api.get("/api/v1/billing/plans")
         plans = {p["code"]: p for p in res.json()["data"]}
-        self.assertEqual(plans["monthly"]["priceToman"], 299_000)
-        self.assertEqual(plans["yearly"]["priceToman"], 1_049_000)
+        self.assertEqual(plans["monthly"]["priceToman"], 199_000)
+        self.assertEqual(plans["yearly"]["priceToman"], 1_499_000)
+        self.assertEqual(plans["yearly"]["perMonthToman"], 124_917)
         self.assertEqual(plans["yearly"]["months"], 12)
-        self.assertEqual(plans["yearly"]["savingPercent"], 71)   # ۱٬۰۴۹٬۰۰۰ در برابرِ ۱۲ × ۲۹۹٬۰۰۰
+        self.assertEqual(plans["yearly"]["savingPercent"], 37)   # ۱٬۴۹۹٬۰۰۰ در برابرِ ۱۲ × ۱۹۹٬۰۰۰
         self.assertEqual(plans["monthly"]["savingPercent"], 0)
 
     def test_every_child_is_free_by_default(self):
@@ -177,13 +178,13 @@ class CheckoutTests(BillingTestBase):
         data = res.json()["data"]
         self.assertTrue(data["payUrl"].startswith("https://ipg.vandar.io/v4/tok"))
         sent = [c for c in self.vandar.calls if c[0] == "send"][0][1]
-        self.assertEqual(sent["amount"], 2_990_000)          # ریال
+        self.assertEqual(sent["amount"], 1_990_000)          # ریال
         self.assertEqual(sent["callback_url"], "https://my.luko.ir/api/v1/billing/callback")
         self.assertEqual(sent["mobile_number"], "09120000001")
         payment = Payment.objects.get(pk=data["paymentId"])
         self.assertEqual(sent["factorNumber"], payment.factor_number)
         self.assertEqual(payment.status, Payment.Status.PENDING)
-        self.assertEqual(payment.amount_toman, 299_000)
+        self.assertEqual(payment.amount_toman, 199_000)
 
     def test_cannot_buy_for_someone_elses_child_or_unknown_plan(self):
         self.assertEqual(self.checkout(child=self.stranger_child).status_code, 404)
@@ -223,7 +224,7 @@ class CallbackTests(BillingTestBase):
         self.assertEqual(row["planCode"], "monthly")
         self.assertEqual(row["daysLeft"], 30)
         self.assertEqual(row["renewal"]["planCode"], "monthly")      # تمدید = همان آخرین پلن
-        self.assertEqual(row["renewal"]["amountToman"], 299_000)
+        self.assertEqual(row["renewal"]["amountToman"], 199_000)
 
     def test_callback_redirects_to_result_page(self):
         res = self.checkout()
@@ -395,7 +396,7 @@ class StackingAndHistoryTests(BillingTestBase):
         self.callback(failed.token, "FAILED")
         rows = self.api.get("/api/v1/billing/payments").json()["data"]
         self.assertEqual([r["status"] for r in rows], ["failed", "paid"])
-        self.assertEqual(rows[1]["amountToman"], 299_000)
+        self.assertEqual(rows[1]["amountToman"], 199_000)
         self.assertTrue(rows[1]["endsAtFa"])
         # والدِ دومِ همان بچه هم می‌بیند؛ والدِ غریبه نه
         guardian = APIClient()
@@ -505,7 +506,7 @@ class ConcurrencyTests(TransactionTestCase):
         patcher.start()
         self.addCleanup(patcher.stop)
         self.plan = Plan.objects.update_or_create(code="monthly", defaults={
-            "title": "ماهانه", "duration_days": 30, "price_toman": 299_000})[0]
+            "title": "ماهانه", "duration_days": 30, "price_toman": 199_000})[0]
         self.parent = User.objects.create(phone="09120000101", role=User.Role.PARENT)
         self.child = User.objects.create(phone="09120000103", role=User.Role.STUDENT)
         ParentChild.objects.create(parent=self.parent, child=self.child)

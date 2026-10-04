@@ -27,8 +27,8 @@ const APP_CLASS = `${panel.app} ${styles.app}`;
 
 /** همان دو پلنِ سرور — فقط برای حالتِ مهمان که API ندارد */
 const GUEST_PLANS: Plan[] = [
-  { code: 'monthly', title: 'ماهانه', durationDays: 30, months: 1, priceToman: 299_000, perMonthToman: 299_000, savingPercent: 0 },
-  { code: 'yearly', title: 'سالانه', durationDays: 365, months: 12, priceToman: 1_049_000, perMonthToman: 87_417, savingPercent: 71 },
+  { code: 'monthly', title: 'ماهانه', durationDays: 30, months: 1, priceToman: 199_000, perMonthToman: 199_000, savingPercent: 0 },
+  { code: 'yearly', title: 'سالانه', durationDays: 365, months: 12, priceToman: 1_499_000, perMonthToman: 124_917, savingPercent: 37 },
 ];
 
 const NO_PLANS: Plan[] = [];
