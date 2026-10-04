@@ -1,4 +1,7 @@
+from django import forms
 from django.contrib import admin
+from django.db.models import Count
+from django.utils.html import format_html
 
 from apps.common.admin_helpers import ReadOnlyAdmin, jalali
 from apps.common.fa import fa_digits
@@ -26,17 +29,69 @@ class VideoAdmin(admin.ModelAdmin):
         return fa_digits(obj.interactions.filter(liked=True).count())
 
 
+class PodcastAdminForm(forms.ModelForm):
+    class Meta:
+        model = Podcast
+        fields = "__all__"
+
+    def clean(self):
+        data = super().clean()
+        # فرمِ ویرایشِ داخلِ فهرست (فعال/ترتیب) این دو فیلد را ندارد؛ آن‌جا چیزی برای چک نیست
+        if "audio_file" in self.fields and "audio_url" in self.fields:
+            has_file = bool(data.get("audio_file"))     # فایلِ تازه یا فایلی که از قبل بود
+            if not has_file and not data.get("audio_url"):
+                self.add_error("audio_file", "فایلِ صوتی را بارگذاری کنید (یا نشانیِ مستقیمِ فایل را بنویسید).")
+        return data
+
+
 @admin.register(Podcast)
 class PodcastAdmin(admin.ModelAdmin):
-    list_display = ("title", "category", "duration_minutes", "listens", "is_active", "sort")
+    """
+    قسمت‌های لوکو پادکست. فقط ردیفی که «صدا دارد» در سایت دیده می‌شود؛
+    مدت با انتخابِ فایل خودش پر می‌شود (podcast_admin.js).
+    """
+
+    form = PodcastAdminForm
+    list_display = ("title", "category", "shown_duration", "has_audio", "listens", "is_active", "sort")
     list_filter = ("category", "is_active")
     list_editable = ("is_active", "sort")
     search_fields = ("title",)
     ordering = ("sort", "-created_at")
+    readonly_fields = ("audio_preview",)
+    fieldsets = (
+        (None, {"fields": ("title", "category", "icon")}),
+        ("صدا", {"fields": ("audio_file", "audio_url", "audio_preview", "duration_minutes")}),
+        ("نمایش", {"fields": ("is_active", "sort")}),
+    )
 
-    @admin.display(description="تعداد گوش‌دادن")
+    class Media:
+        js = ("content/podcast_admin.js",)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(listen_count=Count("listens"))
+
+    @admin.display(description="مدت", ordering="duration_minutes")
+    def shown_duration(self, obj):
+        return fa_digits(f"{obj.duration_minutes} دقیقه") if obj.duration_minutes else "—"
+
+    @admin.display(description="صدا دارد", boolean=True)
+    def has_audio(self, obj):
+        return obj.has_audio
+
+    @admin.display(description="تعداد گوش‌دادن", ordering="listen_count")
     def listens(self, obj):
-        return fa_digits(obj.listens.count())
+        return fa_digits(obj.listen_count)
+
+    @admin.display(description="پیش‌شنو")
+    def audio_preview(self, obj):
+        # از دیتابیس، نه از obj: وقتی فرم خطا دارد، obj فایلِ ردشده‌ی ذخیره‌نشده را دارد
+        stored = Podcast.objects.filter(pk=obj.pk).values("audio_file", "audio_url").first() if obj and obj.pk else None
+        if not stored or not (stored["audio_file"] or stored["audio_url"]):
+            return "بعد از ذخیره، همین‌جا می‌شود صدا را گوش داد."
+        src = Podcast._meta.get_field("audio_file").storage.url(stored["audio_file"]) if stored["audio_file"] else stored["audio_url"]
+        return format_html(
+            '<audio controls preload="metadata" src="{}" style="width:100%;max-width:440px"></audio>', src
+        )
 
 
 @admin.register(TrafficRule)

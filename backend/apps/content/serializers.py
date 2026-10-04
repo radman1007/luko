@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import serializers
 
 from .models import Podcast, Recipe, TrafficRule, Video
@@ -17,6 +18,7 @@ class VideoSerializer(serializers.ModelSerializer):
 
 class PodcastSerializer(serializers.ModelSerializer):
     listened = serializers.SerializerMethodField()
+    audio_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Podcast
@@ -24,6 +26,21 @@ class PodcastSerializer(serializers.ModelSerializer):
 
     def get_listened(self, obj) -> bool:
         return obj.id in (self.context.get("listened_ids") or set())
+
+    def get_audio_url(self, obj) -> str:
+        """
+        نشانیِ کامل: اپِ اندروید از file:// اجرا می‌شود و نشانیِ نسبی
+        («/media/…») آن‌جا به هیچ‌جا نمی‌رسد. فایلِ بارگذاری‌شده بر نشانیِ بیرونی مقدم است.
+        """
+        if obj.audio_file:
+            url = obj.audio_file.url
+            # روی سرور همیشه https://دامنه — طرحِ درخواستِ پشتِ آروان قابلِ اتکا نیست
+            # و نشانیِ http در صفحه‌ی https پخش نمی‌شود. در توسعه همان میزبانِ درخواست.
+            request = self.context.get("request")
+            if settings.DEBUG and request is not None:
+                return request.build_absolute_uri(url)
+            return f"{settings.SITE_URL.rstrip('/')}{url}"
+        return obj.audio_url
 
 
 class TrafficRuleSerializer(serializers.ModelSerializer):

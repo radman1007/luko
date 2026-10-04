@@ -318,6 +318,11 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# فایل‌هایی که از پنلِ ادمین بارگذاری می‌شوند (فعلاً صوتِ پادکست‌ها). روی سرور
+# همان volumeِ «media» است که nginx زیرِ /media/ سرو می‌کند (docker-compose.arvan.yml).
+MEDIA_URL = "/media/"
+MEDIA_ROOT = Path(env("DJANGO_MEDIA_ROOT", str(BASE_DIR / "media")))
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},

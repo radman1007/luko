@@ -81,24 +81,36 @@ class VideoInteractionView(APIView):
                          "views": video.views})
 
 
+def _playable_podcasts():
+    """فقط قسمت‌هایی که صدا دارند؛ ردیفِ بی‌فایل در سایت دکمه‌ی پخشِ مرده می‌شد."""
+    return Podcast.objects.filter(is_active=True).exclude(audio_file="", audio_url="")
+
+
 class PodcastListView(APIView):
-    """GET /podcasts — فهرست + «پادکست امروز»."""
+    """
+    GET /podcasts — فهرست + «پادکست امروز».
+
+    عمومی است (مثلِ قانون‌ها و خوراکی‌ها) تا حالتِ مهمان هم پادکستِ واقعی بشنود؛
+    «گوش‌داده‌شده» فقط برای کاربرِ واردشده از سرور می‌آید.
+    """
+
+    permission_classes = [AllowAny]
 
     def get(self, request):
-        episodes = list(Podcast.objects.filter(is_active=True))
-        listened_ids = set(
-            PodcastListen.objects.filter(user=request.user)
-            .values_list("podcast_id", flat=True)
-        )
-        context = {"listened_ids": listened_ids}
+        episodes = list(_playable_podcasts())
+        listened_ids = set()
+        if request.user.is_authenticated:
+            listened_ids = set(
+                PodcastListen.objects.filter(user=request.user)
+                .values_list("podcast_id", flat=True)
+            )
+        context = {"listened_ids": listened_ids, "request": request}
         today = episodes[_day_index(len(episodes))] if episodes else None
+        categories = list(dict.fromkeys(e.category for e in episodes))
         return Response({
             "episodes": PodcastSerializer(episodes, many=True, context=context).data,
             "today": PodcastSerializer(today, context=context).data if today else None,
-            "categories": list(
-                Podcast.objects.filter(is_active=True)
-                .order_by().values_list("category", flat=True).distinct()
-            ),
+            "categories": categories,
         })
 
 
@@ -109,7 +121,7 @@ class PodcastListenView(APIView):
         serializer = ListenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            podcast = Podcast.objects.get(pk=pk, is_active=True)
+            podcast = _playable_podcasts().get(pk=pk)
         except Podcast.DoesNotExist:
             return Response({"error": {"code": 404, "message": "پادکست پیدا نشد."}},
                             status=status.HTTP_404_NOT_FOUND)

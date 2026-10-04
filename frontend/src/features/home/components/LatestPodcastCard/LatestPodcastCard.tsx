@@ -1,17 +1,18 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2';
 import { LUKORIANS } from '@/lib/characters';
-import { MOCK_EPISODES } from '@/features/podcast/podcastData';
 import { usePlayer } from '@/features/podcast/usePlayer';
+import { usePodcasts } from '@/features/podcast/usePodcasts';
 import styles from './LatestPodcastCard.module.css';
 
-const LATEST = [MOCK_EPISODES[0]]; // TODO: از podcastService.getLatest
-
-/** تازه‌ترین قسمت پادکست — همین‌جا قابل پخش است */
+/** «پادکستِ امروز» از سرور — همین‌جا قابل پخش است */
 export function LatestPodcastCard() {
   const navigate = useNavigate();
   const host = LUKORIANS.podcast;
-  const player = usePlayer(LATEST);
+  const { today, isLoading } = usePodcasts();
+  const list = useMemo(() => (today ? [today] : []), [today]);
+  const player = usePlayer(list);
   const episode = player.current;
 
   return (
@@ -20,35 +21,47 @@ export function LatestPodcastCard() {
         <h2 className={styles.title}>لوکو پادکست</h2>
         <span className={styles.hostBadge}>با {host.name}</span>
       </div>
-      <p className={styles.desc}>قصه و ماجرا برای گوش‌هات؛ همین‌جا گوش بده!</p>
+      <p className={styles.desc}>
+        {episode || isLoading
+          ? 'قصه و ماجرا برای گوش‌هات؛ همین‌جا گوش بده!'
+          : 'آوا دارد قسمتِ تازه ضبط می‌کند؛ به‌زودی همین‌جا!'}
+      </p>
 
-      <div className={styles.player}>
-        <button
-          type="button"
-          className={styles.playBtn}
-          onClick={player.toggle}
-          aria-label={player.playing ? 'توقف' : 'پخش'}
-        >
-          {player.playing ? <HiOutlinePause /> : <HiOutlinePlay />}
-        </button>
-        <div className={styles.info}>
-          <span className={styles.episodeTitle}>{episode.title}</span>
-          <div
-            className={styles.track}
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={Math.round(player.progress * 100)}
+      {episode && (
+        <div className={styles.player}>
+          <button
+            type="button"
+            className={styles.playBtn}
+            onClick={player.toggle}
+            aria-label={player.playing ? 'توقف' : 'پخش'}
+            aria-busy={player.buffering || undefined}
           >
-            <span className={styles.fill} style={{ width: `${player.progress * 100}%` }} />
+            {player.playing ? <HiOutlinePause /> : <HiOutlinePlay />}
+          </button>
+          <div className={styles.info}>
+            <span className={styles.episodeTitle}>{episode.title}</span>
+            <div
+              className={styles.track}
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(player.progress * 100)}
+            >
+              <span className={styles.fill} style={{ width: `${player.progress * 100}%` }} />
+            </div>
           </div>
+          <span className={`${styles.wave} ${player.playing ? '' : styles.frozen}`} aria-hidden>
+            {Array.from({ length: 5 }, (_, i) => (
+              <span key={i} className={styles.waveBar} style={{ animationDelay: `${i * 0.15}s` }} />
+            ))}
+          </span>
         </div>
-        <span className={`${styles.wave} ${player.playing ? '' : styles.frozen}`} aria-hidden>
-          {Array.from({ length: 5 }, (_, i) => (
-            <span key={i} className={styles.waveBar} style={{ animationDelay: `${i * 0.15}s` }} />
-          ))}
-        </span>
-      </div>
+      )}
+      {player.error && (
+        <p className={styles.error} role="alert">
+          {player.error}
+        </p>
+      )}
 
       <button type="button" className={styles.cta} onClick={() => navigate('/luko-podcast')}>
         همه‌ی قسمت‌ها

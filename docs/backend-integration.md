@@ -39,7 +39,7 @@
 | فرانت | endpoint |
 |---|---|
 | `features/parent/api.ts` | `GET/POST /parent/children` · `DELETE /parent/children/{id}` · `GET /parent/children/{id}/report` · `GET/POST /parent/children/{id}/assignments` · `GET /parent/children/{id}/suggestions` · `GET/PATCH /parent/preferences` · `GET /parent/notifications` · `POST /parent/notifications/read` · `GET/POST /tickets` |
-| `features/podcast/podcastData.ts` | `GET /podcasts` (+ `today`) · `POST /podcasts/{id}/listen` |
+| `features/podcast/usePodcasts.ts` · `usePlayer.ts` — **وصل است** (۴ اکتبر ۲۰۲۶) | `GET /podcasts` (+ `today`؛ عمومی، مهمان هم می‌گیرد) · `POST /podcasts/{id}/listen` (پایانِ قسمت، فقط بچه‌ی واردشده). صوت از ادمین بارگذاری می‌شود و زیرِ `/media/podcasts/` سرو می‌شود |
 | ~~قانون روز جاده~~ | `GET /traffic-rules` — بخشِ فرانت حذف شد (مرداد ۱۴۰۵)؛ مدل و API در بک‌اند نگه داشته شد تا اگر برگشت، دوباره کار کند |
 | ~~آشپزی روز~~ | `GET /recipes` — همان وضعیت |
 | `features/games/useGamePath.ts` | `GET /games/path?grade=N` (مسیرِ کلاس — فقط عنوان/ترتیب/هفته/پاداش) |

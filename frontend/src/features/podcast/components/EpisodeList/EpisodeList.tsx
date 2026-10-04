@@ -1,8 +1,18 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { HiOutlineCheckCircle, HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2';
 import { PODCAST_CATEGORIES } from '../../types';
-import type { PodcastCategory, PodcastEpisode } from '../../types';
+import type { PodcastEpisode } from '../../types';
 import styles from './EpisodeList.module.css';
+
+const ALL = 'همه';
+
+/** فقط دسته‌هایی که قسمت دارند، به ترتیبِ همیشگی؛ دسته‌ی ناشناخته آخر */
+function categoriesOf(episodes: PodcastEpisode[]): string[] {
+  const present = new Set(episodes.map((e) => e.category));
+  const known = PODCAST_CATEGORIES.filter((c) => present.has(c));
+  const other = [...present].filter((c) => !(PODCAST_CATEGORIES as readonly string[]).includes(c));
+  return [...known, ...other];
+}
 
 interface Props {
   episodes: PodcastEpisode[];
@@ -13,25 +23,30 @@ interface Props {
 }
 
 export function EpisodeList({ episodes, currentId, playing, listenedIds, onSelect }: Props) {
-  const [category, setCategory] = useState<PodcastCategory | 'همه'>('همه');
+  const [picked, setPicked] = useState<string>(ALL);
+  const categories = useMemo(() => categoriesOf(episodes), [episodes]);
+  // دسته‌ای که دیگر قسمتی ندارد (ادمین برداشت) خودبه‌خود «همه» می‌شود
+  const category = picked === ALL || categories.includes(picked) ? picked : ALL;
 
-  const filtered =
-    category === 'همه' ? episodes : episodes.filter((e) => e.category === category);
+  const filtered = category === ALL ? episodes : episodes.filter((e) => e.category === category);
 
   return (
     <section aria-label="قسمت‌های پادکست">
-      <div className={styles.chips}>
-        {(['همه', ...PODCAST_CATEGORIES] as const).map((c) => (
-          <button
-            key={c}
-            type="button"
-            className={`${styles.chip} ${c === category ? styles.chipActive : ''}`}
-            onClick={() => setCategory(c)}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
+      {categories.length > 1 && (
+        <div className={styles.chips}>
+          {[ALL, ...categories].map((c) => (
+            <button
+              key={c}
+              type="button"
+              className={`${styles.chip} ${c === category ? styles.chipActive : ''}`}
+              aria-pressed={c === category}
+              onClick={() => setPicked(c)}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      )}
 
       <ul className={styles.list}>
         {filtered.map((episode) => {
@@ -42,6 +57,7 @@ export function EpisodeList({ episodes, currentId, playing, listenedIds, onSelec
               <button
                 type="button"
                 className={`${styles.row} ${isCurrent ? styles.current : ''}`}
+                aria-current={isCurrent || undefined}
                 onClick={() => onSelect(episode.id)}
               >
                 <span className={styles.iconWrap} aria-hidden>
@@ -50,7 +66,8 @@ export function EpisodeList({ episodes, currentId, playing, listenedIds, onSelec
                 <span className={styles.texts}>
                   <span className={styles.title}>{episode.title}</span>
                   <span className={styles.meta}>
-                    {episode.category} · {episode.durationMinutes.toLocaleString('fa-IR')} دقیقه
+                    {episode.category}
+                    {episode.durationMinutes > 0 && <> · {episode.durationMinutes.toLocaleString('fa-IR')} دقیقه</>}
                   </span>
                 </span>
                 {isListened && (

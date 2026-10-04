@@ -1,5 +1,6 @@
 """مسیرهای ریشه. همه‌ی APIها زیر /api/v1 (منطبق با VITE_API_URL فرانت)."""
 from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import include, path
@@ -31,3 +32,7 @@ urlpatterns = [
     path("healthz", health_check),
     path("api/v1/", include((api_v1, "api"), namespace="v1")),
 ]
+
+# در توسعه جنگو خودش فایل‌های بارگذاری‌شده را سرو می‌کند؛ روی سرور nginx (/media/)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

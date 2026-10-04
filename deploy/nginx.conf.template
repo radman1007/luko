@@ -64,11 +64,27 @@ server {
     # پنلِ ادمینِ جنگو + استاتیکِ خودش.
     # باید با DJANGO_ADMIN_URL در .env یکی بماند.
     location /v1a2n3r4/ {
+        # بارگذاریِ صوتِ پادکست (سقفِ جنگو ۸۰ مگابایت)
+        client_max_body_size 100m;
         proxy_pass http://$luko_web;
         include /etc/nginx/snippets/proxy.conf;
     }
     location /static/ { alias /var/www/static/; expires 30d; access_log off; }
-    location /media/  { alias /var/www/media/;  expires 7d;  access_log off; }
+    # صوتِ پادکست‌ها؛ فقط نوع‌های صوتی، بقیه octet-stream (مثلِ nginx.arvan.conf)
+    location /media/ {
+        alias /var/www/media/;
+        types {
+            audio/mpeg mp3;
+            audio/mp4  m4a;
+            audio/aac  aac;
+            audio/ogg  ogg oga opus;
+            audio/wav  wav;
+        }
+        default_type application/octet-stream;
+        add_header Cache-Control "public, max-age=604800" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        access_log off;
+    }
 
     # ---------- استاتیکِ فرانت ----------
     # نامِ فایل‌های داخلِ /assets هش‌دار است، پس بی‌خطر «برای همیشه» کش می‌شوند

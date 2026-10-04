@@ -3,6 +3,8 @@
 قانونِ روزِ جاده و خوراکیِ روز. همه از پنل ادمین اضافه/ویرایش می‌شوند.
 """
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from django.db import models
 
 from apps.common.models import TimeStampedModel
@@ -60,14 +62,77 @@ class VideoInteraction(TimeStampedModel):
         return f"{self.user} → {self.video}"
 
 
-class Podcast(ContentBase):
-    """قسمتِ پادکست. دسته‌ها: قصه / علمی / موسیقی / خواب"""
+#: قالب‌هایی که مرورگرِ گوشی و تبلت پخش می‌کند
+PODCAST_AUDIO_EXTENSIONS = ["mp3", "m4a", "aac", "ogg", "oga", "opus", "wav"]
+#: سقفِ فایلِ صوتی؛ nginx برای مسیرِ ادمین کمی بیشتر می‌پذیرد تا این پیام دیده شود نه خطای ۴۱۳
+PODCAST_MAX_MB = 80
 
-    audio_url = models.URLField(blank=True, verbose_name="نشانی صوت")
+
+def validate_https_audio_url(value):
+    # صفحه‌ی https فایلِ http را پخش نمی‌کند (محتوای مختلط)
+    if value and not value.lower().startswith("https://"):
+        raise ValidationError("نشانی باید با https:// شروع شود؛ مرورگر فایلِ http را پخش نمی‌کند.")
+
+
+def validate_podcast_audio_size(file):
+    if file and file.size > PODCAST_MAX_MB * 1024 * 1024:
+        raise ValidationError(
+            f"حجمِ فایل بیشتر از {PODCAST_MAX_MB} مگابایت است؛ با کیفیتِ ۹۶ تا ۱۲۸ کیلوبیت MP3 بگیرید."
+        )
+
+
+class Podcast(ContentBase):
+    """قسمتِ پادکست: فایلِ صوتی از همین پنل بارگذاری می‌شود (یا نشانیِ یک فایلِ بیرونی)."""
+
+    class Category(models.TextChoices):
+        STORY = "قصه", "قصه"
+        SCIENCE = "علمی", "علمی"
+        MUSIC = "موسیقی", "موسیقی"
+        SLEEP = "خواب", "خواب"
+
+    # همان نام‌هایی که فرانت به آیکون تبدیل می‌کند (features/podcast/icons.ts)
+    class Icon(models.TextChoices):
+        ROCKET = "HiOutlineRocketLaunch", "موشک"
+        CLOUD = "HiOutlineCloud", "ابر"
+        MOON = "HiOutlineMoon", "ماه"
+        STAR = "HiOutlineStar", "ستاره"
+        SUN = "HiOutlineSun", "خورشید"
+        MUSIC = "HiOutlineMusicalNote", "نُتِ موسیقی"
+        BUG = "HiOutlineBugAnt", "حشره / دایناسور"
+        GLOBE = "HiOutlineGlobeAsiaAustralia", "زمین"
+        BOOK = "HiOutlineBookOpen", "کتاب"
+        SPARKLES = "HiOutlineSparkles", "جادو"
+        HEART = "HiOutlineHeart", "قلب"
+        MIC = "HiOutlineMicrophone", "میکروفون"
+
+    category = models.CharField(max_length=30, db_index=True, choices=Category.choices,
+                                default=Category.STORY, verbose_name="دسته")
+    icon = models.CharField(max_length=40, blank=True, choices=Icon.choices,
+                            verbose_name="آیکون",
+                            help_text="خالی بماند، آیکونِ دسته نشان داده می‌شود.")
+    duration_minutes = models.PositiveSmallIntegerField(
+        default=0, verbose_name="مدت (دقیقه)",
+        help_text="با انتخابِ فایل خودش پر می‌شود؛ در پخش، مدتِ واقعیِ فایل ملاک است.")
+    audio_file = models.FileField(
+        upload_to="podcasts/%Y/%m/", blank=True, verbose_name="فایل صوتی",
+        validators=[FileExtensionValidator(PODCAST_AUDIO_EXTENSIONS), validate_podcast_audio_size],
+        help_text=f"MP3 بهترین است. تا {PODCAST_MAX_MB} مگابایت.")
+    audio_url = models.URLField(
+        blank=True, verbose_name="یا نشانیِ فایلِ صوتی", validators=[validate_https_audio_url],
+        help_text="فقط اگر فایل جای دیگری است: نشانیِ مستقیمِ خودِ فایل با https "
+                  "(مثلاً …/episode.mp3)، نه صفحه‌ای که فایل در آن است.")
 
     class Meta:
         verbose_name = "پادکست"
         verbose_name_plural = "پادکست‌ها"
+        ordering = ["sort", "-created_at"]
+
+    # «فایل یا نشانی لازم است» در فرمِ ادمین چک می‌شود (PodcastAdminForm)، نه این‌جا:
+    # خطای Model.clean روی فیلدی که در فرمِ ویرایشِ فهرست نیست، ValueError (۵۰۰) می‌دهد.
+
+    @property
+    def has_audio(self) -> bool:
+        return bool(self.audio_file or self.audio_url)
 
 
 
