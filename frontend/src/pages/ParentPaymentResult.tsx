@@ -11,6 +11,7 @@ import { billingApi } from '@/features/billing/api';
 import { toman } from '@/features/billing/format';
 import { billingKeys } from '@/features/billing/useBilling';
 import { parentKeys } from '@/features/parent/useParent';
+import panel from './ParentPanel.module.css';
 import base from './ParentSubscription.module.css';
 import styles from './ParentPaymentResult.module.css';
 
@@ -78,7 +79,7 @@ export default function ParentPaymentResult() {
   const Icon = tone === 'paid' ? HiOutlineCheck : tone === 'failed' ? HiOutlineXMark : HiOutlineClock;
 
   return (
-    <div className={base.app}>
+    <div className={`${panel.app} ${base.app}`}>
       <header className={base.bar}>
         <button type="button" className={base.back} onClick={() => navigate('/parent-panel')} aria-label="بازگشت به پنل">
           <HiOutlineChevronRight aria-hidden />

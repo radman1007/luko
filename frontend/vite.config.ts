@@ -25,9 +25,29 @@ function gameAssetAlias(): PluginOption {
   };
 }
 
+/**
+ * `@import`ی که به CSSِ خروجی برسد یعنی Vite آن را حل نکرده (مثلاً فایلی که
+ * فقط از راهِ `composes` آمده). مرورگر آن را نسبت به /assets/ می‌گیرد، ۴۰۴
+ * می‌خورد، preloadِ CSSِ صفحه‌ی lazy شکست می‌خورد و صفحه سفید می‌ماند — در
+ * dev هم دیده نمی‌شود. پس بیلد همین‌جا می‌ایستد.
+ */
+function noUnresolvedCssImports(): PluginOption {
+  return {
+    name: 'luko-no-unresolved-css-imports',
+    apply: 'build',
+    writeBundle(_options, bundle) {
+      for (const file of Object.values(bundle)) {
+        if (file.type !== 'asset' || !file.fileName.endsWith('.css')) continue;
+        const found = String(file.source).match(/@import\s+(?:url\()?\s*["']?(?!https?:|\/\/)[^"')\s;]+/g);
+        if (found) this.error(`${file.fileName}: @importِ حل‌نشده در خروجی — ${found.join(' ، ')}`);
+      }
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), gameAssetAlias()],
+  plugins: [react(), gameAssetAlias(), noUnresolvedCssImports()],
   build: {
     // کتابخانه‌ها جدا از کدِ اپ بسته می‌شوند: با هر انتشارِ تازه، مرورگر فقط
     // چانکِ اپ را دوباره می‌گیرد و ری‌اکت/روتر/کوئری از کش می‌آید.

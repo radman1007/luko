@@ -5,6 +5,7 @@ import { queryClient } from '@/lib/queryClient';
 import { AuthProvider } from '@/features/auth/AuthProvider';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { Analytics } from '@/components/Analytics';
+import { AppErrorBoundary } from '@/components/AppErrorBoundary/AppErrorBoundary';
 import { AppRouter } from '@/router';
 import { useSiteTimeDew } from '@/features/garden/useSiteTimeDew';
 import { startOfflineSync } from '@/features/games/pendingCompletions';
@@ -22,9 +23,12 @@ export default function App() {
       <BrowserRouter>
         <ScrollToTop />
         <Analytics />
-        <AuthProvider>
-          <AppRouter />
-        </AuthProvider>
+        {/* هر خطای صفحه یا چانکی که نیاید: به‌جای صفحه‌ی سفید، «باز نشد» با تلاشِ دوباره */}
+        <AppErrorBoundary>
+          <AuthProvider>
+            <AppRouter />
+          </AuthProvider>
+        </AppErrorBoundary>
       </BrowserRouter>
     </QueryClientProvider>
   );

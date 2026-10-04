@@ -19,7 +19,11 @@ import { useChildren } from '@/features/parent/useParent';
 import { apiMessage, faNumber, toman } from '@/features/billing/format';
 import type { ChildSubscription, Payment, Plan } from '@/features/billing/types';
 import { useCheckout, usePayments, usePlans, useSubscriptions } from '@/features/billing/useBilling';
+import panel from './ParentPanel.module.css';
 import styles from './ParentSubscription.module.css';
+
+/** قابِ پنلِ والدین (فونت و رنگ‌ها) + رنگ‌های طلاییِ اشتراک */
+const APP_CLASS = `${panel.app} ${styles.app}`;
 
 /** همان دو پلنِ سرور — فقط برای حالتِ مهمان که API ندارد */
 const GUEST_PLANS: Plan[] = [
@@ -201,7 +205,7 @@ export default function ParentSubscription() {
   const loadError = !guest && (subs.isError || plansQuery.isError || childrenQuery.isError);
 
   return (
-    <div className={styles.app}>
+    <div className={APP_CLASS}>
       <header className={styles.bar}>
         <button type="button" className={styles.back} onClick={() => navigate('/parent-panel')} aria-label="بازگشت به پنل">
           <HiOutlineChevronRight aria-hidden />
