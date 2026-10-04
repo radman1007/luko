@@ -84,11 +84,9 @@ def validate_podcast_audio_size(file):
 class Podcast(ContentBase):
     """قسمتِ پادکست: فایلِ صوتی از همین پنل بارگذاری می‌شود (یا نشانیِ یک فایلِ بیرونی)."""
 
-    class Category(models.TextChoices):
-        STORY = "قصه", "قصه"
-        SCIENCE = "علمی", "علمی"
-        MUSIC = "موسیقی", "موسیقی"
-        SLEEP = "خواب", "خواب"
+    #: پیشنهادهای فیلدِ دسته در ادمین؛ دسته آزاد است (مثلاً «مشاهیر ایرانی») و دکمه‌های
+    #: دسته در سایت از خودِ قسمت‌ها ساخته می‌شوند
+    SUGGESTED_CATEGORIES = ["قصه", "علمی", "موسیقی", "خواب"]
 
     # همان نام‌هایی که فرانت به آیکون تبدیل می‌کند (features/podcast/icons.ts)
     class Icon(models.TextChoices):
@@ -105,8 +103,8 @@ class Podcast(ContentBase):
         HEART = "HiOutlineHeart", "قلب"
         MIC = "HiOutlineMicrophone", "میکروفون"
 
-    category = models.CharField(max_length=30, db_index=True, choices=Category.choices,
-                                default=Category.STORY, verbose_name="دسته")
+    category = models.CharField(max_length=30, db_index=True, verbose_name="دسته",
+                                help_text="یکی از پیشنهادها یا دسته‌ی تازه؛ در سایت دکمه‌ی همین دسته ساخته می‌شود.")
     icon = models.CharField(max_length=40, blank=True, choices=Icon.choices,
                             verbose_name="آیکون",
                             help_text="خالی بماند، آیکونِ دسته نشان داده می‌شود.")

@@ -8,6 +8,7 @@ import sys
 import tempfile
 from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -101,6 +102,11 @@ class PodcastApiTests(MediaTestBase):
 class PodcastAdminTests(MediaTestBase):
     def setUp(self):
         super().setUp()
+        # تست هیچ‌وقت به اینترنت نمی‌رود؛ هر تستی که لازم دارد پاسخ را خودش می‌سازد
+        import requests
+        offline = mock.patch("apps.content.admin.requests.get", side_effect=requests.ConnectionError("offline"))
+        offline.start()
+        self.addCleanup(offline.stop)
         self.admin = User.objects.create_superuser("09120007099", "Admin-Pass-1")
         self.client.force_login(self.admin)
         self.add_url = reverse("admin:content_podcast_add")
@@ -166,9 +172,11 @@ class PodcastAdminTests(MediaTestBase):
 
     @renders_template
     def test_http_link_is_rejected(self):
-        res = self.client.post(self.add_url, self.form(audio_url="http://example.com/a.mp3"))
+        with self.link("text/html") as get:
+            res = self.client.post(self.add_url, self.form(audio_url="http://example.com/a.mp3"))
         self.assertContains(res, "https://")
         self.assertFalse(Podcast.objects.exists())
+        get.assert_not_called()
 
     def test_toggle_in_list_does_not_crash_on_rows_without_audio(self):
         # ردیف‌های قدیمیِ بی‌صدا (seed) هنوز در فهرستِ ادمین هستند
@@ -181,6 +189,54 @@ class PodcastAdminTests(MediaTestBase):
         self.assertEqual(res.status_code, 302)
         old.refresh_from_db()
         self.assertEqual((old.sort, old.is_active), (3, False))
+
+    def test_free_text_category_reaches_the_site(self):
+        # دسته‌ای که ادمینِ واقعی نوشت؛ فهرستِ ثابت جلویش را نمی‌گیرد
+        res = self.client.post(self.add_url, self.form(category="مشاهیر ایرانی", audio_file=mp3()))
+        self.assertEqual(res.status_code, 302)
+        data = self.api.get("/api/v1/podcasts").json()["data"]
+        self.assertEqual(data["categories"], ["مشاهیر ایرانی"])
+        self.assertEqual(data["episodes"][0]["category"], "مشاهیر ایرانی")
+
+    @renders_template
+    def test_category_field_suggests_defaults_and_used_ones(self):
+        Podcast.objects.create(title="شیخ بهایی", category="مشاهیر ایرانی", audio_file=mp3())
+        page = self.client.get(self.add_url)
+        self.assertContains(page, 'list="podcast-categories"')
+        self.assertContains(page, '<option value="قصه">')
+        self.assertContains(page, '<option value="مشاهیر ایرانی">')
+
+    def link(self, content_type=None, error=None):
+        if error:
+            return mock.patch("apps.content.admin.requests.get", side_effect=error)
+        response = mock.Mock(headers={"Content-Type": content_type})
+        return mock.patch("apps.content.admin.requests.get", return_value=response)
+
+    @renders_template
+    def test_link_to_a_player_page_is_rejected(self):
+        # همان چیزی که در پروداکشن بود: godupload.site/online.php صفحه‌ی HTML است
+        with self.link("text/html; charset=UTF-8"):
+            res = self.client.post(self.add_url, self.form(audio_url="https://godupload.site/online.php?t=x"))
+        self.assertContains(res, "صفحه‌ی وب است، نه فایلِ صوتی")
+        self.assertFalse(Podcast.objects.exists())
+
+    def test_direct_audio_link_is_accepted(self):
+        with self.link("audio/mpeg"):
+            res = self.client.post(self.add_url, self.form(audio_url="https://cdn.example.com/a.mp3"))
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(Podcast.objects.get().audio_url, "https://cdn.example.com/a.mp3")
+
+    def test_unreachable_link_does_not_block_saving(self):
+        import requests
+        with self.link(error=requests.ConnectionError("down")):
+            res = self.client.post(self.add_url, self.form(audio_url="https://cdn.example.com/b.mp3"))
+        self.assertEqual(res.status_code, 302)
+
+    def test_uploaded_file_wins_and_link_is_not_fetched(self):
+        with self.link("text/html") as get:
+            res = self.client.post(self.add_url, self.form(audio_file=mp3(), audio_url="https://x.example/page"))
+        self.assertEqual(res.status_code, 302)
+        get.assert_not_called()
 
     def test_size_limit(self):
         validate_podcast_audio_size(SimpleNamespace(size=PODCAST_MAX_MB * 1024 * 1024))

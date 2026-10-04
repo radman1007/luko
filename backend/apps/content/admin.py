@@ -1,7 +1,8 @@
+import requests
 from django import forms
 from django.contrib import admin
 from django.db.models import Count
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 
 from apps.common.admin_helpers import ReadOnlyAdmin, jalali
 from apps.common.fa import fa_digits
@@ -29,18 +30,64 @@ class VideoAdmin(admin.ModelAdmin):
         return fa_digits(obj.interactions.filter(liked=True).count())
 
 
+class CategoryInput(forms.TextInput):
+    """فیلدِ متنیِ دسته با پیشنهاد (datalist): دسته‌های پیش‌فرض + هرچه قبلاً به‌کار رفته."""
+
+    def __init__(self, options=(), attrs=None):
+        super().__init__({**(attrs or {}), "list": "podcast-categories", "autocomplete": "off"})
+        self.options = list(options)
+
+    def render(self, name, value, attrs=None, renderer=None):
+        field = super().render(name, value, attrs, renderer)
+        options = format_html_join("", '<option value="{}">', ((o,) for o in self.options))
+        return format_html('{}<datalist id="podcast-categories">{}</datalist>', field, options)
+
+
+def audio_link_problem(url: str) -> str | None:
+    """
+    نشانیِ بیرونی واقعاً فایلِ صوتی است؟ پیوندِ «صفحه‌ی پخش» (مثلِ online.php ِ سایت‌های
+    آپلود) HTML برمی‌گرداند و پخش‌کننده‌ی سایت نمی‌تواند پخشش کند. اگر نشانی در دسترس
+    نبود، جلوی ذخیره را نمی‌گیریم — فقط وقتی مطمئنیم صفحه‌ی وب است.
+    """
+    try:
+        res = requests.get(url, stream=True, timeout=8, allow_redirects=True,
+                           headers={"Range": "bytes=0-1023", "User-Agent": "LukoAdmin/1.0"})
+        kind = res.headers.get("Content-Type", "").split(";")[0].strip().lower()
+        res.close()
+    except requests.RequestException:
+        return None
+    if kind in ("text/html", "application/xhtml+xml"):
+        return ("این نشانی صفحه‌ی وب است، نه فایلِ صوتی؛ پخش‌کننده‌ی سایت نمی‌تواند پخشش کند. "
+                "فایل را دانلود کنید و همین بالا در «فایل صوتی» بارگذاری کنید.")
+    return None
+
+
 class PodcastAdminForm(forms.ModelForm):
     class Meta:
         model = Podcast
         fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "category" in self.fields:
+            used = Podcast.objects.order_by().values_list("category", flat=True).distinct()
+            options = list(dict.fromkeys([*Podcast.SUGGESTED_CATEGORIES, *(c for c in used if c)]))
+            self.fields["category"].widget = CategoryInput(options)
 
     def clean(self):
         data = super().clean()
         # فرمِ ویرایشِ داخلِ فهرست (فعال/ترتیب) این دو فیلد را ندارد؛ آن‌جا چیزی برای چک نیست
         if "audio_file" in self.fields and "audio_url" in self.fields:
             has_file = bool(data.get("audio_file"))     # فایلِ تازه یا فایلی که از قبل بود
-            if not has_file and not data.get("audio_url"):
+            url = data.get("audio_url")
+            if not has_file and not url:
                 self.add_error("audio_file", "فایلِ صوتی را بارگذاری کنید (یا نشانیِ مستقیمِ فایل را بنویسید).")
+            # فایلِ بارگذاری‌شده مقدم است؛ نشانی فقط وقتی پخش می‌شود که فایلی نباشد
+            # نشانیِ http را اعتبارسنجِ فیلد رد می‌کند؛ فقط https ارزشِ بازکردن دارد
+            elif url and not has_file and "audio_url" in self.changed_data and url.lower().startswith("https://"):
+                problem = audio_link_problem(url)
+                if problem:
+                    self.add_error("audio_url", problem)
         return data
 
 
