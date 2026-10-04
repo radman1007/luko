@@ -276,3 +276,13 @@ export function PlotIcon({ size = 24, ...props }: IconProps) {
     </svg>
   );
 }
+
+/** تاجِ اشتراک — نشانِ پلنِ پولی در پنلِ والدین. */
+export function CrownIcon({ size = 24, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M4 8.5l3.6 3.2L12 5.5l4.4 6.2L20 8.5l-1.6 9H5.6z" />
+      <path d="M6 20.5h12" />
+    </svg>
+  );
+}

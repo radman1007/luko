@@ -20,4 +20,14 @@ app.conf.beat_schedule = {
         "task": "apps.garden.tasks.apply_seasonal_resets",
         "schedule": crontab(hour=0, minute=10),
     },
+    # پرداختی که مرورگرش از درگاه برنگشت؛ وندار تا ۲۰ دقیقه تأیید می‌پذیرد
+    "billing-reconcile-pending": {
+        "task": "apps.billing.tasks.reconcile_pending",
+        "schedule": crontab(minute="*/3"),
+    },
+    # یادآوریِ تمدید از ۷ روز پیش از پایانِ اشتراک
+    "billing-notify-expiring-daily": {
+        "task": "apps.billing.tasks.notify_expiring",
+        "schedule": crontab(hour=9, minute=30),
+    },
 }

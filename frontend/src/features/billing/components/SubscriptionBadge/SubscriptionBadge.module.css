@@ -1,0 +1,91 @@
+/* نشانِ اشتراک در نوارِ پنلِ والدین — هم‌قدِ دکمه‌ی اعلان (۴۰ پیکسل) */
+.badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 11px 0 12px;
+  border-radius: 14px;
+  border: 1px solid var(--pp-line, #e7ebf3);
+  background: #fff;
+  color: #42506b;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  flex: none;
+  cursor: pointer;
+  transition: transform 0.25s var(--pp-spring, ease), box-shadow 0.25s ease;
+}
+
+.badge:active {
+  transform: scale(0.96);
+}
+
+.badge:focus-visible {
+  outline: 2px solid var(--pp-blue, #2563eb);
+  outline-offset: 2px;
+}
+
+.crown {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: #eef1f6;
+  color: #64748b;
+}
+
+.label {
+  font-variant-numeric: tabular-nums;
+}
+
+/* فعال: تاجِ طلایی روی آبیِ پنل */
+.badge[data-tone='active'] {
+  border-color: #cfe0ff;
+  background: linear-gradient(180deg, #f6f9ff, #eaf1ff);
+  color: var(--pp-blue2, #1e40af);
+  box-shadow: 0 4px 12px rgb(37 99 235 / 12%);
+}
+
+.badge[data-tone='active'] .crown {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #fff;
+  box-shadow: 0 2px 6px rgb(245 158 11 / 40%);
+}
+
+/* رو به پایان: نارنجیِ آرام + نقطه‌ی تپنده */
+.badge[data-tone='warn'] {
+  border-color: #fbd3b8;
+  background: linear-gradient(180deg, #fff7f1, #fdeadd);
+  color: #c2410c;
+}
+
+.badge[data-tone='warn'] .crown {
+  background: linear-gradient(135deg, #fb923c, #ea580c);
+  color: #fff;
+}
+
+.pulse {
+  position: absolute;
+  top: 7px;
+  inset-inline-end: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pp-orange, #ea580c);
+  box-shadow: 0 0 0 2px #fff;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 2px #fff, 0 0 0 2px rgb(234 88 12 / 45%); }
+  70% { box-shadow: 0 0 0 2px #fff, 0 0 0 8px rgb(234 88 12 / 0%); }
+  100% { box-shadow: 0 0 0 2px #fff, 0 0 0 2px rgb(234 88 12 / 0%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse { animation: none; }
+}

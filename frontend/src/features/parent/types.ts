@@ -183,9 +183,11 @@ export interface ParentPreferences {
 /** یک اعلان در شیتِ زنگوله */
 export interface ParentNotification {
   id: number;
-  kind: 'weekly' | 'games' | 'mood' | 'idle' | 'assignment';
+  kind: 'weekly' | 'games' | 'mood' | 'idle' | 'assignment' | 'billing';
   title: string;
   body: string;
+  /** مسیرِ داخلِ پنل برای اقدام (مثلاً صورت‌حسابِ تمدید)؛ خالی یعنی فقط خبر */
+  link?: string;
   isRead: boolean;
   childName: string;
   at: string;

@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     "apps.parent",
     "apps.support",
     "apps.sync",
+    "apps.billing",
 ]
 
 MIDDLEWARE = [
@@ -200,6 +201,14 @@ if "test" in sys.argv or os.environ.get("PYTEST_CURRENT_TEST"):
     # `redis` نام دارد — به هیچ‌جا وصل نمی‌شود و ده‌ها تستِ OTP می‌افتند.
     REDIS_CACHE_URL = env("REDIS_TEST_URL", REDIS_CACHE_URL.rsplit("/", 1)[0] + "/15")
     CACHES["default"]["LOCATION"] = REDIS_CACHE_URL
+# ---------------------------------------------------------------------------
+# درگاهِ پرداختِ وندار (apps/billing). کلید فقط در .env سرور است.
+VANDAR_API_KEY = env("VANDAR_API_KEY", "")
+VANDAR_BASE_URL = env("VANDAR_BASE_URL", "https://ipg.vandar.io")
+VANDAR_TIMEOUT = float(env("VANDAR_TIMEOUT", "15"))
+#: نشانیِ عمومیِ سایت: بازگشت از درگاه و صفحه‌ی نتیجه روی همین است
+SITE_URL = env("SITE_URL", f"https://{env('LUKO_DOMAIN', 'my.luko.ir')}")
+
 SMS_IR_API_KEY = env("SMS_IR_API_KEY", "")
 SMS_IR_TEMPLATE_ID = env("SMS_IR_TEMPLATE_ID", "")
 # نامِ پارامتر داخلِ قالبِ پنل sms.ir (مثلاً {CODE} در متن قالب)

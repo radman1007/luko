@@ -18,11 +18,13 @@ export const parentKeys = {
   tickets: ['parent', 'tickets'] as const,
 };
 
-export function useChildren() {
+/** `enabled=false` برای مهمان: بی‌حساب درخواست ۴۰۱ می‌گیرد و به صفحه‌ی ورود می‌برد */
+export function useChildren(enabled = true) {
   return useQuery({
     queryKey: parentKeys.children,
     queryFn: parentApi.children,
     staleTime: 2 * MINUTE,
+    enabled,
   });
 }
 

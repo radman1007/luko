@@ -1,0 +1,65 @@
+/** اشتراکِ هر فرزند و پرداخت‌ها — همان شکلِ `backend/apps/billing/views.py` */
+
+export interface Plan {
+  code: string;
+  title: string;
+  durationDays: number;
+  months: number;
+  priceToman: number;
+  perMonthToman: number;
+  /** صرفه در برابرِ خریدِ ماه‌به‌ماه (۰ برای ماهانه) */
+  savingPercent: number;
+}
+
+export interface Renewal {
+  planCode: string;
+  planTitle: string;
+  amountToman: number;
+  /** تمدید پشتِ دوره‌ی فعلی می‌نشیند؛ این تاریخِ شروعش است */
+  startsFromFa: string;
+}
+
+export interface ChildSubscription {
+  childId: string;
+  childName: string;
+  status: 'active' | 'free';
+  planCode: string | null;
+  planTitle: string;
+  startsAt: string | null;
+  endsAt: string | null;
+  endsAtFa: string;
+  daysLeft: number;
+  totalDays: number;
+  /** ۷ روز یا کمتر مانده */
+  expiringSoon: boolean;
+  /** صورت‌حسابِ تمدید: همان پلنِ آخرین خرید (برای کسی که هنوز نخریده null) */
+  renewal: Renewal | null;
+}
+
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'expired';
+
+export interface Payment {
+  id: number;
+  factorNumber: string;
+  childId: string | null;
+  childName: string;
+  planCode: string;
+  planTitle: string;
+  amountToman: number;
+  status: PaymentStatus;
+  statusLabel: string;
+  createdAtFa: string;
+  paidAtFa: string;
+  transId: string;
+  cardNumber: string;
+  startsAtFa: string;
+  endsAtFa: string;
+  message: string;
+}
+
+export interface CheckoutResult {
+  paymentId: number;
+  factorNumber: string;
+  amountToman: number;
+  payUrl: string;
+}

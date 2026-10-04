@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   HiOutlineBell,
   HiOutlineInformationCircle,
@@ -6,6 +7,7 @@ import {
   HiOutlineShieldCheck,
 } from 'react-icons/hi2';
 import { BrandMark } from '@/components/ui/icons';
+import { SubscriptionBadge } from '@/features/billing/components/SubscriptionBadge/SubscriptionBadge';
 import { useAuth } from '@/features/auth/context';
 import { buildAnalysis } from '@/features/parent/analysis';
 import type { Assignment } from '@/features/parent/api';
@@ -35,6 +37,7 @@ type SheetKind = 'notifications' | 'support' | 'privacy' | 'about' | 'logout';
 /** پنلِ والدین در حالت مهمان؛ فقط داده‌ی نمونه دارد و هیچ APIای را صدا نمی‌زند. */
 export default function ParentGuestPanel() {
   const { logout } = useAuth();
+  const navigate = useNavigate();
   const [tab, setTab] = useState<PanelTab>('dashboard');
   const [childId, setChildId] = useState(GUEST_CHILDREN[0].id);
   const [sheet, setSheet] = useState<SheetKind | null>(null);
@@ -88,6 +91,10 @@ export default function ParentGuestPanel() {
         </div>
 
         <div className={styles.barActions}>
+          <SubscriptionBadge
+            childName={shortName}
+            onClick={() => navigate(`/parent-panel/subscription?child=${child.id}`)}
+          />
           <button type="button" className={styles.iconBtn} onClick={() => setSheet('notifications')} aria-label="اعلان‌ها">
             <HiOutlineBell aria-hidden />
           </button>

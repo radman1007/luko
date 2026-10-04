@@ -155,7 +155,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Notification
-        fields = ["id", "kind", "title", "body", "is_read", "child_name", "at"]
+        fields = ["id", "kind", "title", "body", "link", "is_read", "child_name", "at"]
 
     def get_child_name(self, obj) -> str:
         if obj.child is None:

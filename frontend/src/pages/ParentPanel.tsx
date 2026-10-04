@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   HiOutlineBell,
   HiOutlineCheckBadge,
+  HiOutlineChevronLeft,
+  HiOutlineCreditCard,
   HiOutlineExclamationTriangle,
   HiOutlineFaceSmile,
   HiOutlineMoon,
@@ -34,6 +37,8 @@ import { ChildSwitch } from '@/features/parent/components/shell/ChildSwitch';
 import { Sheet } from '@/features/parent/components/shell/Sheet';
 import { Toast } from '@/features/parent/components/shell/Toast';
 import { ParentIntroGate } from '@/features/parent/components/intro/ParentIntroGate';
+import { SubscriptionBadge } from '@/features/billing/components/SubscriptionBadge/SubscriptionBadge';
+import { useSubscriptions } from '@/features/billing/useBilling';
 import { DashboardView } from '@/features/parent/components/views/DashboardView';
 import { ReportsView } from '@/features/parent/components/views/ReportsView';
 import { DailyView } from '@/features/parent/components/views/DailyView';
@@ -52,6 +57,7 @@ const NOTIF_ICON = {
   mood: HiOutlineFaceSmile,
   idle: HiOutlineMoon,
   assignment: HiOutlineCheckBadge,
+  billing: HiOutlineCreditCard,
 };
 
 /** اسکلتِ بارگذاری — شکلِ نهایی را نگه می‌دارد تا صفحه نپرد */
@@ -82,8 +88,10 @@ function AuthenticatedParentPanel() {
   const [form, setForm] = useState({ phone: '', firstName: '', grade: '1', school: '', password: '' });
   const [message, setMessage] = useState('');
 
+  const navigate = useNavigate();
   const children = useChildren();
   const notifications = useNotifications();
+  const subscriptions = useSubscriptions();
   const preferences = usePreferences();
   const report = useReport(childId);
   const assignments = useAssignments(childId);
@@ -232,6 +240,13 @@ function AuthenticatedParentPanel() {
         </div>
 
         <div className={styles.barActions}>
+          {activeChild && (
+            <SubscriptionBadge
+              sub={subscriptions.data?.find((item) => item.childId === activeChild.id)}
+              childName={shortName}
+              onClick={() => navigate(`/parent-panel/subscription?child=${activeChild.id}`)}
+            />
+          )}
           <button
             type="button"
             className={styles.iconBtn}
@@ -363,11 +378,24 @@ function AuthenticatedParentPanel() {
                 <span className={styles.notifIcon} aria-hidden>
                   <Icon />
                 </span>
-                <div>
+                <div className={styles.notifMain}>
                   <b>{item.title}</b>
                   <small>
                     {item.body} · {item.at}
                   </small>
+                  {item.link && (
+                    <button
+                      type="button"
+                      className={styles.notifAction}
+                      onClick={() => {
+                        setSheet(null);
+                        navigate(item.link as string);
+                      }}
+                    >
+                      {item.kind === 'billing' && /تمام|پایان/.test(item.title) ? 'تمدید و پرداخت' : 'مشاهده'}
+                      <HiOutlineChevronLeft aria-hidden />
+                    </button>
+                  )}
                 </div>
               </div>
             );

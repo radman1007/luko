@@ -92,6 +92,7 @@ class Notification(TimeStampedModel):
         MOOD = "mood", "ثبت حال"
         IDLE = "idle", "بی‌فعالیتی"
         ASSIGNMENT = "assignment", "بازی روز"
+        BILLING = "billing", "اشتراک و پرداخت"
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                              related_name="parent_notifications", verbose_name="گیرنده")
@@ -102,6 +103,8 @@ class Notification(TimeStampedModel):
     title = models.CharField(max_length=160, verbose_name="عنوان")
     body = models.CharField(max_length=240, blank=True, verbose_name="متن")
     dedup_key = models.CharField(max_length=120, verbose_name="کلید یکتا")
+    #: مسیرِ داخلِ پنل برای اقدام (مثلاً صورت‌حسابِ تمدید)؛ خالی یعنی فقط خبر
+    link = models.CharField(max_length=200, blank=True, verbose_name="پیوند")
     is_read = models.BooleanField(default=False, verbose_name="خوانده شده")
 
     class Meta:

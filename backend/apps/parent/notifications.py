@@ -143,5 +143,10 @@ def sync_notifications(parent, force: bool = False) -> None:
                 key=f"assignment:{child.id}:{today.isoformat()}",
             )
 
+        # ۶) اشتراک: رو به پایان (از ۷ روز پیش) یا تمام‌شده — همیشه، مستقل از تنظیمات
+        from apps.billing.notices import expiry_rows
+
+        fresh.extend(expiry_rows(parent, child, name))
+
     if fresh:
         Notification.objects.bulk_create(fresh, ignore_conflicts=True)

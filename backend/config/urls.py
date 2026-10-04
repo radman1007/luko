@@ -22,6 +22,7 @@ api_v1 = [
     path("", include("apps.support.urls")),
     path("", include("apps.sync.urls")),
     path("parent/", include("apps.parent.urls")),
+    path("billing/", include("apps.billing.urls")),
     path("my/assignment", ParentAssignmentForChild.as_view(), name="my-assignment"),
 ]
 

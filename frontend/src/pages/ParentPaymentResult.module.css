@@ -1,0 +1,89 @@
+/* نتیجه‌ی پرداخت — روی قابِ صفحه‌ی اشتراک */
+.card {
+  margin-top: 8px;
+  padding: 26px 20px 22px;
+  border-radius: 24px;
+  background: #fff;
+  border: 1px solid var(--pp-line);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 10px 26px rgb(15 23 42 / 6%);
+}
+
+.mark {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin-bottom: 6px;
+  color: #fff;
+  background: linear-gradient(135deg, #94a3b8, #64748b);
+  animation: pop 0.55s var(--pp-spring) both;
+}
+
+.mark svg { width: 38px; height: 38px; stroke-width: 2.4; }
+
+.card[data-tone='paid'] .mark {
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  box-shadow: 0 12px 26px rgb(22 163 74 / 32%);
+}
+
+.card[data-tone='failed'] .mark {
+  background: linear-gradient(135deg, #f87171, #dc2626);
+  box-shadow: 0 12px 26px rgb(220 38 38 / 26%);
+}
+
+.card[data-tone='pending'] .mark {
+  background: linear-gradient(135deg, #60a5fa, #2563eb);
+  box-shadow: 0 12px 26px rgb(37 99 235 / 26%);
+}
+
+.card[data-tone='pending'] .mark svg { animation: spin 2.4s linear infinite; }
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.text {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: var(--pp-mut);
+  max-width: 300px;
+}
+
+.reason {
+  margin: 4px 0 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #fdecec;
+  color: #b91c1c;
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 4px;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mark, .card[data-tone='pending'] .mark svg { animation: none; }
+}

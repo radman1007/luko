@@ -21,6 +21,8 @@ const ParentPanel = lazy(() => import('@/pages/ParentPanel'));
 const TeacherPanel = lazy(() => import('@/pages/TeacherPanel'));
 const SchoolPanel = lazy(() => import('@/pages/SchoolPanel'));
 const AdminPanel = lazy(() => import('@/pages/AdminPanel'));
+const ParentSubscription = lazy(() => import('@/pages/ParentSubscription'));
+const ParentPaymentResult = lazy(() => import('@/pages/ParentPaymentResult'));
 
 const student = (page: React.ReactNode) => (
   <ProtectedRoute allowedRoles={['student']}>{page}</ProtectedRoute>
@@ -55,6 +57,15 @@ export function AppRouter() {
         <Route
           path="/parent-panel"
           element={<ProtectedRoute allowedRoles={['parent']}><ParentPanel /></ProtectedRoute>}
+        />
+        {/* اشتراکِ هر فرزند؛ بازگشت از درگاهِ وندار به صفحه‌ی نتیجه می‌آید */}
+        <Route
+          path="/parent-panel/subscription"
+          element={<ProtectedRoute allowedRoles={['parent']}><ParentSubscription /></ProtectedRoute>}
+        />
+        <Route
+          path="/parent-panel/subscription/result"
+          element={<ProtectedRoute allowedRoles={['parent']}><ParentPaymentResult /></ProtectedRoute>}
         />
         <Route
           path="/teacher-panel"
