@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   HiOutlineBell,
+  HiOutlineChatBubbleLeftRight,
   HiOutlineCheckBadge,
   HiOutlineChevronLeft,
   HiOutlineCreditCard,
   HiOutlineExclamationTriangle,
   HiOutlineFaceSmile,
+  HiOutlineMegaphone,
   HiOutlineMoon,
   HiOutlinePaperAirplane,
   HiOutlinePuzzlePiece,
@@ -58,6 +60,8 @@ const NOTIF_ICON = {
   idle: HiOutlineMoon,
   assignment: HiOutlineCheckBadge,
   billing: HiOutlineCreditCard,
+  announcement: HiOutlineMegaphone,
+  support: HiOutlineChatBubbleLeftRight,
 };
 
 /** اسکلتِ بارگذاری — شکلِ نهایی را نگه می‌دارد تا صفحه نپرد */
@@ -89,6 +93,16 @@ function AuthenticatedParentPanel() {
   const [message, setMessage] = useState('');
 
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+
+  // اعلانِ «پشتیبانی پاسخ داد» با ?open=support می‌آید: برگه‌ی گفتگو را باز کن
+  useEffect(() => {
+    if (params.get('open') !== 'support') return;
+    setSheet('support');
+    const next = new URLSearchParams(params);
+    next.delete('open');
+    setParams(next, { replace: true });
+  }, [params, setParams]);
   const children = useChildren();
   const notifications = useNotifications();
   const subscriptions = useSubscriptions();

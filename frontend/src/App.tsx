@@ -10,6 +10,7 @@ import { AppRouter } from '@/router';
 import { useSiteTimeDew } from '@/features/garden/useSiteTimeDew';
 import { startOfflineSync } from '@/features/games/pendingCompletions';
 import { startAccountSync } from '@/features/sync/accountSync';
+import { startPresence } from '@/features/activity/presence';
 
 export default function App() {
   useSiteTimeDew(); // شبنمِ «زمان حضور» در کل سایت جمع می‌شود
@@ -17,6 +18,8 @@ export default function App() {
   useEffect(() => startOfflineSync(), []);
   // سکه، باغچه، مأموریت‌ها و ذخیره‌ی بازی‌ها بینِ سایت و اپِ اندرویدِ همین حساب
   useEffect(() => startAccountSync(), []);
+  // «آنلاینم» برای آمارِ داشبورد (وب و اپِ اندروید، فقط وقتی صفحه دیده می‌شود)
+  useEffect(() => startPresence(), []);
 
   return (
     <QueryClientProvider client={queryClient}>

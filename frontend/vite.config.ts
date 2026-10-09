@@ -45,13 +45,39 @@ function noUnresolvedCssImports(): PluginOption {
   };
 }
 
+/**
+ * داشبوردِ مدیریت یک ورودیِ جداست (dashboard.html) تا هیچ اثری از آن در بسته‌ی
+ * سایت نباشد. روی سرور نشانیِ بلندش فقط در .env و nginx است؛ در توسعه و preview
+ * همین `/dash-local/` (مقدارِ پیش‌فرضِ DASHBOARD_PATH در جنگو) آن را باز می‌کند.
+ */
+const DASHBOARD_DEV_PATH = '/dash-local';
+
+function dashboardRoutes(): PluginOption {
+  const rewrite: Connect.NextHandleFunction = (req, _res, next) => {
+    const url = req.url ?? '';
+    if ((url === DASHBOARD_DEV_PATH || url.startsWith(`${DASHBOARD_DEV_PATH}/`)) && !url.startsWith(`${DASHBOARD_DEV_PATH}/api/`)) {
+      req.url = '/dashboard.html';
+    }
+    next();
+  };
+  return {
+    name: 'luko-dashboard-routes',
+    configureServer: (server) => { server.middlewares.use(rewrite); },
+    configurePreviewServer: (server) => { server.middlewares.use(rewrite); },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), gameAssetAlias(), noUnresolvedCssImports()],
+  plugins: [react(), gameAssetAlias(), noUnresolvedCssImports(), dashboardRoutes()],
   build: {
     // کتابخانه‌ها جدا از کدِ اپ بسته می‌شوند: با هر انتشارِ تازه، مرورگر فقط
     // چانکِ اپ را دوباره می‌گیرد و ری‌اکت/روتر/کوئری از کش می‌آید.
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        dashboard: path.resolve(__dirname, 'dashboard.html'),
+      },
       output: {
         manualChunks(id: string) {
           if (!id.includes('node_modules')) return undefined;
@@ -77,6 +103,7 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true,
       },
+      [`${DASHBOARD_DEV_PATH}/api`]: { target: 'http://localhost:8000', changeOrigin: false },
     },
   },
   // `npm run preview` نسخه‌ی build‌شده را سرو می‌کند — برای سنجشِ رفتارِ
@@ -85,6 +112,7 @@ export default defineConfig({
     port: 4173,
     proxy: {
       '/api': { target: 'http://localhost:8000', changeOrigin: true },
+      [`${DASHBOARD_DEV_PATH}/api`]: { target: 'http://localhost:8000', changeOrigin: false },
     },
   },
 });

@@ -127,7 +127,7 @@ function PaymentRow({ payment }: { payment: Payment }) {
         )}
       </div>
       <div className={styles.payEnd}>
-        <b>{toman(payment.amountToman)}</b>
+        <b>{payment.isGift ? 'هدیه‌ی لوکو' : toman(payment.amountToman)}</b>
         <span className={styles.statusChip}>{payment.statusLabel}</span>
       </div>
     </li>

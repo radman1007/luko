@@ -31,8 +31,8 @@ const NAMED: Record<string, string> = {
  * هم `path="/x"` را می‌فهمد هم `path={CONST}` را، چون روتر برای مسیرهای
  * مشترک از ثابت استفاده می‌کند تا با بقیه‌ی پروژه از هم نیفتند.
  */
-function definedRoutes(): { exact: Set<string>; prefixes: Set<string> } {
-  const router = readFileSync(join(SRC, 'router.tsx'), 'utf8');
+function definedRoutes(routerFile = 'router.tsx'): { exact: Set<string>; prefixes: Set<string> } {
+  const router = readFileSync(join(SRC, routerFile), 'utf8');
   const exact = new Set<string>();
   const prefixes = new Set<string>();
 
@@ -90,7 +90,8 @@ describe('مقصدهای ناوبری', () => {
 
   it('هیچ صفحه‌ای به مسیرِ تعریف‌نشده نمی‌فرستد', () => {
     const broken: string[] = [];
-    for (const file of sourceFiles(SRC)) {
+    // داشبورد روترِ خودش را دارد (تستِ پایین)
+    for (const file of sourceFiles(SRC).filter((f) => !f.includes(`${join('src', 'dashboard')}`))) {
       for (const target of navigationTargets(file)) {
         const known =
           exact.has(target) ||
@@ -98,6 +99,20 @@ describe('مقصدهای ناوبری', () => {
         if (!known) broken.push(`${file.replace(SRC, 'src')} → ${target}`);
       }
     }
+    expect(broken).toEqual([]);
+  });
+
+  it('داشبورد هم فقط به مسیرهای روترِ خودش می‌فرستد', () => {
+    const dash = definedRoutes(join('dashboard', 'App.tsx'));
+    const broken: string[] = [];
+    for (const file of sourceFiles(join(SRC, 'dashboard'))) {
+      for (const target of navigationTargets(file)) {
+        const known = target === '/' || dash.exact.has(target) ||
+          [...dash.prefixes].some((prefix) => target === prefix || target.startsWith(`${prefix}/`));
+        if (!known) broken.push(`${file.replace(SRC, 'src')} → ${target}`);
+      }
+    }
+    expect(dash.exact.has('/users')).toBe(true);
     expect(broken).toEqual([]);
   });
 });

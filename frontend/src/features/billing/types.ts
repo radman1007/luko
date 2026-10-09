@@ -48,6 +48,8 @@ export interface Payment {
   amountToman: number;
   status: PaymentStatus;
   statusLabel: string;
+  /** اشتراکِ هدیه از تیمِ لوکو (مبلغ صفر) */
+  isGift?: boolean;
   createdAtFa: string;
   paidAtFa: string;
   transId: string;

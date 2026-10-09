@@ -1,0 +1,102 @@
+.wrap {
+  overflow-x: auto;
+  transition: opacity 0.15s;
+}
+
+.wrap[data-loading] {
+  opacity: 0.55;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.table th {
+  text-align: start;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--d-muted);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--d-border);
+  background: var(--d-surface-2);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--d-border);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table tr[data-clickable] {
+  cursor: pointer;
+}
+
+.table tr[data-clickable]:hover td {
+  background: var(--d-surface-2);
+}
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+}
+
+.skeleton span {
+  height: 38px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--d-gray-50), #fff, var(--d-gray-50));
+  background-size: 200% 100%;
+  animation: shimmer 1.3s infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+/* گوشی: هر ردیف یک کارت، برچسبِ ستون کنارِ مقدار */
+@media (max-width: 720px) {
+  .table thead {
+    display: none;
+  }
+
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table tr {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--d-border);
+  }
+
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+    border: 0;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    font-size: 12px;
+    color: var(--d-muted);
+    flex: none;
+  }
+
+  .table td[data-optional] {
+    display: none;
+  }
+}

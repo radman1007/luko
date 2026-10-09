@@ -1,4 +1,5 @@
 import { LUKORIANS } from '@/lib/characters';
+import { NoticeBell } from '@/features/notices/components/NoticeBell/NoticeBell';
 import styles from './HomeHero.module.css';
 
 interface Props {
@@ -11,6 +12,7 @@ export function HomeHero({ name }: Props) {
 
   return (
     <header className={styles.hero}>
+      <NoticeBell />
       <div className={styles.texts}>
         <p className={styles.kicker}>شهر لوکو</p>
         <h1 className={styles.name}>سلام {name}!</h1>
