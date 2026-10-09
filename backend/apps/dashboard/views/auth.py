@@ -1,5 +1,4 @@
 """ورود/خروج و اطلاعاتِ پایه‌ی داشبورد."""
-from django.conf import settings
 from django.contrib.auth import login, logout
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -53,14 +52,6 @@ class PublicAuthView(APIView):
         return response
 
 
-def _sign_in(request, user, **details) -> Response:
-    """نشستِ داشبورد بعد از گذشتن از همه‌ی مرحله‌های ورود."""
-    login(request._request, user, backend="django.contrib.auth.backends.ModelBackend")
-    mark_session(request._request)
-    audit.record(request, "login", actor=user, details=details or None)
-    return Response(me_payload(user))
-
-
 def _login_error(exc: login_flow.LoginError):
     response = error(exc.message, exc.status)
     if exc.retry_after:
@@ -77,17 +68,12 @@ class CsrfView(PublicAuthView):
 
 
 class LoginView(PublicAuthView):
-    """
-    POST {phone, password} — مرحله‌ی اول؛ کدِ پیامکی می‌فرستد ({challenge, …}).
-    اگر DASHBOARD_LOGIN_SMS خاموش باشد همین‌جا وارد می‌شود و «من» را برمی‌گرداند.
-    """
+    """POST {phone, password} — مرحله‌ی اول؛ کدِ پیامکی می‌فرستد."""
 
     def post(self, request):
         ip = client_ip(request)
         try:
             user = login_flow.check_password_step(request.data.get("phone", ""), request.data.get("password", ""), ip)
-            if not settings.DASHBOARD_LOGIN_SMS:
-                return _sign_in(request, user, method="password")
             out = login_flow.start_challenge(user, ip)
         except login_flow.LoginError as exc:
             if exc.status in (400, 429):
@@ -113,7 +99,10 @@ class VerifyView(PublicAuthView):
             user = login_flow.verify(request.data.get("challenge", ""), request.data.get("code", ""))
         except login_flow.LoginError as exc:
             return _login_error(exc)
-        return _sign_in(request, user)
+        login(request._request, user, backend="django.contrib.auth.backends.ModelBackend")
+        mark_session(request._request)
+        audit.record(request, "login", actor=user)
+        return Response(me_payload(user))
 
 
 class LogoutView(DashboardView):
