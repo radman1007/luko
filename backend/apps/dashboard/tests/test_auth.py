@@ -47,7 +47,6 @@ class PasswordOnlyLoginTests(DashboardTestBase):
         self.assertEqual(self.get("me").status_code, 401)
 
 
-@override_settings(DASHBOARD_LOGIN_SMS=True)          # مستقل از .envِ سرور (آن‌جا ممکن است خاموش باشد)
 class LoginTests(DashboardTestBase):
     def start(self, phone="09120000900", password=None):
         return self.post("auth/login", {"phone": phone, "password": password or self.password})
