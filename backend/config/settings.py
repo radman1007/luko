@@ -320,6 +320,10 @@ DASHBOARD_ENABLED = DEBUG or len(DASHBOARD_PATH) >= 24
 DASHBOARD_IDLE_MINUTES = int(env("DASHBOARD_IDLE_MINUTES", "30"))
 #: عمرِ کلِ نشستِ داشبورد، هر قدر هم فعال باشد
 DASHBOARD_SESSION_HOURS = int(env("DASHBOARD_SESSION_HOURS", "8"))
+#: مرحله‌ی دومِ ورود (کدِ پیامکی). خاموش یعنی شماره و رمز کافی است؛ سقفِ تلاشِ رمز
+#: (۵ بار برای هر شماره، ۱۵ بار برای هر IP) و بقیه‌ی لایه‌ها سرِ جایشان می‌مانند.
+#: روشن‌کردنِ دوباره فقط با همین متغیر در .env و ری‌استارتِ web است.
+DASHBOARD_LOGIN_SMS = env_bool("DASHBOARD_LOGIN_SMS", True)
 
 # دامنه‌هایی که مجازند فرمِ POST بفرستند (پشتِ https)
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")

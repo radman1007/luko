@@ -5,7 +5,7 @@ import { Button } from '../../components/Button/Button';
 import { TextField } from '../../components/Fields/Fields';
 import { ensureCsrf, messageOf } from '../../lib/api';
 import { faNum, latinDigits } from '../../lib/format';
-import { authApi } from './authApi';
+import { authApi, needsCode } from './authApi';
 import { useSession } from './useSession';
 import styles from './LoginPage.module.css';
 
@@ -15,7 +15,7 @@ interface Challenge {
   devCode?: string;
 }
 
-/** ورودِ دومرحله‌ای: شماره و رمز، بعد کدِ پیامکی */
+/** ورود: شماره و رمز، و اگر روی سرور روشن باشد کدِ پیامکی */
 export function LoginPage() {
   const { signedIn } = useSession();
   const [phone, setPhone] = useState('');
@@ -52,8 +52,12 @@ export function LoginPage() {
     e.preventDefault();
     void run(async () => {
       const res = await authApi.login(latinDigits(phone), password);
-      setChallenge({ id: res.challenge, phone: res.phone, devCode: res.devCode });
       setPassword('');
+      if (!needsCode(res)) {
+        signedIn(res);
+        return;
+      }
+      setChallenge({ id: res.challenge, phone: res.phone, devCode: res.devCode });
       setWait(res.resendIn);
     });
   };

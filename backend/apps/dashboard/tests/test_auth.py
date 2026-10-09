@@ -3,6 +3,7 @@ import time
 from unittest import mock
 
 from django.contrib.sessions.models import Session
+from django.test import override_settings
 from rest_framework.test import APIClient
 
 from apps.accounts.models import User
@@ -12,6 +13,38 @@ from apps.dashboard.models import AuditLog, StaffAccess
 from apps.dashboard.security import SESSION_SEEN
 
 from .base import DashboardTestBase, url
+
+
+@override_settings(DASHBOARD_LOGIN_SMS=False)
+class PasswordOnlyLoginTests(DashboardTestBase):
+    """کدِ پیامکی خاموش: شماره و رمز کافی است، ولی بقیه‌ی سدها سرِ جایشان می‌مانند."""
+
+    def login(self, password=None, phone="09120000900"):
+        return self.post("auth/login", {"phone": phone, "password": password or self.password})
+
+    def test_password_alone_signs_in_without_any_sms(self):
+        with mock.patch("apps.dashboard.login_flow.send_verification_code") as sms:
+            res = self.login()
+        self.assertEqual(res.status_code, 200)
+        data = self.data(res)
+        self.assertNotIn("challenge", data)
+        self.assertTrue(data["isSuperuser"])
+        sms.assert_not_called()
+        self.assertEqual(self.get("me").status_code, 200)
+        self.assertEqual(AuditLog.objects.get(action="login", actor=self.admin).details, {"method": "password"})
+
+    def test_wrong_password_is_still_rejected_and_locks(self):
+        for _ in range(5):
+            self.assertEqual(self.login(password="wrong-password-1").status_code, 400)
+        self.assertEqual(self.get("me").status_code, 401)
+        self.assertEqual(self.login().status_code, 429)          # حتی با رمزِ درست
+
+    def test_non_staff_and_staff_without_capabilities_stay_out(self):
+        parent = User.objects.create_user("09121112233", password=self.password, role="parent")
+        empty = self.make_staff("09120000901", [])
+        for phone in (parent.phone, empty.phone):
+            self.assertEqual(self.login(phone=phone).status_code, 400)
+        self.assertEqual(self.get("me").status_code, 401)
 
 
 class LoginTests(DashboardTestBase):
