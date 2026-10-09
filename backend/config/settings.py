@@ -84,6 +84,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # کار در پنلِ جنگو نشستِ مشترک با داشبورد را «بی‌کار» نمی‌گذارد
+    "apps.dashboard.middleware.AdminActivityMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]

@@ -1,7 +1,9 @@
 """ورودِ دومرحله‌ای و نشستِ داشبورد."""
+import sys
 import time
-from unittest import mock
+from unittest import mock, skipIf
 
+from django.conf import settings
 from django.contrib.sessions.models import Session
 from rest_framework.test import APIClient
 
@@ -98,8 +100,46 @@ class LoginTests(DashboardTestBase):
 
 
 class SessionTests(DashboardTestBase):
-    def test_django_admin_session_is_not_a_dashboard_session(self):
+    def test_superuser_signed_in_to_django_admin_walks_straight_in(self):
         self.api.force_login(self.admin)                  # مثلِ ورود به پنلِ جنگو با رمز
+        res = self.get("me")
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(self.data(res)["isSuperuser"])
+        self.assertEqual(self.get("users").status_code, 200)
+        log = AuditLog.objects.filter(action="login", actor=self.admin)
+        self.assertEqual(log.count(), 1)                  # یک‌بار، نه در هر درخواست
+        self.assertEqual(log.get().details, {"method": "admin_session"})
+
+    def test_plain_staff_or_user_session_is_not_enough(self):
+        staff = self.make_staff("09120000904", ["stats", "users_view"])
+        parent = User.objects.create_user("09121112244", password=self.password, role="parent")
+        for who in (staff, parent):
+            client = APIClient()
+            client.force_login(who)
+            self.assertEqual(client.get(url("me")).status_code, 401)
+
+    @skipIf(sys.version_info >= (3, 14), "Django 5.1 روی ۳.۱۴ قالبِ ادمین را نمی‌سازد")
+    def test_dashboard_login_opens_django_admin_too(self):
+        self.sign_in(self.admin)
+        self.assertEqual(self.api.get(f"/{settings.ADMIN_URL}/").status_code, 200)
+
+    @skipIf(sys.version_info >= (3, 14), "Django 5.1 روی ۳.۱۴ قالبِ ادمین را نمی‌سازد")
+    def test_work_in_django_admin_keeps_dashboard_session_alive(self):
+        self.sign_in(self.admin)
+        session = self.api.session
+        session[SESSION_SEEN] = int(time.time()) - 20 * 60
+        session.save()
+        self.api.get(f"/{settings.ADMIN_URL}/")           # کار در پنلِ جنگو
+        self.assertGreater(self.api.session[SESSION_SEEN], int(time.time()) - 60)
+        self.assertEqual(self.get("me").status_code, 200)
+
+    @skipIf(sys.version_info >= (3, 14), "Django 5.1 روی ۳.۱۴ قالبِ ادمین را نمی‌سازد")
+    def test_admin_work_does_not_revive_an_idle_session(self):
+        self.sign_in(self.admin)
+        session = self.api.session
+        session[SESSION_SEEN] = int(time.time()) - 31 * 60
+        session.save()
+        self.api.get(f"/{settings.ADMIN_URL}/")
         self.assertEqual(self.get("me").status_code, 401)
 
     def test_app_jwt_never_opens_the_dashboard(self):
