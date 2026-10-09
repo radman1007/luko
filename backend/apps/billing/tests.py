@@ -550,3 +550,58 @@ class ConcurrencyTests(TransactionTestCase):
         a, b = sorted([first, second], key=lambda p: p.starts_at)
         self.assertEqual(b.starts_at, a.ends_at)           # پشتِ هم، نه روی هم
         self.assertEqual(services.subscription(self.child).days_left, 60)
+
+
+class GiftTests(TestCase):
+    """اشتراکِ هدیه از داشبورد."""
+
+    def setUp(self):
+        from apps.parent.models import ParentChild
+
+        self.parent = User.objects.create(phone="09120000301", role=User.Role.PARENT)
+        self.child = User.objects.create(phone="09120000302", role=User.Role.STUDENT, first_name="نیلا")
+        ParentChild.objects.create(parent=self.parent, child=self.child)
+        self.staff = User.objects.create_superuser("09120000399", "Gift-Pass-1")
+
+    def test_gift_activates_and_notifies_parent(self):
+        from apps.billing.services import gift_subscription, subscription
+        from apps.billing.views import payment_payload
+        from apps.parent.models import Notification
+
+        payment = gift_subscription(child=self.child, days=14, granted_by=self.staff, note="جبرانِ قطعی")
+        sub = subscription(self.child)
+        self.assertTrue(sub.active)
+        self.assertEqual(sub.days_left, 14)
+        self.assertEqual((payment.amount_toman, payment.source, payment.granted_by_id), (0, "gift", self.staff.id))
+        note = Notification.objects.get(user=self.parent)
+        self.assertIn("هدیه", note.title)
+        row = payment_payload(payment)
+        self.assertEqual((row["status_label"], row["is_gift"]), ("هدیه", True))
+
+    def test_gift_stacks_after_current_period(self):
+        from apps.billing.services import gift_subscription, subscription
+
+        gift_subscription(child=self.child, days=30, granted_by=self.staff)
+        gift_subscription(child=self.child, days=10, granted_by=self.staff)
+        self.assertEqual(subscription(self.child).days_left, 40)
+
+    def test_rules(self):
+        from apps.billing.services import CheckoutError, gift_subscription
+
+        with self.assertRaises(CheckoutError):
+            gift_subscription(child=self.parent, days=10, granted_by=self.staff)
+        for bad in (0, 731):
+            with self.assertRaises(CheckoutError):
+                gift_subscription(child=self.child, days=bad, granted_by=self.staff)
+
+    def test_revoke_only_gifts(self):
+        from apps.billing.services import CheckoutError, gift_subscription, revoke_gift, subscription
+
+        payment = gift_subscription(child=self.child, days=10, granted_by=self.staff)
+        revoke_gift(payment)
+        self.assertFalse(subscription(self.child).active)
+        real = Payment.objects.create(payer=self.parent, child=self.child, plan=Plan.objects.first(),
+                                      plan_title="ماهانه", duration_days=30, amount_toman=199000,
+                                      amount_rial=1990000, factor_number="LKREAL1", status="paid")
+        with self.assertRaises(CheckoutError):
+            revoke_gift(real)

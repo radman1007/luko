@@ -63,6 +63,55 @@ def to_jalali(value: date) -> tuple[int, int, int]:
     return jy, jm, jd
 
 
+def from_jalali(jy: int, jm: int, jd: int) -> date:
+    """(سال، ماه، روزِ) شمسی → تاریخِ میلادی. اعتبارِ ماه و روز را خودش می‌سنجد."""
+    if not (1 <= jm <= 12) or not (1 <= jd <= (31 if jm <= 6 else 30 if jm <= 11 else 30)):
+        raise ValueError("تاریخِ شمسیِ نامعتبر")
+    jy += 1595
+    days = -355668 + 365 * jy + (jy // 33) * 8 + ((jy % 33) + 3) // 4 + jd
+    days += (jm - 1) * 31 if jm < 7 else (jm - 7) * 30 + 186
+    gy = 400 * (days // 146097)
+    days %= 146097
+    if days > 36524:
+        days -= 1
+        gy += 100 * (days // 36524)
+        days %= 36524
+        if days >= 365:
+            days += 1
+    gy += 4 * (days // 1461)
+    days %= 1461
+    if days > 365:
+        gy += (days - 1) // 365
+        days = (days - 1) % 365
+    gd = days + 1
+    leap = (gy % 4 == 0 and gy % 100 != 0) or gy % 400 == 0
+    months = (31, 29 if leap else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+    gm = 0
+    while gm < 12 and gd > months[gm]:
+        gd -= months[gm]
+        gm += 1
+    result = date(gy, gm + 1, gd)
+    if to_jalali(result) != (jy - 1595, jm, jd):     # مثلاً ۳۰ اسفندِ سالِ غیرکبیسه
+        raise ValueError("تاریخِ شمسیِ نامعتبر")
+    return result
+
+
+_LATIN = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
+
+
+def parse_jalali(text: str) -> date | None:
+    """«۱۴۰۵/۰۷/۱۲» یا «1405-7-12» → تاریخِ میلادی؛ نامعتبر → None."""
+    import re
+
+    match = re.fullmatch(r"\s*(\d{4})\s*[/\-.]\s*(\d{1,2})\s*[/\-.]\s*(\d{1,2})\s*", str(text or "").translate(_LATIN))
+    if not match:
+        return None
+    try:
+        return from_jalali(*(int(g) for g in match.groups()))
+    except ValueError:
+        return None
+
+
 def fa_date(value: date, *, with_year: bool = False) -> str:
     """«۲۴ مرداد» — و با `with_year` می‌شود «۲۴ مرداد ۱۴۰۵»."""
     jy, jm, jd = to_jalali(value)

@@ -100,6 +100,13 @@ class LukoAdminSite(admin.AdminSite):
     index_title = "همه‌ی داده‌های لوکو"
     empty_value_display = "—"
 
+    def has_permission(self, request):
+        """
+        پنلِ جنگو فقط برای مدیرِ کل. کارمندان (نویسنده، پشتیبان و …) از داشبورد کار
+        می‌کنند که ورودِ دومرحله‌ای و دسترسیِ تیک‌به‌تیک دارد؛ این‌جا فقط رمز است.
+        """
+        return bool(request.user.is_active and request.user.is_superuser)
+
     def login(self, request, extra_context=None):
         ip = client_ip(request)
         username = (request.POST.get("username") or "") if request.method == "POST" else ""

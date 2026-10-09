@@ -24,6 +24,9 @@ api_v1 = [
     path("", include("apps.sync.urls")),
     path("parent/", include("apps.parent.urls")),
     path("billing/", include("apps.billing.urls")),
+    path("", include("apps.activity.urls")),
+    path("", include("apps.notices.urls")),
+    path("", include("apps.blog.urls")),
     path("my/assignment", ParentAssignmentForChild.as_view(), name="my-assignment"),
 ]
 
@@ -32,6 +35,16 @@ urlpatterns = [
     path("healthz", health_check),
     path("api/v1/", include((api_v1, "api"), namespace="v1")),
 ]
+
+
+def dashboard_patterns():
+    """داشبورد فقط وقتی سوار می‌شود که نشانیِ بلندش تنظیم شده باشد (DASHBOARD_ENABLED)."""
+    if not settings.DASHBOARD_ENABLED:
+        return []
+    return [path(f"{settings.DASHBOARD_PATH}/api/", include("apps.dashboard.urls"))]
+
+
+urlpatterns[1:1] = dashboard_patterns()
 
 # در توسعه جنگو خودش فایل‌های بارگذاری‌شده را سرو می‌کند؛ روی سرور nginx (/media/)
 if settings.DEBUG:

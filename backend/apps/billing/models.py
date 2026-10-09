@@ -72,6 +72,17 @@ class Payment(TimeStampedModel):
     gateway_response = models.JSONField(default=dict, blank=True, verbose_name="پاسخِ خامِ درگاه")
     verify_attempts = models.PositiveSmallIntegerField(default=0, verbose_name="تلاش‌های تأیید")
 
+    class Source(models.TextChoices):
+        GATEWAY = "gateway", "درگاه"
+        GIFT = "gift", "هدیه"
+
+    #: «هدیه» یعنی تیم از داشبورد داده؛ مبلغ صفر و بی‌درگاه
+    source = models.CharField(max_length=10, choices=Source.choices, default=Source.GATEWAY,
+                              db_index=True, verbose_name="منبع")
+    granted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+                                   related_name="granted_payments", verbose_name="هدیه‌دهنده")
+    note = models.CharField(max_length=200, blank=True, verbose_name="یادداشت")
+
     paid_at = models.DateTimeField(null=True, blank=True, verbose_name="زمانِ پرداخت")
     starts_at = models.DateTimeField(null=True, blank=True, verbose_name="شروعِ اشتراک")
     ends_at = models.DateTimeField(null=True, blank=True, verbose_name="پایانِ اشتراک")

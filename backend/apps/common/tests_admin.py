@@ -118,10 +118,15 @@ class AdminAccessTests(TestCase):
         self.assertEqual(res.status_code, 302)
 
     def test_plain_staff_cannot_see_the_password_vault(self):
-        """رمزِ خوانا فقط مالِ سوپرادمین است."""
+        """
+        رمزِ خوانا فقط مالِ سوپرادمین است. از اکتبر ۲۰۲۶ کارمندِ معمولی اصلاً واردِ پنلِ
+        جنگو نمی‌شود (کارش در داشبورد است، با ورودِ دومرحله‌ای) — پس به صفحه‌ی ورود می‌رود.
+        """
         self.client.force_login(self.staff)
-        res = self.client.get(reverse("admin:accounts_passwordvault_changelist"))
-        self.assertEqual(res.status_code, 403)
+        for name in ("admin:accounts_passwordvault_changelist", "admin:index"):
+            res = self.client.get(reverse(name))
+            self.assertEqual(res.status_code, 302, name)
+            self.assertIn("/login/", res["Location"])
 
 
 class AdminLoginThrottleTests(TestCase):

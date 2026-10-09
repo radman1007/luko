@@ -93,6 +93,8 @@ class Notification(TimeStampedModel):
         IDLE = "idle", "بی‌فعالیتی"
         ASSIGNMENT = "assignment", "بازی روز"
         BILLING = "billing", "اشتراک و پرداخت"
+        ANNOUNCEMENT = "announcement", "اطلاعیه"
+        SUPPORT = "support", "پشتیبانی"
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                              related_name="parent_notifications", verbose_name="گیرنده")

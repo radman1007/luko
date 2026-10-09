@@ -347,3 +347,49 @@ def reconcile(payment_id: int) -> Payment | None:
                 _mark(payment, Payment.Status.FAILED, "پرداخت انجام نشد", info)
     payment.refresh_from_db()
     return payment
+
+
+# ------------------------------------------------------------------ هدیه
+GIFT_MAX_DAYS = 730
+
+
+def gift_subscription(*, child: User, days: int, granted_by: User, note: str = "") -> Payment:
+    """
+    چند روز اشتراکِ هدیه از داشبورد (پشتیبانی، جبرانِ مشکل، تخفیف). مثلِ خرید پشتِ
+    دوره‌ی جاری می‌نشیند و در صورت‌حسابِ والد با برچسبِ «هدیه» دیده می‌شود.
+    """
+    if child.role != User.Role.STUDENT:
+        raise CheckoutError("اشتراک فقط برای حسابِ دانش‌آموز است.")
+    if not (1 <= int(days) <= GIFT_MAX_DAYS):
+        raise CheckoutError(f"مدتِ هدیه باید بینِ ۱ تا {GIFT_MAX_DAYS} روز باشد.")
+    plan = Plan.objects.order_by("duration_days").first()
+    if plan is None:
+        raise CheckoutError("هیچ پلنی تعریف نشده است.", 500)
+    with transaction.atomic():
+        User.objects.select_for_update().filter(pk=child.pk).first()
+        now = timezone.now()
+        current_end = Payment.objects.filter(child=child, status=Payment.Status.PAID, ends_at__gt=now) \
+            .aggregate(end=Max("ends_at"))["end"]
+        start = max(now, current_end) if current_end else now
+        payment = Payment.objects.create(
+            payer=None, child=child, plan=plan, plan_title=f"هدیه · {int(days)} روز"[:40],
+            duration_days=int(days), amount_toman=0, amount_rial=0, child_name=child_name(child),
+            status=Payment.Status.PAID, factor_number=f"GF{timezone.localtime():%y%m%d}{secrets.randbelow(10**6):06d}",
+            source=Payment.Source.GIFT, granted_by=granted_by, note=(note or "")[:200],
+            paid_at=now, starts_at=start, ends_at=start + timedelta(days=int(days)), message="اشتراکِ هدیه",
+        )
+        from .notices import gift_granted
+
+        gift_granted(payment)
+    log.info("gift %s: %s days for child %s by %s", payment.factor_number, days, child.pk, granted_by.pk)
+    return payment
+
+
+def revoke_gift(payment: Payment) -> Payment:
+    """هدیه‌ی اشتباه را برمی‌دارد (فقط هدیه؛ پرداختِ واقعی هرگز)."""
+    if payment.source != Payment.Source.GIFT:
+        raise CheckoutError("فقط اشتراکِ هدیه لغوشدنی است.")
+    payment.status = Payment.Status.EXPIRED
+    payment.message = "هدیه لغو شد"
+    payment.save(update_fields=["status", "message", "updated_at"])
+    return payment

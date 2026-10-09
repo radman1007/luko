@@ -43,6 +43,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone_verified_at = models.DateTimeField(null=True, blank=True,
                                              verbose_name="زمان تأیید شماره")
 
+    # آخرین «من آنلاینم» از سایت یا اپ (apps.activity). دقیقه‌ای یک‌بار به‌روز
+    # می‌شود؛ ستونِ «آخرین بازدید» و فیلترهای داشبورد از همین می‌خوانند.
+    last_seen_at = models.DateTimeField(null=True, blank=True, db_index=True,
+                                        verbose_name="آخرین بازدید")
+    last_seen_platform = models.CharField(max_length=10, blank=True,
+                                          verbose_name="سکوی آخرین بازدید")
+
     is_active = models.BooleanField(default=True, verbose_name="فعال")
     is_staff = models.BooleanField(default=False, verbose_name="دسترسی به پنل مدیریت")
     date_joined = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ عضویت")

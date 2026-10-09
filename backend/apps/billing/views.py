@@ -100,7 +100,9 @@ def payment_payload(payment: Payment) -> dict:
         "plan_title": payment.plan_title,
         "amount_toman": payment.amount_toman,
         "status": payment.status,
-        "status_label": payment.get_status_display(),
+        "status_label": "هدیه" if payment.source == Payment.Source.GIFT and payment.status == Payment.Status.PAID
+        else payment.get_status_display(),
+        "is_gift": payment.source == Payment.Source.GIFT,
         "created_at_fa": _fa_datetime(payment.created_at),
         "paid_at_fa": _fa_datetime(payment.paid_at),
         "trans_id": payment.trans_id,

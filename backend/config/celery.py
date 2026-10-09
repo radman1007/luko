@@ -30,4 +30,8 @@ app.conf.beat_schedule = {
         "task": "apps.billing.tasks.notify_expiring",
         "schedule": crontab(hour=9, minute=30),
     },
+    "activity-prune-daily": {
+        "task": "apps.activity.tasks.prune_activity",
+        "schedule": crontab(hour=4, minute=20),
+    },
 }

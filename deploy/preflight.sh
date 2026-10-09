@@ -31,6 +31,16 @@ echo "── بیلد فرانت ──"
   || bad "frontend/dist نیست — «cd frontend && npm ci && npm run build»"
 [ -d frontend/dist/games ] && ok "بازی‌ها در بیلد هستند" || bad "بازی‌ها در dist نیستند"
 
+echo "── داشبورد ──"
+if [ -f deploy/dashboard.conf ]; then
+  grep -q "__DASHBOARD_PATH__" deploy/dashboard.conf && bad "deploy/dashboard.conf هنوز مسیرِ نمونه دارد" \
+    || ok "deploy/dashboard.conf هست"
+else
+  bad "deploy/dashboard.conf نیست (از dashboard.example.conf بسازید؛ بی‌آن nginx بالا نمی‌آید)"
+fi
+[ -n "${DASHBOARD_PATH:-}" ] && [ ${#DASHBOARD_PATH} -ge 24 ] && ok "DASHBOARD_PATH بلند است" \
+  || bad "DASHBOARD_PATH خالی یا کوتاه‌تر از ۲۴ نویسه است"
+
 echo "── فایل‌های استقرار ──"
 for f in docker-compose.yml backend/Dockerfile deploy/nginx.conf.template deploy/proxy.conf; do
   [ -f "$f" ] && ok "$f" || bad "$f نیست"

@@ -85,3 +85,24 @@ def payment_succeeded(payment: Payment) -> None:
         )
         for parent_id in parents
     ], ignore_conflicts=True)
+
+
+def gift_granted(payment: Payment) -> None:
+    """اعلانِ «هدیه‌ی لوکو» برای همه‌ی والدهای همان بچه."""
+    from apps.parent.models import Notification, ParentChild
+
+    if not payment.child_id:
+        return
+    parents = ParentChild.objects.filter(child_id=payment.child_id, is_active=True).values_list("parent_id", flat=True)
+    name = payment.child_name or child_name(payment.child)
+    end = timezone.localtime(payment.ends_at).date()
+    Notification.objects.bulk_create([
+        _notification(
+            user_id=parent_id, child_id=payment.child_id,
+            link=subscription_link(payment.child_id),
+            title=f"هدیه‌ی لوکو برای {name}",
+            body=f"{fa_digits(payment.duration_days)} روز اشتراک هدیه گرفت؛ تا {fa_date(end, with_year=True)} فعال است.",
+            dedup_key=f"payment:{payment.id}",
+        )
+        for parent_id in parents
+    ], ignore_conflicts=True)

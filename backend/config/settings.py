@@ -70,6 +70,10 @@ INSTALLED_APPS = [
     "apps.support",
     "apps.sync",
     "apps.billing",
+    "apps.activity",
+    "apps.notices",
+    "apps.blog",
+    "apps.dashboard",
 ]
 
 MIDDLEWARE = [
@@ -208,6 +212,8 @@ VANDAR_BASE_URL = env("VANDAR_BASE_URL", "https://ipg.vandar.io")
 VANDAR_TIMEOUT = float(env("VANDAR_TIMEOUT", "15"))
 #: نشانیِ عمومیِ سایت: بازگشت از درگاه و صفحه‌ی نتیجه روی همین است
 SITE_URL = env("SITE_URL", f"https://{env('LUKO_DOMAIN', 'my.luko.ir')}")
+#: سایتِ لندینگ که وبلاگ را از API عمومی می‌خواند (فقط همین‌ها CORS می‌گیرند)
+BLOG_CORS_ORIGINS = env_list("BLOG_CORS_ORIGINS", "https://luko.ir,https://www.luko.ir")
 
 SMS_IR_API_KEY = env("SMS_IR_API_KEY", "")
 SMS_IR_TEMPLATE_ID = env("SMS_IR_TEMPLATE_ID", "")
@@ -239,7 +245,9 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_CLASSES": (),
     # سقفی که برداشتِ انبوه را می‌بندد ولی جلوی بچه‌ی پرکار را نگیرد:
     # هر بازکردنِ بازی یک درخواست است و ۲۷ مرحله بیشتر نداریم.
-    "DEFAULT_THROTTLE_RATES": {"play_link": "90/hour", "sync": "1200/hour"},
+    "DEFAULT_THROTTLE_RATES": {"play_link": "90/hour", "sync": "1200/hour",
+                               # ضربانِ حضور: دقیقه‌ای یکی برای هر صفحه؛ یک مدرسه پشتِ یک IP
+                               "presence": "240/min"},
 }
 
 # محتوای JSONFieldها (payloadِ رویدادهای بازی، وضعیت باغچه، رنگ‌های نقاشی) نباید
@@ -285,6 +293,10 @@ if not DEBUG:
     # می‌کند و نشستِ جنگو ندارد.
     SESSION_COOKIE_AGE = int(env("DJANGO_SESSION_HOURS", "8")) * 3600
     SESSION_SAVE_EVERY_REQUEST = True          # کار کردن، نشست را زنده نگه می‌دارد
+    # نشست و CSRF فقط در درخواست‌های هم‌سایت (پنلِ جنگو و داشبورد). اپ با JWT کار می‌کند و
+    # بازگشت از درگاهِ پرداخت هم به نشستِ جنگو نیاز ندارد، پس Strict چیزی را نمی‌شکند.
+    SESSION_COOKIE_SAMESITE = "Strict"
+    CSRF_COOKIE_SAMESITE = "Strict"
 
     if SECRET_KEY == "dev-insecure-key-change-me":
         raise RuntimeError(
@@ -296,6 +308,18 @@ if not DEBUG:
 # نیست (رمز و سقفِ تلاش هستند) ولی هزینه‌ای هم ندارد. از env عوض می‌شود تا
 # بی‌نیاز به دیپلوی قابلِ تغییر باشد.
 ADMIN_URL = env("DJANGO_ADMIN_URL", "v1a2n3r4").strip("/")
+
+# داشبوردِ مدیریت (apps.dashboard): نشانیِ بلند و غیرِحدس‌زدنی فقط در .envِ سرور است؛
+# اپِ داشبورد آن را از نشانیِ صفحه می‌خواند و در هیچ فایلِ عمومی‌ای نیست. API زیرِ
+# «/<مسیر>/api/» است. لایه‌ی اصلیِ امنیت ورودِ دومرحله‌ای و دسترسی‌هاست، نه پنهان‌بودنِ نشانی.
+DASHBOARD_PATH = env("DASHBOARD_PATH", "").strip("/") or "dash-local"
+#: روی سرور داشبورد فقط با نشانیِ بلند سوار می‌شود؛ مقدارِ خالی یا کوتاه یعنی اصلاً نباشد
+#: (بهتر از این‌که روی «/dash-local/» حدس‌زدنی بالا بیاید). در توسعه همیشه هست.
+DASHBOARD_ENABLED = DEBUG or len(DASHBOARD_PATH) >= 24
+#: بی‌کاری بیش از این، نشستِ داشبورد را می‌بندد
+DASHBOARD_IDLE_MINUTES = int(env("DASHBOARD_IDLE_MINUTES", "30"))
+#: عمرِ کلِ نشستِ داشبورد، هر قدر هم فعال باشد
+DASHBOARD_SESSION_HOURS = int(env("DASHBOARD_SESSION_HOURS", "8"))
 
 # دامنه‌هایی که مجازند فرمِ POST بفرستند (پشتِ https)
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")
