@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
@@ -31,11 +31,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const toast = useToast();
   const query = useQuery({ queryKey: ['me'], queryFn: fetchMe, staleTime: 5 * 60_000, retry: false });
   const me = query.data ?? null;
+  // خروجِ خودِ کاربر: درخواست‌هایی که هم‌زمان در راه بودند بعد از آن ۴۰۱ می‌گیرند؛ پیامِ «نشست بسته شد» نباید بیاید
+  const leaving = useRef(false);
 
   useEffect(() => {
     const lost = (event: Event) => {
+      const quiet = leaving.current || !queryClient.getQueryData(['me']);
       forget(queryClient);
-      toast((event as CustomEvent<string>).detail || 'نشست بسته شد؛ دوباره وارد شوید.', 'error');
+      if (!quiet) toast((event as CustomEvent<string>).detail || 'نشست بسته شد؛ دوباره وارد شوید.', 'error');
     };
     window.addEventListener(SESSION_LOST, lost);
     return () => window.removeEventListener(SESSION_LOST, lost);
@@ -45,8 +48,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     (cap: Capability | 'superuser') => Boolean(me && (cap === 'superuser' ? me.isSuperuser : me.capabilities.includes(cap))),
     [me],
   );
-  const signedIn = useCallback((next: Me) => queryClient.setQueryData(['me'], next), [queryClient]);
+  const signedIn = useCallback((next: Me) => {
+    leaving.current = false;
+    queryClient.setQueryData(['me'], next);
+  }, [queryClient]);
   const signOut = useCallback(async () => {
+    leaving.current = true;
     try {
       await send('post', 'auth/logout');
     } finally {
