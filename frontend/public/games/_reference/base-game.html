@@ -194,7 +194,8 @@ const DEMO = {
   gameId: 'reference-demo',
   gameType: 'quiz',
   totalLevels: 3,
-  topic: 'demo',
+  // تگِ آموزشی: همان کدی که تیمِ طراحی در داشبورد ← تگ‌های آموزشی تعریف کرده
+  concept: 'addition_2digit',
 };
 
 const game = {
@@ -222,19 +223,33 @@ const game = {
     const s = LUKO.snapshot();
     const next = s.currentLevel + 1;
     if (next > s.totalLevels) return;
-    LUKO.startLevel(next, { id: 'lvl-' + next, title: 'مرحلهٔ ' + next });
+    // تگِ پیش‌فرضِ پاسخ‌های این مرحله
+    LUKO.startLevel(next, { id: 'lvl-' + next, title: 'مرحلهٔ ' + next, concept: DEMO.concept });
+    this.showQuestion();
+  },
+
+  /** هر سؤال یک شناسه دارد؛ SDK با آن زمانِ پاسخ و شماره‌ی تلاش را خودش حساب می‌کند */
+  questionNo: 0,
+  showQuestion() {
+    this.questionNo += 1;
+    LUKO.question('q' + this.questionNo, { concept: DEMO.concept });
   },
 
   answer(correct) {
     LUKO.answer({
-      topic: DEMO.topic,
-      topicLabel: 'نمونه',
+      concept: DEMO.concept,
+      questionId: 'q' + this.questionNo,
       correct,
-      ms: 800 + Math.floor(Math.random() * 2500),
-      given: correct ? '۴' : '۵',
-      expected: '۴',
+      // نوعِ خطا را تیمِ طراحی برای هر گزینه‌ی غلط تعیین کرده: ۵۳ به‌جای ۳۵ یعنی جای یکان و دهگان را
+      // نفهمیده (مفهومی)؛ اشتباهِ یک واحدی یعنی بی‌دقتی
+      errorType: correct ? undefined : 'conceptual',
+      given: correct ? '35' : '53',
+      expected: '35',
     });
-    if (correct) LUKO.addScore(10);
+    if (correct) {
+      LUKO.addScore(10);
+      this.showQuestion();          // سؤالِ بعدی؛ پاسخِ غلط همان سؤال را نگه می‌دارد (تلاشِ دوم)
+    }
   },
 };
 
@@ -325,22 +340,26 @@ window.addEventListener('message', (e) => {
   if (e.source !== window || !e.data || typeof e.data !== 'object') return;
   const { type, event, summary } = e.data;
   if (type === 'luko-game-event' && event) logEvent(event);
-  if (type === 'luko-game-complete') logEvent({ type: '▲ luko-game-complete', score: summary.score, at: new Date().toISOString() });
-  if (type === 'luko-game-progress') logEvent({ type: '▽ luko-game-progress', at: new Date().toISOString() });
+  if (type === 'luko-game-complete') logEvent({ event_type: '▲ luko-game-complete', data: { score: summary.score } });
+  if (type === 'luko-game-progress') logEvent({ event_type: '▽ luko-game-progress', data: {} });
   render();
 });
 
+/* رویدادِ نسخه‌ی ۳ (docs/event-tracking-guide.md): event_type، concept_tag، timestamp و data */
 function logEvent(ev) {
   const box = $('f-log');
-  const time = new Date(ev.at || Date.now()).toLocaleTimeString('en-GB');
-  const detail = Object.entries(ev)
-    .filter(([k, v]) => !['type', 'at', 'status', 'score'].includes(k) && v !== undefined && v !== null && v !== '')
-    .map(([k, v]) => k + '=' + (typeof v === 'object' ? JSON.stringify(v) : v))
+  const time = new Date(ev.timestamp || Date.now()).toLocaleTimeString('en-GB');
+  const data = ev.data || {};
+  const detail = [ev.concept_tag ? 'concept_tag=' + ev.concept_tag : '']
+    .concat(Object.entries(data)
+      .filter(([k, v]) => !['status', 'score', 'level_id'].includes(k) && v !== undefined && v !== null && v !== '')
+      .map(([k, v]) => k + '=' + (typeof v === 'object' ? JSON.stringify(v) : v)))
+    .filter(Boolean)
     .join(' ');
-  const wrong = ev.type === 'answer' && !ev.correct ? ' wrong' : '';
+  const wrong = ev.event_type === 'answer' && !data.is_correct ? ' wrong' : '';
   const row = document.createElement('div');
-  row.className = 'e-' + ev.type + wrong;
-  row.innerHTML = `<time>${time}</time><b>${ev.type}</b><em>${detail}</em>`;
+  row.className = 'e-' + ev.event_type + wrong;
+  row.innerHTML = `<time>${time}</time><b>${ev.event_type}</b><em>${detail}</em>`;
   box.prepend(row);
   while (box.childElementCount > 200) box.lastElementChild.remove();
 }
@@ -351,8 +370,8 @@ $('b-start').onclick = () => game.play();
 $('b-level').onclick = () => game.nextLevel();
 $('b-right').onclick = () => game.answer(true);
 $('b-wrong').onclick = () => game.answer(false);
-$('b-hint').onclick = () => LUKO.hint(DEMO.topic);
-$('b-mistake').onclick = () => LUKO.mistake({ what: 'demo-slip' });
+$('b-hint').onclick = () => LUKO.hint(DEMO.concept);
+$('b-mistake').onclick = () => LUKO.mistake({ concept: DEMO.concept, errorType: 'timeout', reason: 'clock-ran-out' });
 $('b-lvlok').onclick = () => LUKO.levelComplete({ score: 25 });
 $('b-lvlfail').onclick = () => LUKO.levelFailed({ reason: 'timeout' });
 $('b-pause').onclick = () => LUKO.pause('manual');

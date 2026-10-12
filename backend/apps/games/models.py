@@ -170,10 +170,52 @@ class SeasonMemory(TimeStampedModel):
         return f"Memory<{self.user}:{self.season_id}/{self.spot_id}>"
 
 
+#: نوعِ خطا در پاسخِ غلط — تیمِ طراحی برای هر گزینه‌ی غلط تعیین می‌کند (راهنما: docs/event-tracking-guide.md)
+ERROR_TYPES = {
+    "conceptual": "مفهومی",          # مفهوم را درست نفهمیده
+    "procedural": "روش و محاسبه",     # مفهوم را دارد، در انجام اشتباه کرده
+    "careless": "بی‌دقتی",            # عجله یا حواس‌پرتی
+    "timeout": "تمام‌شدنِ وقت",
+    "other": "دیگر",
+}
+
+
+class ConceptTag(TimeStampedModel):
+    """
+    تگِ آموزشی — کوچک‌ترین مفهومی که یک سؤالِ بازی می‌سنجد (مثلِ `addition_2digit`).
+
+    تیمِ طراحی تگ را این‌جا (داشبورد ← تگ‌های آموزشی) تعریف می‌کند، تیمِ بازی‌ساز
+    همان `code` را روی هر پاسخ می‌فرستد، و پنلِ والدین با `title` نشانش می‌دهد. تگی
+    که بازی بفرستد ولی این‌جا نباشد ذخیره می‌شود ولی به والد نشان داده نمی‌شود.
+    """
+
+    code = models.CharField(max_length=64, unique=True, verbose_name="کد",
+                            help_text="انگلیسی، با حروفِ کوچک، رقم، _ یا - (مثلِ addition_2digit)")
+    title = models.CharField(max_length=80, verbose_name="عنوان برای والدین")
+    subject = models.CharField(max_length=20, blank=True, verbose_name="درس",
+                               help_text="math، science، quran، writing، art یا farsi")
+    grade = models.PositiveSmallIntegerField(null=True, blank=True, choices=GRADE_CHOICES,
+                                             verbose_name="پایه")
+    description = models.TextField(blank=True, verbose_name="توضیح برای تیمِ بازی‌سازی")
+    is_active = models.BooleanField(default=True, verbose_name="فعال")
+
+    class Meta:
+        verbose_name = "تگِ آموزشی"
+        verbose_name_plural = "تگ‌های آموزشی"
+        ordering = ["grade", "subject", "code"]
+
+    def __str__(self):
+        return f"{self.code} — {self.title}"
+
+
 class GameEvent(TimeStampedModel):
     """
-    رویدادهای داخل بازی برای تحلیلِ آینده (با LLM خودمان): شروع، پایان، خطا،
-    زمان، امتیاز و... . payload به‌صورت JSONB نگه داشته می‌شود.
+    هر اتفاقِ داخلِ بازی (پاسخ، راهنما، شروع و پایانِ مرحله و جلسه). قرارداد:
+    docs/event-tracking-guide.md — نسخه‌ی ۳.
+
+    ستون‌ها همان چیزهایی‌اند که گزارشِ والدین رویشان جمع می‌زند (تگ، درستی، زمان،
+    تلاش، نوعِ خطا، مدتِ جلسه)؛ بقیه‌ی داده‌ی خام در `payload` می‌ماند. ردیف‌های
+    قبل از نسخه‌ی ۳ از روی payloadشان پر شده‌اند (مهاجرتِ 0011).
     """
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
@@ -182,13 +224,40 @@ class GameEvent(TimeStampedModel):
     event_type = models.CharField(max_length=40, db_index=True, verbose_name="نوع رویداد")
     payload = models.JSONField(default=dict, blank=True, verbose_name="داده رویداد")
 
+    #: شناسه‌ی یکتای رویداد که خودِ بازی می‌سازد؛ ارسالِ دوباره‌ی همان رویداد ذخیره نمی‌شود
+    event_id = models.UUIDField(null=True, blank=True, unique=True, verbose_name="شناسه رویداد")
+    session_id = models.CharField(max_length=64, blank=True, db_index=True, verbose_name="جلسه")
+    #: زمانِ واقعیِ رویداد در دستگاهِ بچه (رویدادِ آفلاین دیرتر می‌رسد)؛ created_at زمانِ رسیدن است
+    occurred_at = models.DateTimeField(null=True, blank=True, verbose_name="زمان رویداد")
+    schema_version = models.PositiveSmallIntegerField(default=2, verbose_name="نسخه قرارداد")
+    concept_tag = models.CharField(max_length=64, blank=True, verbose_name="تگ آموزشی")
+    level = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name="مرحله")
+    is_correct = models.BooleanField(null=True, blank=True, verbose_name="درست")
+    time_taken_ms = models.PositiveIntegerField(null=True, blank=True, verbose_name="زمان پاسخ (ms)")
+    attempt_number = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name="شماره تلاش")
+    error_type = models.CharField(max_length=16, blank=True, verbose_name="نوع خطا",
+                                  choices=list(ERROR_TYPES.items()))
+    hint_used = models.BooleanField(null=True, blank=True, verbose_name="با راهنما")
+    #: مدتِ فعال (بی‌مکث) برای رویدادهای پایانِ جلسه یا مرحله
+    duration_ms = models.PositiveIntegerField(null=True, blank=True, verbose_name="مدت فعال (ms)")
+
     class Meta:
         verbose_name = "رویداد بازی"
         verbose_name_plural = "رویدادهای بازی"
-        indexes = [models.Index(fields=["user", "created_at"])]
+        indexes = [
+            models.Index(fields=["user", "created_at"]),
+            models.Index(fields=["user", "event_type", "occurred_at"], name="gameevent_user_type_at"),
+            models.Index(fields=["user", "concept_tag", "occurred_at"], name="gameevent_user_concept_at"),
+        ]
 
     def __str__(self):
         return f"{self.game_slug}:{self.event_type}"
+
+    def save(self, *args, **kwargs):
+        if self.occurred_at is None:
+            from .telemetry import fill_columns     # telemetry خودش این مدل را می‌شناسد
+            fill_columns(self)
+        super().save(*args, **kwargs)
 
 
 # باطل‌سازیِ کشِ کاتالوگ و مسیر. بدونِ این، ویرایشِ ادمین تا یک ساعت دیده نمی‌شد.

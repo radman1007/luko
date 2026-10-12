@@ -128,7 +128,9 @@ PLAYING / LEVEL_ENDED ──gameOver()──▶ GAME_OVER   ──▶ luko-game-
 LUKO.init({ gameId, gameType, totalLevels })   // معرفی → READY
 LUKO.startGame()                               // منو → بازی
 LUKO.startLevel(index, { id, title })          // شروعِ مرحله
-LUKO.answer({ topic, topicLabel, correct, ms, attempt, hintUsed, given, expected })
+LUKO.question(id, { concept })   // نسخه‌ی ۳: ساعتِ پاسخ و تگِ پیش‌فرض
+LUKO.answer({ concept, questionId, correct, errorType, timeMs, attempt, hintUsed, given, expected })
+// شکلِ رویدادها و قدم‌به‌قدمِ تیم‌ها: docs/event-tracking-guide.md (topic و ms نام‌های قدیمیِ concept و timeMs‌اند)
 LUKO.hint(topic)
 LUKO.mistake({ ... })                          // خطای غیرِپاسخ
 LUKO.addScore(points)

@@ -23,6 +23,7 @@ import { Card } from '../shell/Card';
 import { WeekChart } from '../charts/WeekChart';
 import { TrendChart } from '../charts/TrendChart';
 import { HoursChart } from '../charts/HoursChart';
+import { ConceptLearningCard } from './ConceptLearningCard';
 import styles from './DashboardView.module.css';
 
 interface Props {
@@ -318,6 +319,8 @@ export function DashboardView({ report, analysis, childName, onGoDaily }: Props)
           </>
         )}
       </Card>
+
+      <ConceptLearningCard learning={report.learning} />
 
       <Card
         icon={HiOutlineClock}

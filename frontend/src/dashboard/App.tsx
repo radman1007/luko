@@ -17,6 +17,7 @@ import { NoticesPage } from './pages/notices/NoticesPage';
 import { OverviewPage } from './pages/OverviewPage';
 import { PaymentsPage } from './pages/PaymentsPage';
 import { PodcastsPage } from './pages/podcasts/PodcastsPage';
+import { ConceptsPage } from './pages/concepts/ConceptsPage';
 import { StaffPage } from './pages/staff/StaffPage';
 import { TicketDetailPage } from './pages/tickets/TicketDetailPage';
 import { TicketsPage } from './pages/tickets/TicketsPage';
@@ -56,6 +57,7 @@ function Routed() {
         <Route path="/tickets" element={<Guard need="tickets"><TicketsPage /></Guard>} />
         <Route path="/tickets/:id" element={<Guard need="tickets"><TicketDetailPage /></Guard>} />
         <Route path="/podcasts" element={<Guard need="podcasts"><PodcastsPage /></Guard>} />
+        <Route path="/concepts" element={<Guard need="concepts"><ConceptsPage /></Guard>} />
         <Route path="/blog" element={<Guard need="blog"><BlogPage /></Guard>} />
         <Route path="/blog/:id" element={<Guard need="blog"><BlogEditorPage /></Guard>} />
         <Route path="/notices" element={<Guard need="notify"><NoticesPage /></Guard>} />

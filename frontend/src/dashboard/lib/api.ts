@@ -44,6 +44,8 @@ export async function getData<T>(url: string, params?: object): Promise<T> {
 }
 
 export async function send<T>(method: 'post' | 'patch' | 'delete', url: string, body?: unknown): Promise<T> {
+  // نشستی که از پنلِ جنگو آمده یا کوکی‌اش پاک شده ممکن است csrftoken نداشته باشد؛ بی‌آن هر ذخیره ۴۰۳ می‌شد
+  await ensureCsrf();
   const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
   const { data } = await api.request({
     method,

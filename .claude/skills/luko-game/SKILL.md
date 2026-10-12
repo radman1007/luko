@@ -45,8 +45,13 @@ implementation in `_reference/base-game.html`:
 
 - `luko-game-event` on each interaction, `luko-game-complete` once on win,
   `luko-game-progress` on `pagehide` when the child quits mid-way.
-- The `answer` event carries `correct / given / expected / ms / attempt / hintUsed / tier`
-  — the columns the parent report is built from. Log wrong answers, hints and idle gaps;
+- Contract is **v3** — read [docs/event-tracking-guide.md](../../../docs/event-tracking-guide.md)
+  (schema: `docs/telemetry/game-event.schema.json`, enforced by `sdkContract.test.ts`).
+- Every question: `LUKO.question(id, { concept })`; every answer:
+  `LUKO.answer({ concept, questionId, correct, errorType, given, expected })`. `concept` is a
+  tag the design team registered in dashboard → تگ‌های آموزشی; `questionId` lets the SDK count
+  attempts (first-try rate); `errorType` ∈ conceptual/procedural/careless/timeout/other.
+  Log wrong answers, hints and idle gaps;
   they are the most useful signals, not noise.
 - `summary` carries accuracy, avg/median answer time, per-round records, and adaptive
   difficulty tier. Never send names or free text — only numbers and enum-ish strings.

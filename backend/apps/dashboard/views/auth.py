@@ -12,6 +12,7 @@ from apps.billing.models import Plan
 from apps.common.admin_site import client_ip
 from apps.common.constants import GRADE_CHOICES
 from apps.content.models import Podcast
+from apps.games.naming import BOOKS
 
 from .. import audit, capabilities, login_flow
 from ..payloads import full_name
@@ -134,4 +135,5 @@ class MetaView(DashboardView):
             "podcast_categories": sorted(set(Podcast.SUGGESTED_CATEGORIES)
                                          | set(Podcast.objects.values_list("category", flat=True))),
             "audit_actions": [{"value": k, "label": v} for k, v in audit.ACTIONS.items()],
+            "concept_subjects": [{"value": book.slug, "label": book.name} for book in BOOKS.values()],
         })

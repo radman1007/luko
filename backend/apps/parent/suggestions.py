@@ -12,6 +12,7 @@ from __future__ import annotations
 from collections import defaultdict
 
 from django.core.cache import cache
+from django.db.models import Count, Q
 from django.utils import timezone
 
 from apps.common import cache as cache_keys
@@ -19,7 +20,7 @@ from apps.common import cache as cache_utils
 from apps.common.fa import fa_digits
 from apps.games.models import Book, Game, GameCompletion, GameEvent
 
-from .services import TOPIC_LABELS
+from .learning import concept_tags
 
 SUGGESTION_COUNT = 4
 DEFAULT_MINUTES = 7
@@ -40,14 +41,12 @@ def topics_by_game() -> dict[str, set[str]]:
 
     mapping: dict[str, set[str]] = defaultdict(set)
     rows = (
-        GameEvent.objects.filter(event_type="answer")
+        GameEvent.objects.filter(event_type="answer").exclude(concept_tag="")
         .order_by("-id")
-        .values_list("game_slug", "payload")[:TOPIC_SAMPLE]
+        .values_list("game_slug", "concept_tag")[:TOPIC_SAMPLE]
     )
-    for slug, payload in rows:
-        topic = (payload or {}).get("topic") if isinstance(payload, dict) else None
-        if topic:
-            mapping[slug].add(topic)
+    for slug, tag in rows:
+        mapping[slug].add(tag)
 
     cache.set(
         cache_keys.game_topics_key(),
@@ -57,27 +56,17 @@ def topics_by_game() -> dict[str, set[str]]:
     return mapping
 
 
-def _payload(event: GameEvent) -> dict:
-    return event.payload if isinstance(event.payload, dict) else {}
-
-
-def _weakest_topic(child) -> tuple[str, int] | None:
-    """مبحثی که کمترین دقت را دارد (دستِ‌کم ۱۰ پاسخ تا نویز نباشد)."""
-    buckets: dict[str, dict[str, int]] = defaultdict(lambda: {"asked": 0, "correct": 0})
-    answers = GameEvent.objects.filter(user=child, event_type="answer")
-    for event in answers:
-        payload = _payload(event)
-        topic = payload.get("topic")
-        if not topic:
-            continue
-        buckets[topic]["asked"] += 1
-        if payload.get("correct"):
-            buckets[topic]["correct"] += 1
-
+def _weakest_topic(child, tags) -> tuple[str, int] | None:
+    """تگِ آموزشیِ ثبت‌شده با کمترین دقت (دستِ‌کم ۱۰ پاسخ تا نویز نباشد)."""
+    rows = (
+        GameEvent.objects.filter(user=child, event_type="answer", concept_tag__in=list(tags))
+        .values("concept_tag")
+        .annotate(asked=Count("id"), correct=Count("id", filter=Q(is_correct=True)))
+    )
     ranked = [
-        (topic, round(data["correct"] / data["asked"] * 100))
-        for topic, data in buckets.items()
-        if data["asked"] >= 10
+        (row["concept_tag"], round(row["correct"] / row["asked"] * 100))
+        for row in rows
+        if row["asked"] >= 10
     ]
     if not ranked:
         return None
@@ -86,16 +75,12 @@ def _weakest_topic(child) -> tuple[str, int] | None:
 
 
 def _accuracy_by_game(child) -> dict[str, int]:
-    buckets: dict[str, dict[str, int]] = defaultdict(lambda: {"asked": 0, "correct": 0})
-    for event in GameEvent.objects.filter(user=child, event_type="answer"):
-        buckets[event.game_slug]["asked"] += 1
-        if _payload(event).get("correct"):
-            buckets[event.game_slug]["correct"] += 1
-    return {
-        slug: round(data["correct"] / data["asked"] * 100)
-        for slug, data in buckets.items()
-        if data["asked"]
-    }
+    rows = (
+        GameEvent.objects.filter(user=child, event_type="answer")
+        .values("game_slug")
+        .annotate(asked=Count("id"), correct=Count("id", filter=Q(is_correct=True)))
+    )
+    return {row["game_slug"]: round(row["correct"] / row["asked"] * 100) for row in rows if row["asked"]}
 
 
 def _minutes(game: Game) -> int:
@@ -112,9 +97,10 @@ def suggest_games(child, limit: int = SUGGESTION_COUNT) -> list[dict]:
     books = {b.book_id: b for b in Book.objects.all()}
     done = {c.game_slug for c in GameCompletion.objects.filter(user=child)}
     accuracy = _accuracy_by_game(child)
-    weakest = _weakest_topic(child)
+    tags = concept_tags()
+    weakest = _weakest_topic(child, tags)
     weak_topic = weakest[0] if weakest else None
-    weak_label = TOPIC_LABELS.get(weak_topic, weak_topic) if weak_topic else None
+    weak_label = tags[weak_topic].title if weak_topic else None
 
     topics_of_game = topics_by_game()
 

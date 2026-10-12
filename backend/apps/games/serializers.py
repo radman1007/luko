@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Book, Game, GameEvent, SeasonMemory
+from .models import Book, Game, SeasonMemory
 
 
 class GameSerializer(serializers.ModelSerializer):
@@ -8,12 +8,6 @@ class GameSerializer(serializers.ModelSerializer):
         model = Game
         fields = ["slug", "title", "book_id", "order", "coin_reward",
                   "dew_reward", "fertilizer_reward", "max_stars", "is_active"]
-
-
-class GameEventSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GameEvent
-        fields = ["game_slug", "event_type", "payload"]
 
 
 class BookSerializer(serializers.ModelSerializer):

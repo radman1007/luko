@@ -55,7 +55,7 @@ class ReportTests(TestCase):
         self.assertEqual(
             set(report),
             {"childId", "answersThisWeek", "kpis", "week", "accuracyTrend", "subjects",
-             "games", "moods", "insights", "wellbeing", "hourly", "sessions", "topics"},
+             "games", "moods", "insights", "wellbeing", "hourly", "sessions", "topics", "learning"},
         )
 
     def test_minutes_come_from_camelcase_payload(self):

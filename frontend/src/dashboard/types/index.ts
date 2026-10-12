@@ -2,7 +2,7 @@
 
 export type Capability =
   | 'stats' | 'users_view' | 'users_edit' | 'payments' | 'gifts' | 'tickets'
-  | 'podcasts' | 'blog' | 'notify' | 'audit';
+  | 'podcasts' | 'blog' | 'concepts' | 'notify' | 'audit';
 
 export interface Me {
   id: number;
@@ -29,6 +29,7 @@ export interface Meta {
   podcastIcons: Option[];
   podcastCategories: string[];
   auditActions: Option[];
+  conceptSubjects: Option[];
 }
 
 export interface Paged<T> {
@@ -279,4 +280,28 @@ export interface AuditRow {
   details: Record<string, unknown>;
   ip: string;
   at: string;
+}
+
+/** تگِ آموزشی (داشبورد ← تگ‌های آموزشی) با آمارِ ۳۰ روزِ اخیر */
+export interface ConceptRow {
+  id: number;
+  code: string;
+  title: string;
+  subject: string;
+  subjectLabel: string;
+  grade: number | null;
+  description: string;
+  isActive: boolean;
+  answers: number;
+  errors: number;
+  games: number;
+}
+
+/** کدی که بازی‌ها فرستاده‌اند ولی ثبت نشده */
+export interface UnknownConcept {
+  code: string;
+  count: number;
+  games: number;
+  exampleGame: string;
+  lastSeenFa: string;
 }

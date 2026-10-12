@@ -1,5 +1,8 @@
 /**
- * LUKO Game SDK v2 — چرخهٔ عمرِ مشترکِ همهٔ بازی‌ها.
+ * LUKO Game SDK v3 — چرخهٔ عمرِ مشترکِ همهٔ بازی‌ها و قراردادِ ثبتِ رویداد.
+ *
+ * راهنمای ساده برای تیم‌های طراحی و بازی‌سازی: docs/event-tracking-guide.md
+ * (شکلِ JSONِ هر رویداد: docs/telemetry/game-event.schema.json)
  *
  * ------------------------------------------------------------------
  * چرا این لایه هست
@@ -46,9 +49,10 @@
  *   LUKO.init({ gameType, totalLevels })   معرفیِ بازی  → READY
  *   LUKO.startGame()                       منو → بازی    → PLAYING
  *   LUKO.startLevel(index, meta)           شروعِ مرحله
- *   LUKO.answer({ topic, correct, ms })    هر پاسخ
- *   LUKO.hint(topic)                       راهنمایی گرفت
- *   LUKO.mistake(info)                     خطایی که پاسخ نیست
+ *   LUKO.question(id, { concept })         سؤال نشان داده شد (ساعتِ پاسخ از این‌جا)
+ *   LUKO.answer({ concept, correct, questionId, errorType })   هر پاسخ
+ *   LUKO.hint(concept)                     راهنمایی گرفت
+ *   LUKO.mistake({ concept, errorType })   خطایی که پاسخ نیست
  *   LUKO.levelComplete({ score })          مرحله برده شد
  *   LUKO.levelFailed({ reason })           مرحله باخته شد (قابلِ تکرار)
  *   LUKO.pause() / LUKO.resume()           ساعت
@@ -60,9 +64,36 @@
 (function () {
   'use strict';
 
-  var SCHEMA = 2;
+  var SCHEMA = 3;
   /** بی‌حرکتیِ بیش از این، «رهاکردن» حساب می‌شود */
   var IDLE_MS = 30000;
+  /** نوع‌های مجازِ خطا — همان فهرستِ سرور (apps/games/models.py: ERROR_TYPES) */
+  var ERROR_TYPES = ['conceptual', 'procedural', 'careless', 'timeout', 'other'];
+  /** شکلِ کدِ تگِ آموزشی: انگلیسیِ کوچک، رقم، _ و - */
+  var TAG_RE = /^[a-z][a-z0-9_-]{0,63}$/;
+  /** با ?debug=1 هر رویداد در کنسول می‌آید و رویدادِ ناقص هشدار می‌گیرد */
+  var DEBUG = /[?&]debug=1(&|$)/.test(location.search);
+
+  /** شناسه‌ی یکتای رویداد/جلسه؛ سرور با آن ارسالِ دوباره را یک‌بار ثبت می‌کند */
+  function uuid() {
+    try {
+      if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+    } catch { /* محیطِ ناامن (file://) */ }
+    var b = new Uint8Array(16);
+    try { window.crypto.getRandomValues(b); } catch { for (var i = 0; i < 16; i++) b[i] = Math.floor(Math.random() * 256); }
+    b[6] = (b[6] & 0x0f) | 0x40;
+    b[8] = (b[8] & 0x3f) | 0x80;
+    var h = [];
+    for (var j = 0; j < 16; j++) h.push((b[j] + 0x100).toString(16).slice(1));
+    return h.slice(0, 4).join('') + '-' + h.slice(4, 6).join('') + '-' + h.slice(6, 8).join('') + '-' +
+      h.slice(8, 10).join('') + '-' + h.slice(10).join('');
+  }
+
+  /** عدد یا undefined */
+  function num(value) {
+    var n = typeof value === 'number' ? value : (typeof value === 'string' && value.trim() ? Number(value) : NaN);
+    return isFinite(n) ? n : undefined;
+  }
 
   var STATE = {
     CREATED: 'CREATED',
@@ -97,7 +128,7 @@
     return decodeURIComponent(name);
   })();
 
-  var sessionId = 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  var sessionId = 's-' + uuid();
 
   function post(type, body) {
     try {
@@ -195,7 +226,11 @@
     levels: [],               // یک ردیف به‌ازای هر مرحلهٔ شروع‌شده
     clock: new Clock(),
     totals: new Stats(),
-    topics: {},
+    topics: {},               // آمارِ هر تگِ آموزشی (نامِ قدیمی: topic)
+    concept: '',              // تگِ پیش‌فرضِ پاسخ‌های بعدی (از question/startLevel)
+    questions: {},            // questionId → زمانِ نمایش یا آخرین تلاش
+    attempts: {},             // questionId → چند بار پاسخ داده
+    questionAt: Date.now(),   // ساعتِ پاسخِ بعدی وقتی بازی questionId نمی‌دهد
     idlePeriods: 0,
     lastActivity: Date.now(),
     finalized: false,
@@ -239,22 +274,67 @@
   // Events — یک شکلِ واحد برای همهٔ رویدادها
   // ==================================================================
   /**
-   * هر رویداد این چهار چیز را همیشه دارد: کِی، در چه حالتی، در چه
-   * مرحله‌ای، و امتیازِ آن لحظه. تحلیلِ پنل والدین روی همین‌ها بسته
-   * می‌شود؛ رویدادِ بی‌زمینه بعداً قابلِ تحلیل نیست.
+   * یک شکلِ واحد برای همه‌ی رویدادها — قراردادِ نسخه‌ی ۳ (docs/event-tracking-guide.md):
+   *
+   *   { schema_version, event_id, session_id, event_type, concept_tag, timestamp, level, data }
+   *
+   * `user_id` و `game_id` این‌جا نیستند: کاربر را سرور از نشست می‌شناسد و شناسه‌ی بازی را
+   * صفحه‌ی بازیِ سایت می‌گذارد؛ بازی نمی‌تواند به‌جای کسِ دیگری رویداد بفرستد.
+   * `data` همیشه زمینه را هم دارد (حالت، شناسه‌ی مرحله، امتیاز) تا رویداد بعداً تحلیل‌پذیر باشد.
    */
-  function emit(type, data) {
+  function emit(type, data, concept) {
     var lvl = activeLevel();
+    var body = { status: S.status, level_id: lvl ? lvl.id : null, score: S.totals.score };
+    for (var k in data) {
+      if (Object.prototype.hasOwnProperty.call(data, k) && typeof data[k] !== 'undefined') body[k] = data[k];
+    }
     var e = {
-      type: type,
-      at: new Date().toISOString(),
-      status: S.status,
+      schema_version: SCHEMA,
+      event_id: uuid(),
+      session_id: S.sessionId,
+      event_type: type,
+      concept_tag: concept ? String(concept).toLowerCase() : '',
+      timestamp: Date.now(),
       level: S.currentLevel || null,
-      levelId: lvl ? lvl.id : null,
-      score: S.totals.score,
+      data: body,
     };
-    for (var k in data) if (Object.prototype.hasOwnProperty.call(data, k)) e[k] = data[k];
+    if (DEBUG) inspect(e);
     post('luko-game-event', { event: e });
+  }
+
+  /** حالتِ ?debug=1: هر رویداد در کنسول، و هشدار برای چیزی که پنلِ والدین را خالی می‌گذارد */
+  function inspect(e) {
+    var warn = [];
+    if (e.event_type === 'answer') {
+      if (!e.concept_tag) warn.push('concept_tag خالی است — این پاسخ در «مفهوم‌ها»ی پنلِ والدین دیده نمی‌شود');
+      if (e.data.attempt_number === undefined) warn.push('شماره‌ی تلاش معلوم نیست — questionId یا attempt بدهید تا «اولین تلاش» حساب شود');
+    }
+    if (e.concept_tag && !TAG_RE.test(e.concept_tag)) warn.push('concept_tag فقط انگلیسیِ کوچک، رقم، _ و - (مثلِ addition_2digit)');
+    if (e.data.error_type !== undefined && ERROR_TYPES.indexOf(e.data.error_type) === -1) {
+      warn.push('error_type یکی از این‌هاست: ' + ERROR_TYPES.join('، '));
+    }
+    try {
+      console.log('[LUKO]', e.event_type, e.concept_tag || '', e.data);
+    } catch { /* کنسولی نیست */ }
+    for (var i = 0; i < warn.length; i++) debugWarn(e.event_type, warn[i]);
+  }
+
+  function debugWarn(type, message) {
+    try { console.warn('[LUKO] ' + type + ': ' + message); } catch { /* کنسولی نیست */ }
+  }
+
+  /**
+   * ورودیِ خودِ بازی، پیش از هر تبدیل — رشته‌ی "false" با !! درست حساب می‌شد و
+   * نوعِ خطای غلط بی‌صدا دور ریخته می‌شد؛ تیمِ بازی‌ساز باید همان‌جا ببیند.
+   */
+  function checkInput(type, data) {
+    if (!DEBUG) return;
+    if (type === 'answer' && typeof data.correct !== 'boolean') {
+      debugWarn(type, 'correct باید true یا false باشد (رشته‌ی "false" درست حساب می‌شود) — آمد: ' + JSON.stringify(data.correct));
+    }
+    if (data.errorType !== undefined && ERROR_TYPES.indexOf(data.errorType) === -1) {
+      debugWarn(type, 'errorType یکی از این‌هاست: ' + ERROR_TYPES.join('، ') + ' — آمد: ' + JSON.stringify(data.errorType));
+    }
   }
 
   /**
@@ -272,14 +352,14 @@
     if (S.declared || S.startEmitted || TERMINAL[S.status]) return;
     S.startEmitted = true;
     if (S.status === STATE.CREATED) S.status = STATE.PLAYING;
-    emit('game_start', { at: new Date().toISOString(), legacy: true });
+    emit('game_start', { legacy: true });
   }
 
   function touch() {
     var now = Date.now();
     if (now - S.lastActivity > IDLE_MS) {
       S.idlePeriods++;
-      emit('idle', { ms: now - S.lastActivity });
+      emit('idle', { idle_ms: now - S.lastActivity });
     }
     S.lastActivity = now;
   }
@@ -309,7 +389,7 @@
     });
   }
 
-  function topicRows() {
+  function topicRows() {     // نامِ قدیمی؛ کلیدها همان تگ‌های آموزشی‌اند
     var out = {};
     for (var key in S.topics) {
       var t = S.topics[key];
@@ -384,7 +464,9 @@
     };
     S.levels.push(lvl);
     S.currentLevel = index;
-    emit('level_start', { index: index, id: lvl.id, title: lvl.title });
+    if (meta.concept) S.concept = meta.concept;
+    S.questionAt = Date.now();
+    emit('level_start', { index: index, id: lvl.id, title: lvl.title }, meta.concept);
     notify();
     return lvl;
   }
@@ -403,8 +485,8 @@
       index: lvl.index,
       id: lvl.id,
       result: status,
-      durationMs: lvl.clock.activeMs(),
-      levelScore: lvl.stats.score,
+      duration_ms: lvl.clock.activeMs(),
+      level_score: lvl.stats.score,
       asked: lvl.stats.asked,
       correct: lvl.stats.correct,
       mistakes: lvl.stats.mistakes,
@@ -435,7 +517,7 @@
     payload.completed = won;
     if (!won) payload.abandoned = S.status === STATE.ABANDONED;
 
-    emit('results_finalized', { result: S.status, durationMs: payload.durationMs, score: payload.score });
+    emit('results_finalized', { result: S.status, duration_ms: payload.activeMs, score: payload.score });
     post(won ? 'luko-game-complete' : 'luko-game-progress', { summary: payload });
     notify();
   }
@@ -500,14 +582,51 @@
       return LUKO;
     },
 
-    /** هر پاسخِ بچه — قلبِ گزارشِ والدین */
+    /**
+     * سؤال نشان داده شد. اختیاری ولی خوب: زمانِ پاسخ از همین لحظه حساب می‌شود و
+     * `concept` تگِ پیش‌فرضِ پاسخ‌های همین سؤال می‌شود.
+     */
+    question: function (id, meta) {
+      meta = meta || {};
+      var now = Date.now();
+      if (id !== undefined && id !== null) S.questions[String(id)] = now;
+      if (meta.concept) S.concept = meta.concept;
+      S.questionAt = now;
+      return LUKO;
+    },
+
+    /**
+     * هر پاسخِ بچه — قلبِ گزارشِ والدین.
+     *
+     *   concept     تگِ آموزشی (کدی که تیمِ طراحی داده)؛ `topic` نامِ قدیمیِ همین است
+     *   correct     درست بود یا نه
+     *   questionId  شناسه‌ی سؤال در خودِ بازی؛ با آن SDK شماره‌ی تلاش را خودش می‌شمارد
+     *   attempt     اگر بازی خودش تلاش را می‌شمارد
+     *   errorType   فقط برای پاسخِ غلط: conceptual | procedural | careless | timeout | other
+     *   timeMs      اگر بازی خودش زمان را دارد (نامِ قدیمی: ms)؛ وگرنه از question() یا پاسخِ قبلی
+     *   hintUsed, given, expected, tier   اختیاری
+     */
     answer: function (data) {
       data = data || {};
+      checkInput('answer', data);
       ensureStarted();
+      var now = Date.now();
+      var qid = data.questionId !== undefined && data.questionId !== null ? String(data.questionId) : '';
+      // زمان پیش از touch() گرفته می‌شود؛ نسخه‌ی ۲ بعدش می‌گرفت و همیشه صفر می‌شد
+      var shownAt = (qid && S.questions[qid]) || S.questionAt || S.lastActivity;
+      var ms = num(data.timeMs !== undefined ? data.timeMs : data.ms);
+      if (ms === undefined) ms = Math.max(0, now - shownAt);
       touch();
-      var ms = typeof data.ms === 'number' ? data.ms : (Date.now() - S.lastActivity);
-      var topic = data.topic || 'general';
+
+      var concept = data.concept || data.topic || S.concept || '';
       var correct = !!data.correct;
+      var attempt = num(data.attempt);
+      if (qid) {
+        S.attempts[qid] = attempt !== undefined ? attempt : (S.attempts[qid] || 0) + 1;
+        attempt = S.attempts[qid];
+        S.questions[qid] = now;          // تلاشِ بعدیِ همین سؤال از همین لحظه
+      }
+      S.questionAt = now;
       var lvl = activeLevel();
 
       // `mistakes` فقط خطای غیرِپاسخ است (تیله افتاد، وقت تمام شد).
@@ -516,56 +635,65 @@
       [S.totals, lvl && lvl.stats].forEach(function (st) {
         if (!st) return;
         st.asked++;
-        st.attempts += data.attempt || 1;
+        st.attempts++;
         if (correct) st.correct++;
         st.totalAnswerMs += ms;
         st.answerTimes.push(ms);
       });
 
-      if (!S.topics[topic]) {
-        S.topics[topic] = { label: data.topicLabel || topic, asked: 0, correct: 0, ms: 0, hints: 0 };
+      var key = concept || 'general';
+      if (!S.topics[key]) {
+        S.topics[key] = { label: data.conceptLabel || data.topicLabel || key, asked: 0, correct: 0, ms: 0, hints: 0 };
       }
-      var t = S.topics[topic];
+      var t = S.topics[key];
       t.asked++;
       t.ms += ms;
       if (correct) t.correct++;
 
       emit('answer', {
-        topic: topic,
-        correct: correct,
-        ms: ms,
-        attempt: data.attempt || 1,
-        hintUsed: !!data.hintUsed,
+        is_correct: correct,
+        time_taken_ms: Math.round(ms),
+        attempt_number: attempt,
+        error_type: !correct && ERROR_TYPES.indexOf(data.errorType) !== -1 ? data.errorType : undefined,
+        hint_used: !!data.hintUsed,
+        question_id: qid || undefined,
         tier: typeof data.tier !== 'undefined' ? data.tier : S.currentLevel,
         given: data.given,
         expected: data.expected,
-      });
+      }, concept);
       notify();
       return LUKO;
     },
 
     /** بچه راهنمایی خواست — نشانهٔ «مفهوم را کامل نگرفته» */
-    hint: function (topic) {
+    hint: function (concept) {
       ensureStarted();
       touch();
       var lvl = activeLevel();
       S.totals.hints++;
       if (lvl) lvl.stats.hints++;
-      var key = topic || 'general';
+      var key = concept || S.concept || 'general';
       if (S.topics[key]) S.topics[key].hints++;
-      emit('hint', { topic: key });
+      emit('hint', {}, concept || S.concept);
       notify();
       return LUKO;
     },
 
     /** خطایی که پاسخ نیست — تیله افتاد، مسیر غلط رفت، وقت تمام شد */
     mistake: function (info) {
+      info = info || {};
+      checkInput('mistake', info);
       ensureStarted();
       touch();
       var lvl = activeLevel();
       S.totals.mistakes++;
       if (lvl) lvl.stats.mistakes++;
-      emit('mistake', info || {});
+      var data = {};
+      for (var k in info) {
+        if (Object.prototype.hasOwnProperty.call(info, k) && k !== 'concept' && k !== 'errorType') data[k] = info[k];
+      }
+      data.error_type = ERROR_TYPES.indexOf(info.errorType) !== -1 ? info.errorType : undefined;
+      emit('mistake', data, info.concept || S.concept);
       notify();
       return LUKO;
     },
@@ -682,9 +810,9 @@
     },
 
     /** رویدادِ دلخواهِ خودِ بازی */
-    event: function (type, data) {
+    event: function (type, data, concept) {
       touch();
-      emit(type, data || {});
+      emit(type, data || {}, concept);
       return LUKO;
     },
 
@@ -758,7 +886,7 @@
   // ==================================================================
   // چسبِ محیط
   // ==================================================================
-  emit('game_loaded', { at: new Date().toISOString() });
+  emit('game_loaded', {});
 
   /**
    * بازیِ نسخهٔ ۱ هیچ‌وقت `startGame` نمی‌زند؛ ساعتش باید از بارگذاری

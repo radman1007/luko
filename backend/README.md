@@ -47,7 +47,8 @@ celery -A config beat -l info --scheduler django_celery_beat.schedulers:Database
 | **سلامت** | `GET /moods/prompt` (هر ۳۰ دقیقه)، `POST /moods/checkin`، `POST,GET /paintings`، `GET,POST /secrets`, `DELETE /secrets/{id}` |
 | **کلاب** | `GET /club/summary`, `POST /club/missions/{id}/complete`, `POST /club/shop/{key}/redeem`, `POST /club/suggest` (معلم/والد) |
 | **باغچه** | `GET /garden/state`, `POST /garden/water|fertilize|plant`, `POST /garden/buy`, `GET /garden/shop` |
-| **بازی‌ها** | `GET /books` (کتاب‌ها + مراحل)، `GET /games`, `POST /games/{slug}/complete` (پاداشِ سمت‌سرور)، `POST /games/events` (تحلیل) |
+| **بازی‌ها** | `GET /books` (کتاب‌ها + مراحل)، `GET /games`, `POST /games/{slug}/complete` (پاداشِ سمت‌سرور)، `POST /games/events` (رویدادهای بازی، قراردادِ نسخه‌ی ۳: [`docs/event-tracking-guide.md`](../docs/event-tracking-guide.md)؛ فقط دانش‌آموز، تا ۲۰۰ در هر درخواست، یکتا با `eventId`) |
+| **تگ‌های آموزشی** | جدولِ `ConceptTag`؛ در داشبورد: `GET/POST <dashboard>/api/concepts`، `PATCH/DELETE concepts/{id}`، `GET concepts/unknown` (دسترسیِ `concepts`). گزارشِ والد: بخشِ `learning` در `GET /parent/children/{id}/report` |
 | **محتوا** | `GET /videos`, `POST /videos/{id}/interaction`, `GET /podcasts`, `POST /podcasts/{id}/listen`, `GET /traffic-rules`, `GET /recipes` |
 | **سلامت (ادامه)** | `GET,POST /breathing/sessions` |
 | **پنل والدین** | `GET,POST /parent/children`, `DELETE /parent/children/{id}`, `GET /parent/children/{id}/report` |

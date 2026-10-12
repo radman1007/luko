@@ -1,15 +1,15 @@
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, BasePermission
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from apps.parent.services import invalidate_child_report
 
 from .models import Book, Game, SeasonMemory
-from .serializers import (BookSerializer, GameEventSerializer, GameSerializer,
-                          SeasonMemorySerializer)
+from .serializers import BookSerializer, GameSerializer, SeasonMemorySerializer
+from .telemetry import MAX_BATCH, store_events
 from apps.common import cache
 from apps.common.constants import GRADE_CHOICES
 
@@ -133,20 +133,37 @@ class GamePlayLinkView(APIView):
         return Response({"url": sign(game.game_file)})
 
 
+class IsStudent(BasePermission):
+    message = "رویدادِ بازی فقط از حسابِ دانش‌آموز پذیرفته می‌شود."
+
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated and request.user.role == "student")
+
+
 class GameEventView(APIView):
     """
-    POST /games/events — ثبتِ رویدادهای داخل بازی برای تحلیل.
-    یک رویداد یا فهرستی از رویدادها می‌پذیرد.
+    POST /games/events — رویدادهای داخلِ بازی (قراردادِ نسخه‌ی ۳: docs/event-tracking-guide.md).
+
+    یک رویداد یا فهرستی تا MAX_BATCH. با یک INSERT ذخیره می‌شود تا بازی و سرور
+    هیچ‌کدام منتظر نمانند؛ رویدادِ خراب کنار می‌رود و بقیه ثبت می‌شوند.
     """
 
+    permission_classes = [IsStudent]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "game_events"
+
     def post(self, request):
-        many = isinstance(request.data, list)
-        serializer = GameEventSerializer(data=request.data, many=many)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
-        # گزارشِ والد از همین رویدادها ساخته می‌شود؛ پس کشِ آن باید بیفتد
-        invalidate_child_report(request.user.id)
-        return Response({"stored": len(serializer.data) if many else 1})
+        items = request.data if isinstance(request.data, list) else [request.data]
+        if len(items) > MAX_BATCH:
+            return Response(
+                {"error": {"code": 413, "message": f"در هر درخواست حداکثر {MAX_BATCH} رویداد."}},
+                status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            )
+        accepted, rejected = store_events(request.user, items)
+        if accepted:
+            # گزارشِ والد از همین رویدادها ساخته می‌شود؛ پس کشِ آن باید بیفتد
+            invalidate_child_report(request.user.id)
+        return Response({"stored": accepted, "rejected": rejected})
 
 
 class CompletedGamesView(APIView):

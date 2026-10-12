@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://my.luko.ir/schemas/game-event-v3.json",
+  "title": "LUKO game event (v3)",
+  "description": "One event a game sends to the LUKO site. Explained in Persian in docs/event-tracking-guide.md. The site adds user_id and game_id itself; a game must never send them.",
+  "type": "object",
+  "required": ["schema_version", "event_id", "session_id", "event_type", "timestamp", "data"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 3 },
+    "event_id": {
+      "description": "Unique id of this event (UUID v4). Lets the server ignore a re-send.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "session_id": {
+      "description": "One play of one game, from opening it to leaving. Same for every event of that play.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]{1,64}$"
+    },
+    "event_type": {
+      "description": "What happened. The core types are listed; a game may add its own in the same snake_case form.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{1,39}$",
+      "examples": ["game_loaded", "game_start", "level_start", "answer", "hint", "mistake", "level_end", "idle", "pause", "resume", "game_over", "results_finalized"]
+    },
+    "concept_tag": {
+      "description": "Educational tag code defined by the design team (dashboard → تگ‌های آموزشی). Required on answer, hint and mistake; empty string otherwise.",
+      "type": "string",
+      "pattern": "^([a-z][a-z0-9_-]{0,63})?$"
+    },
+    "timestamp": {
+      "description": "When it happened on the child's device: milliseconds since 1970-01-01 UTC.",
+      "type": "integer",
+      "minimum": 1600000000000
+    },
+    "level": {
+      "description": "Level number inside the game (1, 2, …), or null before the first level.",
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "data": {
+      "description": "Details. Standard keys are below; anything else is kept as raw data (numbers and short codes only — never names or free text).",
+      "type": "object",
+      "properties": {
+        "is_correct": { "type": "boolean", "description": "answer: was it right" },
+        "time_taken_ms": { "type": "integer", "minimum": 0, "description": "answer: thinking time in ms, from question shown (or previous attempt) to this answer" },
+        "attempt_number": { "type": "integer", "minimum": 1, "description": "answer: 1 for the first try at this question, 2 for the second, …" },
+        "error_type": {
+          "enum": ["conceptual", "procedural", "careless", "timeout", "other"],
+          "description": "wrong answer or mistake: why it was wrong, as decided by the design team for each wrong option"
+        },
+        "hint_used": { "type": "boolean", "description": "answer: a hint was shown before this answer" },
+        "question_id": { "type": "string", "description": "answer: the game's own id for the question" },
+        "duration_ms": { "type": "integer", "minimum": 0, "description": "level_end / results_finalized: active time (pauses excluded)" },
+        "status": { "type": "string", "description": "added by the SDK: game state at the moment" },
+        "level_id": { "type": ["string", "null"], "description": "added by the SDK: id of the running level" },
+        "score": { "type": "number", "description": "added by the SDK: score at the moment" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "event_type": { "const": "answer" } } },
+      "then": {
+        "required": ["concept_tag"],
+        "properties": {
+          "concept_tag": { "minLength": 1 },
+          "data": { "required": ["is_correct", "time_taken_ms"] }
+        }
+      }
+    }
+  ]
+}

@@ -97,6 +97,33 @@ const reportFor = (strong: boolean): ChildReport => ({
     { key: 'pattern', label: 'الگو', asked: strong ? 7 : 6, accuracy: strong ? 67 : 54, avgSeconds: 24 },
     { key: 'count', label: 'شمارش', asked: 6, accuracy: strong ? 83 : 69, avgSeconds: 16 },
   ],
+  learning: {
+    week: {
+      minutes: strong ? 45 : 28,
+      prevMinutes: strong ? 37 : 32,
+      answers: strong ? 21 : 17,
+      errors: strong ? 5 : 7,
+      firstTry: strong ? { asked: 14, correct: 11, rate: 79 } : { asked: 12, correct: 7, rate: 58 },
+    },
+    firstTry: strong ? { asked: 52, correct: 40, rate: 77 } : { asked: 41, correct: 25, rate: 61 },
+    concepts: [
+      {
+        tag: 'pattern', label: 'الگو', subject: 'math', answers: strong ? 7 : 6, errors: strong ? 2 : 3,
+        accuracy: strong ? 71 : 50, firstTryAsked: 5, firstTryRate: strong ? 60 : 40, avgSeconds: 24, hints: 2,
+        errorTypes: [{ key: 'conceptual', label: 'مفهومی', count: 2 }],
+      },
+      {
+        tag: 'count', label: 'شمارش', subject: 'math', answers: 6, errors: strong ? 1 : 2,
+        accuracy: strong ? 83 : 67, firstTryAsked: 5, firstTryRate: strong ? 80 : 60, avgSeconds: 16, hints: 0,
+        errorTypes: [{ key: 'careless', label: 'بی‌دقتی', count: 1 }],
+      },
+      {
+        tag: 'compare', label: 'مقایسه', subject: 'math', answers: strong ? 8 : 5, errors: strong ? 1 : 2,
+        accuracy: strong ? 88 : 60, firstTryAsked: 6, firstTryRate: strong ? 83 : 67, avgSeconds: 18, hints: 0,
+        errorTypes: [],
+      },
+    ],
+  },
 });
 
 export const GUEST_REPORTS: Record<string, ChildReport> = {

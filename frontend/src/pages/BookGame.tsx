@@ -11,7 +11,7 @@ import { useGamePath } from '@/features/games/useGamePath';
 import { useGrade } from '@/features/auth/useGrade';
 import { DEW_REWARD } from '@/features/garden/gardenData';
 import { grantDew, grantFertilizer } from '@/features/garden/store';
-import { flushEvents, trackEvent } from '@/features/games/telemetry';
+import { flushEvents, toApiEvents, trackEvent } from '@/features/games/telemetry';
 import {
   flushCompletions,
   isPendingCompletion,
@@ -232,14 +232,11 @@ export default function BookGame() {
         return;
       }
 
-      if (data.type === 'luko-game-event' && data.event) {
-        const { type, ...rest } = data.event as { type?: string };
-        if (type) trackEvent({ gameSlug: slug, eventType: type, payload: rest });
-        return;
-      }
+      // رویداد و خلاصه‌ها (قرارداد: docs/event-tracking-guide.md) → صفِ تله‌متری؛ شناسه‌ی بازی از همین صفحه
+      for (const item of toApiEvents(slug, data)) trackEvent(item);
+      if (data.type === 'luko-game-event') return;
 
       if (data.type === 'luko-game-complete') {
-        trackEvent({ gameSlug: slug, eventType: 'game_complete', payload: data.summary ?? {} });
         const raw = (data.summary as { stars?: unknown } | undefined)?.stars;
         const stars = typeof raw === 'number' && Number.isFinite(raw) && raw >= 0
           ? Math.round(raw)
@@ -249,8 +246,7 @@ export default function BookGame() {
       }
 
       if (data.type === 'luko-game-progress') {
-        // بچه وسطِ کار بیرون رفته — همین هم برای گزارش ارزش دارد
-        trackEvent({ gameSlug: slug, eventType: 'game_end', payload: data.summary ?? {} });
+        // بچه وسطِ کار بیرون رفته یا صفحه پنهان شد — همین هم برای گزارش ارزش دارد
         void flushEvents(true);
       }
     };

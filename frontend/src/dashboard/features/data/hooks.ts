@@ -5,8 +5,8 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getData, send } from '../../lib/api';
 import type {
-  Analytics, AuditRow, BlogDetail, BlogRow, Meta, NoticeRow, Online, Overview, Paged, PaymentRow,
-  PodcastRow, StaffRow, TicketDetail, TicketRow, UserDetail, UserRow,
+  Analytics, AuditRow, BlogDetail, BlogRow, ConceptRow, Meta, NoticeRow, Online, Overview, Paged, PaymentRow,
+  PodcastRow, StaffRow, TicketDetail, TicketRow, UnknownConcept, UserDetail, UserRow,
 } from '../../types';
 
 type Params = Record<string, string>;
@@ -43,6 +43,10 @@ export const usePodcasts = (params: Params) => useList<Paged<PodcastRow>>('podca
 export const useBlog = (params: Params) => useList<Paged<BlogRow> & { categories: string[] }>('blog', 'blog', params);
 export const usePost = (id: string, enabled: boolean) =>
   useQuery({ queryKey: ['post', id], queryFn: () => getData<BlogDetail>(`blog/${id}`), enabled });
+
+export const useConcepts = (params: Params) => useList<Paged<ConceptRow>>('concepts', 'concepts', params);
+export const useUnknownConcepts = () =>
+  useQuery({ queryKey: ['concepts', 'unknown'], queryFn: () => getData<{ results: UnknownConcept[] }>('concepts/unknown') });
 
 export const useNotices = (params: Params) => useList<Paged<NoticeRow>>('notices', 'notices', params);
 export const useStaff = () => useQuery({ queryKey: ['staff'], queryFn: () => getData<{ results: StaffRow[] }>('staff') });

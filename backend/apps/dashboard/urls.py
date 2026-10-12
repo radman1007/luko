@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import audit_log, auth, billing, blog, notices, overview, podcasts, staff, tickets, users
+from .views import audit_log, auth, billing, blog, concepts, notices, overview, podcasts, staff, tickets, users
 
 urlpatterns = [
     path("auth/csrf", auth.CsrfView.as_view()),
@@ -35,6 +35,10 @@ urlpatterns = [
     path("blog/images", blog.BlogImageView.as_view()),
     path("blog/preview", blog.BlogPreviewView.as_view()),
     path("blog/<int:pk>", blog.PostDetailView.as_view()),
+
+    path("concepts", concepts.ConceptListView.as_view()),
+    path("concepts/unknown", concepts.UnknownConceptView.as_view()),
+    path("concepts/<int:pk>", concepts.ConceptDetailView.as_view()),
 
     path("notices", notices.NoticeHistoryView.as_view()),
     path("notices/preview", notices.NoticePreviewView.as_view()),

@@ -9,7 +9,7 @@ from apps.common.admin_helpers import ReadOnlyAdmin, jalali
 from apps.common.fa import fa_digits
 
 from . import registry
-from .models import Book, Game, GameCompletion, GameEvent, SeasonMemory
+from .models import Book, ConceptTag, Game, GameCompletion, GameEvent, SeasonMemory
 from .registry import title_hint
 
 
@@ -212,15 +212,26 @@ class SeasonMemoryAdmin(ReadOnlyAdmin):
 class GameEventAdmin(ReadOnlyAdmin):
     """رویدادهای داخلِ بازی — ورودیِ تحلیل‌های بعدی."""
 
-    list_display = ("user", "phone", "game_slug", "event_type", "at")
-    list_filter = ("event_type",)
-    search_fields = ("user__phone", "game_slug", "event_type")
+    list_display = ("user", "phone", "game_slug", "event_type", "concept_tag", "is_correct",
+                    "attempt_number", "error_type", "at")
+    list_filter = ("event_type", "is_correct", "error_type", "schema_version")
+    search_fields = ("user__phone", "game_slug", "event_type", "concept_tag", "session_id")
     list_select_related = ("user",)
-    date_hierarchy = "created_at"
+    date_hierarchy = "occurred_at"
     list_per_page = 50
 
-    at = jalali("created_at", "زمان")
+    at = jalali("occurred_at", "زمان")
 
     @admin.display(description="شماره", ordering="user__phone")
     def phone(self, obj):
         return fa_digits(obj.user.phone)
+
+
+@admin.register(ConceptTag)
+class ConceptTagAdmin(admin.ModelAdmin):
+    """تگ‌های آموزشی — تیمِ طراحی تعریف می‌کند، بازی‌ها روی هر پاسخ می‌فرستند (همین‌ها در داشبورد هم هست)."""
+
+    list_display = ("code", "title", "subject", "grade", "is_active")
+    list_editable = ("is_active",)
+    list_filter = ("subject", "grade", "is_active")
+    search_fields = ("code", "title", "description")

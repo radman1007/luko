@@ -131,6 +131,46 @@ export interface TopicScore {
   avgSeconds: number;
 }
 
+/** یک تگِ آموزشی (مفهوم) — همان کدی که تیمِ طراحی تعریف می‌کند و بازی روی هر پاسخ می‌فرستد */
+export interface ConceptStat {
+  tag: string;
+  label: string;
+  subject: string;
+  answers: number;
+  errors: number;
+  /** درصدِ پاسخ‌های درست */
+  accuracy: number;
+  /** پاسخ‌هایی که «اولین تلاش» بودند */
+  firstTryAsked: number;
+  firstTryRate: number;
+  avgSeconds: number;
+  hints: number;
+  /** نوعِ خطاها، پرتکرار اول */
+  errorTypes: { key: string; label: string; count: number }[];
+}
+
+export interface FirstTry {
+  asked: number;
+  correct: number;
+  rate: number;
+}
+
+/** یادگیری بر پایه‌ی تگ‌های آموزشی (apps/parent/learning.py) */
+export interface LearningSummary {
+  /** هفت روزِ اخیر */
+  week: {
+    minutes: number;
+    prevMinutes: number;
+    answers: number;
+    errors: number;
+    firstTry: FirstTry;
+  };
+  /** هشت هفته */
+  firstTry: FirstTry;
+  /** هشت هفته، پرخطاترین اول */
+  concepts: ConceptStat[];
+}
+
 /** همه‌ی دیتای داشبوردِ یک بچه */
 export interface ChildReport {
   childId: string;
@@ -157,6 +197,8 @@ export interface ChildReport {
   hourly: HourBucket[];
   sessions: PlaySession[];
   topics: TopicScore[];
+  /** تگ‌های آموزشی؛ در گزارش‌های قدیمیِ کش‌شده نیست */
+  learning?: LearningSummary;
 }
 
 /** پیشنهادِ بازی روز که سرور می‌سازد */

@@ -11,7 +11,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 
 from django.db.models import Count, Sum
 from django.utils import timezone
@@ -23,31 +23,48 @@ from apps.common.fa import fa_date, fa_day, fa_digits, fa_time, to_jalali
 from apps.games.models import Book, Game, GameCompletion, GameEvent
 from apps.health.models import BreathingSession, MoodCheckin, Painting
 
+from .learning import SESSION_ENDS, build_learning, concept_tags
+
 WEEK_DAYS = ["شنبه", "یک‌شنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنج‌شنبه", "جمعه"]
 
-TOPIC_LABELS = {
-    # ریاضی — پایه‌ی اول
-    "count": "شمارش", "compare": "مقایسه", "sort": "ترتیب اعداد",
-    "missing": "دنباله‌ی اعداد", "pattern": "الگو", "match": "تطبیق و دسته‌بندی",
-    "classify": "دسته‌بندی", "number-id": "شناختِ عدد", "write-number": "نوشتنِ عدد",
-    "add": "جمع", "subtract": "تفریق", "arithmetic": "محاسبه", "balance": "تعادل و جمع",
-    "logic": "منطق و جدول", "direction": "جهت و مسیر",
-    # نگارش
-    "trace": "خط‌کشیدن روی الگو", "trace-curve": "خط خمیده",
-    "write-letter": "نوشتنِ حرف", "letter": "حرف‌شناسی", "line-shape": "تشخیصِ خطِ صاف و کج",
-    # علوم
-    "classify-science": "دسته‌بندیِ خوراکی‌ها",
-    # قرآن
-    "listen": "شنیدن و تشخیص", "quran-find": "یافتنِ نعمت‌ها",
-    "quran-read": "خواندنِ بسم‌الله", "quran-art": "نقاشیِ بسم‌الله",
-    # پایه‌های بالاتر (بازی‌های آینده)
-    "fraction": "کسر", "ratio": "نسبت و تناسب", "percent": "درصد",
-    "lcm": "ک.م.م و بخش‌پذیری", "integer": "عددهای صحیح", "average": "میانگین",
-}
+def _label(code: str, tags: dict) -> str:
+    """عنوانِ تگِ آموزشی برای والد (جدولِ ConceptTag که تیمِ طراحی پر می‌کند)"""
+    tag = tags.get(code)
+    return tag.title if tag else code
 
 
 def _payload(event: GameEvent) -> dict:
     return event.payload if isinstance(event.payload, dict) else {}
+
+
+def _local(event: GameEvent):
+    """زمانِ واقعیِ رویداد در دستگاهِ بچه (رویدادِ آفلاین دیرتر به سرور می‌رسد)"""
+    return timezone.localtime(event.occurred_at or event.created_at)
+
+
+def _day(event: GameEvent):
+    return _local(event).date()
+
+
+def _session_ends(events) -> list[GameEvent]:
+    """
+    یک ردیف برای هر جلسه. SDK با هر پنهان‌شدنِ صفحه خلاصه‌ی *تجمعیِ* همان جلسه را
+    دوباره می‌فرستد؛ بی‌این، زمانِ بازی چند برابر و هر جلسه چند بار در فهرست می‌آمد.
+    از هر جلسه آخرین خلاصه (بیشترین مدت) می‌ماند؛ رویدادِ بی‌جلسه (پلِ پایان) خودش یک جلسه است.
+    """
+    best: dict = {}
+    for event in events:
+        if event.event_type not in SESSION_ENDS:
+            continue
+        key = event.session_id or f"#{event.id}"
+        current = best.get(key)
+        if current is None or (event.duration_ms or 0) >= (current.duration_ms or 0):
+            best[key] = event
+    return sorted(best.values(), key=lambda e: (e.occurred_at or e.created_at, e.id))
+
+
+def _minutes(sessions) -> int:
+    return round(sum(e.duration_ms or 0 for e in sessions) / 60000)
 
 
 def _saturday_index(day) -> int:
@@ -87,13 +104,14 @@ def _build_child_report(child) -> dict:
     today = now.date()
     week_start = today - timedelta(days=6)
     eight_weeks_ago = today - timedelta(weeks=8)
+    since = timezone.make_aware(datetime.combine(eight_weeks_ago, time.min))
 
     events = list(
-        GameEvent.objects.filter(user=child, created_at__date__gte=eight_weeks_ago)
-        .order_by("created_at")
+        GameEvent.objects.filter(user=child, occurred_at__gte=since).order_by("occurred_at", "id")
     )
     answers = [e for e in events if e.event_type == "answer"]
-    sessions = [e for e in events if e.event_type in {"game_end", "game_complete"}]
+    sessions = _session_ends(events)
+    tags = concept_tags()
 
     completions = list(GameCompletion.objects.filter(user=child))
     # همه‌ی ردیف‌ها برای پیدا کردنِ عنوانِ تاریخچه (حتی بازیِ حذف‌شده)؛
@@ -102,7 +120,7 @@ def _build_child_report(child) -> dict:
     catalog = {g.slug: g for g in Game.objects.playable().filter(grade=child.grade)}
     books = {b.book_id: b for b in Book.objects.all()}
 
-    week_answers = [e for e in answers if e.created_at.date() >= week_start]
+    week_answers = [e for e in answers if _day(e) >= week_start]
 
     return {
         "childId": str(child.id),
@@ -111,42 +129,37 @@ def _build_child_report(child) -> dict:
         "kpis": _kpis(child, events, answers, sessions, completions, week_start, today),
         "week": _week(events, sessions, completions, week_start, today),
         "accuracyTrend": _accuracy_trend(answers, today),
-        "subjects": _subjects(answers, completions, games_meta, catalog, books),
-        "games": _games(events, answers, completions, games_meta, catalog, books),
+        "subjects": _subjects(answers, completions, games_meta, catalog, books, tags),
+        "games": _games(events, sessions, completions, games_meta, catalog, books),
         "moods": _moods(child),
-        "insights": _insights(answers, events, games_meta),
+        "insights": _insights(answers, events, games_meta, tags),
         "wellbeing": _wellbeing(child),
         "hourly": _hourly(events),
-        "sessions": _sessions(events, games_meta),
-        "topics": _topics(answers),
+        "sessions": _sessions(sessions, games_meta),
+        "topics": _topics(answers, tags),
+        # تگ‌های آموزشی: زمانِ بازی، خطای هر مفهوم و موفقیت در اولین تلاش
+        "learning": build_learning(child),
     }
 
 
 # ---------------------------------------------------------------- KPIها
 def _kpis(child, events, answers, sessions, completions, week_start, today) -> list[dict]:
-    this_week = [e for e in events if e.created_at.date() >= week_start]
     prev_start = week_start - timedelta(days=7)
-    prev_week = [e for e in events if prev_start <= e.created_at.date() < week_start]
+    week_sessions = [e for e in sessions if _day(e) >= week_start]
+    prev_sessions = [e for e in sessions if prev_start <= _day(e) < week_start]
+    week_minutes, prev_minutes = _minutes(week_sessions), _minutes(prev_sessions)
+    week_answers = [e for e in answers if _day(e) >= week_start]
+    prev_answers = [e for e in answers if prev_start <= _day(e) < week_start]
+    week_correct = sum(1 for e in week_answers if e.is_correct)
+    prev_correct = sum(1 for e in prev_answers if e.is_correct)
 
-    def minutes(evts) -> int:
-        total_ms = sum(_payload(e).get("durationMs", 0) for e in evts
-                       if e.event_type in {"game_end", "game_complete"})
-        return round(total_ms / 60000)
-
-    week_minutes, prev_minutes = minutes(this_week), minutes(prev_week)
-    week_answers = [e for e in answers if e.created_at.date() >= week_start]
-    prev_answers = [e for e in answers if prev_start <= e.created_at.date() < week_start]
-    week_correct = sum(1 for e in week_answers if _payload(e).get("correct"))
-    prev_correct = sum(1 for e in prev_answers if _payload(e).get("correct"))
-
-    week_games = [c for c in completions if c.created_at.date() >= week_start]
-    prev_games = [c for c in completions if prev_start <= c.created_at.date() < week_start]
+    week_games = [c for c in completions if timezone.localdate(c.created_at) >= week_start]
+    prev_games = [c for c in completions if prev_start <= timezone.localdate(c.created_at) < week_start]
     week_coins = sum(c.coins_awarded for c in week_games)
     prev_coins = sum(c.coins_awarded for c in prev_games)
 
-    week_sessions = [e for e in sessions if e.created_at.date() >= week_start]
     avg_session = round(
-        sum(_payload(e).get("durationMs", 0) for e in week_sessions) / 60000 / len(week_sessions)
+        sum(e.duration_ms or 0 for e in week_sessions) / 60000 / len(week_sessions)
     ) if week_sessions else 0
 
     def delta(current: float, previous: float) -> int:
@@ -197,11 +210,11 @@ def _week(events, sessions, completions, week_start, today) -> list[dict]:
     by_day_ms: dict = defaultdict(int)
     by_day_games: dict = defaultdict(int)
     for event in sessions:
-        day = event.created_at.date()
+        day = _day(event)
         if day >= week_start:
-            by_day_ms[day] += _payload(event).get("durationMs", 0)
+            by_day_ms[day] += event.duration_ms or 0
     for completion in completions:
-        day = completion.created_at.date()
+        day = timezone.localdate(completion.created_at)
         if day >= week_start:
             by_day_games[day] += 1
 
@@ -227,8 +240,8 @@ def _accuracy_trend(answers, today) -> list[dict]:
     for week_no in range(7, -1, -1):
         start = today - timedelta(weeks=week_no + 1)
         end = today - timedelta(weeks=week_no)
-        bucket = [e for e in answers if start < e.created_at.date() <= end]
-        correct = sum(1 for e in bucket if _payload(e).get("correct"))
+        bucket = [e for e in answers if start < _day(e) <= end]
+        correct = sum(1 for e in bucket if e.is_correct)
         out.append({
             "label": f"هفتهٔ {fa_digits(8 - week_no)}",
             "value": _pct(correct, len(bucket)),
@@ -244,7 +257,7 @@ def _subject_of(slug: str, games_meta: dict, books: dict) -> str:
     return book.subject if book else "عمومی"
 
 
-def _subjects(answers, completions, games_meta, catalog, books) -> list[dict]:
+def _subjects(answers, completions, games_meta, catalog, books, tags) -> list[dict]:
     """
     تسلط بر حسبِ درسِ کتاب (ریاضی، علوم، …) — همان چیزی که والد می‌فهمد.
     اگر بازی برای هر پاسخ `topic` بفرستد، همان topicها هم به‌عنوان ریزنمره
@@ -252,16 +265,14 @@ def _subjects(answers, completions, games_meta, catalog, books) -> list[dict]:
     """
     stats: dict = defaultdict(lambda: {"asked": 0, "correct": 0, "topics": defaultdict(lambda: [0, 0])})
     for event in answers:
-        payload = _payload(event)
         subject = _subject_of(event.game_slug, games_meta, books)
         bucket = stats[subject]
         bucket["asked"] += 1
-        is_correct = 1 if payload.get("correct") else 0
+        is_correct = 1 if event.is_correct else 0
         bucket["correct"] += is_correct
-        topic = payload.get("topic")
-        if topic:
-            bucket["topics"][topic][0] += 1
-            bucket["topics"][topic][1] += is_correct
+        if event.concept_tag in tags:
+            bucket["topics"][event.concept_tag][0] += 1
+            bucket["topics"][event.concept_tag][1] += is_correct
 
     done_by_subject: dict = defaultdict(set)
     for completion in completions:
@@ -283,7 +294,7 @@ def _subjects(answers, completions, games_meta, catalog, books) -> list[dict]:
                 bucket["topics"].items(), key=lambda item: item[1][1] / max(item[1][0], 1)
             )
             if _pct(correct, asked) < 70:
-                weakest = TOPIC_LABELS.get(topic, topic)
+                weakest = _label(topic, tags)
         out.append({
             "key": subject,
             "label": subject,
@@ -299,26 +310,26 @@ def _subjects(answers, completions, games_meta, catalog, books) -> list[dict]:
     return sorted(out, key=lambda item: -item["mastery"])
 
 
-def _games(events, answers, completions, games_meta, catalog, books) -> list[dict]:
+def _games(events, sessions, completions, games_meta, catalog, books) -> list[dict]:
     by_slug: dict = defaultdict(lambda: {
         "starts": 0, "answers": 0, "correct": 0, "hints": 0,
         "ms": 0, "sessions": 0, "best": 0, "last": None,
     })
     for event in events:
         bucket = by_slug[event.game_slug]
-        payload = _payload(event)
         if event.event_type == "game_start":
             bucket["starts"] += 1
         elif event.event_type == "answer":
             bucket["answers"] += 1
-            bucket["correct"] += 1 if payload.get("correct") else 0
+            bucket["correct"] += 1 if event.is_correct else 0
         elif event.event_type == "hint":
             bucket["hints"] += 1
-        elif event.event_type in {"game_end", "game_complete"}:
-            bucket["sessions"] += 1
-            bucket["ms"] += payload.get("durationMs", 0)
-            bucket["best"] = max(bucket["best"], payload.get("accuracy", 0))
-        bucket["last"] = event.created_at
+        bucket["last"] = event.occurred_at or event.created_at
+    for event in sessions:                       # هر جلسه یک‌بار
+        bucket = by_slug[event.game_slug]
+        bucket["sessions"] += 1
+        bucket["ms"] += event.duration_ms or 0
+        bucket["best"] = max(bucket["best"], _payload(event).get("accuracy", 0) or 0)
 
     coins_by_slug: dict = defaultdict(int)
     for completion in completions:
@@ -399,7 +410,7 @@ def _wellbeing(child) -> dict:
 
 
 # ---------------------------------------------------------------- بینش‌ها
-def _insights(answers, events, games_meta) -> list[dict]:
+def _insights(answers, events, games_meta, tags) -> list[dict]:
     """
     بینش‌های قاعده‌محور از دادهٔ واقعی. جای مدلِ زبانی را بعداً همین‌جا می‌گیرد؛
     تا آن‌وقت هیچ جمله‌ای ساخته نمی‌شود که پشتش عدد نباشد.
@@ -414,12 +425,12 @@ def _insights(answers, events, games_meta) -> list[dict]:
     by_topic: dict = defaultdict(lambda: {"asked": 0, "correct": 0})
     by_game: dict = defaultdict(lambda: {"asked": 0, "correct": 0, "hints": 0})
     for event in answers:
-        payload = _payload(event)
-        topic = payload.get("topic") or event.game_slug
-        by_topic[topic]["asked"] += 1
-        by_topic[topic]["correct"] += 1 if payload.get("correct") else 0
+        # فقط تگِ ثبت‌شده؛ قبلاً پاسخِ بی‌مبحث با شناسه‌ی خامِ بازی («g-1a2b…») در عنوان می‌آمد
+        if event.concept_tag in tags:
+            by_topic[event.concept_tag]["asked"] += 1
+            by_topic[event.concept_tag]["correct"] += 1 if event.is_correct else 0
         by_game[event.game_slug]["asked"] += 1
-        by_game[event.game_slug]["correct"] += 1 if payload.get("correct") else 0
+        by_game[event.game_slug]["correct"] += 1 if event.is_correct else 0
     for event in events:
         if event.event_type == "hint":
             by_game[event.game_slug]["hints"] += 1
@@ -433,14 +444,14 @@ def _insights(answers, events, games_meta) -> list[dict]:
         key, accuracy, asked = ranked[0]
         out.append({
             "id": "best", "tone": "good",
-            "title": f"{TOPIC_LABELS.get(key, key)} را خوب گرفته",
+            "title": f"{_label(key, tags)} را خوب گرفته",
             "body": f"از {fa_digits(asked)} پاسخ در این مبحث، {fa_digits(accuracy)}٪ درست بوده است.",
         })
     if ranked and ranked[-1][1] < 70:
         key, accuracy, asked = ranked[-1]
         out.append({
             "id": "weak", "tone": "watch",
-            "title": f"{TOPIC_LABELS.get(key, key)} نقطهٔ گیر است",
+            "title": f"{_label(key, tags)} نقطهٔ گیر است",
             "body": f"دقت در این مبحث {fa_digits(accuracy)}٪ است ({fa_digits(asked)} پاسخ)؛ کمی تمرین بیشتر کمک می‌کند.",
         })
 
@@ -468,28 +479,26 @@ def _hourly(events) -> list[dict]:
     buckets = [0] * 24
     for event in events:
         if event.event_type in {"game_start", "answer"}:
-            buckets[timezone.localtime(event.created_at).hour] += 1
+            buckets[_local(event).hour] += 1
     peak = max(buckets) if any(buckets) else 0
     return [{"hour": hour, "count": count,
              "intensity": round(count / peak * 100) if peak else 0}
             for hour, count in enumerate(buckets)]
 
 
-def _sessions(events, games_meta) -> list[dict]:
-    """آخرین جلسه‌های بازی: کِی، چقدر، با چه دقتی."""
+def _sessions(sessions, games_meta) -> list[dict]:
+    """آخرین جلسه‌های بازی (هر جلسه یک ردیف): کِی، چقدر، با چه دقتی."""
     out = []
-    for event in reversed(events):
-        if event.event_type not in {"game_end", "game_complete"}:
-            continue
+    for event in reversed(sessions):
         payload = _payload(event)
         game = games_meta.get(event.game_slug)
-        local = timezone.localtime(event.created_at)
+        local = _local(event)
         out.append({
             "id": event.id,
             "game": game.title if game else event.game_slug,
             "at": fa_day(local.date(), timezone.localdate()),
             "time": fa_time(local),
-            "minutes": round(payload.get("durationMs", 0) / 60000),
+            "minutes": round((event.duration_ms or 0) / 60000),
             "accuracy": payload.get("accuracy", 0),
             "stars": payload.get("stars"),
         })
@@ -498,21 +507,19 @@ def _sessions(events, games_meta) -> list[dict]:
     return out
 
 
-def _topics(answers) -> list[dict]:
-    """ریزنمره‌ی مبحث‌ها — پایه‌ی «نقطه‌ی قوت و ضعف»."""
+def _topics(answers, tags) -> list[dict]:
+    """ریزنمره‌ی تگ‌های آموزشی — پایه‌ی «نقطه‌ی قوت و ضعف». فقط تگ‌های ثبت‌شده."""
     stats: dict = defaultdict(lambda: {"asked": 0, "correct": 0, "ms": 0})
     for event in answers:
-        payload = _payload(event)
-        topic = payload.get("topic")
-        if not topic:
+        if event.concept_tag not in tags:
             continue
-        bucket = stats[topic]
+        bucket = stats[event.concept_tag]
         bucket["asked"] += 1
-        bucket["correct"] += 1 if payload.get("correct") else 0
-        bucket["ms"] += payload.get("ms", 0)
+        bucket["correct"] += 1 if event.is_correct else 0
+        bucket["ms"] += event.time_taken_ms or 0
     out = [{
         "key": key,
-        "label": TOPIC_LABELS.get(key, key),
+        "label": _label(key, tags),
         "asked": value["asked"],
         "accuracy": _pct(value["correct"], value["asked"]),
         "avgSeconds": round(value["ms"] / value["asked"] / 1000) if value["asked"] else 0,
