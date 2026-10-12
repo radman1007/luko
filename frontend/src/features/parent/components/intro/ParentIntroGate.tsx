@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode, SyntheticEvent } from 'react';
+import { useCoverGoftino } from '@/features/support/useCoverGoftino';
 import styles from './ParentIntroGate.module.css';
 
 const VIDEO_VERSION = 'v1';
@@ -69,6 +70,7 @@ function initialMode(viewerId: string): Mode {
 export function ParentIntroGate({ viewerId, children }: Props) {
   const [mode, setMode] = useState<Mode>(() => initialMode(viewerId));
   const required = mode === 'locked';
+  useCoverGoftino(mode !== 'off');
   const [needsInteraction, setNeedsInteraction] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
   const [muted, setMuted] = useState(true);

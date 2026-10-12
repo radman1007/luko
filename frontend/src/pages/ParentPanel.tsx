@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   HiOutlineBell,
   HiOutlineChatBubbleLeftRight,
+  HiOutlineChatBubbleOvalLeftEllipsis,
   HiOutlineCheckBadge,
   HiOutlineChevronLeft,
   HiOutlineCreditCard,
@@ -47,6 +48,8 @@ import { DailyView } from '@/features/parent/components/views/DailyView';
 import { HealthView } from '@/features/parent/components/views/HealthView';
 import { SettingsView } from '@/features/parent/components/views/SettingsView';
 import { isValidPhone, normalizePhone } from '@/lib/phone';
+import { openGoftino } from '@/features/support/goftino';
+import { useGoftinoReady } from '@/features/support/useGoftinoReady';
 import { ALL_GRADES, gradeName } from '@/lib/grades';
 import { useOpenGrades } from '@/features/games/useOpenGrades';
 import styles from './ParentPanel.module.css';
@@ -117,6 +120,7 @@ function AuthenticatedParentPanel() {
   const removeChild = useRemoveChild();
   const markRead = useMarkNotificationsRead();
   const createTicket = useCreateTicket();
+  const liveChat = useGoftinoReady();
 
   // اولین فرزند به‌صورت پیش‌فرض انتخاب می‌شود
   useEffect(() => {
@@ -418,9 +422,27 @@ function AuthenticatedParentPanel() {
       </Sheet>
 
       <Sheet open={sheet === 'support'} title="گفتگو با پشتیبانی" onClose={() => setSheet(null)}>
-        <p className={styles.sheetText}>
-          هر سؤالی دربارهٔ گزارش‌ها یا حسابِ فرزندتان دارید همین‌جا بنویسید؛ تیم لوکو پاسخ می‌دهد.
-        </p>
+        {liveChat && (
+          <>
+            <button
+              type="button"
+              className={`${styles.btnGhost} ${styles.liveChat}`}
+              onClick={() => {
+                setSheet(null);
+                openGoftino();
+              }}
+            >
+              <HiOutlineChatBubbleOvalLeftEllipsis aria-hidden />
+              گفتگوی آنلاین با پشتیبانی
+            </button>
+            <p className={styles.sheetText}>یا پیامتان را این‌جا بگذارید؛ پاسخش در همین پنل می‌آید.</p>
+          </>
+        )}
+        {!liveChat && (
+          <p className={styles.sheetText}>
+            هر سؤالی دربارهٔ گزارش‌ها یا حسابِ فرزندتان دارید همین‌جا بنویسید؛ تیم لوکو پاسخ می‌دهد.
+          </p>
+        )}
         <textarea
           className={styles.textarea}
           placeholder="پیام خود را بنویسید…"

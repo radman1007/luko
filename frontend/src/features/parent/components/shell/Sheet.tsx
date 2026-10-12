@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { HiOutlineXMark } from 'react-icons/hi2';
+import { useCoverGoftino } from '@/features/support/useCoverGoftino';
 import styles from './Sheet.module.css';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 
 /** شیتِ پایین‌کشو — اعلان‌ها، پشتیبانی، افزودن فرزند، تأییدها */
 export function Sheet({ open, title, onClose, children }: Props) {
+  useCoverGoftino(open);
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (event: KeyboardEvent) => {

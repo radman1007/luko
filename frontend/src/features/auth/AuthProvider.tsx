@@ -7,6 +7,7 @@ import { audienceForPath, isTransientError, tokenStorage } from '@/lib/api';
 import type { Audience } from '@/lib/api';
 import { isPersonalQuery } from '@/lib/queryPersist';
 import { leaveAccount } from '@/features/sync/accountSync';
+import { forgetGoftinoUser } from '@/features/support/goftino';
 import { AuthContext } from './context';
 import { authApi } from './api';
 import {
@@ -132,7 +133,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       disableGuestMode();
       dropPersonalData();
     }
-    if (audience === 'parent') disableParentGuestMode();
+    if (audience === 'parent') {
+      disableParentGuestMode();
+      forgetGoftinoUser(); // گفتگوی پشتیبانیِ این والد برای کسِ بعدی روی این دستگاه نماند
+    }
     setSessions((s) => ({ ...s, [audience]: null }));
     setOffline((o) => ({ ...o, [audience]: false }));
   }, [audience, dropPersonalData]);
