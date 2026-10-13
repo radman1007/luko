@@ -116,6 +116,7 @@ class ClientTests(AIFlowBase):
         self.assertEqual(body["messages"], [{"role": "user", "content": "پرسش"}])
         usage = AIUsage.objects.get()
         self.assertEqual((usage.ok, usage.prompt_tokens, usage.user_id), (True, 100, self.parent.id))
+        self.assertEqual(usage.error, "retried:http:429")              # کندی دیده می‌شود
 
     def test_auth_header_uses_apikey_scheme(self):
         with patch("apps.ai.client.requests.post", return_value=FakeResponse(200, "باشه")) as post:

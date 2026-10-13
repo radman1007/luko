@@ -35,6 +35,10 @@ MAX_TOKENS = {
 
 RETRY_STATUS = {429, 500, 502, 503, 504}
 
+#: سقفِ انتظار برای هر تلاش. پاسخِ عادی ۱۰ تا ۳۰ ثانیه است؛ گیت‌وی گاهی بی‌پاسخ می‌ماند و با سقفِ ۱۲۰ ثانیه
+#: تحلیل ۱۴۵ ثانیه طول کشید (پروداکشن، ۲۲ مهر). زودتر رها می‌کنیم و یک بار دیگر می‌پرسیم.
+TIMEOUTS = {"insight": 70, "assistant": 80}
+
 
 class AIError(Exception):
     """درخواست به مدل انجام نشد (خاموش، کلید، سقفِ درخواست، شبکه یا پاسخِ خالی)"""
@@ -87,12 +91,12 @@ def complete(tier: str, prompt: str, *, feature: str, temperature: float = 0.4, 
         "temperature": temperature,
     }
     started = time.monotonic()
-    error = ""
+    error = first_error = ""
     data = None
     for attempt in range(2):
         error = ""
         try:
-            response = _post(body, timeout or settings.AI_TIMEOUT)
+            response = _post(body, timeout or TIMEOUTS.get(feature, settings.AI_TIMEOUT))
         except requests.RequestException as exc:
             error = f"network:{type(exc).__name__}"
         else:
@@ -110,6 +114,7 @@ def complete(tier: str, prompt: str, *, feature: str, temperature: float = 0.4, 
                 if response.status_code not in RETRY_STATUS:
                     break
         if attempt == 0:
+            first_error = error
             time.sleep(2)
 
     latency = int((time.monotonic() - started) * 1000)
@@ -124,8 +129,10 @@ def complete(tier: str, prompt: str, *, feature: str, temperature: float = 0.4, 
             # Pro اگر تا سقفِ توکن فقط استدلال کند، متنی برنمی‌گرداند
             error = "empty"
     details = usage.get("completion_tokens_details") or {}
+    # موفق بعد از تلاشِ دوم هم ثبت می‌شود تا کندیِ گیت‌وی در «مصرفِ هوش مصنوعی» دیده شود
+    note = error or (f"retried:{first_error}" if first_error and data else "")
     AIUsage.objects.create(
-        user=user, child=child, feature=feature, tier=tier, model=model, ok=not error, error=error[:200],
+        user=user, child=child, feature=feature, tier=tier, model=model, ok=not error, error=note[:200],
         prompt_tokens=usage.get("prompt_tokens") or 0, completion_tokens=usage.get("completion_tokens") or 0,
         reasoning_tokens=details.get("reasoning_tokens") or 0, latency_ms=latency,
     )
