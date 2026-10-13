@@ -1,0 +1,49 @@
+/* حریم خصوصی: گوشی یک ستون؛ از ۱۰۲۴px رمز و شماره کنارِ هم */
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'password' 'phone' 'children' 'promises';
+  gap: 14px;
+}
+
+.page > [data-area='password'] { grid-area: password; }
+.page > [data-area='phone'] { grid-area: phone; }
+.page > [data-area='children'] { grid-area: children; }
+.page > [data-area='promises'] { grid-area: promises; }
+
+.phone { margin: -6px 0 0; font-size: 16px; font-weight: 800; text-align: end; }
+
+.guest {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 13px;
+  background: var(--pp-surface);
+  font-size: 12px;
+  color: var(--pp-mut);
+}
+
+.promises { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+
+.promises li {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--pp-surface);
+  font-size: 12px;
+  line-height: 2;
+  color: #4b5058;
+}
+
+.promises svg { flex-shrink: 0; width: 20px; height: 20px; margin-top: 3px; color: var(--pp-green); }
+
+@media (min-width: 1024px) {
+  .page {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'password phone'
+      'children promises';
+    gap: 18px;
+    align-items: start;
+  }
+}

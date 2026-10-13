@@ -15,7 +15,6 @@ export const parentKeys = {
   suggestions: (childId: string) => ['parent', 'suggestions', childId] as const,
   preferences: ['parent', 'preferences'] as const,
   notifications: ['parent', 'notifications'] as const,
-  tickets: ['parent', 'tickets'] as const,
 };
 
 /** `enabled=false` برای مهمان: بی‌حساب درخواست ۴۰۱ می‌گیرد و به صفحه‌ی ورود می‌برد */
@@ -69,14 +68,6 @@ export function usePreferences() {
     queryKey: parentKeys.preferences,
     queryFn: parentApi.preferences,
     staleTime: 5 * MINUTE,
-  });
-}
-
-export function useTickets() {
-  return useQuery({
-    queryKey: parentKeys.tickets,
-    queryFn: parentApi.tickets,
-    staleTime: MINUTE,
   });
 }
 
@@ -159,13 +150,5 @@ export function useMarkNotificationsRead() {
   return useMutation({
     mutationFn: parentApi.markNotificationsRead,
     onSuccess: () => client.invalidateQueries({ queryKey: parentKeys.notifications }),
-  });
-}
-
-export function useCreateTicket() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: parentApi.createTicket,
-    onSuccess: () => client.invalidateQueries({ queryKey: parentKeys.tickets }),
   });
 }

@@ -1,0 +1,243 @@
+/* پشتیبانی: گوشی یک ستون؛ از ۱۰۲۴px تیکت‌ها کنارِ پرسش‌های پرتکرار */
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'hero' 'tickets' 'faq';
+  gap: 14px;
+}
+
+.page > [data-area='tickets'] { grid-area: tickets; }
+.page > [data-area='faq'] { grid-area: faq; }
+
+.hero {
+  grid-area: hero;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 18px;
+  padding: 20px;
+  border-radius: 26px;
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgb(255 255 255 / 70%), transparent 55%),
+    linear-gradient(140deg, #f2effd 0%, #ded6fa 100%);
+  border: 1px solid rgb(255 255 255 / 70%);
+}
+
+.heroText { flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.heroText h2 { margin: 0; font-size: 18px; font-weight: 800; }
+.heroText p { margin: 0; font-size: 12.5px; line-height: 2; color: #4b4566; }
+
+.priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 75%);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  color: #8a5200;
+  cursor: pointer;
+}
+
+.priority[data-on] { cursor: default; background: #fff2c8; }
+
+.actions { flex: 1 1 220px; display: flex; flex-direction: column; gap: 8px; max-width: 320px; }
+
+.head { display: flex; align-items: center; gap: 8px; }
+.head > svg { width: 21px; height: 21px; color: var(--pp-blue); }
+
+.unreadPill {
+  margin-inline-start: auto;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--pp-red-soft);
+  color: var(--pp-red);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.tabs::-webkit-scrollbar { display: none; }
+
+.tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--pp-surface);
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4b5058;
+  cursor: pointer;
+}
+
+.tabs button[data-active] { background: var(--pp-soft); border-color: rgb(33 94 97 / 30%); color: var(--pp-blue2); }
+
+.tabs em {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 6%);
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 800;
+  text-align: center;
+}
+
+.list { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+
+.ticket {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  padding: 12px 14px;
+  padding-inline-end: 36px;
+  border-radius: 16px;
+  background: var(--pp-surface);
+  border: 1px solid transparent;
+  font: inherit;
+  text-align: start;
+  color: var(--pp-ink);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.ticket:hover { border-color: var(--pp-line); background: var(--pp-card); }
+.ticket:focus-visible { outline: 2px solid var(--pp-blue); outline-offset: 2px; }
+.ticket[data-unread] { background: #f6f3fe; border-color: #ddd4fb; }
+
+.ticketTop { display: flex; align-items: flex-start; gap: 8px; }
+.ticketTop b { flex: 1; min-width: 0; font-size: 13px; font-weight: 800; line-height: 1.8; }
+
+.status {
+  flex-shrink: 0;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  background: #fff1de;
+  color: #a35f00;
+}
+
+.status[data-status='answered'] { background: var(--pp-green-soft); color: var(--pp-green); }
+.status[data-status='closed'] { background: #f1eee9; color: var(--pp-mut); }
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 7px;
+  font-size: 10.5px;
+  color: var(--pp-mut);
+}
+
+.meta i { width: 3px; height: 3px; border-radius: 50%; background: #c4bfb7; }
+
+.preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 11.5px;
+  line-height: 1.9;
+  color: #50555d;
+}
+
+.preview em { font-style: normal; font-weight: 800; color: #6d4fd1; }
+
+.dot {
+  position: absolute;
+  top: 14px;
+  inset-inline-end: 14px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--pp-red);
+  box-shadow: 0 0 0 3px #fde8ee;
+}
+
+.chev {
+  position: absolute;
+  bottom: 14px;
+  inset-inline-end: 12px;
+  width: 17px;
+  height: 17px;
+  color: #b3aea6;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 22px 10px;
+  text-align: center;
+}
+
+.empty svg { width: 34px; height: 34px; color: #c4bfb7; }
+.empty p { margin: 0; font-size: 12px; line-height: 2; color: var(--pp-mut); }
+
+.loading { display: grid; gap: 8px; }
+
+.loading i {
+  display: block;
+  height: 76px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, #ebe7e1 25%, #f4f1ec 50%, #ebe7e1 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.faq { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+
+.faq li { border-radius: 14px; background: var(--pp-surface); }
+
+.faq button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  text-align: start;
+  color: var(--pp-ink);
+  cursor: pointer;
+}
+
+.faq button svg { flex-shrink: 0; width: 17px; height: 17px; color: var(--pp-mut); transition: transform 0.2s; }
+.faq li[data-open] button svg { transform: rotate(180deg); }
+.faq p { margin: 0; padding: 0 14px 13px; font-size: 12px; line-height: 2; color: #50555d; }
+
+@media (min-width: 1024px) {
+  .page {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    grid-template-areas:
+      'hero hero'
+      'tickets faq';
+    gap: 18px;
+    align-items: start;
+  }
+}

@@ -80,7 +80,8 @@ class TicketsTests(DashboardTestBase):
         self.ticket.refresh_from_db()
         self.assertEqual(self.ticket.status, "answered")
         note = Notification.objects.get(user=self.parent)
-        self.assertEqual((note.kind, note.link), ("support", "/parent-panel?open=support"))
+        # پیوندِ اعلان مستقیم همان تیکت را در «تنظیمات ← پشتیبانی» باز می‌کند
+        self.assertEqual((note.kind, note.link), ("support", f"/parent-panel?p=settings&s=ticket&id={self.ticket.pk}"))
         self.assertEqual(self.post(f"tickets/{self.ticket.pk}/reply", {"body": "  "}).status_code, 400)
 
     def test_status(self):

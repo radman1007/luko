@@ -1,0 +1,287 @@
+/* اشتراک و پرداخت‌ها — هم‌شکلِ کارت‌های پنل، با رنگِ طلاییِ اشتراک */
+.page { display: flex; flex-direction: column; gap: 14px; }
+.page > section { container-type: inline-size; }
+
+.kids { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.kids::-webkit-scrollbar { display: none; }
+
+.kids button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+  padding: 8px 14px 8px 10px;
+  border-radius: 16px;
+  background: var(--pp-card);
+  border: 1.5px solid var(--pp-line);
+  font: inherit;
+  text-align: start;
+  color: var(--pp-ink);
+  cursor: pointer;
+}
+
+.kids button[data-active] { border-color: var(--pp-blue); background: var(--pp-soft); }
+.kids i {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 11px;
+  background: var(--pp-blue);
+  color: #fff;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 800;
+}
+.kids span { display: flex; flex-direction: column; line-height: 1.6; }
+.kids b { font-size: 12.5px; font-weight: 800; }
+.kids small { font-size: 10.5px; color: var(--pp-mut); }
+
+.top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+
+/* ---------- وضعیت ---------- */
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 26px;
+  background: linear-gradient(140deg, #174447 0%, #215e61 55%, #2f7a7e 100%);
+  color: #fff;
+  box-shadow: 0 18px 40px rgb(33 94 97 / 25%);
+}
+
+.hero[data-tone='free'] { background: linear-gradient(140deg, #fff7df, #ffe2ad); color: #3d2600; box-shadow: none; border: 1px solid #f6d79c; }
+.hero[data-tone='warn'] { background: linear-gradient(140deg, #8a4b00, #c27400); }
+
+.hero h2 { margin: 6px 0 4px; font-size: 18px; font-weight: 800; }
+.hero p { margin: 0; font-size: 12.5px; line-height: 2; opacity: 0.92; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 18%);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.hero[data-tone='free'] .chip { background: rgb(255 255 255 / 75%); color: #8a5200; }
+
+.freeMark {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: #fff;
+  color: #c27400;
+  box-shadow: 0 8px 18px rgb(194 116 0 / 18%);
+}
+
+.ring { position: relative; flex-shrink: 0; width: 100px; height: 100px; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ringTrack { fill: none; stroke: rgb(255 255 255 / 20%); stroke-width: 9; }
+.ringValue { fill: none; stroke: var(--pp-sun); stroke-width: 9; stroke-linecap: round; }
+.ring span { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; line-height: 1.2; }
+.ring b { font-size: 24px; font-weight: 800; }
+.ring small { font-size: 10px; opacity: 0.85; }
+
+.warn { display: flex; align-items: center; gap: 5px; margin-top: 6px !important; font-weight: 800; }
+.warn svg { width: 17px; height: 17px; }
+
+/* ---------- صورت‌حسابِ تمدید ---------- */
+.invoice {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border-radius: var(--pp-rad);
+  background: var(--pp-card);
+  border: 1px solid var(--pp-line);
+  box-shadow: var(--pp-shadow);
+}
+
+.invoice[data-urgent] { border-color: #f6c27a; box-shadow: 0 0 0 3px #fff1de; }
+.invoice header { display: flex; align-items: center; gap: 8px; }
+.invoice header svg { width: 21px; height: 21px; color: var(--pp-blue); }
+.invoice header b { font-size: 14px; font-weight: 800; }
+.invoice header em { margin-inline-start: auto; padding: 3px 9px; border-radius: 999px; background: #fff1de; color: #a35f00; font-size: 10.5px; font-style: normal; font-weight: 800; }
+
+.invoice dl,
+.confirm dl { display: flex; flex-direction: column; margin: 0; }
+
+.invoice dl div,
+.confirm dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px dashed var(--pp-line);
+  font-size: 12.5px;
+}
+
+.invoice dl div:first-child,
+.confirm dl div:first-child { border-top: 0; }
+.invoice dt, .confirm dt { color: var(--pp-mut); }
+.invoice dd, .confirm dd { margin: 0; font-weight: 800; }
+.invoice [data-total] dd, .confirm [data-total] dd { font-size: 15px; color: var(--pp-blue2); }
+
+/* ---------- مقایسه‌ی رایگان و اشتراک ---------- */
+.compare {
+  padding: 18px;
+  border-radius: var(--pp-rad);
+  background: linear-gradient(160deg, #fffaf0, #fff4dc);
+  border: 1px solid #f6dfae;
+}
+
+.compare h3 { margin: 0 0 10px; font-size: 14px; font-weight: 800; color: #4a2a00; }
+
+.table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.table th, .table td { padding: 8px 6px; border-top: 1px dashed rgb(160 97 0 / 18%); }
+.table thead th { border-top: 0; font-size: 11px; font-weight: 800; color: #8a5200; }
+.table thead th:not(:first-child) { width: 74px; text-align: center; }
+.table tbody th { font-weight: 700; text-align: start; color: #3d424a; }
+.table td { text-align: center; color: #b5ab9d; font-size: 11px; font-weight: 800; }
+.table td[data-on] { color: #1b7f58; }
+.table td:last-child[data-on] { color: #8a5200; }
+.table svg { width: 17px; height: 17px; vertical-align: middle; }
+
+.compareMore summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #8a5200;
+  cursor: pointer;
+  list-style: none;
+}
+
+.compareMore summary::-webkit-details-marker { display: none; }
+.compareMore summary svg { width: 16px; height: 16px; transition: transform 0.2s; }
+.compareMore[open] summary svg { transform: rotate(180deg); }
+
+/* ---------- پلن‌ها ---------- */
+.plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
+@container (max-width: 330px) {
+  .plans { grid-template-columns: minmax(0, 1fr); }
+}
+
+.plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 18px 14px 14px;
+  border-radius: 18px;
+  background: var(--pp-surface);
+  border: 2px solid transparent;
+  font: inherit;
+  text-align: start;
+  color: var(--pp-ink);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.plan[data-selected] { border-color: var(--pp-blue); background: var(--pp-card); box-shadow: 0 8px 20px rgb(33 94 97 / 12%); }
+.plan[data-best]:not([data-selected]) { border-color: #f6d79c; }
+.plan:focus-visible { outline: 2px solid var(--pp-blue); outline-offset: 2px; }
+
+.ribbon {
+  position: absolute;
+  top: -10px;
+  inset-inline-end: 10px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f2994a, #e9a800);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.radio {
+  position: absolute;
+  top: 14px;
+  inset-inline-start: 14px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #c4bfb7;
+}
+
+.plan[data-selected] .radio { border-color: var(--pp-blue); box-shadow: inset 0 0 0 4px var(--pp-card); background: var(--pp-blue); }
+
+.planName { padding-inline-start: 26px; font-size: 13.5px; font-weight: 800; }
+.price { display: flex; align-items: baseline; gap: 4px; }
+.price b { font-size: 21px; font-weight: 800; }
+.price small { font-size: 11px; color: var(--pp-mut); }
+.per { font-size: 10.5px; color: var(--pp-mut); }
+
+.hint { margin: 0; font-size: 11.5px; line-height: 1.9; color: var(--pp-mut); text-align: center; }
+
+/* ---------- صورت‌حساب‌ها ---------- */
+.none { margin: 0; padding: 14px; font-size: 12px; color: var(--pp-mut); text-align: center; }
+.history { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+
+.pay { border-radius: 15px; background: var(--pp-surface); }
+
+.pay > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 12px;
+  font: inherit;
+  text-align: start;
+  color: var(--pp-ink);
+  cursor: pointer;
+}
+
+.payIcon { display: grid; place-items: center; flex-shrink: 0; width: 34px; height: 34px; border-radius: 11px; background: #f1eee9; color: var(--pp-mut); }
+.payIcon svg { width: 18px; height: 18px; }
+.pay[data-status='paid'] .payIcon { background: var(--pp-green-soft); color: var(--pp-green); }
+.pay[data-status='failed'] .payIcon { background: var(--pp-red-soft); color: var(--pp-red); }
+
+.payMain { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.7; }
+.payMain b { font-size: 12.5px; font-weight: 800; }
+.payMain small { font-size: 10.5px; color: var(--pp-mut); }
+
+.payEnd { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.7; }
+.payEnd b { font-size: 12.5px; font-weight: 800; }
+.payEnd em { font-size: 10.5px; font-style: normal; font-weight: 700; color: var(--pp-mut); }
+.pay[data-status='paid'] .payEnd em { color: var(--pp-green); }
+
+.payChev { flex-shrink: 0; width: 16px; height: 16px; color: #b3aea6; transition: transform 0.2s; }
+.pay > button[aria-expanded='true'] .payChev { transform: rotate(180deg); }
+
+.payDetails { margin: 0; padding: 0 14px 12px; display: flex; flex-direction: column; }
+.payDetails div { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-top: 1px dashed var(--pp-line); font-size: 11.5px; }
+.payDetails dt { color: var(--pp-mut); }
+.payDetails dd { margin: 0; font-weight: 700; text-align: end; overflow-wrap: anywhere; }
+
+.trust { display: flex; flex-direction: column; gap: 10px; }
+.trust > p { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; font-size: 11.5px; color: var(--pp-mut); text-align: center; }
+.trust > p svg { width: 17px; height: 17px; color: var(--pp-green); }
+
+.confirm { display: flex; flex-direction: column; gap: 12px; }
+.confirm small { font-size: 11px; color: var(--pp-mut); text-align: center; }
+.sheetText { margin: 0 0 14px; font-size: 12.5px; line-height: 2; color: var(--pp-mut); }
+
+.empty { display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 420px; margin: 30px auto 0; text-align: center; }
+.empty b { font-size: 15px; }
+.empty p { margin: 0 0 6px; font-size: 12.5px; color: var(--pp-mut); }
+
+@media (min-width: 1024px) {
+  .page { gap: 18px; }
+  .top { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 18px; align-items: stretch; }
+}

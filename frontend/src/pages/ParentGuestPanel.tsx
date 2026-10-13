@@ -1,10 +1,4 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  HiOutlineInformationCircle,
-  HiOutlinePaperAirplane,
-  HiOutlineShieldCheck,
-} from 'react-icons/hi2';
 import { useAuth } from '@/features/auth/context';
 import { buildAnalysis } from '@/features/parent/analysis';
 import type { Assignment } from '@/features/parent/api';
@@ -12,12 +6,14 @@ import type { ParentPreferences, Suggestion } from '@/features/parent/types';
 import { ParentShell } from '@/features/parent/components/layout/ParentShell';
 import { PanelPages } from '@/features/parent/components/layout/PanelPages';
 import { usePanelPage } from '@/features/parent/components/layout/usePanelPage';
-import { Card } from '@/features/parent/components/shell/Card';
 import { ChildSwitch } from '@/features/parent/components/shell/ChildSwitch';
 import { Sheet } from '@/features/parent/components/shell/Sheet';
 import { Toast } from '@/features/parent/components/shell/Toast';
 import { DailyView } from '@/features/parent/components/views/DailyView';
-import { SettingsView } from '@/features/parent/components/views/SettingsView';
+import { SettingsPage } from '@/features/parent/components/settings/SettingsPage';
+import { SettingsContext } from '@/features/parent/components/settings/SettingsContext';
+import type { SettingsEnv } from '@/features/parent/components/settings/SettingsContext';
+import { GUEST_NOTIFICATIONS } from '@/features/parent/components/settings/guestSettings';
 import { localDate } from '@/features/parent/dates';
 import {
   GUEST_ASSIGNMENTS,
@@ -28,13 +24,12 @@ import {
 } from '@/features/parent/guestData';
 import styles from './ParentPanel.module.css';
 
-type SheetKind = 'notifications' | 'support' | 'privacy' | 'about' | 'logout';
+type SheetKind = 'logout';
 
 /** پنلِ والدین در حالت مهمان؛ فقط داده‌ی نمونه دارد و هیچ APIای را صدا نمی‌زند. */
 export default function ParentGuestPanel() {
   const { logout } = useAuth();
-  const navigate = useNavigate();
-  const { page, go } = usePanelPage();
+  const { page, section, sectionId, go } = usePanelPage();
   const [childId, setChildId] = useState(GUEST_CHILDREN[0].id);
   const [sheet, setSheet] = useState<SheetKind | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -74,6 +69,31 @@ export default function ParentGuestPanel() {
     setToast(value ? 'این اعلان در حالت دمو روشن شد' : 'این اعلان در حالت دمو خاموش شد');
   };
 
+  const demo = (message = 'این کار در حالتِ نمایشی انجام نمی‌شود') => setToast(message);
+  const settingsEnv: SettingsEnv = {
+    guest: true,
+    parentName: 'مهمان',
+    parentPhone: 'حالتِ نمایشی',
+    phoneVerified: false,
+    childList: GUEST_CHILDREN,
+    activeChildId: child.id,
+    onChildChange: setChildId,
+    notifications: GUEST_NOTIFICATIONS,
+    onReadAll: () => undefined,
+    preferences,
+    onToggle: togglePreference,
+    onAddChild: () => demo('افزودن فرزند در حالتِ نمایشی فعال نیست'),
+    onRemoveChild: () => demo('مدیریتِ فرزندان در حالتِ نمایشی فعال نیست'),
+    onLogout: () => setSheet('logout'),
+    onNotice: setToast,
+    open: (next, id, extra) => go('settings', { s: next || undefined, id, ...extra }),
+    follow: (link) => {
+      const url = new URL(link, window.location.origin);
+      const p = url.searchParams.get('p') ?? 'home';
+      go(p as Parameters<typeof go>[0], { s: url.searchParams.get('s') ?? undefined, id: url.searchParams.get('id') ?? undefined });
+    },
+  };
+
   return (
     <ParentShell
       page={page}
@@ -85,10 +105,10 @@ export default function ParentGuestPanel() {
       onChildChange={setChildId}
       onAddChild={() => setToast('افزودن فرزند در حالت مهمان فعال نیست')}
       childName={shortName}
-      onSubscription={() => navigate(`/parent-panel/subscription?child=${child.id}`)}
+      onSubscription={() => go('settings', { s: 'billing' })}
       unread={0}
-      onNotifications={() => setSheet('notifications')}
-      onSupport={() => setSheet('support')}
+      onNotifications={() => go('settings', { s: 'notifications' })}
+      onSupport={() => go('settings', { s: 'support' })}
       onLogout={() => setSheet('logout')}
       banner={
         <div className={styles.guestBanner} role="status">
@@ -98,44 +118,6 @@ export default function ParentGuestPanel() {
       }
       overlays={
         <>
-          <Sheet open={sheet === 'notifications'} title="اعلان‌ها" onClose={() => setSheet(null)}>
-            <p className={styles.sheetText}>در این نسخهٔ نمایشی، دو اعلان نمونه برای آشنایی با پنل آماده شده است.</p>
-            <Card>
-              <b>گزارش هفتگی آماده است</b>
-              <p className={styles.sheetText}>آرش این هفته ۴۵ دقیقه بازی کرده است.</p>
-            </Card>
-            <Card>
-              <b>یک بازی برای امروز پیشنهاد شده</b>
-              <p className={styles.sheetText}>الگویاب برای تمرینِ مبحث الگو مناسب است.</p>
-            </Card>
-          </Sheet>
-
-          <Sheet open={sheet === 'support'} title="گفتگو با پشتیبانی" onClose={() => setSheet(null)}>
-            <p className={styles.sheetText}>پشتیبانی در حالت مهمان فقط برای نمایش ظاهر پنل است.</p>
-            <button
-              type="button"
-              className={styles.btnPrimary}
-              onClick={() => {
-                setSheet(null);
-                setToast('این گزینه در نسخهٔ دمو ارسال نمی‌شود');
-              }}
-            >
-              <HiOutlinePaperAirplane aria-hidden /> ارسال پیام نمونه
-            </button>
-          </Sheet>
-
-          <Sheet open={sheet === 'privacy'} title="حریم خصوصی و امنیت" onClose={() => setSheet(null)}>
-            <p className={styles.sheetText}>
-              <HiOutlineShieldCheck aria-hidden /> در حالت مهمان، هیچ اطلاعاتی از شما یا فرزندتان به سرور ارسال نمی‌شود.
-            </p>
-          </Sheet>
-
-          <Sheet open={sheet === 'about'} title="دربارهٔ لوکو" onClose={() => setSheet(null)}>
-            <p className={styles.sheetText}>
-              <HiOutlineInformationCircle aria-hidden /> این صفحه یک دمو برای نمایشگاه است و داده‌های آن واقعی نیست.
-            </p>
-          </Sheet>
-
           <Sheet open={sheet === 'logout'} title="خروج از حالت مهمان" onClose={() => setSheet(null)}>
             <p className={styles.sheetText}>با خروج، حالت مهمان این دستگاه پاک می‌شود.</p>
             <div className={styles.btnRow}>
@@ -160,8 +142,8 @@ export default function ParentGuestPanel() {
         analysis={analysis}
         childName={shortName}
         today={today}
-        onUpgrade={() => navigate(`/parent-panel/subscription?child=${child.id}`)}
-        onSupport={() => setSheet('support')}
+        onUpgrade={() => go('settings', { s: 'billing' })}
+        onSupport={() => go('settings', { s: 'support' })}
         daily={
           <DailyView
             childName={shortName}
@@ -173,20 +155,9 @@ export default function ParentGuestPanel() {
           />
         }
         settings={
-          <SettingsView
-            parentName="مهمان"
-            parentPhone="دموی بدون حساب"
-            childList={GUEST_CHILDREN}
-            preferences={preferences}
-            onToggle={togglePreference}
-            onAddChild={() => setToast('افزودن فرزند در حالت مهمان فعال نیست')}
-            onRemoveChild={() => setToast('مدیریت فرزندان در حالت مهمان فعال نیست')}
-            onSupport={() => setSheet('support')}
-            onPrivacy={() => setSheet('privacy')}
-            onAbout={() => setSheet('about')}
-            onNotice={() => undefined}
-            onLogout={() => setSheet('logout')}
-          />
+          <SettingsContext.Provider value={settingsEnv}>
+            <SettingsPage section={section} id={sectionId} />
+          </SettingsContext.Provider>
         }
       />
     </ParentShell>

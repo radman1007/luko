@@ -19,21 +19,6 @@ export interface CatalogGame {
   coinReward: number;
 }
 
-export interface Ticket {
-  id: number;
-  subject: string;
-  status: 'open' | 'answered' | 'closed';
-  createdAt: string;
-  lastMessageAt: string;
-  messages: {
-    id: number;
-    body: string;
-    isStaffReply: boolean;
-    senderName: string;
-    createdAt: string;
-  }[];
-}
-
 /** همه‌ی درخواست‌های پنل والدین. پاکتِ {data} در همین‌جا باز می‌شود. */
 export const parentApi = {
   async children(): Promise<Child[]> {
@@ -141,20 +126,6 @@ export const parentApi = {
         coinReward: level.coinReward,
       })),
     );
-  },
-
-  async tickets(): Promise<Ticket[]> {
-    const { data } = await apiClient.get('/tickets');
-    return data.data;
-  },
-
-  async createTicket(payload: { subject: string; body: string }): Promise<Ticket> {
-    const { data } = await apiClient.post('/tickets', payload);
-    return data.data;
-  },
-
-  async replyTicket(id: number, body: string): Promise<void> {
-    await apiClient.post(`/tickets/${id}/reply`, { body });
   },
 
   /** پیشنهادِ بازی روز — بر اساسِ ضعیف‌ترین مبحثِ همین بچه */

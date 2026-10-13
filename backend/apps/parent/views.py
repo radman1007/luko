@@ -5,7 +5,6 @@ from django.db import transaction
 from django.db.models import Max
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -17,7 +16,9 @@ from apps.accounts.passwords import link_family, set_password
 from apps.accounts.utils import normalize_phone
 from apps.common.sms import SmsError
 
+from .account import update_child
 from .models import DailyAssignment, Notification, ParentChild
+from .permissions import IsParent  # noqa: F401 — billing.views هم از همین‌جا می‌خواند
 from .notifications import preferences, reset_sync_throttle, sync_notifications
 from .serializers import (
     AddChildSerializer,
@@ -34,14 +35,6 @@ from apps.billing.services import subscription
 from .gating import gate_report
 from .services import build_child_report
 from .suggestions import suggestion_payload
-
-
-class IsParent(BasePermission):
-    message = "این بخش فقط برای حسابِ والدین است."
-
-    def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated
-                    and request.user.role in {User.Role.PARENT, User.Role.TEAM_ADMIN})
 
 
 def _link_or_404(request, child_id):
@@ -93,9 +86,12 @@ class ChildrenView(APIView):
 
 
 class ChildDetailView(APIView):
-    """DELETE — قطعِ دسترسیِ والد به فرزند (حسابِ بچه پاک نمی‌شود)."""
+    """PATCH — نام و مدرسه (account.py) · DELETE — قطعِ دسترسیِ والد به فرزند (حسابِ بچه پاک نمی‌شود)."""
 
     permission_classes = [IsParent]
+
+    def patch(self, request, child_id):
+        return update_child(request, child_id)
 
     def delete(self, request, child_id):
         link = _link_or_404(request, child_id)

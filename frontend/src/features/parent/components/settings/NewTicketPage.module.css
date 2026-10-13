@@ -1,0 +1,83 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 820px;
+}
+
+.page > section { container-type: inline-size; }
+
+.categories {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@container (min-width: 560px) {
+  .categories { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@container (max-width: 300px) {
+  .categories { grid-template-columns: minmax(0, 1fr); }
+}
+
+.categories button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 11px 12px;
+  border-radius: 15px;
+  background: var(--pp-surface);
+  border: 1.5px solid transparent;
+  font: inherit;
+  text-align: start;
+  color: var(--pp-ink);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.categories button svg { flex-shrink: 0; width: 21px; height: 21px; color: var(--pp-blue); }
+.categories span { display: flex; flex-direction: column; min-width: 0; line-height: 1.6; }
+.categories b { font-size: 12.5px; font-weight: 800; }
+.categories small { font-size: 10.5px; color: var(--pp-mut); }
+
+.categories button[data-active],
+.children button[data-active] { background: var(--pp-soft); border-color: var(--pp-blue); }
+
+.categories button:focus-visible,
+.children button:focus-visible { outline: 2px solid var(--pp-blue); outline-offset: 2px; }
+
+.children { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.children button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  background: var(--pp-surface);
+  border: 1.5px solid transparent;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--pp-ink);
+  cursor: pointer;
+}
+
+.children svg { width: 18px; height: 18px; color: var(--pp-blue); }
+
+.children i {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: var(--pp-blue);
+  color: #fff;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.after { margin: 0; font-size: 11px; line-height: 2; color: var(--pp-mut); text-align: center; }

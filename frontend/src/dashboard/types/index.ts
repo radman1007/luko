@@ -160,9 +160,19 @@ export interface SignupPoint {
 
 export interface TicketRow {
   id: number;
+  /** شماره‌ی پیگیری که والد می‌بیند: LK-1042 */
+  code: string;
   subject: string;
   status: 'open' | 'answered' | 'closed';
   statusLabel: string;
+  category: string;
+  categoryLabel: string;
+  /** والدِ مشترک: high */
+  priority: 'normal' | 'high';
+  childName: string;
+  /** امتیازِ والد به پاسخ (۱ تا ۵) */
+  rating: number | null;
+  ratingComment: string;
   userId: number;
   userName: string;
   userPhone: string;

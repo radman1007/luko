@@ -1,21 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  HiOutlineBell,
-  HiOutlineChatBubbleLeftRight,
-  HiOutlineChatBubbleOvalLeftEllipsis,
-  HiOutlineCheckBadge,
-  HiOutlineChevronLeft,
-  HiOutlineCreditCard,
-  HiOutlineExclamationTriangle,
-  HiOutlineFaceSmile,
-  HiOutlineMegaphone,
-  HiOutlineMoon,
-  HiOutlinePaperAirplane,
-  HiOutlinePuzzlePiece,
-  HiOutlineTrophy,
-} from 'react-icons/hi2';
+import { HiOutlineExclamationTriangle } from 'react-icons/hi2';
 import { useAuth } from '@/features/auth/context';
 import ParentGuestPanel from './ParentGuestPanel';
 import { buildAnalysis } from '@/features/parent/analysis';
@@ -24,7 +10,6 @@ import {
   useAddChild,
   useAssignments,
   useChildren,
-  useCreateTicket,
   useMarkNotificationsRead,
   useNotifications,
   usePreferences,
@@ -43,27 +28,16 @@ import { Toast } from '@/features/parent/components/shell/Toast';
 import { ParentIntroGate } from '@/features/parent/components/intro/ParentIntroGate';
 import { useSubscriptions } from '@/features/billing/useBilling';
 import { DailyView } from '@/features/parent/components/views/DailyView';
-import { SettingsView } from '@/features/parent/components/views/SettingsView';
+import { SettingsPage } from '@/features/parent/components/settings/SettingsPage';
+import { SettingsContext } from '@/features/parent/components/settings/SettingsContext';
+import type { SettingsEnv } from '@/features/parent/components/settings/SettingsContext';
 import { localDate } from '@/features/parent/dates';
 import { isValidPhone, normalizePhone } from '@/lib/phone';
-import { openGoftino } from '@/features/support/goftino';
-import { useGoftinoReady } from '@/features/support/useGoftinoReady';
 import { ALL_GRADES, gradeName } from '@/lib/grades';
 import { useOpenGrades } from '@/features/games/useOpenGrades';
 import styles from './ParentPanel.module.css';
 
-type SheetKind = 'notifications' | 'support' | 'addChild' | 'removeChild' | 'logout' | 'privacy' | 'about';
-
-const NOTIF_ICON = {
-  weekly: HiOutlineTrophy,
-  games: HiOutlinePuzzlePiece,
-  mood: HiOutlineFaceSmile,
-  idle: HiOutlineMoon,
-  assignment: HiOutlineCheckBadge,
-  billing: HiOutlineCreditCard,
-  announcement: HiOutlineMegaphone,
-  support: HiOutlineChatBubbleLeftRight,
-};
+type SheetKind = 'addChild' | 'removeChild' | 'logout';
 
 /** اسکلتِ بارگذاری — شکلِ خانه را نگه می‌دارد تا صفحه نپرد */
 function Skeleton() {
@@ -88,18 +62,18 @@ function AuthenticatedParentPanel() {
   const [toast, setToast] = useState<string | null>(null);
   const [pendingChild, setPendingChild] = useState<Child | null>(null);
   const [form, setForm] = useState({ phone: '', firstName: '', grade: '1', school: '', password: '' });
-  const [message, setMessage] = useState('');
 
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
-  const { page, go } = usePanelPage();
+  const { page, section, sectionId, go } = usePanelPage();
 
-  // اعلانِ «پشتیبانی پاسخ داد» با ?open=support می‌آید: برگه‌ی گفتگو را باز کن
+  // پیوندِ قدیمیِ «پشتیبانی پاسخ داد» (?open=support): حالا بخشِ پشتیبانی در تنظیمات
   useEffect(() => {
     if (params.get('open') !== 'support') return;
-    setSheet('support');
     const next = new URLSearchParams(params);
     next.delete('open');
+    next.set('p', 'settings');
+    next.set('s', 'support');
     setParams(next, { replace: true });
   }, [params, setParams]);
   const children = useChildren();
@@ -115,8 +89,6 @@ function AuthenticatedParentPanel() {
   const addChild = useAddChild();
   const removeChild = useRemoveChild();
   const markRead = useMarkNotificationsRead();
-  const createTicket = useCreateTicket();
-  const liveChat = useGoftinoReady();
 
   // اولین فرزند به‌صورت پیش‌فرض انتخاب می‌شود
   useEffect(() => {
@@ -149,10 +121,8 @@ function AuthenticatedParentPanel() {
   const parentName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim();
   const unread = notifications.data?.unread ?? 0;
 
-  const openNotifications = () => {
-    setSheet('notifications');
-    if (unread > 0) markRead.mutate();
-  };
+  const openNotifications = () => go('settings', { s: 'notifications' });
+  const openSupport = () => go('settings', { s: 'support' });
 
   const pickGame = (suggestion: Suggestion, date: string) => {
     setAssignment.mutate(
@@ -230,29 +200,34 @@ function AuthenticatedParentPanel() {
     });
   };
 
-  const submitTicket = () => {
-    const body = message.trim();
-    if (body.length < 5) {
-      setToast('پیام خیلی کوتاه است.');
-      return;
-    }
-    createTicket.mutate(
-      { subject: 'پرسش از پنل والدین', body },
-      {
-        onSuccess: () => {
-          setSheet(null);
-          setMessage('');
-          setToast('پیام شما برای پشتیبانی ارسال شد');
-        },
-        onError: () => setToast('ارسال پیام انجام نشد؛ دوباره تلاش کنید.'),
-      },
-    );
-  };
-
   const childPage = page === 'home' || page === 'health' || page === 'details' || page === 'daily';
   const showSwitcher = childPage && (children.data?.length ?? 0) > 1;
   const today = assignments.data?.find((item) => item.date === localDate(0)) ?? null;
-  const upgrade = () => activeChild && navigate(`/parent-panel/subscription?child=${activeChild.id}`);
+  const upgrade = () => go('settings', { s: 'billing' });
+
+  const settingsEnv: SettingsEnv = {
+    guest: false,
+    parentName,
+    parentPhone: user?.phone ?? '',
+    phoneVerified: Boolean(user?.phoneVerified),
+    childList: children.data ?? [],
+    activeChildId: childId,
+    onChildChange: setChildId,
+    subscriptions: subscriptions.data,
+    notifications: notifications.data,
+    onReadAll: () => markRead.mutate(),
+    preferences: preferences.data,
+    onToggle: togglePreference,
+    onAddChild: () => setSheet('addChild'),
+    onRemoveChild: (child) => {
+      setPendingChild(child);
+      setSheet('removeChild');
+    },
+    onLogout: () => setSheet('logout'),
+    onNotice: setToast,
+    open: (next, id, extra) => go('settings', { s: next || undefined, id, ...extra }),
+    follow: (link) => navigate(link),
+  };
 
   const noChildren = !children.isLoading && (children.data?.length ?? 0) === 0;
   let status: ReactNode;
@@ -296,88 +271,9 @@ function AuthenticatedParentPanel() {
       onSubscription={upgrade}
       unread={unread}
       onNotifications={openNotifications}
-      onSupport={() => setSheet('support')}
+      onSupport={openSupport}
       onLogout={() => setSheet('logout')}
       overlays={<>
-      <Sheet
-        open={sheet === 'notifications'}
-        title="اعلان‌ها"
-        onClose={() => setSheet(null)}
-      >
-        {(notifications.data?.items.length ?? 0) === 0 ? (
-          <p className={styles.sheetText}>هنوز اعلانی ندارید.</p>
-        ) : (
-          notifications.data?.items.map((item) => {
-            const Icon = NOTIF_ICON[item.kind] ?? HiOutlineBell;
-            return (
-              <div key={item.id} className={styles.notifRow}>
-                <span className={styles.notifIcon} aria-hidden>
-                  <Icon />
-                </span>
-                <div className={styles.notifMain}>
-                  <b>{item.title}</b>
-                  <small>
-                    {item.body} · {item.at}
-                  </small>
-                  {item.link && (
-                    <button
-                      type="button"
-                      className={styles.notifAction}
-                      onClick={() => {
-                        setSheet(null);
-                        navigate(item.link as string);
-                      }}
-                    >
-                      {item.kind === 'billing' && /تمام|پایان/.test(item.title) ? 'تمدید و پرداخت' : 'مشاهده'}
-                      <HiOutlineChevronLeft aria-hidden />
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })
-        )}
-      </Sheet>
-
-      <Sheet open={sheet === 'support'} title="گفتگو با پشتیبانی" onClose={() => setSheet(null)}>
-        {liveChat && (
-          <>
-            <button
-              type="button"
-              className={`${styles.btnGhost} ${styles.liveChat}`}
-              onClick={() => {
-                setSheet(null);
-                openGoftino();
-              }}
-            >
-              <HiOutlineChatBubbleOvalLeftEllipsis aria-hidden />
-              گفتگوی آنلاین با پشتیبانی
-            </button>
-            <p className={styles.sheetText}>یا پیامتان را این‌جا بگذارید؛ پاسخش در همین پنل می‌آید.</p>
-          </>
-        )}
-        {!liveChat && (
-          <p className={styles.sheetText}>
-            هر سؤالی دربارهٔ گزارش‌ها یا حسابِ فرزندتان دارید همین‌جا بنویسید؛ تیم لوکو پاسخ می‌دهد.
-          </p>
-        )}
-        <textarea
-          className={styles.textarea}
-          placeholder="پیام خود را بنویسید…"
-          value={message}
-          onChange={(event) => setMessage(event.target.value)}
-        />
-        <button
-          type="button"
-          className={styles.btnPrimary}
-          disabled={createTicket.isPending}
-          onClick={submitTicket}
-        >
-          <HiOutlinePaperAirplane aria-hidden />
-          {createTicket.isPending ? 'در حال ارسال…' : 'ارسال پیام'}
-        </button>
-      </Sheet>
-
       <Sheet open={sheet === 'addChild'} title="افزودن فرزند" onClose={() => setSheet(null)}>
         <p className={styles.sheetText}>
           شمارهٔ موبایلی که فرزندتان با آن وارد لوکو می‌شود را بنویسید.
@@ -481,21 +377,6 @@ function AuthenticatedParentPanel() {
         </div>
       </Sheet>
 
-      <Sheet open={sheet === 'privacy'} title="حریم خصوصی و امنیت" onClose={() => setSheet(null)}>
-        <p className={styles.sheetText}>
-          گزارش‌های این پنل فقط از بازی‌های ثبت‌شده ساخته می‌شوند. نوشته‌های «صندوقچهٔ رازها»
-          رمزنگاری‌شده‌اند و برای هیچ‌کس — از جمله شما — قابل دیدن نیستند. دسترسی هر والد فقط به
-          فرزندانِ متصل به حساب خودش است.
-        </p>
-      </Sheet>
-
-      <Sheet open={sheet === 'about'} title="دربارهٔ لوکو" onClose={() => setSheet(null)}>
-        <p className={styles.sheetText}>
-          لوکو شهری است که بچه‌ها در آن با بازی یاد می‌گیرند. این پنل، آینهٔ همان مسیر برای شماست:
-          چقدر تمرین کرد، کجا قوی است و کجا کمک لازم دارد.
-        </p>
-      </Sheet>
-
       <Toast message={toast} onDone={() => setToast(null)} />
       </>}
     >
@@ -512,7 +393,7 @@ function AuthenticatedParentPanel() {
         childName={shortName}
         today={today}
         onUpgrade={upgrade}
-        onSupport={() => setSheet('support')}
+        onSupport={openSupport}
         status={status}
         daily={
           <DailyView
@@ -525,23 +406,9 @@ function AuthenticatedParentPanel() {
           />
         }
         settings={
-          <SettingsView
-            parentName={parentName}
-            parentPhone={user?.phone ?? ''}
-            childList={children.data ?? []}
-            preferences={preferences.data}
-            onToggle={togglePreference}
-            onAddChild={() => setSheet('addChild')}
-            onRemoveChild={(child) => {
-              setPendingChild(child);
-              setSheet('removeChild');
-            }}
-            onSupport={() => setSheet('support')}
-            onPrivacy={() => setSheet('privacy')}
-            onAbout={() => setSheet('about')}
-            onLogout={() => setSheet('logout')}
-            onNotice={setToast}
-          />
+          <SettingsContext.Provider value={settingsEnv}>
+            <SettingsPage section={section} id={sectionId} />
+          </SettingsContext.Provider>
         }
       />
     </ParentShell>

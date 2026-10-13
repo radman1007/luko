@@ -20,11 +20,19 @@ const TABS = [
 ];
 
 const COLUMNS: Column<TicketRow>[] = [
-  { key: 'subject', header: 'موضوع', render: (t) => <span className={styles.cell}><b>{t.subject}</b><small>#{faNum(t.id)}</small></span> },
+  { key: 'subject', header: 'موضوع', render: (t) => (
+    <span className={styles.cell}>
+      <b>{t.subject}</b>
+      <small>{t.code} · {t.categoryLabel}{t.childName ? ` · ${t.childName}` : ''}</small>
+    </span>
+  ) },
+  { key: 'priority', header: 'اولویت', optional: true,
+    render: (t) => (t.priority === 'high' ? <Badge tone="amber">مشترک</Badge> : <Badge>عادی</Badge>) },
   { key: 'user', header: 'فرستنده', render: (t) => <span className={styles.cell}><span>{t.userName}</span><small className={styles.ltr}>{t.userPhone}</small></span> },
   { key: 'status', header: 'وضعیت', render: (t) => <Badge tone={TICKET_TONE[t.status]} dot>{t.statusLabel}</Badge> },
   { key: 'messages', header: 'پیام', optional: true, render: (t) => faNum(t.messages ?? 0) },
   { key: 'last', header: 'آخرین پیام', render: (t) => t.lastAtFa },
+  { key: 'rating', header: 'امتیاز', optional: true, render: (t) => (t.rating ? `${faNum(t.rating)} از ۵` : '—') },
 ];
 
 export function TicketsPage() {

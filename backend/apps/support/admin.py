@@ -19,12 +19,15 @@ class MessageInline(admin.TabularInline):
 class TicketAdmin(admin.ModelAdmin):
     """پاسخِ تیم از همین‌جا داده می‌شود: پیام تازه با «پاسخ تیم پشتیبانی» تیک‌خورده."""
 
-    list_display = ("id", "subject", "user", "phone", "status", "replies", "opened")
+    list_display = ("id", "subject", "user", "phone", "category", "priority", "status", "replies", "rating", "opened")
     list_display_links = ("id", "subject")
-    list_filter = ("status",)
+    list_filter = ("status", "category", "priority")
     list_editable = ("status",)
     search_fields = ("subject", "user__phone", "user__first_name", "messages__body")
     list_select_related = ("user",)
+    # فهرستِ کشوییِ همه‌ی کاربران سنگین است؛ کاربر و فرزند با شناسه انتخاب می‌شوند
+    raw_id_fields = ("user", "child")
+    readonly_fields = ("user_seen_at", "closed_at", "rating", "rating_comment")
     inlines = [MessageInline]
     list_per_page = 50
 

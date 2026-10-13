@@ -40,9 +40,12 @@ export function TicketDetailPage() {
 
   return (
     <>
-      <PageHeader title={ticket.subject} description={`#${faNum(ticket.id)} · ${ticket.createdFa}`}
+      <PageHeader title={ticket.subject}
+        description={`${ticket.code} · ${ticket.categoryLabel}${ticket.childName ? ` · فرزند: ${ticket.childName}` : ''} · ${ticket.createdFa}`}
         back={<Link to="/tickets" className={back.back}><HiOutlineChevronRight aria-hidden />پشتیبانی</Link>}
         actions={<>
+          {ticket.priority === 'high' && <Badge tone="amber">والدِ مشترک</Badge>}
+          {ticket.rating && <Badge tone="green">امتیاز {faNum(ticket.rating)} از ۵</Badge>}
           <Badge tone={TICKET_TONE[ticket.status]} dot>{ticket.statusLabel}</Badge>
           {ticket.status !== 'closed'
             ? <Button size="sm" loading={status.isPending} onClick={() => void change('closed')}>بستنِ تیکت</Button>
@@ -57,6 +60,9 @@ export function TicketDetailPage() {
             </li>
           ))}
         </ol>
+        {ticket.ratingComment && (
+          <p className={own.body}>نظرِ والد درباره‌ی پاسخ: «{ticket.ratingComment}»</p>
+        )}
         <div className={own.reply}>
           <TextArea label="پاسخِ شما" value={body} maxLength={4000} rows={4} onChange={(e) => setBody(e.target.value)}
             placeholder="با مهربانی و دقیق؛ والد این را در پنلش می‌خواند." />

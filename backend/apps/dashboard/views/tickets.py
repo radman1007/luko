@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta
 
 from django.db import transaction
-from django.db.models import Count, Max, Q
+from django.db.models import Case, Count, IntegerField, Max, Q, Value, When
 from django.utils import timezone
 from rest_framework.response import Response
 
@@ -15,16 +15,24 @@ from ..payloads import fa_ago, fa_stamp, full_name
 from ..security import DashboardView, error, paginate
 from ..segments import normalized_query
 
-#: پیوندِ اعلانِ «پاسخِ پشتیبانی» — پنلِ والدین با آن برگه‌ی پشتیبانی را باز می‌کند
-SUPPORT_LINK = "/parent-panel?open=support"
+#: پیوندِ اعلانِ «پاسخِ پشتیبانی» — پنلِ والدین با آن همان تیکت را در «تنظیمات ← پشتیبانی» باز می‌کند
+def support_link(ticket: Ticket) -> str:
+    return f"/parent-panel?p=settings&s=ticket&id={ticket.pk}"
 
 
 def ticket_row(t: Ticket, now) -> dict:
     return {
         "id": t.id,
+        "code": t.code,
         "subject": t.subject,
         "status": t.status,
         "status_label": t.get_status_display(),
+        "category": t.category,
+        "category_label": t.get_category_display(),
+        "priority": t.priority,
+        "child_name": full_name(t.child) if t.child_id else "",
+        "rating": t.rating,
+        "rating_comment": t.rating_comment,
         "user_id": t.user_id,
         "user_name": full_name(t.user) or "بی‌نام",
         "user_phone": t.user.phone,
@@ -42,10 +50,12 @@ class TicketListView(DashboardView):
     def get(self, request):
         p = request.query_params
         now = timezone.now()
-        qs = Ticket.objects.select_related("user").annotate(n_messages=Count("messages"),
+        qs = Ticket.objects.select_related("user", "child").annotate(n_messages=Count("messages"),
                                                             last_at=Max("messages__created_at"))
         if p.get("status") in Ticket.Status.values:
             qs = qs.filter(status=p["status"])
+        if p.get("category") in Ticket.Category.values:
+            qs = qs.filter(category=p["category"])
         q = normalized_query(p.get("q", ""))
         if q:
             qs = qs.filter(Q(subject__icontains=q) | Q(user__phone__contains=q) | Q(user__first_name__icontains=q)
@@ -58,7 +68,9 @@ class TicketListView(DashboardView):
             qs = qs.filter(created_at__lt=timezone.make_aware(datetime.combine(end + timedelta(days=1),
                                                                                datetime.min.time())))
         counts = dict(Ticket.objects.values_list("status").annotate(n=Count("pk")))
-        page, meta = paginate(request, qs.order_by("-last_at", "-updated_at"))
+        # اولویتِ بالا (والدِ مشترک) بالاتر، بعد تازه‌ترین گفت‌وگو
+        high = Case(When(priority=Ticket.Priority.HIGH, then=Value(1)), default=Value(0), output_field=IntegerField())
+        page, meta = paginate(request, qs.annotate(high=high).order_by("-high", "-last_at", "-updated_at"))
         return Response({"results": [ticket_row(t, now) for t in page], **meta,
                          "counts": {s: counts.get(s, 0) for s in Ticket.Status.values}})
 
@@ -80,7 +92,7 @@ class TicketDetailView(DashboardView):
     capability = "tickets"
 
     def get(self, request, pk):
-        ticket = Ticket.objects.select_related("user").filter(pk=pk).first()
+        ticket = Ticket.objects.select_related("user", "child").filter(pk=pk).first()
         if ticket is None:
             return error("تیکت پیدا نشد.", 404)
         return Response(ticket_detail(ticket, timezone.now()))
@@ -107,7 +119,7 @@ class TicketReplyView(DashboardView):
         Notification.objects.get_or_create(
             user=ticket.user, dedup_key=f"ticket-reply:{message.pk}",
             defaults={"kind": Notification.Kind.SUPPORT, "title": "پشتیبانی پاسخ داد",
-                      "body": f"دربارهٔ «{ticket.subject[:60]}»", "link": SUPPORT_LINK},
+                      "body": f"دربارهٔ «{ticket.subject[:60]}»", "link": support_link(ticket)},
         )
         audit.record(request, "ticket_reply", target=ticket, target_type="ticket",
                      target_label=f"#{ticket.pk} {ticket.subject}", details={"chars": len(body)})
