@@ -35,9 +35,13 @@ MAX_TOKENS = {
 
 RETRY_STATUS = {429, 500, 502, 503, 504}
 
-#: سقفِ انتظار برای هر تلاش. پاسخِ عادی ۱۰ تا ۳۰ ثانیه است؛ گیت‌وی گاهی بی‌پاسخ می‌ماند و با سقفِ ۱۲۰ ثانیه
-#: تحلیل ۱۴۵ ثانیه طول کشید (پروداکشن، ۲۲ مهر). زودتر رها می‌کنیم و یک بار دیگر می‌پرسیم.
-TIMEOUTS = {"insight": 70, "assistant": 80}
+#: سقفِ انتظار برای هر تلاش. گیت‌وی گاهی بارِ اول بی‌پاسخ می‌ماند (پروداکشن، ۲۲ مهر: دو تحلیل از چهار)؛ تلاشِ
+#: دوم معمولاً ۲۰ ثانیه‌ای جواب می‌دهد. پاسخِ عادی: تحلیلِ Flash ۱۷ تا ۳۲، Luna ۸ تا ۱۱ ثانیه؛ Pro به‌خاطرِ
+#: استدلال بلندتر و سقفش بالاتر است.
+TIMEOUTS = {
+    "insight": {"flash": 45, "pro": 120, "luna": 45},
+    "assistant": {"flash": 40, "pro": 80, "luna": 40},
+}
 
 
 class AIError(Exception):
@@ -96,7 +100,7 @@ def complete(tier: str, prompt: str, *, feature: str, temperature: float = 0.4, 
     for attempt in range(2):
         error = ""
         try:
-            response = _post(body, timeout or TIMEOUTS.get(feature, settings.AI_TIMEOUT))
+            response = _post(body, timeout or TIMEOUTS.get(feature, {}).get(tier, settings.AI_TIMEOUT))
         except requests.RequestException as exc:
             error = f"network:{type(exc).__name__}"
         else:
