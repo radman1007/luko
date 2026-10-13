@@ -201,6 +201,22 @@ class InsightTests(AIFlowBase):
         self.assertNotIn("سارا", prompt)            # نام
         self.assertNotIn("09121118003", prompt)     # شماره
 
+    def test_subject_without_answers_has_no_accuracy(self):
+        """بازیِ بی‌پاسخ (فقط پایان) نباید برای مدل «دقتِ ۰٪» بسازد"""
+        from apps.ai.facts import build_facts
+        from apps.games.models import GameCompletion
+        from apps.parent.gating import gate_report
+        from apps.parent.services import build_child_report
+
+        self.play()
+        GameCompletion.objects.create(user=self.kid, game_slug="g-sci", coins_awarded=5)
+        facts = build_facts(gate_report(build_child_report(self.kid), True), premium=True, grade=1)
+        science = next(s for s in facts["subjects"] if s["name"] == "علوم")
+        self.assertNotIn("accuracy_percent_last_8_weeks", science)
+        self.assertIn("note", science)
+        math = next(s for s in facts["subjects"] if s["name"] == "ریاضی")
+        self.assertEqual(math["answers_last_8_weeks"], 8)
+
     def test_new_play_makes_the_old_analysis_stale(self):
         self.play(minutes=10)
         queued, post = self.run_queued(Gateway(FakeResponse(200, bundle(10)), FakeResponse(200, bundle(20))))
@@ -230,7 +246,7 @@ class InsightTests(AIFlowBase):
         self.assertFalse(AIInsight.objects.exists())
         self.assertNotIn("source", again["weekly"])
 
-    def test_premium_uses_pro_and_falls_back_to_flash(self):
+    def test_premium_uses_luna_and_falls_back_to_flash(self):
         gift_subscription(child=self.kid, days=30, granted_by=self.admin)
         self.play(minutes=10)
         gateway = Gateway(FakeResponse(503), FakeResponse(503), FakeResponse(200, bundle(10)))
@@ -238,7 +254,7 @@ class InsightTests(AIFlowBase):
         with queued, post, patch("apps.ai.client.time.sleep"):
             self.report()
             ready = self.report()
-        self.assertEqual([b["model"] for b in gateway.bodies], ["DeepSeek-V4-Pro", "DeepSeek-V4-Pro", "DeepSeek-V4-Flash"])
+        self.assertEqual([b["model"] for b in gateway.bodies], ["GPT-5.6-Luna", "GPT-5.6-Luna", "DeepSeek-V4-Flash"])
         self.assertEqual(AIInsight.objects.get().variant, "full")
         self.assertEqual(ready["ai"]["tier"], "flash")
         self.assertFalse(any(t.get("locked") for t in ready["tips"]["items"]))   # مشترک: همه باز

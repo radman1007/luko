@@ -75,12 +75,18 @@ def _subjects(report: dict) -> tuple[list[dict], list[str]]:
     for item in report.get("subjects") or []:
         if item.get("locked") or item.get("label") == "عمومی":
             continue
-        if not item.get("mastery") and not item.get("gamesDone"):
+        answers = item.get("answers", 1 if item.get("mastery") else 0)
+        if not answers and not item.get("gamesDone"):
             if item.get("gamesTotal"):
                 not_started.append(item["label"])
             continue
-        row = {"name": item["label"], "accuracy_percent_last_8_weeks": item.get("mastery", 0),
-               "games_available": item.get("gamesTotal", 0)}
+        row = {"name": item["label"], "games_available": item.get("gamesTotal", 0)}
+        # دقت فقط وقتی پاسخی ثبت شده؛ وگرنه «۰٪» برای مدل یعنی «همه غلط» (آزمونِ پروداکشن، ۲۲ مهر)
+        if answers:
+            row["answers_last_8_weeks"] = answers
+            row["accuracy_percent_last_8_weeks"] = item.get("mastery", 0)
+        else:
+            row["note"] = "games played but no answers recorded"
         # «۰ بازی از ۱۲» جمله‌ی بدی می‌سازد؛ صفر را نمی‌فرستیم
         if item.get("gamesDone"):
             row["games_completed"] = item["gamesDone"]

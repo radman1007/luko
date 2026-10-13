@@ -33,7 +33,7 @@ def gate_report(report: dict, premium: bool) -> dict:
 
     out["subjects"] = [
         subject if subject["label"] in FREE_SUBJECTS else {
-            **subject, "locked": True, "mastery": 0, "gamesDone": 0, "trend": "flat", "weakestTopic": "",
+            **subject, "locked": True, "mastery": 0, "answers": 0, "gamesDone": 0, "trend": "flat", "weakestTopic": "",
         }
         for subject in report.get("subjects", [])
     ]

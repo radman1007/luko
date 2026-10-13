@@ -116,7 +116,9 @@ class HomeReportTests(TestCase):
         self.assertFalse(subjects["ریاضی"].get("locked"))
         self.assertGreater(subjects["ریاضی"]["mastery"], 0)
         self.assertTrue(subjects["علوم"]["locked"])
-        self.assertEqual((subjects["علوم"]["mastery"], subjects["علوم"]["gamesDone"]), (0, 0))   # داده بیرون نمی‌رود
+        self.assertEqual((subjects["علوم"]["mastery"], subjects["علوم"]["gamesDone"], subjects["علوم"]["answers"]),
+                         (0, 0, 0))                                                              # داده بیرون نمی‌رود
+        self.assertEqual(subjects["ریاضی"]["answers"], 3)
         self.assertEqual([c["tag"] for c in report["learning"]["concepts"]], ["count"])
         self.assertEqual(report["learning"]["lockedConcepts"], 1)
         self.assertEqual([t["key"] for t in report["topics"]], ["count"])

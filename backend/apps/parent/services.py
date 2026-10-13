@@ -360,6 +360,8 @@ def _subjects(answers, completions, games_meta, catalog, books, tags) -> list[di
             "key": subject,
             "label": subject,
             "mastery": mastery,
+            # «۰٪» بی‌پاسخ یعنی «داده‌ای نیست»، نه «همه غلط» (بازی‌هایی که فقط پایان می‌فرستند)
+            "answers": bucket["asked"] if bucket else 0,
             "gamesDone": len(done_by_subject.get(subject, ())),
             "gamesTotal": total_by_subject.get(subject, 0),
             # درسی که هنوز پاسخی ندارد نه رو به رشد است نه رو به افت

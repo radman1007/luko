@@ -19,7 +19,8 @@ DATA glossary:
 - plan: "full" = paid plan, "free" = free plan (some subjects are hidden: locked_subjects).
 - period: the last 7 days. week.*: numbers for those 7 days. minutes = active play time.
 - accuracy_percent: share of correct answers this week. first_try_percent: correct on the first attempt.
-- subjects[].accuracy_percent_last_8_weeks: accuracy in that subject over 8 weeks.
+- subjects[].accuracy_percent_last_8_weeks: accuracy in that subject over 8 weeks (only when answers exist;
+  a subject with "note" has completed games but no recorded answers — say nothing about its accuracy).
 - subjects_not_started: subjects that have games for this grade but the child has not tried yet.
 - concepts_last_8_weeks[]: learning concepts (e.g. «جمعِ دو رقمی») with answers, accuracy and the most common error type.
 - late_night_activity_percent: share of play after 21:00 or before 6:00. most_active_hour: 0-23.

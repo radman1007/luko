@@ -179,8 +179,9 @@ AI_ENABLED = env_bool("AI_ENABLED", bool(AI_BASE_URL and AI_API_KEY))
 AI_MODEL_FLASH = env("AI_MODEL_FLASH", "DeepSeek-V4-Flash")
 AI_MODEL_PRO = env("AI_MODEL_PRO", "DeepSeek-V4-Pro")
 AI_MODEL_LUNA = env("AI_MODEL_LUNA", "GPT-5.6-Luna")
-#: تحلیلِ پس‌زمینه برای فرزندِ مشترک با کدام مدل (flash | pro | luna)
-AI_INSIGHT_TIER_PREMIUM = env("AI_INSIGHT_TIER_PREMIUM", "pro")
+#: تحلیلِ پس‌زمینه برای فرزندِ مشترک با کدام مدل (flash | pro | luna). Luna در آزمون‌ها ۸ تا ۱۱ ثانیه با
+#: حدودِ ۱۰۰۰ توکن؛ Pro از ۲۵ تا ۱۵۰ ثانیه با ۴۵۰۰ توکن (بیشترش استدلال) — کیفیتِ هر دو خوب
+AI_INSIGHT_TIER_PREMIUM = env("AI_INSIGHT_TIER_PREMIUM", "luna")
 AI_TIMEOUT = int(env("AI_TIMEOUT", "120"))
 #: سهمیه‌ی روزانه‌ی دستیار برای هر والد: پلنِ رایگان فقط «پایه»
 AI_QUOTA_FREE = int(env("AI_QUOTA_FREE", "5"))
