@@ -1,4 +1,5 @@
 import type { ComponentType, SVGProps } from 'react';
+import { useId } from 'react';
 import {
   HiOutlineChatBubbleLeftRight,
   HiOutlineClock,
@@ -8,15 +9,23 @@ import {
   HiOutlineLightBulb,
   HiOutlineLockClosed,
   HiOutlineMoon,
+  HiOutlinePaintBrush,
   HiOutlineSparkles,
 } from 'react-icons/hi2';
+import { BreathIcon } from './BreathIcon';
 import type { ParentTip, TipKind } from '../../types';
 import styles from './TipsCard.module.css';
 
 interface Props {
   tips: ParentTip[];
   childName: string;
-  onUpgrade: () => void;
+  /** فقط وقتی پیشنهادِ قفل هست لازم است */
+  onUpgrade?: () => void;
+  /** پیش‌فرض: «پیشنهادِ این هفته» در خانه */
+  title?: string;
+  subtitle?: string;
+  /** رنگِ نشانِ بالای کارت: آفتابی (خانه) یا گلی (سلامت) */
+  tone?: 'sun' | 'rose';
 }
 
 const TIP_ICON: Record<TipKind, ComponentType<SVGProps<SVGSVGElement>>> = {
@@ -27,18 +36,21 @@ const TIP_ICON: Record<TipKind, ComponentType<SVGProps<SVGSVGElement>>> = {
   mood: HiOutlineFaceSmile,
   praise: HiOutlineHandThumbUp,
   goal: HiOutlineFlag,
+  breath: BreathIcon,
+  art: HiOutlinePaintBrush,
 };
 
-/** «پیشنهادِ این هفته»: کارهای کوچک و عملی برای والد؛ بی‌اشتراک فقط اولی کامل است */
-export function TipsCard({ tips, childName, onUpgrade }: Props) {
+/** فهرستِ پیشنهادها برای والد: کارهای کوچک و عملی؛ بی‌اشتراک فقط اولی کامل است */
+export function TipsCard({ tips, childName, onUpgrade, title, subtitle, tone = 'sun' }: Props) {
   const locked = tips.some((tip) => tip.locked);
+  const headingId = useId();
   return (
-    <section className={styles.card} aria-labelledby="tips-title">
+    <section className={styles.card} aria-labelledby={headingId}>
       <header className={styles.head}>
-        <span className={styles.badge} aria-hidden><HiOutlineSparkles /></span>
+        <span className={styles.badge} data-tone={tone} aria-hidden><HiOutlineSparkles /></span>
         <div>
-          <h2 id="tips-title">پیشنهادِ این هفته</h2>
-          <p>کارهای کوچکی که یادگیریِ {childName} را بهتر می‌کند</p>
+          <h2 id={headingId}>{title ?? 'پیشنهادِ این هفته'}</h2>
+          <p>{subtitle ?? `کارهای کوچکی که یادگیریِ ${childName} را بهتر می‌کند`}</p>
         </div>
       </header>
 
@@ -63,7 +75,7 @@ export function TipsCard({ tips, childName, onUpgrade }: Props) {
         })}
       </ol>
 
-      {locked && (
+      {locked && onUpgrade && (
         <button type="button" className={styles.more} onClick={onUpgrade}>
           دیدنِ همه‌ی پیشنهادهای شخصی با اشتراک
         </button>

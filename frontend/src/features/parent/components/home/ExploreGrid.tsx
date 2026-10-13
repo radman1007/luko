@@ -1,12 +1,15 @@
 import type { ComponentType, SVGProps } from 'react';
 import { HiOutlineAcademicCap, HiOutlineChevronLeft, HiOutlineHeart, HiOutlineSparkles } from 'react-icons/hi2';
 import type { MoodVariant } from '@/components/ui/icons';
+import type { HealthWeekly } from '../../types';
 import type { PanelPage } from '../layout/nav';
 import styles from './ExploreGrid.module.css';
 
 interface Props {
   childName: string;
   wellbeing?: { checkins: number; dominantMood: MoodVariant };
+  /** حالِ کلیِ هفته از صفحه‌ی سلامت */
+  moodWeek?: HealthWeekly;
   onNavigate: (page: PanelPage) => void;
 }
 
@@ -24,8 +27,10 @@ interface Tile {
 }
 
 /** معرفیِ کوتاهِ بخش‌های دیگرِ پنل، هرکدام با یک جمله‌ی به‌دردبخور */
-export function ExploreGrid({ childName, wellbeing, onNavigate }: Props) {
-  const health = wellbeing && wellbeing.checkins > 0
+export function ExploreGrid({ childName, wellbeing, moodWeek, onNavigate }: Props) {
+  const health = moodWeek && moodWeek.verdict !== 'none'
+    ? `حالِ کلیِ ${childName} این هفته «${moodWeek.label}» بوده؛ حالِ هر بخشِ روز و پیشنهادها این‌جاست.`
+    : wellbeing && wellbeing.checkins > 0
     ? `این دو هفته ${wellbeing.checkins.toLocaleString('fa-IR')} بار حالش را ثبت کرده؛ بیشتر «${MOOD_TEXT[wellbeing.dominantMood]}» بوده.`
     : `حال‌ودلِ روزانه، تمرین‌های تنفس و نقاشی‌های ${childName} را این‌جا ببینید.`;
   const tiles: Tile[] = [

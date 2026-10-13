@@ -1,0 +1,123 @@
+/* چیدمانِ سلامت: گوشی یک ستون؛ از ۱۰۲۴px دو ستون مثلِ خانه (۷ به ۵) */
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'hero'
+    'wtips'
+    'dhead'
+    'journey'
+    'parts'
+    'subjects'
+    'interests'
+    'dtips'
+    'privacy';
+  gap: 14px;
+}
+
+/* بی‌اشتراک: به‌جای کارت‌های بخشِ دوم، یک کارتِ قفل (ردیفِ خالی فاصله‌ی اضافه می‌ساخت) */
+.page[data-locked] {
+  grid-template-areas:
+    'hero'
+    'wtips'
+    'dhead'
+    'locked'
+    'privacy';
+}
+
+/* هر خانه ظرفِ عرضِ خودش است؛ کارت‌ها با @container چیده می‌شوند */
+.cell {
+  min-width: 0;
+  container-type: inline-size;
+}
+
+/* کارت‌های یک ردیف هم‌قد */
+.cell > section { height: 100%; }
+
+.cell[data-area='hero'] { grid-area: hero; }
+.cell[data-area='wtips'] { grid-area: wtips; }
+.cell[data-area='locked'] { grid-area: locked; }
+.cell[data-area='journey'] { grid-area: journey; }
+.cell[data-area='parts'] { grid-area: parts; }
+.cell[data-area='subjects'] { grid-area: subjects; }
+.cell[data-area='interests'] { grid-area: interests; }
+.cell[data-area='dtips'] { grid-area: dtips; }
+
+/* سرِ بخشِ دوم */
+.section {
+  grid-area: dhead;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding-bottom: 2px;
+}
+
+.section h2 { margin: 0; font-size: 17px; font-weight: 800; }
+.section p { margin: 3px 0 0; font-size: 11.5px; line-height: 1.9; color: var(--pp-mut); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: #fff2c8;
+  color: #8a5200;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.badge[data-open] { background: var(--pp-green-soft); color: var(--pp-green); }
+
+.privacy {
+  grid-area: privacy;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--pp-surface);
+  border: 1px solid var(--pp-line);
+  font-size: 11px;
+  line-height: 2;
+  color: var(--pp-mut);
+}
+
+.privacy svg { flex-shrink: 0; width: 16px; height: 16px; margin-top: 4px; }
+
+.waiting {
+  margin: 40px auto 0;
+  max-width: 420px;
+  font-size: 12.5px;
+  line-height: 2;
+  color: var(--pp-mut);
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .page {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    grid-template-areas:
+      'hero wtips'
+      'dhead dhead'
+      'journey parts'
+      'subjects interests'
+      'dtips dtips'
+      'privacy privacy';
+    gap: 18px;
+    align-items: stretch;
+  }
+
+  .page[data-locked] {
+    grid-template-areas:
+      'hero wtips'
+      'dhead dhead'
+      'locked locked'
+      'privacy privacy';
+  }
+}

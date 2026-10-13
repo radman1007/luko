@@ -2,10 +2,10 @@ import type { ReactNode } from 'react';
 import type { ChildAnalysis } from '../../analysis';
 import type { Assignment } from '../../api';
 import type { ChildReport } from '../../types';
+import { HealthPage } from '../health/HealthPage';
 import { HomeView } from '../home/HomeView';
 import { AssistantView } from '../views/AssistantView';
 import { DashboardView } from '../views/DashboardView';
-import { HealthView } from '../views/HealthView';
 import { LearnView } from '../views/LearnView';
 import { PlanNote } from '../views/PlanNote';
 import { ReportsView } from '../views/ReportsView';
@@ -47,7 +47,7 @@ export function PanelPages({
     );
   }
   if (!report) return null;
-  if (page === 'health') return <HealthView report={report} childName={childName} />;
+  if (page === 'health') return <HealthPage report={report} childName={childName} onUpgrade={onUpgrade} />;
   if (page === 'details') {
     return (
       <SubPage title={`گزارشِ کاملِ ${childName}`} note="همه‌ی آمار، روند و جلسه‌های بازی"

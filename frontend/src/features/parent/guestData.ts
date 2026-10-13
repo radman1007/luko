@@ -110,6 +110,37 @@ const reportFor = (strong: boolean): ChildReport => ({
     { key: 'count', label: 'شمارش', asked: 6, accuracy: strong ? 83 : 69, avgSeconds: 16 },
   ],
   premium: false,
+  // سلامت: حالِ کلیِ هفته برای همه؛ حالِ دقیقِ روزانه برای مهمان (پلنِ رایگان) قفل است
+  health: {
+    weekly: strong
+      ? {
+          period: guestPeriod, verdict: 'good', label: 'خوب', dominant: 'happy', trend: 'up',
+          title: 'حالِ آرش این هفته خوب بود',
+          body: 'بیشترِ وقت‌ها «شاد» بود؛ ۷ بار از ۹ بار حالش خوب بود. حالش بهتر از هفته‌ی پیش بود.',
+          mix: [{ mood: 'happy', count: 5 }, { mood: 'calm', count: 2 }, { mood: 'tired', count: 2 }],
+          stats: { checkins: 9, breathing: 3, paintings: 2 },
+          tips: [
+            { id: 'w-praise', kind: 'praise', title: 'حالِ خوبش را به رویش بیاورید',
+              body: 'به آرش بگویید که این هفته شاد و آرام بوده و از او بپرسید چه چیزی حالش را خوب کرده.' },
+            { id: 'w-routine', kind: 'routine', title: 'روالِ روزانه را ثابت نگه دارید',
+              body: 'خواب، غذا و بازی در ساعت‌های ثابت، حالِ بچه‌ها را هم ثابت‌تر می‌کند.' },
+          ],
+        }
+      : {
+          period: guestPeriod, verdict: 'mixed', label: 'متغیر', dominant: 'calm', trend: null,
+          title: 'حالِ نیکی این هفته بالا و پایین داشت',
+          body: '۲ بار از ۵ بار حالش خوب بود و بقیه‌ی وقت‌ها بیشتر «خسته».',
+          mix: [{ mood: 'calm', count: 2 }, { mood: 'tired', count: 2 }, { mood: 'sad', count: 1 }],
+          stats: { checkins: 5, breathing: 1, paintings: 1 },
+          tips: [
+            { id: 'w-sleep', kind: 'sleep', title: 'خواب و استراحتش را جدی بگیرید',
+              body: 'خستگیِ زیاد بیشتر از کم‌خوابی می‌آید؛ ساعتِ خوابِ ثابت و بازیِ کوتاه‌تر در شب کمک می‌کند.' },
+            { id: 'w-routine', kind: 'routine', title: 'روالِ روزانه را ثابت نگه دارید',
+              body: 'خواب، غذا و بازی در ساعت‌های ثابت، حالِ بچه‌ها را هم ثابت‌تر می‌کند.' },
+          ],
+        },
+    daily: { locked: true, teaser: { checkins: strong ? 21 : 12, parts: 4, subjects: 2, interests: 3, tips: 5 } },
+  },
   // آرش هفته‌ی فعالی داشته، نیکی این هفته بازی نکرده — هر دو حالتِ کادرِ هفتگی دیده می‌شوند
   weekly: strong
     ? {

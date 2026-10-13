@@ -27,6 +27,7 @@ from .gating import FREE_CONCEPT_SUBJECTS, FREE_SUBJECTS
 from .learning import SESSION_ENDS, build_learning, concept_tags
 from .tips import build_tips
 from .weekly import build_weekly
+from .wellbeing import build_health
 
 WEEK_DAYS = ["شنبه", "یک‌شنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنج‌شنبه", "جمعه"]
 
@@ -196,6 +197,9 @@ def _build_child_report(child) -> dict:
         ),
         "tips": build_tips(**tips_args),
         "tipsFree": build_tips(**{**tips_args, "learning": free_learning}),
+        # صفحه‌ی سلامت: حالِ کلیِ هفته (همه) و حالِ دقیقِ روزانه (با اشتراک؛ gating.py)
+        "health": build_health(child, name=name, answers=answers, sessions=sessions,
+                               subject_of=subject_of, today=today),
     }
 
 

@@ -189,7 +189,7 @@ export interface WeeklyReport {
   cta: 'details' | 'daily';
 }
 
-export type TipKind = 'practice' | 'sleep' | 'routine' | 'together' | 'mood' | 'praise' | 'goal';
+export type TipKind = 'practice' | 'sleep' | 'routine' | 'together' | 'mood' | 'praise' | 'goal' | 'breath' | 'art';
 
 /** «پیشنهادِ این هفته» برای والد (apps/parent/tips.py) */
 export interface ParentTip {
@@ -199,6 +199,93 @@ export interface ParentTip {
   /** پیشنهادِ قفل (بی‌اشتراک) متن ندارد */
   body: string;
   locked?: boolean;
+}
+
+// ---------------------------------------------------------------- سلامت (apps/parent/wellbeing.py)
+export type HealthVerdict = 'great' | 'good' | 'mixed' | 'attention' | 'none';
+
+/** حالِ کلیِ هفته — برای همه */
+export interface HealthWeekly {
+  /** «۱۵ تا ۲۱ مهر» */
+  period: string;
+  verdict: HealthVerdict;
+  /** «عالی» / «خوب» / … */
+  label: string;
+  title: string;
+  body: string;
+  dominant: MoodVariant | null;
+  trend: 'up' | 'down' | 'flat' | null;
+  mix: { mood: MoodVariant; count: number }[];
+  stats: { checkins: number; breathing: number; paintings: number };
+  tips: ParentTip[];
+}
+
+export interface MoodPart {
+  key: 'morning' | 'noon' | 'afternoon' | 'evening' | 'late';
+  label: string;
+  /** «۶ تا ۱۱» */
+  range: string;
+  count: number;
+  /** درصدِ ثبت‌های شاد یا آرام */
+  good: number;
+  dominant: MoodVariant | null;
+  /** نمونه‌ی کافی برای تحلیل */
+  enough: boolean;
+  tag?: 'best' | 'worst';
+}
+
+export interface MoodSubject {
+  subject: string;
+  count: number;
+  good: number;
+  dominant: MoodVariant | null;
+  /** فاصله از میانگینِ حالِ خوب (درصد) */
+  lift: number;
+}
+
+export interface JourneyDay {
+  date: string;
+  /** «امروز» / «دیروز» / «دوشنبه» */
+  label: string;
+  /** روزِ ماه: «۱۹» */
+  short: string;
+  entries: { time: string; mood: MoodVariant; after: string | null }[];
+  dominant: MoodVariant | null;
+  count: number;
+}
+
+export type InterestKind = 'subject' | 'story' | 'music' | 'science' | 'video' | 'art' | 'sport' | 'calm';
+
+export interface Interest {
+  key: string;
+  kind: InterestKind;
+  label: string;
+  detail: string;
+}
+
+/** حالِ دقیقِ روزانه — فقط با اشتراک */
+export interface HealthDaily {
+  range: string;
+  checkins: number;
+  baseline: number;
+  journey: JourneyDay[];
+  parts: MoodPart[];
+  subjects: MoodSubject[];
+  learning: { good: { answers: number; accuracy: number }; low: { answers: number; accuracy: number } } | null;
+  interests: Interest[];
+  favoriteColor: { color: string; label: string } | null;
+  tips: ParentTip[];
+}
+
+/** بی‌اشتراک: فقط اندازه‌ی تحلیل، نه خودش */
+export interface HealthLocked {
+  locked: true;
+  teaser: { checkins: number; parts: number; subjects: number; interests: number; tips: number };
+}
+
+export interface HealthReport {
+  weekly: HealthWeekly;
+  daily: HealthDaily | HealthLocked;
 }
 
 /** همه‌ی دیتای داشبوردِ یک بچه */
@@ -236,6 +323,8 @@ export interface ChildReport {
   premium?: boolean;
   /** بازی‌های درس‌های قفل که آمارشان بی‌اشتراک نشان داده نمی‌شود */
   lockedGames?: number;
+  /** صفحه‌ی سلامت؛ در گزارش‌های قدیمیِ کش‌شده نیست */
+  health?: HealthReport;
 }
 
 /** پیشنهادِ بازی روز که سرور می‌سازد */

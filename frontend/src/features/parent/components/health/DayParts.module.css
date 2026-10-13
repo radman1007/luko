@@ -1,0 +1,109 @@
+/* گوشی: هر بخشِ روز یک ردیف؛ کارتِ پهن: پنج ستونِ کنارِ هم */
+.parts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.part {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(92px, auto) auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: var(--pp-surface);
+  border: 1px solid transparent;
+}
+
+.part[data-tag='best'] { border-color: rgb(31 157 107 / 35%); background: #f1faf6; }
+.part[data-tag='worst'] { border-color: rgb(217 119 6 / 30%); background: #fff8ee; }
+.part[data-thin] .meter i { opacity: 0.45; }
+
+.when {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.when svg { flex-shrink: 0; width: 20px; height: 20px; color: #a06100; }
+.when > span { display: flex; flex-direction: column; line-height: 1.5; }
+.when b { font-size: 12.5px; font-weight: 800; }
+.when small { font-size: 10px; color: var(--pp-mut); }
+
+.face {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px 3px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.meter {
+  height: 7px;
+  border-radius: 6px;
+  background: var(--pp-track);
+  overflow: hidden;
+}
+
+.meter i {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  background: var(--pp-blue);
+}
+
+.value {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.4;
+}
+
+.value b { font-size: 13px; font-weight: 800; }
+.value small { font-size: 10px; color: var(--pp-mut); }
+
+.none {
+  grid-column: 2 / -1;
+  font-size: 11px;
+  color: var(--pp-mut);
+}
+
+.tag {
+  position: absolute;
+  top: -8px;
+  inset-inline-end: 10px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-style: normal;
+  font-weight: 800;
+  color: #fff;
+  background: #1f9d6b;
+}
+
+.part[data-tag='worst'] .tag { background: #d97706; }
+
+@container (min-width: 600px) {
+  .parts { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .part {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 8px;
+    padding: 14px 8px 12px;
+    text-align: center;
+  }
+  .when { flex-direction: column; gap: 4px; }
+  .value { align-items: center; }
+  .meter { width: 100%; }
+  .none { grid-column: auto; padding: 18px 0; }
+  .tag { inset-inline-end: 50%; transform: translateX(-50%); }
+}

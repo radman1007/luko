@@ -44,7 +44,8 @@ export function HomeView({ report, childName, today, onNavigate, onUpgrade }: Pr
         </div>
       )}
       <div className={styles.cell} data-area="explore">
-        <ExploreGrid childName={childName} wellbeing={report.wellbeing} onNavigate={onNavigate} />
+        <ExploreGrid childName={childName} wellbeing={report.wellbeing} moodWeek={report.health?.weekly}
+          onNavigate={onNavigate} />
       </div>
       <p className={styles.foot}>
         همه‌ی عددها از بازی‌هایی می‌آید که {childName} واقعاً انجام داده؛ هیچ عددی حدسی نیست.

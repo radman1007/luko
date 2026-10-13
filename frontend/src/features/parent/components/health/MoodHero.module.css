@@ -1,0 +1,198 @@
+/*
+ * کادرِ «حالِ کلیِ هفته» — هم‌شکلِ کادرِ هفتگیِ خانه (گوشه‌ی ۲۸، چیپِ بازه، سه عدد)،
+ * ولی روشن تا ترکیبِ رنگیِ حال‌ها خوانا بماند. رنگ با حکمِ هفته عوض می‌شود.
+ */
+.hero {
+  --accent: var(--pp-blue);
+  --tint-a: #e9f3f1;
+  --tint-b: #cfe6e3;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  min-height: 250px;
+  height: 100%;
+  padding: 22px 20px 20px;
+  border-radius: 28px;
+  color: var(--pp-ink);
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgb(255 255 255 / 75%), transparent 55%),
+    linear-gradient(140deg, var(--tint-a) 0%, var(--tint-b) 100%);
+  border: 1px solid rgb(255 255 255 / 70%);
+  box-shadow: 0 18px 40px rgb(29 33 40 / 8%);
+}
+
+.hero[data-verdict='great'] { --accent: #1b7f58; --tint-a: #e8f7f0; --tint-b: #c8ecdc; }
+.hero[data-verdict='good'] { --accent: var(--pp-blue); --tint-a: #eaf4f3; --tint-b: #cde5e2; }
+.hero[data-verdict='mixed'] { --accent: #a35f00; --tint-a: #fff6e2; --tint-b: #ffe1ad; }
+.hero[data-verdict='attention'] { --accent: #a8345a; --tint-a: #fdf0f3; --tint-b: #f8d2dc; }
+.hero[data-verdict='none'] { --accent: #6b5a3c; --tint-a: #f8f4ec; --tint-b: #ebe2d2; }
+
+.glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 10% 92%, rgb(255 255 255 / 55%) 0 56px, transparent 57px),
+    radial-gradient(circle at 24% 106%, rgb(255 255 255 / 35%) 0 80px, transparent 81px),
+    radial-gradient(circle at 4% 30%, rgb(255 255 255 / 40%) 0 20px, transparent 21px);
+}
+
+/* گوشی: دکتر نیلا کوچک بالای گوشه کنارِ عنوان (تصویر ۲ به ۳: ۸۶ پهنا یعنی ۱۲۹ بلندی، بالای متن تمام می‌شود) */
+.mascot {
+  position: absolute;
+  inset-inline-end: 6px;
+  top: 14px;
+  width: 86px;
+  height: auto;
+  z-index: -1;
+  filter: drop-shadow(0 10px 16px rgb(0 0 0 / 14%));
+  pointer-events: none;
+  animation: sway 5s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot { animation: none; }
+}
+
+.text {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-height: 112px;
+  padding-inline-end: 88px;
+}
+
+.chip {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 70%);
+  border: 1px solid rgb(255 255 255 / 90%);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.chipLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.chip i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+@container (max-width: 360px) {
+  .chipLabel { display: none; }
+}
+
+.verdictRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px 5px 10px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 75%);
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #1b7f58;
+}
+
+.trend[data-dir='down'] { color: #a35f00; }
+.trend svg { width: 15px; height: 15px; }
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.body {
+  margin: 0;
+  font-size: 13px;
+  line-height: 2;
+  color: #3d424a;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stats li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 9px 10px;
+  border-radius: 15px;
+  background: rgb(255 255 255 / 65%);
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--accent);
+}
+
+.stat svg { flex-shrink: 0; width: 16px; height: 16px; }
+.stat b { font-size: 17px; font-weight: 800; line-height: 1.4; color: var(--pp-ink); }
+.statLabel { font-size: 10.5px; line-height: 1.6; color: var(--pp-mut); }
+
+/* ظرف: خانه‌ی همین کارت در HealthPage */
+@container (min-width: 560px) {
+  .hero { padding: 26px 28px; }
+  .text { width: auto; max-width: calc(100% - 170px); }
+  .head { min-height: 0; padding-inline-end: 0; }
+  .mascot { width: 176px; inset-inline-end: 4px; top: auto; bottom: -26px; }
+  .title { font-size: 21px; }
+  .body { font-size: 13.5px; }
+  .stats { max-width: 420px; }
+}

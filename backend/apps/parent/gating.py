@@ -8,6 +8,8 @@
 """
 from __future__ import annotations
 
+from .wellbeing import health_teaser
+
 #: بخش‌هایی که services دو نسخه می‌سازد: کامل، و `<نام>Free` فقط از درس‌های باز
 FREE_VARIANTS = ("weekly", "tips", "insights", "sessions")
 #: درس‌هایی که بی‌اشتراک باز است (برچسبِ کتاب‌ها؛ «عمومی» یعنی بازیِ بی‌کتاب، درس نیست)
@@ -46,6 +48,10 @@ def gate_report(report: dict, premium: bool) -> dict:
         concepts = learning.get("concepts", [])
         free = [c for c in concepts if c.get("subject", "") in FREE_CONCEPT_SUBJECTS]
         out["learning"] = {**learning, "concepts": free, "lockedConcepts": len(concepts) - len(free)}
+
+    health = report.get("health")
+    if health:
+        out["health"] = {**health, "daily": health_teaser(health.get("daily", {}))}
 
     tips = out.get("tips")
     if tips:
