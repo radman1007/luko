@@ -1,6 +1,6 @@
 .backdrop,
 .backdropShow {
-  position: absolute;
+  position: fixed;
   inset: 0;
   background: rgb(11 21 38 / 42%);
   backdrop-filter: blur(3px);
@@ -17,9 +17,12 @@
 
 .sheet,
 .sheetShow {
-  position: absolute;
+  position: fixed;
   inset-inline: 0;
   bottom: 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 620px;
   background: #fff;
   border-radius: 26px 26px 0 0;
   transform: translateY(105%);
@@ -48,7 +51,7 @@
   width: 44px;
   height: 5px;
   border-radius: 4px;
-  background: #dde3ee;
+  background: #e2ddd5;
   margin: 10px auto 4px;
 }
 
@@ -70,7 +73,7 @@
   border: 1px solid var(--pp-line);
   display: grid;
   place-items: center;
-  color: #42506b;
+  color: #4b5058;
 }
 
 .close svg {
@@ -80,4 +83,27 @@
 
 .body {
   padding: 16px 18px;
+}
+
+/* لپ‌تاپ: به‌جای شیتِ پایین، پنجره‌ی وسطِ صفحه */
+@media (min-width: 1024px) {
+  .sheet,
+  .sheetShow {
+    top: 50%;
+    bottom: auto;
+    width: min(520px, calc(100% - 48px));
+    max-height: min(80dvh, 720px);
+    border-radius: 24px;
+    transform: translateY(-46%) scale(0.98);
+    opacity: 0;
+    transition: transform 0.35s var(--pp-spring), opacity 0.25s, visibility 0.35s;
+    padding-bottom: 8px;
+  }
+
+  .sheetShow {
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+  }
+
+  .grab { display: none; }
 }

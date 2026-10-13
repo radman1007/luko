@@ -90,7 +90,7 @@ function buildNarrative(report: ChildReport, name: string, activeDays: number): 
 
   const first = `${name} این هفته ${fa(minutes)} دقیقه بازی کرد؛ در ${fa(activeDays)} روز از هفت روز، و ${fa(accuracy)}٪ پاسخ‌هایش درست بود.`;
 
-  const busiest = [...report.subjects].sort((a, b) => b.gamesDone - a.gamesDone)[0];
+  const busiest = [...openSubjects(report)].sort((a, b) => b.gamesDone - a.gamesDone)[0];
   const second =
     busiest && busiest.gamesDone > 0
       ? ` بیشترِ تمرینش روی «${busiest.label}» بود${busiest.weakestTopic ? ` و در همان درس، «${busiest.weakestTopic}» از بقیه عقب‌تر است` : ''}.`
@@ -153,7 +153,7 @@ function buildAction(report: ChildReport, activeDays: number): ChildAnalysis['ac
     };
   }
 
-  const untouched = report.subjects.find((subject) => subject.gamesDone === 0 && subject.gamesTotal > 0);
+  const untouched = openSubjects(report).find((subject) => subject.gamesDone === 0 && subject.gamesTotal > 0);
   if (untouched) {
     return {
       title: `درسِ «${untouched.label}» هنوز شروع نشده`,
@@ -167,12 +167,20 @@ function buildAction(report: ChildReport, activeDays: number): ChildAnalysis['ac
   };
 }
 
+/** درس‌هایی که آمارشان دیده می‌شود (بی‌اشتراک فقط ریاضی) */
+function openSubjects(report: ChildReport) {
+  return report.subjects.filter((subject) => !subject.locked);
+}
+
 /** ساختِ تحلیلِ کاملِ یک فرزند از روی گزارشِ هفته */
 export function buildAnalysis(report: ChildReport, childName: string): ChildAnalysis {
   const minutes = kpiValue(report, 'time');
   const accuracy = kpiValue(report, 'accuracy');
   const activeDays = report.week.filter((day) => day.minutes > 0).length;
-  const touchedSubjects = report.subjects.filter((subject) => subject.gamesDone > 0).length;
+  // درسِ قفل (پلنِ رایگان) آماری ندارد؛ نباید «شروع‌نشده» حساب شود و امتیازِ تنوع را پایین بکشد
+  const visible = openSubjects(report);
+  const touchedSubjects = visible.filter((subject) => subject.gamesDone > 0).length;
+  const subjectGoal = Math.max(1, Math.min(GOAL.subjects, visible.length));
   // نمونه‌ی تحلیل = پاسخ‌های همین هفته (topics بازه‌ی هشت‌هفته‌ای دارد و اینجا گمراه‌کننده است)
   const sampleSize = report.answersThisWeek ?? 0;
 
@@ -201,9 +209,9 @@ export function buildAnalysis(report: ChildReport, childName: string): ChildAnal
     {
       key: 'variety',
       label: 'تنوعِ درس‌ها',
-      value: pct(touchedSubjects, GOAL.subjects),
+      value: pct(touchedSubjects, subjectGoal),
       weight: 15,
-      detail: `${fa(touchedSubjects)} درس از ${fa(report.subjects.length)} درس`,
+      detail: `${fa(touchedSubjects)} درس از ${fa(visible.length)} درس`,
     },
   ];
 

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   HiOutlineBell,
@@ -17,7 +18,6 @@ import {
 } from 'react-icons/hi2';
 import { useAuth } from '@/features/auth/context';
 import ParentGuestPanel from './ParentGuestPanel';
-import { BrandMark } from '@/components/ui/icons';
 import { buildAnalysis } from '@/features/parent/analysis';
 import type { Child, ParentPreferences, Suggestion } from '@/features/parent/types';
 import {
@@ -34,19 +34,17 @@ import {
   useSetPreferences,
   useSuggestions,
 } from '@/features/parent/useParent';
-import { BottomNav } from '@/features/parent/components/shell/BottomNav';
-import type { PanelTab } from '@/features/parent/components/shell/BottomNav';
+import { ParentShell } from '@/features/parent/components/layout/ParentShell';
+import { PanelPages } from '@/features/parent/components/layout/PanelPages';
+import { usePanelPage } from '@/features/parent/components/layout/usePanelPage';
 import { ChildSwitch } from '@/features/parent/components/shell/ChildSwitch';
 import { Sheet } from '@/features/parent/components/shell/Sheet';
 import { Toast } from '@/features/parent/components/shell/Toast';
 import { ParentIntroGate } from '@/features/parent/components/intro/ParentIntroGate';
-import { SubscriptionBadge } from '@/features/billing/components/SubscriptionBadge/SubscriptionBadge';
 import { useSubscriptions } from '@/features/billing/useBilling';
-import { DashboardView } from '@/features/parent/components/views/DashboardView';
-import { ReportsView } from '@/features/parent/components/views/ReportsView';
 import { DailyView } from '@/features/parent/components/views/DailyView';
-import { HealthView } from '@/features/parent/components/views/HealthView';
 import { SettingsView } from '@/features/parent/components/views/SettingsView';
+import { localDate } from '@/features/parent/dates';
 import { isValidPhone, normalizePhone } from '@/lib/phone';
 import { openGoftino } from '@/features/support/goftino';
 import { useGoftinoReady } from '@/features/support/useGoftinoReady';
@@ -67,17 +65,15 @@ const NOTIF_ICON = {
   support: HiOutlineChatBubbleLeftRight,
 };
 
-/** اسکلتِ بارگذاری — شکلِ نهایی را نگه می‌دارد تا صفحه نپرد */
+/** اسکلتِ بارگذاری — شکلِ خانه را نگه می‌دارد تا صفحه نپرد */
 function Skeleton() {
   return (
     <div className={styles.skeleton} aria-hidden>
-      <div className={styles.skelSeg} />
-      <div className={styles.skelBanner} />
-      <div className={styles.skelCard} />
+      <div className={styles.skelHero} />
+      <div className={styles.skelRow} />
       <div className={styles.skelGrid}>
-        {[0, 1, 2, 3].map((i) => (
-          <div key={i} className={styles.skelTile} />
-        ))}
+        <div className={styles.skelCard} />
+        <div className={styles.skelCard} />
       </div>
     </div>
   );
@@ -87,7 +83,6 @@ function AuthenticatedParentPanel() {
   // کلاس‌هایی که بازی دارند؛ فهرستِ ثابت با رسیدنِ محتوای تازه کهنه می‌شد
   const openGrades = useOpenGrades();
   const { user, logout } = useAuth();
-  const [tab, setTab] = useState<PanelTab>('dashboard');
   const [childId, setChildId] = useState<string>();
   const [sheet, setSheet] = useState<SheetKind | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -97,6 +92,7 @@ function AuthenticatedParentPanel() {
 
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
+  const { page, go } = usePanelPage();
 
   // اعلانِ «پشتیبانی پاسخ داد» با ?open=support می‌آید: برگه‌ی گفتگو را باز کن
   useEffect(() => {
@@ -126,6 +122,17 @@ function AuthenticatedParentPanel() {
   useEffect(() => {
     if (!childId && children.data?.length) setChildId(children.data[0].id);
   }, [children.data, childId]);
+
+  // پیوندِ اعلان (?child=) فرزندِ همان اعلان را انتخاب می‌کند
+  useEffect(() => {
+    const wanted = params.get('child');
+    if (!wanted || !children.data) return;
+    const match = children.data.find((child) => String(child.id) === wanted);
+    if (match) setChildId(match.id);
+    const next = new URLSearchParams(params);
+    next.delete('child');
+    setParams(next, { replace: true });
+  }, [params, setParams, children.data]);
 
   const activeChild = children.data?.find((child) => child.id === childId);
   const childName = activeChild
@@ -242,145 +249,56 @@ function AuthenticatedParentPanel() {
     );
   };
 
-  const showSwitcher = tab !== 'settings' && (children.data?.length ?? 0) > 1;
+  const childPage = page === 'home' || page === 'health' || page === 'details' || page === 'daily';
+  const showSwitcher = childPage && (children.data?.length ?? 0) > 1;
+  const today = assignments.data?.find((item) => item.date === localDate(0)) ?? null;
+  const upgrade = () => activeChild && navigate(`/parent-panel/subscription?child=${activeChild.id}`);
+
+  const noChildren = !children.isLoading && (children.data?.length ?? 0) === 0;
+  let status: ReactNode;
+  if (children.isLoading || (childId && report.isLoading)) status = <Skeleton />;
+  else if (noChildren) {
+    status = (
+      <div className={styles.emptyState}>
+        <p className={styles.emptyTitle}>هنوز فرزندی اضافه نکرده‌اید</p>
+        <p className={styles.emptyText}>
+          با شمارهٔ موبایلِ حساب فرزندتان او را اضافه کنید تا گزارش‌ها ساخته شوند.
+        </p>
+        <button type="button" className={styles.emptyBtn} onClick={() => setSheet('addChild')}>
+          افزودن فرزند
+        </button>
+      </div>
+    );
+  } else if (report.isError && page !== 'daily') {
+    status = (
+      <div className={styles.emptyState}>
+        <p className={styles.emptyTitle}>گزارش بارگذاری نشد</p>
+        <p className={styles.emptyText}>اتصال را بررسی کنید و دوباره تلاش کنید.</p>
+        <button type="button" className={styles.emptyBtn} onClick={() => report.refetch()}>
+          تلاش دوباره
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className={styles.app}>
-      <header className={styles.bar}>
-        <div className={styles.brand}>
-          <span className={styles.logo} aria-hidden>
-            <BrandMark size={22} />
-          </span>
-          <span className={styles.brandText}>
-            <b>لوکو</b>
-            <small>پنل والدین</small>
-          </span>
-        </div>
-
-        <div className={styles.barActions}>
-          {activeChild && (
-            <SubscriptionBadge
-              sub={subscriptions.data?.find((item) => item.childId === activeChild.id)}
-              childName={shortName}
-              onClick={() => navigate(`/parent-panel/subscription?child=${activeChild.id}`)}
-            />
-          )}
-          <button
-            type="button"
-            className={styles.iconBtn}
-            onClick={openNotifications}
-            aria-label={unread ? `اعلان‌ها، ${unread} خوانده‌نشده` : 'اعلان‌ها'}
-          >
-            <HiOutlineBell aria-hidden />
-            {unread > 0 && <span className={styles.dot} aria-hidden />}
-          </button>
-
-          <div className={styles.userChip}>
-            <span className={styles.userText}>
-              <b>{parentName || 'والد'}</b>
-              <small dir="ltr">{user?.phone}</small>
-            </span>
-            <span className={styles.userAvatar} aria-hidden>
-              {parentName.charAt(0) || 'و'}
-            </span>
-          </div>
-        </div>
-      </header>
-
-      <main className={styles.main}>
-        <div className={styles.view} key={tab}>
-          {showSwitcher && (
-            <ChildSwitch
-              items={children.data ?? []}
-              activeId={childId}
-              onChange={(id) => setChildId(id)}
-            />
-          )}
-
-          {children.isLoading && <Skeleton />}
-
-          {!children.isLoading && (children.data?.length ?? 0) === 0 && tab !== 'settings' && (
-            <div className={styles.emptyState}>
-              <p className={styles.emptyTitle}>هنوز فرزندی اضافه نکرده‌اید</p>
-              <p className={styles.emptyText}>
-                با شمارهٔ موبایلِ حساب فرزندتان او را اضافه کنید تا گزارش‌ها ساخته شوند.
-              </p>
-              <button type="button" className={styles.emptyBtn} onClick={() => setSheet('addChild')}>
-                افزودن فرزند
-              </button>
-            </div>
-          )}
-
-          {tab === 'settings' && (
-            <SettingsView
-              parentName={parentName}
-              parentPhone={user?.phone ?? ''}
-              childList={children.data ?? []}
-              preferences={preferences.data}
-              onToggle={togglePreference}
-              onAddChild={() => setSheet('addChild')}
-              onRemoveChild={(child) => {
-                setPendingChild(child);
-                setSheet('removeChild');
-              }}
-              onSupport={() => setSheet('support')}
-              onPrivacy={() => setSheet('privacy')}
-              onAbout={() => setSheet('about')}
-              onLogout={() => setSheet('logout')}
-          onNotice={setToast}
-            />
-          )}
-
-          {tab !== 'settings' && childId && (
-            <>
-              {report.isLoading && <Skeleton />}
-
-              {report.isError && (
-                <div className={styles.emptyState}>
-                  <p className={styles.emptyTitle}>گزارش بارگذاری نشد</p>
-                  <p className={styles.emptyText}>اتصال را بررسی کنید و دوباره تلاش کنید.</p>
-                  <button
-                    type="button"
-                    className={styles.emptyBtn}
-                    onClick={() => report.refetch()}
-                  >
-                    تلاش دوباره
-                  </button>
-                </div>
-              )}
-
-              {report.data && analysis && tab === 'dashboard' && (
-                <DashboardView
-                  report={report.data}
-                  analysis={analysis}
-                  childName={shortName}
-                  onGoDaily={() => setTab('daily')}
-                />
-              )}
-
-              {report.data && tab === 'reports' && <ReportsView report={report.data} />}
-
-              {tab === 'daily' && (
-                <DailyView
-                  childName={shortName}
-                  suggestions={suggestions.data?.suggestions ?? []}
-                  currentSlug={suggestions.data?.currentSlug ?? null}
-                  assignments={assignments.data ?? []}
-                  saving={setAssignment.isPending}
-                  onPick={pickGame}
-                />
-              )}
-
-              {report.data && tab === 'health' && (
-                <HealthView report={report.data} childName={shortName} />
-              )}
-            </>
-          )}
-        </div>
-      </main>
-
-      <BottomNav tab={tab} onChange={setTab} />
-
+    <ParentShell
+      page={page}
+      onNavigate={go}
+      parentName={parentName}
+      parentPhone={user?.phone}
+      childList={children.data ?? []}
+      activeChildId={childId}
+      onChildChange={setChildId}
+      onAddChild={() => setSheet('addChild')}
+      subscription={subscriptions.data?.find((item) => item.childId === childId)}
+      childName={shortName}
+      onSubscription={upgrade}
+      unread={unread}
+      onNotifications={openNotifications}
+      onSupport={() => setSheet('support')}
+      onLogout={() => setSheet('logout')}
+      overlays={<>
       <Sheet
         open={sheet === 'notifications'}
         title="اعلان‌ها"
@@ -579,7 +497,54 @@ function AuthenticatedParentPanel() {
       </Sheet>
 
       <Toast message={toast} onDone={() => setToast(null)} />
-    </div>
+      </>}
+    >
+      {showSwitcher && (
+        <div className={styles.mobileOnly}>
+          <ChildSwitch items={children.data ?? []} activeId={childId} onChange={(id) => setChildId(id)} />
+        </div>
+      )}
+      <PanelPages
+        page={page}
+        onNavigate={go}
+        report={report.data}
+        analysis={analysis}
+        childName={shortName}
+        today={today}
+        onUpgrade={upgrade}
+        onSupport={() => setSheet('support')}
+        status={status}
+        daily={
+          <DailyView
+            childName={shortName}
+            suggestions={suggestions.data?.suggestions ?? []}
+            currentSlug={suggestions.data?.currentSlug ?? null}
+            assignments={assignments.data ?? []}
+            saving={setAssignment.isPending}
+            onPick={pickGame}
+          />
+        }
+        settings={
+          <SettingsView
+            parentName={parentName}
+            parentPhone={user?.phone ?? ''}
+            childList={children.data ?? []}
+            preferences={preferences.data}
+            onToggle={togglePreference}
+            onAddChild={() => setSheet('addChild')}
+            onRemoveChild={(child) => {
+              setPendingChild(child);
+              setSheet('removeChild');
+            }}
+            onSupport={() => setSheet('support')}
+            onPrivacy={() => setSheet('privacy')}
+            onAbout={() => setSheet('about')}
+            onLogout={() => setSheet('logout')}
+            onNotice={setToast}
+          />
+        }
+      />
+    </ParentShell>
   );
 }
 

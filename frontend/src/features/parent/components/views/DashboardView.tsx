@@ -101,8 +101,10 @@ function StatTile({ kpi }: { kpi: Kpi }) {
 /** داشبورد — نتیجه‌گیریِ هفته، عددهای کلیدی و نمودارها */
 export function DashboardView({ report, analysis, childName, onGoDaily }: Props) {
   const action = analysis.action;
-  const subject = report.subjects.find((item) => item.mastery > 0 || item.gamesDone > 0);
-  const untouched = report.subjects.filter((item) => item.mastery === 0 && item.gamesDone === 0);
+  // درسِ قفل (پلنِ رایگان) آماری ندارد؛ «شروع‌نشده» نیست
+  const open = report.subjects.filter((item) => !item.locked);
+  const subject = open.find((item) => item.mastery > 0 || item.gamesDone > 0);
+  const untouched = open.filter((item) => item.mastery === 0 && item.gamesDone === 0);
   const strengths = report.topics.filter((topic) => topic.accuracy >= 70).slice(0, 3);
   const weak = report.topics.filter((topic) => topic.accuracy < 70).slice(0, 3);
 

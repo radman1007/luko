@@ -50,9 +50,11 @@ def _week_key(day) -> str:
     return saturday.isoformat()
 
 
-def _add(rows: list, *, user, child, kind, title, body, key):
+def _add(rows: list, *, user, child, kind, title, body, key, page: str = ""):
+    """`page` صفحه‌ی پنل است (?p=)؛ پیوند همان فرزند را هم انتخاب می‌کند."""
+    link = f"/parent-panel?p={page}&child={child.id}" if page else f"/parent-panel?child={child.id}"
     rows.append(
-        Notification(user=user, child=child, kind=kind, title=title, body=body, dedup_key=key)
+        Notification(user=user, child=child, kind=kind, title=title, body=body, dedup_key=key, link=link)
     )
 
 
@@ -88,7 +90,7 @@ def sync_notifications(parent, force: bool = False) -> None:
             _add(
                 fresh, user=parent, child=child, kind=Notification.Kind.WEEKLY,
                 title=f"گزارش هفتگی {name} آماده شد",
-                body="خلاصه‌ی این هفته را در داشبورد ببینید.",
+                body="خلاصه‌ی این هفته در خانه‌ی پنل آماده است.",
                 key=f"weekly:{child.id}:{week_key}",
             )
 
@@ -103,8 +105,8 @@ def sync_notifications(parent, force: bool = False) -> None:
                 _add(
                     fresh, user=parent, child=child, kind=Notification.Kind.GAMES,
                     title=f"{name} «{title or completion.game_slug}» را کامل کرد",
-                    body="جزئیاتِ دقت و زمانش در تبِ گزارش‌ها هست.",
-                    key=f"game-done:{completion.id}",
+                    body="جزئیاتِ دقت و زمانش در «گزارشِ کامل» هست.",
+                    key=f"game-done:{completion.id}", page="details",
                 )
 
         # ۳) آخرین ثبتِ حال
@@ -115,8 +117,8 @@ def sync_notifications(parent, force: bool = False) -> None:
                 _add(
                     fresh, user=parent, child=child, kind=Notification.Kind.MOOD,
                     title=f"ثبت حال {name}: {MOOD_LABELS.get(mood.mood, mood.mood)}",
-                    body="روند حال و روحیه را در تبِ سلامت ببینید.",
-                    key=f"mood:{child.id}:{mood_day.isoformat()}",
+                    body="روند حال و روحیه را در بخشِ سلامت ببینید.",
+                    key=f"mood:{child.id}:{mood_day.isoformat()}", page="health",
                 )
 
         # ۴) بی‌فعالیتی
@@ -128,7 +130,7 @@ def sync_notifications(parent, force: bool = False) -> None:
                     fresh, user=parent, child=child, kind=Notification.Kind.IDLE,
                     title=f"{name} {fa_digits(idle_days)} روز است بازی نکرده",
                     body="یک «بازی روز» بگذارید تا دوباره شروع کند.",
-                    key=f"idle:{child.id}:{today.isoformat()}",
+                    key=f"idle:{child.id}:{today.isoformat()}", page="daily",
                 )
 
         # ۵) بازی روزی که والد گذاشته و بچه انجامش داده

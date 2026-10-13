@@ -67,14 +67,14 @@ export function TrendChart({ points }: Props) {
       <svg viewBox={`0 0 ${W} ${H}`} className={styles.svg} role="img" aria-label="روند دقت">
         <defs>
           <linearGradient id="pp-trend" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#2563eb" stopOpacity=".28" />
-            <stop offset="1" stopColor="#2563eb" stopOpacity="0" />
+            <stop offset="0" stopColor="#215e61" stopOpacity=".28" />
+            <stop offset="1" stopColor="#215e61" stopOpacity="0" />
           </linearGradient>
         </defs>
 
         {[100, 50, 0].map((value) => (
           <g key={value}>
-            <line x1={LEFT} y1={y(value)} x2={W - RIGHT + 8} y2={y(value)} stroke="#e7ebf3" />
+            <line x1={LEFT} y1={y(value)} x2={W - RIGHT + 8} y2={y(value)} stroke="#ebe6df" />
             <text x={W - 4} y={y(value) + 3} textAnchor="end" fontSize="9" fill="#94a3b8">
               {value.toLocaleString('fa-IR')}
             </text>
@@ -88,7 +88,7 @@ export function TrendChart({ points }: Props) {
             key={i}
             d={segment.d}
             fill="none"
-            stroke="#2563eb"
+            stroke="#215e61"
             strokeWidth="3"
             strokeLinecap="round"
             strokeDasharray={segment.gap ? '5 6' : undefined}
@@ -106,7 +106,7 @@ export function TrendChart({ points }: Props) {
               cy={y(point.value)}
               r={point === last ? 5 : 4}
               fill={point === last ? '#1e3a8a' : '#fff'}
-              stroke="#2563eb"
+              stroke="#215e61"
               strokeWidth="2.5"
             />
           ) : null,

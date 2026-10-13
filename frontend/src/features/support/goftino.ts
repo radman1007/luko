@@ -50,16 +50,28 @@ function sendIdentity() {
 }
 
 /**
- * روی گوشی نوارِ پایینِ پنل تمامِ عرض را می‌گیرد و حبابِ گفتینو (۸۰px، گوشه‌ی پایین) رویش
- * می‌افتاد؛ پس بالای آن می‌نشیند. روی پهنای بیشتر نوار وسطِ صفحه است و حباب در گوشه آزاد.
+ * جای حبابِ گفتینو (۸۰px، گوشه‌ی پایین‌راست) در پوسته‌ی پنل (features/parent/components/layout):
+ * - گوشی: منوی پایین تا ۵۶۰px تمامِ عرض است و حباب رویش می‌افتاد؛ بالای آن می‌نشیند.
+ *   از ۷۴۰px منو وسط است و گوشه‌ی پایین آزاد.
+ * - لپ‌تاپ (از ۱۰۲۴px): منوی کناریِ ۲۸۴ پیکسلی سمتِ راست است و حباب دکمه‌های پایینش را
+ *   می‌پوشاند؛ کنارِ منو، گوشه‌ی محتوا می‌نشیند.
  * گفتینو این را فقط در لحظه‌ی «آماده» می‌پذیرد.
  */
-const NARROW = '(max-width: 700px)';
+const NARROW = '(max-width: 739px)';
+const WIDE = '(min-width: 1024px)';
 const ABOVE_NAV = 104;
+const BESIDE_SIDEBAR = 284 + 24;
+
+function placement() {
+  if (window.matchMedia?.(NARROW).matches) return { marginBottom: ABOVE_NAV };
+  if (window.matchMedia?.(WIDE).matches) return { marginRight: BESIDE_SIDEBAR };
+  return null;
+}
 
 function onReady() {
   ready = true;
-  if (window.matchMedia?.(NARROW).matches) window.Goftino?.setWidget({ marginBottom: ABOVE_NAV });
+  const place = placement();
+  if (place) window.Goftino?.setWidget(place);
   sendIdentity();
   notify();
 }

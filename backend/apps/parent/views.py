@@ -29,6 +29,9 @@ from .serializers import (
     NotificationSerializer,
     PreferenceSerializer,
 )
+from apps.billing.services import subscription
+
+from .gating import gate_report
 from .services import build_child_report
 from .suggestions import suggestion_payload
 
@@ -114,7 +117,8 @@ class ChildReportView(APIView):
         if link is None:
             return Response({"error": {"code": 404, "message": "فرزند پیدا نشد."}},
                             status=status.HTTP_404_NOT_FOUND)
-        return Response(build_child_report(link.child))
+        # قفلِ اشتراک بعد از کش: گزارش بینِ همه یکی است، اشتراکِ هر بچه نه
+        return Response(gate_report(build_child_report(link.child), subscription(link.child).active))
 
 
 class AssignmentsView(APIView):

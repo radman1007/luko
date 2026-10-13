@@ -59,6 +59,8 @@ export interface SubjectProgressItem {
   trend: 'up' | 'flat' | 'down';
   /** ضعیف‌ترین مبحثِ همین درس (اگر بازی topic بفرستد) */
   weakestTopic?: string;
+  /** بی‌اشتراک فقط ریاضی باز است؛ درسِ قفل عددی ندارد (apps/parent/gating.py) */
+  locked?: boolean;
 }
 
 /** وضعیتِ یک بازی برای این بچه */
@@ -126,6 +128,8 @@ export interface PlaySession {
 export interface TopicScore {
   key: string;
   label: string;
+  /** درسِ تگ (math، science، …) */
+  subject?: string;
   asked: number;
   accuracy: number;
   avgSeconds: number;
@@ -169,6 +173,32 @@ export interface LearningSummary {
   firstTry: FirstTry;
   /** هشت هفته، پرخطاترین اول */
   concepts: ConceptStat[];
+  /** مفهوم‌های درس‌های قفل (بی‌اشتراک) که نشان داده نشده‌اند */
+  lockedConcepts?: number;
+}
+
+/** گزارشِ هفتگیِ بالای خانه — خودکار از آمارِ بچه، فقط نقطه‌های قوت (apps/parent/weekly.py) */
+export interface WeeklyReport {
+  active: boolean;
+  /** «۱۴ تا ۲۰ مهر» */
+  period: string;
+  title: string;
+  body: string;
+  highlights: { key: 'games' | 'minutes' | 'days'; label: string; value: number }[];
+  /** دکمه‌ی اصلی: جزئیاتِ بیشتر، یا انتخابِ بازیِ امروز برای هفته‌ی بی‌فعالیت */
+  cta: 'details' | 'daily';
+}
+
+export type TipKind = 'practice' | 'sleep' | 'routine' | 'together' | 'mood' | 'praise' | 'goal';
+
+/** «پیشنهادِ این هفته» برای والد (apps/parent/tips.py) */
+export interface ParentTip {
+  id: string;
+  kind: TipKind;
+  title: string;
+  /** پیشنهادِ قفل (بی‌اشتراک) متن ندارد */
+  body: string;
+  locked?: boolean;
 }
 
 /** همه‌ی دیتای داشبوردِ یک بچه */
@@ -199,6 +229,13 @@ export interface ChildReport {
   topics: TopicScore[];
   /** تگ‌های آموزشی؛ در گزارش‌های قدیمیِ کش‌شده نیست */
   learning?: LearningSummary;
+  /** خانه‌ی پنل */
+  weekly?: WeeklyReport;
+  tips?: { source: 'rules' | 'ai'; items: ParentTip[] };
+  /** اشتراکِ فعال دارد؛ بی‌آن درس‌های غیرِریاضی و بیشترِ پیشنهادها قفل‌اند */
+  premium?: boolean;
+  /** بازی‌های درس‌های قفل که آمارشان بی‌اشتراک نشان داده نمی‌شود */
+  lockedGames?: number;
 }
 
 /** پیشنهادِ بازی روز که سرور می‌سازد */

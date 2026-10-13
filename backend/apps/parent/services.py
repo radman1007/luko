@@ -24,6 +24,8 @@ from apps.games.models import Book, Game, GameCompletion, GameEvent
 from apps.health.models import BreathingSession, MoodCheckin, Painting
 
 from .learning import SESSION_ENDS, build_learning, concept_tags
+from .tips import build_tips
+from .weekly import build_weekly
 
 WEEK_DAYS = ["شنبه", "یک‌شنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنج‌شنبه", "جمعه"]
 
@@ -121,29 +123,68 @@ def _build_child_report(child) -> dict:
     books = {b.book_id: b for b in Book.objects.all()}
 
     week_answers = [e for e in answers if _day(e) >= week_start]
+    learning = build_learning(child)
+    hourly = _hourly(events)
+    wellbeing = _wellbeing(child)
+    streak = _streak(child)
+    name = (child.first_name or "").strip() or "فرزندتان"
+
+    def subject_of(slug: str) -> str:
+        return _subject_of(slug, games_meta, books)
+
+    last_event = (GameEvent.objects.filter(user=child).order_by("-occurred_at")
+                  .values_list("occurred_at", flat=True).first())
+    last_done = max((c.created_at for c in completions), default=None)
+    last_seen = max((t for t in (last_event, last_done) if t), default=None)
+    weekly = build_weekly(
+        name=name,
+        week_answers=week_answers,
+        week_sessions=[e for e in sessions if _day(e) >= week_start],
+        prev_minutes=learning["week"]["prevMinutes"],
+        week_games=sum(1 for c in completions if timezone.localdate(c.created_at) >= week_start),
+        streak=streak,
+        subject_of=subject_of,
+        tags=tags,
+        week_start=week_start,
+        today=today,
+        last_activity=timezone.localdate(last_seen) if last_seen else None,
+    )
+    tips = build_tips(
+        name=name,
+        learning=learning,
+        hourly=hourly,
+        week_minutes=learning["week"]["minutes"],
+        week_hints=sum(1 for e in events if e.event_type == "hint" and _day(e) >= week_start),
+        dominant_mood=wellbeing["dominantMood"],
+        mood_checkins=wellbeing["checkins"],
+        streak=streak,
+    )
 
     return {
         "childId": str(child.id),
         # پاسخ‌های همین هفته — تحلیلِ هفتگی روی همین بسته می‌شود، نه روی کلِ هشت هفته
         "answersThisWeek": len(week_answers),
-        "kpis": _kpis(child, events, answers, sessions, completions, week_start, today),
+        "kpis": _kpis(child, events, answers, sessions, completions, week_start, today, streak),
         "week": _week(events, sessions, completions, week_start, today),
         "accuracyTrend": _accuracy_trend(answers, today),
         "subjects": _subjects(answers, completions, games_meta, catalog, books, tags),
         "games": _games(events, sessions, completions, games_meta, catalog, books),
         "moods": _moods(child),
         "insights": _insights(answers, events, games_meta, tags),
-        "wellbeing": _wellbeing(child),
-        "hourly": _hourly(events),
+        "wellbeing": wellbeing,
+        "hourly": hourly,
         "sessions": _sessions(sessions, games_meta),
         "topics": _topics(answers, tags),
         # تگ‌های آموزشی: زمانِ بازی، خطای هر مفهوم و موفقیت در اولین تلاش
-        "learning": build_learning(child),
+        "learning": learning,
+        # خانه‌ی پنل: گزارشِ هفتگیِ خودکار (فقط نقطه‌های قوت) و پیشنهادِ این هفته برای والد
+        "weekly": weekly,
+        "tips": tips,
     }
 
 
 # ---------------------------------------------------------------- KPIها
-def _kpis(child, events, answers, sessions, completions, week_start, today) -> list[dict]:
+def _kpis(child, events, answers, sessions, completions, week_start, today, streak) -> list[dict]:
     prev_start = week_start - timedelta(days=7)
     week_sessions = [e for e in sessions if _day(e) >= week_start]
     prev_sessions = [e for e in sessions if prev_start <= _day(e) < week_start]
@@ -177,7 +218,7 @@ def _kpis(child, events, answers, sessions, completions, week_start, today) -> l
          "value": _pct(week_correct, len(week_answers)), "unit": "٪",
          "delta": _pct(week_correct, len(week_answers)) - _pct(prev_correct, len(prev_answers)),
          "higherIsBetter": True},
-        {"key": "streak", "label": "روزهای پیاپی", "value": _streak(child), "unit": "روز",
+        {"key": "streak", "label": "روزهای پیاپی", "value": streak, "unit": "روز",
          "delta": 0, "higherIsBetter": True},
         {"key": "session", "label": "میانگین هر جلسه", "value": avg_session, "unit": "دقیقه",
          "delta": 0, "higherIsBetter": True,
@@ -520,6 +561,7 @@ def _topics(answers, tags) -> list[dict]:
     out = [{
         "key": key,
         "label": _label(key, tags),
+        "subject": tags[key].subject,
         "asked": value["asked"],
         "accuracy": _pct(value["correct"], value["asked"]),
         "avgSeconds": round(value["ms"] / value["asked"] / 1000) if value["asked"] else 0,

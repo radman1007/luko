@@ -1,0 +1,215 @@
+/* کادرِ گزارشِ هفتگی — فیروزه‌ایِ برند؛ هفته‌ی بی‌فعالیت گرم و دعوت‌کننده */
+.hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  min-height: 230px;
+  padding: 22px 20px 20px;
+  border-radius: 28px;
+  color: #fff;
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgb(255 255 255 / 14%), transparent 55%),
+    linear-gradient(140deg, #2a7276 0%, #215e61 45%, #163f42 100%);
+  box-shadow: 0 18px 40px rgb(33 94 97 / 28%);
+}
+
+/* نقطه‌های زرد و نارنجیِ شهر، فقط تزئین */
+.glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 12% 88%, rgb(255 204 0 / 32%) 0 46px, transparent 47px),
+    radial-gradient(circle at 26% 104%, rgb(255 158 32 / 30%) 0 70px, transparent 71px),
+    radial-gradient(circle at 4% 30%, rgb(255 255 255 / 10%) 0 22px, transparent 23px);
+}
+
+/* گوشی: لوکی کوچک بالای گوشه کنارِ عنوان؛ متن تمامِ عرض را می‌گیرد */
+.mascot {
+  position: absolute;
+  inset-inline-end: 4px;
+  top: 12px;
+  width: 104px;
+  height: auto;
+  z-index: -1;
+  opacity: 0.95;
+  filter: drop-shadow(0 12px 20px rgb(0 0 0 / 22%));
+  pointer-events: none;
+  animation: wave 4s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+
+@keyframes wave {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot { animation: none; }
+}
+
+.text {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* جای لوکی کنارِ عنوان نگه داشته می‌شود تا رویش نیفتد */
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 112px;
+  padding-inline-end: 96px;
+}
+
+.chip {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 16%);
+  border: 1px solid rgb(255 255 255 / 22%);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.chipLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.chip i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--pp-sun);
+}
+
+/* گوشیِ باریک: فقط بازه‌ی هفته، تا برچسب دو خط نشود */
+@container (max-width: 360px) {
+  .chipLabel { display: none; }
+}
+
+.title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.body {
+  margin: 0;
+  font-size: 13px;
+  line-height: 2.05;
+  color: rgb(255 255 255 / 90%);
+}
+
+/* سه عددِ هفته: کاشی‌های کوچکِ کنارِ هم، روی گوشی هم در یک ردیف */
+.highlights {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 8px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.highlights li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 9px 10px;
+  border-radius: 15px;
+  background: rgb(255 255 255 / 12%);
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat svg { flex-shrink: 0; width: 16px; height: 16px; color: var(--pp-sun); }
+.stat b { font-size: 17px; font-weight: 800; line-height: 1.4; }
+.statLabel { font-size: 10.5px; line-height: 1.6; color: rgb(255 255 255 / 80%); }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-radius: 15px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s var(--pp-spring), box-shadow 0.2s;
+}
+
+.primary {
+  background: #fff;
+  color: #174447;
+  box-shadow: 0 8px 18px rgb(0 0 0 / 14%);
+}
+
+.primary svg { width: 17px; height: 17px; }
+.primary:hover { transform: translateX(-2px); }
+
+.secondary {
+  background: rgb(255 255 255 / 14%);
+  color: #fff;
+}
+
+.primary:focus-visible,
+.secondary:focus-visible { outline: 2px solid var(--pp-sun); outline-offset: 2px; }
+
+/* ---------- هفته‌ی بی‌فعالیت: گرم و دعوت‌کننده ---------- */
+.hero[data-quiet] {
+  color: #3d2600;
+  background:
+    radial-gradient(110% 90% at 100% 0%, rgb(255 255 255 / 55%), transparent 55%),
+    linear-gradient(140deg, #fff3d6 0%, #ffe0a8 55%, #ffc978 100%);
+  box-shadow: 0 18px 40px rgb(217 119 6 / 20%);
+}
+
+.hero[data-quiet] .glow {
+  background:
+    radial-gradient(circle at 10% 92%, rgb(33 94 97 / 12%) 0 52px, transparent 53px),
+    radial-gradient(circle at 4% 28%, rgb(255 255 255 / 45%) 0 22px, transparent 23px);
+}
+
+.hero[data-quiet] .chip { background: rgb(255 255 255 / 60%); border-color: rgb(217 119 6 / 22%); }
+.hero[data-quiet] .chip i { background: #d97706; }
+.hero[data-quiet] .body { color: #5a3d0c; }
+.hero[data-quiet] .primary { background: #215e61; color: #fff; box-shadow: 0 8px 18px rgb(33 94 97 / 26%); }
+.hero[data-quiet] .secondary { background: rgb(255 255 255 / 60%); color: #3d2600; }
+
+/* هفته‌ی بی‌فعالیت عددی ندارد؛ لوکی کنارِ عنوان کوچک‌تر است */
+
+/* ظرف: خانه‌ی همین کارت در HomeView (container-type)؛ ظرف خودش را نمی‌تواند تغییر دهد */
+@container (min-width: 560px) {
+  .hero { padding: 28px 30px; min-height: 250px; }
+  .text { width: auto; max-width: calc(100% - 190px); }
+  .head { min-height: 0; padding-inline-end: 0; }
+  .mascot { width: 210px; inset-inline-end: 6px; top: auto; bottom: -30px; }
+  .title { font-size: 23px; }
+  .body { font-size: 14px; }
+  .highlights { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); max-width: 480px; }
+}

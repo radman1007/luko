@@ -10,6 +10,17 @@ const isoDate = (offset: number) => {
   return `${date.getFullYear()}-${month}-${day}`;
 };
 
+// «۱۴ تا ۲۰ مهر»: هفت روزِ گذشته به تقویمِ شمسی
+const persianDay = (date: Date) =>
+  new Intl.DateTimeFormat('fa-IR-u-ca-persian', { day: 'numeric', month: 'long' }).format(date);
+const guestPeriod = (() => {
+  const start = new Date(today);
+  start.setDate(start.getDate() - 6);
+  const [startDay, startMonth] = persianDay(start).split(' ');
+  const end = persianDay(today);
+  return startMonth === end.split(' ')[1] ? `${startDay} تا ${end}` : `${persianDay(start)} تا ${end}`;
+})();
+
 export const GUEST_CHILDREN: Child[] = [
   {
     id: 'guest-child-1',
@@ -63,8 +74,9 @@ const reportFor = (strong: boolean): ChildReport => ({
   ],
   subjects: [
     { key: 'math', label: 'ریاضی', mastery: strong ? 74 : 61, gamesDone: strong ? 6 : 3, gamesTotal: 12, trend: strong ? 'up' : 'flat', weakestTopic: 'الگو' },
-    { key: 'science', label: 'علوم', mastery: 0, gamesDone: 0, gamesTotal: 8, trend: 'flat' },
-    { key: 'writing', label: 'نگارش', mastery: 0, gamesDone: 0, gamesTotal: 7, trend: 'flat' },
+    // مهمان پلنِ رایگان را می‌بیند: جز ریاضی، درس‌ها قفل‌اند (مثلِ gating.py)
+    { key: 'science', label: 'علوم', mastery: 0, gamesDone: 0, gamesTotal: 8, trend: 'flat', locked: true },
+    { key: 'writing', label: 'نگارش', mastery: 0, gamesDone: 0, gamesTotal: 7, trend: 'flat', locked: true },
   ],
   games: [
     { id: 'guest-game-1', title: 'جزیرهٔ حیوانات', subject: 'math', subjectLabel: 'ریاضی', book: 'ریاضی اول', attempts: strong ? 8 : 4, bestScore: strong ? 92 : 78, accuracy: strong ? 73 : 58, avgSeconds: 529, totalMinutes: strong ? 18 : 9, hints: 2, lastPlayedAt: 'امروز، ۱۵:۳۰', coins: 34, status: strong ? 'progress' : 'struggling' },
@@ -97,6 +109,43 @@ const reportFor = (strong: boolean): ChildReport => ({
     { key: 'pattern', label: 'الگو', asked: strong ? 7 : 6, accuracy: strong ? 67 : 54, avgSeconds: 24 },
     { key: 'count', label: 'شمارش', asked: 6, accuracy: strong ? 83 : 69, avgSeconds: 16 },
   ],
+  premium: false,
+  // آرش هفته‌ی فعالی داشته، نیکی این هفته بازی نکرده — هر دو حالتِ کادرِ هفتگی دیده می‌شوند
+  weekly: strong
+    ? {
+        active: true,
+        period: guestPeriod,
+        title: 'آرش این هفته در «مقایسه» درخشید',
+        body: 'آرش این هفته ۶ بازی را تمام کرد و در ریاضی ۷۴ درصد پاسخ‌هایش درست بود. در «مقایسه» از ۸ سؤال ۷ تا را درست جواب داد و ۲۰ درصد بیشتر از هفته‌ی پیش بازی کرد.',
+        highlights: [
+          { key: 'games', label: 'بازیِ کامل', value: 6 },
+          { key: 'minutes', label: 'دقیقه یادگیری', value: 45 },
+          { key: 'days', label: 'روزِ فعال از ۷', value: 5 },
+        ],
+        cta: 'details',
+      }
+    : {
+        active: false,
+        period: guestPeriod,
+        title: 'این هفته هنوز فعالیتی ثبت نشده',
+        body: 'نیکی آخرین بار دیروز بازی کرد. یک بازیِ کوتاهِ ۵ دقیقه‌ای برای امروزش انتخاب کنید؛ بچه‌ها وقتی بدانند کسی منتظرِ نتیجه‌شان است با شوقِ بیشتری بازی می‌کنند.',
+        highlights: [],
+        cta: 'daily',
+      },
+  tips: {
+    source: 'rules',
+    items: [
+      {
+        id: 'practice-pattern',
+        kind: 'practice',
+        title: strong ? 'الگو را با اشیای خانه تمرین کنید' : 'الگو را با بازیِ دو نفره تمرین کنید',
+        body: 'با قاشق و چنگال یا دکمه‌های رنگی یک ردیف بچینید و بپرسید «بعدی چه می‌شود؟». چند دقیقه در روز کافی است.',
+      },
+      { id: 'routine', kind: 'routine', title: 'یک ساعتِ ثابت برای بازی', body: '', locked: true },
+      { id: 'praise', kind: 'praise', title: 'تلاش را تحسین کنید، نه فقط نمره را', body: '', locked: true },
+      { id: 'sleep', kind: 'sleep', title: 'بازیِ شب را کوتاه‌تر کنید', body: '', locked: true },
+    ],
+  },
   learning: {
     week: {
       minutes: strong ? 45 : 28,

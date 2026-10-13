@@ -1,0 +1,48 @@
+/* چیدمانِ خانه: گوشی یک ستون؛ از ۱۰۲۴px درس‌ها کنارِ پیشنهادها و بازیِ امروز */
+.home {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'hero'
+    'daily'
+    'subjects'
+    'tips'
+    'explore'
+    'foot';
+  gap: 14px;
+}
+
+/* هر خانه ظرفِ عرضِ خودش است؛ کارت‌ها با @container نه با پهنای صفحه چیده می‌شوند */
+.cell {
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.cell[data-area='hero'] { grid-area: hero; }
+.cell[data-area='daily'] { grid-area: daily; }
+.cell[data-area='subjects'] { grid-area: subjects; }
+.cell[data-area='tips'] { grid-area: tips; }
+.cell[data-area='explore'] { grid-area: explore; }
+
+.foot {
+  grid-area: foot;
+  margin: 4px 0 0;
+  text-align: center;
+  font-size: 10.5px;
+  line-height: 1.9;
+  color: var(--pp-mut);
+}
+
+@media (min-width: 1024px) {
+  .home {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    grid-template-areas:
+      'hero hero'
+      'subjects tips'
+      'subjects daily'
+      'explore explore'
+      'foot foot';
+    gap: 18px;
+    align-items: start;
+  }
+}

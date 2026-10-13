@@ -23,7 +23,11 @@ function makePage(protocol = 'https:', width = 390) {
   };
   const win: Record<string, unknown> = {
     location: { protocol },
-    matchMedia: (query: string) => ({ matches: query === '(max-width: 700px)' && width <= 700 }),
+    matchMedia: (query: string) => {
+      const max = /max-width:\s*(\d+)px/.exec(query);
+      const min = /min-width:\s*(\d+)px/.exec(query);
+      return { matches: (!max || width <= Number(max[1])) && (!min || width >= Number(min[1])) };
+    },
     addEventListener: (name: string, fn: () => void) => {
       if (!handlers.has(name)) handlers.set(name, new Set());
       handlers.get(name)!.add(fn);
@@ -147,18 +151,24 @@ describe('گفتینو', () => {
     expect(page.storage.has('goftino_Twz6qn')).toBe(false);
   });
 
-  it('روی گوشی حباب بالای نوارِ پایینِ پنل می‌نشیند، روی دسکتاپ نه', async () => {
+  it('حباب نه روی منوی پایینِ گوشی می‌افتد نه روی منوی کناریِ لپ‌تاپ', async () => {
     const phone = makePage('https:', 390);
     let g = await freshModule();
     g.loadGoftino();
     phone.widgetLoads();
     expect(phone.api.setWidget).toHaveBeenCalledWith({ marginBottom: 104 });
     vi.unstubAllGlobals();
-    const desktop = makePage('https:', 1366);
+    const tablet = makePage('https:', 820);
     g = await freshModule();
     g.loadGoftino();
-    desktop.widgetLoads();
-    expect(desktop.api.setWidget).not.toHaveBeenCalled();
+    tablet.widgetLoads();
+    expect(tablet.api.setWidget).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+    const laptop = makePage('https:', 1366);
+    g = await freshModule();
+    g.loadGoftino();
+    laptop.widgetLoads();
+    expect(laptop.api.setWidget).toHaveBeenCalledWith({ marginRight: 308 });
   });
 
   it('سراسریِ پاک‌نشدنیِ گفتینو برداشتن را نمی‌شکند (صفحه از کار نمی‌افتد)', async () => {

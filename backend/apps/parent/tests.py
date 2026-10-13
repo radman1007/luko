@@ -55,7 +55,8 @@ class ReportTests(TestCase):
         self.assertEqual(
             set(report),
             {"childId", "answersThisWeek", "kpis", "week", "accuracyTrend", "subjects",
-             "games", "moods", "insights", "wellbeing", "hourly", "sessions", "topics", "learning"},
+             "games", "moods", "insights", "wellbeing", "hourly", "sessions", "topics", "learning",
+             "weekly", "tips"},
         )
 
     def test_minutes_come_from_camelcase_payload(self):
@@ -299,6 +300,10 @@ class NotificationTests(TestCase):
         self.assertIn("weekly", kinds)
         self.assertIn("games", kinds)
         self.assertEqual(data["unread"], len(data["items"]))
+        # پیوندِ اعلان به صفحه‌ی تازه‌ی پنل می‌رود و همان فرزند را انتخاب می‌کند
+        links = {row["kind"]: row["link"] for row in data["items"]}
+        self.assertEqual(links["games"], f"/parent-panel?p=details&child={self.child.id}")
+        self.assertEqual(links["weekly"], f"/parent-panel?child={self.child.id}")
 
     def test_each_game_gets_one_notification_only(self):
         # هر بازی برای هر بچه فقط یک‌بار تکمیل می‌شود، پس سه بازیِ متفاوت
