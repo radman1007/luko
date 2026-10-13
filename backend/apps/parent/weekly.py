@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Callable
 from datetime import date
 
 from django.utils import timezone
@@ -42,12 +43,20 @@ def _best(rows: dict, threshold: int):
     return max(ranked, key=lambda row: (row[1], row[2])) if ranked else None
 
 
+def _any(_: str) -> bool:
+    return True
+
+
 def build_weekly(*, name: str, week_answers, week_sessions, prev_minutes: int, week_games: int,
                  streak: int, subject_of, tags: dict, week_start: date, today: date,
-                 last_activity: date | None) -> dict:
+                 last_activity: date | None, subject_ok: Callable[[str], bool] = _any,
+                 concept_ok: Callable[[str], bool] = _any) -> dict:
     """
     ورودی‌ها همان‌هایی‌اند که گزارشِ والد از قبل حساب کرده (services._build_child_report).
     خروجی: {active, period, title, body, highlights, cta}
+
+    `subject_ok` / `concept_ok` نسخه‌ی پلنِ رایگان را می‌سازند: نقطه‌ی قوت فقط از درس‌های باز
+    گفته می‌شود و درسِ قفل فقط با یک جمله‌ی «با اشتراک باز می‌شود» (gating.py).
     """
     period = period_label(week_start, today)
     minutes = round(sum(e.duration_ms or 0 for e in week_sessions) / 60000)
@@ -71,12 +80,16 @@ def build_weekly(*, name: str, week_answers, week_sessions, prev_minutes: int, w
 
     by_subject: dict = defaultdict(lambda: {"asked": 0, "correct": 0})
     by_concept: dict = defaultdict(lambda: {"asked": 0, "correct": 0})
+    hidden = 0
     for event in week_answers:
         ok = 1 if event.is_correct else 0
         subject = subject_of(event.game_slug)
+        if not subject_ok(subject):
+            hidden += 1
+            continue
         by_subject[subject]["asked"] += 1
         by_subject[subject]["correct"] += ok
-        if event.concept_tag in tags:
+        if event.concept_tag in tags and concept_ok(event.concept_tag):
             by_concept[event.concept_tag]["asked"] += 1
             by_concept[event.concept_tag]["correct"] += ok
     best_subject = _best({k: v for k, v in by_subject.items() if k != "عمومی"}, STRONG_SUBJECT)
@@ -108,6 +121,8 @@ def build_weekly(*, name: str, week_answers, week_sessions, prev_minutes: int, w
         sentences.append(f"{fa_digits(streak)} روزِ پشتِ‌سرِ هم بازی کرده؛ این پیوستگی ارزشمند است.")
     if len(sentences) == 1:
         sentences.append("همین شروع یعنی قدمِ اول برداشته شده؛ تشویقش کنید که ادامه دهد.")
+    if hidden:
+        sentences.append("در درس‌های دیگر هم تمرین کرد؛ گزارشِ آن درس‌ها با اشتراک باز می‌شود.")
 
     if streak >= 3:
         title = f"{name} {fa_digits(streak)} روزِ پشتِ‌سرِ هم یاد گرفت"

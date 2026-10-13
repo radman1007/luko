@@ -104,8 +104,10 @@ class HomeReportTests(TestCase):
 
     # ---------------------------------------------------------------- قفلِ اشتراک
     def test_free_plan_shows_only_math(self):
+        ends = [{"game_slug": slug, "event_type": "game_complete", "session_id": f"s-{slug}",
+                 "duration_ms": 120_000, "occurred_at": ms_ago(hours=1)} for slug in ("g-math", "g-sci")]
         store_events(self.kid, [answer("g-math", "count", True) for _ in range(3)]
-                     + [answer("g-sci", "plants", True) for _ in range(3)])
+                     + [answer("g-sci", "plants", True) for _ in range(3)] + ends)
         report = gate_report(self.report(), premium=False)
         subjects = {s["label"]: s for s in report["subjects"]}
         self.assertFalse(subjects["ریاضی"].get("locked"))
@@ -119,10 +121,37 @@ class HomeReportTests(TestCase):
         self.assertIn("علوم", {g["subjectLabel"] for g in full["games"]})
         self.assertEqual({g["subjectLabel"] for g in report["games"]}, {"ریاضی"})  # آمارِ بازیِ علوم هم نه
         self.assertEqual(report["lockedGames"], len(full["games"]) - len(report["games"]))
+        self.assertIn("آزمایشگاه", {s["game"] for s in full["sessions"]})
+        self.assertEqual({s["game"] for s in report["sessions"]}, {"مزرعه"})            # جلسه‌ی علوم نه
+        self.assertNotIn("گیاهان", str(report["insights"]))
         tips = report["tips"]["items"]
         self.assertTrue(tips[0]["body"])
         self.assertTrue(all(t["locked"] and t["body"] == "" and t["title"] for t in tips[1:]))
         self.assertFalse(report["premium"])
+
+    def test_free_weekly_praises_only_open_subjects(self):
+        store_events(self.kid, [answer("g-sci", "plants", True) for _ in range(5)]
+                     + [answer("g-math", "count", True) for _ in range(3)] + [answer("g-math", "count", False)])
+        full = self.report()
+        self.assertIn("«علوم»", full["weekly"]["body"])                     # با اشتراک: بهترین درس علوم
+        free = gate_report(full, premium=False)["weekly"]
+        self.assertNotIn("علوم", free["body"] + free["title"])               # درسِ قفل ستایش نمی‌شود
+        self.assertNotIn("گیاهان", free["body"])
+        self.assertIn("«ریاضی»", free["body"])
+        self.assertIn("با اشتراک باز می‌شود", free["body"])
+        paid = gate_report(full, premium=True)
+        self.assertEqual(paid["weekly"], full["weekly"])
+        self.assertFalse([k for k in paid if k.endswith("Free")])
+
+    def test_free_tips_never_open_a_locked_subject(self):
+        store_events(self.kid, [dict(answer("g-sci", "plants", False), error_type="careless") for _ in range(4)]
+                     + [answer("g-math", "count", True) for _ in range(4)])
+        full = self.report()
+        self.assertEqual(full["tips"]["items"][0]["id"], "concept:plants")
+        free = gate_report(full, premium=False)["tips"]["items"]
+        self.assertNotEqual(free[0]["id"], "concept:plants")
+        self.assertNotIn("گیاهان", free[0]["title"] + free[0]["body"])
+        self.assertNotIn("weeklyFree", gate_report(full, premium=False))
 
     def test_premium_sees_everything_and_purchase_unlocks_at_once(self):
         api = APIClient()

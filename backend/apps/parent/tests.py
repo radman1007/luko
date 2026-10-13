@@ -16,6 +16,7 @@ from apps.games.models import Book, Game, GameCompletion, GameEvent
 from apps.health.models import BreathingSession, MoodCheckin
 
 from .models import DailyAssignment, ParentChild
+from .gating import gate_report
 from .services import invalidate_child_report
 from .services import build_child_report
 
@@ -56,8 +57,11 @@ class ReportTests(TestCase):
             set(report),
             {"childId", "answersThisWeek", "kpis", "week", "accuracyTrend", "subjects",
              "games", "moods", "insights", "wellbeing", "hourly", "sessions", "topics", "learning",
-             "weekly", "tips"},
+             "weekly", "tips", "weeklyFree", "tipsFree", "insightsFree", "sessionsFree"},
         )
+        # نسخه‌ی رایگان فقط داخلِ کش است؛ هرچه به والد می‌رسد از gate_report رد شده
+        for premium in (False, True):
+            self.assertFalse({k for k in gate_report(report, premium) if k.endswith("Free")})
 
     def test_minutes_come_from_camelcase_payload(self):
         """اگر پارسر دوباره کلیدها را snake_case کند، این تست می‌افتد."""

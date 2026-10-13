@@ -23,6 +23,7 @@ from apps.common.fa import fa_date, fa_day, fa_digits, fa_time, to_jalali
 from apps.games.models import Book, Game, GameCompletion, GameEvent
 from apps.health.models import BreathingSession, MoodCheckin, Painting
 
+from .gating import FREE_CONCEPT_SUBJECTS, FREE_SUBJECTS
 from .learning import SESSION_ENDS, build_learning, concept_tags
 from .tips import build_tips
 from .weekly import build_weekly
@@ -136,7 +137,7 @@ def _build_child_report(child) -> dict:
                   .values_list("occurred_at", flat=True).first())
     last_done = max((c.created_at for c in completions), default=None)
     last_seen = max((t for t in (last_event, last_done) if t), default=None)
-    weekly = build_weekly(
+    weekly_args = dict(
         name=name,
         week_answers=week_answers,
         week_sessions=[e for e in sessions if _day(e) >= week_start],
@@ -149,7 +150,7 @@ def _build_child_report(child) -> dict:
         today=today,
         last_activity=timezone.localdate(last_seen) if last_seen else None,
     )
-    tips = build_tips(
+    tips_args = dict(
         name=name,
         learning=learning,
         hourly=hourly,
@@ -159,6 +160,12 @@ def _build_child_report(child) -> dict:
         mood_checkins=wellbeing["checkins"],
         streak=streak,
     )
+    # نسخه‌ی پلنِ رایگان هم همین‌جا (پشتِ کش) ساخته می‌شود؛ gate_report یکی را برمی‌دارد
+    def is_free(slug: str) -> bool:
+        return subject_of(slug) in FREE_SUBJECTS
+
+    free_learning = {**learning, "concepts": [c for c in learning.get("concepts", [])
+                                              if c.get("subject", "") in FREE_CONCEPT_SUBJECTS]}
 
     return {
         "childId": str(child.id),
@@ -171,15 +178,24 @@ def _build_child_report(child) -> dict:
         "games": _games(events, sessions, completions, games_meta, catalog, books),
         "moods": _moods(child),
         "insights": _insights(answers, events, games_meta, tags),
+        "insightsFree": _insights([e for e in answers if is_free(e.game_slug)],
+                                  [e for e in events if is_free(e.game_slug)], games_meta, tags),
         "wellbeing": wellbeing,
         "hourly": hourly,
         "sessions": _sessions(sessions, games_meta),
+        "sessionsFree": _sessions([e for e in sessions if is_free(e.game_slug)], games_meta),
         "topics": _topics(answers, tags),
         # تگ‌های آموزشی: زمانِ بازی، خطای هر مفهوم و موفقیت در اولین تلاش
         "learning": learning,
         # خانه‌ی پنل: گزارشِ هفتگیِ خودکار (فقط نقطه‌های قوت) و پیشنهادِ این هفته برای والد
-        "weekly": weekly,
-        "tips": tips,
+        "weekly": build_weekly(**weekly_args),
+        "weeklyFree": build_weekly(
+            **weekly_args,
+            subject_ok=lambda subject: subject in FREE_SUBJECTS,
+            concept_ok=lambda tag: tags[tag].subject in FREE_CONCEPT_SUBJECTS,
+        ),
+        "tips": build_tips(**tips_args),
+        "tipsFree": build_tips(**{**tips_args, "learning": free_learning}),
     }
 
 
