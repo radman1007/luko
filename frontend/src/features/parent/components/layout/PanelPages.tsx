@@ -4,7 +4,6 @@ import type { Assignment } from '../../api';
 import type { ChildReport } from '../../types';
 import { HealthPage } from '../health/HealthPage';
 import { HomeView } from '../home/HomeView';
-import { AssistantView } from '../views/AssistantView';
 import { DashboardView } from '../views/DashboardView';
 import { LearnView } from '../views/LearnView';
 import { PlanNote } from '../views/PlanNote';
@@ -20,24 +19,23 @@ interface Props {
   childName: string;
   today: Assignment | null;
   onUpgrade: () => void;
-  onSupport: () => void;
-  /** «بازیِ امروز» و تنظیمات بینِ پنلِ واقعی و مهمان فرق دارند؛ از بیرون می‌آیند */
+  /** «بازیِ امروز»، دستیار و تنظیمات بینِ پنلِ واقعی و مهمان فرق دارند؛ از بیرون می‌آیند */
   daily: ReactNode;
   settings: ReactNode;
+  assistant: ReactNode;
   /** بارگذاری، خطا یا «فرزندی نیست» برای صفحه‌هایی که به گزارشِ فرزند نیاز دارند */
   status?: ReactNode;
 }
 
 /** محتوای هر صفحه‌ی پنل — مشترک بینِ پنلِ والد و حالتِ نمایشیِ مهمان */
 export function PanelPages({
-  page, onNavigate, report, analysis, childName, today, onUpgrade, onSupport, daily, settings, status,
+  page, onNavigate, report, analysis, childName, today, onUpgrade, daily, settings, assistant, status,
 }: Props) {
   if (page === 'settings') return <>{settings}</>;
   if (page === 'learn') return <LearnView />;
-  if (page === 'assistant') {
-    return <AssistantView childName={childName} onSupport={onSupport} onTips={() => onNavigate('home')} />;
-  }
   if (status) return <>{status}</>;
+  // دستیار به گزارش نیاز ندارد (خودش گفت‌وگو را می‌خواند)، فقط به فرزند
+  if (page === 'assistant') return <>{assistant}</>;
   if (page === 'daily') {
     return (
       <SubPage title={`بازی روزِ ${childName}`} note="بچه وقتی وارد لوکو شود اول همین بازی را می‌بیند."

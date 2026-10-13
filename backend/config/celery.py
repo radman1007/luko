@@ -30,6 +30,11 @@ app.conf.beat_schedule = {
         "task": "apps.billing.tasks.notify_expiring",
         "schedule": crontab(hour=9, minute=30),
     },
+    # تحلیلِ هوشمندِ بچه‌های فعالِ دیروز، پیش از آن‌که والدها صبح پنل را باز کنند
+    "ai-refresh-recent-nightly": {
+        "task": "apps.ai.tasks.refresh_recent",
+        "schedule": crontab(hour=4, minute=40),
+    },
     "activity-prune-daily": {
         "task": "apps.activity.tasks.prune_activity",
         "schedule": crontab(hour=4, minute=20),

@@ -32,11 +32,11 @@ export function HealthPage({ report, childName, onUpgrade }: Props) {
   return (
     <div className={styles.page} data-locked={open ? undefined : true}>
       <div className={styles.cell} data-area="hero">
-        <MoodHero weekly={weekly} />
+        <MoodHero weekly={weekly} ai={report.ai} />
       </div>
       <div className={styles.cell} data-area="wtips">
         <TipsCard tips={weekly.tips} childName={childName} tone="rose" title="پیشنهادِ دکتر نیلا"
-          subtitle={`برای حالِ بهترِ ${childName} در این هفته`} />
+          subtitle={`برای حالِ بهترِ ${childName} در این هفته`} ai={report.ai} />
       </div>
 
       <header className={styles.section} data-area="dhead">
@@ -62,7 +62,7 @@ export function HealthPage({ report, childName, onUpgrade }: Props) {
           <div className={styles.cell} data-area="interests"><InterestsCard daily={open} childName={childName} /></div>
           <div className={styles.cell} data-area="dtips">
             <TipsCard tips={open.tips} childName={childName} tone="rose" title="پیشنهادهای دقیقِ دکتر نیلا"
-              subtitle={`بر اساسِ حالِ ${childName} در بخش‌های روز، درس‌ها و علاقه‌هایش`} />
+              subtitle={`بر اساسِ حالِ ${childName} در بخش‌های روز، درس‌ها و علاقه‌هایش`} ai={report.ai} />
           </div>
         </>
       ) : (

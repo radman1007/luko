@@ -23,6 +23,7 @@ api_v1 = [
     path("", include("apps.support.urls")),
     path("", include("apps.sync.urls")),
     path("parent/", include("apps.parent.urls")),
+    path("parent/", include("apps.ai.urls")),
     path("billing/", include("apps.billing.urls")),
     path("", include("apps.activity.urls")),
     path("", include("apps.notices.urls")),

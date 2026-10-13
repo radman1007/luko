@@ -27,6 +27,7 @@ import { Sheet } from '@/features/parent/components/shell/Sheet';
 import { Toast } from '@/features/parent/components/shell/Toast';
 import { ParentIntroGate } from '@/features/parent/components/intro/ParentIntroGate';
 import { useSubscriptions } from '@/features/billing/useBilling';
+import { AssistantPage } from '@/features/parent/components/assistant/AssistantPage';
 import { DailyView } from '@/features/parent/components/views/DailyView';
 import { SettingsPage } from '@/features/parent/components/settings/SettingsPage';
 import { SettingsContext } from '@/features/parent/components/settings/SettingsContext';
@@ -393,8 +394,10 @@ function AuthenticatedParentPanel() {
         childName={shortName}
         today={today}
         onUpgrade={upgrade}
-        onSupport={openSupport}
         status={status}
+        assistant={
+          <AssistantPage childId={childId} childName={shortName} onUpgrade={upgrade} onSupport={openSupport} />
+        }
         daily={
           <DailyView
             childName={shortName}

@@ -229,8 +229,7 @@ export function buildAnalysis(report: ChildReport, childName: string): ChildAnal
 
   // نکته‌های بک‌اند اولویت دارند؛ اگر کم بودند با نکته‌های محلی کامل می‌شوند
   const findings = [...report.insights, ...localFindings(report)].slice(0, 4);
-
-  return {
+  const rules: ChildAnalysis = {
     source: 'auto',
     verdict,
     verdictLabel: VERDICT_LABEL[verdict],
@@ -241,5 +240,17 @@ export function buildAnalysis(report: ChildReport, childName: string): ChildAnal
     findings,
     action: idle ? null : buildAction(report, activeDays),
     sampleSize,
+  };
+
+  // متن‌هایی که مدلِ زبانی از همین عددها نوشته (apps/ai)؛ نمره و حکم همیشه همین قاعده‌هاست
+  const ai = report.aiAnalysis;
+  if (!ai || idle) return rules;
+  return {
+    ...rules,
+    source: 'ai',
+    headline: ai.headline,
+    narrative: ai.narrative,
+    findings: ai.findings.map((item, index) => ({ id: `ai-${index + 1}`, ...item })),
+    action: ai.action ?? rules.action,
   };
 }

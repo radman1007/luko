@@ -27,12 +27,18 @@ export function useChildren(enabled = true) {
   });
 }
 
+/** تحلیلِ هوشمند در صف است: گزارش هر چند ثانیه دوباره خوانده می‌شود (تا سقفی، نه بی‌پایان) */
+const AI_POLL_MS = 6000;
+const AI_POLL_MAX = 30;
+
 export function useReport(childId?: string) {
   return useQuery({
     queryKey: parentKeys.report(childId ?? ''),
     queryFn: () => parentApi.report(childId as string),
     enabled: Boolean(childId),
     staleTime: MINUTE,
+    refetchInterval: (query) =>
+      query.state.data?.ai?.status === 'pending' && query.state.dataUpdateCount < AI_POLL_MAX ? AI_POLL_MS : false,
   });
 }
 

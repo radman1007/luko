@@ -24,6 +24,7 @@ import { WeekChart } from '../charts/WeekChart';
 import { TrendChart } from '../charts/TrendChart';
 import { HoursChart } from '../charts/HoursChart';
 import { ConceptLearningCard } from './ConceptLearningCard';
+import { AiBadge } from '../ai/AiBadge';
 import styles from './DashboardView.module.css';
 
 interface Props {
@@ -141,7 +142,10 @@ export function DashboardView({ report, analysis, childName, onGoDaily }: Props)
             </span>
           </div>
           <div className={styles.scoreTexts}>
-            <span className={styles[`verdict_${analysis.verdict}`]}>{analysis.verdictLabel}</span>
+            <span className={styles.verdictRow}>
+              <span className={styles[`verdict_${analysis.verdict}`]}>{analysis.verdictLabel}</span>
+              <AiBadge ai={report.ai} written={analysis.source === 'ai'} />
+            </span>
             <b className={styles.headline}>{analysis.headline}</b>
             <p className={styles.narrative}>{analysis.narrative}</p>
           </div>

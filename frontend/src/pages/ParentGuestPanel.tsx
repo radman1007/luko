@@ -9,6 +9,7 @@ import { usePanelPage } from '@/features/parent/components/layout/usePanelPage';
 import { ChildSwitch } from '@/features/parent/components/shell/ChildSwitch';
 import { Sheet } from '@/features/parent/components/shell/Sheet';
 import { Toast } from '@/features/parent/components/shell/Toast';
+import { AssistantPage } from '@/features/parent/components/assistant/AssistantPage';
 import { DailyView } from '@/features/parent/components/views/DailyView';
 import { SettingsPage } from '@/features/parent/components/settings/SettingsPage';
 import { SettingsContext } from '@/features/parent/components/settings/SettingsContext';
@@ -143,7 +144,10 @@ export default function ParentGuestPanel() {
         childName={shortName}
         today={today}
         onUpgrade={() => go('settings', { s: 'billing' })}
-        onSupport={() => go('settings', { s: 'support' })}
+        assistant={
+          <AssistantPage guest childName={shortName} onUpgrade={() => go('settings', { s: 'billing' })}
+            onSupport={() => go('settings', { s: 'support' })} onLogin={() => setSheet('logout')} />
+        }
         daily={
           <DailyView
             childName={shortName}

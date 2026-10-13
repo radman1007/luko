@@ -25,7 +25,7 @@ export function HomeView({ report, childName, today, onNavigate, onUpgrade }: Pr
     <div className={styles.home}>
       {report.weekly && (
         <div className={styles.cell} data-area="hero">
-          <WeeklyHero weekly={report.weekly} childName={childName}
+          <WeeklyHero weekly={report.weekly} childName={childName} ai={report.ai}
             onDetails={() => onNavigate('details')} onDaily={() => onNavigate('daily')} />
         </div>
       )}
@@ -40,7 +40,7 @@ export function HomeView({ report, childName, today, onNavigate, onUpgrade }: Pr
       </div>
       {report.tips && report.tips.items.length > 0 && (
         <div className={styles.cell} data-area="tips">
-          <TipsCard tips={report.tips.items} childName={childName} onUpgrade={onUpgrade} />
+          <TipsCard tips={report.tips.items} childName={childName} onUpgrade={onUpgrade} ai={report.ai} />
         </div>
       )}
       <div className={styles.cell} data-area="explore">

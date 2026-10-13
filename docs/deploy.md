@@ -9,7 +9,7 @@
                      ├─ /api/, /admin → gunicorn (web:8000)
                      └─ /static, /media
                                 web ──┬── postgres
-                                      └── redis ── worker + beat
+                                      └── redis ── worker + beat + ai (کارهای هوش مصنوعی، docs/ai.md)
 ```
 
 ## پیش‌نیاز سرور

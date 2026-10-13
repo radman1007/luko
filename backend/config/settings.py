@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     "apps.notices",
     "apps.blog",
     "apps.dashboard",
+    "apps.ai",
 ]
 
 MIDDLEWARE = [
@@ -164,6 +165,32 @@ CELERY_RESULT_BACKEND = env("REDIS_URL", "redis://localhost:6379/0")
 CELERY_TIMEZONE = "Asia/Tehran"
 CELERY_TASK_ALWAYS_EAGER = env_bool("CELERY_EAGER", False)
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+# کارهای هوش مصنوعی (چند ثانیه تا یک دقیقه) صفِ خودشان را دارند تا کارهای پرداخت پشتشان نمانند
+CELERY_TASK_ROUTES = {"apps.ai.tasks.*": {"queue": "ai"}}
+
+# ---------------------------------------------------------------------------
+# هوش مصنوعی — AIaaSِ آروان‌کلاد (گیت‌وی سازگار با OpenAI روی api.luko.ir)
+# کلید فقط در .env سرور است و هرگز کامیت نمی‌شود. بی‌کلید همه‌چیز با متن‌های قاعده‌محور کار می‌کند.
+# ---------------------------------------------------------------------------
+AI_BASE_URL = env("AI_BASE_URL", "").rstrip("/")
+AI_API_KEY = env("AI_API_KEY", "")
+AI_ENABLED = env_bool("AI_ENABLED", bool(AI_BASE_URL and AI_API_KEY))
+#: سه مدلِ گیت‌وی؛ پایه رایگان است، دو تای دیگر فقط با اشتراک
+AI_MODEL_FLASH = env("AI_MODEL_FLASH", "DeepSeek-V4-Flash")
+AI_MODEL_PRO = env("AI_MODEL_PRO", "DeepSeek-V4-Pro")
+AI_MODEL_LUNA = env("AI_MODEL_LUNA", "GPT-5.6-Luna")
+#: تحلیلِ پس‌زمینه برای فرزندِ مشترک با کدام مدل (flash | pro | luna)
+AI_INSIGHT_TIER_PREMIUM = env("AI_INSIGHT_TIER_PREMIUM", "pro")
+AI_TIMEOUT = int(env("AI_TIMEOUT", "120"))
+#: سهمیه‌ی روزانه‌ی دستیار برای هر والد: پلنِ رایگان فقط «پایه»
+AI_QUOTA_FREE = int(env("AI_QUOTA_FREE", "5"))
+AI_QUOTA_PREMIUM = {
+    "flash": int(env("AI_QUOTA_PREMIUM_FLASH", "40")),
+    "pro": int(env("AI_QUOTA_PREMIUM_PRO", "25")),
+    "luna": int(env("AI_QUOTA_PREMIUM_LUNA", "10")),
+}
+#: سقفِ تحلیل‌های شبانه (بچه‌های فعالِ دیروز)
+AI_NIGHTLY_LIMIT = int(env("AI_NIGHTLY_LIMIT", "300"))
 
 # ---------------------------------------------------------------------------
 # پیامک (OTP) — sms.ir
@@ -195,6 +222,10 @@ SMS_BACKEND = env("SMS_BACKEND", "console" if DEBUG else "smsir")
 # اجرای تست هرگز نباید پیامکِ واقعی بفرستد (و اعتبار بسوزاند یا کند شود).
 if "test" in sys.argv or os.environ.get("PYTEST_CURRENT_TEST"):
     SMS_BACKEND = "console"
+    # تست هرگز به گیت‌وی یا صفِ واقعیِ هوش مصنوعی نمی‌رسد (تستِ استقرار با همان .envِ سرور اجرا می‌شود)؛
+    # تست‌های apps.ai خودشان با گیت‌وی ساختگی روشنش می‌کنند
+    AI_ENABLED = False
+    AI_API_KEY = ""
     # کلیدِ ثابتِ آزمایشی برای گاوصندوقِ رمز. بدونِ این، هر توسعه‌دهنده‌ای که
     # PASSWORD_VAULT_KEY در .env ندارد تست‌های گاوصندوق را سبز می‌بیند در حالی
     # که `seal` چیزی ذخیره نکرده — یعنی قابلیت بی‌صدا آزموده نمی‌شود. ثابت

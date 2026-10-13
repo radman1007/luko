@@ -2,7 +2,8 @@ import { HiOutlineArrowTrendingDown, HiOutlineArrowTrendingUp } from 'react-icon
 import { MoodFaceIcon } from '@/components/ui/icons';
 import type { MoodVariant } from '@/components/ui/icons';
 import { LUKORIANS } from '@/lib/characters';
-import type { HealthVerdict, HealthWeekly } from '../../types';
+import type { AiStatus, HealthVerdict, HealthWeekly } from '../../types';
+import { AiBadge } from '../ai/AiBadge';
 import { BreathIcon } from '../home/BreathIcon';
 import { MoodMix } from './MoodMix';
 import { fa } from './moods';
@@ -10,6 +11,7 @@ import styles from './MoodHero.module.css';
 
 interface Props {
   weekly: HealthWeekly;
+  ai?: AiStatus;
 }
 
 /** صورتکِ بزرگِ کنارِ حکم: حالِ غالب، و برای «هنوز ثبت نشده» صورتکِ آرام */
@@ -21,7 +23,7 @@ const VERDICT_FACE: Record<HealthVerdict, MoodVariant | null> = {
  * «حالِ کلیِ هفته» با دکتر نیلا: یک حکمِ ساده (عالی / خوب / متغیر / نیاز به توجه)، یکی دو جمله،
  * ترکیبِ حال‌ها و فعالیت‌های آرامش. عمداً وارد جزئیات نمی‌شود؛ جزئیات در «حالِ دقیقِ روزانه» است.
  */
-export function MoodHero({ weekly }: Props) {
+export function MoodHero({ weekly, ai }: Props) {
   const face = VERDICT_FACE[weekly.verdict] ?? weekly.dominant ?? 'calm';
   const stats = [
     { key: 'checkins', icon: <MoodFaceIcon variant="happy" size={16} aria-hidden />, value: weekly.stats.checkins, label: 'بار گفتنِ حال' },
@@ -35,10 +37,13 @@ export function MoodHero({ weekly }: Props) {
 
       <div className={styles.text}>
         <div className={styles.head}>
-          <span className={styles.chip}>
-            <span className={styles.chipLabel}>حالِ کلیِ هفته<i aria-hidden /></span>
-            {weekly.period}
-          </span>
+          <div className={styles.chipRow}>
+            <span className={styles.chip}>
+              <span className={styles.chipLabel}>حالِ کلیِ هفته<i aria-hidden /></span>
+              {weekly.period}
+            </span>
+            {weekly.verdict !== 'none' && <AiBadge ai={ai} written={weekly.source === 'ai'} />}
+          </div>
           <div className={styles.verdictRow}>
             <span className={styles.verdict}>
               <MoodFaceIcon variant={face} size={20} aria-hidden />

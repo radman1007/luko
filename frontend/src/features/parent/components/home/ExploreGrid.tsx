@@ -23,7 +23,6 @@ interface Tile {
   tone: string;
   title: string;
   text: string;
-  soon?: boolean;
 }
 
 /** معرفیِ کوتاهِ بخش‌های دیگرِ پنل، هرکدام با یک جمله‌ی به‌دردبخور */
@@ -36,7 +35,7 @@ export function ExploreGrid({ childName, wellbeing, moodWeek, onNavigate }: Prop
   const tiles: Tile[] = [
     { page: 'health', icon: HiOutlineHeart, tone: 'rose', title: 'سلامت و حال‌ودل', text: health },
     { page: 'assistant', icon: HiOutlineSparkles, tone: 'violet', title: 'دستیارِ هوشمند',
-      text: `هر سؤالی درباره‌ی یادگیریِ ${childName} دارید بپرسید و جوابِ شخصی بگیرید.`, soon: true },
+      text: `هر سؤالی درباره‌ی یادگیری و حالِ ${childName} دارید بپرسید؛ جواب از بازی‌های خودِ او ساخته می‌شود.` },
     { page: 'learn', icon: HiOutlineAcademicCap, tone: 'amber', title: 'آموزشِ والدین',
       text: 'نکته‌های کوتاه و کاربردی برای همراهیِ فرزند در یادگیری و تشویقِ درست.' },
   ];
@@ -50,7 +49,7 @@ export function ExploreGrid({ childName, wellbeing, moodWeek, onNavigate }: Prop
             onClick={() => onNavigate(tile.page)}>
             <span className={styles.icon} aria-hidden><Icon /></span>
             <span className={styles.text}>
-              <b>{tile.title}{tile.soon && <em>به‌زودی</em>}</b>
+              <b>{tile.title}</b>
               <small>{tile.text}</small>
             </span>
             <HiOutlineChevronLeft className={styles.arrow} aria-hidden />

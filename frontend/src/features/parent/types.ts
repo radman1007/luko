@@ -187,6 +187,8 @@ export interface WeeklyReport {
   highlights: { key: 'games' | 'minutes' | 'days'; label: string; value: number }[];
   /** دکمه‌ی اصلی: جزئیاتِ بیشتر، یا انتخابِ بازیِ امروز برای هفته‌ی بی‌فعالیت */
   cta: 'details' | 'daily';
+  /** «ai» یعنی عنوان و متن را مدلِ زبانی از همین عددها نوشته (apps/ai/insights.py) */
+  source?: 'ai';
 }
 
 export type TipKind = 'practice' | 'sleep' | 'routine' | 'together' | 'mood' | 'praise' | 'goal' | 'breath' | 'art';
@@ -218,6 +220,7 @@ export interface HealthWeekly {
   mix: { mood: MoodVariant; count: number }[];
   stats: { checkins: number; breathing: number; paintings: number };
   tips: ParentTip[];
+  source?: 'ai';
 }
 
 export interface MoodPart {
@@ -288,6 +291,31 @@ export interface HealthReport {
   daily: HealthDaily | HealthLocked;
 }
 
+// ---------------------------------------------------------------- هوش مصنوعی (apps/ai)
+export type AiTier = 'flash' | 'pro' | 'luna';
+
+/**
+ * وضعیتِ تحلیلِ هوشمندِ همین گزارش: ready = متن‌ها را مدل نوشته؛ pending = در صف (فرانت گزارش را
+ * دوباره می‌خواند)؛ failed / off = همان متن‌های قاعده‌محور.
+ */
+export interface AiStatus {
+  status: 'ready' | 'pending' | 'failed' | 'off';
+  tier?: AiTier;
+  /** «پایه» / «حرفه‌ای» / «پیشرفته» */
+  tierLabel?: string;
+  /** «DeepSeek V4 Pro» */
+  modelName?: string;
+  generatedFa?: string;
+}
+
+/** متن‌های تحلیلِ «گزارشِ کامل» که مدل نوشته؛ نمره و بخش‌هایش همیشه قاعده‌محور است */
+export interface AiAnalysisText {
+  headline: string;
+  narrative: string;
+  findings: { tone: 'good' | 'watch' | 'tip'; title: string; body: string }[];
+  action: { title: string; body: string } | null;
+}
+
 /** همه‌ی دیتای داشبوردِ یک بچه */
 export interface ChildReport {
   childId: string;
@@ -325,6 +353,9 @@ export interface ChildReport {
   lockedGames?: number;
   /** صفحه‌ی سلامت؛ در گزارش‌های قدیمیِ کش‌شده نیست */
   health?: HealthReport;
+  /** وضعیتِ تحلیلِ هوشمند (apps/ai/insights.attach) */
+  ai?: AiStatus;
+  aiAnalysis?: AiAnalysisText;
 }
 
 /** پیشنهادِ بازی روز که سرور می‌سازد */

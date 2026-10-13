@@ -80,8 +80,11 @@ class HomeReportTests(TestCase):
         self.assertIn("«شمارش» را خیلی خوب", weekly["body"])            # بهترین مفهوم
         self.assertNotIn("علوم", weekly["body"])                        # ضعف گفته نمی‌شود
         self.assertNotIn("گیاهان", weekly["body"])
+        # پاسخ‌ها «۲ ساعت پیش» و پایانِ بازی «۱ ساعت پیش» است؛ بینِ ۰۰:۰۰ و ۰۲:۰۰ دو روزِ جدا می‌شوند
+        now = timezone.localtime()
+        days = len({(now - timedelta(hours=2)).date(), (now - timedelta(hours=1)).date()})
         self.assertEqual([(h["key"], h["value"]) for h in weekly["highlights"]],
-                         [("games", 1), ("minutes", 10), ("days", 1)])
+                         [("games", 1), ("minutes", 10), ("days", days)])
 
     def test_period_label_in_jalali(self):
         self.assertEqual(period_label(date(2026, 10, 6), date(2026, 10, 12)), "۱۴ تا ۲۰ مهر")

@@ -16,6 +16,8 @@ from apps.accounts.passwords import link_family, set_password
 from apps.accounts.utils import normalize_phone
 from apps.common.sms import SmsError
 
+from apps.ai.insights import attach as attach_ai
+
 from .account import update_child
 from .models import DailyAssignment, Notification, ParentChild
 from .permissions import IsParent  # noqa: F401 — billing.views هم از همین‌جا می‌خواند
@@ -113,8 +115,11 @@ class ChildReportView(APIView):
         if link is None:
             return Response({"error": {"code": 404, "message": "فرزند پیدا نشد."}},
                             status=status.HTTP_404_NOT_FOUND)
-        # قفلِ اشتراک بعد از کش: گزارش بینِ همه یکی است، اشتراکِ هر بچه نه
-        return Response(gate_report(build_child_report(link.child), subscription(link.child).active))
+        # قفلِ اشتراک بعد از کش: گزارش بینِ همه یکی است، اشتراکِ هر بچه نه.
+        # بعد متن‌های تحلیلِ هوشمند (اگر برای همین داده آماده است) جای متن‌های قاعده‌محور می‌نشیند.
+        premium = subscription(link.child).active
+        report = gate_report(build_child_report(link.child), premium)
+        return Response(attach_ai(report, child=link.child, premium=premium))
 
 
 class AssignmentsView(APIView):
