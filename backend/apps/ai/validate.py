@@ -70,7 +70,7 @@ def word_numbers(text: str) -> list[tuple[int, bool]]:
 
 
 def check_text(text, *, max_len: int, allowed: set[str], locked: list[str], advice: bool = False,
-               min_len: int = 6, moods: set[str] | None = None) -> str:
+               min_len: int = 6, moods: set[str] | None = None, no_zero: bool = False) -> str:
     """
     `advice`: پیشنهاد است (عددِ کوچک و عددِ حرفی آزادتر). `moods`: حال‌هایی که در داده هست؛
     اگر داده شود، نامِ حالِ دیگری در متن نمی‌آید.
@@ -87,6 +87,9 @@ def check_text(text, *, max_len: int, allowed: set[str], locked: list[str], advi
     if "..." in out or "…" in out:
         raise Rejected("ellipsis")
     tokens = _tokens(out)
+    # گزارشِ هفتگی فقط نقطه‌های قوت است؛ «۰ دقیقه» و «صفر» آن‌جا جایی ندارد
+    if no_zero and any(t in {"۰", "صفر", "۰٪"} for t in tokens):
+        raise Rejected("zero")
     for value, percent in word_numbers(out):
         if str(value) in allowed:
             continue
@@ -160,8 +163,9 @@ def validate_bundle(data: dict | None, facts: dict, sections: list[str]) -> tupl
 
     def weekly(value):
         return {
-            "title": check_text(value["title"], max_len=80, allowed=allowed, locked=locked, moods=moods),
-            "body": check_text(value["body"], max_len=420, allowed=allowed, locked=locked, min_len=30, moods=moods),
+            "title": check_text(value["title"], max_len=80, allowed=allowed, locked=locked, moods=moods, no_zero=True),
+            "body": check_text(value["body"], max_len=420, allowed=allowed, locked=locked, min_len=30, moods=moods,
+                               no_zero=True),
         }
 
     def analysis(value):

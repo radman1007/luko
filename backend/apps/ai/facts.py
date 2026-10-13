@@ -37,7 +37,6 @@ def _week(report: dict) -> dict:
     out = {
         "active_days_of_7": sum(1 for d in days if d.get("minutes", 0) > 0 or d.get("games", 0) > 0),
         "minutes": minutes,
-        "previous_week_minutes": prev,
         "answers": answers,
         "streak_days": kpi.get("streak", 0),
         "average_session_minutes": kpi.get("session", 0),
@@ -49,6 +48,11 @@ def _week(report: dict) -> dict:
         first = learning.get("firstTry") or {}
         if first.get("asked"):
             out["first_try_percent"] = first.get("rate", 0)
+    # «هفته‌ی قبل ۰ دقیقه» جمله‌ی بدی می‌سازد (آزمونِ پروداکشن)؛ صفر را با یک بله/خیر می‌گوییم
+    if prev:
+        out["previous_week_minutes"] = prev
+    else:
+        out["played_previous_week"] = False
     # عددهای مشتق را خودمان حساب می‌کنیم تا مدل حساب نکند (و عددِ ساختگی نسازد)
     if prev:
         out["minutes_change_vs_previous_week"] = minutes - prev

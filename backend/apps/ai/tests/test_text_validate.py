@@ -87,6 +87,13 @@ class CheckTextTests(SimpleTestCase):
         with self.assertRaises(Rejected):
             self.check("تا دقتش ۸۰٪ شود تمرین کنید.", advice=True)
 
+    def test_weekly_report_never_states_a_zero(self):
+        with self.assertRaisesMessage(Rejected, "zero"):
+            self.check("هفته‌ی قبل ۰ دقیقه بود و این هفته ۲۸ دقیقه.", no_zero=True)
+        with self.assertRaisesMessage(Rejected, "zero"):
+            self.check("هفته‌ی قبل صفر دقیقه بود.", no_zero=True)
+        self.assertTrue(self.check("هفته‌ی قبل ۰ دقیقه بود.", advice=True))      # جای دیگر آزاد است
+
     def test_mood_must_be_in_the_data(self):
         self.assertTrue(self.check("بیشتر آرام بود.", moods={"آرام"}))
         with self.assertRaisesMessage(Rejected, "mood:شاد"):

@@ -18,6 +18,7 @@ GLOSSARY = """\
 DATA glossary:
 - plan: "full" = paid plan, "free" = free plan (some subjects are hidden: locked_subjects).
 - period: the last 7 days. week.*: numbers for those 7 days. minutes = active play time.
+  played_previous_week false = no play in the 7 days before (a fresh start; never write it as «۰ دقیقه»).
 - accuracy_percent: share of correct answers this week. first_try_percent: correct on the first attempt.
 - subjects[].accuracy_percent_last_8_weeks: accuracy in that subject over 8 weeks (only when answers exist;
   a subject with "note" has completed games but no recorded answers — say nothing about its accuracy).
