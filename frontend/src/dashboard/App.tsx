@@ -13,6 +13,8 @@ import { AnalyticsPage } from './pages/AnalyticsPage';
 import { AuditPage } from './pages/AuditPage';
 import { BlogEditorPage } from './pages/blog/BlogEditorPage';
 import { BlogPage } from './pages/blog/BlogPage';
+import { LearnEditorPage } from './pages/learn/LearnEditorPage';
+import { LearnListPage } from './pages/learn/LearnListPage';
 import { NoticesPage } from './pages/notices/NoticesPage';
 import { OverviewPage } from './pages/OverviewPage';
 import { PaymentsPage } from './pages/PaymentsPage';
@@ -60,6 +62,8 @@ function Routed() {
         <Route path="/concepts" element={<Guard need="concepts"><ConceptsPage /></Guard>} />
         <Route path="/blog" element={<Guard need="blog"><BlogPage /></Guard>} />
         <Route path="/blog/:id" element={<Guard need="blog"><BlogEditorPage /></Guard>} />
+        <Route path="/learn" element={<Guard need="learn"><LearnListPage /></Guard>} />
+        <Route path="/learn/:id" element={<Guard need="learn"><LearnEditorPage /></Guard>} />
         <Route path="/notices" element={<Guard need="notify"><NoticesPage /></Guard>} />
         <Route path="/staff" element={<Guard need="superuser"><StaffPage /></Guard>} />
         <Route path="/audit" element={<Guard need="audit"><AuditPage /></Guard>} />

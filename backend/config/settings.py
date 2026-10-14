@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     "apps.blog",
     "apps.dashboard",
     "apps.ai",
+    "apps.learn",
 ]
 
 MIDDLEWARE = [

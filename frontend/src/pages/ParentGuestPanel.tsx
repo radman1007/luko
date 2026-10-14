@@ -10,6 +10,7 @@ import { ChildSwitch } from '@/features/parent/components/shell/ChildSwitch';
 import { Sheet } from '@/features/parent/components/shell/Sheet';
 import { Toast } from '@/features/parent/components/shell/Toast';
 import { AssistantPage } from '@/features/parent/components/assistant/AssistantPage';
+import { LearnPage } from '@/features/parent/components/learn/LearnPage';
 import { DailyView } from '@/features/parent/components/views/DailyView';
 import { SettingsPage } from '@/features/parent/components/settings/SettingsPage';
 import { SettingsContext } from '@/features/parent/components/settings/SettingsContext';
@@ -147,6 +148,11 @@ export default function ParentGuestPanel() {
         assistant={
           <AssistantPage guest childName={shortName} onUpgrade={() => go('settings', { s: 'billing' })}
             onSupport={() => go('settings', { s: 'support' })} onLogin={() => setSheet('logout')} />
+        }
+        learn={
+          <LearnPage guest childName={shortName} section={section} itemId={sectionId}
+            onOpen={(id) => go('learn', { s: 'item', id: String(id) })} onBack={() => go('learn')}
+            onUpgrade={() => go('settings', { s: 'billing' })} onNotice={setToast} />
         }
         daily={
           <DailyView

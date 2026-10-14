@@ -1,4 +1,5 @@
 import {
+  HiOutlineAcademicCap,
   HiOutlineChartBar,
   HiOutlineChatBubbleLeftRight,
   HiOutlineClipboardDocumentList,
@@ -30,6 +31,7 @@ export const NAV: NavItem[] = [
   { to: '/tickets', label: 'پشتیبانی', icon: HiOutlineChatBubbleLeftRight, need: 'tickets' },
   { to: '/podcasts', label: 'پادکست‌ها', icon: HiOutlineMicrophone, need: 'podcasts' },
   { to: '/blog', label: 'وبلاگ', icon: HiOutlineNewspaper, need: 'blog' },
+  { to: '/learn', label: 'آموزشِ والدین', icon: HiOutlineAcademicCap, need: 'learn' },
   { to: '/concepts', label: 'تگ‌های آموزشی', icon: HiOutlineTag, need: 'concepts' },
   { to: '/notices', label: 'ارسالِ اعلان', icon: HiOutlineMegaphone, need: 'notify' },
   { to: '/staff', label: 'کارمندان و دسترسی', icon: HiOutlineShieldCheck, need: 'superuser' },

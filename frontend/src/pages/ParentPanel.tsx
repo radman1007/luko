@@ -28,6 +28,7 @@ import { Toast } from '@/features/parent/components/shell/Toast';
 import { ParentIntroGate } from '@/features/parent/components/intro/ParentIntroGate';
 import { useSubscriptions } from '@/features/billing/useBilling';
 import { AssistantPage } from '@/features/parent/components/assistant/AssistantPage';
+import { LearnPage } from '@/features/parent/components/learn/LearnPage';
 import { DailyView } from '@/features/parent/components/views/DailyView';
 import { SettingsPage } from '@/features/parent/components/settings/SettingsPage';
 import { SettingsContext } from '@/features/parent/components/settings/SettingsContext';
@@ -397,6 +398,11 @@ function AuthenticatedParentPanel() {
         status={status}
         assistant={
           <AssistantPage childId={childId} childName={shortName} onUpgrade={upgrade} onSupport={openSupport} />
+        }
+        learn={
+          <LearnPage childId={childId} childName={shortName}
+            ready={!!children.data && (!children.data.length || !!childId)} section={section} itemId={sectionId}
+            onOpen={(id) => go('learn', { s: 'item', id: String(id) })} onBack={() => go('learn')} onUpgrade={upgrade} />
         }
         daily={
           <DailyView

@@ -2,7 +2,7 @@
 
 export type Capability =
   | 'stats' | 'users_view' | 'users_edit' | 'payments' | 'gifts' | 'tickets'
-  | 'podcasts' | 'blog' | 'concepts' | 'notify' | 'audit';
+  | 'podcasts' | 'blog' | 'learn' | 'concepts' | 'notify' | 'audit';
 
 export interface Me {
   id: number;
@@ -247,6 +247,38 @@ export interface BlogDetail extends BlogRow {
   bodyHtml: string;
   seoTitle: string;
   seoDescription: string;
+}
+
+/** آموزشِ والدین (apps/learn) */
+export interface LearnRow {
+  id: number;
+  kind: 'article' | 'video' | 'podcast';
+  kindLabel: string;
+  title: string;
+  summary: string;
+  topic: string;
+  topicLabel: string;
+  status: 'draft' | 'published';
+  isLive: boolean;
+  premium: boolean;
+  featured: boolean;
+  minutes: number;
+  views: number;
+  saved: number | null;
+  hasMedia: boolean;
+  coverUrl: string;
+  updatedFa: string;
+}
+
+export interface LearnEditDetail extends LearnRow {
+  body: string;
+  bodyHtml: string;
+  mediaUrl: string;
+  mediaFileName: string;
+  media: { type: 'video' | 'audio' | 'embed'; src: string } | null;
+  durationMinutes: number;
+  author: string;
+  sort: number;
 }
 
 export interface NoticeRow {

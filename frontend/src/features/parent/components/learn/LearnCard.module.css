@@ -1,0 +1,96 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px;
+  border-radius: 22px;
+  background: var(--pp-card);
+  border: 1px solid var(--pp-line);
+  box-shadow: var(--pp-shadow);
+  transition: transform 0.2s var(--pp-spring, ease), box-shadow 0.2s;
+}
+
+.card:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgb(29 33 40 / 9%); }
+.card:focus-within { outline: 2px solid var(--pp-blue); outline-offset: 2px; }
+
+/* ردیفِ افقی (پیشنهاد برای فرزند): جلدِ کوچک کنارِ متن */
+.card[data-layout='row'] {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 18px;
+  box-shadow: none;
+}
+
+.media { min-width: 0; }
+.card[data-layout='row'] .media { flex: 0 0 clamp(84px, 32%, 150px); }
+
+.body { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 0 4px 4px; flex: 1; }
+.topic { font-size: 10.5px; font-weight: 800; }
+
+.body h3 { margin: 0; font-size: 14px; font-weight: 800; line-height: 1.8; }
+
+.open {
+  font: inherit;
+  text-align: start;
+  color: var(--pp-ink);
+  cursor: pointer;
+}
+
+/* کلِ کارت قابلِ کلیک */
+.open::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.open:focus-visible { outline: none; }
+
+.summary,
+.reason {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.9;
+  color: var(--pp-mut);
+}
+
+.reason { color: #5b3fc4; font-weight: 700; }
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 4px;
+  font-size: 10.5px;
+  color: var(--pp-mut);
+}
+
+.author { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lock, .done { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; }
+.lock { color: #8a5200; }
+.done { color: var(--pp-green); }
+.lock svg, .done svg { width: 14px; height: 14px; }
+
+.save {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 11px;
+  background: var(--pp-surface);
+  color: var(--pp-mut);
+  cursor: pointer;
+}
+
+.save[aria-pressed='true'] { background: #fff2c8; color: #a06100; }
+.save svg { width: 17px; height: 17px; }
+.save:focus-visible { outline: 2px solid var(--pp-blue); outline-offset: 2px; }
+
+.card[data-layout='row'] .save { display: none; }

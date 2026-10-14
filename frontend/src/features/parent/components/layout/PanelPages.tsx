@@ -5,7 +5,6 @@ import type { ChildReport } from '../../types';
 import { HealthPage } from '../health/HealthPage';
 import { HomeView } from '../home/HomeView';
 import { DashboardView } from '../views/DashboardView';
-import { LearnView } from '../views/LearnView';
 import { PlanNote } from '../views/PlanNote';
 import { ReportsView } from '../views/ReportsView';
 import { SubPage } from '../views/SubPage';
@@ -23,16 +22,18 @@ interface Props {
   daily: ReactNode;
   settings: ReactNode;
   assistant: ReactNode;
+  learn: ReactNode;
   /** بارگذاری، خطا یا «فرزندی نیست» برای صفحه‌هایی که به گزارشِ فرزند نیاز دارند */
   status?: ReactNode;
 }
 
 /** محتوای هر صفحه‌ی پنل — مشترک بینِ پنلِ والد و حالتِ نمایشیِ مهمان */
 export function PanelPages({
-  page, onNavigate, report, analysis, childName, today, onUpgrade, daily, settings, assistant, status,
+  page, onNavigate, report, analysis, childName, today, onUpgrade, daily, settings, assistant, learn, status,
 }: Props) {
   if (page === 'settings') return <>{settings}</>;
-  if (page === 'learn') return <LearnView />;
+  // کتابخانه بی‌فرزند هم باز است (پیشنهادِ «برای فرزندتان» فقط وقتی فرزند هست)
+  if (page === 'learn') return <>{learn}</>;
   if (status) return <>{status}</>;
   // دستیار به گزارش نیاز ندارد (خودش گفت‌وگو را می‌خواند)، فقط به فرزند
   if (page === 'assistant') return <>{assistant}</>;

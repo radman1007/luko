@@ -37,7 +37,7 @@ export function ExploreGrid({ childName, wellbeing, moodWeek, onNavigate }: Prop
     { page: 'assistant', icon: HiOutlineSparkles, tone: 'violet', title: 'دستیارِ هوشمند',
       text: `هر سؤالی درباره‌ی یادگیری و حالِ ${childName} دارید بپرسید؛ جواب از بازی‌های خودِ او ساخته می‌شود.` },
     { page: 'learn', icon: HiOutlineAcademicCap, tone: 'amber', title: 'آموزشِ والدین',
-      text: 'نکته‌های کوتاه و کاربردی برای همراهیِ فرزند در یادگیری و تشویقِ درست.' },
+      text: 'مقاله، ویدیو و پادکستِ کوتاه و کاربردی برای همراهیِ فرزند؛ با پیشنهاد از روی گزارشِ خودش.' },
   ];
 
   return (
