@@ -114,6 +114,8 @@ class ClientTests(AIFlowBase):
         self.assertEqual(body["model"], "DeepSeek-V4-Flash")
         # فقط یک پیامِ کاربر: گیت‌وی system را برای Flash نادیده می‌گیرد
         self.assertEqual(body["messages"], [{"role": "user", "content": "پرسش"}])
+        # از ۲۳ مهر Flash هم استدلالِ پنهان می‌کرد و کلِ سقفِ توکن را می‌خورد؛ خاموشش می‌کنیم
+        self.assertEqual(body["thinking"], {"type": "disabled"})
         usage = AIUsage.objects.get()
         self.assertEqual((usage.ok, usage.prompt_tokens, usage.user_id), (True, 100, self.parent.id))
         self.assertEqual(usage.error, "retried:http:429")              # کندی دیده می‌شود
@@ -124,6 +126,7 @@ class ClientTests(AIFlowBase):
         self.assertEqual(post.call_args.kwargs["headers"]["Authorization"], "apikey test-key")
         self.assertEqual(post.call_args.args[0], "https://gateway.test/v1/chat/completions")
         self.assertEqual(post.call_args.kwargs["json"]["model"], "GPT-5.6-Luna")
+        self.assertNotIn("thinking", post.call_args.kwargs["json"])
 
     def test_failures_raise_and_are_logged(self):
         class ListResponse(FakeResponse):

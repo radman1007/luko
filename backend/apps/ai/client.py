@@ -35,11 +35,20 @@ MAX_TOKENS = {
 
 RETRY_STATUS = {429, 500, 502, 503, 504}
 
+#: پارامترهای اضافه‌ی هر سطح. از ۲۳ مهر ۱۴۰۵ گیت‌وی برای Flash هم «استدلال» روشن کرد: کلِ max_tokens صرفِ
+#: استدلالِ پنهان می‌شد و متن خالی برمی‌گشت (تحلیل و دستیارِ رایگان «پاسخ نرسید»). thinking=disabled آن را خاموش
+#: می‌کند (آزمونِ ۲۴ مهر: استدلال ۰، پاسخ در ۴ ثانیه). Pro عمداً استدلال می‌کند؛ Luna خودش نمی‌کند.
+EXTRA_BODY = {
+    "flash": {"thinking": {"type": "disabled"}},
+}
+
 #: سقفِ انتظار برای هر تلاش. گیت‌وی گاهی بارِ اول بی‌پاسخ می‌ماند (پروداکشن، ۲۲ مهر: دو تحلیل از چهار)؛ تلاشِ
 #: دوم معمولاً ۲۰ ثانیه‌ای جواب می‌دهد. پاسخِ عادی: تحلیلِ Flash ۱۷ تا ۳۲، Luna ۸ تا ۱۱ ثانیه؛ Pro به‌خاطرِ
 #: استدلال بلندتر و سقفش بالاتر است.
 TIMEOUTS = {
-    "insight": {"flash": 45, "pro": 120, "luna": 45},
+    # تحلیل در صف ساخته می‌شود (والد تا آن موقع متنِ قاعده‌محور را می‌بیند)؛ Luna با برگه‌ی بزرگ‌ترِ «رشدِ چهار
+    # هفته» ۳۷ تا ۷۳ ثانیه طول کشید (۲۴ مهر)، پس سقفِ تحلیل بازتر است
+    "insight": {"flash": 60, "pro": 120, "luna": 90},
     "assistant": {"flash": 40, "pro": 80, "luna": 40},
 }
 
@@ -93,6 +102,7 @@ def complete(tier: str, prompt: str, *, feature: str, temperature: float = 0.4, 
         "messages": [{"role": "user", "content": prompt}],
         "max_tokens": MAX_TOKENS[feature][tier],
         "temperature": temperature,
+        **EXTRA_BODY.get(tier, {}),
     }
     started = time.monotonic()
     error = first_error = ""
