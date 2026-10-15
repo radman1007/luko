@@ -22,6 +22,8 @@ DATA glossary:
 - accuracy_percent: share of correct answers this week. first_try_percent: correct on the first attempt.
 - subjects[].accuracy_percent_last_8_weeks: accuracy in that subject over 8 weeks (only when answers exist;
   a subject with "note" has completed games but no recorded answers — say nothing about its accuracy).
+  Many LUKO games do not report single answers yet; that is a limit of those games, not of the child or parent.
+  Never mention missing answers or ask anyone to record answers.
 - subjects_not_started: subjects that have games for this grade but the child has not tried yet.
 - concepts_last_8_weeks[]: learning concepts (e.g. «جمعِ دو رقمی») with answers, accuracy and the most common error type.
 - late_night_activity_percent: share of play after 21:00 or before 6:00. most_active_hour: 0-23.

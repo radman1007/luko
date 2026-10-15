@@ -28,6 +28,9 @@ _JOIN = r"\s*\u200c?\s*و\s*\u200c?\s*"
 _WORD_NUMBER = re.compile(
     r"(?:^|(?<=[\s\u200c«(]))(?:(?P<tens>%s)(?:%s(?P<tail>%s))?|(?P<teen>%s)|(?P<unit>%s))(?=$|[\s\u200c،.؛:!?»)])" % (
         "|".join(TENS), _JOIN, "|".join([*TEENS, *UNITS]), "|".join(TEENS), "|".join(UNITS)))
+#: «پاسخ ثبت نشده» محدودیتِ بازی‌های قدیمی است، نه کارِ بچه یا والد (آزمونِ پروداکشن، ۲۴ مهر: Flash نوشت «ثبتِ
+#: پاسخ‌ها را تشویق کنید»)؛ متنی که درباره‌ی ثبتِ پاسخ حرف بزند رد می‌شود
+_ANSWER_LOGGING = re.compile(r"ثبت[ِ\s\u200c]*پاسخ|پاسخ[^\s،.]*\s+(?:ثبت\s*نشده|ثبت\s*نمی|نیامده)")
 #: حال‌هایی که بی‌ابهام‌اند («آرام» و «خسته» در پیشنهادها معنای عام هم دارند)
 MOOD_WORDS = {"شاد", "ناراحت", "عصبانی"}
 _TOKEN_SPLIT = re.compile(r"[\s\u200c،,.؛;:!?()«»\-–—/]+")
@@ -87,6 +90,8 @@ def check_text(text, *, max_len: int, allowed: set[str], locked: list[str], advi
         raise Rejected("name-repeated")
     if "..." in out or "…" in out:
         raise Rejected("ellipsis")
+    if _ANSWER_LOGGING.search(out):
+        raise Rejected("answer-logging")
     tokens = _tokens(out)
     # گزارشِ هفتگی فقط نقطه‌های قوت است؛ «۰ دقیقه» و «صفر» آن‌جا جایی ندارد
     if no_zero and any(t in {"۰", "صفر", "۰٪"} for t in tokens):

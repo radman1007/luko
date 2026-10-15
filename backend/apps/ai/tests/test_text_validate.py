@@ -77,9 +77,15 @@ class CheckTextTests(SimpleTestCase):
             ("He played well امروز", "latin"),
             ("۲۸ دقیقه... یعنی", "ellipsis"),
             ("[نام] و [نام] و [نام]", "name-repeated"),
+            # پاسخ‌نفرستادنِ بازی‌های قدیمی کارِ بچه یا والد نیست (پروداکشن، ۲۴ مهر)
+            ("با وجود انجام بازی‌ها، پاسخی ثبت نشده است.", "answer-logging"),
+            ("ثبتِ پاسخ‌ها را تشویق کنید تا دقت دیده شود.", "answer-logging"),
         ]:
             with self.subTest(text=text), self.assertRaisesMessage(Rejected, reason):
                 self.check(text)
+
+    def test_recorded_answers_can_still_be_cited(self):
+        self.assertTrue(self.check("دقتِ پاسخ‌های ثبت‌شده‌ی این هفته خوب بود."))
 
     def test_advice_allows_small_quantities_but_not_percentages(self):
         self.assertTrue(self.check("روزی ۱۵ دقیقه با هم بشمارید.", advice=True))
