@@ -1,41 +1,17 @@
-/* دستیار: گوشی یک ستون (معرفی، مدل‌ها، گفت‌وگو، یادداشت)؛ از ۱۰۲۴px گفت‌وگو کنارِ ستونِ مدل‌ها */
+/* گفت‌وگو: باریک یک ستون (مدل‌ها، گفت‌وگو، یادداشت)؛ از ۸۶۰px پهنای محتوا گفت‌وگو کنارِ ستونِ مدل‌ها */
+.shell { container-type: inline-size; }
+
 .page {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: 'hero' 'models' 'chat' 'notes';
+  grid-template-areas: 'models' 'chat' 'notes';
   gap: 14px;
 }
 
 .side { display: contents; }
-.hero { grid-area: hero; }
 .side > .card { grid-area: models; }
 .notes { grid-area: notes; }
 .chat { grid-area: chat; }
-
-/* ---------- معرفی ---------- */
-.hero {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px 18px;
-  border-radius: 26px;
-  color: #fff;
-  background:
-    radial-gradient(circle at 12% 110%, rgb(255 204 0 / 28%) 0 60px, transparent 61px),
-    linear-gradient(140deg, #174447 0%, #215e61 60%, #2f7a7e 100%);
-  box-shadow: 0 16px 36px rgb(33 94 97 / 22%);
-}
-
-.avatar {
-  flex-shrink: 0;
-  width: 64px;
-  height: 64px;
-  object-fit: contain;
-  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 20%));
-}
-
-.hero h2 { margin: 0 0 4px; font-size: 17px; font-weight: 800; }
-.hero p { margin: 0; font-size: 12px; line-height: 2; color: rgb(255 255 255 / 88%); }
 
 /* ---------- مدل‌ها ---------- */
 .card {
@@ -343,45 +319,7 @@
   background: var(--pp-card);
 }
 
-.inputRow { display: flex; align-items: flex-end; gap: 8px; }
-
-.inputRow textarea {
-  flex: 1;
-  min-width: 0;
-  min-height: 46px;
-  max-height: 140px;
-  padding: 11px 14px;
-  border: 1.5px solid var(--pp-line);
-  border-radius: 16px;
-  background: var(--pp-surface);
-  font: inherit;
-  font-size: 13px;
-  line-height: 1.9;
-  color: var(--pp-ink);
-  resize: none;
-  field-sizing: content;
-  outline: none;
-}
-
-.inputRow textarea:focus { border-color: var(--pp-blue); background: var(--pp-card); }
-
-.send {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 46px;
-  height: 46px;
-  border-radius: 15px;
-  background: var(--pp-blue);
-  color: #fff;
-  cursor: pointer;
-  box-shadow: 0 8px 18px rgb(33 94 97 / 22%);
-}
-
-/* هواپیمای کاغذی در راست‌به‌چپ رو به جلو (چپ) */
-.send svg { width: 20px; height: 20px; transform: scaleX(-1); }
-.send:disabled { opacity: 0.45; cursor: default; box-shadow: none; }
-.send:focus-visible, .suggestions button:focus-visible { outline: 2px solid var(--pp-blue); outline-offset: 2px; }
+.suggestions button:focus-visible { outline: 2px solid var(--pp-blue); outline-offset: 2px; }
 
 .quota { font-size: 10.5px; color: var(--pp-mut); }
 
@@ -446,26 +384,7 @@
 
 .notes svg { flex-shrink: 0; width: 16px; height: 16px; margin-top: 3px; }
 
-/* ---------- بارگذاری ---------- */
-.loading { display: grid; gap: 14px; }
-
-.loading i {
-  display: block;
-  height: 180px;
-  border-radius: var(--pp-rad);
-  background: linear-gradient(90deg, #ebe7e1 25%, #f4f1ec 50%, #ebe7e1 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
-}
-
-@keyframes shimmer {
-  from { background-position: 200% 0; }
-  to { background-position: -200% 0; }
-}
-
-.state { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 40px 10px; color: var(--pp-mut); }
-
-@media (min-width: 1024px) {
+@container (min-width: 860px) {
   .page {
     grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
     grid-template-areas: 'chat side';
@@ -482,7 +401,7 @@
     top: 16px;
   }
 
-  .hero, .side > .card, .notes { grid-area: auto; }
+  .side > .card, .notes { grid-area: auto; }
 
   .chat { height: calc(100dvh - 130px); min-height: 520px; }
   .messages { flex: 1; max-height: none; }

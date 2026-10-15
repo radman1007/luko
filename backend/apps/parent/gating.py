@@ -11,7 +11,7 @@ from __future__ import annotations
 from .wellbeing import health_teaser
 
 #: بخش‌هایی که services دو نسخه می‌سازد: کامل، و `<نام>Free` فقط از درس‌های باز
-FREE_VARIANTS = ("weekly", "tips", "insights", "sessions")
+FREE_VARIANTS = ("weekly", "tips", "insights", "sessions", "growth")
 #: درس‌هایی که بی‌اشتراک باز است (برچسبِ کتاب‌ها؛ «عمومی» یعنی بازیِ بی‌کتاب، درس نیست)
 FREE_SUBJECTS = {"ریاضی", "عمومی"}
 #: همان درس با کدِ تگ‌های آموزشی (تگِ بی‌درس هم باز می‌ماند)

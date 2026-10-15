@@ -1,0 +1,513 @@
+/*
+ * دستیارِ هوشمند — رنگِ بخش از «لوکی» (میزبانِ دستیار)؛ بقیه همان توکن‌های --pp-* پنل.
+ * چیدمان با پهنای خودِ محتوا (کوئریِ ظرف)، نه پهنای صفحه: منوی کناریِ پنل از ۱۰۲۴px جا می‌گیرد.
+ */
+.shell {
+  --as-primary: #f59322;
+  --as-dark: #d9750a;
+  --as-deep: #8a4a06;
+  --as-soft: #fff3e0;
+  --as-line: #f6dcb6;
+  container-type: inline-size;
+}
+
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  /* آخرین کارت زیرِ حبابِ شناورِ پشتیبانی نماند */
+  padding-bottom: 56px;
+}
+
+/* ---------- سلام و پرسش ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 18px 16px 14px;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 6% 0%, rgb(255 255 255 / 85%) 0 90px, transparent 91px),
+    linear-gradient(140deg, #fffaf2 0%, var(--as-soft) 55%, #ffe8c8 100%);
+  border: 1px solid var(--as-line);
+  box-shadow: 0 14px 34px rgb(217 117 10 / 10%);
+}
+
+.mascot {
+  position: absolute;
+  top: 12px;
+  inset-inline-end: 8px;
+  width: 92px;
+  height: auto;
+  filter: drop-shadow(0 8px 12px rgb(138 74 6 / 18%));
+  pointer-events: none;
+}
+
+.heroText { position: relative; display: flex; flex-direction: column; gap: 8px; }
+/* کنارِ لوکی؛ padding نه margin، چون margin در قاعده‌های پایین‌تر بازنویسی می‌شود */
+.heroText > h2, .heroText > p { padding-inline-end: 96px; }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 75%);
+  border: 1px solid var(--as-line);
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--as-deep);
+}
+
+.eyebrow svg { width: 14px; height: 14px; }
+.heroText h2 { margin: 0; font-size: 20px; font-weight: 800; color: var(--pp-ink); }
+.heroText p { margin: 0 0 4px; font-size: 12.5px; line-height: 2.05; color: #5a4a35; }
+
+.heroFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 10px;
+  min-height: 20px;
+  padding-inline: 10px;
+  font-size: 11px;
+  color: #8a6a43;
+}
+
+.heroFoot button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0;
+  font: inherit;
+  font-weight: 800;
+  color: var(--as-deep);
+  cursor: pointer;
+}
+
+.heroFoot svg { width: 15px; height: 15px; }
+
+/* ---------- پرسش‌های آماده ---------- */
+.quick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+
+.quick button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 11px;
+  border-radius: 16px;
+  background: var(--pp-card);
+  border: 1px solid var(--pp-line);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 800;
+  line-height: 1.7;
+  color: var(--pp-ink);
+  text-align: start;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s var(--pp-spring);
+}
+
+.quick button:not(:disabled):hover { border-color: var(--as-line); transform: translateY(-1px); }
+.quick button:disabled { opacity: 0.55; cursor: default; }
+
+.quick button > span {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 11px;
+  background: var(--as-soft);
+  color: var(--as-dark);
+}
+
+.quick svg { width: 18px; height: 18px; }
+
+/* ---------- کارت‌ها ---------- */
+.growth,
+.note,
+.access {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  border-radius: var(--pp-rad);
+  background: var(--pp-card);
+  border: 1px solid var(--pp-line);
+  box-shadow: var(--pp-shadow);
+}
+
+.cardHead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 11px; }
+.cardHead > div { flex: 1 1 200px; min-width: 0; }
+.cardHead h3 { margin: 0; font-size: 15px; font-weight: 800; }
+.cardHead p { margin: 2px 0 0; font-size: 11.5px; color: var(--pp-mut); line-height: 1.8; }
+
+.badge {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  background: var(--pp-soft);
+  color: var(--pp-blue);
+}
+
+.badge svg { width: 21px; height: 21px; }
+.badge[data-tone='growth'] { background: #efebfd; color: #6d4fd1; }
+.badge[data-tone='good'] { background: var(--pp-green-soft); color: #157a52; }
+.badge[data-tone='watch'] { background: var(--pp-red-soft); color: #b2123f; }
+.badge[data-tone='next'] { background: #fff2c8; color: #a06100; }
+
+.waiting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 18px 14px;
+  border-radius: 16px;
+  background: var(--pp-surface);
+  font-size: 12px;
+  line-height: 2;
+  color: var(--pp-mut);
+  text-align: center;
+}
+
+.waiting p { margin: 0; }
+
+.waiting button {
+  padding: 7px 14px;
+  border-radius: 12px;
+  background: var(--pp-soft);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--pp-blue2);
+  cursor: pointer;
+}
+
+/* ---------- رشد ---------- */
+.growthBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'chart' 'legend' 'summary';
+  gap: 14px;
+}
+
+.chart { grid-area: chart; min-width: 0; }
+
+.legend {
+  grid-area: legend;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dim {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 9px 10px;
+  border-radius: 14px;
+  background: var(--pp-surface);
+  font: inherit;
+  text-align: start;
+  color: var(--pp-ink);
+}
+
+button.dim { cursor: pointer; border: 1px dashed #e2d9c8; }
+button.dim:focus-visible { outline: 2px solid var(--pp-blue); outline-offset: 2px; }
+
+.dimIcon { display: grid; place-items: center; flex-shrink: 0; width: 30px; height: 30px; border-radius: 10px; }
+.dimIcon svg { width: 17px; height: 17px; }
+
+.dimName {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* کلیدِ خط: همان نشانه‌ی خطِ نمودار */
+.dimName i { width: 12px; height: 2.5px; border-radius: 2px; flex-shrink: 0; }
+
+.dimValue { display: inline-flex; align-items: center; gap: 6px; margin-inline-start: auto; }
+.dimValue b { font-size: 14px; font-weight: 800; }
+
+.dimValue em {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.dimValue em[data-dir='up'] { background: var(--pp-green-soft); color: #157a52; }
+.dimValue em[data-dir='down'] { background: var(--pp-orange-soft); color: #9a4b00; }
+.dimValue em svg { width: 13px; height: 13px; }
+
+.dimMuted { margin-inline-start: auto; font-size: 10.5px; font-style: normal; color: var(--pp-mut); }
+
+.lockChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-inline-start: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #3a2a07;
+  color: #ffd36b;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.summary {
+  grid-area: summary;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: linear-gradient(150deg, #f7f4ff, #fff8ec);
+}
+
+.summary > span { color: #c27400; }
+.summary > span svg { width: 22px; height: 22px; }
+.summary p { margin: 0; font-size: 12.5px; line-height: 2.1; color: #3b3f46; }
+
+.summary button,
+.note button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: auto;
+  padding: 4px 0;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--pp-blue);
+  cursor: pointer;
+}
+
+.summary button svg, .note button svg { width: 15px; height: 15px; }
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- سه کارت ---------- */
+.notes { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+
+.note { gap: 8px; }
+.note header { display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
+.note h3 { margin: 0; font-size: 14px; font-weight: 800; }
+.note > b { font-size: 13px; font-weight: 800; line-height: 1.8; }
+.note > p { margin: 0; font-size: 12px; line-height: 2.05; color: #4b5058; }
+.note .noteEmpty { color: var(--pp-mut); }
+
+/* ---------- پرسشِ امروز ---------- */
+.bottom { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+
+.today {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  min-width: 0;
+  padding: 16px 16px 0;
+  border-radius: var(--pp-rad);
+  background: linear-gradient(140deg, #fffaf2, var(--as-soft));
+  border: 1px solid var(--as-line);
+}
+
+.today > img {
+  order: 2;
+  flex-shrink: 0;
+  width: 72px;
+  height: auto;
+  align-self: flex-end;
+  filter: drop-shadow(0 6px 10px rgb(15 98 88 / 16%));
+}
+
+.today > div { flex: 1; min-width: 0; padding-bottom: 16px; }
+
+.today h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.today h3 svg { width: 17px; height: 17px; color: var(--as-dark); }
+.today p { margin: 0 0 12px; font-size: 13px; line-height: 2.05; color: #4a3a24; }
+
+.todayBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: var(--as-primary);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgb(217 117 10 / 24%);
+}
+
+.todayBtn:not(:disabled):hover { background: var(--as-dark); }
+.todayBtn:disabled { opacity: 0.55; cursor: default; box-shadow: none; }
+.todayBtn svg { width: 16px; height: 16px; }
+
+/* ---------- دسترسیِ سریع ---------- */
+.access h3 { margin: 0; font-size: 14px; font-weight: 800; }
+.access > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px 6px;
+  border-radius: 16px;
+  background: var(--pp-surface);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.tile:hover { background: var(--pp-soft); }
+
+.tile > span {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  background: var(--pp-card);
+  color: var(--pp-blue);
+  box-shadow: 0 4px 10px rgb(29 33 40 / 6%);
+}
+
+.tile svg { width: 20px; height: 20px; }
+.tile b { font-size: 11.5px; font-weight: 800; line-height: 1.7; }
+.tile small { font-size: 10px; color: var(--pp-mut); line-height: 1.6; }
+
+/* ---------- نسخه‌ی پیشرفته ---------- */
+.upsell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 14px 16px;
+  border-radius: var(--pp-rad);
+  background: linear-gradient(135deg, #eef1ff, #f5f0ff);
+  border: 1px solid #dcdcf7;
+  font: inherit;
+  text-align: start;
+  color: #2b2d5c;
+  cursor: pointer;
+}
+
+.upsellIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #fff;
+  color: #4b4fc4;
+  box-shadow: 0 6px 14px rgb(75 79 196 / 14%);
+}
+
+.upsellIcon svg { width: 21px; height: 21px; }
+.upsellText { flex: 1 1 220px; display: flex; flex-direction: column; gap: 2px; line-height: 1.9; }
+.upsellText b { font-size: 13px; font-weight: 800; }
+.upsellText small { font-size: 11.5px; color: #5a5c8a; }
+
+.upsellCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #c9cbf2;
+  font-size: 12px;
+  font-weight: 800;
+  color: #3b3fb0;
+  white-space: nowrap;
+}
+
+.upsellCta svg { width: 15px; height: 15px; }
+
+.quick button:focus-visible, .tile:focus-visible, .todayBtn:focus-visible, .upsell:focus-visible,
+.summary button:focus-visible, .note button:focus-visible, .heroFoot button:focus-visible {
+  outline: 2px solid var(--pp-blue);
+  outline-offset: 2px;
+}
+
+/* ---------- پهن‌تر ---------- */
+@container (min-width: 520px) {
+  .mascot { width: 118px; top: 14px; inset-inline-end: 14px; }
+  .heroText > h2, .heroText > p { padding-inline-end: 130px; }
+  .legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .today > img { width: 92px; }
+}
+
+@container (min-width: 700px) {
+  .page { gap: 16px; }
+  .hero { padding: 26px 26px 18px; }
+  .mascot { top: 50%; width: 170px; inset-inline-end: 24px; transform: translateY(-50%); }
+  .heroText { margin-inline-end: 200px; }
+  .heroText > h2, .heroText > p { padding-inline-end: 0; }
+  .heroText h2 { font-size: 23px; }
+  .quick { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .notes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .growth { padding: 18px 20px; }
+}
+
+@container (min-width: 860px) {
+  .growthBody {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr) minmax(0, 0.95fr);
+    grid-template-areas: 'summary chart legend';
+    align-items: stretch;
+  }
+
+  .legend { grid-template-columns: minmax(0, 1fr); align-content: start; }
+  .bottom { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+}

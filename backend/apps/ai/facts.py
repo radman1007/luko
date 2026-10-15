@@ -17,6 +17,17 @@ MOOD_FA = {"happy": "شاد", "calm": "آرام", "tired": "خسته", "sad": "�
 TREND_FA = {"up": "بهتر از هفته‌ی پیش", "down": "کمی پایین‌تر از هفته‌ی پیش", "flat": "مثلِ هفته‌ی پیش"}
 LATE_HOURS = {21, 22, 23, 0, 1, 2, 3, 4, 5}
 MAX_CONCEPTS = 6
+#: سنجه‌ی هر بُعدِ رشد (apps/parent/growth.py) برای مدل
+GROWTH_MEASURES = {
+    "math": "cumulative book progress: percent of this grade's math games completed by the end of each week",
+    "language": "cumulative book progress: percent of this grade's Persian reading and writing games completed "
+                "by the end of each week",
+    "focus": "focus score of each week: share of games finished (not left half-way) times share of active "
+             "(not idle) time",
+    "mood": "share of happy or calm among the moods the child logged that week",
+}
+#: بُعدی که در پلنِ رایگان قفل است و نامش نباید در متنِ رایگان بیاید
+FREE_LOCKED_GROWTH = ("مهارت‌های زبانی",)
 
 
 def _pct(part: int, total: int) -> int:
@@ -176,6 +187,48 @@ def _mood_daily(health: dict) -> dict | None:
     return out
 
 
+def _month(report: dict) -> dict | None:
+    """رشدِ چهار هفته (فقط بُعدهای باز و دارای داده)؛ None وقتی در چهار هفته بازی‌ای نبوده"""
+    growth = report.get("growth") or {}
+    if not growth.get("active"):
+        return None
+    dims = []
+    for dim in growth.get("dims") or []:
+        if dim.get("locked") or dim.get("status") in ("none", "locked"):
+            continue
+        detail = dim.get("detail") or {}
+        row = {"name": dim["label"], "measure": GROWTH_MEASURES.get(dim["key"], ""), "weekly_percent": dim["points"]}
+        if dim["key"] in ("math", "language"):
+            row["games_for_grade"] = detail.get("total", 0)
+            # «۰ بازی» جمله‌ی بدی می‌سازد؛ صفر را با بله/خیر می‌گوییم
+            if detail.get("done"):
+                row["games_completed_so_far"] = detail["done"]
+            else:
+                row["started"] = False
+            if detail.get("newThisMonth"):
+                row["new_games_completed_in_4_weeks"] = detail["newThisMonth"]
+            if detail.get("accuracy") is not None:
+                row["accuracy_percent_4_weeks"] = detail["accuracy"]
+                row["answers_4_weeks"] = detail.get("answers", 0)
+        elif dim["key"] == "focus":
+            if detail.get("finished"):
+                row["games_finished"] = detail["finished"]
+            if detail.get("abandoned"):
+                row["games_left_unfinished"] = detail["abandoned"]
+        dims.append(row)
+    out = {
+        "weeks": "weekly_percent has 4 values, oldest week first; the last value is the most recent 7 days; "
+                 "null means not enough data that week",
+        "active_weeks_of_4": growth.get("activeWeeks", 0),
+        "dimensions": dims,
+    }
+    if growth.get("gamesThisMonth"):
+        out["games_completed_in_4_weeks"] = growth["gamesThisMonth"]
+    if growth.get("latePercent"):
+        out["late_night_percent_4_weeks"] = growth["latePercent"]
+    return out
+
+
 def build_facts(report: dict, *, premium: bool, grade: int | None = None) -> dict | None:
     """
     برگه‌ی داده‌ی یک بچه، یا None وقتی چیزی برای تحلیل نیست (هفته‌ی بی‌بازی و بی‌ثبتِ حال)
@@ -200,6 +253,9 @@ def build_facts(report: dict, *, premium: bool, grade: int | None = None) -> dic
     }
     if not_started:
         facts["subjects_not_started"] = not_started
+    month = _month(report)
+    if month:
+        facts["last_4_weeks"] = month
     if not premium:
         facts["locked_subjects"] = _locked_subjects(report)
     if mood_week:

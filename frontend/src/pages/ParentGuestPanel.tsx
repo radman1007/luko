@@ -45,7 +45,8 @@ export default function ParentGuestPanel() {
   const analysis = useMemo(() => buildAnalysis(report, shortName), [report, shortName]);
   const childAssignments = assignments[child.id] ?? [];
   const today = childAssignments.find((item) => item.date === localDate(0)) ?? null;
-  const childPage = page === 'home' || page === 'health' || page === 'details' || page === 'daily';
+  const childPage = page === 'home' || page === 'health' || page === 'details' || page === 'daily'
+    || page === 'assistant';
 
   const pickGame = (item: Suggestion, date: string) => {
     setAssignments((current) => ({
@@ -146,8 +147,10 @@ export default function ParentGuestPanel() {
         today={today}
         onUpgrade={() => go('settings', { s: 'billing' })}
         assistant={
-          <AssistantPage guest childName={shortName} onUpgrade={() => go('settings', { s: 'billing' })}
-            onSupport={() => go('settings', { s: 'support' })} onLogin={() => setSheet('logout')} />
+          <AssistantPage guest childName={shortName} parentName="مهمان" report={report} section={section}
+            onSection={(s) => go('assistant', { s: s || undefined })} onGo={(target) => go(target)}
+            onUpgrade={() => go('settings', { s: 'billing' })} onSupport={() => go('settings', { s: 'support' })}
+            onLogin={() => setSheet('logout')} />
         }
         learn={
           <LearnPage guest childName={shortName} section={section} itemId={sectionId}

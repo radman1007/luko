@@ -202,7 +202,8 @@ function AuthenticatedParentPanel() {
     });
   };
 
-  const childPage = page === 'home' || page === 'health' || page === 'details' || page === 'daily';
+  const childPage = page === 'home' || page === 'health' || page === 'details' || page === 'daily'
+    || page === 'assistant';
   const showSwitcher = childPage && (children.data?.length ?? 0) > 1;
   const today = assignments.data?.find((item) => item.date === localDate(0)) ?? null;
   const upgrade = () => go('settings', { s: 'billing' });
@@ -397,7 +398,9 @@ function AuthenticatedParentPanel() {
         onUpgrade={upgrade}
         status={status}
         assistant={
-          <AssistantPage childId={childId} childName={shortName} onUpgrade={upgrade} onSupport={openSupport} />
+          <AssistantPage childId={childId} childName={shortName} parentName={user?.firstName?.trim() ?? ''}
+            report={report.data} section={section} onSection={(s) => go('assistant', { s: s || undefined })}
+            onGo={(target) => go(target)} onUpgrade={upgrade} onSupport={openSupport} />
         }
         learn={
           <LearnPage childId={childId} childName={shortName}

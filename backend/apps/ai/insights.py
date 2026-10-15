@@ -153,6 +153,23 @@ def merge(report: dict, insight: AIInsight, *, name: str, premium: bool) -> dict
     if payload.get("analysis"):
         out["aiAnalysis"] = payload["analysis"]
 
+    growth = out.get("growth")
+    month = payload.get("month")
+    if month and growth and growth.get("active"):
+        # عددها و نمودار از قاعده‌ها؛ فقط متن‌ها از مدل. کارتی که مدل نتوانست، همان متنِ قاعده‌محور می‌ماند.
+        # موضوعِ کارتِ مدل با کارتِ قاعده‌محور یکی نیست؛ پیوند از نوعِ کارت می‌آید
+        def card(ai, rule, link):
+            return {**ai, "link": link} if ai else rule
+
+        out["growth"] = {
+            **growth,
+            "summary": month["summary"],
+            "strength": card(month.get("strength"), growth.get("strength"), "details"),
+            "attention": card(month.get("attention"), growth.get("attention"), "ask"),
+            "next": {**month["next_step"], "link": "daily"} if month.get("next_step") else None,
+            "source": "ai",
+        }
+
     health = out.get("health")
     if health:
         health = dict(health)

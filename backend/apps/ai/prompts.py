@@ -26,7 +26,9 @@ DATA glossary:
 - concepts_last_8_weeks[]: learning concepts (e.g. «جمعِ دو رقمی») with answers, accuracy and the most common error type.
 - late_night_activity_percent: share of play after 21:00 or before 6:00. most_active_hour: 0-23.
 - mood_this_week: moods the child logged in the app this week (the child taps a face). verdict is already decided.
-- mood_details (paid only): 4-week mood by part of day, mood after each subject, interests."""
+- mood_details (paid only): 4-week mood by part of day, mood after each subject, interests.
+- last_4_weeks: growth over the last 4 weeks in a few dimensions (each has its own "measure"). Book progress
+  only grows; a focus or mood score can go up or down. null = not enough data that week (say nothing about it)."""
 
 RULES = f"""\
 RULES
@@ -66,6 +68,17 @@ def _sections(facts: dict) -> dict[str, str]:
         out["tips"] = (
             f'[3 or 4 items, most important first: {{"kind": one of {"|".join(TIP_KINDS)}, '
             '"title": "≤ 50 characters", "body": "1 or 2 sentences, ≤ 220 characters"}]'
+        )
+    if facts.get("last_4_weeks"):
+        out["month"] = (
+            '{"summary": "2 sentences, ≤ 300 characters: how the child grew over the last 4 weeks, based ONLY on '
+            'last_4_weeks, with 1 to 3 real numbers", '
+            '"strength": {"title": "≤ 50 characters", "body": "1 or 2 sentences, ≤ 200 characters: the clearest '
+            'progress or strength of these 4 weeks, citing a number"}, '
+            '"attention": {"title": "≤ 50 characters", "body": "1 or 2 sentences, ≤ 200 characters: the one area that '
+            'needs attention, citing the fact; if nothing is worrying, what to keep an eye on"}, '
+            '"next_step": {"title": "≤ 50 characters", "body": "1 or 2 sentences, ≤ 220 characters: one concrete step '
+            'for the coming week, tied to a fact"}}'
         )
     if facts.get("mood_this_week"):
         out["health"] = (

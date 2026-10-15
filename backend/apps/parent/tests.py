@@ -57,7 +57,8 @@ class ReportTests(TestCase):
             set(report),
             {"childId", "answersThisWeek", "kpis", "week", "accuracyTrend", "subjects",
              "games", "moods", "insights", "wellbeing", "hourly", "sessions", "topics", "learning",
-             "weekly", "tips", "weeklyFree", "tipsFree", "insightsFree", "sessionsFree", "health"},
+             "weekly", "tips", "weeklyFree", "tipsFree", "insightsFree", "sessionsFree", "health",
+             "growth", "growthFree"},
         )
         # نسخه‌ی رایگان فقط داخلِ کش است؛ هرچه به والد می‌رسد از gate_report رد شده
         for premium in (False, True):

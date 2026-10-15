@@ -1,5 +1,5 @@
 import type { Assignment } from './api';
-import type { Child, ChildReport, ParentPreferences, Suggestion } from './types';
+import type { Child, ChildReport, Growth, ParentPreferences, Suggestion } from './types';
 
 const today = new Date();
 const isoDate = (offset: number) => {
@@ -206,9 +206,60 @@ const reportFor = (strong: boolean): ChildReport => ({
   },
 });
 
+/** رشدِ چهار هفته‌ی نمونه (پلنِ رایگان: زبان و حال قفل، مثلِ apps/parent/growth.py) */
+const guestGrowth = (strong: boolean): Growth => {
+  const name = strong ? 'آرش' : 'نیکی';
+  const math = strong ? [18, 29, 38, 50] : [8, 13, 13, 21];
+  const focus = strong ? [62, 70, 78, 84] : [58, null, 61, 55];
+  const weeks = [
+    { label: 'هفته‌ی ۱', range: '۲۷ شهریور تا ۲ مهر' }, { label: 'هفته‌ی ۲', range: '۳ تا ۹ مهر' },
+    { label: 'هفته‌ی ۳', range: '۱۰ تا ۱۶ مهر' }, { label: 'هفته‌ی ۴', range: '۱۷ تا ۲۳ مهر' },
+  ];
+  const locked = (key: 'language' | 'mood', label: string, how: string): Growth['dims'][number] => ({
+    key, label, kind: key === 'language' ? 'progress' : 'score', how, status: 'locked', locked: true,
+    points: [null, null, null, null], now: null, change: null, detail: {},
+  });
+  return {
+    weeks,
+    dims: [
+      {
+        key: 'math', label: 'ریاضی', kind: 'progress', how: 'چند درصد از بازی‌های ریاضیِ کلاسش تا پایانِ هر هفته تمام شده',
+        status: 'ok', points: math, now: math[3], change: math[3] - math[0],
+        detail: { total: 24, done: strong ? 12 : 5, newThisMonth: strong ? 8 : 3, weekly: strong ? [2, 3, 2, 3] : [1, 1, 0, 2],
+          answers: strong ? 64 : 38, accuracy: strong ? 78 : 63 },
+      },
+      locked('language', 'مهارت‌های زبانی', 'چند درصد از بازی‌های فارسی و نگارشِ کلاسش تا پایانِ هر هفته تمام شده'),
+      {
+        key: 'focus', label: 'تمرکز و توجه', kind: 'score',
+        how: 'بازی‌هایی که تا آخر رفته، در کنارِ زمانِ فعال در برابرِ زمان‌هایی که بازی بی‌حرکت مانده',
+        status: 'ok', points: focus, now: focus[3], change: (focus[3] ?? 0) - (focus[0] ?? 0),
+        detail: { finished: strong ? 14 : 6, abandoned: strong ? 2 : 4, sessions: strong ? [4, 4, 4, 4] : [3, 1, 3, 3],
+          activeMinutes: strong ? 96 : 41, idleMinutes: strong ? 9 : 14 },
+      },
+      locked('mood', 'حالِ خوب', 'سهمِ «شاد» و «آرام» از حال‌هایی که خودش در لوکو ثبت کرده'),
+    ],
+    active: true,
+    activeWeeks: strong ? 4 : 3,
+    gamesThisMonth: strong ? 8 : 3,
+    latePercent: 0,
+    summary: strong
+      ? `${name} در چهار هفته‌ی گذشته ۸ بازیِ تازه را تمام کرد و هر چهار هفته فعال بود. پیشرفتش در ریاضی از ۱۸٪ به ۵۰٪ رسید. تمرکزش در بازی‌های این هفته ۸۴٪ بود، بهتر از هفته‌های قبل.`
+      : `${name} در چهار هفته‌ی گذشته ۳ بازیِ تازه را تمام کرد و ۳ هفته از چهار هفته فعال بود. پیشرفتش در ریاضی از ۸٪ به ۲۱٪ رسید. تمرکزش در بازی‌های این هفته ۵۵٪ بود.`,
+    strength: strong
+      ? { title: 'پیشرفت در ریاضی', body: `${name} در این چهار هفته ۸ بازیِ تازه‌ی ریاضی را تمام کرد و پیشرفتش در کتاب از ۱۸٪ به ۵۰٪ رسید.`, link: 'details' }
+      : { title: 'پیشرفت در ریاضی', body: `${name} در این چهار هفته ۳ بازیِ تازه‌ی ریاضی را تمام کرد و پیشرفتش در کتاب از ۸٪ به ۲۱٪ رسید.`, link: 'details' },
+    attention: strong
+      ? { title: '«الگو» تمرینِ بیشتری می‌خواهد', body: `دقتِ ${name} در این مفهوم ۶۷٪ بوده (۷ پاسخ)؛ چند دقیقه تمرینِ آرام در خانه کمک می‌کند.`, link: 'details' }
+      : { title: 'تمرکز در بازی‌ها', body: `تمرکزِ ${name} این هفته ۵۵٪ بود؛ ۴ بازی نیمه‌کاره ماند. بازی‌های کوتاه‌تر در ساعتِ آرامِ روز کمک می‌کند.`, link: 'ask' },
+    next: null,
+    lockedDims: 2,
+    source: 'rules',
+  };
+};
+
 export const GUEST_REPORTS: Record<string, ChildReport> = {
-  'guest-child-1': reportFor(true),
-  'guest-child-2': reportFor(false),
+  'guest-child-1': { ...reportFor(true), growth: guestGrowth(true) },
+  'guest-child-2': { ...reportFor(false), growth: guestGrowth(false) },
 };
 
 const suggestion = (slug: string, title: string, topic: string, minutes: number, coinReward: number, played: boolean): Suggestion => ({

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 
+from .facts import FREE_LOCKED_GROWTH
 from .prompts import HEALTH_TIP_KINDS, TIP_KINDS
 from .text import NAME_TOKEN, clean, collect_numbers, has_latin_words, numbers_in, to_latin
 
@@ -213,10 +214,34 @@ def validate_bundle(data: dict | None, facts: dict, sections: list[str]) -> tupl
             "tips": tips,
         }
 
+    def month(value):
+        # بُعدِ قفلِ پلنِ رایگان هم مثلِ درسِ قفل
+        words = locked + (list(FREE_LOCKED_GROWTH) if facts.get("plan") == "free" else [])
+
+        def card(item, max_body):
+            try:
+                return {
+                    "title": check_text(item.get("title"), max_len=70, allowed=allowed, locked=words, moods=moods,
+                                        min_len=3),
+                    "body": check_text(item.get("body"), max_len=max_body, allowed=allowed, locked=words, moods=moods,
+                                       advice=True, min_len=20),
+                }
+            except (Rejected, AttributeError):
+                return None
+
+        return {
+            "summary": check_text(value["summary"], max_len=400, allowed=allowed, locked=words, min_len=30,
+                                  moods=moods),
+            "strength": card(value.get("strength"), 280),
+            "attention": card(value.get("attention"), 280),
+            "next_step": card(value.get("next_step"), 300),
+        }
+
     run("weekly", weekly)
     run("analysis", analysis)
     run("tips", lambda v: _tips(v, kinds=TIP_KINDS, allowed=allowed, locked=locked, minimum=2, maximum=4))
     run("health", health)
+    run("month", month)
     run("health_daily_tips",
         lambda v: _tips(v, kinds=HEALTH_TIP_KINDS, allowed=allowed, locked=locked, minimum=2, maximum=5))
     return accepted, rejected

@@ -356,6 +356,66 @@ export interface ChildReport {
   /** وضعیتِ تحلیلِ هوشمند (apps/ai/insights.attach) */
   ai?: AiStatus;
   aiAnalysis?: AiAnalysisText;
+  /** رشدِ چهار هفته (صفحه‌ی دستیار)؛ در گزارش‌های قدیمیِ کش‌شده نیست */
+  growth?: Growth;
+}
+
+export type GrowthKey = 'math' | 'language' | 'focus' | 'mood';
+
+/** یک بُعدِ رشد (apps/parent/growth.py) — مقدارها درصدند، null یعنی آن هفته داده‌ی کافی نبود */
+export interface GrowthDim {
+  key: GrowthKey;
+  label: string;
+  /** progress = پیشرفتِ تجمعی در کتاب؛ score = نمره‌ی همان هفته */
+  kind: 'progress' | 'score';
+  /** چطور حساب می‌شود (برای والد) */
+  how: string;
+  /** none = این کلاس بازیِ این درس را ندارد؛ empty = هنوز داده‌ای نیست؛ locked = با اشتراک */
+  status: 'ok' | 'empty' | 'none' | 'locked';
+  locked?: boolean;
+  points: (number | null)[];
+  now: number | null;
+  change: number | null;
+  detail: {
+    total?: number;
+    done?: number;
+    newThisMonth?: number;
+    weekly?: number[];
+    answers?: number;
+    accuracy?: number | null;
+    finished?: number;
+    abandoned?: number;
+    sessions?: number[];
+    activeMinutes?: number;
+    idleMinutes?: number;
+    checkins?: number[];
+    good?: number | null;
+  };
+}
+
+/** «جزئیات» هر کارت: گزارشِ کامل، بازیِ روز، یا پرسیدن از دستیار درباره‌ی همان موضوع */
+export type GrowthLink = 'details' | 'daily' | 'ask';
+
+export interface GrowthNote {
+  title: string;
+  body: string;
+  link: GrowthLink;
+}
+
+export interface Growth {
+  weeks: { label: string; range: string }[];
+  dims: GrowthDim[];
+  active: boolean;
+  activeWeeks: number;
+  gamesThisMonth: number;
+  latePercent: number;
+  summary: string;
+  strength: GrowthNote | null;
+  attention: GrowthNote | null;
+  /** فقط وقتی مدل نوشته؛ وگرنه اولین پیشنهادِ این هفته */
+  next?: GrowthNote | null;
+  lockedDims: number;
+  source: 'rules' | 'ai';
 }
 
 /** پیشنهادِ بازی روز که سرور می‌سازد */

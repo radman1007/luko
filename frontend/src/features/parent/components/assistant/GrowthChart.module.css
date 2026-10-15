@@ -1,0 +1,69 @@
+.wrap { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+
+.plot { position: relative; min-width: 0; }
+
+/* مختصاتِ SVG چپ‌به‌راست است؛ بی‌این text-anchor در صفحه‌ی راست‌به‌چپ برعکس می‌شد و برچسب‌ها روی خط می‌افتادند */
+.svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; direction: ltr; }
+.svg:focus-visible { outline: 2px solid var(--pp-blue); outline-offset: 4px; border-radius: 8px; }
+
+.grid { stroke: #ebe6df; stroke-width: 1; }
+.axis { font-size: 10px; fill: #8b9098; font-family: inherit; }
+.axis[data-active] { fill: var(--pp-ink); font-weight: 800; }
+.crosshair { stroke: #c9c3ba; stroke-width: 1; }
+
+.line { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.line[data-gap] { stroke-dasharray: 4 5; opacity: 0.55; }
+/* حلقه‌ی سفیدِ ۲px دورِ هر نقطه تا روی خطِ دیگر هم دیده شود */
+.dot { stroke: #fff; stroke-width: 2; transition: r 0.15s; }
+
+.leader { stroke-width: 1.5; stroke-linecap: round; }
+.end { font-size: 11px; font-weight: 800; fill: var(--pp-ink); font-family: inherit; }
+
+.tip {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 150px;
+  padding: 9px 11px;
+  border-radius: 13px;
+  background: rgb(29 33 40 / 94%);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.7;
+  transform: translateX(-50%);
+  pointer-events: none;
+  box-shadow: 0 10px 24px rgb(0 0 0 / 18%);
+}
+
+.tip b { font-size: 12px; font-weight: 800; }
+.tip small { color: rgb(255 255 255 / 70%); font-size: 10px; }
+.tip ul { display: flex; flex-direction: column; gap: 2px; margin: 4px 0 0; padding: 0; list-style: none; }
+.tip li { display: flex; align-items: center; gap: 6px; }
+.tip li i { width: 12px; height: 2.5px; border-radius: 2px; flex-shrink: 0; }
+.tip li strong { min-width: 32px; font-weight: 800; }
+.tip li span { color: rgb(255 255 255 / 78%); }
+
+.tableBtn {
+  align-self: flex-start;
+  padding: 4px 2px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--pp-mut);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.tableBtn:focus-visible { outline: 2px solid var(--pp-blue); outline-offset: 2px; border-radius: 4px; }
+
+.tableWrap { overflow-x: auto; }
+.tableWrap p { margin: 6px 0 0; font-size: 10.5px; color: var(--pp-mut); line-height: 1.8; }
+
+.table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+.table th, .table td { padding: 6px 8px; border-bottom: 1px solid var(--pp-line); text-align: center; white-space: nowrap; }
+.table th[scope='row'], .table thead th:first-child { text-align: start; font-weight: 800; }
+.table thead th { color: var(--pp-mut); font-weight: 700; }

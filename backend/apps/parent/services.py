@@ -24,6 +24,7 @@ from apps.games.models import Book, Game, GameCompletion, GameEvent
 from apps.health.models import BreathingSession, MoodCheckin, Painting
 
 from .gating import FREE_CONCEPT_SUBJECTS, FREE_SUBJECTS
+from .growth import build_growth, week_bounds
 from .learning import SESSION_ENDS, build_learning, concept_tags
 from .tips import build_tips
 from .weekly import build_weekly
@@ -168,6 +169,14 @@ def _build_child_report(child) -> dict:
     free_learning = {**learning, "concepts": [c for c in learning.get("concepts", [])
                                               if c.get("subject", "") in FREE_CONCEPT_SUBJECTS]}
 
+    month_start = week_bounds(today)[0][0]
+    growth_args = dict(
+        name=name, today=today, events=events, sessions=sessions, answers=answers, completions=completions,
+        catalog=catalog, books=books, subject_of=subject_of, concepts=learning.get("concepts", []),
+        moods=list(MoodCheckin.objects.filter(
+            user=child, created_at__gte=timezone.make_aware(datetime.combine(month_start, time.min)))),
+    )
+
     return {
         "childId": str(child.id),
         # پاسخ‌های همین هفته — تحلیلِ هفتگی روی همین بسته می‌شود، نه روی کلِ هشت هفته
@@ -197,6 +206,9 @@ def _build_child_report(child) -> dict:
         ),
         "tips": build_tips(**tips_args),
         "tipsFree": build_tips(**{**tips_args, "learning": free_learning}),
+        # دستیارِ هوشمند: رشدِ چهار هفته در چهار بُعد (بی‌اشتراک: زبان و حال قفل)
+        "growth": build_growth(**growth_args),
+        "growthFree": build_growth(**growth_args, free=True),
         # صفحه‌ی سلامت: حالِ کلیِ هفته (همه) و حالِ دقیقِ روزانه (با اشتراک؛ gating.py)
         "health": build_health(child, name=name, answers=answers, sessions=sessions,
                                subject_of=subject_of, today=today),
