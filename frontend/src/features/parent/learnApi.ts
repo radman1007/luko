@@ -22,6 +22,8 @@ export interface LearnSummary {
   locked: boolean;
   featured: boolean;
   isNew: boolean;
+  /** شمارِ والدهایی که بازش کرده‌اند */
+  views: number;
   publishedFa: string;
   saved: boolean;
   done: boolean;

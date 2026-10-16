@@ -4,7 +4,7 @@
  */
 import type { LearnDetail, LearnList, LearnSummary } from '../../learnApi';
 
-const base = { cover: '', author: 'تیم آموزشی لوکو', isNew: false, publishedFa: '۲۲ مهر ۱۴۰۵', saved: false, done: false };
+const base = { cover: '', author: 'تیم آموزشی لوکو', isNew: false, views: 0, publishedFa: '۲۲ مهر ۱۴۰۵', saved: false, done: false };
 
 const ITEMS: LearnSummary[] = [
   { ...base, id: 1, kind: 'article', kindLabel: 'مقاله', title: 'بعد از بازی چه بپرسیم؟ هفت سؤالِ باز',

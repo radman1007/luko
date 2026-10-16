@@ -24,6 +24,16 @@ export const TOPIC_LOOK: Record<LearnTopic, { icon: Icon; from: string; to: stri
   family: { icon: HiOutlineUserGroup, from: '#fff0e5', to: '#ffd4bb', ink: '#a8501b' },
 };
 
+/** کاراکترِ هر موضوع روی کارتِ بی‌عکس (لوکوریان‌ها؛ پری میزبانِ خودِ صفحه است) */
+export const TOPIC_CHARACTER: Record<LearnTopic, string> = {
+  learning: '/characters/explorer.webp',
+  habits: '/characters/maker.webp',
+  emotions: '/characters/art.webp',
+  screen: '/characters/gamer.webp',
+  health: '/characters/health.webp',
+  family: '/characters/navigator.webp',
+};
+
 interface KindLook {
   icon: Icon;
   label: string;

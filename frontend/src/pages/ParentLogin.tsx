@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  HiOutlineArrowLeft,
   HiOutlineArrowRight,
-  HiOutlineChartBarSquare,
-  HiOutlineDevicePhoneMobile,
+  HiOutlineChartBar,
   HiOutlineHeart,
   HiOutlineLockClosed,
   HiOutlineShieldCheck,
@@ -30,11 +30,16 @@ function errorMessage(err: unknown, fallback: string): string {
   return e?.response?.data?.error?.message ?? fallback;
 }
 
+/** سه نویدِ پایینِ ستونِ معرفی */
 const PROMISES = [
-  { icon: HiOutlineChartBarSquare, text: 'گزارشِ هفتگی از تمرین و پیشرفتِ فرزندتان' },
-  { icon: HiOutlineHeart, text: 'حال و روحیه‌اش را ببینید، بدونِ خواندنِ نوشته‌های خصوصی' },
-  { icon: HiOutlineShieldCheck, text: 'هر عددی که می‌بینید از بازی‌های واقعیِ اوست' },
+  { icon: HiOutlineShieldCheck, title: 'حریمِ خصوصیِ تضمین‌شده', text: 'نوشته‌های خصوصیِ فرزندتان رمزنگاری شده‌اند و دیده نمی‌شوند.' },
+  { icon: HiOutlineChartBar, title: 'گزارشِ رشدِ دقیق', text: 'پیشرفتِ آموزشیِ فرزندتان را هفته‌به‌هفته از بازی‌های واقعی‌اش ببینید.' },
+  { icon: HiOutlineHeart, title: 'همراهیِ بی‌وقفه', text: 'در مسیرِ یادگیری، همیشه کنارِ فرزندتان باشید.' },
 ];
+
+/** نمونه‌ی ثابتِ کارتِ پنل در ستونِ معرفی (تزئینی؛ داده‌ی هیچ‌کس نیست) */
+const SAMPLE_WEEK = [38, 52, 30, 64, 44, 88, 40];
+const SAMPLE_DAYS = ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'];
 
 const PHONE_HINT = 'شمارهٔ موبایل باید ۱۱ رقم و با ۰۹ شروع شود.';
 
@@ -53,7 +58,9 @@ export default function ParentLogin() {
   const { setUser } = useAuth();
 
   const [step, setStep] = useState<Step>('phone');
-  const [phone, setPhone] = useState('');
+  /** همان چیزی که والد تایپ کرده (بعد از +98)؛ شماره‌ی ۰۹… از آن ساخته می‌شود */
+  const [phoneInput, setPhoneInput] = useState('');
+  const phone = normalizePhone(phoneInput);
   const [code, setCode] = useState('');
   // طولِ کد را سرور می‌گوید؛ سخت‌کد کردنش با عوض‌شدنِ پنلِ پیامک می‌شکست
   const [codeLength, setCodeLength] = useState(5);
@@ -216,246 +223,241 @@ export default function ParentLogin() {
     setError('');
   };
 
+  const heading =
+    step === 'phone' ? 'ورود به پنل والدین'
+      : step === 'code' ? 'کد تأیید را وارد کنید'
+        : step === 'password' ? 'ورود با رمز عبور'
+          : step === 'newPassword' ? (resetting ? 'رمز تازه بسازید' : 'یک رمز برای حسابتان')
+            : 'آخرین قدم';
+
   const subtitle =
     step === 'phone'
-      ? 'با شمارهٔ موبایلتان وارد شوید؛ کد تأیید پیامک می‌شود'
+      ? 'شماره موبایل‌تان را وارد کنید تا کد تأیید برایتان ارسال شود.'
       : step === 'code'
-        ? `کد به ${phone} پیامک شد`
+        ? `کدِ ${codeLength.toLocaleString('fa-IR')} رقمی به ${phone.replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)])} پیامک شد.`
         : step === 'password'
-          ? `ورود با رمز — ${phone}`
+          ? 'وقتی پیامک نمی‌رسد، با رمزی که برای حسابتان گذاشته‌اید وارد شوید.'
           : step === 'newPassword'
-            ? (resetting ? 'رمز تازه‌ای بسازید' : 'یک رمز برای حسابتان بگذارید')
-            : 'آخرین قدم: نام شما';
+            ? 'ورود همیشه با کدِ پیامکی است؛ این رمز برای وقتی است که پیامک نرسد.'
+            : 'نامتان را بنویسید تا پنل به اسمِ خودتان باشد.';
+
+  const phoneField = (
+    <label className={styles.field}>
+      شماره موبایل
+      <span className={styles.phoneGroup} dir="ltr">
+        <span className={styles.prefix} aria-hidden>+98</span>
+        <input
+          inputMode="numeric"
+          autoComplete="tel"
+          placeholder="۹۱۲ ۳۴۵ ۶۷۸۹"
+          maxLength={16}
+          value={phoneInput}
+          onChange={(e) => { setPhoneInput(e.target.value); if (error) setError(''); }}
+          aria-invalid={Boolean(error) && !phoneValid}
+          aria-label="شماره موبایل (بی‌پیش‌شماره یا با صفر)"
+        />
+      </span>
+    </label>
+  );
 
   return (
     <main className={styles.page}>
-      <div className={styles.card}>
-        <header className={styles.head}>
-          <span className={styles.logo} aria-hidden>
-            <BrandMark size={24} />
-          </span>
-          <div>
-            <h1 className={styles.title}>پنل والدین لوکو</h1>
-            <p className={styles.subtitle}>{subtitle}</p>
-          </div>
+      <section className={styles.formSide}>
+        <header className={styles.brand}>
+          <span className={styles.logo} aria-hidden><BrandMark size={20} /></span>
+          <b>لوکو</b>
         </header>
 
-        {step === 'phone' ? (
-          <form
-            className={styles.form}
-            onSubmit={(e) => {
-              e.preventDefault();
-              void sendCode();
-            }}
-          >
-            <label className={styles.field}>
-              شمارهٔ موبایل
-              <span className={styles.inputWrap}>
-                <HiOutlineDevicePhoneMobile aria-hidden />
-                <input
-                  dir="ltr"
-                  inputMode="numeric"
-                  autoComplete="tel"
-                  placeholder="09xxxxxxxxx"
-                  value={phone}
-                  onChange={(e) => { setPhone(normalizePhone(e.target.value)); if (error) setError(''); }}
-                  aria-invalid={Boolean(error) && !phoneValid}
-                />
-              </span>
-            </label>
-
-            {error && <p className={styles.error}>{error}</p>}
-
-            <button type="submit" className={styles.primary} disabled={busy || !phoneValid}>
-              {busy ? 'یک لحظه…' : 'دریافت کد تأیید'}
-              <HiOutlineArrowRight aria-hidden />
+        <div className={styles.formBox}>
+          {step !== 'phone' && (
+            <button type="button" className={styles.back} onClick={backToPhone}>
+              <HiOutlineArrowRight aria-hidden /> تغییر شماره
             </button>
+          )}
+          <h1 className={styles.title}>{heading}</h1>
+          <p className={styles.subtitle}>{subtitle}</p>
 
-            <div className={styles.actions}>
-              <button type="button" className={styles.link} onClick={switchToPassword} disabled={busy}>
-                ورود با رمز عبور
+          {step === 'phone' ? (
+            <form className={styles.form} onSubmit={(e) => { e.preventDefault(); void sendCode(); }}>
+              {phoneField}
+              {error && <p className={styles.error} role="alert">{error}</p>}
+              <button type="submit" className={styles.primary} disabled={busy || !phoneValid}>
+                {busy ? 'یک لحظه…' : 'دریافت کد تأیید'}
+                <HiOutlineArrowLeft aria-hidden />
               </button>
-            </div>
-
-            <ul className={styles.promises}>
-              {PROMISES.map(({ icon: Icon, text }) => (
-                <li key={text}>
-                  <Icon aria-hidden />
-                  {text}
-                </li>
-              ))}
-            </ul>
-
-            <div className={styles.guestDivider}>
-              <span>یا برای نمایش سریع</span>
-            </div>
-            <button
-              type="button"
-              className={styles.guestButton}
-              onClick={() => {
-                enableParentGuestMode();
-                setUser(GUEST_PARENT_USER);
-                navigate('/parent-panel', { replace: true });
-              }}
-            >
-              ورود به‌عنوان مهمان
-            </button>
-            <p className={styles.guestHint}>بدون پیامک؛ با داده‌های نمونه و مناسبِ دمو</p>
-          </form>
-        ) : step === 'code' ? (
-          <form
-            className={styles.form}
-            onSubmit={(e) => {
-              e.preventDefault();
-              void verify();
-            }}
-          >
-            <label className={styles.field}>
-              کد تأیید
-              <span className={styles.inputWrap}>
-                <HiOutlineLockClosed aria-hidden />
+            </form>
+          ) : step === 'code' ? (
+            <form className={styles.form} onSubmit={(e) => { e.preventDefault(); void verify(); }}>
+              <label className={styles.field}>
+                کد تأیید
                 <input
                   ref={codeRef}
                   dir="ltr"
                   inputMode="numeric"
                   autoComplete="one-time-code"
-                  placeholder={'- '.repeat(codeLength).trim()}
+                  placeholder={'•'.repeat(codeLength)}
                   className={styles.codeInput}
                   value={code}
                   onChange={(e) => { setCode(digits(e.target.value).slice(0, codeLength)); if (error) setError(''); }}
                 />
-              </span>
-            </label>
-
-            {devCode && <p className={styles.devCode}>کد توسعه: {devCode}</p>}
-            {error && <p className={styles.error}>{error}</p>}
-
-            <button type="submit" className={styles.primary} disabled={busy || code.length < codeLength}>
-              {busy ? 'در حال بررسی…' : 'تأیید کد'}
-            </button>
-
-            <div className={styles.actions}>
-              <button type="button" className={styles.link} onClick={backToPhone}>
-                تغییر شماره
+              </label>
+              {devCode && <p className={styles.devCode}>کد توسعه: {devCode}</p>}
+              {error && <p className={styles.error} role="alert">{error}</p>}
+              <button type="submit" className={styles.primary} disabled={busy || code.length < codeLength}>
+                {busy ? 'در حال بررسی…' : 'تأیید و ورود'}
+                <HiOutlineArrowLeft aria-hidden />
               </button>
+              <div className={styles.actions}>
+                <button type="button" className={styles.link} disabled={resendIn > 0 || busy}
+                  onClick={() => void sendCode(resetting)}>
+                  {resendIn > 0 ? `ارسال دوباره تا ${resendIn.toLocaleString('fa-IR')} ثانیه` : 'ارسال دوباره‌ی کد'}
+                </button>
+                {/* در «فراموشیِ رمز» برگشتن به ورود با رمز معنایی ندارد */}
+                {!resetting && (
+                  <button type="button" className={styles.link} onClick={switchToPassword} disabled={busy}>
+                    کد نرسید؟ ورود با رمز عبور
+                  </button>
+                )}
+              </div>
+            </form>
+          ) : step === 'password' ? (
+            <form className={styles.form} onSubmit={(e) => { e.preventDefault(); void loginWithPassword(); }}>
+              <label className={styles.field}>
+                رمز عبور
+                <span className={styles.inputWrap}>
+                  <HiOutlineLockClosed aria-hidden />
+                  <input ref={passwordRef} type="password" autoComplete="current-password" placeholder="رمز حسابتان"
+                    value={password} onChange={(e) => { setPassword(e.target.value); if (error) setError(''); }} />
+                </span>
+              </label>
+              {error && <p className={styles.error} role="alert">{error}</p>}
+              <button type="submit" className={styles.primary} disabled={busy || !password}>
+                {busy ? 'در حال ورود…' : 'ورود به پنل'}
+                <HiOutlineArrowLeft aria-hidden />
+              </button>
+              <div className={styles.actions}>
+                <button type="button" className={styles.link} disabled={busy} onClick={() => void sendCode()}>
+                  ورود با کد پیامکی
+                </button>
+                <button type="button" className={styles.link} disabled={busy} onClick={() => void sendCode(true)}>
+                  رمز را فراموش کرده‌اید؟
+                </button>
+              </div>
+            </form>
+          ) : step === 'newPassword' ? (
+            <form className={styles.form} onSubmit={(e) => { e.preventDefault(); void saveNewPassword(); }}>
+              <label className={styles.field}>
+                رمز عبور <small>(دست‌کم ۶ نویسه)</small>
+                <span className={styles.inputWrap}>
+                  <HiOutlineLockClosed aria-hidden />
+                  <input ref={passwordRef} type="password" autoComplete="new-password" placeholder="رمزی که یادتان می‌ماند"
+                    value={password} onChange={(e) => { setPassword(e.target.value); if (error) setError(''); }} />
+                </span>
+              </label>
+              {error && <p className={styles.error} role="alert">{error}</p>}
+              <button type="submit" className={styles.primary} disabled={busy || password.length < 6}>
+                {busy ? 'در حال ذخیره…' : needsProfile ? 'ذخیره و ادامه' : 'ذخیره و ورود به پنل'}
+                <HiOutlineArrowLeft aria-hidden />
+              </button>
+            </form>
+          ) : (
+            <form className={styles.form} onSubmit={(e) => { e.preventDefault(); void saveProfile(); }}>
+              <label className={styles.field}>
+                نام شما
+                <span className={styles.inputWrap}>
+                  <HiOutlineUser aria-hidden />
+                  <input ref={nameRef} autoComplete="name" placeholder="مثلاً رادمان" value={firstName} maxLength={60}
+                    onChange={(e) => { setFirstName(e.target.value); if (error) setError(''); }} />
+                </span>
+              </label>
+              {error && <p className={styles.error} role="alert">{error}</p>}
+              <button type="submit" className={styles.primary} disabled={busy || !firstName.trim()}>
+                {busy ? 'در حال ذخیره…' : 'ذخیره و ورود به پنل'}
+                <HiOutlineArrowLeft aria-hidden />
+              </button>
+            </form>
+          )}
+
+          <p className={styles.secure}>
+            <HiOutlineShieldCheck aria-hidden />
+            ورود شما با رمزنگاری و استانداردهای امنیتی محافظت می‌شود.
+          </p>
+
+          {step === 'phone' && (
+            <div className={styles.more}>
+              <button type="button" className={styles.link} onClick={switchToPassword} disabled={busy}>
+                ورود با رمز عبور
+              </button>
+              <span aria-hidden>·</span>
               <button
                 type="button"
                 className={styles.link}
-                disabled={resendIn > 0 || busy}
-                onClick={() => void sendCode(resetting)}
+                onClick={() => {
+                  enableParentGuestMode();
+                  setUser(GUEST_PARENT_USER);
+                  navigate('/parent-panel', { replace: true });
+                }}
               >
-                {resendIn > 0
-                  ? `ارسال دوباره تا ${resendIn.toLocaleString('fa-IR')} ثانیه`
-                  : 'ارسال دوبارهٔ کد'}
-              </button>
-              {/* در «فراموشیِ رمز» برگشتن به ورود با رمز معنایی ندارد */}
-              {!resetting && (
-                <button type="button" className={styles.link} onClick={switchToPassword} disabled={busy}>
-                  کد نرسید؟ ورود با رمز عبور
-                </button>
-              )}
-            </div>
-          </form>
-        ) : step === 'password' ? (
-          <form
-            className={styles.form}
-            onSubmit={(e) => { e.preventDefault(); void loginWithPassword(); }}
-          >
-            <label className={styles.field}>
-              رمز عبور
-              <span className={styles.inputWrap}>
-                <HiOutlineLockClosed aria-hidden />
-                <input
-                  ref={passwordRef}
-                  type="password"
-                  autoComplete="current-password"
-                  placeholder="رمز حسابتان"
-                  value={password}
-                  onChange={(e) => { setPassword(e.target.value); if (error) setError(''); }}
-                />
-              </span>
-            </label>
-
-            {error && <p className={styles.error}>{error}</p>}
-
-            <button type="submit" className={styles.primary} disabled={busy || !password}>
-              {busy ? 'در حال ورود…' : 'ورود به پنل'}
-            </button>
-
-            <div className={styles.actions}>
-              <button type="button" className={styles.link} onClick={backToPhone}>
-                تغییر شماره
-              </button>
-              <button type="button" className={styles.link} disabled={busy} onClick={() => void sendCode()}>
-                ورود با کد پیامکی
-              </button>
-              <button type="button" className={styles.link} disabled={busy} onClick={() => void sendCode(true)}>
-                رمز را فراموش کرده‌اید؟
+                دیدنِ پنلِ نمونه (مهمان)
               </button>
             </div>
-          </form>
-        ) : step === 'newPassword' ? (
-          <form
-            className={styles.form}
-            onSubmit={(e) => { e.preventDefault(); void saveNewPassword(); }}
-          >
-            <label className={styles.field}>
-              رمز عبور <small>(دست‌کم ۶ نویسه)</small>
-              <span className={styles.inputWrap}>
-                <HiOutlineLockClosed aria-hidden />
-                <input
-                  ref={passwordRef}
-                  type="password"
-                  autoComplete="new-password"
-                  placeholder="رمزی که یادتان می‌ماند"
-                  value={password}
-                  onChange={(e) => { setPassword(e.target.value); if (error) setError(''); }}
-                />
-              </span>
-            </label>
-            <p className={styles.guestHint}>
-              ورود همیشه با کد پیامکی است؛ این رمز برای وقتی است که پیامک نرسد.
-            </p>
+          )}
+        </div>
 
-            {error && <p className={styles.error}>{error}</p>}
+        <footer className={styles.foot}>
+          <p>با ورود، <b>شرایطِ استفاده</b> و <b>حریمِ خصوصیِ</b> لوکو را می‌پذیرید.</p>
+          <p>دانش‌آموزید؟ <a href="/login">از این‌جا وارد شوید</a></p>
+        </footer>
+      </section>
 
-            <button type="submit" className={styles.primary} disabled={busy || password.length < 6}>
-              {busy ? 'در حال ذخیره…' : needsProfile ? 'ذخیره و ادامه' : 'ذخیره و ورود به پنل'}
-            </button>
-          </form>
-        ) : (
-          <form
-            className={styles.form}
-            onSubmit={(e) => { e.preventDefault(); void saveProfile(); }}
-          >
-            <label className={styles.field}>
-              نام شما
-              <span className={styles.inputWrap}>
-                <HiOutlineUser aria-hidden />
-                <input
-                  ref={nameRef}
-                  autoComplete="name"
-                  placeholder="مثلاً رادمان"
-                  value={firstName}
-                  maxLength={60}
-                  onChange={(e) => { setFirstName(e.target.value); if (error) setError(''); }}
-                />
-              </span>
-            </label>
+      <aside className={styles.showcase} aria-hidden>
+        <div className={styles.showHead}>
+          <span className={styles.showBrand}><BrandMark size={18} /> لوکو</span>
+          <span className={styles.chip}>پنل والدین</span>
+        </div>
 
-            {error && <p className={styles.error}>{error}</p>}
+        <div className={styles.showBody}>
+          <h2>دنیای کودکتان را<br /><em>از نزدیک</em> دنبال کنید</h2>
+          <p>
+            گزارش‌های لحظه‌ای یادگیری، پیشنهادهای هوشمندِ روزانه و دستیاری برای هر پرسش — در یک تجربه‌ی ساده و امن.
+          </p>
 
-            <button type="submit" className={styles.primary} disabled={busy || !firstName.trim()}>
-              {busy ? 'در حال ذخیره…' : 'ذخیره و ورود به پنل'}
-            </button>
-          </form>
-        )}
-      </div>
+          <div className={styles.preview}>
+            <div className={styles.previewHead}>
+              <span className={styles.avatar}>آ</span>
+              <div>
+                <b>آرین</b>
+                <small>کلاس دوم · ۸ ساله</small>
+              </div>
+              <span className={styles.chip}>این هفته</span>
+            </div>
+            <div className={styles.stats}>
+              <div><b>۱٬۲۸۰</b><small>امتیازِ این هفته</small></div>
+              <div><b>۱۲</b><small>روزهای پیوسته</small></div>
+              <div><b>۳۴۵</b><small>دقیقه مطالعه</small></div>
+            </div>
+            <div className={styles.bars}>
+              {SAMPLE_WEEK.map((value, index) => (
+                <span key={SAMPLE_DAYS[index]} data-top={index === 5 || undefined}>
+                  <i style={{ height: `${value}%` }} />
+                  <small>{SAMPLE_DAYS[index]}</small>
+                </span>
+              ))}
+            </div>
+          </div>
 
-      <p className={styles.foot}>
-        این صفحه برای والدین است. اگر دانش‌آموزید،{' '}
-        <a href="/login">از این‌جا وارد شوید</a>.
-      </p>
+          <ul className={styles.promises}>
+            {PROMISES.map(({ icon: Icon, title, text }) => (
+              <li key={title}>
+                <span><Icon /></span>
+                <div><b>{title}</b><small>{text}</small></div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p className={styles.copy}>© لوکو — همراهِ یادگیریِ کودکان</p>
+      </aside>
     </main>
   );
 }

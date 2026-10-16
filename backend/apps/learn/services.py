@@ -87,6 +87,7 @@ def summary(item: LearnItem, *, premium: bool, progress: LearnProgress | None = 
         "locked": item.premium and not premium,
         "featured": item.featured,
         "is_new": item.id in (new_ids or set()),
+        "views": item.views,
         "published_fa": fa_date(published.date(), with_year=True) if published else "",
         "saved": bool(progress and progress.saved),
         "done": bool(progress and progress.done),

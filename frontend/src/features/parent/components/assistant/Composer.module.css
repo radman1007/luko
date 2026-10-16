@@ -1,8 +1,8 @@
 .wrap { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 
 .box {
-  --as-accent: #f59322;
-  --as-accent-dark: #d9750a;
+  --as-accent: var(--pp-blue);
+  --as-accent-dark: #174447;
   display: flex;
   align-items: flex-end;
   gap: 6px;
@@ -14,8 +14,8 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.box:focus-within { border-color: var(--as-accent); box-shadow: 0 0 0 4px rgb(245 147 34 / 14%); }
-.box[data-variant='hero'] { border-radius: 999px; padding: 6px 6px 6px 8px; box-shadow: 0 10px 26px rgb(217 117 10 / 10%); }
+.box:focus-within { border-color: var(--as-accent); box-shadow: 0 0 0 4px rgb(33 94 97 / 12%); }
+.box[data-variant='hero'] { border-radius: 999px; padding: 6px 6px 6px 8px; box-shadow: 0 10px 26px rgb(23 68 71 / 10%); }
 .box[data-listening] { border-color: #d0631f; box-shadow: 0 0 0 4px rgb(208 99 31 / 16%); }
 
 .box textarea {
@@ -36,6 +36,8 @@
 .box[data-variant='hero'] textarea { padding-inline-start: 14px; }
 .box textarea:focus { outline: none; }
 .box textarea::placeholder { color: #9aa0a8; }
+/* راهنمای خالی یک خط بماند (روی گوشیِ باریک دو خط می‌شد و کادر را بلند می‌کرد) */
+.box textarea:placeholder-shown { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
 .mic,
 .send {
@@ -51,9 +53,9 @@
 
 .mic { background: var(--pp-surface); color: #5b6068; }
 .mic[aria-pressed='true'] { background: #fcece1; color: #b04f12; animation: pulse 1.2s ease-in-out infinite; }
-.send { background: var(--as-accent); color: #fff; box-shadow: 0 6px 14px rgb(217 117 10 / 26%); }
+.send { background: var(--as-accent); color: #fff; box-shadow: 0 6px 14px rgb(23 68 71 / 24%); }
 .send:not(:disabled):hover { background: var(--as-accent-dark); }
-.send:disabled { background: #f3d7b4; box-shadow: none; cursor: default; }
+.send:disabled { background: #b9d3d1; box-shadow: none; cursor: default; }
 .mic:disabled { opacity: 0.5; cursor: default; }
 .mic svg, .send svg { width: 20px; height: 20px; }
 /* هواپیمای کاغذی رو به چپ: جهتِ خواندن */
@@ -64,6 +66,11 @@
 
 @keyframes pulse {
   50% { box-shadow: 0 0 0 6px rgb(208 99 31 / 14%); }
+}
+
+@media (max-width: 359px) {
+  .box { gap: 4px; }
+  .mic, .send { width: 38px; height: 38px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

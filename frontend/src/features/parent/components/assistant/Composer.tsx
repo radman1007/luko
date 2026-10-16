@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import { HiOutlineMicrophone, HiOutlinePaperAirplane, HiOutlineStopCircle } from 'react-icons/hi2';
 import { useDictation } from './useDictation';
 import styles from './Composer.module.css';
@@ -15,6 +15,8 @@ interface Props {
   /** کادرِ بزرگِ بالای صفحه (یک خط، گرد) یا کادرِ گفت‌وگو */
   variant?: 'hero' | 'chat';
   label?: string;
+  /** پیش از کادرِ نوشتن (دکمه‌ی انتخابِ مدل) */
+  leading?: ReactNode;
 }
 
 /**
@@ -23,6 +25,7 @@ interface Props {
  */
 export function Composer({
   value, onChange, onSend, placeholder, disabled = false, canSend, maxLength = 800, variant = 'chat', label = 'پرسش',
+  leading,
 }: Props) {
   const valueRef = useRef(value);
   valueRef.current = value;
@@ -43,6 +46,7 @@ export function Composer({
     <div className={styles.wrap}>
       <form className={styles.box} data-variant={variant} data-listening={dictation.listening || undefined}
         onSubmit={(event) => { event.preventDefault(); if (canSend) onSend(); }}>
+        {leading}
         <textarea value={dictation.listening && dictation.interim ? `${value} ${dictation.interim}`.trim() : value}
           maxLength={maxLength} rows={1} disabled={disabled} readOnly={dictation.listening} onKeyDown={onKey}
           aria-label={label}

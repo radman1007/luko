@@ -47,7 +47,7 @@ export function LearnPage({ childId, ready = true, childName, guest = false, sec
       ? (() => { const d = guestDetail(id); return d && { ...d, ...guestFlags[id] }; })()
       : item.data;
     return (
-      <SubPage title="کتابخانه‌ی والدین" note={detail ? `${detail.kindLabel} · ${detail.topicLabel}` : ''} onBack={onBack}
+      <SubPage title="راهنمای والدین" note={detail ? `${detail.kindLabel} · ${detail.topicLabel}` : ''} onBack={onBack}
         backLabel="آموزش" wide>
         {detail ? (
           <LearnItemView item={detail} onOpen={onOpen} onSave={(saved) => save(id, { saved })} onDone={markDone}
@@ -78,7 +78,7 @@ export function LearnPage({ childId, ready = true, childName, guest = false, sec
     );
   }
   if (!data.items.length) {
-    return <div className={styles.state}><p>کتابخانه‌ی والدین به‌زودی با اولین مقاله‌ها و ویدیوها باز می‌شود.</p></div>;
+    return <div className={styles.state}><p>راهنمای والدین به‌زودی با اولین مقاله‌ها و ویدیوها باز می‌شود.</p></div>;
   }
   return <LearnHub data={data} childName={childName} onOpen={onOpen} onSave={(target, saved) => save(target, { saved })}
     onUpgrade={onUpgrade} />;
