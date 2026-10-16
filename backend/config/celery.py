@@ -20,7 +20,7 @@ app.conf.beat_schedule = {
         "task": "apps.garden.tasks.apply_seasonal_resets",
         "schedule": crontab(hour=0, minute=10),
     },
-    # پرداختی که مرورگرش از درگاه برنگشت؛ وندار تا ۲۰ دقیقه تأیید می‌پذیرد
+    # پرداختی که مرورگرش از درگاه برنگشت؛ زیبال و وندار تا ۲۰ دقیقه تأیید می‌پذیرند
     "billing-reconcile-pending": {
         "task": "apps.billing.tasks.reconcile_pending",
         "schedule": crontab(minute="*/3"),

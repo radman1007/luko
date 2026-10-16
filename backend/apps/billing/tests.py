@@ -101,7 +101,7 @@ class FakeVandar:
 
 
 @override_settings(VANDAR_API_KEY=KEY, VANDAR_BASE_URL="https://ipg.vandar.io",
-                   SITE_URL="https://my.luko.ir")
+                   SITE_URL="https://my.luko.ir", PAYMENT_GATEWAY="vandar")
 class BillingTestBase(TestCase):
     unpaid_code = 1
 
@@ -490,7 +490,8 @@ from django.test import TransactionTestCase  # noqa: E402
 
 
 @skipUnless(connection.vendor == "postgresql", "قفلِ ردیف فقط روی Postgres آزموده می‌شود")
-@override_settings(VANDAR_API_KEY=KEY, VANDAR_BASE_URL="https://ipg.vandar.io", SITE_URL="https://my.luko.ir")
+@override_settings(VANDAR_API_KEY=KEY, VANDAR_BASE_URL="https://ipg.vandar.io", SITE_URL="https://my.luko.ir",
+                   PAYMENT_GATEWAY="vandar")
 class ConcurrencyTests(TransactionTestCase):
     def setUp(self):
         cache.clear()

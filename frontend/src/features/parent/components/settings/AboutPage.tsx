@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { HiOutlineChevronDown, HiOutlineEnvelope, HiOutlineGlobeAlt, HiOutlineHeart } from 'react-icons/hi2';
 import { BrandMark } from '@/components/ui/icons';
-import { EnamadSeal } from './EnamadSeal';
+import { TrustSeals } from './TrustSeals';
 import { useSettingsEnv } from './SettingsContext';
 import form from './form.module.css';
 import styles from './AboutPage.module.css';
@@ -17,7 +17,7 @@ const RULES: { title: string; body: string }[] = [
   },
   {
     title: 'پرداخت و بازگشتِ وجه',
-    body: 'پرداخت از درگاهِ امنِ وندار (شاپرک) انجام می‌شود و اطلاعاتِ کارت به لوکو نمی‌رسد. اگر پرداخت انجام شد ولی اشتراک فعال نشد، مبلغ طبقِ قوانینِ شاپرک برمی‌گردد یا اشتراک دستی فعال می‌شود؛ کافی است با دسته‌ی «اشتراک و پرداخت» تیکت بزنید.',
+    body: 'پرداخت از درگاهِ امنِ زیبال (شاپرک) انجام می‌شود و اطلاعاتِ کارت به لوکو نمی‌رسد. اگر پرداخت انجام شد ولی اشتراک فعال نشد، مبلغ طبقِ قوانینِ شاپرک برمی‌گردد یا اشتراک دستی فعال می‌شود؛ کافی است با دسته‌ی «اشتراک و پرداخت» تیکت بزنید.',
   },
 ];
 
@@ -55,7 +55,7 @@ export function AboutPage() {
         </ul>
       </section>
 
-      <EnamadSeal />
+      <TrustSeals />
 
       <section className={form.card} aria-labelledby="contact-title">
         <h3 id="contact-title" className={form.cardTitle}>راه‌های ارتباط</h3>

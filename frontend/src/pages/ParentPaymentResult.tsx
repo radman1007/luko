@@ -15,11 +15,11 @@ import panel from './ParentPanel.module.css';
 import base from './ParentSubscription.module.css';
 import styles from './ParentPaymentResult.module.css';
 
-/** تا این مدت نتیجه‌ی «در انتظار» را دوباره می‌پرسیم (وندار تا ۲۰ دقیقه تأیید می‌پذیرد) */
+/** تا این مدت نتیجه‌ی «در انتظار» را دوباره می‌پرسیم (درگاه تا ۲۰ دقیقه تأیید می‌پذیرد) */
 const POLL_FOR_MS = 90 * 1000;
 
 /**
- * بازگشت از درگاه. وضعیت را فقط سرور می‌گوید (پس از تأیید با وندار)؛
+ * بازگشت از درگاه. وضعیت را فقط سرور می‌گوید (پس از تأیید با درگاه)؛
  * پارامترهای نشانی هیچ‌وقت به‌تنهایی «موفق» حساب نمی‌شوند.
  */
 export default function ParentPaymentResult() {

@@ -34,7 +34,7 @@ export function usePayments(childId?: string, enabled = true) {
   });
 }
 
-/** پرداخت را می‌سازد و مرورگر را به درگاهِ وندار می‌برد */
+/** پرداخت را می‌سازد و مرورگر را به درگاه (زیبال؛ وندار اگر سرور آن را برگزیده باشد) می‌برد */
 export function useCheckout() {
   return useMutation({
     mutationFn: ({ childId, plan }: { childId: string; plan: string }) => billingApi.checkout(childId, plan),

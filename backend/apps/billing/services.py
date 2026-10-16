@@ -1,9 +1,13 @@
 """
 منطقِ اشتراک و پرداخت — تنها جایی که وضعیتِ پرداخت عوض می‌شود.
 
-چرخه‌ی یک پرداخت:
+دو درگاه: زیبال (پیش‌فرض) و وندار (settings.PAYMENT_GATEWAY). هر پرداخت درگاهِ خودش را در
+`Payment.gateway` نگه می‌دارد و بازگشت، تأیید و پیگیری همیشه با همان است؛ پس عوض کردنِ درگاه
+پرداخت‌های نیمه‌کاره‌ی قبلی را خراب نمی‌کند.
 
-    start_checkout   ردیفِ pending + توکنِ وندار → آدرسِ درگاه
+چرخه‌ی یک پرداخت (وندار؛ زیبال همین است با request/verify/inquiry، پایینِ همین فایل):
+
+    start_checkout   ردیفِ pending + توکنِ درگاه → آدرسِ درگاه
     handle_callback  بازگشتِ مرورگر از درگاه → settle
     settle           verify؛ اگر پاسخِ verify گم شده بود (دومی خطا می‌دهد)، transaction
                      با code=2 نشان می‌دهد که پول تأیید شده → activate
@@ -13,7 +17,7 @@
 قفل‌ها: هر تغییرِ وضعیت داخلِ `select_for_update` روی همان پرداخت است، پس بازگشتِ
 دوباره از درگاه یا هم‌زمانیِ بازگشت و reconcile پرداخت را دوبار ثبت نمی‌کند؛ فعال‌سازی
 روی ردیفِ خودِ بچه هم قفل می‌گیرد تا دو خریدِ هم‌زمان دوره‌ها را روی هم نیندازند.
-پول فقط وقتی «پرداخت‌شده» است که وندار بگوید تأیید شده **و** مبلغ همان باشد که ما خواستیم.
+پول فقط وقتی «پرداخت‌شده» است که درگاه بگوید تأیید شده **و** مبلغ همان باشد که ما خواستیم.
 """
 from __future__ import annotations
 
@@ -23,6 +27,7 @@ import re
 import secrets
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.db import IntegrityError, transaction
@@ -31,7 +36,7 @@ from django.utils import timezone
 
 from apps.accounts.models import User
 
-from . import vandar
+from . import vandar, zibal
 from .models import Payment, Plan
 
 log = logging.getLogger("luko.billing")
@@ -119,12 +124,42 @@ def child_name(child: User | None) -> str:
 
 
 # ------------------------------------------------------------------ پرداخت
-def callback_url() -> str:
+GATEWAY_ERRORS = (vandar.VandarError, zibal.ZibalError)
+
+
+def active_gateway() -> str:
+    """درگاهِ پرداخت‌های تازه؛ مقدارِ ناشناخته یعنی زیبال"""
+    gateway = (settings.PAYMENT_GATEWAY or "").strip().lower()
+    return gateway if gateway in Payment.Gateway.values else Payment.Gateway.ZIBAL
+
+
+def callback_url(gateway: str = Payment.Gateway.VANDAR) -> str:
+    if gateway == Payment.Gateway.ZIBAL:
+        # زیبال callbackUrl را فقط روی دامنه‌ی ثبت‌شده‌ی درگاه می‌پذیرد (کدِ ۱۰۶)
+        return settings.ZIBAL_SITE_URL.rstrip("/") + "/api/v1/billing/callback/zibal"
     return settings.SITE_URL.rstrip("/") + "/api/v1/billing/callback"
 
 
+def pay_url(payment: Payment) -> str:
+    """
+    جایی که مرورگرِ والد به آن می‌رود. زیبال صفحه‌ی پرداخت را فقط با Refererِ دامنه‌ی ثبت‌شده باز می‌کند
+    (my.luko.ir ← «دامنه غیرمجاز»؛ آزمونِ ۲۴ مهر)، پس اول به صفحه‌ی گذرِ کوچکی روی همان دامنه می‌رود.
+    """
+    if payment.gateway == Payment.Gateway.ZIBAL:
+        return settings.ZIBAL_SITE_URL.rstrip("/") + f"/api/v1/billing/zibal/go/{payment.token}"
+    return vandar.pay_url(payment.token)
+
+
+def return_hosts() -> set[str]:
+    """دامنه‌هایی که پنلِ والدین رویشان است و بازگشت از درگاه به آن‌ها مجاز است"""
+    return {urlparse(url).netloc for url in (settings.SITE_URL, settings.ZIBAL_SITE_URL) if url}
+
+
 def result_url(payment: Payment | None, problem: str = "") -> str:
-    base = settings.SITE_URL.rstrip("/") + "/parent-panel/subscription/result"
+    site = settings.SITE_URL.rstrip("/")
+    if payment is not None and payment.return_host in return_hosts():
+        site = f"{urlparse(settings.SITE_URL).scheme or 'https'}://{payment.return_host}"
+    base = site + "/parent-panel/subscription/result"
     if payment is None:
         return f"{base}?error={problem or 'unknown'}"
     return f"{base}?payment={payment.id}"
@@ -134,7 +169,7 @@ def _factor_number() -> str:
     return f"LK{timezone.localtime():%y%m%d}{secrets.randbelow(10**6):06d}"
 
 
-def start_checkout(parent: User, child: User, plan: Plan) -> Payment:
+def start_checkout(parent: User, child: User, plan: Plan, *, host: str = "") -> Payment:
     if not plan.is_active:
         raise CheckoutError("این پلن دیگر فروخته نمی‌شود.")
     recent = Payment.objects.filter(payer=parent, status=Payment.Status.PENDING,
@@ -143,10 +178,12 @@ def start_checkout(parent: User, child: User, plan: Plan) -> Payment:
         raise CheckoutError("چند پرداختِ نیمه‌کاره دارید؛ چند دقیقه‌ی دیگر دوباره تلاش کنید.", 429)
 
     name = child_name(child)
+    gateway = active_gateway()
     for _ in range(5):
         try:
             payment = Payment.objects.create(
-                payer=parent, child=child, plan=plan, plan_title=plan.title,
+                payer=parent, child=child, plan=plan, plan_title=plan.title, gateway=gateway,
+                return_host=host if host in return_hosts() else "",
                 duration_days=plan.duration_days, amount_toman=plan.price_toman,
                 amount_rial=plan.price_rial, payer_phone=parent.phone, child_name=name,
                 factor_number=_factor_number(),
@@ -157,16 +194,17 @@ def start_checkout(parent: User, child: User, plan: Plan) -> Payment:
     else:
         raise CheckoutError("ساختِ صورت‌حساب انجام نشد؛ دوباره تلاش کنید.", 500)
 
+    description = f"اشتراکِ {plan.title} لوکو — {name}"
+    mobile = parent.phone if _MOBILE.match(parent.phone or "") else ""
     try:
-        token = vandar.send(
-            amount_rial=payment.amount_rial,
-            callback_url=callback_url(),
-            factor_number=payment.factor_number,
-            description=f"اشتراکِ {plan.title} لوکو — {name}",
-            mobile=parent.phone if _MOBILE.match(parent.phone or "") else "",
-        )
-    except vandar.VandarError as exc:
-        log.warning("checkout %s: send failed: %s", payment.factor_number, exc.message)
+        if gateway == Payment.Gateway.ZIBAL:
+            token = zibal.request(amount_rial=payment.amount_rial, callback_url=callback_url(gateway),
+                                  order_id=payment.factor_number, description=description, mobile=mobile)
+        else:
+            token = vandar.send(amount_rial=payment.amount_rial, callback_url=callback_url(gateway),
+                                factor_number=payment.factor_number, description=description, mobile=mobile)
+    except GATEWAY_ERRORS as exc:
+        log.warning("checkout %s (%s): request failed: %s", payment.factor_number, gateway, exc.message)
         Payment.objects.filter(pk=payment.pk).update(status=Payment.Status.FAILED,
                                                      message=exc.message[:255])
         raise CheckoutError(
@@ -228,6 +266,9 @@ def settle(payment: Payment) -> None:
     reconcile دوباره سراغش برود — هیچ‌وقت به‌خاطرِ قطعیِ شبکه «ناموفق» نمی‌شود.
     """
     if payment.status != Payment.Status.PENDING or not payment.token:
+        return
+    if payment.gateway == Payment.Gateway.ZIBAL:
+        _zibal_settle(payment)
         return
     payment.verify_attempts += 1
     payment.save(update_fields=["verify_attempts", "updated_at"])
@@ -296,11 +337,11 @@ def _settle_failed_return(payment: Payment) -> None:
 
 
 def handle_callback(token: str, payment_status: str) -> Payment | None:
-    """بازگشتِ مرورگر از درگاه. چندبار صدا زدنش بی‌خطر است."""
+    """بازگشتِ مرورگر از وندار. چندبار صدا زدنش بی‌خطر است."""
     if not token:
         return None
     with transaction.atomic():
-        payment = Payment.objects.select_for_update().filter(token=token).first()
+        payment = Payment.objects.select_for_update().filter(token=token, gateway=Payment.Gateway.VANDAR).first()
         if payment is None:
             log.warning("callback for unknown token")
             return None
@@ -327,6 +368,10 @@ def reconcile(payment_id: int) -> Payment | None:
             return payment
         if age < RECONCILE_AFTER:
             return payment
+        if payment.gateway == Payment.Gateway.ZIBAL:
+            _zibal_reconcile(payment, age)
+            payment.refresh_from_db()
+            return payment
         try:
             info = vandar.transaction(payment.token)
         except vandar.VandarError as exc:
@@ -347,6 +392,111 @@ def reconcile(payment_id: int) -> Payment | None:
                 _mark(payment, Payment.Status.FAILED, "پرداخت انجام نشد", info)
     payment.refresh_from_db()
     return payment
+
+
+# ------------------------------------------------------------------ زیبال
+def _zibal_normal(data: dict) -> dict:
+    """پاسخِ زیبال به شکلی که _activate می‌خواند (شماره‌ی مرجع، کارت) + خودِ پاسخ"""
+    return {**data, "transId": data.get("refNumber") or "", "cardNumber": data.get("cardNumber") or "",
+            "message": "پرداخت تأیید شد"}
+
+
+def _zibal_paid(payment: Payment, data: dict) -> None:
+    if _amount_matches(payment, data):
+        _activate(payment, _zibal_normal(data))
+    else:
+        log.error("payment %s: AMOUNT MISMATCH zibal=%s expected=%s", payment.factor_number,
+                  data.get("amount"), payment.amount_rial)
+        _mark(payment, Payment.Status.FAILED, "مبلغِ تأییدشده با صورت‌حساب نمی‌خواند", data)
+
+
+def _zibal_inquiry(payment: Payment) -> dict | None:
+    """وضعیتِ پرداخت از زیبال؛ None یعنی شبکه/درگاه موقتاً جواب نداد (pending می‌ماند)."""
+    try:
+        return zibal.inquiry(payment.token)
+    except zibal.ZibalError as exc:
+        if exc.transient:
+            return None
+        return {**exc.data, "status": None}
+
+
+def _zibal_apply(payment: Payment, info: dict, *, allow_verify: bool) -> None:
+    """تصمیم از روی inquiry. `allow_verify`: «پرداخت‌شده، تأییدنشده» را همین حالا تأیید کن."""
+    status = info.get("status")
+    in_window = timezone.now() - payment.created_at < GATEWAY_WINDOW
+    if status == zibal.STATUS_VERIFIED:
+        _zibal_paid(payment, info)
+    elif status == zibal.STATUS_PAID_UNVERIFIED and allow_verify:
+        _zibal_settle(payment)
+    elif status in (zibal.STATUS_PENDING, zibal.STATUS_PAID_UNVERIFIED) and in_window:
+        return          # هنوز در درگاه یا در مهلتِ تأیید؛ دورِ بعدِ reconcile
+    elif status == zibal.STATUS_PAID_UNVERIFIED:
+        # زیبال پولِ تأییدنشده را بعد از ۲۰ دقیقه به کارت برمی‌گرداند
+        _mark(payment, Payment.Status.FAILED, "پرداخت تأیید نشد؛ مبلغ به کارتِ شما برمی‌گردد", info)
+    elif status == zibal.STATUS_PENDING:
+        _mark(payment, Payment.Status.EXPIRED, "مهلتِ پرداخت تمام شد", info)
+    else:
+        _mark(payment, Payment.Status.FAILED,
+              zibal.status_message(status) if status is not None else "پرداخت انجام نشد", info)
+
+
+def _zibal_settle(payment: Payment) -> None:
+    """
+    تأییدِ پرداختِ زیبال (داخلِ تراکنش و با قفل). verify ۱۰۰ یعنی همین حالا تأیید شد؛ ۲۰۱ یعنی پیش‌تر تأیید شده
+    بود و پاسخش به ما نرسیده بود — آن‌وقت inquiry مبلغ و شماره‌ی مرجع را می‌دهد. verifyِ ردشده (پرداخت نشده،
+    لغو) هم با inquiry روشن می‌شود. خطای شبکه پرداخت را pending نگه می‌دارد تا reconcile دوباره بیاید.
+    """
+    payment.verify_attempts += 1
+    payment.save(update_fields=["verify_attempts", "updated_at"])
+    try:
+        data = zibal.verify(payment.token)
+    except zibal.ZibalError as exc:
+        if exc.transient:
+            return
+        info = _zibal_inquiry(payment)
+        if info is not None:
+            _zibal_apply(payment, info, allow_verify=False)
+        return
+    if data.get("result") == zibal.RESULT_ALREADY_VERIFIED or data.get("amount") is None:
+        info = _zibal_inquiry(payment)
+        if info is not None:
+            _zibal_apply(payment, info, allow_verify=False)
+        return
+    _zibal_paid(payment, data)
+
+
+def handle_zibal_callback(track_id: str, success: str) -> Payment | None:
+    """
+    بازگشتِ مرورگر از زیبال (?trackId=…&success=1|0). به `success` و `status`ِ مرورگر اعتماد نمی‌شود؛ فقط
+    مسیر را انتخاب می‌کند: «موفق» → verify، «ناموفق» → inquiry (لغوِ والد همان لحظه «ناموفق» می‌شود).
+    چندبار صدا زدنش بی‌خطر است.
+    """
+    if not track_id:
+        return None
+    with transaction.atomic():
+        payment = Payment.objects.select_for_update().filter(token=track_id, gateway=Payment.Gateway.ZIBAL).first()
+        if payment is None:
+            log.warning("zibal callback for unknown trackId")
+            return None
+        if payment.status != Payment.Status.PENDING:
+            return payment
+        if success == "1":
+            _zibal_settle(payment)
+        else:
+            info = _zibal_inquiry(payment)
+            if info is not None:
+                _zibal_apply(payment, info, allow_verify=True)
+    payment.refresh_from_db()
+    return payment
+
+
+def _zibal_reconcile(payment: Payment, age: timedelta) -> None:
+    info = _zibal_inquiry(payment)
+    if info is None:
+        return
+    if info.get("status") is None and age < timedelta(hours=2):
+        return          # شناسه را نشناخت؛ شاید زیبال هنوز ثبتش نکرده
+    _zibal_apply(payment, info, allow_verify=True)
 
 
 # ------------------------------------------------------------------ هدیه

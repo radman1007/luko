@@ -61,11 +61,21 @@ class Payment(TimeStampedModel):
 
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING,
                               db_index=True, verbose_name="وضعیت")
-    #: شماره‌ی فاکتورِ خودمان — به وندار هم فرستاده می‌شود
+    class Gateway(models.TextChoices):
+        VANDAR = "vandar", "وندار"
+        ZIBAL = "zibal", "زیبال"
+
+    #: درگاهی که این پرداخت با آن ساخته شد؛ بازگشت، تأیید و پیگیری با همان است
+    gateway = models.CharField(max_length=10, choices=Gateway.choices, default=Gateway.VANDAR,
+                               verbose_name="درگاه")
+    #: دامنه‌ای که والد پرداخت را از آن شروع کرد (my.luko.ir یا panel.luko.ir)؛ بعد از درگاه به همان برمی‌گردد،
+    #: چون نشستِ ورودش فقط همان‌جاست
+    return_host = models.CharField(max_length=64, blank=True, verbose_name="دامنه‌ی بازگشت")
+    #: شماره‌ی فاکتورِ خودمان — به درگاه هم فرستاده می‌شود (orderIdِ زیبال، factorNumberِ وندار)
     factor_number = models.CharField(max_length=24, unique=True, verbose_name="شماره‌ی فاکتور")
-    #: توکنِ وندار؛ شناسه‌ی همین پرداخت در بازگشت از درگاه
+    #: شناسه‌ی پرداخت در درگاه (توکنِ وندار یا trackIdِ زیبال)؛ بازگشت از درگاه با همین پیدا می‌شود
     token = models.CharField(max_length=128, unique=True, null=True, blank=True,
-                             verbose_name="توکنِ درگاه")
+                             verbose_name="شناسه‌ی درگاه")
     trans_id = models.CharField(max_length=40, blank=True, verbose_name="شماره‌ی تراکنش")
     card_number = models.CharField(max_length=32, blank=True, verbose_name="کارت (پوشیده)")
     message = models.CharField(max_length=255, blank=True, verbose_name="پیامِ درگاه")

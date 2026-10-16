@@ -20,7 +20,7 @@ export const billingApi = {
     return data.data;
   },
 
-  /** `refresh` پرداختِ در انتظار را همان لحظه با وندار پیگیری می‌کند (صفحه‌ی نتیجه) */
+  /** `refresh` پرداختِ در انتظار را همان لحظه با درگاه پیگیری می‌کند (صفحه‌ی نتیجه) */
   async payment(id: number, refresh = false): Promise<Payment> {
     const { data } = await apiClient.get(`/billing/payments/${id}`, {
       params: refresh ? { refresh: 1 } : undefined,

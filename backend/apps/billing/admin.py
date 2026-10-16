@@ -19,13 +19,13 @@ class PlanAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    """صورت‌حساب‌ها فقط خواندنی‌اند؛ وضعیت را فقط وندار عوض می‌کند (اقدامِ «پیگیری»)."""
+    """صورت‌حساب‌ها فقط خواندنی‌اند؛ وضعیت را فقط درگاه عوض می‌کند (اقدامِ «پیگیری»)."""
 
     list_display = ("factor_number", "child_name", "payer_phone", "plan_title", "amount_display",
-                    "status", "trans_id", "created", "ends")
-    list_filter = ("status", "plan")
+                    "status", "gateway", "trans_id", "created", "ends")
+    list_filter = ("status", "gateway", "plan")
     search_fields = ("factor_number", "trans_id", "payer_phone", "child_name", "token")
-    actions = ["reconcile_with_vandar"]
+    actions = ["reconcile_with_gateway"]
     created = jalali("created_at", "ثبت")
     ends = jalali("ends_at", "پایانِ اشتراک", with_time=False)
 
@@ -42,8 +42,8 @@ class PaymentAdmin(admin.ModelAdmin):
     def amount_display(self, obj):
         return fa_digits(f"{obj.amount_toman:,}")
 
-    @admin.action(description="پیگیری با وندار (پرداخت‌های در انتظار)")
-    def reconcile_with_vandar(self, request, queryset):
+    @admin.action(description="پیگیری با درگاه (پرداخت‌های در انتظار)")
+    def reconcile_with_gateway(self, request, queryset):
         done = 0
         for payment in queryset.filter(status=Payment.Status.PENDING):
             reconcile(payment.id)

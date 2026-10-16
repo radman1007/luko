@@ -1,7 +1,7 @@
 """
 APIهای اشتراک — فقط والد، و فقط برای فرزندانِ خودش. بازگشت از درگاه تنها
-مسیرِ بی‌احراز است (مرورگر از وندار برمی‌گردد و توکنِ JWT همراهش نیست)؛ آن‌جا
-هم هیچ چیز به گفته‌ی مرورگر اعتماد نمی‌شود — وضعیت را خودِ وندار تأیید می‌کند.
+مسیرِ بی‌احراز است (مرورگر از درگاه برمی‌گردد و توکنِ JWT همراهش نیست)؛ آن‌جا
+هم هیچ چیز به گفته‌ی مرورگر اعتماد نمی‌شود — وضعیت را خودِ درگاه (زیبال یا وندار) تأیید می‌کند.
 """
 from __future__ import annotations
 
@@ -16,14 +16,15 @@ from rest_framework.views import APIView
 from apps.common.fa import fa_date, fa_time
 from apps.parent.views import IsParent
 
-from . import vandar
 from .models import Payment, Plan
 from .services import (
     CheckoutError,
     child_name,
     handle_callback,
+    handle_zibal_callback,
     is_linked,
     linked_children,
+    pay_url,
     reconcile,
     renewal_plan,
     start_checkout,
@@ -155,7 +156,7 @@ class PaymentsView(APIView):
 
 
 class PaymentDetailView(APIView):
-    """یک پرداخت (صفحه‌ی نتیجه). ?refresh=1 پرداختِ pending را با وندار پیگیری می‌کند."""
+    """یک پرداخت (صفحه‌ی نتیجه). ?refresh=1 پرداختِ pending را با درگاه پیگیری می‌کند."""
 
     permission_classes = [IsParent]
 
@@ -169,7 +170,7 @@ class PaymentDetailView(APIView):
 
 
 class CheckoutView(APIView):
-    """POST {childId, plan} → {paymentId, payUrl}؛ مرورگر به payUrl (درگاهِ وندار) می‌رود."""
+    """POST {childId, plan} → {paymentId, payUrl}؛ مرورگر به payUrl (درگاهِ زیبال یا وندار) می‌رود."""
 
     permission_classes = [IsParent]
 
@@ -181,14 +182,15 @@ class CheckoutView(APIView):
         if plan is None:
             return _error("پلنِ انتخاب‌شده پیدا نشد.", status.HTTP_400_BAD_REQUEST)
         try:
-            payment = start_checkout(request.user, child, plan)
+            payment = start_checkout(request.user, child, plan, host=request.get_host())
         except CheckoutError as exc:
             return _error(exc.message, exc.status)
         return Response({
             "payment_id": payment.id,
             "factor_number": payment.factor_number,
             "amount_toman": payment.amount_toman,
-            "pay_url": vandar.pay_url(payment.token),
+            "gateway": payment.gateway,
+            "pay_url": pay_url(payment),
         }, status=status.HTTP_201_CREATED)
 
 
@@ -202,6 +204,63 @@ class CallbackView(APIView):
         params = request.query_params if request.method == "GET" else request.data
         token = str(params.get("token") or "").strip()[:128]
         payment = handle_callback(token, str(params.get("payment_status") or "").upper())
+        return HttpResponseRedirect(_result_url(payment))
+
+    def get(self, request):
+        return self._handle(request)
+
+    def post(self, request):
+        return self._handle(request)
+
+
+GO_PAGE = """<!doctype html>
+<html lang="fa" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="origin"><meta name="robots" content="noindex">
+<title>انتقال به درگاهِ پرداخت</title>
+<style>body{{margin:0;min-height:100vh;display:grid;place-items:center;background:#f5f3ef;color:#1d2128;
+font-family:Vazirmatn,Tahoma,sans-serif;text-align:center}}main{{padding:24px}}p{{margin:0 0 14px;font-size:15px}}
+a{{display:inline-block;padding:11px 20px;border-radius:14px;background:#215e61;color:#fff;text-decoration:none;
+font-weight:700}}</style></head>
+<body><main><p>در حالِ انتقال به درگاهِ امنِ زیبال…</p>
+<a id="go" href="{url}" referrerpolicy="origin" rel="external">رفتن به درگاه</a></main>
+<script>document.getElementById("go").click();</script></body></html>"""
+
+
+class ZibalGoView(APIView):
+    """
+    صفحه‌ی گذر روی دامنه‌ی ثبت‌شده‌ی درگاه (panel.luko.ir): زیبال صفحه‌ی پرداخت را فقط با Refererِ همین دامنه
+    باز می‌کند. فقط برای پرداختِ زیبالِ در انتظار؛ هر چیزِ دیگر به صفحه‌ی نتیجه برمی‌گردد (بازکنِ آزادِ
+    نشانی‌ها نیست).
+    """
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self, request, track_id: str):
+        from django.http import HttpResponse
+
+        from . import zibal
+
+        payment = Payment.objects.filter(token=track_id, gateway=Payment.Gateway.ZIBAL).first() \
+            if track_id.isdigit() else None
+        if payment is None or payment.status != Payment.Status.PENDING:
+            return HttpResponseRedirect(_result_url(payment))
+        response = HttpResponse(GO_PAGE.format(url=zibal.pay_url(payment.token)), content_type="text/html; charset=utf-8")
+        response["Cache-Control"] = "no-store"
+        return response
+
+
+class ZibalCallbackView(APIView):
+    """بازگشتِ مرورگر از زیبال (GET ?trackId=…&success=1|0&status=…&orderId=…) → صفحه‌ی نتیجه."""
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def _handle(self, request):
+        params = request.query_params if request.method == "GET" else request.data
+        track_id = str(params.get("trackId") or "").strip()[:32]
+        payment = handle_zibal_callback(track_id if track_id.isdigit() else "", str(params.get("success") or ""))
         return HttpResponseRedirect(_result_url(payment))
 
     def get(self, request):

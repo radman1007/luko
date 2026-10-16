@@ -9,4 +9,6 @@ urlpatterns = [
     path("payments/<int:pk>", views.PaymentDetailView.as_view(), name="billing-payment"),
     path("checkout", views.CheckoutView.as_view(), name="billing-checkout"),
     path("callback", views.CallbackView.as_view(), name="billing-callback"),
+    path("callback/zibal", views.ZibalCallbackView.as_view(), name="billing-callback-zibal"),
+    path("zibal/go/<str:track_id>", views.ZibalGoView.as_view(), name="billing-zibal-go"),
 ]

@@ -16,7 +16,7 @@ import { apiMessage, faNumber, toman } from '@/features/billing/format';
 import type { ChildSubscription, Payment, Plan } from '@/features/billing/types';
 import { useCheckout, usePayments, usePlans } from '@/features/billing/useBilling';
 import { Sheet } from '../shell/Sheet';
-import { EnamadSeal } from './EnamadSeal';
+import { TrustSeals } from './TrustSeals';
 import { childName, useSettingsEnv } from './SettingsContext';
 import form from './form.module.css';
 import styles from './BillingPage.module.css';
@@ -190,8 +190,8 @@ export function BillingPage() {
       </section>
 
       <div className={styles.trust}>
-        <p><HiOutlineShieldCheck aria-hidden /> پرداختِ امن با درگاهِ وندار (شاپرک). اطلاعاتِ کارت به لوکو نمی‌رسد.</p>
-        <EnamadSeal />
+        <p><HiOutlineShieldCheck aria-hidden /> پرداختِ امن با درگاهِ زیبال؛ پس از پرداخت به همین پنل برمی‌گردید.</p>
+        <TrustSeals />
       </div>
 
       <Sheet open={Boolean(target)} title="تأیید و پرداخت" onClose={() => setConfirm(null)}>
@@ -208,7 +208,7 @@ export function BillingPage() {
               onClick={() => checkout.mutate({ childId: child.id, plan: target.code })}>
               {checkout.isPending || checkout.isSuccess ? 'در حالِ انتقال به درگاه…' : `پرداختِ ${toman(target.priceToman)}`}
             </button>
-            <small>به درگاهِ امنِ وندار می‌روید و بعد از پرداخت به همین پنل برمی‌گردید.</small>
+            <small>به درگاهِ امنِ زیبال می‌روید و بعد از پرداخت به همین پنل برمی‌گردید.</small>
           </div>
         )}
       </Sheet>

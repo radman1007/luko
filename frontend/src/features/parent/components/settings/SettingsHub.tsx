@@ -16,7 +16,7 @@ import { authApi } from '@/features/auth/api';
 import { useAuth } from '@/features/auth/context';
 import { useTicketList } from '../../useSettings';
 import { Sheet } from '../shell/Sheet';
-import { EnamadSeal } from './EnamadSeal';
+import { TrustSeals } from './TrustSeals';
 import { childName, useSettingsEnv } from './SettingsContext';
 import type { SettingsSection } from './SettingsContext';
 import { fa } from '../health/moods';
@@ -61,7 +61,7 @@ export function SettingsHub() {
       key: 'support', icon: HiOutlineChatBubbleLeftRight, tone: 'violet', title: 'پشتیبانی و تیکت‌ها',
       note: unreadTickets
         ? `${fa(unreadTickets)} پاسخِ تازه از پشتیبانی`
-        : openTickets ? `${fa(openTickets)} تیکتِ در جریان` : 'سؤال‌های پرتکرار، تیکت و گفتگوی آنلاین',
+        : openTickets ? `${fa(openTickets)} تیکتِ در جریان` : 'سؤال‌های پرتکرار و تیکت',
       badge: unreadTickets ? fa(unreadTickets) : undefined,
     },
     {
@@ -148,7 +148,7 @@ export function SettingsHub() {
       </nav>
 
       <div className={styles.trust} data-area="trust">
-        <EnamadSeal />
+        <TrustSeals />
         <button type="button" className={styles.logout} onClick={env.onLogout}>
           <HiOutlineArrowRightOnRectangle aria-hidden /> خروج از حساب
         </button>

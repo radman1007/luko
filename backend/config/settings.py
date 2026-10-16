@@ -245,8 +245,18 @@ if "test" in sys.argv or os.environ.get("PYTEST_CURRENT_TEST"):
 VANDAR_API_KEY = env("VANDAR_API_KEY", "")
 VANDAR_BASE_URL = env("VANDAR_BASE_URL", "https://ipg.vandar.io")
 VANDAR_TIMEOUT = float(env("VANDAR_TIMEOUT", "15"))
+# درگاهِ زیبال. کدِ پذیرنده فقط در .env سرور است («zibal» = حسابِ آزمایشیِ خودِ زیبال).
+ZIBAL_MERCHANT = env("ZIBAL_MERCHANT", "")
+ZIBAL_BASE_URL = env("ZIBAL_BASE_URL", "https://gateway.zibal.ir")
+ZIBAL_TIMEOUT = float(env("ZIBAL_TIMEOUT", "15"))
+#: درگاهِ پرداخت‌های تازه: zibal | vandar. پیش‌فرض زیبال وقتی کدِ پذیرنده‌اش هست (وندار IPِ سرور را
+#: هرگز مجاز نکرد؛ همه‌ی پرداخت‌های وندار تا ۲۴ مهر ۱۴۰۵ با «آی‌پی مجاز نیست» رد شدند)
+PAYMENT_GATEWAY = env("PAYMENT_GATEWAY", "zibal" if ZIBAL_MERCHANT else "vandar").strip().lower()
 #: نشانیِ عمومیِ سایت: بازگشت از درگاه و صفحه‌ی نتیجه روی همین است
 SITE_URL = env("SITE_URL", f"https://{env('LUKO_DOMAIN', 'my.luko.ir')}")
+#: دامنه‌ای که درگاهِ زیبال برایش ثبت شده (کدِ پذیرنده‌ی لوکو: panel.luko.ir). callbackUrl باید روی همین باشد
+#: و زیبال صفحه‌ی پرداخت را فقط با Refererِ همین دامنه باز می‌کند؛ برای همین پرداخت از این دامنه شروع می‌شود
+ZIBAL_SITE_URL = env("ZIBAL_SITE_URL", "") or SITE_URL
 #: سایتِ لندینگ که وبلاگ را از API عمومی می‌خواند (فقط همین‌ها CORS می‌گیرند)
 BLOG_CORS_ORIGINS = env_list("BLOG_CORS_ORIGINS", "https://luko.ir,https://www.luko.ir")
 
