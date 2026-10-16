@@ -4,7 +4,7 @@ from django.db.models import Sum
 from apps.common.admin_helpers import jalali
 from apps.common.fa import fa_digits
 
-from .models import AIInsight, AIUsage, AssistantMessage
+from .models import AIInsight, AIUsage, AssistantConversation, AssistantMessage, PaintingAnalysis
 
 
 @admin.register(AIUsage)
@@ -64,7 +64,7 @@ class AIInsightAdmin(admin.ModelAdmin):
 class AssistantMessageAdmin(admin.ModelAdmin):
     list_display = ("parent", "child", "role", "tier", "status", "short", "sent")
     list_filter = ("role", "tier", "status")
-    raw_id_fields = ("parent", "child")
+    raw_id_fields = ("parent", "child", "conversation")
     search_fields = ("content", "parent__phone")
 
     sent = jalali("created_at", "زمان")
@@ -72,6 +72,31 @@ class AssistantMessageAdmin(admin.ModelAdmin):
     @admin.display(description="متن")
     def short(self, obj):
         return obj.content[:80]
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(AssistantConversation)
+class AssistantConversationAdmin(admin.ModelAdmin):
+    list_display = ("title", "parent", "child", "updated")
+    raw_id_fields = ("parent", "child")
+    search_fields = ("title", "parent__phone")
+
+    updated = jalali("updated_at", "آخرین پیام")
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(PaintingAnalysis)
+class PaintingAnalysisAdmin(admin.ModelAdmin):
+    list_display = ("painting", "parent", "status", "tier", "updated")
+    list_filter = ("status",)
+    raw_id_fields = ("painting", "parent")
+    readonly_fields = ("tier", "model", "error")
+
+    updated = jalali("updated_at", "زمان")
 
     def has_add_permission(self, request):
         return False

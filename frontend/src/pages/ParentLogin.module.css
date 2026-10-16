@@ -21,6 +21,22 @@
   background: #fbfaf8;
   font-family: 'Vazirmatn Variable', 'Vazirmatn', system-ui, -apple-system, sans-serif;
   color: var(--pl-ink);
+  /* انتخاب و کشیدنِ متن و تصویر بسته؛ کادرهای نوشتن باز (راست‌کلیک: features/parent/noCopy.ts) */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.page input { user-select: text; -webkit-user-select: text; }
+.page img { -webkit-user-drag: none; }
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* ---------- ستونِ فرم ---------- */
@@ -40,19 +56,6 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-}
-
-.brand b { font-size: 20px; font-weight: 900; color: var(--pl-teal-ink); }
-
-.logo {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 11px;
-  background: linear-gradient(140deg, var(--pl-teal), var(--pl-teal-ink));
-  color: #fff;
-  box-shadow: 0 6px 14px rgb(33 94 97 / 22%);
 }
 
 .formBox {
@@ -109,7 +112,7 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.phoneGroup:focus-within, .inputWrap:focus-within, .codeInput:focus {
+.phoneGroup:focus-within, .inputWrap:focus-within {
   border-color: var(--pl-teal);
   box-shadow: 0 0 0 4px rgb(33 94 97 / 12%);
 }
@@ -165,22 +168,68 @@
   color: var(--pl-ink);
 }
 
-.codeInput {
-  height: 60px;
+/* کد: هر رقم یک خانه، چپ‌به‌راست. ورودیِ شفاف روی همه‌ی خانه‌هاست */
+.otp {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.otpCell {
+  display: grid;
+  place-items: center;
+  flex: 1 1 0;
+  max-width: 60px;
+  height: 62px;
   border-radius: 16px;
   background: #fff;
   border: 1.5px solid var(--pl-line);
-  font: inherit;
   font-size: 26px;
   font-weight: 800;
-  letter-spacing: 0.5em;
-  text-align: center;
   color: var(--pl-ink);
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
 
-.codeInput::placeholder { color: #cfcac2; letter-spacing: 0.45em; }
+.otpCell[data-filled] { border-color: rgb(33 94 97 / 45%); background: var(--pl-soft); color: var(--pl-teal-ink); }
+.otpCell[data-active] { border-color: var(--pl-teal); box-shadow: 0 0 0 4px rgb(33 94 97 / 12%); }
+
+/* نشانگرِ چشمک‌زن در خانه‌ی خالیِ بعدی */
+.otpCell[data-active]:empty::after {
+  content: '';
+  width: 2px;
+  height: 26px;
+  border-radius: 2px;
+  background: var(--pl-teal);
+  animation: caret 1s steps(1) infinite;
+}
+
+.otp[data-error] .otpCell { border-color: #f0a8bb; }
+
+.otpInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 16px;
+  color: transparent;
+  caret-color: transparent;
+  outline: none;
+  cursor: text;
+}
+
+.otpInput::selection { background: transparent; }
+
+@keyframes caret {
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .otpCell[data-active]:empty::after { animation: none; }
+}
 
 .primary {
   display: flex;
@@ -288,7 +337,10 @@
     flex-direction: column;
     height: 100dvh;
     padding: 30px 56px 24px;
-    overflow: hidden;
+    /* روی لپ‌تاپِ کوتاه (۱۳۶۶×۷۶۸) پایینِ ستون بریده می‌شد؛ حالا با ارتفاع جمع می‌شود (پایین‌تر) و اگر باز
+       جا نشد، اسکرول می‌خورد نه این‌که پنهان شود */
+    overflow-y: auto;
+    scrollbar-width: none;
     color: #fff;
     background:
       radial-gradient(600px 380px at 85% 8%, rgb(255 204 0 / 12%), transparent 70%),
@@ -296,8 +348,18 @@
       linear-gradient(160deg, var(--pl-teal-deep) 0%, var(--pl-teal-ink) 48%, var(--pl-teal) 100%);
   }
 
+  .showcase::-webkit-scrollbar { display: none; }
   .showHead { display: flex; align-items: center; justify-content: space-between; }
-  .showBrand { display: inline-flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 900; }
+
+  /* لوگوی نارنجی‌آبی روی زمینه‌ی تیره در یک قابِ روشن تا آبی‌اش گم نشود */
+  .showBrand {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 12px;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 8px 20px rgb(0 0 0 / 18%);
+  }
 
   .chip {
     padding: 4px 12px;
@@ -394,6 +456,31 @@
   .promises li > span svg { width: 18px; height: 18px; }
 
   .copy { margin: 0; font-size: 11px; color: rgb(255 255 255 / 40%); }
+}
+
+/* لپ‌تاپِ کوتاه: فاصله‌ها و نمودار جمع‌تر، توضیحِ قول‌ها یک خط */
+@media (min-width: 1024px) and (max-height: 860px) {
+  .showcase { padding-block: 22px 18px; }
+  .showBody { gap: 14px; padding: 14px 0; }
+  .showBody h2 { font-size: clamp(26px, 2.5vw, 32px); line-height: 1.5; }
+  .showBody > p { line-height: 1.9; }
+  .preview { gap: 10px; padding: 14px; }
+  .stats div { padding: 8px 10px; }
+  .bars { height: 72px; }
+  .promises { gap: 10px; }
+  .promises small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+/* خیلی کوتاه (۷۲۰ و کمتر): قول‌ها فقط عنوان، نمودار کوچک‌تر */
+@media (min-width: 1024px) and (max-height: 720px) {
+  .showBody h2 { font-size: 24px; }
+  .showBody > p { font-size: 12.5px; }
+  .bars { height: 52px; }
+  .stats b { font-size: 15px; }
+  .promises { flex-direction: row; flex-wrap: wrap; gap: 8px 16px; }
+  .promises small { display: none; }
+  .promises li { align-items: center; gap: 8px; }
+  .promises li > span { width: 28px; height: 28px; }
 }
 
 @media (min-width: 1440px) {

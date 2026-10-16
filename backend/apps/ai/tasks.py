@@ -26,6 +26,13 @@ def answer_question(reply_id: int) -> bool:
 
 
 @shared_task(ignore_result=True)
+def analyze_painting(analysis_id: int) -> bool:
+    from .paintings import analyze
+
+    return analyze(analysis_id) is not None
+
+
+@shared_task(ignore_result=True)
 def refresh_recent() -> int:
     """
     هر سحر: تحلیلِ بچه‌هایی که دیروز بازی کرده‌اند و والدشان در دو هفته‌ی اخیر سر زده، تا صبح که والد

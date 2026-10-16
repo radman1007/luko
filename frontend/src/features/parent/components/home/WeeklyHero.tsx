@@ -1,4 +1,6 @@
-import { HiOutlineArrowLeft, HiOutlineClock, HiOutlineCalendarDays, HiOutlinePuzzlePiece } from 'react-icons/hi2';
+import {
+  HiOutlineArrowLeft, HiOutlineCalendarDays, HiOutlineClock, HiOutlineLockClosed, HiOutlinePuzzlePiece,
+} from 'react-icons/hi2';
 import { LUKORIANS } from '@/lib/characters';
 import type { AiStatus, WeeklyReport } from '../../types';
 import { AiBadge } from '../ai/AiBadge';
@@ -8,6 +10,8 @@ interface Props {
   weekly: WeeklyReport;
   childName: string;
   ai?: AiStatus;
+  /** نسخه‌ی رایگان: «جزئیاتِ بیشتر» قفل است و به اشتراک می‌برد */
+  locked?: boolean;
   onDetails: () => void;
   onDaily: () => void;
 }
@@ -18,7 +22,7 @@ const HIGHLIGHT_ICON = { games: HiOutlinePuzzlePiece, minutes: HiOutlineClock, d
  * کادرِ بالای خانه: گزارشِ هفتگیِ خودکار از زبانِ «لوکی». هفته‌ی فعال فقط نقطه‌های قوت را
  * می‌گوید و به «جزئیاتِ بیشتر» می‌برد؛ هفته‌ی بی‌فعالیت دعوت می‌کند بازیِ امروز را انتخاب کنند.
  */
-export function WeeklyHero({ weekly, childName, ai, onDetails, onDaily }: Props) {
+export function WeeklyHero({ weekly, childName, ai, locked = false, onDetails, onDaily }: Props) {
   const quiet = !weekly.active;
   return (
     <section className={styles.hero} data-quiet={quiet || undefined} aria-labelledby="weekly-title">
@@ -65,12 +69,16 @@ export function WeeklyHero({ weekly, childName, ai, onDetails, onDaily }: Props)
                 انتخابِ بازیِ امروز
                 <HiOutlineArrowLeft aria-hidden />
               </button>
-              <button type="button" className={styles.secondary} onClick={onDetails}>گزارشِ کامل</button>
+              <button type="button" className={styles.secondary} onClick={onDetails}>
+                {locked && <HiOutlineLockClosed aria-hidden />} گزارشِ کامل
+              </button>
             </>
           ) : (
-            <button type="button" className={styles.primary} onClick={onDetails}>
+            <button type="button" className={styles.primary} onClick={onDetails}
+              aria-label={locked ? 'جزئیاتِ بیشتر — با اشتراک' : undefined}>
+              {locked && <HiOutlineLockClosed aria-hidden />}
               جزئیاتِ بیشتر
-              <HiOutlineArrowLeft aria-hidden />
+              {locked ? <small className={styles.lockTag}>ویژه‌ی اشتراک</small> : <HiOutlineArrowLeft aria-hidden />}
             </button>
           )}
         </div>

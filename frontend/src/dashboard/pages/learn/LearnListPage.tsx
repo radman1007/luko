@@ -37,7 +37,7 @@ export function LearnListPage() {
   return (
     <>
       <PageHeader title="آموزشِ والدین"
-        description="مقاله، ویدیو و پادکستِ صفحه‌ی «آموزش» در پنلِ والدین. «ویژه» برای والدِ بی‌اشتراک فقط پیش‌نمایش دارد."
+        description="مقاله، ویدیو و پادکستِ صفحه‌ی «آموزش» در پنلِ والدین. سه موردِ اولِ هر نوع (به «ترتیب») رایگان است و بقیه ویژه‌ی مشترکان."
         actions={<Button variant="primary" icon={<HiOutlinePlus aria-hidden />} onClick={() => navigate('/learn/new')}>محتوای تازه</Button>} />
       <div className={styles.tableCard}>
         <FilterBar onReset={reset} active={active}>

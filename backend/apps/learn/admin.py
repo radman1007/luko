@@ -9,8 +9,10 @@ from .models import LearnItem, LearnProgress
 class LearnItemAdmin(admin.ModelAdmin):
     """همان که داشبورد ← «آموزشِ والدین» می‌سازد"""
 
-    list_display = ("title", "kind", "topic", "premium", "featured", "status", "views", "published")
-    list_filter = ("kind", "topic", "premium", "featured", "status")
+    # «ویژه» با جایگاه است (سه موردِ اولِ هر نوع رایگان؛ apps.learn.services.free_ids)، نه با این فیلدِ قدیمی
+    list_display = ("title", "kind", "topic", "featured", "status", "sort", "views", "published")
+    list_filter = ("kind", "topic", "featured", "status")
+    exclude = ("premium",)
     list_editable = ("featured", "status")
     search_fields = ("title", "summary", "body")
     readonly_fields = ("views",)

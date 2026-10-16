@@ -25,8 +25,8 @@ export function AiBadge({ ai, written = false, onDark = false }: Props) {
     );
   }
   if (ai.status !== 'ready' || !written) return null;
-  const detail = `نوشته‌شده با مدلِ ${ai.tierLabel ?? ''} (${ai.modelName ?? ''}) از روی عددهای واقعیِ همین گزارش${
-    ai.generatedFa ? ` · ${ai.generatedFa}` : ''}`;
+  const detail = `نوشته‌شده با «${ai.tierLabel ?? 'لوکو'}» از روی عددهای واقعیِ همین گزارش${
+    ai.generatedFa ? `، ${ai.generatedFa}` : ''}`;
   return (
     <span className={styles.badge} data-tier={ai.tier} data-dark={onDark || undefined} title={detail}>
       <HiOutlineSparkles aria-hidden />

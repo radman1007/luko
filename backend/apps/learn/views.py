@@ -13,7 +13,7 @@ from apps.parent.models import ParentChild
 from apps.parent.permissions import IsParent
 
 from .models import LearnItem, LearnProgress, Topic
-from .services import detail, live_items, newest_ids, parent_premium, picks_for, summary
+from .services import detail, free_ids, live_items, newest_ids, parent_premium, picks_for, summary
 
 RELATED = 3
 
@@ -30,7 +30,8 @@ class LearnListView(APIView):
         items = list(live_items())
         progress = {p.item_id: p for p in LearnProgress.objects.filter(parent=request.user)}
         new_ids = newest_ids(items)
-        rows = [summary(i, premium=premium, progress=progress.get(i.id), new_ids=new_ids) for i in items]
+        free = free_ids(items)
+        rows = [summary(i, premium=premium, free=free, progress=progress.get(i.id), new_ids=new_ids) for i in items]
         by_id = {row["id"]: row for row in rows}
         featured = next((row for row in rows if row["featured"]), rows[0] if rows else None)
 
@@ -77,8 +78,10 @@ class LearnDetailView(APIView):
             others += list(live_items().exclude(pk__in=[item.pk, *[o.pk for o in others]])[:RELATED - len(others)])
         mine = {p.item_id: p for p in LearnProgress.objects.filter(parent=request.user, item__in=others)}
         new_ids = newest_ids(live_items().only("id", "published_at"))
-        related = [summary(o, premium=premium, progress=mine.get(o.id), new_ids=new_ids) for o in others]
-        return Response(detail(item, premium=premium, progress=progress, related=related, new_ids=new_ids))
+        free = free_ids()
+        related = [summary(o, premium=premium, free=free, progress=mine.get(o.id), new_ids=new_ids) for o in others]
+        return Response(detail(item, premium=premium, free=free, progress=progress, related=related,
+                               new_ids=new_ids))
 
 
 class LearnProgressView(APIView):

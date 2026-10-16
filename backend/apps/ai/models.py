@@ -7,15 +7,16 @@ from django.db import models
 
 from apps.common.models import TimeStampedModel
 
-TIER_CHOICES = [("flash", "پایه"), ("pro", "حرفه‌ای"), ("luna", "پیشرفته")]
+TIER_CHOICES = [("flash", "لوکو سریع"), ("luna", "لوکو همراه"), ("pro", "لوکو بینش")]
 
 
 class AIUsage(models.Model):
-    """یک درخواست به مدل — برای دیدنِ مصرفِ توکن و شمردنِ سهمیه‌ی روزانه"""
+    """یک درخواست به مدل — برای دیدنِ مصرفِ توکن و هزینه"""
 
     class Feature(models.TextChoices):
         INSIGHT = "insight", "تحلیلِ گزارش"
         ASSISTANT = "assistant", "دستیارِ والدین"
+        PAINTING = "painting", "تحلیلِ نقاشی"
 
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="زمان")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
@@ -71,6 +72,54 @@ class AIInsight(TimeStampedModel):
         return f"{self.child} · {self.get_variant_display()}"
 
 
+class AssistantConversation(TimeStampedModel):
+    """
+    یک گفت‌وگوی والد با دستیار درباره‌ی یک فرزند. «گفت‌وگوی تازه» یکی دیگر می‌سازد؛ فهرستِ گفت‌وگوهای قبلی
+    (تاریخچه) فقط با اشتراکِ همان فرزند دیده می‌شود. `updated_at` با هر پیام جلو می‌رود.
+    """
+
+    parent = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                               related_name="assistant_conversations", verbose_name="والد")
+    child = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+",
+                              verbose_name="فرزند")
+    title = models.CharField(max_length=120, blank=True, verbose_name="عنوان")
+
+    class Meta:
+        verbose_name = "گفت‌وگوی دستیار"
+        verbose_name_plural = "گفت‌وگوهای دستیار"
+        ordering = ["-updated_at", "-id"]
+        indexes = [models.Index(fields=["parent", "child", "-updated_at"])]
+
+    def __str__(self):
+        return self.title or f"گفت‌وگوی {self.pk}"
+
+
+class PaintingAnalysis(TimeStampedModel):
+    """برداشتِ دستیار از یک نقاشیِ بچه، به درخواستِ والد (یک‌بار برای هر نقاشی؛ بعد همان نشان داده می‌شود)"""
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "در حالِ تحلیل"
+        DONE = "done", "آماده"
+        FAILED = "failed", "ناموفق"
+
+    painting = models.OneToOneField("health.Painting", on_delete=models.CASCADE, related_name="analysis",
+                                    verbose_name="نقاشی")
+    parent = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+                               related_name="+", verbose_name="درخواستِ والد")
+    status = models.CharField(max_length=8, choices=Status.choices, default=Status.PENDING, verbose_name="وضعیت")
+    tier = models.CharField(max_length=8, choices=TIER_CHOICES, verbose_name="سطح")
+    model = models.CharField(max_length=60, blank=True, verbose_name="مدل")
+    content = models.TextField(blank=True, verbose_name="متن")
+    error = models.CharField(max_length=200, blank=True, verbose_name="خطا")
+
+    class Meta:
+        verbose_name = "تحلیلِ نقاشی"
+        verbose_name_plural = "تحلیل‌های نقاشی"
+
+    def __str__(self):
+        return f"تحلیلِ نقاشیِ {self.painting_id}"
+
+
 class AssistantMessage(TimeStampedModel):
     """یک پیام در گفت‌وگوی والد با دستیار درباره‌ی یک فرزند"""
 
@@ -87,6 +136,8 @@ class AssistantMessage(TimeStampedModel):
                                related_name="assistant_messages", verbose_name="والد")
     child = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+",
                               verbose_name="فرزند")
+    conversation = models.ForeignKey(AssistantConversation, on_delete=models.CASCADE, null=True, blank=True,
+                                     related_name="messages", verbose_name="گفت‌وگو")
     role = models.CharField(max_length=10, choices=Role.choices, verbose_name="گوینده")
     content = models.TextField(blank=True, verbose_name="متن")
     tier = models.CharField(max_length=8, choices=TIER_CHOICES, blank=True, verbose_name="سطح")

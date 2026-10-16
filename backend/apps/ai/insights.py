@@ -6,7 +6,7 @@
 مدل جای متن‌های قاعده‌محور می‌نشینند؛ وگرنه همان قاعده‌ها نشان داده می‌شوند و تحلیلِ تازه در صف می‌رود.
 
 مدل: پلنِ رایگان همیشه «پایه» (DeepSeek-V4-Flash)؛ فرزندِ مشترک AI_INSIGHT_TIER_PREMIUM (پیش‌فرض
-«پیشرفته»، GPT-5.6-Luna) و اگر نشد «پایه». عددها و نمره‌ها همیشه از قاعده‌ها می‌آیند؛ مدل فقط روایت می‌کند.
+«لوکو همراه»، GPT-5.6-Luna) و اگر نشد «لوکو سریع». عددها و نمره‌ها همیشه از قاعده‌ها می‌آیند؛ مدل فقط روایت می‌کند.
 """
 from __future__ import annotations
 
@@ -189,7 +189,6 @@ def merge(report: dict, insight: AIInsight, *, name: str, premium: bool) -> dict
         "status": "ready",
         "tier": insight.tier,
         "tierLabel": meta["label"],
-        "modelName": meta["name"],
         "generatedFa": fa_when(timezone.localtime(insight.updated_at), timezone.localdate()),
     }
     return out

@@ -62,17 +62,17 @@ export function AudioPlayer({ src, start = 0, onProgress, onEnded }: PlayerProps
         onPause={(e) => { setPlaying(false); report(e.currentTarget.currentTime, true); }}
         onEnded={() => { setPlaying(false); onEnded?.(); }}
         onError={() => setFailed(true)} />
-      <div className={styles.controls}>
-        {/* راست‌به‌چپ: نوارِ زمان از راست پیش می‌رود، پس «عقب» راست و «جلو» چپ است */}
+      {/* چپ‌به‌راست مثلِ همه‌ی پخش‌کننده‌ها (به خواستِ کاربر): نوارِ زمان از چپ پیش می‌رود، «عقب» چپ و «جلو» راست */}
+      <div className={styles.controls} dir="ltr">
         <button type="button" className={styles.skip} onClick={() => jump(-15)} aria-label="۱۵ ثانیه عقب">۱۵−</button>
         <button type="button" className={styles.play} onClick={toggle} aria-label={playing ? 'توقف' : 'پخش'}>
           {playing ? <HiMiniPause aria-hidden /> : <HiMiniPlay aria-hidden />}
         </button>
         <button type="button" className={styles.skip} onClick={() => jump(15)} aria-label="۱۵ ثانیه جلو">۱۵+</button>
       </div>
-      <input type="range" className={styles.seek} min={0} max={duration || 0} step={1} value={Math.min(time, duration || 0)}
+      <input type="range" dir="ltr" className={styles.seek} min={0} max={duration || 0} step={1} value={Math.min(time, duration || 0)}
         aria-label="جای پخش" onChange={(e) => { if (ref.current) ref.current.currentTime = Number(e.target.value); }} />
-      <div className={styles.meta}>
+      <div className={styles.meta} dir="ltr">
         <span>{clock(time)}</span>
         <button type="button" className={styles.speed} aria-label="سرعتِ پخش"
           onClick={() => setSpeed(SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length])}>
@@ -100,7 +100,8 @@ export function VideoPlayer({ src, embed, poster, title, start = 0, onProgress, 
     );
   }
   return (
-    <div className={styles.video}>
+    // کنترل‌های خودِ مرورگر در صفحه‌ی راست‌به‌چپ برعکس می‌شوند (نوارِ زمان از راست)؛ dir=ltr درستش می‌کند
+    <div className={styles.video} dir="ltr">
       <video src={src} poster={poster || undefined} controls playsInline preload="metadata"
         onLoadedMetadata={(e) => {
           if (start > 5 && start < (e.currentTarget.duration || 0) - 5) e.currentTarget.currentTime = start;

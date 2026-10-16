@@ -8,7 +8,7 @@ from apps.blog.markdown import render
 from apps.blog.models import BlogImage
 from apps.blog.validators import validate_image
 from apps.learn.models import LearnItem
-from apps.learn.services import media, minutes
+from apps.learn.services import FREE_PER_KIND, free_ids, media, minutes
 
 from .. import audit
 from ..payloads import fa_stamp
@@ -16,9 +16,10 @@ from ..security import DashboardView, error, paginate
 from ..segments import normalized_query
 from .podcasts import form_errors
 
-FIELDS = ("kind", "title", "summary", "topic", "body", "media_url", "duration_minutes", "author", "premium",
+# «ویژه» دیگر تیکِ دستی نیست: سه موردِ اولِ هر نوع رایگان است (apps.learn.services.free_ids)
+FIELDS = ("kind", "title", "summary", "topic", "body", "media_url", "duration_minutes", "author",
           "featured", "status", "sort")
-BOOLEANS = ("premium", "featured")
+BOOLEANS = ("featured",)
 
 
 class LearnItemForm(forms.ModelForm):
@@ -33,7 +34,7 @@ class LearnItemForm(forms.ModelForm):
         return title
 
 
-def row(item: LearnItem) -> dict:
+def row(item: LearnItem, free: set[int]) -> dict:
     return {
         "id": item.id,
         "kind": item.kind,
@@ -44,7 +45,7 @@ def row(item: LearnItem) -> dict:
         "topic_label": item.get_topic_display(),
         "status": item.status,
         "is_live": item.is_live,
-        "premium": item.premium,
+        "premium": item.id not in free,
         "featured": item.featured,
         "minutes": minutes(item),
         "views": item.views,
@@ -57,7 +58,8 @@ def row(item: LearnItem) -> dict:
 
 def detail(item: LearnItem) -> dict:
     return {
-        **row(item),
+        **row(item, free_ids()),
+        "free_per_kind": FREE_PER_KIND,
         "body": item.body,
         "body_html": render(item.body),
         "media_url": item.media_url,
@@ -104,7 +106,8 @@ class LearnListView(DashboardView):
             if p.get(key):
                 qs = qs.filter(**{key: p[key]})
         page, meta = paginate(request, qs.order_by("sort", "-updated_at"))
-        return Response({"results": [row(x) for x in page], **meta})
+        free = free_ids()
+        return Response({"results": [row(x, free) for x in page], "free_per_kind": FREE_PER_KIND, **meta})
 
     def post(self, request):
         form = _form(request)

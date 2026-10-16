@@ -21,12 +21,17 @@ class MoodCheckin(TimeStampedModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                              related_name="mood_checkins", verbose_name="کاربر")
     mood = models.CharField(max_length=10, choices=MOOD_CHOICES, verbose_name="حال دل")
+    # زمانِ ثبت روی دستگاهِ بچه (میلی‌ثانیه) — همان عددِ luko_last_mood_time که هم‌رسان می‌شود. یک حال هم
+    # مستقیم و هم از راهِ هم‌رسانی می‌رسد؛ یکتاییِ همین عدد جلوی دوبار شمردنش را می‌گیرد.
+    client_at = models.BigIntegerField(null=True, blank=True, verbose_name="زمان روی دستگاه")
 
     class Meta:
         verbose_name = "ثبت حال"
         verbose_name_plural = "ثبت‌های حال"
         ordering = ["-created_at"]
         indexes = [models.Index(fields=["user", "-created_at"])]
+        constraints = [models.UniqueConstraint(fields=["user", "client_at"], condition=models.Q(client_at__isnull=False),
+                                               name="mood_unique_user_client_at")]
 
     def __str__(self):
         return f"{self.user}:{self.mood}"

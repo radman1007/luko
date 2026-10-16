@@ -3,18 +3,23 @@ import type { ComponentType, ReactNode, SVGProps } from 'react';
 import {
   HiOutlineArrowPath,
   HiOutlineBolt,
+  HiOutlineChatBubbleLeftRight,
   HiOutlineCheck,
   HiOutlineChevronDown,
   HiOutlineChevronLeft,
+  HiOutlineClock,
   HiOutlineExclamationCircle,
+  HiOutlineHeart,
   HiOutlineLockClosed,
+  HiOutlinePencilSquare,
   HiOutlineSparkles,
   HiOutlineTrash,
 } from 'react-icons/hi2';
 import { CrownIcon } from '@/components/ui/icons';
-import { LUKORIANS } from '@/lib/characters';
-import type { AssistantMessage, AssistantThread, AssistantTier } from '../../assistantApi';
+import { LukoLogo } from '@/components/ui/LukoLogo/LukoLogo';
+import type { AssistantMessage, AssistantThread, AssistantTier, ConversationList } from '../../assistantApi';
 import type { AiTier, Child } from '../../types';
+import { RichText } from '../ai/RichText';
 import { Sheet } from '../shell/Sheet';
 import { Composer } from './Composer';
 import styles from './AssistantChat.module.css';
@@ -39,6 +44,14 @@ interface Props {
   pending: boolean;
   onClear: () => void;
   clearing: boolean;
+  /** گفت‌وگوی تازه (خالی) */
+  onNewChat: () => void;
+  /** تاریخچه: فهرست وقتی برگه باز شد خوانده می‌شود */
+  history?: ConversationList;
+  historyLoading: boolean;
+  onOpenHistory: () => void;
+  onPickConversation: (id: number) => void;
+  onDeleteConversation: (id: number) => void;
   onUpgrade: () => void;
   onSupport: () => void;
   onLogin?: () => void;
@@ -46,23 +59,27 @@ interface Props {
 
 const fa = (n: number) => n.toLocaleString('fa-IR');
 
-const TIER_LOOK: Record<AiTier, { icon: Icon; note: string }> = {
-  flash: { icon: HiOutlineBolt, note: 'سریع و همه‌کاره' },
-  pro: { icon: HiOutlineSparkles, note: 'تحلیلِ عمیق‌تر' },
-  luna: { icon: CrownIcon as Icon, note: 'بهترین کیفیت' },
+/** نشانِ هر سطح (به‌جای ایموجیِ ⚡ 🧡 ✨ در خواستِ کاربر — قاعده‌ی برند: فقط SVG) */
+const TIER_LOOK: Record<AiTier, { icon: Icon; tone: string }> = {
+  flash: { icon: HiOutlineBolt, tone: 'flash' },
+  luna: { icon: HiOutlineHeart, tone: 'luna' },
+  pro: { icon: HiOutlineSparkles, tone: 'pro' },
 };
 
 /**
  * دستیارِ هوشمندِ والدین: گفت‌وگو درباره‌ی یک فرزند، با پاسخی که از بازی‌ها و حال‌های خودِ او ساخته می‌شود.
- * سه سطح: «پایه» برای همه، «حرفه‌ای» و «پیشرفته» با اشتراکِ همین فرزند؛ هرکدام سهمیه‌ی روزانه دارد.
+ * سه سطح: «لوکو سریع» برای همه، «لوکو همراه» و «لوکو بینش» با اشتراکِ همین فرزند؛ هرکدام سهمیه‌ی هفتگی دارد.
+ * «گفت‌وگوی تازه» یکی دیگر می‌سازد؛ تاریخچه‌ی گفت‌وگوها ویژه‌ی اشتراک است.
  * پاسخ در صفِ سرور ساخته می‌شود و صفحه تا رسیدنش گفت‌وگو را دوباره می‌خواند.
  */
 export function AssistantChat(props: Props) {
   const {
     thread, childName, childList, activeChildId, onChildChange, guest, tier, onTier, draft, onDraft, onAsk, sending,
-    error, pending, onClear, clearing, onUpgrade, onSupport, onLogin,
+    error, pending, onClear, clearing, onNewChat, history, historyLoading, onOpenHistory, onPickConversation,
+    onDeleteConversation, onUpgrade, onSupport, onLogin,
   } = props;
   const [tierSheet, setTierSheet] = useState(false);
+  const [historySheet, setHistorySheet] = useState(false);
   const [childMenu, setChildMenu] = useState(false);
   const scrolled = useRef(false);
   const tiers = thread.quota.tiers;
@@ -70,6 +87,7 @@ export function AssistantChat(props: Props) {
   const premium = thread.quota.premium;
   const messages = thread.messages;
   const empty = messages.length === 0 && !sending;
+  const limit = thread.questionMax || 1000;
 
   // پیامِ تازه → تهِ صفحه (صفحه خودش اسکرول می‌خورد). scrollIntoView پیامِ آخر را زیرِ کادرِ چسبانِ پرسش می‌بُرد؛
   // بارِ اول بی‌انیمیشن تا گفت‌وگوی قبلی از همان پیامِ آخر باز شود
@@ -85,6 +103,7 @@ export function AssistantChat(props: Props) {
   const outOfQuota = Boolean(active && !active.locked && active.left <= 0);
   const canSend = !guest && thread.enabled && !pending && !outOfQuota;
   const ActiveIcon = active ? TIER_LOOK[active.key].icon : HiOutlineBolt;
+  const over = draft.length > limit;
 
   let strip: ReactNode = null;
   if (guest) {
@@ -97,20 +116,41 @@ export function AssistantChat(props: Props) {
   } else if (outOfQuota) {
     strip = (
       <Strip icon={CrownIcon as Icon}
-        text={premium ? `سهمیه‌ی امروزِ سطحِ ${active?.label} تمام شد؛ سطحِ دیگری را انتخاب کنید.` : 'سهمیه‌ی رایگانِ امروز تمام شد'}
+        text={premium ? `سهمیه‌ی این هفته‌ی «${active?.label}» تمام شد؛ از شنبه دوباره پر می‌شود.`
+          : 'پیام‌های رایگانِ این هفته تمام شد؛ از شنبه دوباره پر می‌شود.'}
         action={premium ? undefined : { label: 'اشتراک', onClick: onUpgrade }} gold />
     );
+  } else if (over) {
+    strip = <Strip icon={HiOutlineExclamationCircle} text={`هر پیام حداکثر ${fa(limit)} نویسه باشد.`} danger />;
   } else if (error) {
     strip = <Strip icon={HiOutlineExclamationCircle} text={error} danger />;
   }
+
+  const openHistory = () => {
+    setHistorySheet(true);
+    if (!thread.history.locked) onOpenHistory();
+  };
 
   return (
     <div className={styles.page}>
       {/* ---------- نوارِ بالا ---------- */}
       <header className={styles.bar}>
-        <span className={styles.brandAvatar} aria-hidden><img src={LUKORIANS.luko.image} alt="" /></span>
+        <span className={styles.brandAvatar} aria-hidden><LukoLogo height={15} /></span>
         <b className={styles.brand}>دستیار لوکو</b>
         <div className={styles.barEnd}>
+          {!guest && (
+            <>
+              <button type="button" className={styles.iconButton} onClick={onNewChat} disabled={pending}
+                aria-label="گفت‌وگوی تازه" title="گفت‌وگوی تازه">
+                <HiOutlinePencilSquare aria-hidden />
+              </button>
+              <button type="button" className={styles.iconButton} onClick={openHistory}
+                aria-label="تاریخچه‌ی گفت‌وگوها" title="تاریخچه‌ی گفت‌وگوها">
+                <HiOutlineClock aria-hidden />
+                {thread.history.locked && <i aria-hidden><HiOutlineLockClosed /></i>}
+              </button>
+            </>
+          )}
           <div className={styles.childWrap}>
             <button type="button" className={styles.childPill} aria-haspopup="menu" aria-expanded={childMenu}
               onClick={() => setChildMenu(!childMenu)}>
@@ -140,11 +180,6 @@ export function AssistantChat(props: Props) {
               </>
             )}
           </div>
-          <button type="button" className={styles.crown} onClick={onUpgrade}
-            aria-label={premium ? 'اشتراکِ فعال' : 'دیدنِ اشتراک'}>
-            <CrownIcon size={18} strokeWidth={2} aria-hidden />
-            {!premium && <i aria-hidden />}
-          </button>
         </div>
       </header>
 
@@ -152,7 +187,7 @@ export function AssistantChat(props: Props) {
       <div className={styles.thread} aria-live="polite">
         {empty ? (
           <div className={styles.empty}>
-            <span className={styles.mascot} aria-hidden><img src={LUKORIANS.luko.image} alt="" /></span>
+            <span className={styles.mascot} aria-hidden><LukoLogo height={34} /></span>
             <h2>سلام! درباره‌ی {childName} بپرس</h2>
             <p>به داده‌های آموزشیِ این هفته‌اش وصلم — بر اساسِ عددهای واقعی جواب می‌دهم.</p>
             <div className={styles.suggestions}>
@@ -166,8 +201,8 @@ export function AssistantChat(props: Props) {
             {active && !guest && thread.enabled && (
               <p className={styles.quotaNote}>
                 {premium
-                  ? `امروز ${fa(active.left)} پرسش در سطحِ ${active.label} داری`
-                  : `روزی ${fa(thread.quota.freeLimit)} پرسشِ رایگان داری · امروز ${fa(active.left)} مانده`}
+                  ? `این هفته ${fa(active.left)} پیام با «${active.label}» مانده`
+                  : `هر هفته ${fa(thread.quota.freeLimit)} پیامِ رایگان با «${active.label}»؛ این هفته ${fa(active.left)} مانده`}
               </p>
             )}
           </div>
@@ -192,17 +227,21 @@ export function AssistantChat(props: Props) {
       <footer className={styles.dock}>
         {strip}
         <Composer variant="hero" value={draft} onChange={onDraft} onSend={() => onAsk(draft)}
-          canSend={canSend && draft.trim().length > 1} disabled={pending || guest || !thread.enabled}
-          placeholder={`درباره‌ی ${childName} بپرس…`} label={`پرسش درباره‌ی ${childName}`}
+          canSend={canSend && draft.trim().length > 1 && !over} disabled={pending || guest || !thread.enabled}
+          maxLength={limit} placeholder={`درباره‌ی ${childName} بپرس…`} label={`پرسش درباره‌ی ${childName}`}
           leading={(
             <button type="button" className={styles.tierButton} onClick={() => setTierSheet(true)}
+              data-tone={active ? TIER_LOOK[active.key].tone : undefined}
               aria-label={`سطحِ پاسخ‌دهی: ${active?.label ?? ''}`}>
               <ActiveIcon aria-hidden />
               <span>{active?.label}</span>
               <HiOutlineChevronDown aria-hidden />
             </button>
           )} />
-        <p className={styles.disclaimer}>نامِ {childName} برای مدل فرستاده نمی‌شود · دستیار جای مشاوره‌ی متخصص را نمی‌گیرد</p>
+        {draft.length > limit * 0.8 && (
+          <p className={styles.counter} data-over={over || undefined}>{fa(draft.length)} از {fa(limit)} نویسه</p>
+        )}
+        <p className={styles.disclaimer}>نامِ {childName} برای مدل فرستاده نمی‌شود؛ دستیار جای مشاوره‌ی متخصص را نمی‌گیرد</p>
       </footer>
 
       <Sheet open={tierSheet} title="سطحِ پاسخ‌دهی" onClose={() => setTierSheet(false)}>
@@ -216,13 +255,74 @@ export function AssistantChat(props: Props) {
               }} />
           ))}
         </div>
+        <p className={styles.tierFoot}>سهمیه‌ها هفتگی است و هر شنبه دوباره پر می‌شود.</p>
         {!premium && (
           <button type="button" className={styles.tierUpsell} onClick={() => { setTierSheet(false); onUpgrade(); }}>
             <CrownIcon size={16} strokeWidth={2.2} aria-hidden />
-            با اشتراک هر روز تا {fa(thread.quota.premiumLimits.flash)} پرسش و سطح‌های حرفه‌ای و پیشرفته
+            <span>
+              با اشتراک هر هفته {fa(thread.quota.premiumLimits.flash)} پیام «لوکو سریع»،{' '}
+              {fa(thread.quota.premiumLimits.luna)} پیام «لوکو همراه» و {fa(thread.quota.premiumLimits.pro)} پیام «لوکو بینش»
+            </span>
           </button>
         )}
       </Sheet>
+
+      <Sheet open={historySheet} title="تاریخچه‌ی گفت‌وگوها" onClose={() => setHistorySheet(false)}>
+        <HistoryList thread={thread} history={history} loading={historyLoading} childName={childName}
+          onPick={(id) => { setHistorySheet(false); onPickConversation(id); }}
+          onDelete={onDeleteConversation} onUpgrade={() => { setHistorySheet(false); onUpgrade(); }}
+          onNew={() => { setHistorySheet(false); onNewChat(); }} />
+      </Sheet>
+    </div>
+  );
+}
+
+function HistoryList({ thread, history, loading, childName, onPick, onDelete, onUpgrade, onNew }: {
+  thread: AssistantThread; history?: ConversationList; loading: boolean; childName: string;
+  onPick: (id: number) => void; onDelete: (id: number) => void; onUpgrade: () => void; onNew: () => void;
+}) {
+  if (thread.history.locked) {
+    return (
+      <div className={styles.historyLocked}>
+        <span aria-hidden><HiOutlineLockClosed /></span>
+        <b>تاریخچه‌ی گفت‌وگوها ویژه‌ی اشتراک است</b>
+        <p>
+          {thread.history.count > 1
+            ? `${fa(thread.history.count)} گفت‌وگو درباره‌ی ${childName} نگه داشته شده؛ با اشتراک همه را دوباره باز کنید و ادامه دهید.`
+            : `با اشتراک همه‌ی گفت‌وگوهایتان درباره‌ی ${childName} نگه داشته می‌شود و هر وقت خواستید ادامه می‌دهید.`}
+        </p>
+        <button type="button" onClick={onUpgrade}><CrownIcon size={16} strokeWidth={2.2} aria-hidden /> دیدنِ اشتراک</button>
+      </div>
+    );
+  }
+  if (loading && !history) return <div className={styles.historyLoading} aria-hidden><i /><i /><i /></div>;
+  const items = history?.items ?? [];
+  return (
+    <div className={styles.history}>
+      <button type="button" className={styles.historyNew} onClick={onNew}>
+        <HiOutlinePencilSquare aria-hidden /> گفت‌وگوی تازه
+      </button>
+      {items.length === 0 ? (
+        <p className={styles.historyEmpty}>هنوز گفت‌وگویی نیست.</p>
+      ) : (
+        <ul>
+          {items.map((item) => (
+            <li key={item.id} data-active={item.id === thread.conversation?.id || undefined}>
+              <button type="button" className={styles.historyItem} onClick={() => onPick(item.id)}>
+                <HiOutlineChatBubbleLeftRight aria-hidden />
+                <span>
+                  <b>{item.title}</b>
+                  <small>{item.updatedFa}، {fa(Math.ceil((item.messages ?? 0) / 2))} پرسش</small>
+                </span>
+              </button>
+              <button type="button" className={styles.historyDelete} onClick={() => onDelete(item.id)}
+                aria-label={`پاک کردنِ «${item.title}»`}>
+                <HiOutlineTrash aria-hidden />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -245,13 +345,14 @@ function TierRow({ item, selected, onSelect }: { item: AssistantTier; selected: 
   return (
     <button type="button" role="radio" aria-checked={selected} className={styles.tierRow}
       data-selected={selected || undefined} data-locked={item.locked || undefined} onClick={onSelect}>
-      <span className={styles.tierIcon} aria-hidden>{item.locked ? <HiOutlineLockClosed /> : <IconComp />}</span>
+      <span className={styles.tierIcon} data-tone={look.tone} aria-hidden>{item.locked ? <HiOutlineLockClosed /> : <IconComp />}</span>
       <span className={styles.tierText}>
-        <b>{item.label} <small>· <bdi dir="ltr">{item.name}</bdi></small></b>
+        <b>{item.label}</b>
+        <small>{item.note}</small>
         {item.locked ? (
           <em><CrownIcon size={12} strokeWidth={2.2} aria-hidden /> ویژه‌ی اشتراک</em>
         ) : (
-          <small>{look.note} · امروز {fa(item.left)} از {fa(item.limit)}</small>
+          <span className={styles.tierQuota}>این هفته {fa(item.left)} از {fa(item.limit)} پیام مانده</span>
         )}
       </span>
       {selected && <span className={styles.check} aria-hidden><HiOutlineCheck /></span>}
@@ -259,30 +360,8 @@ function TierRow({ item, selected, onSelect }: { item: AssistantTier; selected: 
   );
 }
 
-/** «**پررنگ**» و فهرستِ «• » در پاسخِ دستیار — بی‌HTML، فقط متن */
-function RichText({ text }: { text: string }) {
-  const bold = (line: string) => line.split(/\*\*(.+?)\*\*/g).map((part, i) => (i % 2 ? <b key={i}>{part}</b> : part));
-  const blocks: { list: boolean; lines: string[] }[] = [];
-  for (const line of text.split('\n').map((item) => item.trim()).filter(Boolean)) {
-    const list = line.startsWith('• ');
-    const last = blocks[blocks.length - 1];
-    const value = list ? line.slice(2) : line;
-    if (last && last.list && list) last.lines.push(value);
-    else blocks.push({ list, lines: [value] });
-  }
-  return (
-    <>
-      {blocks.map((block, index) => (block.list ? (
-        <ul key={index}>{block.lines.map((line, i) => <li key={i}>{bold(line)}</li>)}</ul>
-      ) : (
-        block.lines.map((line, i) => <p key={`${index}-${i}`}>{bold(line)}</p>)
-      )))}
-    </>
-  );
-}
-
 function Avatar() {
-  return <span className={styles.botAvatar} aria-hidden><img src={LUKORIANS.luko.image} alt="" /></span>;
+  return <span className={styles.botAvatar} aria-hidden><LukoLogo height={12} /></span>;
 }
 
 function Typing() {
@@ -309,7 +388,7 @@ function Bubble({ message, childName, onRetry }: { message: AssistantMessage; ch
       <div className={styles.row} data-role="assistant">
         <div className={styles.botWrap}>
           <span className={styles.typing} aria-label={message.tier === 'pro'
-            ? 'سطحِ حرفه‌ای با دقت فکر می‌کند؛ کمی بیشتر طول می‌کشد' : `در حالِ نوشتنِ پاسخ درباره‌ی ${childName}`}>
+            ? '«لوکو بینش» با دقت فکر می‌کند؛ کمی بیشتر طول می‌کشد' : `در حالِ نوشتنِ پاسخ درباره‌ی ${childName}`}>
             <i /><i /><i />
           </span>
           <Avatar />

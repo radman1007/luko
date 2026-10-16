@@ -3,7 +3,8 @@ import {
   HiOutlineChatBubbleLeftRight,
   HiOutlinePlus,
 } from 'react-icons/hi2';
-import { BrandMark, CrownIcon } from '@/components/ui/icons';
+import { CrownIcon } from '@/components/ui/icons';
+import { LukoLogo } from '@/components/ui/LukoLogo/LukoLogo';
 import { NAV_ITEMS } from './nav';
 import type { PanelPage } from './nav';
 import type { ShellProps } from './ParentShell';
@@ -23,8 +24,8 @@ export function SideNav({
   return (
     <aside className={styles.side} aria-label="منوی پنل والدین">
       <div className={styles.brand}>
-        <span className={styles.logo} aria-hidden><BrandMark size={22} /></span>
-        <span className={styles.brandText}><b>لوکو</b><small>پنل والدین</small></span>
+        <LukoLogo height={30} className={styles.logo} />
+        <span className={styles.brandText}><b className={styles.srOnly}>لوکو</b><small>پنل والدین</small></span>
       </div>
 
       <button type="button" className={styles.parent} onClick={() => onNavigate('settings')}>

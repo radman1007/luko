@@ -301,10 +301,8 @@ export type AiTier = 'flash' | 'pro' | 'luna';
 export interface AiStatus {
   status: 'ready' | 'pending' | 'failed' | 'off';
   tier?: AiTier;
-  /** «پایه» / «حرفه‌ای» / «پیشرفته» */
+  /** «لوکو سریع» / «لوکو همراه» / «لوکو بینش» — نامِ مدل به والد نشان داده نمی‌شود */
   tierLabel?: string;
-  /** «DeepSeek V4 Pro» */
-  modelName?: string;
   generatedFa?: string;
 }
 

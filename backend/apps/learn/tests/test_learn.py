@@ -34,9 +34,15 @@ class LearnParentTests(TestCase):
         cls.kid = User.objects.create(phone="09121119302", role=User.Role.STUDENT, first_name="سارا", grade=1)
         cls.admin = User.objects.create(phone="09121119303", role=User.Role.TEAM_ADMIN, is_staff=True)
         ParentChild.objects.create(parent=cls.parent, child=cls.kid)
+        # سه موردِ اولِ هر نوع (به «ترتیب») رایگان است و بقیه ویژه — تیکِ «ویژه» دیگر اثری ندارد
         cls.free = article("مقاله‌ی رایگان", featured=True)
-        cls.paid = article("مقاله‌ی ویژه", topic="health", premium=True)
-        cls.video = LearnItem.objects.create(kind="video", title="ویدیوی ویژه", topic="habits", premium=True,
+        cls.free2 = article("مقاله‌ی رایگانِ دوم")
+        cls.free3 = article("مقاله‌ی رایگانِ سوم")
+        cls.paid = article("مقاله‌ی ویژه", topic="health", sort=5)
+        for n in range(3):
+            LearnItem.objects.create(kind="video", title=f"ویدیوی رایگانِ {n}", topic="habits", status="published",
+                                     media_url="https://www.aparat.com/v/free{n}")
+        cls.video = LearnItem.objects.create(kind="video", title="ویدیوی ویژه", topic="habits", sort=5,
                                              status="published", media_url="https://www.aparat.com/v/abc123XY")
         cls.draft = LearnItem.objects.create(kind="article", title="پیش‌نویس", body="متن", status="draft")
         cls.future = article("آینده", published_at=timezone.now() + timedelta(days=2))
@@ -53,13 +59,20 @@ class LearnParentTests(TestCase):
         titles = [i["title"] for i in data["items"]]
         self.assertNotIn("پیش‌نویس", titles)
         self.assertNotIn("آینده", titles)
-        self.assertEqual(data["counts"], {"article": 2, "video": 1, "podcast": 0})
+        self.assertEqual(data["counts"], {"article": 4, "video": 4, "podcast": 0})
         self.assertEqual(data["featured"]["title"], "مقاله‌ی رایگان")
         self.assertFalse(data["premium"])
         self.assertEqual(data["locked"], 2)
-        locked = {i["title"]: i["locked"] for i in data["items"]}
-        self.assertEqual(locked, {"مقاله‌ی رایگان": False, "مقاله‌ی ویژه": True, "ویدیوی ویژه": True})
+        locked = {i["title"] for i in data["items"] if i["locked"]}
+        self.assertEqual(locked, {"مقاله‌ی ویژه", "ویدیوی ویژه"})
         self.assertEqual({t["key"] for t in data["topics"]}, {"learning", "health", "habits"})
+
+    def test_free_three_follow_the_order(self):
+        # «ترتیب»ِ کوچک‌تر = بالاتر: یکی از سه‌تای رایگان پایین برود، مقاله‌ی ویژه جایش رایگان می‌شود
+        LearnItem.objects.filter(pk=self.free3.pk).update(sort=9)
+        locked = {i["title"] for i in self.list()["items"] if i["locked"]}
+        self.assertNotIn("مقاله‌ی ویژه", locked)
+        self.assertIn("مقاله‌ی رایگانِ سوم", locked)
 
     def test_locked_detail_never_sends_the_rest_or_the_media(self):
         data = self.api.get(f"/api/v1/parent/learn/{self.paid.pk}").json()["data"]
@@ -85,7 +98,7 @@ class LearnParentTests(TestCase):
         self.api.get(f"/api/v1/parent/learn/{self.free.pk}")
         self.free.refresh_from_db()
         self.assertEqual(self.free.views, 1)                     # هر والد یک بار
-        self.assertEqual(len(data["related"]), 2)
+        self.assertEqual(len(data["related"]), 3)
         res = self.api.post(f"/api/v1/parent/learn/{self.free.pk}/progress", {"saved": True, "seconds": 40},
                             format="json").json()["data"]
         self.assertEqual((res["saved"], res["done"], res["seconds"]), (True, False, 40))
@@ -101,7 +114,7 @@ class LearnParentTests(TestCase):
         data = self.list(child=self.kid.pk)
         self.assertEqual(data["forChild"]["childName"], "سارا")
         pick = data["forChild"]["picks"][0]
-        self.assertEqual(pick["item"]["title"], "ویدیوی ویژه")
+        self.assertEqual(pick["item"]["topic"], "habits")
         self.assertIn("هنوز بازی نکرده", pick["reason"])
 
         # بازیِ آخرِ شب → خواب و سلامت اول
@@ -162,16 +175,18 @@ class LearnDashboardTests(DashboardTestBase):
 
     def test_create_video_with_file_publish_and_delete(self):
         res = self.post("learn", {"kind": "video", "title": "ویدیوی آزمایشی", "topic": "habits", "status": "published",
-                                  "premium": "true", "media_file": SimpleUploadedFile("v.mp4", b"\0" * 64)},
+                                  "media_file": SimpleUploadedFile("v.mp4", b"\0" * 64)},
                         format="multipart")
         self.assertEqual(res.status_code, 201, res.content)
         data = self.data(res)
-        self.assertEqual((data["kind"], data["premium"], data["isLive"], data["media"]["type"]), ("video", True, True, "video"))
+        # تنها ویدیو = جزوِ سه‌تای اول = رایگان
+        self.assertEqual((data["kind"], data["premium"], data["isLive"], data["media"]["type"]), ("video", False, True, "video"))
+        self.assertEqual(data["freePerKind"], 3)
         item = LearnItem.objects.get(pk=data["id"])
         self.assertTrue(item.media_file.name.startswith("learn/media/"))
-        self.assertEqual(self.patch(f"learn/{item.pk}", {"premium": "false"}, format="multipart").status_code, 200)
+        self.assertEqual(self.patch(f"learn/{item.pk}", {"title": "ویدیوی تازه"}, format="multipart").status_code, 200)
         item.refresh_from_db()
-        self.assertFalse(item.premium)
+        self.assertEqual(item.title, "ویدیوی تازه")
         self.assertEqual(self.delete(f"learn/{item.pk}").status_code, 200)
         self.assertFalse(LearnItem.objects.filter(pk=item.pk).exists())
 

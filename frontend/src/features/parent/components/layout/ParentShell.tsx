@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { HiOutlineBell } from 'react-icons/hi2';
-import { BrandMark } from '@/components/ui/icons';
+import { LukoLogo } from '@/components/ui/LukoLogo/LukoLogo';
+import { blockContextMenu } from '../../noCopy';
 import { SubscriptionBadge } from '@/features/billing/components/SubscriptionBadge/SubscriptionBadge';
 import type { ChildSubscription } from '@/features/billing/types';
 import type { Child } from '../../types';
@@ -54,14 +55,14 @@ export function ParentShell(props: ShellProps) {
   ) : null;
 
   return (
-    <div className={styles.shell}>
+    <div className={styles.shell} onContextMenu={blockContextMenu}>
       <SideNav {...props} active={active} />
 
       <div className={styles.body}>
         <header className={styles.topbar}>
           <div className={styles.mobileBrand}>
-            <span className={styles.logo} aria-hidden><BrandMark size={20} /></span>
-            <span className={styles.brandText}><b>لوکو</b><small>پنل والدین</small></span>
+            <LukoLogo height={26} className={styles.logo} />
+            <span className={styles.brandText}><b className={styles.srOnly}>لوکو</b><small>پنل والدین</small></span>
           </div>
           <div className={styles.pageTitle}>
             <h1>{PAGE_TITLES[page]}</h1>

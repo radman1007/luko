@@ -273,13 +273,15 @@ export function ParentIntroGate({ viewerId, children }: Props) {
               )}
             </div>
 
-            <div className={styles.controls}>
+            {/* نوارِ پخش چپ‌به‌راست مثلِ همه‌ی پخش‌کننده‌ها؛ dir روی خودِ عنصرها هم هست تا هیچ مرورگری برعکسش نکند */}
+            <div className={styles.controls} dir="ltr">
               <button type="button" className={styles.iconButton} onClick={toggle}
                 aria-label={playing ? 'مکث' : 'پخش'}>
                 {playing ? <HiMiniPause aria-hidden /> : <HiMiniPlay aria-hidden />}
               </button>
               <input
                 type="range"
+                dir="ltr"
                 className={styles.seek}
                 min={0}
                 max={duration || 0}

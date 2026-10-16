@@ -63,6 +63,8 @@ export function PodcastForm({ podcast, open, onClose }: Props) {
       await api.request({
         method: podcast ? 'patch' : 'post', url: podcast ? `podcasts/${podcast.id}` : 'podcasts', data: body,
         headers: { 'Content-Type': 'multipart/form-data' },
+        // فایلِ بزرگ روی اینترنتِ معمولی بیش از سقفِ ۶۰ ثانیه‌ایِ کلاینت طول می‌کشد و وسطِ راه بریده می‌شد
+        timeout: 0,
         onUploadProgress: (e) => e.total && setProgress(Math.round((e.loaded / e.total) * 100)),
       });
       await queryClient.invalidateQueries({ queryKey: ['podcasts'] });

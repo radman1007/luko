@@ -6,7 +6,7 @@ from .models import MoodCheckin, Painting, Secret
 from .serializers import (BreathingSessionSerializer, MoodCheckinSerializer,
                           PaintingCreateSerializer, PaintingImageSerializer,
                           PaintingSerializer, SecretSerializer)
-from .services import mood_prompt
+from .services import mood_prompt, record_device_mood
 
 
 class MoodPromptView(APIView):
@@ -23,8 +23,16 @@ class MoodCheckinView(generics.ListCreateAPIView):
     def get_queryset(self):
         return self.request.user.mood_checkins.all()[:50]
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        checkin = record_device_mood(request.user, data["mood"], data.get("at"))
+        if checkin is None:
+            # همین حال پیش‌تر (از راهِ هم‌رسانی) رسیده بود
+            checkin = request.user.mood_checkins.filter(client_at=data.get("at")).first() \
+                or request.user.mood_checkins.first()
+        return Response(MoodCheckinSerializer(checkin).data, status=201)
 
 
 # سقفِ نقاشی‌های نگه‌داشته‌شده برای هر بچه؛ قدیمی‌ترین‌ها کنار می‌روند

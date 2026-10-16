@@ -9,12 +9,13 @@ import {
   HiOutlineShieldCheck,
   HiOutlineUser,
 } from 'react-icons/hi2';
-import { BrandMark } from '@/components/ui/icons';
+import { LukoLogo } from '@/components/ui/LukoLogo/LukoLogo';
 import { isValidPhone, normalizePhone } from '@/lib/phone';
 import { authApi } from '@/features/auth/api';
 import type { VerifyOtpResult } from '@/features/auth/api';
 import { useAuth } from '@/features/auth/context';
 import { enableParentGuestMode, GUEST_PARENT_USER } from '@/features/auth/guest';
+import { blockContextMenu } from '@/features/parent/noCopy';
 import styles from './ParentLogin.module.css';
 
 /** ارقام فارسی/عربی → انگلیسی، و حذفِ هر چیزِ غیررقم */
@@ -42,6 +43,7 @@ const SAMPLE_WEEK = [38, 52, 30, 64, 44, 88, 40];
 const SAMPLE_DAYS = ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'];
 
 const PHONE_HINT = 'شمارهٔ موبایل باید ۱۱ رقم و با ۰۹ شروع شود.';
+const FA_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
 
 type Step = 'phone' | 'code' | 'password' | 'newPassword' | 'name';
 
@@ -73,6 +75,7 @@ export default function ParentLogin() {
   const [resendIn, setResendIn] = useState(0);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [codeFocused, setCodeFocused] = useState(false);
   const codeRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
@@ -133,15 +136,16 @@ export default function ParentLogin() {
     }
   };
 
-  const verify = async () => {
-    if (code.length < codeLength) {
+  const verify = async (value = code) => {
+    if (busy) return;
+    if (value.length < codeLength) {
       setError('کد را کامل وارد کنید.');
       return;
     }
     setError('');
     setBusy(true);
     try {
-      const result = await authApi.verifyOtp({ phone, code, role: 'parent' });
+      const result = await authApi.verifyOtp({ phone, code: value, role: 'parent' });
       // والد انتخابگر ندارد (یک شماره = یک والد)؛ این شاخه فقط برای کاملیِ نوع است
       if (result.chooseFrom) {
         setError('یک لحظه مشکل پیش آمد؛ دوباره تلاش کنید.');
@@ -151,9 +155,18 @@ export default function ParentLogin() {
     } catch (err) {
       setCode('');
       setError(errorMessage(err, 'کد اشتباه یا منقضی شده است.'));
+      codeRef.current?.focus();
     } finally {
       setBusy(false);
     }
+  };
+
+  /** خانه‌ی آخر که پر شد، خودش تأیید می‌کند (چسباندن و پرکردنِ خودکارِ پیامک هم همین‌طور) */
+  const typeCode = (raw: string) => {
+    const next = digits(raw).slice(0, codeLength);
+    setCode(next);
+    if (error) setError('');
+    if (next.length === codeLength && next !== code) void verify(next);
   };
 
   const switchToPassword = () => {
@@ -261,11 +274,11 @@ export default function ParentLogin() {
   );
 
   return (
-    <main className={styles.page}>
+    <main className={styles.page} onContextMenu={blockContextMenu}>
       <section className={styles.formSide}>
         <header className={styles.brand}>
-          <span className={styles.logo} aria-hidden><BrandMark size={20} /></span>
-          <b>لوکو</b>
+          <LukoLogo height={34} />
+          <span className={styles.srOnly}>لوکو</span>
         </header>
 
         <div className={styles.formBox}>
@@ -290,16 +303,30 @@ export default function ParentLogin() {
             <form className={styles.form} onSubmit={(e) => { e.preventDefault(); void verify(); }}>
               <label className={styles.field}>
                 کد تأیید
-                <input
-                  ref={codeRef}
-                  dir="ltr"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  placeholder={'•'.repeat(codeLength)}
-                  className={styles.codeInput}
-                  value={code}
-                  onChange={(e) => { setCode(digits(e.target.value).slice(0, codeLength)); if (error) setError(''); }}
-                />
+                {/* هر رقم یک خانه؛ ورودیِ واقعی یکی است و رویِ خانه‌ها پهن شده تا چسباندن و پرکردنِ خودکارِ
+                    پیامک (one-time-code) کار کند */}
+                <span className={styles.otp} dir="ltr" data-error={error ? true : undefined}>
+                  {Array.from({ length: codeLength }, (_, index) => (
+                    <span key={index} className={styles.otpCell} data-filled={index < code.length || undefined}
+                      data-active={(codeFocused && (index === code.length
+                        || (code.length === codeLength && index === codeLength - 1))) || undefined}>
+                      {code[index] ? FA_DIGITS[Number(code[index])] : ''}
+                    </span>
+                  ))}
+                  <input
+                    ref={codeRef}
+                    className={styles.otpInput}
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={codeLength + 6}
+                    value={code}
+                    onChange={(e) => typeCode(e.target.value)}
+                    onFocus={() => setCodeFocused(true)}
+                    onBlur={() => setCodeFocused(false)}
+                    aria-label={`کد تأیید ${codeLength.toLocaleString('fa-IR')} رقمی`}
+                    aria-invalid={Boolean(error)}
+                  />
+                </span>
               </label>
               {devCode && <p className={styles.devCode}>کد توسعه: {devCode}</p>}
               {error && <p className={styles.error} role="alert">{error}</p>}
@@ -412,7 +439,7 @@ export default function ParentLogin() {
 
       <aside className={styles.showcase} aria-hidden>
         <div className={styles.showHead}>
-          <span className={styles.showBrand}><BrandMark size={18} /> لوکو</span>
+          <span className={styles.showBrand}><LukoLogo height={24} /></span>
           <span className={styles.chip}>پنل والدین</span>
         </div>
 

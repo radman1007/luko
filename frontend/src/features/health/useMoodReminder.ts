@@ -1,5 +1,7 @@
 import { useCallback, useState } from 'react';
+import { isGuestMode } from '@/features/auth/guest';
 import { completeMission } from '@/features/club/store';
+import { apiClient } from '@/lib/api';
 import { useStorageChange } from '@/lib/useStorageChange';
 import type { Mood } from './types';
 
@@ -41,9 +43,12 @@ export function useMoodReminder() {
   }, []));
 
   const record = useCallback((mood: Mood) => {
-    // TODO: با آماده شدن بک‌اند، در moodService.checkin هم ثبت شود
-    localStorage.setItem(LAST_MOOD_TIME_KEY, String(Date.now()));
+    const at = Date.now();
+    localStorage.setItem(LAST_MOOD_TIME_KEY, String(at));
     localStorage.setItem(LAST_MOOD_KEY, mood);
+    // پنلِ والد از ثبتِ حالِ سرور می‌خواند. بی‌اینترنت مهم نیست: همین دو کلید هم‌رسان می‌شوند و سرور از همان
+    // زمانِ `at` حال را ثبت می‌کند (یک حال دوبار شمرده نمی‌شود — apps.health.services.record_device_mood)
+    if (!isGuestMode()) void apiClient.post('/moods/checkin', { mood, at }).catch(() => undefined);
     setLastMood(mood);
     setShow(false);
     // مأموریتِ «حالت رو بگو» همین‌جا خودکار ثبت می‌شود

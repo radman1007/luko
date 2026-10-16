@@ -1,6 +1,9 @@
 """
 شکلِ داده‌ی صفحه‌ی «آموزش» و قاعده‌هایش:
 
+- رایگان/ویژه با جایگاه است نه با تیکِ دستی (۲۵ مهر ۱۴۰۵، خواستِ کاربر): سه موردِ اولِ هر نوع (مقاله، ویدیو،
+  پادکست) به ترتیبِ صفحه‌ی آموزش رایگان است و بقیه «ویژه». ترتیب = «ترتیب» و بعد تازه‌ترها، پس تیم با عددِ
+  «ترتیب» تعیین می‌کند کدام سه تا رایگان باشند.
 - محتوای «ویژه» برای والدی که هیچ فرزندِ مشترکی ندارد قفل است: کارت کامل دیده می‌شود، ولی متن فقط تا چند
   بندِ اول و پخش‌کننده اصلاً نمی‌آید (از سرور بیرون نمی‌رود).
 - «پیشنهاد برای فرزندتان» از گزارشِ همان بچه ساخته می‌شود (همان برگه‌ی داده‌ی تحلیلِ هوشمند، apps/ai/facts):
@@ -23,11 +26,23 @@ NEW_DAYS = 14
 #: «تازه» فقط برای چند تای آخر؛ وقتی همه تازه‌اند (روزِ راه‌اندازی) نشان بی‌معنا می‌شود
 NEW_LIMIT = 3
 PREVIEW_BLOCKS = 2
+FREE_PER_KIND = 3
 _APARAT = re.compile(r"aparat\.com/(?:v/|video/video/embed/videohash/)([A-Za-z0-9]+)")
 
 
 def live_items():
     return LearnItem.objects.filter(status=LearnItem.Status.PUBLISHED, published_at__lte=timezone.now())
+
+
+def free_ids(items=None) -> set[int]:
+    """شناسه‌ی محتوای رایگان: سه موردِ اولِ هر نوع، به ترتیبِ صفحه (ترتیبِ پیش‌فرضِ مدل)"""
+    rows = items if items is not None else live_items().only("id", "kind", "sort", "published_at")
+    out, seen = set(), {}
+    for item in rows:
+        if seen.get(item.kind, 0) < FREE_PER_KIND:
+            out.add(item.id)
+        seen[item.kind] = seen.get(item.kind, 0) + 1
+    return out
 
 
 def parent_premium(parent) -> bool:
@@ -69,9 +84,10 @@ def newest_ids(items) -> set[int]:
     return {i.id for i in recent[:NEW_LIMIT]}
 
 
-def summary(item: LearnItem, *, premium: bool, progress: LearnProgress | None = None,
+def summary(item: LearnItem, *, premium: bool, free: set[int], progress: LearnProgress | None = None,
             new_ids: set[int] | None = None) -> dict:
     published = timezone.localtime(item.published_at) if item.published_at else None
+    special = item.id not in free
     return {
         "id": item.id,
         "kind": item.kind,
@@ -83,8 +99,8 @@ def summary(item: LearnItem, *, premium: bool, progress: LearnProgress | None = 
         "cover": item.cover.url if item.cover else "",
         "minutes": minutes(item),
         "author": item.author,
-        "premium": item.premium,
-        "locked": item.premium and not premium,
+        "premium": special,
+        "locked": special and not premium,
         "featured": item.featured,
         "is_new": item.id in (new_ids or set()),
         "views": item.views,
@@ -100,9 +116,9 @@ def _preview(body: str) -> str:
     return render("\n\n".join(blocks[:PREVIEW_BLOCKS]))
 
 
-def detail(item: LearnItem, *, premium: bool, progress: LearnProgress | None, related: list[dict],
+def detail(item: LearnItem, *, premium: bool, free: set[int], progress: LearnProgress | None, related: list[dict],
            new_ids: set[int] | None = None) -> dict:
-    out = summary(item, premium=premium, progress=progress, new_ids=new_ids)
+    out = summary(item, premium=premium, free=free, progress=progress, new_ids=new_ids)
     locked = out["locked"]
     out.update({
         "body_html": _preview(item.body) if locked else render(item.body),

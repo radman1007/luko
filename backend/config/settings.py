@@ -184,12 +184,12 @@ AI_MODEL_LUNA = env("AI_MODEL_LUNA", "GPT-5.6-Luna")
 #: حدودِ ۱۰۰۰ توکن؛ Pro از ۲۵ تا ۱۵۰ ثانیه با ۴۵۰۰ توکن (بیشترش استدلال) — کیفیتِ هر دو خوب
 AI_INSIGHT_TIER_PREMIUM = env("AI_INSIGHT_TIER_PREMIUM", "luna")
 AI_TIMEOUT = int(env("AI_TIMEOUT", "120"))
-#: سهمیه‌ی روزانه‌ی دستیار برای هر والد: پلنِ رایگان فقط «پایه»
+#: سهمیه‌ی **هفتگیِ** دستیار برای هر والد (هفته از شنبه): بی‌اشتراک فقط «لوکو سریع»
 AI_QUOTA_FREE = int(env("AI_QUOTA_FREE", "5"))
 AI_QUOTA_PREMIUM = {
-    "flash": int(env("AI_QUOTA_PREMIUM_FLASH", "40")),
-    "pro": int(env("AI_QUOTA_PREMIUM_PRO", "25")),
+    "flash": int(env("AI_QUOTA_PREMIUM_FLASH", "20")),
     "luna": int(env("AI_QUOTA_PREMIUM_LUNA", "10")),
+    "pro": int(env("AI_QUOTA_PREMIUM_PRO", "5")),
 }
 #: سقفِ تحلیل‌های شبانه (بچه‌های فعالِ دیروز)
 AI_NIGHTLY_LIMIT = int(env("AI_NIGHTLY_LIMIT", "300"))

@@ -10,6 +10,7 @@ import { ChildSwitch } from '@/features/parent/components/shell/ChildSwitch';
 import { Sheet } from '@/features/parent/components/shell/Sheet';
 import { Toast } from '@/features/parent/components/shell/Toast';
 import { AssistantPage } from '@/features/parent/components/assistant/AssistantPage';
+import { PaintingsCard } from '@/features/parent/components/health/PaintingsCard';
 import { LearnPage } from '@/features/parent/components/learn/LearnPage';
 import { DailyView } from '@/features/parent/components/views/DailyView';
 import { SettingsPage } from '@/features/parent/components/settings/SettingsPage';
@@ -143,8 +144,8 @@ export default function ParentGuestPanel() {
         report={report}
         analysis={analysis}
         childName={shortName}
-        today={today}
         onUpgrade={() => go('settings', { s: 'billing' })}
+        paintings={<PaintingsCard guest childName={shortName} onUpgrade={() => go('settings', { s: 'billing' })} />}
         assistant={
           <AssistantPage guest childId={child.id} childName={shortName} childList={GUEST_CHILDREN}
             onChildChange={setChildId} onUpgrade={() => go('settings', { s: 'billing' })}

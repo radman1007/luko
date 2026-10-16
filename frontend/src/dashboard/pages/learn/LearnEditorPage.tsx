@@ -91,7 +91,7 @@ function LearnForm({ item, onSaved }: { item: LearnEditDetail | null; onSaved: (
   const [form, setForm] = useState({
     kind: item?.kind ?? 'article', title: item?.title ?? '', summary: item?.summary ?? '', topic: item?.topic ?? 'learning',
     body: item?.body ?? '', mediaUrl: item?.mediaUrl ?? '', durationMinutes: String(item?.durationMinutes ?? 0),
-    author: item?.author ?? 'تیم آموزشی لوکو', premium: item?.premium ?? false, featured: item?.featured ?? false,
+    author: item?.author ?? 'تیم آموزشی لوکو', featured: item?.featured ?? false,
     sort: String(item?.sort ?? 0),
   });
   const [cover, setCover] = useState<File | null>(null);
@@ -123,6 +123,9 @@ function LearnForm({ item, onSaved }: { item: LearnEditDetail | null; onSaved: (
       const { data } = await api.request({
         method: item ? 'patch' : 'post', url: item ? `learn/${item.id}` : 'learn', data: body,
         headers: { 'Content-Type': 'multipart/form-data' },
+        // ویدیو و پادکست تا ۹۵ مگابایت‌اند؛ سقفِ ۶۰ ثانیه‌ایِ کلاینت بارگذاری را روی اینترنتِ معمولی وسطِ راه می‌برید
+        // («پنلِ ادمین ویدیو و پادکست نمی‌گیرد»، ۲۵ مهر ۱۴۰۵)
+        timeout: 0,
         onUploadProgress: (e) => mediaFile && e.total && setProgress(Math.round((e.loaded / e.total) * 100)),
       });
       await queryClient.invalidateQueries({ queryKey: ['learn'] });
@@ -210,8 +213,16 @@ function LearnForm({ item, onSaved }: { item: LearnEditDetail | null; onSaved: (
         </Card>
         <Card title="دسترسی و جایگاه">
           <div className={own.stack}>
-            <Check label="ویژه‌ی مشترکان" description="بی‌اشتراک: کارت و دو بندِ اول؛ بقیه و پخش‌کننده قفل"
-              checked={form.premium} onChange={(premium) => setForm({ ...form, premium })} />
+            <div className={local.access}>
+              {item ? (
+                item.premium ? <Badge tone="amber">ویژه‌ی مشترکان</Badge> : <Badge tone="green">رایگان</Badge>
+              ) : <Badge>پس از انتشار معلوم می‌شود</Badge>}
+              <small className={local.hint}>
+                سه {form.kind === 'video' ? 'ویدیوی' : form.kind === 'podcast' ? 'پادکستِ' : 'مقاله‌ی'} اولِ صفحه‌ی آموزش
+                (به «ترتیب»، بعد تازه‌ترها) رایگان است و بقیه ویژه‌ی مشترکان. برای رایگان کردنِ یک مورد، «ترتیب»ش را
+                کوچک‌تر بگذارید.
+              </small>
+            </div>
             <Check label="برگزیده" description="بالای صفحه‌ی آموزش (اولین برگزیده)"
               checked={form.featured} onChange={(featured) => setForm({ ...form, featured })} />
             <FormGrid>

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { HiOutlineLockClosed } from 'react-icons/hi2';
 import { CrownIcon } from '@/components/ui/icons';
 import type { ChildReport, HealthDaily } from '../../types';
@@ -14,6 +15,8 @@ interface Props {
   report: ChildReport;
   childName: string;
   onUpgrade: () => void;
+  /** گالریِ نقاشی‌ها (پنلِ واقعی با API، مهمان بی‌API) */
+  paintings?: ReactNode;
 }
 
 /**
@@ -21,7 +24,7 @@ interface Props {
  * «حالِ کلیِ هفته» برای همه (حکمِ ساده + یکی دو پیشنهاد) و «حالِ دقیقِ روزانه» فقط با اشتراک
  * (سفرِ حالِ روز، بخش‌های روز، درس‌ها، علاقه‌ها و پیشنهادهای بیشتر). هم‌شکلِ خانه.
  */
-export function HealthPage({ report, childName, onUpgrade }: Props) {
+export function HealthPage({ report, childName, onUpgrade, paintings }: Props) {
   const health = report.health;
   if (!health) {
     return <p className={styles.waiting}>گزارشِ سلامتِ {childName} در حالِ آماده شدن است؛ چند لحظه‌ی دیگر دوباره سر بزنید.</p>;
@@ -38,6 +41,7 @@ export function HealthPage({ report, childName, onUpgrade }: Props) {
         <TipsCard tips={weekly.tips} childName={childName} tone="rose" title="پیشنهادِ دکتر نیلا"
           subtitle={`برای حالِ بهترِ ${childName} در این هفته`} ai={report.ai} />
       </div>
+      {paintings && <div className={styles.cell} data-area="art">{paintings}</div>}
 
       <header className={styles.section} data-area="dhead">
         <div>

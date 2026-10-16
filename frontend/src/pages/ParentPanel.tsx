@@ -28,12 +28,12 @@ import { Toast } from '@/features/parent/components/shell/Toast';
 import { ParentIntroGate } from '@/features/parent/components/intro/ParentIntroGate';
 import { useSubscriptions } from '@/features/billing/useBilling';
 import { AssistantPage } from '@/features/parent/components/assistant/AssistantPage';
+import { PaintingsCard } from '@/features/parent/components/health/PaintingsCard';
 import { LearnPage } from '@/features/parent/components/learn/LearnPage';
 import { DailyView } from '@/features/parent/components/views/DailyView';
 import { SettingsPage } from '@/features/parent/components/settings/SettingsPage';
 import { SettingsContext } from '@/features/parent/components/settings/SettingsContext';
 import type { SettingsEnv } from '@/features/parent/components/settings/SettingsContext';
-import { localDate } from '@/features/parent/dates';
 import { isValidPhone, normalizePhone } from '@/lib/phone';
 import { ALL_GRADES, gradeName } from '@/lib/grades';
 import { useOpenGrades } from '@/features/games/useOpenGrades';
@@ -205,7 +205,6 @@ function AuthenticatedParentPanel() {
   // دستیار فرزند را از نوارِ بالای خودش عوض می‌کند
   const childPage = page === 'home' || page === 'health' || page === 'details' || page === 'daily';
   const showSwitcher = childPage && (children.data?.length ?? 0) > 1;
-  const today = assignments.data?.find((item) => item.date === localDate(0)) ?? null;
   const upgrade = () => go('settings', { s: 'billing' });
 
   const settingsEnv: SettingsEnv = {
@@ -394,9 +393,9 @@ function AuthenticatedParentPanel() {
         report={report.data}
         analysis={analysis}
         childName={shortName}
-        today={today}
         onUpgrade={upgrade}
         status={status}
+        paintings={<PaintingsCard childId={childId} childName={shortName} onUpgrade={upgrade} />}
         assistant={
           <AssistantPage childId={childId} childName={shortName} childList={children.data ?? []}
             onChildChange={setChildId} onUpgrade={upgrade} onSupport={openSupport} />

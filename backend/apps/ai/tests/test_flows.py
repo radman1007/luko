@@ -14,8 +14,8 @@ from rest_framework.test import APIClient
 
 from apps.accounts.models import User
 from apps.ai import client, insights
-from apps.ai.assistant import answer
-from apps.ai.models import AIInsight, AIUsage, AssistantMessage
+from apps.ai.assistant import answer, week_start
+from apps.ai.models import AIInsight, AIUsage, AssistantConversation, AssistantMessage
 from apps.billing.services import gift_subscription
 from apps.games.models import Book, ConceptTag, Game
 from apps.games.telemetry import store_events
@@ -181,7 +181,7 @@ class InsightTests(AIFlowBase):
         self.assertNotIn("سارا", json.dumps(insight.payload, ensure_ascii=False))   # نام ذخیره نمی‌شود
 
         self.assertEqual(second["ai"]["status"], "ready")
-        self.assertEqual(second["ai"]["tierLabel"], "پایه")
+        self.assertEqual(second["ai"]["tierLabel"], "لوکو سریع")
         self.assertEqual(second["weekly"]["title"], "هفته‌ی پرتلاشِ سارا")         # نام سرِ جایش
         self.assertEqual(second["weekly"]["source"], "ai")
         tips = second["tips"]
@@ -265,10 +265,11 @@ class InsightTests(AIFlowBase):
 
 
 class AssistantTests(AIFlowBase):
-    def ask(self, text="چطور در شمارش کمکش کنم؟", tier="flash", gateway=None):
+    def ask(self, text="چطور در شمارش کمکش کنم؟", tier="flash", gateway=None, conversation=None):
         gateway = gateway or Gateway(FakeResponse(200, "**سلام.** با سارا روزی ۱۰ دقیقه بشمارید.\n- قاشق‌ها\n- دکمه‌ها"))
+        body = {"text": text, "tier": tier, **({"conversation": conversation} if conversation else {})}
         with patch("apps.ai.tasks.answer_question.delay", side_effect=answer), patch("apps.ai.client._post", gateway):
-            res = self.api.post(f"/api/v1/parent/assistant/{self.kid.id}", {"text": text, "tier": tier}, format="json")
+            res = self.api.post(f"/api/v1/parent/assistant/{self.kid.id}", body, format="json")
         return res, gateway
 
     def test_thread_quota_and_suggestions(self):
@@ -290,12 +291,12 @@ class AssistantTests(AIFlowBase):
         self.assertIn("[نام] با شمارش مشکل دارد", prompt)
         thread = self.api.get(f"/api/v1/parent/assistant/{self.kid.id}").json()["data"]
         reply = thread["messages"][-1]
-        self.assertEqual((reply["role"], reply["status"], reply["tierLabel"]), ("assistant", "done", "پایه"))
+        self.assertEqual((reply["role"], reply["status"], reply["tierLabel"]), ("assistant", "done", "لوکو سریع"))
         self.assertEqual(reply["content"], "سلام. با سارا روزی ۱۰ دقیقه بشمارید.\n• قاشق‌ها\n• دکمه‌ها")
         self.assertFalse(thread["pending"])
 
-        # پرسشِ دوم تاریخچه را می‌فرستد (بی‌نام)
-        _, gateway = self.ask("ممنون، و برای مقایسه؟")
+        # پرسشِ دوم در همان گفت‌وگو تاریخچه را می‌فرستد (بی‌نام)
+        _, gateway = self.ask("ممنون، و برای مقایسه؟", conversation=res.json()["data"]["conversation"]["id"])
         prompt = gateway.bodies[0]["messages"][0]["content"]
         self.assertIn("CONVERSATION SO FAR", prompt)
         self.assertIn("PARENT: [نام] با شمارش مشکل دارد", prompt)
@@ -340,13 +341,73 @@ class AssistantTests(AIFlowBase):
 
     def test_clear_and_permissions(self):
         self.ask()
-        self.assertEqual(self.api.delete(f"/api/v1/parent/assistant/{self.kid.id}").json()["data"]["deleted"], 2)
+        # گفت‌وگو و دو پیامش
+        self.assertEqual(self.api.delete(f"/api/v1/parent/assistant/{self.kid.id}").json()["data"]["deleted"], 3)
+        self.assertFalse(AssistantMessage.objects.exists())
         stranger = APIClient()
         stranger.force_authenticate(self.other)
         self.assertEqual(stranger.get(f"/api/v1/parent/assistant/{self.kid.id}").status_code, 404)
         kid = APIClient()
         kid.force_authenticate(self.kid)
         self.assertEqual(kid.get(f"/api/v1/parent/assistant/{self.kid.id}").status_code, 403)
+
+    def test_tiers_order_names_and_weekly_reset(self):
+        tiers = self.api.get(f"/api/v1/parent/assistant/{self.kid.id}").json()["data"]["quota"]["tiers"]
+        self.assertEqual([(t["key"], t["label"]) for t in tiers],
+                         [("flash", "لوکو سریع"), ("luna", "لوکو همراه"), ("pro", "لوکو بینش")])
+        self.assertNotIn("name", tiers[0])                                  # نامِ مدل به والد نمی‌رسد
+        # هفته از شنبه: جمعه ۲۴ مهر ۱۴۰۵ ← شنبه ۱۸ مهر؛ خودِ شنبه ← همان روز
+        from datetime import date
+        self.assertEqual(timezone.localtime(week_start(date(2026, 10, 16))).date(), date(2026, 10, 10))
+        self.assertEqual(timezone.localtime(week_start(date(2026, 10, 10))).date(), date(2026, 10, 10))
+        # پاسخِ هفته‌ی پیش از سهمیه‌ی این هفته کم نمی‌کند
+        self.ask()
+        AssistantMessage.objects.update(created_at=week_start() - timedelta(minutes=1))
+        tiers = self.api.get(f"/api/v1/parent/assistant/{self.kid.id}").json()["data"]["quota"]["tiers"]
+        self.assertEqual(tiers[0]["used"], 0)
+
+    def test_message_length_limit(self):
+        self.assertEqual(self.ask("آ" * 1000)[0].status_code, 201)
+        res, _ = self.ask("آ" * 1001)
+        self.assertEqual((res.status_code, res.json()["error"]["reason"]), (400, "too-long"))
+
+    @override_settings(AI_QUOTA_FREE=10)
+    def test_conversations_and_history(self):
+        first, _ = self.ask("سارا با شمارش مشکل دارد")
+        conversation = first.json()["data"]["conversation"]
+        self.assertEqual(conversation["title"], "سارا با شمارش مشکل دارد")
+        # ادامه‌ی همان گفت‌وگو
+        res, _ = self.ask("و برای تفریق؟", conversation=conversation["id"])
+        self.assertEqual(res.json()["data"]["conversation"]["id"], conversation["id"])
+        # گفت‌وگوی تازه تاریخچه‌ی قبلی را به مدل نمی‌فرستد
+        res, gateway = self.ask("یک موضوعِ دیگر")
+        second = res.json()["data"]["conversation"]["id"]
+        self.assertNotEqual(second, conversation["id"])
+        self.assertNotIn("CONVERSATION SO FAR", gateway.bodies[0]["messages"][0]["content"])
+        self.assertEqual(AssistantConversation.objects.count(), 2)
+        # بی‌پیش‌فرض آخرین گفت‌وگو؛ «new» خالی
+        latest = self.api.get(f"/api/v1/parent/assistant/{self.kid.id}").json()["data"]
+        self.assertEqual((latest["conversation"]["id"], len(latest["messages"])), (second, 2))
+        self.assertEqual(latest["history"], {"locked": True, "count": 2})
+        empty = self.api.get(f"/api/v1/parent/assistant/{self.kid.id}?c=new").json()["data"]
+        self.assertEqual((empty["conversation"], empty["messages"]), (None, []))
+        # بی‌اشتراک: تاریخچه قفل و گفت‌وگوی قبلی بسته
+        listing = self.api.get(f"/api/v1/parent/assistant/{self.kid.id}/conversations").json()["data"]
+        self.assertEqual((listing["locked"], listing["count"], listing["items"]), (True, 2, []))
+        old = self.api.get(f"/api/v1/parent/assistant/{self.kid.id}?c={conversation['id']}")
+        self.assertEqual((old.status_code, old.json()["error"]["reason"]), (403, "history-locked"))
+        # با اشتراک: فهرست و بازکردنِ قبلی
+        gift_subscription(child=self.kid, days=30, granted_by=self.admin)
+        listing = self.api.get(f"/api/v1/parent/assistant/{self.kid.id}/conversations").json()["data"]
+        self.assertEqual([(c["id"], c["messages"]) for c in listing["items"]], [(second, 2), (conversation["id"], 4)])
+        old = self.api.get(f"/api/v1/parent/assistant/{self.kid.id}?c={conversation['id']}").json()["data"]
+        self.assertEqual(len(old["messages"]), 4)
+        # پاک کردنِ یکی
+        self.api.delete(f"/api/v1/parent/assistant/{self.kid.id}?c={conversation['id']}")
+        self.assertEqual(list(AssistantConversation.objects.values_list("id", flat=True)), [second])
+        # گفت‌وگوی والدِ دیگر پیدا نمی‌شود
+        stranger_conv = AssistantConversation.objects.create(parent=self.other, child=self.kid, title="x")
+        self.assertEqual(self.api.get(f"/api/v1/parent/assistant/{self.kid.id}?c={stranger_conv.id}").status_code, 404)
 
     @override_settings(AI_ENABLED=False)
     def test_disabled(self):

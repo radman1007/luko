@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { HiOutlineChevronDown, HiOutlineEnvelope, HiOutlineGlobeAlt, HiOutlineHeart } from 'react-icons/hi2';
-import { BrandMark } from '@/components/ui/icons';
+import { LukoLogo } from '@/components/ui/LukoLogo/LukoLogo';
 import { TrustSeals } from './TrustSeals';
 import { useSettingsEnv } from './SettingsContext';
 import form from './form.module.css';
@@ -28,7 +28,7 @@ export function AboutPage() {
   return (
     <div className={styles.page}>
       <section className={styles.hero}>
-        <span className={styles.logo} aria-hidden><BrandMark size={30} /></span>
+        <span className={styles.logo} aria-hidden><LukoLogo height={30} /></span>
         <div>
           <h2>لوکو؛ شهری که بچه‌ها در آن با بازی یاد می‌گیرند</h2>
           <p>

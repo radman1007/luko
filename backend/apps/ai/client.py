@@ -20,17 +20,22 @@ from .models import AIUsage
 
 log = logging.getLogger(__name__)
 
-#: سطح‌ها از دیدِ والد. `premium` یعنی فقط با اشتراکِ همان فرزند
+#: سطح‌ها از دیدِ والد، به همین ترتیب در پنل. `premium` یعنی فقط با اشتراکِ همان فرزند. نامِ مدل به والد نشان داده
+#: نمی‌شود (۲۵ مهر ۱۴۰۵، به خواستِ کاربر: «لوکو سریع/همراه/بینش»)
 TIERS = {
-    "flash": {"label": "پایه", "name": "DeepSeek V4 Flash", "premium": False},
-    "pro": {"label": "حرفه‌ای", "name": "DeepSeek V4 Pro", "premium": True},
-    "luna": {"label": "پیشرفته", "name": "GPT-5.6 Luna", "premium": True},
+    "flash": {"label": "لوکو سریع", "note": "پاسخ‌های سریع و کاربردی برای سؤال‌های روزمره",
+              "name": "DeepSeek V4 Flash", "premium": False},
+    "luna": {"label": "لوکو همراه", "note": "راهنمایی دقیق‌تر و پیشنهادهای عملی برای همراهی با فرزندت",
+             "name": "GPT-5.6 Luna", "premium": True},
+    "pro": {"label": "لوکو بینش", "note": "بررسی عمیق‌تر موضوعات پیچیده و ارائه‌ی پیشنهادهای چندجانبه",
+            "name": "DeepSeek V4 Pro", "premium": True},
 }
 
 #: سقفِ توکنِ خروجی برای هر کار؛ Pro جای استدلال هم لازم دارد (آزمونِ ۲۲ مهر: تا ۴۱۰۰ توکن)
 MAX_TOKENS = {
     "insight": {"flash": 3000, "pro": 10000, "luna": 3000},
     "assistant": {"flash": 1000, "pro": 6000, "luna": 1000},
+    "painting": {"flash": 900, "pro": 6000, "luna": 900},
 }
 
 RETRY_STATUS = {429, 500, 502, 503, 504}
@@ -50,6 +55,8 @@ TIMEOUTS = {
     # هفته» ۳۷ تا ۷۳ ثانیه طول کشید (۲۴ مهر)، پس سقفِ تحلیل بازتر است
     "insight": {"flash": 60, "pro": 120, "luna": 90},
     "assistant": {"flash": 40, "pro": 80, "luna": 40},
+    # تحلیلِ نقاشی با تصویر (آزمونِ ۲۵ مهر روی سرور: Luna ۹ ثانیه، Flash ۴ ثانیه؛ Pro تصویر را نمی‌بیند)
+    "painting": {"flash": 40, "pro": 80, "luna": 60},
 }
 
 
@@ -90,16 +97,21 @@ def _post(body: dict, timeout: int) -> requests.Response:
 
 
 def complete(tier: str, prompt: str, *, feature: str, temperature: float = 0.4, user=None, child=None,
-             timeout: int | None = None) -> Completion:
+             timeout: int | None = None, image: str | None = None) -> Completion:
     """
     یک پرسش به مدلِ این سطح. یک بار دوباره تلاش می‌کند (سقفِ درخواست، خطای موقتِ سرور، قطعیِ شبکه).
+    `image` (data URL) کنارِ متن می‌رود؛ Luna و Flash تصویر را می‌بینند، Pro نه.
     """
     if not enabled():
         raise AIError("disabled", "هوش مصنوعی خاموش است.")
     model = model_of(tier)
+    content = prompt if not image else [
+        {"type": "text", "text": prompt},
+        {"type": "image_url", "image_url": {"url": image}},
+    ]
     body = {
         "model": model,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": [{"role": "user", "content": content}],
         "max_tokens": MAX_TOKENS[feature][tier],
         "temperature": temperature,
         **EXTRA_BODY.get(tier, {}),

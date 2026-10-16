@@ -8,9 +8,12 @@ from .models import BreathingSession, MoodCheckin, Painting, Secret
 
 
 class MoodCheckinSerializer(serializers.ModelSerializer):
+    # زمانِ ثبت روی دستگاه (Date.now())؛ همان که در luko_last_mood_time هم‌رسان می‌شود
+    at = serializers.IntegerField(required=False, write_only=True, min_value=0)
+
     class Meta:
         model = MoodCheckin
-        fields = ["id", "mood", "created_at"]
+        fields = ["id", "mood", "at", "created_at"]
         read_only_fields = ["id", "created_at"]
 
 

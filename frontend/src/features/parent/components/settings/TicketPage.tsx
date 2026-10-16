@@ -7,7 +7,7 @@ import {
   HiOutlineStar,
   HiStar,
 } from 'react-icons/hi2';
-import { BrandMark } from '@/components/ui/icons';
+import { LukoLogo } from '@/components/ui/LukoLogo/LukoLogo';
 import type { TicketDetail } from '../../settingsTypes';
 import { apiError } from '../../settingsApi';
 import { useCloseTicket, useRateTicket, useReplyTicket, useTicket } from '../../useSettings';
@@ -88,7 +88,7 @@ function TicketView({ ticket }: { ticket: TicketDetail }) {
         <ol>
           {ticket.thread.map((message) => (
             <li key={message.id} data-staff={message.fromStaff || undefined}>
-              {message.fromStaff && <span className={styles.staffMark} aria-hidden><BrandMark size={16} /></span>}
+              {message.fromStaff && <span className={styles.staffMark} aria-hidden><LukoLogo height={11} /></span>}
               <div className={styles.bubble}>
                 <span className={styles.sender}>{message.fromStaff ? 'پشتیبانیِ لوکو' : 'شما'}</span>
                 <p>{message.body}</p>
