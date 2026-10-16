@@ -53,7 +53,7 @@ export function SettingsPage({ section, id }: Props) {
       break;
     case 'support':
       title = 'پشتیبانی و تیکت‌ها';
-      note = 'پرسش‌های پرتکرار، تیکت و گفتگوی آنلاین';
+      note = 'پرسش‌های پرتکرار و تیکت';
       body = <SupportPage />;
       break;
     case 'newticket':

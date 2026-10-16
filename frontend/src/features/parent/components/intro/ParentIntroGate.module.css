@@ -8,6 +8,7 @@
   inset: 0;
   z-index: 1000;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   place-items: center;
   padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
   background:
@@ -74,7 +75,7 @@
   width: 100%;
   max-height: min(58dvh, 520px);
   object-fit: contain;
-  pointer-events: none;
+  cursor: pointer;
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -102,8 +103,7 @@
   font-size: 12px;
 }
 
-.message button,
-.soundButton {
+.message button {
   border: 0;
   border-radius: 12px;
   padding: 9px 14px;
@@ -115,23 +115,90 @@
   cursor: pointer;
 }
 
-.footer {
-  margin-top: 14px;
+.messageRow { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+
+.message .messageGhost {
+  background: rgb(255 255 255 / 10%);
+  border: 1px solid rgb(255 255 255 / 18%);
 }
 
-.progressTrack {
-  height: 7px;
-  overflow: hidden;
+/* ── نوارِ پخش: پخش/مکث، جای پخش (راست‌به‌چپ، مثلِ پخش‌کننده‌های دیگرِ پنل)، زمان و صدا ── */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.iconButton {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 10%);
+  color: #f8fafc;
+  cursor: pointer;
+}
+
+.iconButton svg { width: 20px; height: 20px; }
+
+/* پهنای پایه‌ی صفر: پهنای پیش‌فرضِ range (حدودِ ۱۳۰px) کمینه‌ی ردیف را بالا می‌برد و روی گوشیِ ۳۲۰px کارت از صفحه
+   بیرون می‌زد */
+.seek {
+  --p: 0%;
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+}
+
+.seek::-webkit-slider-runnable-track {
+  height: 6px;
   border-radius: 999px;
-  background: rgb(148 163 184 / 22%);
+  background: linear-gradient(to left, #60a5fa 0, #22d3ee var(--p), rgb(148 163 184 / 26%) var(--p));
 }
 
-.progressTrack span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #60a5fa, #22d3ee);
-  transition: width 0.15s linear;
+.seek::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to left, #60a5fa 0, #22d3ee var(--p), rgb(148 163 184 / 26%) var(--p));
+}
+
+.seek::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -5px;
+  border: 2px solid #0f172a;
+  border-radius: 50%;
+  background: #f8fafc;
+  appearance: none;
+}
+
+.seek::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #0f172a;
+  border-radius: 50%;
+  background: #f8fafc;
+}
+
+.seek:disabled { cursor: default; opacity: 0.5; }
+
+.time {
+  flex-shrink: 0;
+  min-width: 74px;
+  color: #cbd5e1;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
 .footerRow {
@@ -139,16 +206,34 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 9px;
+  margin-top: 10px;
   color: #cbd5e1;
   font-size: 11px;
   font-weight: 700;
 }
 
-.soundButton {
+.skipButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   flex-shrink: 0;
+  padding: 9px 14px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 12px;
   background: rgb(255 255 255 / 10%);
-  border: 1px solid rgb(255 255 255 / 14%);
+  color: #f8fafc;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* «جلو» در راست‌به‌چپ رو به چپ است */
+.skipButton svg { width: 17px; height: 17px; transform: scaleX(-1); }
+
+.iconButton:focus-visible, .skipButton:focus-visible, .seek:focus-visible, .message button:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
 }
 
 @media (max-width: 520px) {

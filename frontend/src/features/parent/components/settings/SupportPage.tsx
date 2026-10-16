@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   HiOutlineChatBubbleLeftRight,
-  HiOutlineChatBubbleOvalLeftEllipsis,
   HiOutlineChevronDown,
   HiOutlineChevronLeft,
   HiOutlinePlus,
@@ -9,8 +8,6 @@ import {
   HiOutlineTicket,
 } from 'react-icons/hi2';
 import { CrownIcon } from '@/components/ui/icons';
-import { openGoftino } from '@/features/support/goftino';
-import { useGoftinoReady } from '@/features/support/useGoftinoReady';
 import type { TicketStatus, TicketSummary } from '../../settingsTypes';
 import { useTicketList } from '../../useSettings';
 import { fa } from '../health/moods';
@@ -50,12 +47,11 @@ const FAQ: { q: string; a: string }[] = [
   },
 ];
 
-/** پشتیبانی: پرسش‌های پرتکرار، گفتگوی آنلاین، تیکتِ تازه و فهرستِ تیکت‌ها */
+/** پشتیبانی: پرسش‌های پرتکرار، تیکتِ تازه و فهرستِ تیکت‌ها */
 export function SupportPage() {
   const env = useSettingsEnv();
   const [tab, setTab] = useState<TicketStatus | ''>('');
   const query = useTicketList(tab || undefined, !env.guest);
-  const liveChat = useGoftinoReady();
   const data = env.guest ? GUEST_TICKETS : query.data;
   const items = env.guest ? GUEST_TICKETS.items.filter((t) => !tab || t.status === tab) : (query.data?.items ?? []);
   const counts = data?.counts;
@@ -65,7 +61,7 @@ export function SupportPage() {
       <section className={styles.hero}>
         <div className={styles.heroText}>
           <h2>چطور کمکتان کنیم؟</h2>
-          <p>تیکت بزنید تا پاسخِ دقیق و ماندگار بگیرید، یا برای سؤالِ کوتاه با ما گفتگو کنید.</p>
+          <p>تیکت بزنید تا تیمِ پشتیبانی پاسخِ دقیق بدهد؛ جوابِ سؤال‌های پرتکرار هم همین‌جاست.</p>
           {data?.priority ? (
             <span className={styles.priority} data-on><CrownIcon size={14} strokeWidth={2.2} aria-hidden /> تیکت‌های شما در اولویتِ پاسخ‌اند</span>
           ) : (
@@ -78,11 +74,6 @@ export function SupportPage() {
           <button type="button" className={form.primary} onClick={() => env.open('newticket')}>
             <HiOutlinePlus aria-hidden /> تیکتِ تازه
           </button>
-          {liveChat && (
-            <button type="button" className={form.ghost} onClick={openGoftino}>
-              <HiOutlineChatBubbleOvalLeftEllipsis aria-hidden /> گفتگوی آنلاین
-            </button>
-          )}
         </div>
       </section>
 

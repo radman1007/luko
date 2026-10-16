@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { ReactNode, SyntheticEvent } from 'react';
-import { useCoverGoftino } from '@/features/support/useCoverGoftino';
+import type { CSSProperties, ReactNode, SyntheticEvent } from 'react';
+import { HiMiniPause, HiMiniPlay, HiOutlineForward, HiOutlineSpeakerWave, HiOutlineSpeakerXMark } from 'react-icons/hi2';
 import styles from './ParentIntroGate.module.css';
 
 const VIDEO_VERSION = 'v1';
@@ -38,51 +38,57 @@ function rememberAsked(viewerId: string): void {
 
 /**
  * حالتِ دروازه:
- * `locked` بارِ اول و اجباری · `prompt` پرسشِ ورودهای بعدی ·
+ * `first` بارِ اول (خودکار باز می‌شود) · `prompt` پرسشِ ورودهای بعدی ·
  * `replay` تماشای دلخواه · `off` پنل باز است.
  */
-type Mode = 'locked' | 'prompt' | 'replay' | 'off';
+type Mode = 'first' | 'prompt' | 'replay' | 'off';
 
 function hasWatched(viewerId: string): boolean {
   try {
     return localStorage.getItem(watchedKey(viewerId)) === '1';
   } catch {
-    // اگر storage در دسترس نبود، حالت امن این است که ویدیو دوباره پخش شود.
+    // اگر storage در دسترس نبود، حالت امن این است که ویدیو دوباره نشان داده شود.
     return false;
   }
 }
 
 function initialMode(viewerId: string): Mode {
-  if (!hasWatched(viewerId)) return 'locked';
+  if (!hasWatched(viewerId)) return 'first';
   return askedThisSession(viewerId) ? 'off' : 'prompt';
+}
+
+/** «۱:۰۵» با رقمِ فارسی */
+function clock(seconds: number): string {
+  const total = Number.isFinite(seconds) && seconds > 0 ? Math.floor(seconds) : 0;
+  const text = `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+  return text.replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
 }
 
 /**
  * دروازه‌ی ورود به پنل والدین.
  *
- * بارِ اول اجباری است: هیچ دکمه‌ی بستن یا ردکردنی ندارد و فقط رویداد طبیعی
- * `ended` قفل را باز می‌کند. از ورودِ بعدی فقط **پرسیده** می‌شود که آیا
- * می‌خواهد ویدیوی آشنایی را ببیند؛ آن نسخه آزاد است — کنترل دارد، قابلِ
- * بستن است و هر لحظه می‌شود رهایش کرد.
- * مهمان و کاربر واقعی هر دو از همین مسیر رد می‌شوند؛ کلید viewer باعث می‌شود هر
- * حساب روی این دستگاه فقط یک بار نسخه‌ی فعلی ویدیو را کامل ببیند.
+ * بارِ اول ویدیوی آشنایی خودکار باز می‌شود. والد با نوارِ پخش جلو و عقب می‌رود، مکث می‌کند یا «رد کردن» می‌زند؛
+ * پایانِ ویدیو یا رد کردن پنل را باز می‌کند و دیگر خودکار نمی‌آید. از ورودِ بعدی فقط **پرسیده** می‌شود که
+ * می‌خواهد دوباره ببیند یا نه (همان پخش‌کننده، با دکمه‌ی بستن).
+ * مهمان و کاربر واقعی هر دو از همین مسیر رد می‌شوند؛ کلیدِ viewer یعنی هر حساب روی این دستگاه فقط یک بار
+ * نسخه‌ی فعلیِ ویدیو را خودکار می‌بیند.
  */
 export function ParentIntroGate({ viewerId, children }: Props) {
   const [mode, setMode] = useState<Mode>(() => initialMode(viewerId));
-  const required = mode === 'locked';
-  useCoverGoftino(mode !== 'off');
+  const first = mode === 'first';
+  const watching = first || mode === 'replay';
   const [needsInteraction, setNeedsInteraction] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
   const [muted, setMuted] = useState(true);
-  const [progress, setProgress] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [current, setCurrent] = useState(0);
+  const [duration, setDuration] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const furthestTimeRef = useRef(0);
-  const completedRef = useRef(false);
   const storageKey = useMemo(() => watchedKey(viewerId), [viewerId]);
 
   const play = useCallback(async () => {
     const video = videoRef.current;
-    if (!video || completedRef.current) return;
+    if (!video) return;
     try {
       await video.play();
       setNeedsInteraction(false);
@@ -96,69 +102,59 @@ export function ParentIntroGate({ viewerId, children }: Props) {
     setMode(initialMode(viewerId));
     setNeedsInteraction(false);
     setLoadFailed(false);
-    setProgress(0);
-    furthestTimeRef.current = 0;
-    completedRef.current = false;
+    setCurrent(0);
   }, [viewerId]);
 
+  // پشتِ پنجره اسکرول نشود؛ Escape فقط تماشای دلخواه را می‌بندد
   useEffect(() => {
-    if (!required) return undefined;
-
+    if (!watching) return undefined;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-
-    const keepLocked = (event: KeyboardEvent) => {
-      if (['Escape', ' ', 'ArrowLeft', 'ArrowRight', 'MediaPlayPause'].includes(event.key)) {
-        event.preventDefault();
-      }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && mode === 'replay') setMode('off');
     };
-    const resumeWhenVisible = () => {
-      if (document.visibilityState === 'visible') void play();
-    };
-
-    window.addEventListener('keydown', keepLocked, { capture: true });
-    document.addEventListener('visibilitychange', resumeWhenVisible);
-    void play();
-
+    window.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', keepLocked, { capture: true });
-      document.removeEventListener('visibilitychange', resumeWhenVisible);
+      window.removeEventListener('keydown', onKey);
     };
-  }, [play, required]);
+  }, [watching, mode]);
 
-  const onTimeUpdate = (event: SyntheticEvent<HTMLVideoElement>) => {
-    const video = event.currentTarget;
-    furthestTimeRef.current = Math.max(furthestTimeRef.current, video.currentTime);
-    if (Number.isFinite(video.duration) && video.duration > 0) {
-      setProgress(Math.min(100, (video.currentTime / video.duration) * 100));
-    }
-  };
-
-  const preventSeeking = (event: SyntheticEvent<HTMLVideoElement>) => {
-    const video = event.currentTarget;
-    if (video.currentTime > furthestTimeRef.current + 0.35) {
-      video.currentTime = furthestTimeRef.current;
-    }
-  };
-
-  const preventPause = (event: SyntheticEvent<HTMLVideoElement>) => {
-    if (!event.currentTarget.ended && !completedRef.current) void play();
-  };
-
-  const preventSpeedChange = (event: SyntheticEvent<HTMLVideoElement>) => {
-    if (event.currentTarget.playbackRate !== 1) event.currentTarget.playbackRate = 1;
-  };
-
-  const finish = () => {
-    completedRef.current = true;
+  /** پایانِ ویدیو یا «رد کردن»: پنل باز می‌شود و ویدیو دیگر خودکار نمی‌آید */
+  const finish = useCallback(() => {
+    videoRef.current?.pause();
     try {
       localStorage.setItem(storageKey, '1');
     } catch {
-      // نبودن storage نباید کاربر را بعد از تماشای کامل داخل مودال نگه دارد.
+      // نبودن storage نباید کاربر را پشتِ ویدیو نگه دارد.
     }
-    setProgress(100);
+    rememberAsked(viewerId);
     setMode('off');
+  }, [storageKey, viewerId]);
+
+  const close = useCallback(() => {
+    videoRef.current?.pause();
+    setMode('off');
+  }, []);
+
+  const toggle = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) void play();
+    else video.pause();
+  };
+
+  const seek = (value: number) => {
+    const video = videoRef.current;
+    if (!video || !Number.isFinite(value)) return;
+    video.currentTime = Math.min(Math.max(0, value), duration || video.duration || 0);
+    setCurrent(video.currentTime);
+  };
+
+  const onTime = (event: SyntheticEvent<HTMLVideoElement>) => {
+    const video = event.currentTarget;
+    setCurrent(video.currentTime);
+    if (Number.isFinite(video.duration) && video.duration > 0) setDuration(video.duration);
   };
 
   /** پاسخِ والد به پرسشِ ورودهای بعدی */
@@ -168,17 +164,10 @@ export function ParentIntroGate({ viewerId, children }: Props) {
       setMode('off');
       return;
     }
-    setProgress(0);
-    furthestTimeRef.current = 0;
-    completedRef.current = false;
+    setCurrent(0);
     setLoadFailed(false);
     setNeedsInteraction(false);
     setMode('replay');
-  };
-
-  const closeReplay = () => {
-    videoRef.current?.pause();
-    setMode('off');
   };
 
   const retry = () => {
@@ -186,14 +175,15 @@ export function ParentIntroGate({ viewerId, children }: Props) {
     if (!video) return;
     setLoadFailed(false);
     setNeedsInteraction(false);
-    furthestTimeRef.current = 0;
     video.load();
     void play();
   };
 
+  const percent = duration ? Math.min(100, (current / duration) * 100) : 0;
+
   return (
     <>
-      <div className={required ? styles.panelBlocked : undefined} aria-hidden={required || undefined}>
+      <div className={first ? styles.panelBlocked : undefined} aria-hidden={first || undefined}>
         {children}
       </div>
 
@@ -219,22 +209,22 @@ export function ParentIntroGate({ viewerId, children }: Props) {
         </div>
       )}
 
-      {(required || mode === 'replay') && (
+      {watching && (
         <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="parent-intro-title">
           <div className={styles.card}>
             {mode === 'replay' && (
-              <button type="button" className={styles.closeReplay} onClick={closeReplay} aria-label="بستن">
+              <button type="button" className={styles.closeReplay} onClick={close} aria-label="بستن">
                 ×
               </button>
             )}
             <div className={styles.heading}>
               <span className={styles.badge}>راهنمای کوتاه</span>
               <h1 id="parent-intro-title">
-                {required ? 'قبل از ورود به پنل، این ویدیو را کامل ببینید' : 'ویدیوی آشنایی با لوکو'}
+                {first ? 'پیش از شروع، این ویدیوی کوتاه را ببینید' : 'ویدیوی آشنایی با لوکو'}
               </h1>
               <p>
-                {required
-                  ? 'پس از پایان ویدیو، پنل والدین به‌صورت خودکار باز می‌شود.'
+                {first
+                  ? 'با پایانِ ویدیو پنل باز می‌شود. می‌توانید جلو و عقب بروید یا ردش کنید.'
                   : 'هر وقت خواستید می‌توانید ببندیدش.'}
               </p>
             </div>
@@ -248,20 +238,19 @@ export function ParentIntroGate({ viewerId, children }: Props) {
                 muted={muted}
                 playsInline
                 preload="auto"
-                // تماشای دلخواه قفل ندارد: کنترل دارد و هر لحظه می‌شود رهایش کرد
-                controls={mode === 'replay'}
-                disablePictureInPicture={required}
-                controlsList={required ? 'nodownload noplaybackrate noremoteplayback nofullscreen' : 'nodownload'}
+                disablePictureInPicture
+                controlsList="nodownload noremoteplayback"
                 onContextMenu={(event) => event.preventDefault()}
+                onClick={toggle}
+                onLoadedMetadata={onTime}
                 onLoadedData={() => {
                   setLoadFailed(false);
                   void play();
                 }}
-                onTimeUpdate={onTimeUpdate}
-                onSeeking={required ? preventSeeking : undefined}
-                onPause={required ? preventPause : undefined}
-                onRateChange={required ? preventSpeedChange : undefined}
-                onEnded={required ? finish : closeReplay}
+                onTimeUpdate={onTime}
+                onPlay={() => setPlaying(true)}
+                onPause={() => setPlaying(false)}
+                onEnded={first ? finish : close}
                 onError={() => setLoadFailed(true)}
               />
 
@@ -269,7 +258,10 @@ export function ParentIntroGate({ viewerId, children }: Props) {
                 <div className={styles.message} role="alert">
                   <b>ویدیو بارگذاری نشد</b>
                   <span>اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.</span>
-                  <button type="button" onClick={retry}>تلاش دوباره</button>
+                  <div className={styles.messageRow}>
+                    <button type="button" onClick={retry}>تلاش دوباره</button>
+                    {first && <button type="button" className={styles.messageGhost} onClick={finish}>ورود به پنل</button>}
+                  </div>
                 </div>
               )}
 
@@ -281,30 +273,52 @@ export function ParentIntroGate({ viewerId, children }: Props) {
               )}
             </div>
 
-            <div className={styles.footer}>
-              {/* نوارِ پیشرفت مالِ حالتِ اجباری است؛ در تماشای دلخواه خودِ
-                  کنترل‌های ویدیو کارش را می‌کنند. */}
-              {required && (
-                <div className={styles.progressTrack} aria-label={`پیشرفت پخش ${Math.round(progress)} درصد`}>
-                  <span style={{ width: `${progress}%` }} />
-                </div>
-              )}
+            <div className={styles.controls}>
+              <button type="button" className={styles.iconButton} onClick={toggle}
+                aria-label={playing ? 'مکث' : 'پخش'}>
+                {playing ? <HiMiniPause aria-hidden /> : <HiMiniPlay aria-hidden />}
+              </button>
+              <input
+                type="range"
+                className={styles.seek}
+                min={0}
+                max={duration || 0}
+                step={0.1}
+                value={Math.min(current, duration || 0)}
+                disabled={!duration}
+                style={{ '--p': `${percent}%` } as CSSProperties}
+                onChange={(event) => seek(Number(event.target.value))}
+                aria-label="جای پخش"
+                aria-valuetext={`${clock(current)} از ${clock(duration)}`}
+              />
+              <span className={styles.time} aria-hidden>
+                {clock(current)} / {clock(duration)}
+              </span>
+              <button
+                type="button"
+                className={styles.iconButton}
+                aria-label={muted ? 'روشن کردن صدا' : 'قطع صدا'}
+                aria-pressed={!muted}
+                onClick={() => {
+                  const nextMuted = !muted;
+                  setMuted(nextMuted);
+                  if (videoRef.current) videoRef.current.muted = nextMuted;
+                  void play();
+                }}
+              >
+                {muted ? <HiOutlineSpeakerXMark aria-hidden /> : <HiOutlineSpeakerWave aria-hidden />}
+              </button>
+            </div>
+
+            {first && (
               <div className={styles.footerRow}>
-                <span>{required ? `${Math.round(progress).toLocaleString('fa-IR')}٪ دیده شده` : ''}</span>
-                <button
-                  type="button"
-                  className={styles.soundButton}
-                  onClick={() => {
-                    const nextMuted = !muted;
-                    setMuted(nextMuted);
-                    if (videoRef.current) videoRef.current.muted = nextMuted;
-                    void play();
-                  }}
-                >
-                  {muted ? 'روشن کردن صدا' : 'قطع صدا'}
+                <span>{`${Math.round(percent).toLocaleString('fa-IR')}٪ دیده شده`}</span>
+                <button type="button" className={styles.skipButton} onClick={finish}>
+                  رد کردن و ورود به پنل
+                  <HiOutlineForward aria-hidden />
                 </button>
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}

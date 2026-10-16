@@ -8,7 +8,6 @@ import {
   HiOutlineTrash,
 } from 'react-icons/hi2';
 import { CrownIcon } from '@/components/ui/icons';
-import { useCoverGoftino } from '@/features/support/useCoverGoftino';
 import type { AssistantMessage, AssistantThread, AssistantTier } from '../../assistantApi';
 import type { AiTier } from '../../types';
 import { Composer } from './Composer';
@@ -52,8 +51,6 @@ export function AssistantChat({
 }: Props) {
   const [confirmClear, setConfirmClear] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
-  // حبابِ پشتیبانی روی کادرِ پرسش می‌افتاد و دو گفت‌وگوی شناور کنارِ هم گیج‌کننده است؛ پشتیبانی در منو هست
-  useCoverGoftino(true);
   const tiers = thread.quota.tiers;
   const active = tiers.find((item) => item.key === tier) ?? tiers[0];
   const premium = thread.quota.premium;

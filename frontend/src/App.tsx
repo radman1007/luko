@@ -11,7 +11,6 @@ import { useSiteTimeDew } from '@/features/garden/useSiteTimeDew';
 import { startOfflineSync } from '@/features/games/pendingCompletions';
 import { startAccountSync } from '@/features/sync/accountSync';
 import { startPresence } from '@/features/activity/presence';
-import { GoftinoChat } from '@/features/support/GoftinoChat';
 
 export default function App() {
   useSiteTimeDew(); // شبنمِ «زمان حضور» در کل سایت جمع می‌شود
@@ -31,8 +30,6 @@ export default function App() {
         <AppErrorBoundary>
           <AuthProvider>
             <AppRouter />
-            {/* گفتگوی آنلاینِ پشتیبانی (گفتینو) — فقط در پنلِ والدین */}
-            <GoftinoChat />
           </AuthProvider>
         </AppErrorBoundary>
       </BrowserRouter>
