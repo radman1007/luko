@@ -122,6 +122,12 @@ def _fail(analysis: PaintingAnalysis, code: str) -> None:
     analysis.save(update_fields=["status", "error", "content", "updated_at"])
 
 
+def _tidy(text: str) -> str:
+    """پاک‌سازی + سرتیترهای پررنگ. آزمونِ ۲۵ مهر: Luna یک‌بار «۷ stroke» نوشت"""
+    text = re.sub(r"(?i)\bstrokes?\b", "خط", clean_reply(text))
+    return _bold_labels(text)
+
+
 def _bold_labels(text: str) -> str:
     """«آنچه در نقاشی دیده می‌شود: …» → «**آنچه در نقاشی دیده می‌شود:** …»"""
     for label in LABELS:
@@ -146,7 +152,7 @@ def analyze(analysis_id: int) -> PaintingAnalysis | None:
     try:
         result = client.complete(analysis.tier, painting_prompt(facts), feature="painting", user=analysis.parent,
                                  child=child, temperature=0.5, image=painting.image)
-        text = _bold_labels(clean_reply(result.text))
+        text = _tidy(result.text)
         if len(text) < 20:
             raise client.AIError("empty")
     except client.AIError as error:

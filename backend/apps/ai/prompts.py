@@ -169,8 +169,9 @@ Write a short, warm reading of the drawing for the parent, in Persian, in exactl
 «**آنچه در نقاشی دیده می‌شود:**» then one or two sentences describing only what is clearly visible (shapes,
 objects, people, a scene). If the image is unclear, almost empty or just scribbles, say that kindly and honestly;
 never invent details.
-«**رنگ‌ها و حس:**» then one or two sentences about the colours (colors = how many strokes with each colour) and
-the mood the child had logged (mood_logged); present any link between them only as a gentle possibility.
+«**رنگ‌ها و حس:**» then one or two sentences about which colours the child used most (colors = how many lines
+were drawn with each colour; in Persian call them «خط», never the English word "stroke", and do not list the numbers)
+and the mood the child had logged (mood_logged); present any link between them only as a gentle possibility.
 Then two or three lines starting with «• », each a simple thing the parent can do (for example: ask the child
 to tell the story of the drawing, praise their choices and effort, hang it somewhere they can see it).
 

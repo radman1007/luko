@@ -12,7 +12,7 @@ from apps.health.models import Painting
 from .test_flows import AI, AIFlowBase, FakeResponse, Gateway
 
 IMAGE = "data:image/jpeg;base64," + "Q" * 300
-READING = ("آنچه در نقاشی دیده می‌شود: دو قلب و یک خورشید.\nرنگ‌ها و حس: بیشتر آبی است و آن روز شاد بوده.\n"
+READING = ("آنچه در نقاشی دیده می‌شود: دو قلب و یک خورشید.\nرنگ‌ها و حس: بیشتر آبی است (۷ stroke) و آن روز شاد بوده.\n"
            "- از سارا بپرسید داستانش چیست\n- نقاشی را به دیوار بزنید")
 
 
@@ -59,6 +59,7 @@ class PaintingTests(AIFlowBase):
         self.assertEqual(analysis["status"], "done")
         self.assertTrue(analysis["content"].startswith("**آنچه در نقاشی دیده می‌شود:** دو قلب"))
         self.assertIn("\n• نقاشی را به دیوار بزنید", analysis["content"])
+        self.assertIn("(۷ خط)", analysis["content"])                    # واژه‌ی انگلیسیِ مدل جایگزین می‌شود
         self.assertEqual(AIUsage.objects.filter(feature="painting").count(), 1)
         # درخواستِ دوباره همان را نشان می‌دهد و مدل را صدا نمی‌زند
         res, gateway = self.request(Gateway())
