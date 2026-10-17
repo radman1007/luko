@@ -6,7 +6,7 @@ from .models import MoodCheckin, Painting, Secret
 from .serializers import (BreathingSessionSerializer, MoodCheckinSerializer,
                           PaintingCreateSerializer, PaintingImageSerializer,
                           PaintingSerializer, SecretSerializer)
-from .services import mood_prompt, record_device_mood
+from .services import mood_prompt, record_breathing, record_device_mood
 
 
 class MoodPromptView(APIView):
@@ -110,4 +110,4 @@ class BreathingSessionView(generics.ListCreateAPIView):
         return self.request.user.breathing_sessions.all()[:60]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        serializer.instance = record_breathing(self.request.user, **serializer.validated_data)

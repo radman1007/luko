@@ -17,7 +17,7 @@ from datetime import date, datetime, time, timedelta
 
 from django.utils import timezone
 
-from apps.club.models import MissionCompletion, MissionTemplate
+from apps.club.synced import sport_count
 from apps.common.fa import fa_date, fa_day, fa_digits, fa_time, to_jalali
 from apps.content.models import PodcastListen, VideoInteraction
 from apps.health.models import BreathingSession, MoodCheckin, Painting
@@ -336,8 +336,7 @@ def _interests(child, since: datetime, sessions: list, subject_of, paintings: li
             detail += f"؛ رنگِ محبوبش {color['label']}"
         found.append((len(paintings) * 1.5, {"key": "art", "kind": "art", "label": "نقاشی", "detail": detail}))
 
-    sport = MissionCompletion.objects.filter(
-        user=child, day__gte=since.date(), template__category=MissionTemplate.Category.SPORT).count()
+    sport = sport_count(child, timezone.localtime(since).date())
     if sport >= 2:
         found.append((sport * 1.5, {"key": "sport", "kind": "sport", "label": "ورزش و تحرک",
                                     "detail": f"{fa_digits(sport)} مأموریتِ ورزشی انجام داد"}))

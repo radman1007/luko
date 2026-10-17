@@ -20,6 +20,7 @@ from .serializers import (
     TrafficRuleSerializer,
     VideoSerializer,
 )
+from .services import record_listen
 
 
 def _day_index(total: int) -> int:
@@ -125,10 +126,7 @@ class PodcastListenView(APIView):
         except Podcast.DoesNotExist:
             return Response({"error": {"code": 404, "message": "پادکست پیدا نشد."}},
                             status=status.HTTP_404_NOT_FOUND)
-        PodcastListen.objects.create(
-            user=request.user, podcast=podcast,
-            seconds=serializer.validated_data.get("seconds", 0),
-        )
+        record_listen(request.user, podcast, serializer.validated_data.get("seconds", 0))
         return Response({"ok": True})
 
 

@@ -47,3 +47,10 @@ export const drawingsApi = {
     await apiClient.delete(`/paintings/${id}`);
   },
 };
+
+/** یک تمرینِ تنفسِ تمام‌شده — ورودیِ بخشِ سلامتِ پنلِ والد */
+export const breathingApi = {
+  async save(session: { cycles: number; seconds: number }): Promise<void> {
+    await apiClient.post('/breathing/sessions', session);
+  },
+};

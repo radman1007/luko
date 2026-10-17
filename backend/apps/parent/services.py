@@ -18,7 +18,7 @@ from django.utils import timezone
 
 from apps.common import cache as cache_keys
 from apps.common.cache import get_or_set
-from apps.club.models import MissionCompletion
+from apps.club.synced import mission_days
 from apps.common.fa import fa_date, fa_day, fa_digits, fa_time, to_jalali
 from apps.games.models import Book, Game, GameCompletion, GameEvent
 from apps.health.models import BreathingSession, MoodCheckin, Painting
@@ -265,7 +265,7 @@ def _streak(child) -> int:
     days = set(
         GameCompletion.objects.filter(user=child)
         .values_list("created_at__date", flat=True)
-    ) | set(MissionCompletion.objects.filter(user=child).values_list("day", flat=True))
+    ) | mission_days(child)
     if not days:
         return 0
     today = timezone.localdate()

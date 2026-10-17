@@ -83,3 +83,6 @@ class BreathingSessionSerializer(serializers.ModelSerializer):
         model = BreathingSession
         fields = ["id", "cycles", "seconds", "created_at"]
         read_only_fields = ["id", "created_at"]
+        # seconds=0 مالِ تمرینی است که فقط از راهِ هم‌رسانی رسیده (مدتش نامعلوم)؛ اپ همیشه مدت دارد
+        extra_kwargs = {"cycles": {"required": True, "min_value": 1, "max_value": 500},
+                        "seconds": {"required": True, "min_value": 1, "max_value": 6 * 3600}}

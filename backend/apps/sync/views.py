@@ -22,8 +22,8 @@ from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from apps.accounts.models import User
-from apps.health.services import SYNC_MOOD_KEY, SYNC_MOOD_TIME_KEY, record_synced_mood
 
+from .derived import record_from_sync
 from .models import KidData
 
 KEY_RE = re.compile(r"^[A-Za-z0-9_.:\-]{1,120}$")
@@ -99,8 +99,7 @@ class AccountSyncView(APIView):
             # دو دستگاه هم‌زمان کلیدِ تازه‌ای ساختند؛ دستگاه دوباره می‌خواند و می‌فرستد
             return _bad("هم‌زمان از جای دیگری نوشته شد؛ دوباره امتحان کن.", status.HTTP_409_CONFLICT)
 
-        if {row["key"] for row in applied} & {SYNC_MOOD_KEY, SYNC_MOOD_TIME_KEY}:
-            record_synced_mood(request.user)
+        record_from_sync(request.user, {row["key"] for row in applied})
         return Response({"applied": applied, "conflicts": conflicts})
 
     @staticmethod
