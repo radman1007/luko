@@ -1,7 +1,5 @@
-import { useRef } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
-import { HiOutlineMicrophone, HiOutlinePaperAirplane, HiOutlineStopCircle } from 'react-icons/hi2';
-import { useDictation } from './useDictation';
+import { HiOutlinePaperAirplane } from 'react-icons/hi2';
 import styles from './Composer.module.css';
 
 interface Props {
@@ -15,26 +13,19 @@ interface Props {
   /** کادرِ بزرگِ بالای صفحه (یک خط، گرد) یا کادرِ گفت‌وگو */
   variant?: 'hero' | 'chat';
   label?: string;
-  /** پیش از کادرِ نوشتن (دکمه‌ی انتخابِ مدل) */
-  leading?: ReactNode;
+  /** سمتِ چپِ کادر (دکمه‌ی انتخابِ مدل) */
+  end?: ReactNode;
 }
 
 /**
- * کادرِ پرسش: نوشتن، گفتن (اگر مرورگر بتواند) و فرستادن. روی لپ‌تاپ Enter می‌فرستد و Shift+Enter خطِ تازه است؛
- * روی گوشی کیبورد خودش خطِ تازه می‌زند.
+ * کادرِ پرسش: نوشتن و فرستادن. دکمه‌ی فرستادن سمتِ راست است تا شستِ کاربر زودتر به آن برسد و انتخابِ مدل سمتِ
+ * چپ (۲۶ مهر ۱۴۰۵، خواستِ کاربر؛ تایپِ صوتی هم فعلاً برداشته شد). روی لپ‌تاپ Enter می‌فرستد و Shift+Enter خطِ
+ * تازه است؛ روی گوشی کیبورد خودش خطِ تازه می‌زند.
  */
 export function Composer({
   value, onChange, onSend, placeholder, disabled = false, canSend, maxLength = 800, variant = 'chat', label = 'پرسش',
-  leading,
+  end,
 }: Props) {
-  const valueRef = useRef(value);
-  valueRef.current = value;
-  const dictation = useDictation((text) => {
-    if (!text) return;
-    const current = valueRef.current.trim();
-    onChange((current ? `${current} ${text}` : text).slice(0, maxLength));
-  });
-
   const onKey = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey && window.matchMedia('(pointer: fine)').matches) {
       event.preventDefault();
@@ -44,26 +35,15 @@ export function Composer({
 
   return (
     <div className={styles.wrap}>
-      <form className={styles.box} data-variant={variant} data-listening={dictation.listening || undefined}
+      <form className={styles.box} data-variant={variant}
         onSubmit={(event) => { event.preventDefault(); if (canSend) onSend(); }}>
-        {leading}
-        <textarea value={dictation.listening && dictation.interim ? `${value} ${dictation.interim}`.trim() : value}
-          maxLength={maxLength} rows={1} disabled={disabled} readOnly={dictation.listening} onKeyDown={onKey}
-          aria-label={label}
-          placeholder={dictation.listening ? 'در حالِ شنیدن… بگویید' : placeholder}
-          onChange={(event) => onChange(event.target.value)} />
-        {dictation.supported && (
-          <button type="button" className={styles.mic} disabled={disabled}
-            aria-label={dictation.listening ? 'پایانِ گفتن' : 'گفتنِ پرسش با صدا'} aria-pressed={dictation.listening}
-            onClick={() => (dictation.listening ? dictation.stop() : dictation.start())}>
-            {dictation.listening ? <HiOutlineStopCircle aria-hidden /> : <HiOutlineMicrophone aria-hidden />}
-          </button>
-        )}
         <button type="submit" className={styles.send} disabled={disabled || !canSend} aria-label="فرستادن">
           <HiOutlinePaperAirplane aria-hidden />
         </button>
+        <textarea value={value} maxLength={maxLength} rows={1} disabled={disabled} onKeyDown={onKey}
+          aria-label={label} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
+        {end}
       </form>
-      {dictation.error && <p className={styles.error} role="status">{dictation.error}</p>}
     </div>
   );
 }

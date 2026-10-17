@@ -67,7 +67,7 @@ export function WeekChart({ week }: Props) {
 
       <p className={styles.foot}>
         مجموع این هفته <b>{total.toLocaleString('fa-IR')} دقیقه</b> در{' '}
-        <b>{activeDays.toLocaleString('fa-IR')} روز</b> — عدد روی هر ستون، دقیقه‌های همان روز است.
+        <b>{activeDays.toLocaleString('fa-IR')} روز</b>. عدد روی هر ستون، دقیقه‌های همان روز است.
       </p>
     </>
   );

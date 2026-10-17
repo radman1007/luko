@@ -428,14 +428,14 @@ def _games(events, sessions, completions, games_meta, catalog, books) -> list[di
             "title": game.title if game else slug,
             "subject": book.subject if book else "عمومی",
             "subjectLabel": book.subject if book else "عمومی",
-            "book": book.title if book else "—",
+            "book": book.title if book else "",
             "attempts": bucket["starts"],
             "bestScore": bucket["best"] or accuracy,
             "accuracy": accuracy,
             "avgSeconds": round(bucket["ms"] / 1000 / bucket["sessions"]) if bucket["sessions"] else 0,
             "totalMinutes": round(bucket["ms"] / 60000),
             "hints": bucket["hints"],
-            "lastPlayedAt": fa_date(timezone.localtime(bucket["last"]).date()) if bucket["last"] else "—",
+            "lastPlayedAt": fa_date(timezone.localtime(bucket["last"]).date()) if bucket["last"] else "هنوز بازی نشده",
             "coins": coins_by_slug.get(slug, 0),
             "status": status,
         })
@@ -449,9 +449,9 @@ def _games(events, sessions, completions, games_meta, catalog, books) -> list[di
             "id": slug, "title": game.title,
             "subject": book.subject if book else "عمومی",
             "subjectLabel": book.subject if book else "عمومی",
-            "book": book.title if book else "—",
+            "book": book.title if book else "",
             "attempts": 0, "bestScore": 0, "accuracy": 0, "avgSeconds": 0,
-            "totalMinutes": 0, "hints": 0, "lastPlayedAt": "—", "coins": 0,
+            "totalMinutes": 0, "hints": 0, "lastPlayedAt": "هنوز بازی نشده", "coins": 0,
             "status": "untouched",
         })
     return out
@@ -537,7 +537,7 @@ def _insights(answers, events, games_meta, tags) -> list[dict]:
         out.append({
             "id": "hints", "tone": "tip",
             "title": f"در «{game.title if game else slug}» زیاد راهنمایی گرفته",
-            "body": f"{fa_digits(bucket['hints'])} بار راهنمایی خواسته است — یعنی مفهوم را کامل نگرفته، نه اینکه بی‌دقت باشد.",
+            "body": f"{fa_digits(bucket['hints'])} بار راهنمایی خواسته است؛ یعنی مفهوم را کامل نگرفته، نه اینکه بی‌دقت باشد.",
         })
     return out or [{
         "id": "steady", "tone": "good", "title": "روند یکنواخت است",

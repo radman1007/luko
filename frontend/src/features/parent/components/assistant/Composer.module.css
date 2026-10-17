@@ -15,8 +15,7 @@
 }
 
 .box:focus-within { border-color: var(--as-accent); box-shadow: 0 0 0 4px rgb(33 94 97 / 12%); }
-.box[data-variant='hero'] { border-radius: 999px; padding: 6px 6px 6px 8px; box-shadow: 0 10px 26px rgb(23 68 71 / 10%); }
-.box[data-listening] { border-color: #d0631f; box-shadow: 0 0 0 4px rgb(208 99 31 / 16%); }
+.box[data-variant='hero'] { border-radius: 999px; padding: 6px; box-shadow: 0 10px 26px rgb(23 68 71 / 10%); }
 
 .box textarea {
   flex: 1;
@@ -39,7 +38,7 @@
 /* راهنمای خالی یک خط بماند (روی گوشیِ باریک دو خط می‌شد و کادر را بلند می‌کرد) */
 .box textarea:placeholder-shown { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
-.mic,
+/* فرستادن سمتِ راست (اولِ سطر در راست‌به‌چپ) تا شستِ کاربر زودتر برسد؛ انتخابِ مدل سمتِ چپ */
 .send {
   display: grid;
   place-items: center;
@@ -47,32 +46,22 @@
   width: 42px;
   height: 42px;
   border-radius: 50%;
+  background: var(--as-accent);
+  color: #fff;
+  box-shadow: 0 6px 14px rgb(23 68 71 / 24%);
   cursor: pointer;
   transition: background 0.2s, transform 0.2s;
 }
 
-.mic { background: var(--pp-surface); color: #5b6068; }
-.mic[aria-pressed='true'] { background: #fcece1; color: #b04f12; animation: pulse 1.2s ease-in-out infinite; }
-.send { background: var(--as-accent); color: #fff; box-shadow: 0 6px 14px rgb(23 68 71 / 24%); }
 .send:not(:disabled):hover { background: var(--as-accent-dark); }
 .send:disabled { background: #b9d3d1; box-shadow: none; cursor: default; }
-.mic:disabled { opacity: 0.5; cursor: default; }
-.mic svg, .send svg { width: 20px; height: 20px; }
+.send svg { width: 20px; height: 20px; }
 /* هواپیمای کاغذی رو به چپ: جهتِ خواندن */
 .send svg { transform: scaleX(-1); }
-.mic:focus-visible, .send:focus-visible { outline: 2px solid var(--pp-blue); outline-offset: 2px; }
-
-.error { margin: 0; padding-inline: 10px; font-size: 11.5px; line-height: 1.8; color: #b04f12; }
-
-@keyframes pulse {
-  50% { box-shadow: 0 0 0 6px rgb(208 99 31 / 14%); }
-}
+.send:focus-visible { outline: 2px solid var(--pp-blue); outline-offset: 2px; }
 
 @media (max-width: 359px) {
   .box { gap: 4px; }
-  .mic, .send { width: 38px; height: 38px; }
+  .send { width: 38px; height: 38px; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .mic[aria-pressed='true'] { animation: none; }
-}

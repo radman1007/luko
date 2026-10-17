@@ -113,7 +113,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
     def get_book_title(self, obj) -> str:
         game = (self.context.get("games") or {}).get(obj.game_slug)
         book = (self.context.get("books") or {}).get(game.book_id) if game else None
-        return book.title if book else "—"
+        return book.title if book else ""
 
     def get_played(self, obj) -> bool:
         """آیا بچه همان روز این بازی را تمام کرد؟"""

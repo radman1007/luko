@@ -256,7 +256,7 @@ export function DashboardView({ report, analysis, childName, onGoDaily }: Props)
         {untouched.length > 0 && (
           <p className={styles.mNote}>
             <b>{untouched.length.toLocaleString('fa-IR')} درس هنوز شروع نشده:</b>{' '}
-            {untouched.map((item) => item.label).join('، ')} — روی این درس‌ها در مجموع{' '}
+            {untouched.map((item) => item.label).join('، ')}. روی این درس‌ها در مجموع{' '}
             {untouched.reduce((sum, item) => sum + item.gamesTotal, 0).toLocaleString('fa-IR')} بازی
             آمادهٔ شروع است.
           </p>

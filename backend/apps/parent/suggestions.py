@@ -124,7 +124,7 @@ def suggest_games(child, limit: int = SUGGESTION_COUNT) -> list[dict]:
         if covers_weak:
             score = 0
             topic_label = weak_label
-            why = f"{why} — و مبحثِ «{weak_label}» را تمرین می‌دهد"
+            why = f"{why} و مبحثِ «{weak_label}» را تمرین می‌دهد"
         elif game.slug not in done:
             score = 1
             topic_label = book.subject if book else "تازه"

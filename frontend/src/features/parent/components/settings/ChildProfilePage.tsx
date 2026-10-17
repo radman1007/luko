@@ -57,10 +57,10 @@ export function ChildProfilePage({ childId }: Props) {
     { icon: HiOutlineChartBar, label: 'گفتنِ حال', value: profile.stats.checkins },
   ];
   const details: [string, React.ReactNode][] = [
-    ['نام', profile.firstName || '—'],
-    ['نام خانوادگی', profile.lastName || '—'],
+    ['نام', profile.firstName || 'ثبت نشده'],
+    ['نام خانوادگی', profile.lastName || 'ثبت نشده'],
     ['پایه', profile.gradeLabel],
-    ['مدرسه', profile.school || '—'],
+    ['مدرسه', profile.school || 'ثبت نشده'],
     ['شماره‌ی ورود', <span key="p" dir="ltr">{profile.phone}</span>],
     ['نسبتِ شما', profile.relation || 'والد'],
     ['عضوِ لوکو از', profile.joinedFa],

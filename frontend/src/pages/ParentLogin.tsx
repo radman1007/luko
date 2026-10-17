@@ -446,7 +446,7 @@ export default function ParentLogin() {
         <div className={styles.showBody}>
           <h2>دنیای کودکتان را<br /><em>از نزدیک</em> دنبال کنید</h2>
           <p>
-            گزارش‌های لحظه‌ای یادگیری، پیشنهادهای هوشمندِ روزانه و دستیاری برای هر پرسش — در یک تجربه‌ی ساده و امن.
+            گزارش‌های لحظه‌ای یادگیری، پیشنهادهای هوشمندِ روزانه و دستیاری برای هر پرسش، در یک تجربه‌ی ساده و امن.
           </p>
 
           <div className={styles.preview}>
@@ -483,7 +483,7 @@ export default function ParentLogin() {
           </ul>
         </div>
 
-        <p className={styles.copy}>© لوکو — همراهِ یادگیریِ کودکان</p>
+        <p className={styles.copy}>© لوکو، همراهِ یادگیریِ کودکان</p>
       </aside>
     </main>
   );

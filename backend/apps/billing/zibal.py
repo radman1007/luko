@@ -25,8 +25,11 @@ from django.conf import settings
 log = logging.getLogger("luko.billing")
 
 #: سقفِ وصل شدن جدا از سقفِ پاسخ: gateway.zibal.ir دو نشانی دارد و با سقفِ یکسانِ ۱۵ ثانیه، درگاهِ در دسترس
-#: نبودن ۳۰ ثانیه طول می‌کشید — همان سقفِ درخواستِ پنل، پس والد به‌جای پیامِ روشن «انجام نشد» می‌دید
-CONNECT_TIMEOUT = 5
+#: نبودن ۳۰ ثانیه طول می‌کشید. ۲۶ مهر ۱۴۰۵ از سرور: گاهی بسته‌ی وصل شدن گم می‌شود و یک وصل ۱۰ ثانیه طول کشید
+#: (بقیه ۰٫۰۲ ثانیه)؛ «خرید اشتراک» برای والد معطلی بود. حالا سقفِ کوتاه و تا سه بار وصلِ تازه — وصلِ ناموفق هنوز
+#: به زیبال نرسیده، پس تکرارش امن است (خطای بعد از وصل تکرار نمی‌شود)
+CONNECT_TIMEOUT = 2
+CONNECT_ATTEMPTS = 3
 
 RESULT_OK = 100
 RESULT_ALREADY_VERIFIED = 201
@@ -92,13 +95,22 @@ def _post(path: str, payload: dict, *, ok: tuple[int, ...] = (RESULT_OK,)) -> di
     if not settings.ZIBAL_MERCHANT:
         raise ZibalError("کدِ پذیرنده‌ی زیبال تنظیم نشده است.")
     url = settings.ZIBAL_BASE_URL.rstrip("/") + path
-    try:
-        response = requests.post(url, json={"merchant": settings.ZIBAL_MERCHANT, **payload},
-                                 timeout=(CONNECT_TIMEOUT, settings.ZIBAL_TIMEOUT),
-                                 headers={"Accept": "application/json"})
-    except requests.RequestException as exc:
-        log.warning("zibal %s: network error %s", path, exc)
-        raise ZibalError("ارتباط با درگاه برقرار نشد.", transient=True) from exc
+    for attempt in range(1, CONNECT_ATTEMPTS + 1):
+        try:
+            response = requests.post(url, json={"merchant": settings.ZIBAL_MERCHANT, **payload},
+                                     timeout=(CONNECT_TIMEOUT, settings.ZIBAL_TIMEOUT),
+                                     headers={"Accept": "application/json"})
+            break
+        except requests.ConnectionError as exc:
+            # ConnectTimeout هم همین است؛ ReadTimeout نه (آن‌جا درخواست شاید رسیده باشد)
+            if attempt < CONNECT_ATTEMPTS and not isinstance(exc, requests.ReadTimeout):
+                log.info("zibal %s: connect attempt %s failed, retrying", path, attempt)
+                continue
+            log.warning("zibal %s: network error %s", path, exc)
+            raise ZibalError("ارتباط با درگاه برقرار نشد.", transient=True) from exc
+        except requests.RequestException as exc:
+            log.warning("zibal %s: network error %s", path, exc)
+            raise ZibalError("ارتباط با درگاه برقرار نشد.", transient=True) from exc
     if response.status_code >= 500 or response.status_code == 429:
         log.warning("zibal %s: HTTP %s %s", path, response.status_code, response.text[:200])
         raise ZibalError("درگاه موقتاً پاسخ نمی‌دهد.", transient=True)

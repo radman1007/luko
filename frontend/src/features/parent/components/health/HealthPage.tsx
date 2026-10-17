@@ -48,7 +48,7 @@ export function HealthPage({ report, childName, onUpgrade, paintings }: Props) {
           <h2>حالِ دقیقِ روزانه</h2>
           <p>
             {open
-              ? `حالِ ${childName} در بخش‌های روز، کنارِ درس‌ها و علاقه‌هایش — ${open.range}`
+              ? `حالِ ${childName} در بخش‌های روز، کنارِ درس‌ها و علاقه‌هایش، ${open.range}`
               : `حالِ ${childName} در بخش‌های روز، کنارِ درس‌ها و علاقه‌هایش`}
           </p>
         </div>
@@ -79,7 +79,7 @@ export function HealthPage({ report, childName, onUpgrade, paintings }: Props) {
       <p className={styles.privacy} data-area="privacy">
         <HiOutlineLockClosed aria-hidden />
         <span>
-          نوشته‌های «صندوقچه‌ی رازها» رمزنگاری شده‌اند و برای هیچ‌کس — از جمله شما — قابلِ دیدن نیستند.
+          نوشته‌های «صندوقچه‌ی رازها» رمزنگاری شده‌اند و برای هیچ‌کس، از جمله شما، قابلِ دیدن نیستند.
           این صفحه فقط از حال‌هایی ساخته می‌شود که {childName} خودش در لوکو گفته است.
         </span>
       </p>

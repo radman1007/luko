@@ -89,7 +89,7 @@ export function ReportsView({ report }: Props) {
             <div key={game.id} className={styles.game}>
               <div className={styles.gameTop}>
                 <b>{game.title}</b>
-                <span className={styles.chipPlain}>{game.book}</span>
+                {game.book && <span className={styles.chipPlain}>{game.book}</span>}
               </div>
               <div className={styles.gameGrid}>
                 <div>

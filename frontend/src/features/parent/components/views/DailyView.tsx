@@ -67,7 +67,7 @@ export function DailyView({
         <div className={styles.heroMeta}>
           <span className={styles.heroChip}>
             <HiOutlineCheckBadge aria-hidden />
-            مبحث: {top.topic || top.subject || '—'}
+            مبحث: {top.topic || top.subject || 'همه‌ی مبحث‌ها'}
           </span>
           <span className={styles.heroChip}>
             <HiOutlineClock aria-hidden />
@@ -106,7 +106,7 @@ export function DailyView({
         <p className={styles.current}>
           <HiOutlineCheckBadge aria-hidden />
           بازی {dayOffset === 0 ? 'امروزِ' : 'فردایِ'} {childName}: «{assignment.gameTitle}»
-          {assignment.played && <b> — انجام شد</b>}
+          {assignment.played && <b>، انجام شد</b>}
         </p>
       )}
 

@@ -105,7 +105,7 @@ function TicketView({ ticket }: { ticket: TicketDetail }) {
       {ticket.canRate && <RateCard ticket={ticket} />}
       {ticket.rating && (
         <p className={styles.rated}>
-          <HiStar aria-hidden /> امتیازِ شما: {fa(ticket.rating)} از ۵ — {RATING_TEXT[ticket.rating]}
+          <HiStar aria-hidden /> امتیازِ شما: {fa(ticket.rating)} از ۵، {RATING_TEXT[ticket.rating]}
           {ticket.ratingComment && <span>«{ticket.ratingComment}»</span>}
         </p>
       )}
@@ -169,7 +169,7 @@ function RateCard({ ticket }: { ticket: TicketDetail }) {
       <h3 id="rate-title">پاسخِ پشتیبانی چطور بود؟</h3>
       <div className={styles.stars} role="radiogroup" aria-label="امتیاز از ۱ تا ۵">
         {[1, 2, 3, 4, 5].map((n) => (
-          <button key={n} type="button" role="radio" aria-checked={stars === n} aria-label={`${fa(n)} — ${RATING_TEXT[n]}`}
+          <button key={n} type="button" role="radio" aria-checked={stars === n} aria-label={`${fa(n)}، ${RATING_TEXT[n]}`}
             data-on={n <= stars || undefined} onClick={() => setStars(n)}>
             {n <= stars ? <HiStar aria-hidden /> : <HiOutlineStar aria-hidden />}
           </button>

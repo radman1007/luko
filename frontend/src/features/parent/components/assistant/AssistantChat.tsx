@@ -189,7 +189,7 @@ export function AssistantChat(props: Props) {
           <div className={styles.empty}>
             <span className={styles.mascot} aria-hidden><LukoLogo height={34} /></span>
             <h2>سلام! درباره‌ی {childName} بپرس</h2>
-            <p>به داده‌های آموزشیِ این هفته‌اش وصلم — بر اساسِ عددهای واقعی جواب می‌دهم.</p>
+            <p>به داده‌های آموزشیِ این هفته‌اش وصلم و بر اساسِ عددهای واقعی جواب می‌دهم.</p>
             <div className={styles.suggestions}>
               {thread.suggestions.slice(0, 3).map((text) => (
                 <button key={text} type="button" disabled={!canSend && !guest} onClick={() => onAsk(text)}>
@@ -229,7 +229,7 @@ export function AssistantChat(props: Props) {
         <Composer variant="hero" value={draft} onChange={onDraft} onSend={() => onAsk(draft)}
           canSend={canSend && draft.trim().length > 1 && !over} disabled={pending || guest || !thread.enabled}
           maxLength={limit} placeholder={`درباره‌ی ${childName} بپرس…`} label={`پرسش درباره‌ی ${childName}`}
-          leading={(
+          end={(
             <button type="button" className={styles.tierButton} onClick={() => setTierSheet(true)}
               data-tone={active ? TIER_LOOK[active.key].tone : undefined}
               aria-label={`سطحِ پاسخ‌دهی: ${active?.label ?? ''}`}>

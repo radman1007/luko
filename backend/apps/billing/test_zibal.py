@@ -43,6 +43,10 @@ class FakeZibal:
         #: verify با این‌که پول آمده «پرداخت نشده» می‌گوید (خطای درگاه)
         self.verify_broken = False
         self.next_track = 3_000_000_000
+        #: این‌قدر وصلِ بعدی به درگاه نمی‌رسد (بسته‌ی گم‌شده)
+        self.connect_fail = 0
+        #: پاسخِ ساختِ پرداخت بعد از رسیدن گم می‌شود
+        self.lose_request = False
 
     # --- کارهای «خریدار» در صفحه‌ی بانک
     def pay(self, track):
@@ -53,7 +57,12 @@ class FakeZibal:
 
     def post(self, url, json=None, timeout=None, headers=None):
         path = url.split("gateway.zibal.ir")[-1]
+        if self.connect_fail:
+            self.connect_fail -= 1
+            raise requests.ConnectTimeout("lost syn")
         self.calls.append((path, json))
+        if self.lose_request and path == "/v1/request":
+            raise requests.ReadTimeout("lost answer")
         if self.down:
             raise requests.ConnectionError("down")
         if json.get("merchant") != MERCHANT:
@@ -285,6 +294,22 @@ class ZibalTests(TestCase):
         res = self.api.post("/api/v1/billing/checkout", {"childId": str(self.child.id), "plan": "monthly"},
                             format="json")
         self.assertEqual(res.status_code, 503)
+        self.assertEqual(len(self.zibal.calls), 3)                  # سه بار وصلِ تازه، بعد پیامِ روشن
+
+    def test_lost_connect_is_retried_quickly(self):
+        # ۲۶ مهر: گاهی وصل شدن به درگاه گم می‌شد و «خرید اشتراک» ده ثانیه می‌ماند
+        self.zibal.connect_fail = 2
+        payment, data = self.checkout()
+        self.assertTrue(payment.token)
+        self.assertEqual([path for path, _ in self.zibal.calls], ["/v1/request"])
+
+    def test_lost_answer_after_connect_is_not_repeated(self):
+        # درخواست به زیبال رسیده؛ تکرارش جلسه‌ی دوم می‌ساخت
+        self.zibal.lose_request = True
+        res = self.api.post("/api/v1/billing/checkout", {"childId": str(self.child.id), "plan": "monthly"},
+                            format="json")
+        self.assertEqual(res.status_code, 503)
+        self.assertEqual(len(self.zibal.calls), 1)
 
     @override_settings(ZIBAL_MERCHANT="")
     def test_missing_merchant_is_a_clear_error(self):

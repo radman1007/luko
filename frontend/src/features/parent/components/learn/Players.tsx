@@ -78,7 +78,7 @@ export function AudioPlayer({ src, start = 0, onProgress, onEnded }: PlayerProps
           onClick={() => setSpeed(SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length])}>
           {speed.toLocaleString('fa-IR')}×
         </button>
-        <span>{duration ? clock(duration) : '—'}</span>
+        <span>{duration ? clock(duration) : ''}</span>
       </div>
       {failed && <p className={styles.error} role="alert">پخش نشد؛ اتصالِ اینترنت را بررسی کنید و دوباره امتحان کنید.</p>}
     </div>

@@ -48,6 +48,12 @@ class TextTests(SimpleTestCase):
         self.assertEqual(clean("## **عالي** بود 😊 دقت 85%"), "عالی بود دقت ۸۵٪")
         self.assertEqual(clean("كتاب"), "کتاب")
 
+    def test_clean_drops_long_dashes(self):
+        # پنل خطِ تیره‌ی بلند میانِ متن ندارد (۲۶ مهر ۱۴۰۵)
+        self.assertEqual(clean("تمرکزش بهتر شد — جلسه‌ها بلندتر بود"), "تمرکزش بهتر شد، جلسه‌ها بلندتر بود")
+        self.assertEqual(clean("— روزی ده دقیقه\nبازی"), "روزی ده دقیقه\nبازی")
+        self.assertEqual(clean("خوب بود، — و ادامه"), "خوب بود، و ادامه")
+
     def test_numbers_of_the_facts_are_allowed(self):
         numbers = collect_numbers(FACTS)
         self.assertTrue({"28", "8", "44", "31", "16", "22"} <= numbers)

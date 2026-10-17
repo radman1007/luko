@@ -194,7 +194,7 @@ def start_checkout(parent: User, child: User, plan: Plan, *, host: str = "") -> 
     else:
         raise CheckoutError("ساختِ صورت‌حساب انجام نشد؛ دوباره تلاش کنید.", 500)
 
-    description = f"اشتراکِ {plan.title} لوکو — {name}"
+    description = f"اشتراکِ {plan.title} لوکو برای {name}"
     mobile = parent.phone if _MOBILE.match(parent.phone or "") else ""
     try:
         if gateway == Payment.Gateway.ZIBAL:

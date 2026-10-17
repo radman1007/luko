@@ -31,7 +31,7 @@ export function AiBadge({ ai, written = false, onDark = false }: Props) {
     <span className={styles.badge} data-tier={ai.tier} data-dark={onDark || undefined} title={detail}>
       <HiOutlineSparkles aria-hidden />
       تحلیلِ هوشمند
-      <span className={styles.hidden}>— {detail}</span>
+      <span className={styles.hidden}>، {detail}</span>
     </span>
   );
 }

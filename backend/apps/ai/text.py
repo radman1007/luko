@@ -59,6 +59,10 @@ def clean(text: str) -> str:
     out = text.replace("ي", "ی").replace("ك", "ک").replace("‏", "").replace("‎", "")
     out = _EMOJI.sub("", out)
     out = re.sub(r"\*\*|__|`+", "", out)
+    # خطِ تیره‌ی بلند میانِ جمله در پنل نمی‌آید (۲۶ مهر ۱۴۰۵، خواستِ کاربر): سرِ سطر حذف، میانِ متن «،»
+    out = re.sub(r"(?m)^[ \t]*—[ \t]*", "", out)
+    out = re.sub(r"[ \t]*—[ \t]*", "، ", out)
+    out = re.sub(r"،(\s*،)+", "،", out)
     out = re.sub(r"(?m)^\s{0,3}#{1,6}\s*", "", out)
     out = re.sub(r"[ \t]+", " ", out)
     out = re.sub(r"\n{3,}", "\n\n", out)

@@ -43,7 +43,7 @@ export function HoursChart({ hours }: Props) {
             <span
               key={hour}
               className={styles.slot}
-              title={`ساعت ${hour.toLocaleString('fa-IR')} — ${value.toLocaleString('fa-IR')} تعامل`}
+              title={`ساعت ${hour.toLocaleString('fa-IR')}: ${value.toLocaleString('fa-IR')} تعامل`}
             >
               {value > 0 && (
                 <i

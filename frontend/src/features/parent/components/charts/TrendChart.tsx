@@ -120,7 +120,7 @@ export function TrendChart({ points }: Props) {
           <>
             {change >= 0 ? 'رشد' : 'افت'}{' '}
             <b>{Math.abs(change).toLocaleString('fa-IR')} واحدی</b> نسبت به {first.label}
-            {segments.some((segment) => segment.gap) && ' — هفته‌های بدونِ بازی خط‌چین‌اند.'}
+            {segments.some((segment) => segment.gap) && '. هفته‌های بدونِ بازی خط‌چین‌اند.'}
           </>
         )}
       </p>

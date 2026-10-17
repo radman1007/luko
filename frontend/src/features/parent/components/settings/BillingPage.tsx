@@ -58,7 +58,8 @@ export function BillingPage() {
 
   const wanted = params.get('plan');
   const [selected, setSelected] = useState<string | null>(null);
-  const [confirm, setConfirm] = useState<string | null>(null);
+  /** پلنی که همین حالا به درگاهش می‌رویم (برای نوشته‌ی همان دکمه) */
+  const [paying, setPaying] = useState<string | null>(null);
   const [loginSheet, setLoginSheet] = useState(false);
   const checkout = useCheckout();
   const invoiceRef = useRef<HTMLElement>(null);
@@ -66,14 +67,12 @@ export function BillingPage() {
   const sorted = useMemo(() => [...plans].sort((a, b) => a.durationDays - b.durationDays), [plans]);
   const fallback = wanted ?? sub?.renewal?.planCode ?? plans.find((p) => p.savingPercent > 0)?.code ?? plans[0]?.code;
   const activePlan = plans.find((p) => p.code === (selected ?? fallback));
-  const target = plans.find((p) => p.code === confirm);
 
-  // از اعلانِ «رو به پایان» آمده: صورت‌حساب جلوی چشم؛ ?pay=1 یعنی «همین حالا پرداخت»
+  // از اعلانِ «رو به پایان» آمده: صورت‌حساب جلوی چشم (دکمه‌اش مستقیم به درگاه می‌رود)
   useEffect(() => {
     if (!sub || !wanted) return;
     invoiceRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
     if (params.get('pay') === '1') {
-      setConfirm(wanted);
       const next = new URLSearchParams(params);
       next.delete('pay');
       setParams(next, { replace: true });
@@ -82,14 +81,23 @@ export function BillingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sub?.childId]);
 
-  const openConfirm = (code: string) => {
+  /**
+   * «خرید»/«تمدید» مستقیم به درگاه می‌رود (۲۶ مهر ۱۴۰۵، خواستِ کاربر: برگه‌ی «تأیید و پرداخت» فقط معطلی بود؛
+   * پلن، مبلغ و فرزند همان روی دکمه و صورت‌حساب پیداست و درگاه هم مبلغ را پیش از پرداخت نشان می‌دهد).
+   */
+  const pay = (code: string) => {
     if (env.guest) {
       setLoginSheet(true);
       return;
     }
-    checkout.reset();
-    setConfirm(code);
+    if (checkout.isPending || checkout.isSuccess) return;
+    setPaying(code);
+    checkout.mutate({ childId: child!.id, plan: code });
   };
+  const going = checkout.isPending || checkout.isSuccess;
+  const payError = checkout.isError
+    ? <p className={form.error} role="alert">{apiMessage(checkout.error, 'رفتن به درگاه انجام نشد؛ دوباره تلاش کنید.')}</p>
+    : null;
 
   if (!child) {
     return (
@@ -136,7 +144,10 @@ export function BillingPage() {
               <div><dt>شروع از</dt><dd>{sub.status === 'active' ? sub.renewal.startsFromFa : 'امروز'}</dd></div>
               <div data-total><dt>مبلغ</dt><dd>{toman(sub.renewal.amountToman)}</dd></div>
             </dl>
-            <button type="button" className={form.primary} onClick={() => openConfirm(sub.renewal!.planCode)}>پرداخت و تمدید</button>
+            {paying === sub.renewal.planCode && payError}
+            <button type="button" className={form.primary} disabled={going} onClick={() => pay(sub.renewal!.planCode)}>
+              {going && paying === sub.renewal.planCode ? 'در حالِ انتقال به درگاه…' : 'پرداخت و تمدید'}
+            </button>
           </section>
         ) : (
           <section className={styles.compare} aria-labelledby="compare-title">
@@ -163,10 +174,12 @@ export function BillingPage() {
             );
           })}
         </div>
+        {activePlan && paying === activePlan.code && payError}
         {activePlan && (
-          <button type="button" className={form.primary} onClick={() => openConfirm(activePlan.code)}>
+          <button type="button" className={form.primary} disabled={going} onClick={() => pay(activePlan.code)}>
             <CrownIcon size={18} strokeWidth={2} aria-hidden />
-            {sub?.status === 'active' ? 'تمدید با' : 'خریدِ'} اشتراکِ {activePlan.title} · {toman(activePlan.priceToman)}
+            {going && paying === activePlan.code ? 'در حالِ انتقال به درگاه…'
+              : `${sub?.status === 'active' ? 'تمدید با' : 'خریدِ'} اشتراکِ ${activePlan.title}، ${toman(activePlan.priceToman)}`}
           </button>
         )}
         {sub?.status === 'active' && <p className={styles.hint}>تمدید پشتِ اشتراکِ فعلی می‌نشیند؛ روزهای باقی‌مانده از دست نمی‌رود.</p>}
@@ -194,24 +207,6 @@ export function BillingPage() {
         <TrustSeals />
       </div>
 
-      <Sheet open={Boolean(target)} title="تأیید و پرداخت" onClose={() => setConfirm(null)}>
-        {target && (
-          <div className={styles.confirm}>
-            <dl>
-              <div><dt>فرزند</dt><dd>{name}</dd></div>
-              <div><dt>پلن</dt><dd>اشتراکِ {target.title} · {faNumber(target.durationDays)} روز</dd></div>
-              <div><dt>شروع از</dt><dd>{sub?.status === 'active' ? sub.endsAtFa : 'امروز'}</dd></div>
-              <div data-total><dt>مبلغ</dt><dd>{toman(target.priceToman)}</dd></div>
-            </dl>
-            {checkout.isError && <p className={form.error} role="alert">{apiMessage(checkout.error, 'رفتن به درگاه انجام نشد؛ دوباره تلاش کنید.')}</p>}
-            <button type="button" className={form.primary} disabled={checkout.isPending || checkout.isSuccess}
-              onClick={() => checkout.mutate({ childId: child.id, plan: target.code })}>
-              {checkout.isPending || checkout.isSuccess ? 'در حالِ انتقال به درگاه…' : `پرداختِ ${toman(target.priceToman)}`}
-            </button>
-            <small>به درگاهِ امنِ زیبال می‌روید و بعد از پرداخت به همین پنل برمی‌گردید.</small>
-          </div>
-        )}
-      </Sheet>
 
       <Sheet open={loginSheet} title="ورود لازم است" onClose={() => setLoginSheet(false)}>
         <p className={styles.sheetText}>

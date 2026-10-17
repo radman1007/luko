@@ -32,7 +32,7 @@ export function AboutPage() {
         <div>
           <h2>لوکو؛ شهری که بچه‌ها در آن با بازی یاد می‌گیرند</h2>
           <p>
-            این پنل آینه‌ی همان مسیر برای شماست: چقدر تمرین کرد، کجا قوی است، کجا کمک لازم دارد و حالش چطور است —
+            این پنل آینه‌ی همان مسیر برای شماست: چقدر تمرین کرد، کجا قوی است، کجا کمک لازم دارد و حالش چطور است؛
             تا بدونِ سخت‌گیری، کنارش باشید.
           </p>
         </div>
@@ -62,7 +62,7 @@ export function AboutPage() {
         <ul className={styles.contact}>
           <li>
             <button type="button" onClick={() => env.open('support')}>
-              <HiOutlineEnvelope aria-hidden /> تیکتِ پشتیبانی — پاسخِ مکتوب و ماندگار
+              <HiOutlineEnvelope aria-hidden /> تیکتِ پشتیبانی: پاسخِ مکتوب و ماندگار
             </button>
           </li>
           <li>

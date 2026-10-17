@@ -19,8 +19,8 @@ export function SubscriptionBadge({ sub, childName, onClick }: Props) {
   const tone = !active ? 'free' : sub.expiringSoon ? 'warn' : 'active';
   const label = active ? `${faNumber(sub.daysLeft)} روز` : 'رایگان';
   const aria = active
-    ? `اشتراکِ ${sub.planTitle} ${childName}: ${faNumber(sub.daysLeft)} روز مانده — مشاهده و تمدید`
-    : `${childName} روی پلنِ رایگان است — مشاهده‌ی پلن‌های اشتراک`;
+    ? `اشتراکِ ${sub.planTitle} ${childName}: ${faNumber(sub.daysLeft)} روز مانده، مشاهده و تمدید`
+    : `${childName} روی پلنِ رایگان است، مشاهده‌ی پلن‌های اشتراک`;
 
   return (
     <button type="button" className={styles.badge} data-tone={tone} onClick={onClick} aria-label={aria}>

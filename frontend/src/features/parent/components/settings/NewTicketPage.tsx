@@ -69,7 +69,7 @@ export function NewTicketPage() {
         <h3 className={form.cardTitle}>۱. موضوع درباره‌ی چیست؟</h3>
         <div className={styles.categories} role="radiogroup" aria-label="دسته‌ی تیکت">
           {CATEGORIES.map(({ key, label, hint, icon: Icon }) => (
-            <button key={key} type="button" role="radio" aria-checked={category === key} aria-label={`${label} — ${hint}`}
+            <button key={key} type="button" role="radio" aria-checked={category === key} aria-label={`${label}: ${hint}`}
               data-active={category === key || undefined} onClick={() => setCategory(key)}>
               <Icon aria-hidden />
               <span><b>{label}</b><small>{hint}</small></span>

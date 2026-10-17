@@ -150,7 +150,7 @@ export function ChildAccountCard({ child, onDone }: Props) {
               {password.isLoading
                 ? '…'
                 : !password.data?.hasPassword
-                  ? '— هنوز رمزی ندارد —'
+                  ? 'هنوز رمزی ندارد'
                   : shown
                     ? password.data.password
                     : '•'.repeat(Math.min(password.data.password.length, 12))}

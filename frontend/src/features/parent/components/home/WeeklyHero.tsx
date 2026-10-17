@@ -75,7 +75,7 @@ export function WeeklyHero({ weekly, childName, ai, locked = false, onDetails, o
             </>
           ) : (
             <button type="button" className={styles.primary} onClick={onDetails}
-              aria-label={locked ? 'جزئیاتِ بیشتر — با اشتراک' : undefined}>
+              aria-label={locked ? 'جزئیاتِ بیشتر، با اشتراک' : undefined}>
               {locked && <HiOutlineLockClosed aria-hidden />}
               جزئیاتِ بیشتر
               {locked ? <small className={styles.lockTag}>ویژه‌ی اشتراک</small> : <HiOutlineArrowLeft aria-hidden />}

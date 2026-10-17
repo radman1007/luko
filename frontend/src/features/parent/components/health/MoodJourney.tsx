@@ -28,7 +28,7 @@ export function MoodJourney({ days, childName }: Props) {
   return (
     <section className={card.card} aria-labelledby="journey-title">
       <CardHead id="journey-title" icon={HiOutlineCalendarDays} title="سفرِ حالِ روز"
-        note={`هر بار که ${childName} حالش را گفت — هفت روزِ اخیر`} />
+        note={`هر بار که ${childName} حالش را گفت، در هفت روزِ اخیر`} />
 
       {/* تازه‌ترین روز اول (سمتِ راست) تا روی گوشی بی‌کشیدن دیده شود */}
       <div className={styles.days} role="tablist" aria-label="انتخابِ روز">

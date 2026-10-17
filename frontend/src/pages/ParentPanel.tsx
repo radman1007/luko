@@ -306,7 +306,7 @@ function AuthenticatedParentPanel() {
             {ALL_GRADES.map((grade) => (
               <option key={grade} value={grade} disabled={!openGrades.includes(grade)}>
                 {gradeName(grade)}
-                {!openGrades.includes(grade) ? ' — به‌زودی' : ''}
+                {!openGrades.includes(grade) ? ' (به‌زودی)' : ''}
               </option>
             ))}
           </select>

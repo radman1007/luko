@@ -35,7 +35,7 @@ export function ConceptLearningCard({ learning }: Props) {
       <div className={styles.stats}>
         <div className={styles.stat}>
           <small>موفقیت در اولین تلاش</small>
-          <b>{week.firstTry.asked ? `${fa(week.firstTry.rate)}٪` : '—'}</b>
+          <b>{week.firstTry.asked ? `${fa(week.firstTry.rate)}٪` : 'ثبت نشده'}</b>
           <span>
             {week.firstTry.asked
               ? `${fa(week.firstTry.asked)} سؤال در هفت روزِ اخیر`
